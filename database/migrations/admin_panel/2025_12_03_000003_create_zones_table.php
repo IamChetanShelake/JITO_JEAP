@@ -13,10 +13,14 @@ return new class extends Migration
     {
         Schema::connection('admin_panel')->create('zones', function (Blueprint $table) {
             $table->id();
+            $table->string('zone_head');
             $table->string('zone_name');
-            $table->string('code')->unique();
+            $table->string('code');
             $table->string('state');
+            $table->string('email')->unique();
+            $table->string('contact');
             $table->boolean('status')->default(true);
+            $table->boolean('show_hide')->default(true);
             $table->timestamps();
         });
     }

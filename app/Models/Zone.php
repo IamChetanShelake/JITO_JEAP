@@ -26,10 +26,14 @@ class Zone extends Model
      * @var array
      */
     protected $fillable = [
+        'zone_head',
         'zone_name',
         'code',
         'state',
-        'status'
+        'email',
+        'contact',
+        'status',
+        'show_hide'
     ];
 
     /**
@@ -39,15 +43,8 @@ class Zone extends Model
      */
     protected $casts = [
         'status' => 'boolean',
+        'show_hide' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-
-    /**
-     * Get the chapters for the zone.
-     */
-    public function chapters()
-    {
-        return $this->hasMany(Chapter::class);
-    }
 }

@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class ZoneController extends Controller
 {
     /**
-     * Display a listing of the zones.
+     * Display a listing of the resource.
      */
     public function index()
     {
@@ -17,7 +17,7 @@ class ZoneController extends Controller
     }
 
     /**
-     * Show the form for creating a new zone.
+     * Show the form for creating a new resource.
      */
     public function create()
     {
@@ -25,34 +25,40 @@ class ZoneController extends Controller
     }
 
     /**
-     * Store a newly created zone in storage.
+     * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'zone_head' => 'required|string|max:255',
             'zone_name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:admin_panel.zones,code',
-            'state' => 'required|string|max:255',
+            'code' => 'required|string|max:50',
+            'state' => 'required|string|max:100',
+            'email' => 'required|email|unique:admin_panel.zones,email',
+            'contact' => 'required|string|max:20',
             'status' => 'nullable|boolean',
+            'show_hide' => 'nullable|boolean',
         ]);
+
+        $validated['status'] = $request->has('status') ? 1 : 0;
+        $validated['show_hide'] = $request->has('show_hide') ? 1 : 0;
 
         Zone::create($validated);
 
         return redirect()->route('admin.zones.index')
-            ->with('success', 'Zone created successfully');
+            ->with('success', 'Zone added successfully');
     }
 
     /**
-     * Display the specified zone.
+     * Display the specified resource.
      */
     public function show(Zone $zone)
     {
-        $zone->load('chapters');
         return view('admin.zones.show', compact('zone'));
     }
 
     /**
-     * Show the form for editing the specified zone.
+     * Show the form for editing the specified resource.
      */
     public function edit(Zone $zone)
     {
@@ -60,16 +66,23 @@ class ZoneController extends Controller
     }
 
     /**
-     * Update the specified zone in storage.
+     * Update the specified resource in storage.
      */
     public function update(Request $request, Zone $zone)
     {
         $validated = $request->validate([
+            'zone_head' => 'required|string|max:255',
             'zone_name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:admin_panel.zones,code,' . $zone->id,
-            'state' => 'required|string|max:255',
+            'code' => 'required|string|max:50',
+            'state' => 'required|string|max:100',
+            'email' => 'required|email|unique:admin_panel.zones,email,' . $zone->id,
+            'contact' => 'required|string|max:20',
             'status' => 'nullable|boolean',
+            'show_hide' => 'nullable|boolean',
         ]);
+
+        $validated['status'] = $request->has('status') ? 1 : 0;
+        $validated['show_hide'] = $request->has('show_hide') ? 1 : 0;
 
         $zone->update($validated);
 
@@ -78,7 +91,7 @@ class ZoneController extends Controller
     }
 
     /**
-     * Remove the specified zone from storage.
+     * Remove the specified resource from storage.
      */
     public function destroy(Zone $zone)
     {

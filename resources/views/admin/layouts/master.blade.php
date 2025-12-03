@@ -33,7 +33,7 @@
             left: 0;
             height: 100vh;
             width: var(--sidebar-collapsed-width);
-            background: linear-gradient(135deg, var(--primary-color) 0%, #4a3fa5 100%);
+            background: #29235f;
             color: white;
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1000;
@@ -441,21 +441,39 @@
         <nav class="sidebar-nav">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() == 'admin.dashboard' ? 'active' : '' }}" href="{{ route('admin.home') }}">
+                    <a class="nav-link {{ Route::currentRouteName() == 'admin.home' ? 'active' : '' }}" href="{{ route('admin.home') }}">
                         <i class="fas fa-tachometer-alt"></i>
                         <span class="nav-text">Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() == 'admin.zones.index' ? 'active' : '' }}" href="{{ route('admin.zones.index') }}">
-                        <i class="fas fa-map-marked-alt"></i>
-                        <span class="nav-text">Zone Registration</span>
+                    <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.apex') ? 'active' : '' }}" href="{{ route('admin.apex.index') }}">
+                        <i class="fas fa-users"></i>
+                        <span class="nav-text">Apex Leadership</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() == 'admin.chapters.index' ? 'active' : '' }}" href="{{ route('admin.chapters.index') }}">
-                        <i class="fas fa-building"></i>
-                        <span class="nav-text">Chapter Registration</span>
+                    <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.committee') ? 'active' : '' }}" href="{{ route('admin.committee.index') }}">
+                        <i class="fas fa-user-tie"></i>
+                        <span class="nav-text">Working Committee</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.zones') ? 'active' : '' }}" href="{{ route('admin.zones.index') }}">
+                        <i class="fas fa-globe"></i>
+                        <span class="nav-text">Zone</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.chapters') ? 'active' : '' }}" href="{{ route('admin.chapters.index') }}">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span class="nav-text">Chapter</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.initiatives') ? 'active' : '' }}" href="{{ route('admin.initiatives.index') }}">
+                        <i class="fas fa-lightbulb"></i>
+                        <span class="nav-text">Initiatives</span>
                     </a>
                 </li>
                 <li class="nav-item">

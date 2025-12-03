@@ -23,11 +23,20 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Dashboard
     Route::get('/home', [AdminController::class, 'index'])->name('home');
     
+    // Apex Leadership Routes
+    Route::resource('apex', ApexLeadershipController::class);
+    
+    // Working Committee Routes
+    Route::resource('committee', WorkingCommitteeController::class);
+    
     // Zone Routes
     Route::resource('zones', ZoneController::class);
     
     // Chapter Routes
     Route::resource('chapters', ChapterController::class);
+    
+    // Initiative Routes
+    Route::resource('initiatives', InitiativeController::class);
 });
 
 // User Routes - Protected by auth and user middleware

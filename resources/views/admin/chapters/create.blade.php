@@ -1,23 +1,26 @@
 @extends('admin.layouts.master')
 
-@section('title', 'Create Chapter - JitoJeap Admin')
+@section('title', 'Add Chapter - JitoJeap Admin')
 
 @section('content')
+<div class="page-header mb-4">
+    <h1 class="page-title" style="color: #393185;">Add Chapter</h1>
+    <p class="page-subtitle">Add a new chapter</p>
+</div>
+
 <div class="section-card">
-    <div class="card-header">
-        <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i> Create New Chapter</h4>
-    </div>
-    <div class="card-body">
+    <div class="card-body p-4">
         <form action="{{ route('admin.chapters.store') }}" method="POST">
             @csrf
-            <div class="row">
-                <div class="col-md-6 mb-3">
+            
+            <div class="row g-3">
+                <div class="col-md-6">
                     <label for="zone_id" class="form-label">Select Zone <span class="text-danger">*</span></label>
                     <select class="form-select @error('zone_id') is-invalid @enderror" id="zone_id" name="zone_id" required>
                         <option value="">Select Zone</option>
                         @foreach($zones as $zone)
                             <option value="{{ $zone->id }}" {{ old('zone_id') == $zone->id ? 'selected' : '' }}>
-                                {{ $zone->zone_name }} ({{ $zone->code }})
+                                {{ $zone->zone_name }}
                             </option>
                         @endforeach
                     </select>
@@ -26,7 +29,16 @@
                     @enderror
                 </div>
 
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6">
+                    <label for="chapter_head" class="form-label">Chapter Head <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control @error('chapter_head') is-invalid @enderror" 
+                           id="chapter_head" name="chapter_head" value="{{ old('chapter_head') }}" required>
+                    @error('chapter_head')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-md-6">
                     <label for="chapter_name" class="form-label">Chapter Name <span class="text-danger">*</span></label>
                     <input type="text" class="form-control @error('chapter_name') is-invalid @enderror" 
                            id="chapter_name" name="chapter_name" value="{{ old('chapter_name') }}" required>
@@ -35,16 +47,7 @@
                     @enderror
                 </div>
 
-                <div class="col-md-6 mb-3">
-                    <label for="code" class="form-label">Code <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control @error('code') is-invalid @enderror" 
-                           id="code" name="code" value="{{ old('code') }}" required>
-                    @error('code')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6">
                     <label for="city" class="form-label">City <span class="text-danger">*</span></label>
                     <input type="text" class="form-control @error('city') is-invalid @enderror" 
                            id="city" name="city" value="{{ old('city') }}" required>
@@ -53,7 +56,7 @@
                     @enderror
                 </div>
 
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6">
                     <label for="pincode" class="form-label">Pincode <span class="text-danger">*</span></label>
                     <input type="text" class="form-control @error('pincode') is-invalid @enderror" 
                            id="pincode" name="pincode" value="{{ old('pincode') }}" required>
@@ -62,7 +65,7 @@
                     @enderror
                 </div>
 
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6">
                     <label for="state" class="form-label">State <span class="text-danger">*</span></label>
                     <input type="text" class="form-control @error('state') is-invalid @enderror" 
                            id="state" name="state" value="{{ old('state') }}" required>
@@ -71,40 +74,48 @@
                     @enderror
                 </div>
 
-                <div class="col-md-6 mb-3">
-                    <label for="chairman" class="form-label">Chairman <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control @error('chairman') is-invalid @enderror" 
-                           id="chairman" name="chairman" value="{{ old('chairman') }}" required>
-                    @error('chairman')
+                <div class="col-md-6">
+                    <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control @error('email') is-invalid @enderror" 
+                           id="email" name="email" value="{{ old('email') }}" required>
+                    @error('email')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div class="col-md-6 mb-3">
-                    <label for="contact_no" class="form-label">Contact No <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control @error('contact_no') is-invalid @enderror" 
-                           id="contact_no" name="contact_no" value="{{ old('contact_no') }}" required>
-                    @error('contact_no')
+                <div class="col-md-6">
+                    <label for="contact" class="form-label">Contact <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control @error('contact') is-invalid @enderror" 
+                           id="contact" name="contact" value="{{ old('contact') }}" required>
+                    @error('contact')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div class="col-md-12 mb-3">
-                    <div class="form-check">
+                <div class="col-md-6">
+                    <label class="form-label d-block">Status</label>
+                    <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="status" name="status" value="1" 
                                {{ old('status', true) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="status">
-                            Active Status
-                        </label>
+                        <label class="form-check-label" for="status">Active</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label d-block">Show/Hide</label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="show_hide" name="show_hide" value="1" 
+                               {{ old('show_hide', true) ? 'checked' : '' }}>
+                        <label class="form-check-label" for="show_hide">Show on website</label>
                     </div>
                 </div>
             </div>
 
-            <div class="d-flex gap-2 mt-4">
+            <div class="mt-4">
                 <button type="submit" class="btn btn-custom">
-                    <i class="fas fa-save me-2"></i> Create Chapter
+                    <i class="fas fa-save me-2"></i> Save Chapter
                 </button>
-                <a href="{{ route('admin.chapters.index') }}" class="btn btn-danger-custom">
+                <a href="{{ route('admin.chapters.index') }}" class="btn btn-secondary ms-2">
                     <i class="fas fa-times me-2"></i> Cancel
                 </a>
             </div>

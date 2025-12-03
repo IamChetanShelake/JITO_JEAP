@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class ChapterController extends Controller
 {
     /**
-     * Display a listing of the chapters.
+     * Display a listing of the resource.
      */
     public function index()
     {
@@ -18,7 +18,7 @@ class ChapterController extends Controller
     }
 
     /**
-     * Show the form for creating a new chapter.
+     * Show the form for creating a new resource.
      */
     public function create()
     {
@@ -27,30 +27,34 @@ class ChapterController extends Controller
     }
 
     /**
-     * Store a newly created chapter in storage.
+     * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'zone_id' => 'required|exists:admin_panel.zones,id',
+            'chapter_head' => 'required|string|max:255',
             'chapter_name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:admin_panel.chapters,code',
             'city' => 'required|string|max:255',
-            'pincode' => 'required|string|max:10',
+            'pincode' => 'required|string|max:20',
             'state' => 'required|string|max:255',
-            'chairman' => 'required|string|max:255',
-            'contact_no' => 'required|string|max:20',
+            'email' => 'required|email|unique:admin_panel.chapters,email',
+            'contact' => 'required|string|max:20',
             'status' => 'nullable|boolean',
+            'show_hide' => 'nullable|boolean',
         ]);
+
+        $validated['status'] = $request->has('status') ? 1 : 0;
+        $validated['show_hide'] = $request->has('show_hide') ? 1 : 0;
 
         Chapter::create($validated);
 
         return redirect()->route('admin.chapters.index')
-            ->with('success', 'Chapter created successfully');
+            ->with('success', 'Chapter added successfully');
     }
 
     /**
-     * Display the specified chapter.
+     * Display the specified resource.
      */
     public function show(Chapter $chapter)
     {
@@ -59,7 +63,7 @@ class ChapterController extends Controller
     }
 
     /**
-     * Show the form for editing the specified chapter.
+     * Show the form for editing the specified resource.
      */
     public function edit(Chapter $chapter)
     {
@@ -68,21 +72,25 @@ class ChapterController extends Controller
     }
 
     /**
-     * Update the specified chapter in storage.
+     * Update the specified resource in storage.
      */
     public function update(Request $request, Chapter $chapter)
     {
         $validated = $request->validate([
             'zone_id' => 'required|exists:admin_panel.zones,id',
+            'chapter_head' => 'required|string|max:255',
             'chapter_name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:admin_panel.chapters,code,' . $chapter->id,
             'city' => 'required|string|max:255',
-            'pincode' => 'required|string|max:10',
+            'pincode' => 'required|string|max:20',
             'state' => 'required|string|max:255',
-            'chairman' => 'required|string|max:255',
-            'contact_no' => 'required|string|max:20',
+            'email' => 'required|email|unique:admin_panel.chapters,email,' . $chapter->id,
+            'contact' => 'required|string|max:20',
             'status' => 'nullable|boolean',
+            'show_hide' => 'nullable|boolean',
         ]);
+
+        $validated['status'] = $request->has('status') ? 1 : 0;
+        $validated['show_hide'] = $request->has('show_hide') ? 1 : 0;
 
         $chapter->update($validated);
 
@@ -91,7 +99,7 @@ class ChapterController extends Controller
     }
 
     /**
-     * Remove the specified chapter from storage.
+     * Remove the specified resource from storage.
      */
     public function destroy(Chapter $chapter)
     {

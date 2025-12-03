@@ -27,14 +27,15 @@ class Chapter extends Model
      */
     protected $fillable = [
         'zone_id',
+        'chapter_head',
         'chapter_name',
-        'code',
         'city',
         'pincode',
         'state',
-        'chairman',
-        'contact_no',
-        'status'
+        'email',
+        'contact',
+        'status',
+        'show_hide'
     ];
 
     /**
@@ -44,6 +45,7 @@ class Chapter extends Model
      */
     protected $casts = [
         'status' => 'boolean',
+        'show_hide' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

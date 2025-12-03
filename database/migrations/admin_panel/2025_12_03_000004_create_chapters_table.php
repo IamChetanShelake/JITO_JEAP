@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::connection('admin_panel')->create('chapters', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('zone_id')->constrained('zones')->onDelete('cascade');
+            $table->unsignedBigInteger('zone_id');
+            $table->string('chapter_head');
             $table->string('chapter_name');
-            $table->string('code')->unique();
             $table->string('city');
             $table->string('pincode');
             $table->string('state');
-            $table->string('chairman');
-            $table->string('contact_no');
+            $table->string('email')->unique();
+            $table->string('contact');
             $table->boolean('status')->default(true);
+            $table->boolean('show_hide')->default(true);
             $table->timestamps();
         });
     }

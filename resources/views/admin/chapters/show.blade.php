@@ -1,75 +1,212 @@
 @extends('admin.layouts.master')
 
-@section('title', 'View Chapter - JitoJeap Admin')
+@section('title', 'Chapter Details - Admin')
+
+@section('styles')
+<style>
+    .detail-header {
+        background: linear-gradient(135deg, #393185, #5a4d9a);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px 15px 0 0;
+        margin-bottom: 0;
+    }
+
+    .detail-header h1 {
+        color: white;
+        margin-bottom: 0.5rem;
+        font-size: 1.75rem;
+    }
+
+    .detail-header .subtitle {
+        color: rgba(255,255,255,0.9);
+        font-size: 0.95rem;
+    }
+
+    .detail-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+        border: 1px solid #e0e0e0;
+    }
+
+    .detail-card-body {
+        padding: 2rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        padding: 1rem;
+        border-radius: 12px;
+        background: #f8f9fa;
+        border-left: 4px solid #393185;
+    }
+
+    .info-item i {
+        color: #393185;
+        margin-right: 0.5rem;
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 0.25rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0;
+    }
+
+    .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+
+    .status-indicator.active {
+        background: #e8f5e9;
+        color: #009846;
+    }
+
+    .status-indicator.inactive {
+        background: #ffebee;
+        color: #E31E24;
+    }
+
+    .status-indicator i {
+        font-size: 1rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .btn-custom {
+        background: #393185;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom:hover {
+        background: #2a226a;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(57, 49, 133, 0.3);
+    }
+
+    .btn-secondary {
+        background: #f0f0f0;
+        color: #333;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        border: 1px solid #e0e0e0;
+    }
+</style>
+@endsection
 
 @section('content')
-<div class="page-header mb-4">
-    <h1 class="page-title" style="color: #393185;">Chapter Details</h1>
-    <p class="page-subtitle">View chapter information</p>
-</div>
+<div class="detail-card">
+    <div class="detail-header">
+        <h1><i class="fas fa-book me-2"></i> Chapter Details</h1>
+        <p class="subtitle">Comprehensive chapter information and status</p>
+    </div>
 
-<div class="section-card">
-    <div class="card-body p-4">
-        <div class="row g-4">
-            <div class="col-md-6">
-                <label class="text-muted small">Zone</label>
-                <p class="fw-bold">{{ $chapter->zone->zone_name ?? 'N/A' }}</p>
+    <div class="detail-card-body">
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-map-marker-alt"></i> Zone</div>
+                <div class="info-value">{{ $chapter->zone->zone_name ?? 'N/A' }}</div>
             </div>
-            <div class="col-md-6">
-                <label class="text-muted small">Chapter Head</label>
-                <p class="fw-bold">{{ $chapter->chapter_head }}</p>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-user-tie"></i> Chapter Head</div>
+                <div class="info-value">{{ $chapter->chapter_head }}</div>
             </div>
-            <div class="col-md-6">
-                <label class="text-muted small">Chapter Name</label>
-                <p class="fw-bold">{{ $chapter->chapter_name }}</p>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-book"></i> Chapter Name</div>
+                <div class="info-value">{{ $chapter->chapter_name }}</div>
             </div>
-            <div class="col-md-6">
-                <label class="text-muted small">City</label>
-                <p class="fw-bold">{{ $chapter->city }}</p>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-city"></i> City</div>
+                <div class="info-value">{{ $chapter->city }}</div>
             </div>
-            <div class="col-md-6">
-                <label class="text-muted small">Pincode</label>
-                <p class="fw-bold">{{ $chapter->pincode }}</p>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-map-pin"></i> Pincode</div>
+                <div class="info-value">{{ $chapter->pincode }}</div>
             </div>
-            <div class="col-md-6">
-                <label class="text-muted small">State</label>
-                <p class="fw-bold">{{ $chapter->state }}</p>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-flag"></i> State</div>
+                <div class="info-value">{{ $chapter->state }}</div>
             </div>
-            <div class="col-md-6">
-                <label class="text-muted small">Email</label>
-                <p class="fw-bold">{{ $chapter->email }}</p>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-envelope"></i> Email</div>
+                <div class="info-value">{{ $chapter->email }}</div>
             </div>
-            <div class="col-md-6">
-                <label class="text-muted small">Contact</label>
-                <p class="fw-bold">{{ $chapter->contact }}</p>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-phone"></i> Contact</div>
+                <div class="info-value">{{ $chapter->contact }}</div>
             </div>
-            <div class="col-md-6">
-                <label class="text-muted small">Status</label>
-                <p>
-                    <span class="status-badge {{ $chapter->status ? 'active' : 'inactive' }}">
-                        {{ $chapter->status ? 'Active' : 'Inactive' }}
-                    </span>
-                </p>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-calendar-alt"></i> Created</div>
+                <div class="info-value">{{ $chapter->created_at->format('d M Y') }}</div>
             </div>
-            <div class="col-md-6">
-                <label class="text-muted small">Visibility</label>
-                <p>
-                    <span class="badge {{ $chapter->show_hide ? 'bg-success' : 'bg-secondary' }}">
-                        {{ $chapter->show_hide ? 'Visible' : 'Hidden' }}
-                    </span>
-                </p>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-clock"></i> Time</div>
+                <div class="info-value">{{ $chapter->created_at->format('h:i A') }}</div>
             </div>
-            <div class="col-md-6">
-                <label class="text-muted small">Created At</label>
-                <p>{{ $chapter->created_at->format('d M Y, h:i A') }}</p>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-power-off"></i> Status</div>
+                <div class="status-indicator {{ $chapter->status ? 'active' : 'inactive' }}">
+                    <i class="fas fa-circle {{ $chapter->status ? 'text-success' : 'text-danger' }}"></i>
+                    {{ $chapter->status ? 'Active' : 'Inactive' }}
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-eye"></i> Visibility</div>
+                <div class="status-indicator {{ $chapter->show_hide ? 'active' : 'inactive' }}">
+                    <i class="fas fa-circle {{ $chapter->show_hide ? 'text-success' : 'text-warning' }}"></i>
+                    {{ $chapter->show_hide ? 'Visible' : 'Hidden' }}
+                </div>
             </div>
         </div>
 
-        <div class="mt-4">
-            <a href="{{ route('admin.chapters.edit', $chapter) }}" class="btn btn-custom">
-                <i class="fas fa-edit me-2"></i> Edit
+        <div class="action-buttons">
+            <a href="{{ route('admin.chapters.edit', $chapter) }}" class="btn-custom">
+                <i class="fas fa-edit me-2"></i> Edit Chapter
             </a>
-            <a href="{{ route('admin.chapters.index') }}" class="btn btn-secondary ms-2">
+            <a href="{{ route('admin.chapters.index') }}" class="btn-secondary">
                 <i class="fas fa-arrow-left me-2"></i> Back to List
             </a>
         </div>

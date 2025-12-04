@@ -2,66 +2,201 @@
 
 @section('title', 'View Zone - JitoJeap Admin')
 
-@section('content')
-<div class="page-header mb-4">
-    <h1 class="page-title" style="color: #E31E24;">Zone Details</h1>
-    <p class="page-subtitle">View zone information</p>
-</div>
+@section('styles')
+<style>
+    .detail-header {
+        background: linear-gradient(135deg, #E31E24, #ff5252);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px 15px 0 0;
+        margin-bottom: 0;
+    }
 
-<div class="section-card">
-    <div class="card-body p-4">
-        <div class="row g-4">
-            <div class="col-md-6">
-                <label class="text-muted small">Zone Head</label>
-                <p class="fw-bold">{{ $zone->zone_head }}</p>
+    .detail-header h1 {
+        color: white;
+        margin-bottom: 0.5rem;
+        font-size: 1.75rem;
+    }
+
+    .detail-header .subtitle {
+        color: rgba(255,255,255,0.9);
+        font-size: 0.95rem;
+    }
+
+    .detail-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+        border: 1px solid #e0e0e0;
+    }
+
+    .detail-card-body {
+        padding: 2rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        padding: 1rem;
+        border-radius: 12px;
+        background: #f8f9fa;
+        border-left: 4px solid #E31E24;
+    }
+
+    .info-item i {
+        color: #E31E24;
+        margin-right: 0.5rem;
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 0.25rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0;
+    }
+
+    .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+
+    .status-indicator.active {
+        background: #e8f5e9;
+        color: #009846;
+    }
+
+    .status-indicator.inactive {
+        background: #ffebee;
+        color: #E31E24;
+    }
+
+    .status-indicator i {
+        font-size: 1rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .btn-custom {
+        background: #E31E24;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom:hover {
+        background: #c61a1f;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(227, 30, 36, 0.3);
+    }
+
+    .btn-secondary {
+        background: #f0f0f0;
+        color: #333;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        border: 1px solid #e0e0e0;
+    }
+</style>
+@endsection
+
+@section('content')
+<div class="detail-card">
+    <div class="detail-header">
+        <h1><i class="fas fa-globe me-2"></i> Zone Details</h1>
+        <p class="subtitle">Comprehensive zone information and status</p>
+    </div>
+
+    <div class="detail-card-body">
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-user-tie"></i> Zone Head</div>
+                <div class="info-value">{{ $zone->zone_head }}</div>
             </div>
-            <div class="col-md-6">
-                <label class="text-muted small">Zone Name</label>
-                <p class="fw-bold">{{ $zone->zone_name }}</p>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-map-marker-alt"></i> Zone Name</div>
+                <div class="info-value">{{ $zone->zone_name }}</div>
             </div>
-            <div class="col-md-6">
-                <label class="text-muted small">Code</label>
-                <p class="fw-bold">{{ $zone->code }}</p>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-code"></i> Code</div>
+                <div class="info-value">{{ $zone->code }}</div>
             </div>
-            <div class="col-md-6">
-                <label class="text-muted small">State</label>
-                <p class="fw-bold">{{ $zone->state }}</p>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-flag"></i> State</div>
+                <div class="info-value">{{ $zone->state }}</div>
             </div>
-            <div class="col-md-6">
-                <label class="text-muted small">Email</label>
-                <p class="fw-bold">{{ $zone->email }}</p>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-envelope"></i> Email</div>
+                <div class="info-value">{{ $zone->email }}</div>
             </div>
-            <div class="col-md-6">
-                <label class="text-muted small">Contact</label>
-                <p class="fw-bold">{{ $zone->contact }}</p>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-phone"></i> Contact</div>
+                <div class="info-value">{{ $zone->contact }}</div>
             </div>
-            <div class="col-md-6">
-                <label class="text-muted small">Status</label>
-                <p>
-                    <span class="status-badge {{ $zone->status ? 'active' : 'inactive' }}">
-                        {{ $zone->status ? 'Active' : 'Inactive' }}
-                    </span>
-                </p>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-calendar-alt"></i> Created</div>
+                <div class="info-value">{{ $zone->created_at->format('d M Y') }}</div>
             </div>
-            <div class="col-md-6">
-                <label class="text-muted small">Visibility</label>
-                <p>
-                    <span class="badge {{ $zone->show_hide ? 'bg-success' : 'bg-secondary' }}">
-                        {{ $zone->show_hide ? 'Visible' : 'Hidden' }}
-                    </span>
-                </p>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-clock"></i> Time</div>
+                <div class="info-value">{{ $zone->created_at->format('h:i A') }}</div>
             </div>
-            <div class="col-md-6">
-                <label class="text-muted small">Created At</label>
-                <p>{{ $zone->created_at->format('d M Y, h:i A') }}</p>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-power-off"></i> Status</div>
+                <div class="status-indicator {{ $zone->status ? 'active' : 'inactive' }}">
+                    <i class="fas fa-circle {{ $zone->status ? 'text-success' : 'text-danger' }}"></i>
+                    {{ $zone->status ? 'Active' : 'Inactive' }}
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label"><i class="fas fa-eye"></i> Visibility</div>
+                <div class="status-indicator {{ $zone->show_hide ? 'active' : 'inactive' }}">
+                    <i class="fas fa-circle {{ $zone->show_hide ? 'text-success' : 'text-warning' }}"></i>
+                    {{ $zone->show_hide ? 'Visible' : 'Hidden' }}
+                </div>
             </div>
         </div>
 
-        <div class="mt-4">
-            <a href="{{ route('admin.zones.edit', $zone) }}" class="btn btn-custom">
-                <i class="fas fa-edit me-2"></i> Edit
+        <div class="action-buttons">
+            <a href="{{ route('admin.zones.edit', $zone) }}" class="btn-custom">
+                <i class="fas fa-edit me-2"></i> Edit Zone
             </a>
-            <a href="{{ route('admin.zones.index') }}" class="btn btn-secondary ms-2">
+            <a href="{{ route('admin.zones.index') }}" class="btn-secondary">
                 <i class="fas fa-arrow-left me-2"></i> Back to List
             </a>
         </div>

@@ -21,7 +21,7 @@
     }
 
     .add-btn {
-        background: #FBBA00;
+        background: linear-gradient(135deg, #FBBA00, #ffd740);
         color: white;
         border: none;
         padding: 0.75rem 1.5rem;
@@ -31,10 +31,11 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
+        box-shadow: 0 2px 8px rgba(251, 186, 0, 0.2);
     }
 
     .add-btn:hover {
-        background: #e6a800;
+        background: linear-gradient(135deg, #e6a600, #ffc107);
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(251, 186, 0, 0.3);
         color: white;
@@ -52,8 +53,8 @@
     }
 
     .table thead th {
-        background: #f8f9fa;
-        color: #666;
+        background: linear-gradient(135deg, #FBBA00, #ffd740);
+        color: white;
         font-weight: 600;
         font-size: 0.85rem;
         text-transform: uppercase;
@@ -73,6 +74,11 @@
     }
 
     .table tbody tr:hover {
+        background: #f8f9fa;
+        transition: background 0.2s ease;
+    }
+
+    .table tbody tr:hover td {
         background: #f8f9fa;
     }
 
@@ -148,6 +154,7 @@
         justify-content: center;
         margin: 0 0.25rem;
         transition: all 0.3s ease;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
     .action-btn.view-btn {
@@ -158,6 +165,7 @@
     .action-btn.view-btn:hover {
         background: #393185;
         color: white;
+        transform: scale(1.1);
     }
 
     .action-btn.edit-btn {
@@ -168,6 +176,7 @@
     .action-btn.edit-btn:hover {
         background: #FBBA00;
         color: white;
+        transform: scale(1.1);
     }
 
     .action-btn.delete-btn {
@@ -178,6 +187,46 @@
     .action-btn.delete-btn:hover {
         background: #E31E24;
         color: white;
+        transform: scale(1.1);
+    }
+
+    .table-header-icon {
+        margin-right: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .table-row-icon {
+        margin-right: 0.5rem;
+        color: #666;
+    }
+
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 12px;
+        font-weight: 500;
+    }
+
+    .badge-light {
+        background: #f8f9fa;
+        color: #333;
+        border: 1px solid #e0e0e0;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #e0e0e0;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+        color: #999;
+        font-size: 0.95rem;
     }
 </style>
 @endsection
@@ -185,7 +234,7 @@
 @section('content')
 <div class="page-header d-flex justify-content-between align-items-center">
     <div>
-        <h1 class="page-title">Working Committee</h1>
+        <h1 class="page-title"><i class="fas fa-user-tie me-2"></i> Working Committee</h1>
         <p class="page-subtitle">Department heads and committee leaders</p>
     </div>
     <a href="{{ route('admin.committee.create') }}" class="add-btn">
@@ -197,28 +246,29 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Seq</th>
-                <th>Name</th>
-                <th>Department</th>
-                <th>Designation</th>
-                <th>Email</th>
-                <th>Contact</th>
-                <th>Status</th>
-                <th>Show/Hide</th>
-                <th>Actions</th>
+                <th><i class="fas fa-hashtag table-header-icon"></i> Seq</th>
+                <th><i class="fas fa-user table-header-icon"></i> Name</th>
+                <th><i class="fas fa-building table-header-icon"></i> Department</th>
+                <th><i class="fas fa-id-badge table-header-icon"></i> Designation</th>
+                <th><i class="fas fa-envelope table-header-icon"></i> Email</th>
+                <th><i class="fas fa-phone table-header-icon"></i> Contact</th>
+                <th><i class="fas fa-power-off table-header-icon"></i> Status</th>
+                <th><i class="fas fa-eye table-header-icon"></i> Show/Hide</th>
+                <th><i class="fas fa-cog table-header-icon"></i> Actions</th>
             </tr>
         </thead>
         <tbody>
             @forelse($members as $index => $member)
             <tr>
                 <td>{{ $index + 1 }}</td>
-                <td><strong>{{ $member->name }}</strong></td>
-                <td>{{ $member->department }}</td>
-                <td>{{ $member->designation }}</td>
-                <td>{{ $member->email }}</td>
-                <td>{{ $member->contact }}</td>
+                <td><strong><i class="fas fa-user-circle table-row-icon"></i> {{ $member->name }}</strong></td>
+                <td><i class="fas fa-building table-row-icon"></i> {{ $member->department }}</td>
+                <td><i class="fas fa-id-badge table-row-icon"></i> {{ $member->designation }}</td>
+                <td><i class="fas fa-envelope table-row-icon"></i> {{ $member->email }}</td>
+                <td><i class="fas fa-phone table-row-icon"></i> {{ $member->contact }}</td>
                 <td>
                     <span class="status-badge {{ $member->status ? 'active' : 'inactive' }}">
+                        <i class="fas fa-circle {{ $member->status ? 'text-success' : 'text-danger' }} me-1"></i>
                         {{ $member->status ? 'Active' : 'Inactive' }}
                     </span>
                 </td>
@@ -238,7 +288,7 @@
                     <form action="{{ route('admin.committee.destroy', $member) }}" method="POST" style="display: inline;">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="action-btn delete-btn" title="Delete" 
+                        <button type="submit" class="action-btn delete-btn" title="Delete"
                                 onclick="return confirm('Are you sure you want to delete this member?')">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -247,7 +297,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="9" class="text-center py-5">
+                <td colspan="9" class="empty-state">
                     <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                     <p class="text-muted">No members found. Click "Add Committee Member" to get started.</p>
                 </td>

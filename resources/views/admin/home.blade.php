@@ -48,7 +48,7 @@
         margin-bottom: 1.5rem;
         display: flex;
         flex-wrap: wrap;
-        overflow-x: auto;
+        /* overflow-x: auto; */
     }
 
     .nav-tabs-custom .nav-item {
@@ -78,7 +78,7 @@
     .nav-tabs-custom .nav-link:hover {
         opacity: 0.9;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     /* Dashboard - Purple */
@@ -123,7 +123,7 @@
 
     .stat-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     }
 
     .stat-card-title {
@@ -239,7 +239,7 @@
 
     .status-badges {
         display: grid;
-        grid-template-columns: repeat(1, 1fr);
+        grid-template-columns: 1fr;
         gap: 0.75rem;
     }
 
@@ -250,6 +250,12 @@
         align-items: center;
         gap: 0.5rem;
         border: 1px solid;
+    }
+    /* Desktop large screens (1280px and above) */
+    @media (min-width: 1280px) {
+        .status-badges {
+            grid-template-columns: repeat(3, 1fr);
+        }
     }
 
     .status-badge.approved {
@@ -363,7 +369,9 @@
     }
 
     /* Touch-friendly interactive elements */
-    button, a, .tap-target {
+    button,
+    a,
+    .tap-target {
         min-width: 44px;
         min-height: 44px;
         display: inline-flex;
@@ -430,7 +438,9 @@
     }
 
     /* Responsive form layouts */
-    input, select, textarea {
+    input,
+    select,
+    textarea {
         width: 100%;
         padding: 0.75rem;
         border-radius: 8px;
@@ -443,7 +453,7 @@
         gap: 1rem;
     }
 
-    .form-row > * {
+    .form-row>* {
         flex: 1;
         min-width: 0;
     }
@@ -523,7 +533,7 @@
             gap: 1rem;
         }
 
-        .form-row > * {
+        .form-row>* {
             flex: 1;
         }
     }
@@ -536,6 +546,13 @@
             gap: 1.5rem;
         }
 
+        .status-badges {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    /* Desktop large screens (1280px and above) */
+    @media (min-width: 1280px) {
         .status-badges {
             grid-template-columns: repeat(3, 1fr);
         }
@@ -656,12 +673,12 @@
     <!-- Approval Sections -->
     <div class="row">
         <div class="col-lg-6">
-            <!-- Apex Leadership -->
+            <!-- Apex stage 1 -->
             <div class="approval-section">
                 <div class="approval-header">
                     <div class="approval-title apex-title">
                         <i class="fas fa-users"></i>
-                        Apex Leadership
+                        Apex Stage 1
                     </div>
                     <div class="approval-total">Total - 15</div>
                 </div>
@@ -670,30 +687,30 @@
                     <span>80%</span>
                 </div>
                 <div class="progress-custom">
-                    <div class="progress-bar-custom" style="width: 80%; background: linear-gradient(90deg, #4caf50, #66bb6a);"></div>
+                    <div class="progress-bar-custom" style="width: 80%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
                 </div>
-                <div class="status-badges">
+                 <div class="status-badges">
                     <div class="status-badge approved">
                         <div class="status-icon approved">
-                            <i class="far fa-check-circle"></i>
+                            <i class="fas fa-check"></i>
                         </div>
                         <div>
                             <div class="status-label">Approved</div>
-                            <div class="status-value">12</div>
+                            <div class="status-value">{{ \App\Models\Zone::where('status', true)->count() }}</div>
                         </div>
                     </div>
                     <div class="status-badge pending">
                         <div class="status-icon pending">
-                            <i class="far fa-clock"></i>
+                            <i class="fas fa-clock"></i>
                         </div>
                         <div>
                             <div class="status-label">Pending</div>
-                            <div class="status-value">2</div>
+                            <div class="status-value">1</div>
                         </div>
                     </div>
                     <div class="status-badge hold">
                         <div class="status-icon hold">
-                            <i class="far fa-exclamation-circle"></i>
+                            <i class="fas fa-exclamation"></i>
                         </div>
                         <div>
                             <div class="status-label">Hold</div>
@@ -703,12 +720,12 @@
                 </div>
             </div>
 
-            <!-- Zone -->
+            <!-- working committee -->
             <div class="approval-section">
                 <div class="approval-header">
                     <div class="approval-title zone-title">
                         <i class="fas fa-globe"></i>
-                        Zone
+                        Working Committee
                     </div>
                     <div class="approval-total">Total - 12</div>
                 </div>
@@ -717,7 +734,7 @@
                     <span>70%</span>
                 </div>
                 <div class="progress-custom">
-                    <div class="progress-bar-custom" style="width: 70%; background: linear-gradient(90deg, #4caf50, #66bb6a);"></div>
+                    <div class="progress-bar-custom" style="width: 70%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
                 </div>
                 <div class="status-badges">
                     <div class="status-badge approved">
@@ -750,12 +767,12 @@
                 </div>
             </div>
 
-            <!-- Initiatives -->
+            <!-- Accounts Department -->
             <div class="approval-section">
                 <div class="approval-header">
                     <div class="approval-title initiatives-title">
                         <i class="fas fa-lightbulb"></i>
-                        Initiatives
+                        Accounts Department
                     </div>
                     <div class="approval-total">Total - 14</div>
                 </div>
@@ -764,8 +781,7 @@
                     <span>80%</span>
                 </div>
                 <div class="progress-custom">
-                    <div class="progress-bar-custom" style="width: 80%; background: linear-gradient(90deg, #4caf50, #66bb6a);"></div>
-                </div>
+<div class="progress-bar-custom" style="width: 70%; background: linear-gradient(90deg, #495049, #6e796f);"></div>                </div>
                 <div class="status-badges">
                     <div class="status-badge approved">
                         <div class="status-icon approved">
@@ -799,12 +815,12 @@
         </div>
 
         <div class="col-lg-6">
-            <!-- Working Committee -->
+            <!-- chapter -->
             <div class="approval-section">
                 <div class="approval-header">
                     <div class="approval-title working-committee-title">
                         <i class="fas fa-user-tie"></i>
-                        Working Committee
+                        Chapter
                     </div>
                     <div class="approval-total">Total - 42</div>
                 </div>
@@ -813,7 +829,7 @@
                     <span>83%</span>
                 </div>
                 <div class="progress-custom">
-                    <div class="progress-bar-custom" style="width: 83%; background: linear-gradient(90deg, #4caf50, #66bb6a);"></div>
+                    <div class="progress-bar-custom" style="width: 83%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
                 </div>
                 <div class="status-badges">
                     <div class="status-badge approved">
@@ -846,12 +862,12 @@
                 </div>
             </div>
 
-            <!-- Chapter -->
+            <!-- apex stage 2 -->
             <div class="approval-section">
                 <div class="approval-header">
                     <div class="approval-title chapter-title">
                         <i class="fas fa-map-marker-alt"></i>
-                        Chapter
+                        Apex Stage 2
                     </div>
                     <div class="approval-total">Total - 10</div>
                 </div>
@@ -860,7 +876,7 @@
                     <span>75%</span>
                 </div>
                 <div class="progress-custom">
-                    <div class="progress-bar-custom" style="width: 75%; background: linear-gradient(90deg, #4caf50, #66bb6a);"></div>
+                    <div class="progress-bar-custom" style="width: 75%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
                 </div>
                 <div class="status-badges">
                     <div class="status-badge approved">
@@ -893,35 +909,55 @@
                 </div>
             </div>
 
-            <!-- Recent Applications -->
-            <div class="recent-applications">
-                <div class="recent-app-header">Recent Application</div>
-                <div class="recent-app-subtitle">Latest membership applications</div>
-
-                <div class="application-item">
-                    <div>
-                        <div class="app-name">Rajesh Jain</div>
-                        <div class="app-category">Apex Leadership</div>
+            <!-- Disbursement -->
+            <div class="approval-section">
+                <div class="approval-header">
+                    <div class="approval-title chapter-title">
+                        <!-- use pocet money icon  -->
+                        <i class="fas fa-money-bill-wave" style="color: #4caf50;"></i>
+                        <!-- use green color for the Disbursement text color and for to icon as well  -->
+                        <span style="color: #4caf50;">Disbursement</span>
                     </div>
-                    <div class="app-time">2 hours ago</div>
+                    <div class="approval-total">Total - 10</div>
                 </div>
-
-                <div class="application-item">
-                    <div>
-                        <div class="app-name">Manoj Mehta</div>
-                        <div class="app-category">Working Committee</div>
-                    </div>
-                    <div class="app-time">3 hours ago</div>
+                <div class="approval-rate">
+                    <span>Approval Rate</span>
+                    <span>75%</span>
                 </div>
-
-                <div class="application-item">
-                    <div>
-                        <div class="app-name">Kashish Patel</div>
-                        <div class="app-category">Zone Chapter</div>
+                <div class="progress-custom">
+                    <div class="progress-bar-custom" style="width: 75%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
+                </div>
+                <div class="status-badges">
+                    <div class="status-badge approved">
+                        <div class="status-icon approved">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div>
+                            <div class="status-label">Approved</div>
+                            <div class="status-value">{{ \App\Models\Chapter::where('status', true)->count() }}</div>
+                        </div>
                     </div>
-                    <div class="app-time">5 hours ago</div>
+                    <div class="status-badge pending">
+                        <div class="status-icon pending">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <div class="status-label">Pending</div>
+                            <div class="status-value">2</div>
+                        </div>
+                    </div>
+                    <div class="status-badge hold">
+                        <div class="status-icon hold">
+                            <i class="fas fa-exclamation"></i>
+                        </div>
+                        <div>
+                            <div class="status-label">Hold</div>
+                            <div class="status-value">2</div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>

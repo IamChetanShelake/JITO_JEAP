@@ -4,90 +4,156 @@
 
 @section('styles')
 <style>
-    /* Mobile-first base styles */
-    .container {
-        width: 100%;
-        padding: 0 1rem;
+    :root {
+        --primary-green: #4CAF50;
+        --primary-purple: #393185;
+        --primary-blue: #2196F3;
+        --primary-yellow: #FFC107;
+        --primary-red: #f44336;
+        --text-dark: #2c3e50;
+        --text-light: #7f8c8d;
+        --bg-light: #f8f9fa;
+        --border-color: #e9ecef;
     }
 
     .page-header {
-        margin-bottom: 1.5rem;
+        margin-bottom: 2rem;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
+        flex-direction: column;
         gap: 1rem;
     }
 
+    @media (min-width: 768px) {
+        .page-header {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+    }
+
+    .page-title-section {
+        display: flex;
+        flex-direction: column;
+    }
+
     .page-title {
-        font-size: clamp(1.5rem, 4vw, 1.75rem);
+        font-size: 1.5rem;
         font-weight: 600;
-        color: #393185;
-        margin-bottom: 0.5rem;
+        color: var(--primary-purple);
+        margin-bottom: 0.25rem;
+        display: flex;
+        align-items: center;
+    }
+
+    @media (min-width: 768px) {
+        .page-title {
+            font-size: 1.75rem;
+        }
     }
 
     .page-subtitle {
-        color: #666;
-        font-size: clamp(0.8rem, 2.5vw, 0.95rem);
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+
+    @media (min-width: 768px) {
+        .page-subtitle {
+            font-size: 0.95rem;
+        }
     }
 
     .add-btn {
-        background: linear-gradient(135deg, #009846, #4caf50);
+        background-color: var(--primary-purple);
         color: white;
         border: none;
-        padding: 0.75rem 1.5rem;
+        padding: 0.6rem 1.2rem;
         border-radius: 25px;
         font-weight: 500;
         transition: all 0.3s ease;
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 0.5rem;
-        box-shadow: 0 2px 8px rgba(0, 152, 70, 0.2);
-        min-height: 44px;
-        min-width: 44px;
+        box-shadow: 0 2px 8px rgba(57, 49, 133, 0.3);
+        width: 100%;
+        font-size: 0.9rem;
+    }
+
+    @media (min-width: 768px) {
+        .add-btn {
+            width: auto;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+        }
     }
 
     .add-btn:hover {
-        background: linear-gradient(135deg, #00b855, #66bb6a);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 152, 70, 0.3);
-        color: white;
+        background-color: #4a40a8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(57, 49, 133, 0.4);
     }
 
-    .data-table {
+    .add-btn i {
+        font-size: 0.9rem;
+    }
+
+    .card {
         background: white;
-        border-radius: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
         overflow: hidden;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .table-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .table-responsive {
         width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: var(--primary-green) transparent;
+    }
+
+    .table-responsive::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb {
+        background-color: var(--primary-purple);
+        border-radius: 3px;
     }
 
     .table {
-        margin-bottom: 0;
-        min-width: 600px;
         width: 100%;
+        min-width: 1000px;
+        margin-bottom: 0;
+        color: var(--text-dark);
     }
 
     .table thead th {
-        background: linear-gradient(135deg, #393185, #5a4d9a);
-        color: white;
-        font-weight: 600;
-        font-size: clamp(0.75rem, 2vw, 0.85rem);
+        background-color: var(--bg-light);
+        color: var(--text-light);
+        font-weight: 500;
+        font-size: 0.8rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        border: none;
-        padding: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+        padding: 1rem;
+        vertical-align: middle;
+        white-space: nowrap;
         position: sticky;
         top: 0;
-        z-index: 10;
     }
 
     .table tbody td {
-        padding: 0.75rem;
+        padding: 1rem;
         vertical-align: middle;
         border-bottom: 1px solid #f0f0f0;
+        color: #555;
+        font-size: 0.9rem;
     }
 
     .table tbody tr:last-child td {
@@ -95,37 +161,98 @@
     }
 
     .table tbody tr:hover {
-        background: #f8f9fa;
-        transition: background 0.2s ease;
+        background-color: #f8f9fa;
+        transition: background-color 0.2s ease;
     }
 
-    .table tbody tr:hover td {
-        background: #f8f9fa;
+    .initiative-name {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .initiative-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 0.8rem;
+        flex-shrink: 0;
     }
 
     .status-badge {
-        padding: 0.4rem 1rem;
+        padding: 0.35rem 0.8rem;
         border-radius: 20px;
-        font-size: clamp(0.75rem, 2vw, 0.85rem);
+        font-size: 0.8rem;
         font-weight: 500;
-        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
     }
 
-    .status-badge.active {
+    .status-active {
         background: #e8f5e9;
-        color: #009846;
+        color: var(--primary-green);
     }
 
-    .status-badge.inactive {
+    .status-inactive {
         background: #ffebee;
-        color: #E31E24;
+        color: var(--primary-red);
+    }
+
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 0.1rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+    .action-btn.view-btn {
+        background-color: #e3f2fd;
+        color: var(--primary-blue);
+    }
+
+    .action-btn.view-btn:hover {
+        background-color: var(--primary-blue);
+        color: white;
+    }
+
+    .action-btn.edit-btn {
+        background-color: #fff8e1;
+        color: var(--primary-yellow);
+    }
+
+    .action-btn.edit-btn:hover {
+        background-color: var(--primary-yellow);
+        color: white;
+    }
+
+    .action-btn.delete-btn {
+        background-color: #ffebee;
+        color: var(--primary-red);
+    }
+
+    .action-btn.delete-btn:hover {
+        background-color: var(--primary-red);
+        color: white;
     }
 
     .toggle-switch {
         position: relative;
         display: inline-block;
-        width: 50px;
-        height: 24px;
+        width: 40px;
+        height: 20px;
     }
 
     .toggle-switch input {
@@ -143,14 +270,14 @@
         bottom: 0;
         background-color: #ccc;
         transition: .4s;
-        border-radius: 24px;
+        border-radius: 20px;
     }
 
     .slider:before {
         position: absolute;
         content: "";
-        height: 18px;
-        width: 18px;
+        height: 14px;
+        width: 14px;
         left: 3px;
         bottom: 3px;
         background-color: white;
@@ -159,371 +286,165 @@
     }
 
     input:checked + .slider {
-        background-color: #393185;
+        background-color: var(--primary-purple);
     }
 
     input:checked + .slider:before {
-        transform: translateX(26px);
-    }
-
-    .action-btn {
-        width: 35px;
-        height: 35px;
-        border-radius: 8px;
-        border: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 0.25rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        min-width: 44px;
-        min-height: 44px;
-    }
-
-    .action-btn.view-btn {
-        background: #e8eaf6;
-        color: #393185;
-    }
-
-    .action-btn.view-btn:hover {
-        background: #393185;
-        color: white;
-        transform: scale(1.1);
-    }
-
-    .action-btn.edit-btn {
-        background: #fff8e1;
-        color: #FBBA00;
-    }
-
-    .action-btn.edit-btn:hover {
-        background: #FBBA00;
-        color: white;
-        transform: scale(1.1);
-    }
-
-    .action-btn.delete-btn {
-        background: #ffebee;
-        color: #E31E24;
-    }
-
-    .action-btn.delete-btn:hover {
-        background: #E31E24;
-        color: white;
-        transform: scale(1.1);
-    }
-
-    .table-header-icon {
-        margin-right: 0.5rem;
-        font-size: clamp(0.8rem, 2.5vw, 1rem);
-    }
-
-    .table-row-icon {
-        margin-right: 0.5rem;
-        color: #666;
-        font-size: clamp(0.8rem, 2.5vw, 1rem);
-    }
-
-    .badge {
-        font-size: clamp(0.7rem, 2vw, 0.85rem);
-        padding: 0.4rem 0.8rem;
-        border-radius: 12px;
-        font-weight: 500;
-    }
-
-    .badge-light {
-        background: #f8f9fa;
-        color: #333;
-        border: 1px solid #e0e0e0;
+        transform: translateX(20px);
     }
 
     .empty-state {
         text-align: center;
-        padding: 2rem;
+        padding: 3rem;
+        color: #999;
     }
 
     .empty-state i {
-        font-size: clamp(2rem, 8vw, 3rem);
-        color: #e0e0e0;
+        font-size: 3rem;
         margin-bottom: 1rem;
+        color: #e0e0e0;
     }
 
-    .empty-state p {
-        color: #999;
-        font-size: clamp(0.8rem, 2.5vw, 0.95rem);
-    }
-
-    /* Touch-friendly interactive elements */
-    button, a, .tap-target {
-        min-width: 44px;
-        min-height: 44px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    /* Fluid typography */
-    html {
-        font-size: clamp(1rem, -0.875rem + 8.333vw, 1.125rem);
-    }
-
-    /* Responsive heading scale */
-    h1 {
-        font-size: clamp(1.75rem, 4vw, 2.5rem);
-    }
-
-    h2 {
-        font-size: clamp(1.5rem, 3.5vw, 2rem);
-    }
-
-    h3 {
-        font-size: clamp(1.25rem, 3vw, 1.75rem);
-    }
-
-    /* Responsive spacing */
-    .sp-1 {
-        margin: 8px;
-    }
-
-    .sp-2 {
-        margin: 16px;
-    }
-
-    /* Responsive images with lazy loading */
-    img {
-        max-width: 100%;
-        height: auto;
-    }
-
-    /* Prefers-reduced-motion support */
-    @media (prefers-reduced-motion: reduce) {
-        .animatable {
-            animation: none !important;
-            transition: none !important;
-        }
-    }
-
-    /* Responsive form layouts */
-    input, select, textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-    }
-
-    .form-row {
+    .actions-cell {
         display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
+        justify-content: center;
+        gap: 0.2rem;
     }
 
-    .form-row > * {
-        flex: 1;
-        min-width: 0;
-    }
-
-    /* Accessible button styling */
-    button {
-        min-height: 44px;
-        padding: 0.5rem 1rem;
-        border-radius: 4px;
-        background: #007BFF;
-        color: #fff;
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    button:focus {
-        outline: 2px solid #ffb400;
-        box-shadow: 0 0 0 3px rgba(255, 180, 0, 0.3);
-    }
-
-    /* Content prioritization */
-    .secondary {
-        display: none;
-    }
-
-    /* Tablet-specific styles (600px - 1023px) */
-    @media (min-width: 600px) and (max-width: 1023px) {
-        .container {
-            max-width: 720px;
-            margin: auto;
+    /* Mobile specific styles */
+    @media (max-width: 767.98px) {
+        .table-container {
+            border-radius: 10px;
+            overflow: hidden;
         }
 
-        .page-header {
-            margin-bottom: 2rem;
+        .table-responsive {
+            border-radius: 10px;
         }
 
-        .page-title {
-            font-size: 1.75rem;
+        .table {
+            min-width: 100%;
         }
 
-        .page-subtitle {
-            font-size: 0.95rem;
+        /* Add shadow to indicate scrollability */
+        .table-responsive {
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+            mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
         }
 
-        .add-btn {
-            padding: 0.75rem 1.5rem;
-            height: 50px;
+        /* Scroll hint for mobile users */
+        .scroll-hint {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.5rem;
+            border-radius: 50% 0 0 50%;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            display: none;
         }
 
-        .table thead th {
-            font-size: 0.85rem;
-            padding: 1rem;
-        }
-
-        .table tbody td {
-            padding: 1rem;
-        }
-
-        .status-badge {
-            font-size: 0.85rem;
-        }
-
-        .status-badges {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .stat-card {
-            padding: 1.25rem;
-        }
-
-        .approval-section {
-            padding: 1.75rem;
-        }
-
-        .recent-applications {
-            padding: 1.5rem;
-        }
-
-        .sp-4 {
-            margin: 32px;
-        }
-
-        .sp-5 {
-            margin: 40px;
-        }
-
-        .secondary {
+        .table-responsive:hover .scroll-hint {
             display: block;
         }
-
-        /* Tablet landscape orientation */
-        @media (orientation: landscape) and (max-width: 1023px) {
-            .gallery {
-                flex-direction: row;
-            }
-        }
-
-        /* Form layouts for tablets */
-        .form-row {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .form-row > * {
-            flex: 1;
-        }
     }
 
-    /* Tablet landscape specific (1024px - 1279px) */
-    @media (min-width: 1024px) and (max-width: 1279px) {
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
+    @media (min-width: 768px) {
+        .scroll-hint {
+            display: none !important;
         }
-
-        .status-badges {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-
-    /* Conditional stylesheet loading */
-    @media (min-width: 600px) and (max-width: 1023px) {
-        /* Tablet-specific CSS would be loaded here */
     }
 </style>
 @endsection
 
 @section('content')
-<div class="container">
-    <div class="page-header">
-        <div>
-            <h1 class="page-title"><i class="fas fa-users me-2"></i> Apex Leadership</h1>
-            <p class="page-subtitle">Top-level management and decision makers</p>
-        </div>
-        <a href="{{ route('admin.apex.create') }}" class="add-btn">
-            <i class="fas fa-plus"></i> Add Member
-        </a>
+<div class="page-header">
+    <div class="page-title-section">
+        <h1 class="page-title">
+            <i class="fas fa-users" style="color: var(--primary-purple); margin-right: 0.5rem;"></i>
+            Apex Leadership
+        </h1>
+        <p class="page-subtitle">Top-level management and decision makers</p>
     </div>
+    <a href="{{ route('admin.apex.create') }}" class="add-btn">
+        <i class="fas fa-plus"></i> Add Member
+    </a>
+</div>
 
-    <div class="data-table">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th><i class="fas fa-hashtag table-header-icon"></i> Seq</th>
-                    <th><i class="fas fa-user table-header-icon"></i> Name</th>
-                    <th><i class="fas fa-briefcase table-header-icon"></i> Position</th>
-                    <th><i class="fas fa-id-badge table-header-icon"></i> Designation</th>
-                    <th><i class="fas fa-envelope table-header-icon"></i> Email</th>
-                    <th><i class="fas fa-phone table-header-icon"></i> Contact</th>
-                    <th><i class="fas fa-power-off table-header-icon"></i> Status</th>
-                    <th><i class="fas fa-eye table-header-icon"></i> Show/Hide</th>
-                    <th><i class="fas fa-cog table-header-icon"></i> Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($members as $index => $member)
-                <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td><strong><i class="fas fa-user-circle table-row-icon"></i> {{ $member->name }}</strong></td>
-                    <td><i class="fas fa-briefcase table-row-icon"></i> {{ $member->position }}</td>
-                    <td><i class="fas fa-id-badge table-row-icon"></i> {{ $member->designation }}</td>
-                    <td><i class="fas fa-envelope table-row-icon"></i> {{ $member->email }}</td>
-                    <td><i class="fas fa-phone table-row-icon"></i> {{ $member->contact }}</td>
-                    <td>
-                        <span class="status-badge {{ $member->status ? 'active' : 'inactive' }}">
-                            <i class="fas fa-circle {{ $member->status ? 'text-success' : 'text-danger' }} me-1"></i>
-                            {{ $member->status ? 'Active' : 'Inactive' }}
-                        </span>
-                    </td>
-                    <td>
-                        <label class="toggle-switch">
-                            <input type="checkbox" {{ $member->show_hide ? 'checked' : '' }}
-                                   onchange="toggleShowHide({{ $member->id }}, this)">
-                            <span class="slider"></span>
-                        </label>
-                    </td>
-                    <td>
-                        <a href="{{ route('admin.apex.show', $member) }}" class="action-btn view-btn" title="View">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <a href="{{ route('admin.apex.edit', $member) }}" class="action-btn edit-btn" title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <form action="{{ route('admin.apex.destroy', $member) }}" method="POST" style="display: inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="action-btn delete-btn" title="Delete"
-                                    onclick="return confirm('Are you sure you want to delete this member?')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="9" class="empty-state">
-                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">No members found. Click "Add Member" to get started.</p>
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+<div class="card">
+    <div class="table-container">
+        <div class="table-responsive">
+            <div class="scroll-hint">
+                <i class="fas fa-chevron-right" style="color: var(--primary-purple);"></i>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">Seq</th>
+                        <th style="width: 15%;">Name</th>
+                        <th style="width: 20%;">Position</th>
+                        <th style="width: 15%;">Designation</th>
+                        <th style="width: 15%;">Email</th>
+                        <th style="width: 12%;">Contact</th>
+                        <th style="width: 10%;">Status</th>
+                        <th style="width: 8%;">Show/Hide</th>
+                        <th style="width: 10%;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($members as $index => $member)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>
+                            <strong>{{ $member->name }}</strong>
+                        </td>
+                        <td>{{ $member->position }}</td>
+                        <td>{{ $member->designation }}</td>
+                        <td>{{ $member->email }}</td>
+                        <td>{{ $member->contact }}</td>
+                        <td>
+                            <span class="status-badge {{ $member->status ? 'active' : 'inactive' }}">
+                                <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                                {{ $member->status ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+                        <td>
+                            <label class="toggle-switch">
+                                <input type="checkbox" {{ $member->show_hide ? 'checked' : '' }}
+                                       onchange="toggleShowHide({{ $member->id }}, this)">
+                                <span class="slider"></span>
+                            </label>
+                        </td>
+                        <td class="actions-cell">
+                            <a href="{{ route('admin.apex.show', $member) }}" class="action-btn view-btn">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ route('admin.apex.edit', $member) }}" class="action-btn edit-btn">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form action="{{ route('admin.apex.destroy', $member) }}" method="POST" style="display: inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="action-btn delete-btn"
+                                        onclick="return confirm('Are you sure you want to delete this member?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="9" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>No members found. Click "Add Member" to get started.</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 @endsection

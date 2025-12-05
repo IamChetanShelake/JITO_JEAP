@@ -4,49 +4,69 @@
 
 @section('styles')
 <style>
+    /* Mobile-first responsive design */
+    :root {
+        --primary-color: #FBBA00;
+        --primary-gradient: linear-gradient(135deg, #FBBA00, #ffd740);
+        --success-color: #009846;
+        --danger-color: #E31E24;
+        --warning-color: #ff9800;
+        --border-radius: 15px;
+        --transition-speed: 0.3s;
+    }
+
+    /* Base mobile styles */
+    .container-fluid {
+        width: 100%;
+        padding: 0 1rem;
+        margin: 0 auto;
+    }
+
     .create-header {
-        background: linear-gradient(135deg, #FBBA00, #ffd740);
+        background: var(--primary-gradient);
         color: white;
-        padding: 2rem;
-        border-radius: 15px 15px 0 0;
+        padding: 1.5rem 1rem;
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
         margin-bottom: 0;
     }
 
     .create-header h1 {
         color: white;
         margin-bottom: 0.5rem;
-        font-size: 1.75rem;
+        font-size: clamp(1.25rem, 5vw, 1.75rem);
+        font-weight: 600;
     }
 
     .create-header .subtitle {
         color: rgba(255,255,255,0.9);
-        font-size: 0.95rem;
+        font-size: clamp(0.85rem, 3vw, 0.95rem);
     }
 
     .create-card {
         background: white;
-        border-radius: 15px;
+        border-radius: var(--border-radius);
         box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         overflow: hidden;
         border: 1px solid #e0e0e0;
+        width: 100%;
     }
 
     .create-card-body {
-        padding: 2rem;
+        padding: 1.5rem 1rem;
     }
 
     .form-section {
         background: #f8f9fa;
-        padding: 1.5rem;
+        padding: 1.25rem 1rem;
         border-radius: 12px;
-        margin-bottom: 1.5rem;
-        border-left: 4px solid #FBBA00;
+        margin-bottom: 1.25rem;
+        border-left: 4px solid var(--primary-color);
     }
 
     .form-section-title {
-        font-size: 1.1rem;
+        font-size: clamp(1rem, 3vw, 1.1rem);
         font-weight: 600;
-        color: #FBBA00;
+        color: var(--primary-color);
         margin-bottom: 1rem;
         display: flex;
         align-items: center;
@@ -55,8 +75,8 @@
 
     .form-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: 1fr;
+        gap: 1rem;
     }
 
     .form-group {
@@ -64,7 +84,7 @@
     }
 
     .form-label {
-        font-size: 0.85rem;
+        font-size: clamp(0.75rem, 2vw, 0.85rem);
         color: #666;
         margin-bottom: 0.5rem;
         font-weight: 500;
@@ -76,51 +96,56 @@
     }
 
     .form-label i {
-        color: #FBBA00;
+        color: var(--primary-color);
+        font-size: 0.9rem;
     }
 
     .form-control {
         border-radius: 8px;
         border: 1px solid #ddd;
         padding: 0.75rem 1rem;
-        transition: all 0.3s ease;
+        transition: all var(--transition-speed) ease;
+        font-size: clamp(0.85rem, 2vw, 1rem);
     }
 
     .form-control:focus {
-        border-color: #FBBA00;
+        border-color: var(--primary-color);
         box-shadow: 0 0 0 3px rgba(251, 186, 0, 0.1);
     }
 
     .form-switch {
-        padding-left: 2.5rem;
+        padding-left: 2.25rem;
     }
 
     .form-switch .form-check-input {
-        width: 2rem;
-        height: 1rem;
+        width: 1.8rem;
+        height: 0.9rem;
         border-radius: 1rem;
     }
 
     .form-switch .form-check-input:checked {
-        background-color: #FBBA00;
-        border-color: #FBBA00;
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
     }
 
     .action-buttons {
         display: flex;
-        gap: 1rem;
-        margin-top: 2rem;
-        padding-top: 1.5rem;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
         border-top: 1px solid #e0e0e0;
     }
 
     .btn-custom {
-        background: #FBBA00;
+        background: var(--primary-color);
         color: white;
         padding: 0.75rem 1.5rem;
         border-radius: 8px;
         font-weight: 500;
-        transition: all 0.3s ease;
+        transition: all var(--transition-speed) ease;
+        width: 100%;
+        text-align: center;
     }
 
     .btn-custom:hover {
@@ -136,18 +161,97 @@
         border-radius: 8px;
         font-weight: 500;
         border: 1px solid #e0e0e0;
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Tablet styles */
+    @media (min-width: 768px) {
+        .container-fluid {
+            padding: 0 2rem;
+        }
+
+        .create-header {
+            padding: 2rem;
+        }
+
+        .create-card-body {
+            padding: 2rem;
+        }
+
+        .form-section {
+            padding: 1.5rem;
+        }
+
+        .form-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .action-buttons {
+            flex-direction: row;
+            gap: 1rem;
+        }
+
+        .btn-custom, .btn-secondary {
+            width: auto;
+        }
+    }
+
+    /* Desktop styles */
+    @media (min-width: 992px) {
+        .container-fluid {
+            max-width: 1200px;
+            padding: 0;
+        }
+
+        .create-header h1 {
+            font-size: 1.75rem;
+        }
+
+        .create-header .subtitle {
+            font-size: 0.95rem;
+        }
+
+        .form-section-title {
+            font-size: 1.1rem;
+        }
+
+        .form-grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .form-control {
+            font-size: 1rem;
+        }
+    }
+
+    /* Reduced motion preference */
+    @media (prefers-reduced-motion: reduce) {
+        * {
+            transition: none !important;
+            animation: none !important;
+        }
+    }
+
+    /* Print styles */
+    @media print {
+        .action-buttons {
+            display: none;
+        }
     }
 </style>
 @endsection
 
 @section('content')
-<div class="create-card">
-    <div class="create-header">
-        <h1><i class="fas fa-user-plus me-2"></i> Add Working Committee Member</h1>
-        <p class="subtitle">Create a new member for the working committee</p>
-    </div>
+<div class="container-fluid">
+    <div class="create-card">
+        <div class="create-header">
+            <h1><i class="fas fa-user-plus me-2"></i> Add Working Committee Member</h1>
+            <p class="subtitle">Create a new member for the working committee</p>
+        </div>
 
-    <div class="create-card-body">
+        <div class="create-card-body">
         <form action="{{ route('admin.committee.store') }}" method="POST">
             @csrf
 

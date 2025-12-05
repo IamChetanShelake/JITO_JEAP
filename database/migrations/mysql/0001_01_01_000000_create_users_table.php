@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable(); 
+            $table->string('name')->nullable();
             $table->string('email')->unique();
             $table->string('role')->default('user');
             $table->string('phone')->nullable();
@@ -30,19 +30,21 @@ return new class extends Migration
             $table->enum('financial_asset_for', ['graduation', 'post_graduation'])->nullable();
             $table->string('aadhar_card_number')->nullable();
             $table->string('age')->nullable();
-            $table->enum('gender', ['male', 'female'])->nullable(); 
-            $table->enum('marital_status', ['married', 'unmarried'])->nullable(); 
+            $table->enum('gender', ['male', 'female'])->nullable();
+            $table->enum('marital_status', ['married', 'unmarried'])->nullable();
             $table->string('religion')->nullable();
-            $table->enum('nationality', ['indian', 'foreigner'])->nullable(); 
+            $table->string('sub_cast')->nullable();
+            $table->enum('nationality', ['indian', 'foreigner'])->nullable();
             $table->string('pan_card')->nullable();
             $table->string('alternate_email')->nullable();
             $table->string('alternate_phone')->nullable();
             $table->string('blood_group')->nullable();
-            $table->enum('specially_abled', ['yes', 'no'])->nullable(); 
+            $table->enum('specially_abled', ['yes', 'no'])->nullable();
             $table->string('current_address')->nullable();
             $table->string('city')->nullable();
             $table->string('chapter')->nullable();
             $table->string('state')->nullable();
+            $table->string('district')->nullable();
             $table->string('new_zone')->nullable();
             $table->string('pin_code')->nullable();
             $table->timestamps();

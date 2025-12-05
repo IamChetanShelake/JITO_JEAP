@@ -17,6 +17,10 @@
             color: #4C4C4C !important;
         }
 
+        --webkit-scrollbar-thumb {
+            border-radius: 9px;
+        }
+
         .navbar {
             background-color: white;
             border-bottom: 1px solid #dee2e6;
@@ -43,10 +47,29 @@
         .sidebar {
             background-color: #2E2A85 !important;
             color: white;
-            height: 100%;
+            position: fixed;
+            top: 155px;
+            left: 0;
+            height: calc(100vh - 155px);
+            overflow-y: scroll;
             padding: 25px 20px 25px 55px;
-            border-radius: 12px;
+            border-radius: 8px;
             width: 22%;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+            background: #2E2A85;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #fed766;
+            border-radius: 4px;
+            min-height: 50px;
+        }
+
+        .main-content {
+            margin-left: 22%;
         }
 
         .sidebar-title {
@@ -180,7 +203,7 @@
                 transform: translateX(-100%);
                 transition: transform 0.3s ease;
                 width: 250px;
-                /* height: calc(100vh - 110px); */
+                height: calc(100vh - 110px);
                 /* Fixed width for off-canvas */
                 z-index: 1050;
                 padding: 20px;
@@ -370,7 +393,7 @@
     <div class="container-fluid" style="margin-top:155px;">
         <div class="row">
 
-            <div class="col-lg-3 sidebar" id="sidebar">
+            <div class="sidebar" id="sidebar">
                 <h6 class="sidebar-title">&nbsp;&nbsp;Application Progress</h6>
 
                 <ul class="stepper">
@@ -399,8 +422,8 @@
                         </a>
                     </li>
 
-                    <li>
-                        <a href="{{ route('user.step1') }}">
+                    <li class="{{ request()->routeIs('user.step3') ? 'active' : '' }}">
+                        <a href="{{ route('user.step3') }}">
                             <div class="step-icon">
                                 <i class="bi bi-mortarboard"></i>
                             </div>
@@ -411,8 +434,8 @@
                         </a>
                     </li>
 
-                    <li>
-                        <a href="{{ route('user.step1') }}">
+                    <li class="{{ request()->routeIs('user.step4') ? 'active' : '' }}">
+                        <a href="{{ route('user.step4') }}">
                             <div class="step-icon">
                                 <i class="bi bi-currency-rupee"></i>
                             </div>

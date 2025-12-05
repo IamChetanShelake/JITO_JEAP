@@ -121,6 +121,28 @@
                 font-size: 14px;
             }
         }
+
+        .nav.nav-tabs .nav-link {
+            color: #4C4C4C;
+            font-size: 16px;
+            font-weight: 600;
+            background: none;
+            border: none;
+            padding-bottom: 8px;
+            position: relative;
+
+        }
+
+        .nav.nav-tabs .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50%;
+            height: 3.5px;
+            margin-left: 15px;
+            background: #4C4C4C;
+        }
     </style>
     <!-- Main Content -->
     <div class="col-lg-9 main-content">
@@ -148,16 +170,22 @@
 
                                         <div class="form-group mb-3">
                                             <input type="number" class="form-control" name="number_family_members"
-                                                placeholder="Number of Family Members *" required>
+                                                placeholder="Number of Family Members *"
+                                                value="{{ old('number_family_members') }}" required>
+                                            <small class="text-danger">{{ $errors->first('number_family_members') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <input type="number" class="form-control" name="total_family_income"
-                                                placeholder="Total Family Income (₹) *" required>
+                                                placeholder="Total Family Income (₹) *"
+                                                value="{{ old('total_family_income') }}" required>
+                                            <small class="text-danger">{{ $errors->first('total_family_income') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
                                             <input type="number" class="form-control" name="total_students"
-                                                placeholder="Total Number of Students *" required>
+                                                placeholder="Total Number of Students *" value="{{ old('total_students') }}"
+                                                required>
+                                            <small class="text-danger">{{ $errors->first('total_students') }}</small>
                                         </div>
 
                                     </div>
@@ -165,61 +193,56 @@
                                     <!-- Right Column -->
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <input type="number" class="form-control" name="family_member_diksha"
-                                                placeholder="Family Member Taken Diksha " >
+                                            <input type="text" class="form-control" name="family_member_diksha"
+                                                placeholder="Family Member Taken Diksha "
+                                                value="{{ old('family_member_diksha') }}">
+                                            <small class="text-danger">{{ $errors->first('family_member_diksha') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <input type="number" class="form-control" name="total_insurance_coverage"
-                                                placeholder="Total Insurance Coverage of Family (₹) *" required>
+                                                placeholder="Total Insurance Coverage of Family (₹) *"
+                                                value="{{ old('total_insurance_coverage') }}" required>
+                                            <small
+                                                class="text-danger">{{ $errors->first('total_insurance_coverage') }}</small>
                                         </div>
 
 
 
                                         <div class="form-group mb-3">
                                             <input type="number" class="form-control" name="total_premium_paid"
-                                                placeholder="Total Premium Paid in Rupees/Year *" required>
+                                                placeholder="Total Premium Paid in Rupees/Year *"
+                                                value="{{ old('total_premium_paid') }}" required>
+                                            <small class="text-danger">{{ $errors->first('total_premium_paid') }}</small>
                                         </div>
 
                                     </div>
                                 </div>
 
-                                {{-- </div>
-                        </div>
 
-                        <div class="card form-card">
-                            <div class="card-body"> --}}
-
-                                {{-- <div class="step-card">
-                                    <div class="card-icon">
-                                        <i class="bi bi-person"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="card-title">Parents Details</h3>
-                                        <p class="card-subtitle">Details about your parents</p>
-                                    </div>
-                                </div> --}}
                                 <hr>
+
 
                                 <!-- Bootstrap Tabs for Parents Details -->
                                 <ul class="nav nav-tabs" id="parentTabs" role="tablist">
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link active" id="father-tab" data-bs-toggle="tab"
                                             data-bs-target="#father" type="button" role="tab" aria-controls="father"
-                                            aria-selected="true">Father's Details</button>
+                                            aria-selected="true">Father's Details*</button>
                                     </li>
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link" id="mother-tab" data-bs-toggle="tab"
                                             data-bs-target="#mother" type="button" role="tab" aria-controls="mother"
-                                            aria-selected="false">Mother's Details</button>
+                                            aria-selected="false">Mother's Details*</button>
                                     </li>
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link" id="additional-tab" data-bs-toggle="tab"
-                                            data-bs-target="#additional" type="button" role="tab" aria-controls="additional"
-                                            aria-selected="false">Additional Information</button>
+                                            data-bs-target="#additional" type="button" role="tab"
+                                            aria-controls="additional" aria-selected="false">Additional
+                                            Information*</button>
                                     </li>
                                 </ul>
-                                <div class="tab-content" id="parentTabsContent">
+                                <div class="tab-content mt-4" id="parentTabsContent">
                                     <!-- Father's Details Tab -->
                                     <div class="tab-pane fade show active" id="father" role="tabpanel"
                                         aria-labelledby="father-tab">
@@ -227,32 +250,107 @@
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control" name="father_name"
-                                                        placeholder="Father's Name *" required>
+                                                        placeholder="Father's Name *" value="{{ old('father_name') }}"
+                                                        required>
+                                                    <small class="text-danger">{{ $errors->first('father_name') }}</small>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="number" class="form-control" name="father_age"
-                                                        placeholder="Age *" required min="18">
+                                                        placeholder="Age *" value="{{ old('father_age') }}" required
+                                                        min="18" max="120">
+                                                    <small class="text-danger">{{ $errors->first('father_age') }}</small>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <select class="form-control" name="father_marital_status" required>
-                                                        <option disabled selected hidden>Marital Status *</option>
-                                                        <option value="married">Married</option>
-                                                        <option value="unmarried">Unmarried</option>
+                                                        <option disabled
+                                                            {{ old('father_marital_status') ? '' : 'selected' }} hidden>
+                                                            Marital Status *</option>
+                                                        <option value="married"
+                                                            {{ old('father_marital_status') == 'married' ? 'selected' : '' }}>
+                                                            Married</option>
+                                                        <option value="unmarried"
+                                                            {{ old('father_marital_status') == 'unmarried' ? 'selected' : '' }}>
+                                                            Unmarried</option>
                                                     </select>
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('father_marital_status') }}</small>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="father_qualification"
-                                                        placeholder="Qualification *" required>
+                                                    <input type="text" class="form-control"
+                                                        name="father_qualification" placeholder="Qualification *"
+                                                        value="{{ old('father_qualification') }}" required>
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('father_qualification') }}</small>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control" name="father_occupation"
-                                                        placeholder="Occupation *" required>
+                                                        placeholder="Occupation *" value="{{ old('father_occupation') }}"
+                                                        required>
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('father_occupation') }}</small>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="tel" class="form-control" name="father_mobile"
-                                                        placeholder="Mobile Number *" required>
+                                                        placeholder="Mobile Number *" value="{{ old('father_mobile') }}"
+                                                        required>
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('father_mobile') }}</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+
+                                                <div class="form-group mb-3">
+                                                    <input type="email" class="form-control" name="father_email"
+                                                        placeholder="Father's Email address"
+                                                        value="{{ old('father_email') }}">
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('father_email') }}</small>
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <input type="number" class="form-control"
+                                                        name="father_yearly_gross_income"
+                                                        placeholder="Father's Yearly Gross Income (₹) *"
+                                                        value="{{ old('father_yearly_gross_income') }}" required>
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('father_yearly_gross_income') }}</small>
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <input type="number" class="form-control"
+                                                        name="father_individual_insurance_coverage"
+                                                        placeholder="Father's Individual Insurance Coverage Value (₹) "
+                                                        value="{{ old('father_individual_insurance_coverage') }}">
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('father_individual_insurance_coverage') }}</small>
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <input type="number" class="form-control"
+                                                        name="father_individual_premium_paid"
+                                                        placeholder="Father's Individual Premium Paid Year (₹) "
+                                                        value="{{ old('father_individual_premium_paid') }}">
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('father_individual_premium_paid') }}</small>
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <div class="photo-upload-box">
+                                                        <span class="photo-label">Father's Aadhaar Card*</span>
+                                                        <label for="father_aadhaar" class="upload-btn">
+                                                            <span class="upload-icon">⭱</span> Upload
+                                                        </label>
+                                                        <input type="file" id="father_aadhaar" name="father_aadhaar"
+                                                            hidden accept=".jpg,.jpeg,.png,.pdf" required>
+                                                        <small
+                                                            class="text-danger">{{ $errors->first('father_aadhaar') }}</small>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <div class="photo-upload-box">
+                                                        <span class="photo-label">Father's Passport Size Photo</span>
+                                                        <label for="father_photo" class="upload-btn">
+                                                            <span class="upload-icon">⭱</span> Upload
+                                                        </label>
+                                                        <input type="file" id="father_photo" name="father_photo"
+                                                            hidden accept=".jpg,.jpeg,.png">
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -264,162 +362,320 @@
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control" name="mother_name"
-                                                        placeholder="Mother's Name *" required>
+                                                        placeholder="Mother's Name *" value="{{ old('mother_name') }}"
+                                                        required>
+                                                    <small class="text-danger">{{ $errors->first('mother_name') }}</small>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="number" class="form-control" name="mother_age"
-                                                        placeholder="Age *" required min="18">
+                                                        placeholder="Age *" value="{{ old('mother_age') }}" required
+                                                        min="18" max="120">
+                                                    <small class="text-danger">{{ $errors->first('mother_age') }}</small>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <select class="form-control" name="mother_marital_status" required>
-                                                        <option disabled selected hidden>Marital Status *</option>
-                                                        <option value="married">Married</option>
-                                                        <option value="unmarried">Unmarried</option>
+                                                        <option disabled
+                                                            {{ old('mother_marital_status') ? '' : 'selected' }} hidden>
+                                                            Marital Status *</option>
+                                                        <option value="married"
+                                                            {{ old('mother_marital_status') == 'married' ? 'selected' : '' }}>
+                                                            Married</option>
+                                                        <option value="unmarried"
+                                                            {{ old('mother_marital_status') == 'unmarried' ? 'selected' : '' }}>
+                                                            Unmarried</option>
                                                     </select>
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('mother_marital_status') }}</small>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control"
                                                         name="mother_qualification" placeholder="Qualification *"
-                                                        required>
+                                                        value="{{ old('mother_qualification') }}" required>
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('mother_qualification') }}</small>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control" name="mother_occupation"
-                                                        placeholder="Occupation *" required>
+                                                        placeholder="Occupation *" value="{{ old('mother_occupation') }}"
+                                                        required>
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('mother_occupation') }}</small>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="tel" class="form-control" name="mother_mobile"
-                                                        placeholder="Mobile Number *" required>
+                                                        placeholder="Mobile Number *" value="{{ old('mother_mobile') }}"
+                                                        required>
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('mother_mobile') }}</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+
+                                                <div class="form-group mb-3">
+                                                    <input type="email" class="form-control" name="mother_email"
+                                                        placeholder="Mother's Email address"
+                                                        value="{{ old('mother_email') }}">
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('mother_email') }}</small>
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <input type="number" class="form-control"
+                                                        name="mother_yearly_gross_income"
+                                                        placeholder="Mother's Yearly Gross Income (₹) *"
+                                                        value="{{ old('mother_yearly_gross_income') }}" required>
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('mother_yearly_gross_income') }}</small>
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <input type="number" class="form-control"
+                                                        name="mother_individual_insurance_coverage"
+                                                        placeholder="Mother's Individual Insurance Coverage Value (₹) "
+                                                        value="{{ old('mother_individual_insurance_coverage') }}">
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('mother_individual_insurance_coverage') }}</small>
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <input type="number" class="form-control"
+                                                        name="mother_individual_premium_paid"
+                                                        placeholder="Mother's Individual Premium Paid Year (₹) "
+                                                        value="{{ old('mother_individual_premium_paid') }}">
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('mother_individual_premium_paid') }}</small>
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <div class="photo-upload-box">
+                                                        <span class="photo-label">Mother's Aadhaar Card*</span>
+                                                        <label for="mother_aadhaar" class="upload-btn">
+                                                            <span class="upload-icon">⭱</span> Upload
+                                                        </label>
+                                                        <input type="file" id="mother_aadhaar" name="mother_aadhaar"
+                                                            hidden accept=".jpg,.jpeg,.png,.pdf" required>
+                                                        <small
+                                                            class="text-danger">{{ $errors->first('mother_aadhaar') }}</small>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <div class="photo-upload-box">
+                                                        <span class="photo-label">Mother's Passport Size Photo</span>
+                                                        <label for="mother_photo" class="upload-btn">
+                                                            <span class="upload-icon">⭱</span> Upload
+                                                        </label>
+                                                        <input type="file" id="mother_photo" name="mother_photo"
+                                                            hidden accept=".jpg,.jpeg,.png">
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <!-- Additional Information Tab -->
-                                    <div class="tab-pane fade" id="additional" role="tabpanel" aria-labelledby="additional-tab">
+                                    <div class="tab-pane fade" id="additional" role="tabpanel"
+                                        aria-labelledby="additional-tab">
                                         <div class="row">
                                             <div class="col-md-6">
+                                                {{-- <div class="form-group mb-3">
+                                                    <label>Scholar Details</label>
+                                                    <div class="form-group mb-3">
+                                                        <input type="email" class="form-control"
+                                                            name="additional_email" placeholder="Additional Email"
+                                                            value="{{ old('additional_email') }}">
+                                                        <small
+                                                            class="text-danger">{{ $errors->first('additional_email') }}</small>
+                                                    </div>
+                                                    <div class="form-group mb-3">
+                                                        <input type="number" class="form-control"
+                                                            name="yearly_gross_income"
+                                                            placeholder="Yearly Gross Income (₹)"
+                                                            value="{{ old('yearly_gross_income') }}">
+                                                        <small
+                                                            class="text-danger">{{ $errors->first('yearly_gross_income') }}</small>
+                                                    </div>
+                                                    <div class="form-group mb-3">
+                                                        <input type="number" class="form-control"
+                                                            name="individual_insurance_coverage"
+                                                            placeholder="Individual Insurance Coverage (₹) *"
+                                                            value="{{ old('individual_insurance_coverage') }}" required>
+                                                        <small
+                                                            class="text-danger">{{ $errors->first('individual_insurance_coverage') }}</small>
+                                                    </div>
+                                                    <div class="form-group mb-3">
+                                                        <input type="number" class="form-control"
+                                                            name="individual_premium_paid"
+                                                            placeholder="Individual Premium Paid (₹) *"
+                                                            value="{{ old('individual_premium_paid') }}" required>
+                                                        <small
+                                                            class="text-danger">{{ $errors->first('individual_premium_paid') }}</small>
+                                                    </div>
+                                                </div> --}}
                                                 <div class="form-group mb-3">
                                                     <label>Do You Have Sibling?</label>
                                                     <div>
-                                                        <input type="radio" name="has_sibling" value="yes" id="has_sibling_yes"> <label for="has_sibling_yes">Yes</label>
-                                                        <input type="radio" name="has_sibling" value="no" id="has_sibling_no" checked> <label for="has_sibling_no">No</label>
+                                                        <input type="radio" name="has_sibling" value="yes"
+                                                            id="has_sibling_yes"
+                                                            {{ old('has_sibling') == 'yes' ? 'checked' : '' }}> <label
+                                                            for="has_sibling_yes">Yes</label>
+                                                        <input type="radio" name="has_sibling" value="no"
+                                                            id="has_sibling_no"
+                                                            {{ old('has_sibling') == 'no' || !old('has_sibling') ? 'checked' : '' }}>
+                                                        <label for="has_sibling_no">No</label>
                                                     </div>
+                                                    <small class="text-danger">{{ $errors->first('has_sibling') }}</small>
                                                 </div>
                                                 <div id="sibling-fields" style="display: none;">
                                                     <div class="form-group mb-3">
-                                                        <input type="number" class="form-control" name="number_of_siblings" placeholder="Number Of Siblings">
+                                                        <input type="number" class="form-control"
+                                                            name="number_of_siblings" placeholder="Number Of Siblings *"
+                                                            value="{{ old('number_of_siblings') }}">
+                                                        <small
+                                                            class="text-danger">{{ $errors->first('number_of_siblings') }}</small>
                                                     </div>
                                                     <div class="form-group mb-3">
-                                                        <input type="text" class="form-control" name="sibling_name_1" placeholder="Name 1">
+                                                        <input type="text" class="form-control" name="sibling_name_1"
+                                                            placeholder="Name *" value="{{ old('sibling_name_1') }}">
+                                                        <small
+                                                            class="text-danger">{{ $errors->first('sibling_name_1') }}</small>
                                                     </div>
                                                     <div class="form-group mb-3">
-                                                        <input type="text" class="form-control" name="sibling_qualification" placeholder="Qualification">
+                                                        <input type="text" class="form-control"
+                                                            name="sibling_qualification" placeholder="Qualification"
+                                                            value="{{ old('sibling_qualification') }}">
+                                                        <small
+                                                            class="text-danger">{{ $errors->first('sibling_qualification') }}</small>
                                                     </div>
                                                     <div class="form-group mb-3">
-                                                        <input type="text" class="form-control" name="sibling_occupation" placeholder="Occupation">
+                                                        <input type="text" class="form-control"
+                                                            name="sibling_occupation" placeholder="Occupation"
+                                                            value="{{ old('sibling_occupation') }}">
+                                                        <small
+                                                            class="text-danger">{{ $errors->first('sibling_occupation') }}</small>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div id="sibling-fields-2" style="display: none;">
+                                                    <div class="form-group mb-3">
+                                                        <input type="text" class="form-control" name="sibling_mobile"
+                                                            placeholder="Mobile Number"
+                                                            value="{{ old('sibling_mobile') }}">
+                                                        <small
+                                                            class="text-danger">{{ $errors->first('sibling_mobile') }}</small>
                                                     </div>
                                                     <div class="form-group mb-3">
-                                                        <input type="text" class="form-control" name="sibling_mobile" placeholder="Mobile Number">
+                                                        <input type="email" class="form-control" name="sibling_email"
+                                                            placeholder="Email Address"
+                                                            value="{{ old('sibling_email') }}">
+                                                        <small
+                                                            class="text-danger">{{ $errors->first('sibling_email') }}</small>
                                                     </div>
                                                     <div class="form-group mb-3">
-                                                        <input type="email" class="form-control" name="sibling_email" placeholder="Email Address">
+                                                        <input type="number" class="form-control"
+                                                            name="sibling_yearly_income"
+                                                            placeholder="Yearly Gross Income (₹)"
+                                                            value="{{ old('sibling_yearly_income') }}">
+                                                        <small
+                                                            class="text-danger">{{ $errors->first('sibling_yearly_income') }}</small>
                                                     </div>
                                                     <div class="form-group mb-3">
-                                                        <input type="number" class="form-control" name="sibling_yearly_income" placeholder="Yearly Gross Income (₹)">
+                                                        <input type="number" class="form-control"
+                                                            name="sibling_insurance_coverage"
+                                                            placeholder="Individual Insurance Coverage Value (₹)"
+                                                            value="{{ old('sibling_insurance_coverage') }}">
+                                                        <small
+                                                            class="text-danger">{{ $errors->first('sibling_insurance_coverage') }}</small>
                                                     </div>
                                                     <div class="form-group mb-3">
-                                                        <input type="number" class="form-control" name="sibling_insurance_coverage" placeholder="Individual Insurance Coverage Value (₹)">
+                                                        <input type="number" class="form-control"
+                                                            name="sibling_premium_paid"
+                                                            placeholder="Individual Premium Paid Year (₹)"
+                                                            value="{{ old('sibling_premium_paid') }}">
+                                                        <small
+                                                            class="text-danger">{{ $errors->first('sibling_premium_paid') }}</small>
                                                     </div>
-                                                    <div class="form-group mb-3">
-                                                        <input type="number" class="form-control" name="sibling_premium_paid" placeholder="Individual Premium Paid Year (₹)">
-                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bootstrap Tabs for Relatives Details -->
+                                <ul class="nav nav-tabs" id="relativesTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="paternal-tab" data-bs-toggle="tab"
+                                            data-bs-target="#paternal" type="button" role="tab"
+                                            aria-controls="paternal" aria-selected="true">Paternal Side</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="maternal-tab" data-bs-toggle="tab"
+                                            data-bs-target="#maternal" type="button" role="tab"
+                                            aria-controls="maternal" aria-selected="false">Maternal Side</button>
+                                    </li>
+                                </ul>
+                                <div class="tab-content mt-4" id="relativesTabsContent">
+                                    <!-- Paternal Side Tab -->
+                                    <div class="tab-pane fade show active" id="paternal" role="tabpanel"
+                                        aria-labelledby="paternal-tab">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <input type="text" class="form-control" name="paternal_uncle_name"
+                                                        placeholder="Paternal Uncle's Name">
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <input type="tel" class="form-control"
+                                                        name="paternal_uncle_mobile" placeholder="His Mobile Number">
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <input type="email" class="form-control"
+                                                        name="paternal_uncle_email" placeholder="His Email Address">
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <input type="email" class="form-control" name="additional_email" placeholder="Email Address *" required>
+                                                    <input type="text" class="form-control" name="paternal_aunt_name"
+                                                        placeholder="Paternal Aunt's Name">
                                                 </div>
                                                 <div class="form-group mb-3">
-                                                    <input type="number" class="form-control" name="yearly_gross_income" placeholder="Yearly Gross Income (₹) *" required>
+                                                    <input type="tel" class="form-control"
+                                                        name="paternal_aunt_mobile" placeholder="Her Mobile Number">
                                                 </div>
                                                 <div class="form-group mb-3">
-                                                    <input type="number" class="form-control" name="individual_insurance_coverage" placeholder="Individual Insurance Coverage Value (₹) *" required>
-                                                </div>
-                                                <div class="form-group mb-3">
-                                                    <input type="number" class="form-control" name="individual_premium_paid" placeholder="Individual Premium Paid Year (₹) *" required>
-                                                </div>
-                                                <div class="form-group mb-3">
-                                                    <div class="photo-upload-box">
-                                                        <span class="photo-label">Father's Aadhaar Card</span>
-                                                        <label for="father_aadhaar" class="upload-btn">
-                                                            <span class="upload-icon">⭱</span> Upload
-                                                        </label>
-                                                        <input type="file" id="father_aadhaar" name="father_aadhaar" hidden accept=".jpg,.jpeg,.png,.pdf">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group mb-3">
-                                                    <div class="photo-upload-box">
-                                                        <span class="photo-label">Father's Passport Size Photo</span>
-                                                        <label for="father_photo" class="upload-btn">
-                                                            <span class="upload-icon">⭱</span> Upload
-                                                        </label>
-                                                        <input type="file" id="father_photo" name="father_photo" hidden accept=".jpg,.jpeg,.png">
-                                                    </div>
+                                                    <input type="email" class="form-control" name="paternal_aunt_email"
+                                                        placeholder="Her Email Address">
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <div class="card form-card">
-                            <div class="card-body">
-
-                                <div class="step-card">
-                                    <div class="card-icon">
-                                        <i class="bi bi-person-hearts"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="card-title">Paternal & Maternal Side</h3>
-                                        <p class="card-subtitle">Details about relatives</p>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="border rounded p-3 mb-3">
-                                            <h5 class="text-primary mb-3">Paternal Side</h5>
-                                            <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="paternal_uncle_name"
-                                                    placeholder="Paternal Uncle's Name">
+                                    <!-- Maternal Side Tab -->
+                                    <div class="tab-pane fade" id="maternal" role="tabpanel"
+                                        aria-labelledby="maternal-tab">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <input type="text" class="form-control" name="maternal_uncle_name"
+                                                        placeholder="Maternal Uncle's Name">
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <input type="tel" class="form-control"
+                                                        name="maternal_uncle_mobile" placeholder="His Mobile Number">
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <input type="email" class="form-control"
+                                                        name="maternal_uncle_email" placeholder="His Email Address">
+                                                </div>
                                             </div>
-                                            <div class="form-group mb-3">
-                                                <input type="tel" class="form-control" name="paternal_uncle_mobile"
-                                                    placeholder="His Mobile Number">
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <input type="email" class="form-control" name="paternal_uncle_email"
-                                                    placeholder="His Email Address">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="border rounded p-3 mb-3">
-                                            <h5 class="text-primary mb-3">Maternal Side</h5>
-                                            <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="maternal_aunt_name"
-                                                    placeholder="Maternal Aunt's Name">
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <input type="tel" class="form-control" name="maternal_aunt_mobile"
-                                                    placeholder="Her Mobile Number">
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <input type="email" class="form-control" name="maternal_aunt_email"
-                                                    placeholder="Her Email Address">
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <input type="text" class="form-control" name="maternal_aunt_name"
+                                                        placeholder="Maternal Aunt's Name">
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <input type="tel" class="form-control"
+                                                        name="maternal_aunt_mobile" placeholder="Her Mobile Number">
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <input type="email" class="form-control" name="maternal_aunt_email"
+                                                        placeholder="Her Email Address">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -429,13 +685,22 @@
                         </div>
 
                         <div class="d-flex justify-content-between mt-4 mb-4">
-                            <button type="button" class="btn" style="background:#988DFF1F;color:gray;">
+                            {{-- <button  type="button" class="btn" style="background:#988DFF1F;color:gray;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
                                     stroke="gray" stroke-width="2" viewBox="0 0 24 24">
                                     <path d="M15 18l-6-6 6-6" />
                                 </svg>
                                 Previous
-                            </button>
+                            </button> --}}
+                            <a href="{{ route('user.step1') }}" class="btn"
+                                style="background:#988DFF1F;color:gray;border:1px solid #393185;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                    stroke="gray" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M15 18l-6-6 6-6" />
+                                </svg>
+                                Previous
+                            </a>
+
                             <button type="submit" class="btn" style="background:#393185;color:white;">
                                 Next Step
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
@@ -450,42 +715,58 @@
         </div>
     </div>
 
-</div>
+    </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Function to show/hide sibling fields
-        function toggleSiblingFields() {
-            const hasSibling = document.querySelector('input[name="has_sibling"]:checked').value;
-            const siblingFields = document.getElementById('sibling-fields');
-            const siblingInputs = siblingFields.querySelectorAll('input');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to show/hide sibling fields
+            function toggleSiblingFields() {
+                const hasSibling = document.querySelector('input[name="has_sibling"]:checked').value;
+                const siblingFields1 = document.getElementById('sibling-fields');
+                const siblingFields2 = document.getElementById('sibling-fields-2');
+                const siblingInputs = document.querySelectorAll('#sibling-fields input, #sibling-fields-2 input');
 
-            if (hasSibling === 'yes') {
-                siblingFields.style.display = 'block';
-            } else {
-                siblingFields.style.display = 'none';
-                // Reset all sibling fields
-                siblingInputs.forEach(input => {
-                    input.value = '';
-                });
+                if (hasSibling === 'yes') {
+                    siblingFields1.style.display = 'block';
+                    siblingFields2.style.display = 'block';
+                } else {
+                    siblingFields1.style.display = 'none';
+                    siblingFields2.style.display = 'none';
+                    // Reset all sibling fields
+                    siblingInputs.forEach(input => {
+                        input.value = '';
+                    });
+                }
             }
-        }
 
-        // Add event listeners to radio buttons
-        const radioButtons = document.querySelectorAll('input[name="has_sibling"]');
-        radioButtons.forEach(radio => {
-            radio.addEventListener('change', toggleSiblingFields);
-        });
+            // Initialize sibling fields based on old value
+            toggleSiblingFields();
 
-        // Initialize Bootstrap tabs
-        var triggerTabList = [].slice.call(document.querySelectorAll('#parentTabs button'))
-        triggerTabList.forEach(function(triggerEl) {
-            var tabTrigger = new bootstrap.Tab(triggerEl)
-            triggerEl.addEventListener('click', function(event) {
-                event.preventDefault()
-                tabTrigger.show()
+            // Add event listeners to radio buttons
+            const radioButtons = document.querySelectorAll('input[name="has_sibling"]');
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', toggleSiblingFields);
+            });
+
+            // Initialize Bootstrap tabs
+            var triggerTabList = [].slice.call(document.querySelectorAll('#parentTabs button'))
+            triggerTabList.forEach(function(triggerEl) {
+                var tabTrigger = new bootstrap.Tab(triggerEl)
+                triggerEl.addEventListener('click', function(event) {
+                    event.preventDefault()
+                    tabTrigger.show()
+                })
+            })
+
+            // Initialize relatives tabs
+            var relativesTabList = [].slice.call(document.querySelectorAll('#relativesTabs button'))
+            relativesTabList.forEach(function(triggerEl) {
+                var tabTrigger = new bootstrap.Tab(triggerEl)
+                triggerEl.addEventListener('click', function(event) {
+                    event.preventDefault()
+                    tabTrigger.show()
+                })
             })
         })
-    })
-</script>
+    </script>
 @endsection

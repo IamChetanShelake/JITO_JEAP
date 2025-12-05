@@ -12,7 +12,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <form method="POST" action="" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('user.step3.store') }}" enctype="multipart/form-data">
                         @csrf
                         <div class="card form-card">
                             <div class="card-body">
@@ -295,23 +295,8 @@
                                                 </div>
 
                                                 <div class="form-group mb-3">
-                                                    <select class="form-control" name="sibling_loan_status">
-                                                        <option value=""
-                                                            {{ !old('sibling_loan_status') ? 'selected' : '' }} disabled
-                                                            hidden>Loan status? *</option>
-                                                        <option value="applied"
-                                                            {{ old('sibling_loan_status') == 'applied' ? 'selected' : '' }}>
-                                                            Applied</option>
-                                                        <option value="approved"
-                                                            {{ old('sibling_loan_status') == 'approved' ? 'selected' : '' }}>
-                                                            Approved</option>
-                                                        <option value="received"
-                                                            {{ old('sibling_loan_status') == 'received' ? 'selected' : '' }}>
-                                                            Received</option>
-                                                        <option value="pending"
-                                                            {{ old('sibling_loan_status') == 'pending' ? 'selected' : '' }}>
-                                                            Pending</option>
-                                                    </select>
+                                                    <input type="text" class="form-control" name="sibling_loan_status"
+                                                        placeholder="Loan status? *" value="{{ old('sibling_loan_status') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('sibling_loan_status') }}</small>
                                                 </div>
@@ -320,23 +305,8 @@
                                             <!-- Right Column -->
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <select class="form-control" name="sibling_applied_year">
-                                                        <option value=""
-                                                            {{ !old('sibling_applied_year') ? 'selected' : '' }} disabled
-                                                            hidden>Applied for year? *</option>
-                                                        <option value="1st_year"
-                                                            {{ old('sibling_applied_year') == '1st_year' ? 'selected' : '' }}>
-                                                            1st Year</option>
-                                                        <option value="2nd_year"
-                                                            {{ old('sibling_applied_year') == '2nd_year' ? 'selected' : '' }}>
-                                                            2nd Year</option>
-                                                        <option value="3rd_year"
-                                                            {{ old('sibling_applied_year') == '3rd_year' ? 'selected' : '' }}>
-                                                            3rd Year</option>
-                                                        <option value="4th_year"
-                                                            {{ old('sibling_applied_year') == '4th_year' ? 'selected' : '' }}>
-                                                            4th Year</option>
-                                                    </select>
+                                                    <input type="text" class="form-control" name="sibling_applied_year"
+                                                        placeholder="Applied for year? *" value="{{ old('sibling_applied_year') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('sibling_applied_year') }}</small>
                                                 </div>

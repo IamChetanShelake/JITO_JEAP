@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Familydetail;
 use App\Models\EducationDetail;
+use App\Models\FundingDetail;
 use Illuminate\Http\Request;
 use App\Models\Loan_category;
 use Illuminate\Support\Carbon;
@@ -494,8 +495,122 @@ class UserController extends Controller
 
     public function step4store(Request $request)
     {
-        //  dd($request->all());
+        dd($request->all());
 
-        return redirect()->route('user.home')->with('success', 'Education details saved successfully!');
+        $request->validate([
+            // Amount Requested
+            'amount_requested_year' => 'required|in:year1,year2,year3,year4',
+            'tuition_fees_amount' => 'required|numeric|min:0',
+
+            // Funding Details Table (all optional)
+            'family_funding_status' => 'nullable|in:applied,approved,received,pending',
+            'family_funding_amount' => 'nullable|numeric|min:0',
+            'bank_loan_status' => 'nullable|in:applied,approved,received,pending',
+            'bank_loan_amount' => 'nullable|numeric|min:0',
+            'other_assistance1_status' => 'nullable|in:applied,approved,received,pending',
+            'other_assistance1_amount' => 'nullable|numeric|min:0',
+            'other_assistance2_status' => 'nullable|in:applied,approved,received,pending',
+            'other_assistance2_amount' => 'nullable|numeric|min:0',
+            'local_assistance_status' => 'nullable|in:applied,approved,received,pending',
+            'local_assistance_amount' => 'nullable|numeric|min:0',
+
+            // Sibling Assistance
+            'sibling_assistance' => 'required|in:yes,no',
+            'sibling_ngo_name' => 'nullable|string|max:255',
+            'sibling_loan_status' => 'nullable|string|max:255',
+            'sibling_applied_year' => 'nullable|string|max:255',
+            'sibling_applied_amount' => 'nullable|numeric|min:0',
+
+            // Bank Details
+            'account_holder_name' => 'required|string|max:255',
+            'bank_name' => 'required|string|max:255',
+            'account_number' => 'required|string|max:50',
+            'branch_name' => 'required|string|max:255',
+            'ifsc_code' => 'required|string|max:20',
+            'bank_address' => 'required|string|max:500',
+        ]);
+
+        $user_id = Auth::id();
+
+        // Additional validation for sibling assistance conditional fields
+        if ($request->sibling_assistance === 'yes') {
+            $request->validate([
+                'sibling_ngo_name' => 'required|string|max:255',
+                'sibling_loan_status' => 'required|string|max:255',
+                'sibling_applied_year' => 'required|string|max:255',
+                'sibling_applied_amount' => 'required|numeric|min:0',
+            ]);
+        }
+
+        $data = [
+            'user_id' => $user_id,
+
+            // Amount Requested
+            'amount_requested_year' => $request->amount_requested_year,
+            'tuition_fees_amount' => $request->tuition_fees_amount,
+
+            // Own family funding
+            'family_funding_status' => $request->family_funding_status,
+            'family_funding_trust' => $request->family_funding_trust,
+            'family_funding_contact' => $request->family_funding_contact,
+            'family_funding_mobile' => $request->family_funding_mobile,
+            'family_funding_amount' => $request->family_funding_amount,
+
+            // Bank Loan
+            'bank_loan_status' => $request->bank_loan_status,
+            'bank_loan_trust' => $request->bank_loan_trust,
+            'bank_loan_contact' => $request->bank_loan_contact,
+            'bank_loan_mobile' => $request->bank_loan_mobile,
+            'bank_loan_amount' => $request->bank_loan_amount,
+
+            // Other Assistance (1)
+            'other_assistance1_status' => $request->other_assistance1_status,
+            'other_assistance1_trust' => $request->other_assistance1_trust,
+            'other_assistance1_contact' => $request->other_assistance1_contact,
+            'other_assistance1_mobile' => $request->other_assistance1_mobile,
+            'other_assistance1_amount' => $request->other_assistance1_amount,
+
+            // Other Assistance (2)
+            'other_assistance2_status' => $request->other_assistance2_status,
+            'other_assistance2_trust' => $request->other_assistance2_trust,
+            'other_assistance2_contact' => $request->other_assistance2_contact,
+            'other_assistance2_mobile' => $request->other_assistance2_mobile,
+            'other_assistance2_amount' => $request->other_assistance2_amount,
+
+            // Local Assistance
+            'local_assistance_status' => $request->local_assistance_status,
+            'local_assistance_trust' => $request->local_assistance_trust,
+            'local_assistance_contact' => $request->local_assistance_contact,
+            'local_assistance_mobile' => $request->local_assistance_mobile,
+            'local_assistance_amount' => $request->local_assistance_amount,
+
+            // Total funding amount (calculate from table)
+            'total_funding_amount' => ($request->family_funding_amount ?: 0) +
+                ($request->bank_loan_amount ?: 0) +
+                ($request->other_assistance1_amount ?: 0) +
+                ($request->other_assistance2_amount ?: 0) +
+                ($request->local_assistance_amount ?: 0),
+
+            // Sibling Assistance
+            'sibling_assistance' => $request->sibling_assistance,
+            'sibling_ngo_name' => $request->sibling_ngo_name,
+            'sibling_loan_status' => $request->sibling_loan_status,
+            'sibling_applied_year' => $request->sibling_applied_year,
+            'sibling_applied_amount' => $request->sibling_applied_amount,
+
+            // Bank Details
+            'account_holder_name' => $request->account_holder_name,
+            'bank_name' => $request->bank_name,
+            'account_number' => $request->account_number,
+            'branch_name' => $request->branch_name,
+            'ifsc_code' => $request->ifsc_code,
+            'bank_address' => $request->bank_address,
+
+            'status' => 'step4_completed',
+        ];
+
+        FundingDetail::create($data);
+
+        return redirect()->route('user.home')->with('success', 'Funding details saved successfully!');
     }
 }

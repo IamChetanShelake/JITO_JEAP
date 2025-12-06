@@ -41,7 +41,8 @@
                                                     <span class="upload-icon">⭱</span> Upload
                                                 </label>
 
-                                                <input type="file" id="uploadInput" name="image" hidden accept=".jpg,.jpeg,.png">
+                                                <input type="file" id="uploadInput" name="image" hidden
+                                                    accept=".jpg,.jpeg,.png">
                                             </div>
                                             <small class="text-danger">{{ $errors->first('image') }}</small>
                                         </div>
@@ -56,9 +57,14 @@
                                                 </div> --}}
                                         <div class="form-group mb-3">
                                             <select class="form-control " name="financial_asset_type" required>
-                                                <option disabled {{ old('financial_asset_type') ? '' : 'selected' }} hidden>Financial Asst Type *</option>
-                                                <option value="domestic" {{ old('financial_asset_type') == 'domestic' ? 'selected' : '' }}>Domestic</option>
-                                                <option value="foreign_finance_assistant" {{ old('financial_asset_type') == 'foreign_finance_assistant' ? 'selected' : '' }}>Foreign Financial
+                                                <option disabled {{ old('financial_asset_type') ? '' : 'selected' }} hidden>
+                                                    Financial Asst Type *</option>
+                                                <option value="domestic"
+                                                    {{ old('financial_asset_type') == 'domestic' ? 'selected' : '' }}>
+                                                    Domestic</option>
+                                                <option value="foreign_finance_assistant"
+                                                    {{ old('financial_asset_type') == 'foreign_finance_assistant' ? 'selected' : '' }}>
+                                                    Foreign Financial
                                                     Assistance</option>
                                             </select>
                                             <small class="text-danger">{{ $errors->first('financial_asset_type') }}</small>
@@ -67,16 +73,22 @@
 
                                         <div class="form-group mb-3">
                                             <select class="form-control" name="financial_asset_for" required>
-                                                <option disabled {{ old('financial_asset_for') ? '' : 'selected' }} hidden>Financial Asset For *</option>
-                                                <option value="graduation" {{ old('financial_asset_for') == 'graduation' ? 'selected' : '' }}>Graduation</option>
-                                                <option value="post_graduation" {{ old('financial_asset_for') == 'post_graduation' ? 'selected' : '' }}>Post Graduation</option>
+                                                <option disabled {{ old('financial_asset_for') ? '' : 'selected' }} hidden>
+                                                    Financial Asset For *</option>
+                                                <option value="graduation"
+                                                    {{ old('financial_asset_for') == 'graduation' ? 'selected' : '' }}>
+                                                    Graduation</option>
+                                                <option value="post_graduation"
+                                                    {{ old('financial_asset_for') == 'post_graduation' ? 'selected' : '' }}>
+                                                    Post Graduation</option>
                                             </select>
                                             <small class="text-danger">{{ $errors->first('financial_asset_for') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <input type="number" name="aadhar_card_number" class="form-control"
-                                                placeholder="Aadhar Card Number *" value="{{ old('aadhar_card_number') }}" required>
+                                                placeholder="Aadhar Card Number *" value="{{ old('aadhar_card_number') }}"
+                                                required>
                                             <small class="text-danger">{{ $errors->first('aadhar_card_number') }}</small>
                                         </div>
 
@@ -104,15 +116,20 @@
                                             <small class="text-danger">{{ $errors->first('alternate_phone') }}</small>
                                         </div>
 
-                                        <div class="form-group mb-3">
+                                        {{-- <div class="form-group mb-3">
                                             <input type="email" name="alternate_email" class="form-control"
                                                 placeholder="Alternate Email Address" value="{{ old('alternate_email') }}">
                                             <small class="text-danger">{{ $errors->first('alternate_email') }}</small>
                                         </div>
+                                         --}}
+                                        <div class="form-group mb-3">
+                                            <textarea class="form-control" name="address" rows="3" placeholder="Flat No, Building No/Street Name*" required>{{ old('address') }}</textarea>
+                                            <small class="text-danger">{{ $errors->first('address') }}</small>
+                                        </div>
 
                                         <div class="form-group mb-3">
-                                            <textarea class="form-control" name="address" rows="3" placeholder="Current Address *" required>{{ old('address') }}</textarea>
-                                            <small class="text-danger">{{ $errors->first('address') }}</small>
+                                            <textarea class="form-control" name="address1" rows="3" placeholder="Address 1*" required>{{ old('address1') }}</textarea>
+                                            <small class="text-danger">{{ $errors->first('address1') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
                                             <input type="text" class="form-control" name="city" placeholder="City *"
@@ -125,6 +142,11 @@
                                                 placeholder="District *" value="{{ old('district') }}" required>
                                             <small class="text-danger">{{ $errors->first('district') }}</small>
                                         </div>
+                                        <div class="form-group mb-3">
+                                            <input type="text" class="form-control" name="state"
+                                                placeholder="State *" value="{{ old('state') }}" required>
+                                            <small class="text-danger">{{ $errors->first('state') }}</small>
+                                        </div>
 
                                     </div>
 
@@ -133,17 +155,6 @@
 
 
 
-                                        <div class="form-group mb-3">
-                                            <input type="text" class="form-control" name="state" placeholder="State *"
-                                                value="{{ old('state') }}" required>
-                                            <small class="text-danger">{{ $errors->first('state') }}</small>
-                                        </div>
-
-                                        <div class="form-group mb-3">
-                                            <input type="text" name="chapter" class="form-control"
-                                                placeholder="Chapter *" value="{{ old('chapter') }}" required>
-                                            <small class="text-danger">{{ $errors->first('chapter') }}</small>
-                                        </div>
 
                                         <div class="form-group mb-3">
                                             <input type="number" name="pin_code" class="form-control"
@@ -152,13 +163,37 @@
                                         </div>
 
                                         <div class="form-group mb-3">
+                                            <input type="text" name="chapter" class="form-control"
+                                                placeholder="Chapter *" value="{{ old('chapter') }}" required>
+                                            <small class="text-danger">{{ $errors->first('chapter') }}</small>
+                                        </div>
+
+
+
+                                        <div class="form-group mb-3">
                                             <select class="form-control" name="nationality" required>
-                                                <option disabled {{ old('nationality') ? '' : 'selected' }} hidden>Nationality *</option>
-                                                <option value="indian" {{ old('nationality') == 'indian' ? 'selected' : '' }}>Indian</option>
-                                                <option value="foreigner" {{ old('nationality') == 'foreigner' ? 'selected' : '' }}>Foreigner</option>
+                                                <option disabled {{ old('nationality') ? '' : 'selected' }} hidden>
+                                                    Nationality *</option>
+                                                <option value="indian"
+                                                    {{ old('nationality') == 'indian' ? 'selected' : '' }}>Indian</option>
+                                                <option value="foreigner"
+                                                    {{ old('nationality') == 'foreigner' ? 'selected' : '' }}>Foreigner
+                                                </option>
                                             </select>
                                             <small class="text-danger">{{ $errors->first('nationality') }}</small>
                                         </div>
+                                        <div class="form-group mb-3">
+                                            <textarea class="form-control" name="aadhar_address" rows="3" placeholder="Aadhar/Pan Address *" required>{{ old('aadhar_address') }}</textarea>
+                                            <small class="text-danger">{{ $errors->first('aadhar_address') }}</small>
+                                        </div>
+
+                                        <div class="form-group mb-3">
+                                            <input type="email" name="alternate_email" class="form-control"
+                                                placeholder="Alternate Email Address"
+                                                value="{{ old('alternate_email') }}">
+                                            <small class="text-danger">{{ $errors->first('alternate_email') }}</small>
+                                        </div>
+
 
                                         {{-- <div class="form-group mb-3">
                                                     <input type="text" name="d_o_b" class="form-control"
@@ -184,8 +219,9 @@
 
                                         <div class="form-group mb-3">
                                             <input type="text" name="d_o_b" class="form-control"
-                                                placeholder="Date of Birth (dd-mm-yyyy) *" value="{{ old('d_o_b') }}" pattern="\d{2}-\d{2}-\d{4}"
-                                                title="Format: dd-mm-yyyy" inputmode="numeric" required>
+                                                placeholder="Date of Birth (dd-mm-yyyy) *" value="{{ old('d_o_b') }}"
+                                                pattern="\d{2}-\d{2}-\d{4}" title="Format: dd-mm-yyyy"
+                                                inputmode="numeric" required>
                                             <small class="text-danger">{{ $errors->first('d_o_b') }}</small>
                                         </div>
 
@@ -199,9 +235,12 @@
 
                                         <div class="form-group mb-3">
                                             <select class="form-control" name="gender" required>
-                                                <option disabled {{ old('gender') ? '' : 'selected' }} hidden>Gender *</option>
-                                                <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
-                                                <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
+                                                <option disabled {{ old('gender') ? '' : 'selected' }} hidden>Gender *
+                                                </option>
+                                                <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>
+                                                    Male</option>
+                                                <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>
+                                                    Female</option>
                                             </select>
                                             <small class="text-danger">{{ $errors->first('gender') }}</small>
                                         </div>
@@ -214,9 +253,14 @@
 
                                         <div class="form-group mb-3">
                                             <select class="form-control" name="marital_status" required>
-                                                <option disabled {{ old('marital_status') ? '' : 'selected' }} hidden>Marital Status *</option>
-                                                <option value="married" {{ old('marital_status') == 'married' ? 'selected' : '' }}>Married</option>
-                                                <option value="unmarried" {{ old('marital_status') == 'unmarried' ? 'selected' : '' }}>Unmarried</option>
+                                                <option disabled {{ old('marital_status') ? '' : 'selected' }} hidden>
+                                                    Marital Status *</option>
+                                                <option value="married"
+                                                    {{ old('marital_status') == 'married' ? 'selected' : '' }}>Married
+                                                </option>
+                                                <option value="unmarried"
+                                                    {{ old('marital_status') == 'unmarried' ? 'selected' : '' }}>Unmarried
+                                                </option>
                                             </select>
                                             <small class="text-danger">{{ $errors->first('marital_status') }}</small>
                                         </div>
@@ -235,24 +279,36 @@
 
                                         <div class="form-group mb-3">
                                             <select class="form-control" name="blood_group" required>
-                                                <option disabled {{ old('blood_group') ? '' : 'selected' }} hidden>Blood Group *</option>
-                                                <option value="A+" {{ old('blood_group') == 'A+' ? 'selected' : '' }}>A+</option>
-                                                <option value="A-" {{ old('blood_group') == 'A-' ? 'selected' : '' }}>A-</option>
-                                                <option value="B+" {{ old('blood_group') == 'B+' ? 'selected' : '' }}>B+</option>
-                                                <option value="B-" {{ old('blood_group') == 'B-' ? 'selected' : '' }}>B-</option>
-                                                <option value="AB+" {{ old('blood_group') == 'AB+' ? 'selected' : '' }}>AB+</option>
-                                                <option value="AB-" {{ old('blood_group') == 'AB-' ? 'selected' : '' }}>AB-</option>
-                                                <option value="O+" {{ old('blood_group') == 'O+' ? 'selected' : '' }}>O+</option>
-                                                <option value="O-" {{ old('blood_group') == 'O-' ? 'selected' : '' }}>O-</option>
+                                                <option disabled {{ old('blood_group') ? '' : 'selected' }} hidden>Blood
+                                                    Group *</option>
+                                                <option value="A+" {{ old('blood_group') == 'A+' ? 'selected' : '' }}>
+                                                    A+</option>
+                                                <option value="A-" {{ old('blood_group') == 'A-' ? 'selected' : '' }}>
+                                                    A-</option>
+                                                <option value="B+" {{ old('blood_group') == 'B+' ? 'selected' : '' }}>
+                                                    B+</option>
+                                                <option value="B-" {{ old('blood_group') == 'B-' ? 'selected' : '' }}>
+                                                    B-</option>
+                                                <option value="AB+"
+                                                    {{ old('blood_group') == 'AB+' ? 'selected' : '' }}>AB+</option>
+                                                <option value="AB-"
+                                                    {{ old('blood_group') == 'AB-' ? 'selected' : '' }}>AB-</option>
+                                                <option value="O+" {{ old('blood_group') == 'O+' ? 'selected' : '' }}>
+                                                    O+</option>
+                                                <option value="O-" {{ old('blood_group') == 'O-' ? 'selected' : '' }}>
+                                                    O-</option>
                                             </select>
                                             <small class="text-danger">{{ $errors->first('blood_group') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <select class="form-control" name="specially_abled" required>
-                                                <option disabled {{ old('specially_abled') ? '' : 'selected' }} hidden>Specially Abled *</option>
-                                                <option value="yes" {{ old('specially_abled') == 'yes' ? 'selected' : '' }}>Yes</option>
-                                                <option value="no" {{ old('specially_abled') == 'no' ? 'selected' : '' }}>No</option>
+                                                <option disabled {{ old('specially_abled') ? '' : 'selected' }} hidden>
+                                                    Specially Abled *</option>
+                                                <option value="yes"
+                                                    {{ old('specially_abled') == 'yes' ? 'selected' : '' }}>Yes</option>
+                                                <option value="no"
+                                                    {{ old('specially_abled') == 'no' ? 'selected' : '' }}>No</option>
                                             </select>
                                             <small class="text-danger">{{ $errors->first('specially_abled') }}</small>
                                         </div>

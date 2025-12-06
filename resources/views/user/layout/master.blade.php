@@ -474,8 +474,8 @@
                         </a>
                     </li>
 
-                    <li>
-                        <a href="{{ route('user.step1') }}">
+                    <li class="{{ request()->routeIs('user.step7') ? 'active' : '' }}">
+                        <a href="{{ route('user.step7') }}">
                             <div class="step-icon">
                                 <i class="bi bi-eye"></i>
                             </div>

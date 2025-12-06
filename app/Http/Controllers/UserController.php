@@ -58,14 +58,16 @@ class UserController extends Controller
             'phone' => 'required|string|max:15',
             'email' => 'required|email|max:255',
             'alternate_phone' => 'nullable|string|max:15',
-            'alternate_email' => 'nullable|email|max:255',
-            'address' => 'required|string|max:500',
+            'address' => 'required|string',
+            'address1' => 'required|string',
             'city' => 'required|string|max:100',
             'district' => 'required|string|max:100',
             'state' => 'required|string|max:100',
+            'pin_code' => 'required|integer|max:6',
             'chapter' => 'required|string|max:100',
-            'pin_code' => 'required|string|max:10',
             'nationality' => 'required|in:indian,foreigner',
+            'aadhar_address' => 'required|string',
+            'alternate_email' => 'nullable|email|max:255',
             'd_o_b' => 'required|date_format:d-m-Y',
             'birth_place' => 'required|string|max:100',
             'gender' => 'required',
@@ -88,14 +90,16 @@ class UserController extends Controller
             'phone' => $request->phone,
             'email' => $request->email,
             'alternate_phone' => $request->alternate_phone,
-            'alternate_email' => $request->alternate_email,
-            'current_address' => $request->address,
+            'address' => $request->address,
+            'address1' => $request->address1,
             'city' => $request->city,
             'district' => $request->district,
             'state' => $request->state,
-            'chapter' => $request->chapter,
             'pin_code' => $request->pin_code,
+            'chapter' => $request->chapter,
             'nationality' => $request->nationality,
+            'aadhar_address' => $request->aadhar_address,
+            'alternate_email' => $request->alternate_email,
             'd_o_b' => Carbon::createFromFormat('d-m-Y', $request->d_o_b)->format('Y-m-d'),
             'birth_place' => $request->birth_place,
             'gender' => $request->gender,
@@ -612,5 +616,19 @@ class UserController extends Controller
         FundingDetail::create($data);
 
         return redirect()->route('user.home')->with('success', 'Funding details saved successfully!');
+    }
+
+
+
+    public function step7(Request $request)
+    {
+        $user_id = Auth::id();
+        $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
+        return view('user.step7', compact('type'));
+    }
+
+    public function step7store(Request $request)
+    {
+        dd("Done");
     }
 }

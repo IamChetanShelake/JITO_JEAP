@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('role')->default('user');
             $table->string('phone')->nullable();
-            $table->string('address')->nullable();
+            $table->longText('address')->nullable();
+            $table->longText('address1')->nullable();
             $table->string('image')->nullable();
             $table->string('status')->default('active');
             $table->string('register_date')->nullable();
@@ -35,6 +36,7 @@ return new class extends Migration
             $table->string('religion')->nullable();
             $table->string('sub_cast')->nullable();
             $table->enum('nationality', ['indian', 'foreigner'])->nullable();
+            $table->longText('aadhar_address')->nullable();
             $table->string('pan_card')->nullable();
             $table->string('alternate_email')->nullable();
             $table->string('alternate_phone')->nullable();
@@ -44,9 +46,10 @@ return new class extends Migration
             $table->string('city')->nullable();
             $table->string('chapter')->nullable();
             $table->string('state')->nullable();
+            $table->integer('pin_code')->nullable();
             $table->string('district')->nullable();
             $table->string('new_zone')->nullable();
-            $table->string('pin_code')->nullable();
+            // $table->string('pin_code')->nullable();
             $table->timestamps();
         });
 

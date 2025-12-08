@@ -149,6 +149,11 @@
             border-color: green !important;
         }
 
+        .active-step {
+            background-color: #FFC727 !important;
+            border-color: #FFC727 !important;
+        }
+
         /* Step text */
         .step-content {
             margin-left: 18px;
@@ -423,7 +428,7 @@
 
                 <ul class="stepper">
 
-                    <li class="{{ request()->routeIs('user.step1') ? 'active' : '' }}">
+                    {{-- <li class="{{ request()->routeIs('user.step1') ? 'active' : '' }}">
                         <a href="{{ route('user.step1') }}">
                             <div class="step-icon @if (auth()->check() && auth()->user()->submit_status === 'submited') completed-step @endif">
                                 @if (auth()->check() && auth()->user()->submit_status === 'submited')
@@ -441,19 +446,118 @@
                                 <div class="step-title">Personal Details</div>
                             </div>
                         </a>
+                    </li> --}}
+                    <li class="{{ request()->routeIs('user.step1') ? 'active' : '' }}">
+                        <a href="{{ route('user.step1') }}">
+                            <div
+                                class="step-icon
+            @if (auth()->check() && auth()->user()->submit_status === 'submited') completed-step @endif
+            @if (request()->routeIs('user.step1')) active-step @endif">
+
+                                @if (auth()->check() && auth()->user()->submit_status === 'submited')
+                                    {{-- Tick SVG --}}
+                                    <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
+                                            fill="white" />
+                                    </svg>
+                                @else
+                                    {{-- Default Icon --}}
+                                    <i class="bi bi-person"></i>
+                                @endif
+
+                            </div>
+
+                            <div class="step-content">
+                                <div class="step-number">Step 1</div>
+                                <div class="step-title">Personal Details</div>
+                            </div>
+                        </a>
                     </li>
 
+
+                    @php
+                        $family = \App\Models\FamilyDetail::where('user_id', auth()->id())->first();
+                    @endphp
+                    {{-- 
                     <li class="{{ request()->routeIs('user.step2') ? 'active' : '' }}">
                         <a href="{{ route('user.step2') }}">
-                            <div class="step-icon">
-                                <i class="bi bi-people"></i>
+
+                            <div class="step-icon @if ($family && $family->submit_status === 'submited') completed-step @endif">
+
+                                @if ($family && $family->submit_status === 'submited')
+                                    <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
+                                            fill="white" />
+                                    </svg>
+                                @else
+                                    <i class="bi bi-people"></i>
+                                @endif
+
                             </div>
                             <div class="step-content">
                                 <div class="step-number">Step 2</div>
                                 <div class="step-title">Family Details</div>
                             </div>
                         </a>
+                    </li> --}}
+
+                    {{-- <li class="{{ request()->routeIs('user.step2') ? 'active' : '' }}">
+                        <a href="{{ route('user.step2') }}">
+                            <div class="step-icon 
+                                @if ($family && $family->submit_status === 'submited') completed-step @endif">
+
+                                @if ($family && $family->submit_status === 'submited')
+                                    <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
+                                            fill="white" />
+                                    </svg>
+                                @else
+                                    <i class="bi bi-people"></i>
+                                @endif
+                            </div>
+
+                            <div class="step-content">
+                                <div class="step-number">Step 2</div>
+                                <div class="step-title">Family Details</div>
+                            </div>
+
+                        </a>
+                    </li> --}}
+
+                    <li class="{{ request()->routeIs('user.step2') ? 'active' : '' }}">
+                        <a href="{{ route('user.step2') }}">
+
+                            <div
+                                class="step-icon
+            @if ($family && $family->submit_status === 'submited') completed-step @endif
+            @if (request()->routeIs('user.step2')) active-step @endif">
+
+                                @if ($family && $family->submit_status === 'submited')
+                                    <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
+                                            fill="white" />
+                                    </svg>
+                                @else
+                                    <i class="bi bi-people"></i>
+                                @endif
+
+                            </div>
+
+                            <div class="step-content">
+                                <div class="step-number">Step 2</div>
+                                <div class="step-title">Family Details</div>
+                            </div>
+
+                        </a>
                     </li>
+
+
+
+
 
                     <li class="{{ request()->routeIs('user.step3') ? 'active' : '' }}">
                         <a href="{{ route('user.step3') }}">

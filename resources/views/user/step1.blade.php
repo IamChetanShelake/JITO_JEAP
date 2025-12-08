@@ -266,11 +266,16 @@
                                                 </script> --}}
 
                                         <div class="form-group mb-3">
-                                            <input type="text" name="d_o_b" class="form-control"
+                                            {{-- <input type="text" name="d_o_b" class="form-control"
                                                 placeholder="Date of Birth (dd-mm-yyyy) *"
-                                                value="{{ old('d_o_b', $user->d_o_b ? $user->d_o_b->format('d-m-Y') : '') }}"
-                                                pattern="\d{2}-\d{2}-\d{4}" title="Format: dd-mm-yyyy"
-                                                inputmode="numeric" required>
+                                                value="{{ old('d_o_b', $user->d_o_b ? $user->d_o_b->format('Y-m-d') : '') }}"
+                                                pattern="\d{2}-\d{2}-\d{4}" title="Format: yyyy-mm-dd"
+                                                inputmode="numeric" required> --}}
+                                            <input type="text" name="d_o_b" class="form-control"
+                                                placeholder="Date of Birth (yyyy-mm-dd) *"
+                                                value="{{ old('d_o_b', $user->d_o_b ?? '') }}"
+                                                pattern="\d{4}-\d{2}-\d{2}" title="Format: yyyy-mm-dd" required>
+
                                             <small class="text-danger">{{ $errors->first('d_o_b') }}</small>
                                         </div>
 

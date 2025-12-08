@@ -71,7 +71,7 @@ class UserController extends Controller
             'nationality' => 'required|in:indian,foreigner',
             'aadhar_address' => 'required|string',
             'alternate_email' => 'nullable|email|max:255',
-            'd_o_b' => 'required|date_format:d-m-Y',
+            'd_o_b' => 'required|date_format:Y-m-d',
             'birth_place' => 'required|string|max:100',
             'gender' => 'required',
             'age' => 'required|integer|min:18',
@@ -103,7 +103,8 @@ class UserController extends Controller
             'nationality' => $request->nationality,
             'aadhar_address' => $request->aadhar_address,
             'alternate_email' => $request->alternate_email,
-            'd_o_b' => Carbon::createFromFormat('d-m-Y', $request->d_o_b)->format('Y-m-d'),
+            // 'd_o_b' => Carbon::createFromFormat('d-m-Y', $request->d_o_b)->format('Y-m-d'),
+            'd_o_b' => $request->d_o_b,
             'birth_place' => $request->birth_place,
             'gender' => $request->gender,
             'age' => $request->age,
@@ -134,7 +135,8 @@ class UserController extends Controller
     {
         $user_id = Auth::id();
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
-        return view('user.step2', compact('type'));
+        $familyDetail = Familydetail::where('user_id', $user_id)->first();
+        return view('user.step2', compact('type', 'familyDetail'));
     }
 
 
@@ -203,6 +205,7 @@ class UserController extends Controller
             'maternal_aunt_name' => 'nullable|string|max:255',
             'maternal_aunt_mobile' => 'nullable|string|max:15',
             'maternal_aunt_email' => 'nullable|email|max:255',
+
         ]);
 
         $user_id = Auth::id();
@@ -266,6 +269,7 @@ class UserController extends Controller
             'maternal_aunt_name' => $request->maternal_aunt_name,
             'maternal_aunt_mobile' => $request->maternal_aunt_mobile,
             'maternal_aunt_email' => $request->maternal_aunt_email,
+            'submit_status' => 'submited',
         ];
 
         // Handle file uploads
@@ -295,7 +299,7 @@ class UserController extends Controller
 
         Familydetail::create($data);
 
-        return redirect()->route('user.home')->with('success', 'Family details saved successfully!');
+        return redirect()->route('user.step3')->with('success', 'Family details saved successfully!');
     }
 
 

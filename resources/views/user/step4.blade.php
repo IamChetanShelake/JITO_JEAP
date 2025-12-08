@@ -296,7 +296,8 @@
 
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control" name="sibling_loan_status"
-                                                        placeholder="Loan status? *" value="{{ old('sibling_loan_status') }}">
+                                                        placeholder="Loan status? *"
+                                                        value="{{ old('sibling_loan_status') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('sibling_loan_status') }}</small>
                                                 </div>
@@ -305,8 +306,9 @@
                                             <!-- Right Column -->
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="sibling_applied_year"
-                                                        placeholder="Applied for year? *" value="{{ old('sibling_applied_year') }}">
+                                                    <input type="text" class="form-control"
+                                                        name="sibling_applied_year" placeholder="Applied for year? *"
+                                                        value="{{ old('sibling_applied_year') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('sibling_applied_year') }}</small>
                                                 </div>

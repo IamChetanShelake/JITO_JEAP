@@ -526,6 +526,95 @@
                     overlay.classList.toggle('show');
                 }
             </script>
+
+            <!-- File Upload Functionality Script -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Function to handle file upload
+                    function handleFileUpload(fileInput) {
+                        console.log('File upload triggered for input:', fileInput.name);
+                        const photoUploadBox = fileInput.closest('.photo-upload-box');
+                        const uploadStatus = photoUploadBox.querySelector('.upload-status');
+                        const uploadButton = photoUploadBox.querySelector('.upload-btn');
+                        const uploadedButton = photoUploadBox.querySelector('.uploaded-btn');
+                        console.log('Upload status element:', uploadStatus);
+                        const uploadSummary = photoUploadBox.querySelector('.upload-summary');
+                        const removeBtn = photoUploadBox.querySelector('.remove-upload');
+
+                        if (fileInput.files.length > 0) {
+                            const file = fileInput.files[0];
+                            console.log('Selected file:', file);
+                            const fileSizeKB = Math.round(file.size / 1024);
+                            const fileSizeText = fileSizeKB > 1024 ? (fileSizeKB / 1024).toFixed(2) + ' MB' : fileSizeKB +
+                                ' KB';
+
+                            uploadSummary.innerHTML = `
+                                <div class="text-success mb-1">✔ Document uploaded successfully</div>
+                                <small class="text-muted">
+                                    <strong>Name:</strong> ${file.name}<br>
+                                    <strong>Size:</strong> ${fileSizeText}
+                                </small>
+                            `;
+
+                            photoUploadBox.style.height = '143px';
+                            uploadButton.style.display = 'none';
+                            uploadedButton.style.display = 'block';
+                            uploadedButton.style.color = '#009846';
+                            uploadedButton.style.border = '1px solid #009846';
+                            uploadedButton.style.display = 'flex';
+                            uploadedButton.style.justifyContent = 'center';
+                            uploadedButton.style.alignItems = 'center';
+                            uploadedButton.style.fontSize = '91%';
+                            uploadedButton.style.borderRadius = '10px';
+                            uploadStatus.style.display = 'block';
+                            removeBtn.style.display = 'inline-block';
+                        } else {
+                            photoUploadBox.style.height = '50px';
+                            uploadStatus.style.display = 'none';
+                            removeBtn.style.display = 'none';
+                            uploadSummary.innerHTML = '';
+                        }
+                    }
+
+                    // Function to remove upload
+                    function removeUpload(fileInput) {
+                        const photoUploadBox = fileInput.closest('.photo-upload-box');
+                        const uploadStatus = photoUploadBox.querySelector('.upload-status');
+                        const uploadSummary = photoUploadBox.querySelector('.upload-summary');
+                        const uploadButton = photoUploadBox.querySelector('.upload-btn');
+                        const uploadedButton = photoUploadBox.querySelector('.uploaded-btn');
+                        const removeBtn = photoUploadBox.querySelector('.remove-upload');
+
+                        fileInput.value = '';
+                        photoUploadBox.style.height = '50px';
+                        uploadStatus.style.display = 'none';
+                        removeBtn.style.display = 'none';
+                        uploadSummary.innerHTML = '';
+                        uploadButton.style.display = 'block';
+                        uploadedButton.style.display = 'none';
+                    }
+
+                    // Add event listeners to all file inputs
+                    const fileInputs = document.querySelectorAll('input[type="file"]');
+                    fileInputs.forEach(function(input) {
+                        input.addEventListener('change', function() {
+                            // console.log(input);
+                            handleFileUpload(this);
+                        });
+
+                        // Add remove button functionality
+                        const photoUploadBox = input.closest('.photo-upload-box');
+                        if (photoUploadBox) {
+                            const removeBtn = photoUploadBox.querySelector('.remove-upload');
+                            if (removeBtn) {
+                                removeBtn.addEventListener('click', function() {
+                                    removeUpload(input);
+                                });
+                            }
+                        }
+                    });
+                });
+            </script>
         </div>
 </body>
 

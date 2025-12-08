@@ -35,15 +35,38 @@
 
                                         <div class="form-group mb-3">
                                             <div class="photo-upload-box">
-                                                <span class="photo-label">Add Photo *</span>
-
-                                                <label for="uploadInput" class="upload-btn">
-                                                    <span class="upload-icon">⭱</span> Upload
-                                                </label>
-
-                                                <input type="file" id="uploadInput" name="image" hidden accept=".jpg,.jpeg,.png">
+                                                <div class="row mb-2 align-items-center">
+                                                    <div class="col-9">
+                                                        <span class="photo-label">Add Photo *</span>
+                                                        <input type="file" id="uploadInput" name="image" hidden accept=".jpg,.jpeg,.png">
+                                                        <small class="text-danger">{{ $errors->first('image') }}</small>
+                                                    </div>
+                                                    <div class="col-3">
+                                                        <label for="uploadInput" class="upload-btn">
+                                                            <span class="upload-icon">⭱</span> Upload
+                                                        </label>
+                                                        <label class="uploaded-btn" style="display: none;">
+                                                            <span class="upload-icon">✔</span> Upload
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2 align-items-center">
+                                                    <div class="col-12 align-items-center">
+                                                        <div class="upload-status" style="display:none;">
+                                                            <div class="row">
+                                                                <div class="col-9">
+                                                                    <div class="upload-summary"></div>
+                                                                </div>
+                                                                <div class="col-3">
+                                                                    <button type="button" class="remove-upload btn bt-sm" style="display:none;">
+                                                                        <i class="bi bi-trash"></i>
+                                                                        Remove</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <small class="text-danger">{{ $errors->first('image') }}</small>
                                         </div>
 
                                         {{-- <div class="form-group mb-3">
@@ -279,11 +302,10 @@
                                     <path d="M9 6l6 6-6 6" />
                                 </svg>
 
-                            </button>
-                        </div>
-                    </form>
+            </button>
+        </div>
+    </form>
                 </div>
             </div>
         </div>
-    </div>
 @endsection

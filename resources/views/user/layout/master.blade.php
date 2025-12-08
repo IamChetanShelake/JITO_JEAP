@@ -17,6 +17,15 @@
             color: #4C4C4C !important;
         }
 
+        ::placeholder,
+        select option,
+        textarea::placeholder {
+            color: #494C4E;
+            font-weight: 300;
+            font-size: 14px;
+        }
+
+
         --webkit-scrollbar-thumb {
             border-radius: 9px;
         }
@@ -310,10 +319,10 @@
             height: 50px;
             border: 1px solid #d9d9d9;
             border-radius: 7px;
-            padding: 12px 18px;
-            display: flex;
+            padding: 3px 18px;
+            /* display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: center; */
             font-family: 'Poppins', sans-serif;
             color: #4C4C4C;
             background: white;
@@ -347,6 +356,15 @@
         #uploadInput:focus {
             outline: none;
         }
+
+        .remove-upload {
+            color: #F43333;
+            border: 1px solid #F43333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 91%;
+        }
     </style>
 </head>
 
@@ -369,8 +387,9 @@
                     </b></span>
             </a>
             <div class="ms-auto d-flex align-items-center">
-                <button class="btn btn-purple me-2" style="background-color: #393185; color: white;">Step 1 of
-                    7</button>
+                {{-- <button class="btn btn-purple me-2" style="background-color: #393185; color: white;">Step 1 of
+                    7</button> --}}
+                @yield('step')
                 <button class="btn btn-danger" href="{{ route('logout') }}"
                     onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();"><svg
@@ -446,8 +465,8 @@
                         </a>
                     </li>
 
-                    <li>
-                        <a href="{{ route('user.step1') }}">
+                    <li class="{{ request()->routeIs('user.step5') ? 'active' : '' }}">
+                        <a href="{{ route('user.step5') }}">
                             <div class="step-icon">
                                 {{-- <i class="bi bi-pen"></i> --}}
                                 {{-- <i class="bi bi-file-check"></i> --}}
@@ -462,8 +481,8 @@
                         </a>
                     </li>
 
-                    <li>
-                        <a href="{{ route('user.step1') }}">
+                    <li class="{{ request()->routeIs('user.step6') ? 'active' : '' }}">
+                        <a href="{{ route('user.step6') }}">
                             <div class="step-icon">
                                 <i class="bi bi-journal-text"></i>
                             </div>

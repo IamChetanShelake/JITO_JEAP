@@ -1,4 +1,8 @@
 @extends('user.layout.master')
+@section('step')
+    <button class="btn btn-purple me-2" style="background-color: #393185; color: white;">Step 4 of
+        7</button>
+@endsection
 @section('content')
     <style>
         .section-divider {
@@ -12,7 +16,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <form method="POST" action="{{ route('user.step3.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('user.step4.store') }}" enctype="multipart/form-data">
                         @csrf
                         <div class="card form-card">
                             <div class="card-body">
@@ -296,7 +300,8 @@
 
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control" name="sibling_loan_status"
-                                                        placeholder="Loan status? *" value="{{ old('sibling_loan_status') }}">
+                                                        placeholder="Loan status? *"
+                                                        value="{{ old('sibling_loan_status') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('sibling_loan_status') }}</small>
                                                 </div>
@@ -305,8 +310,9 @@
                                             <!-- Right Column -->
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="sibling_applied_year"
-                                                        placeholder="Applied for year? *" value="{{ old('sibling_applied_year') }}">
+                                                    <input type="text" class="form-control"
+                                                        name="sibling_applied_year" placeholder="Applied for year? *"
+                                                        value="{{ old('sibling_applied_year') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('sibling_applied_year') }}</small>
                                                 </div>

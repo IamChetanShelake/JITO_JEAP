@@ -96,6 +96,7 @@ return new class extends Migration
             $table->decimal('group_4_year4', 15, 2)->nullable();
 
             $table->string('status')->default('step3_completed');
+            $table->enum('submit_status', ['pending', 'submited', 'approved', 'resubmit'])->nullable();
             $table->timestamps();
         });
     }

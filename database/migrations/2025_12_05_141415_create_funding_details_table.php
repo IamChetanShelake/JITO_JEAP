@@ -73,6 +73,7 @@ return new class extends Migration
             $table->text('bank_address');
 
             $table->string('status')->default('step4_completed');
+            $table->enum('submit_status', ['pending', 'submited', 'approved', 'resubmit'])->nullable();
             $table->timestamps();
         });
     }

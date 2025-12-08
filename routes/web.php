@@ -4,6 +4,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ZoneController;
+use App\Http\Controllers\ChapterController;
+use App\Http\Controllers\ApexLeadershipController;
+use App\Http\Controllers\WorkingCommitteeController;
+use App\Http\Controllers\InitiativeController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -13,20 +18,28 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-// Route::get('/admin/home', function () {
-//     return view('admin.home');
-// })->name('admin.home')->middleware(['auth', 'admin']);
-Route::get('/admin/home', [AdminController::class, 'index'])
-    ->name('admin.home')
-    ->middleware(['auth', 'admin']);
+// Admin Routes - Protected by auth and admin middleware
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
+    Route::get('/home', [AdminController::class, 'index'])->name('home');
 
-// Route::get('/user/home', [UserController::class, 'index'])
-//     ->name('user.home')
-//     ->middleware(['auth', 'user']);
-// Route::get('/loan/apply/{type}', [UserController::class, 'applyLoan'])
-//     ->name('loan.apply')
-//     ->middleware(['auth', 'user']);
+    // Apex Leadership Routes
+    Route::resource('apex', ApexLeadershipController::class);
 
+    // Working Committee Routes
+    Route::resource('committee', WorkingCommitteeController::class);
+
+    // Zone Routes
+    Route::resource('zones', ZoneController::class);
+
+    // Chapter Routes
+    Route::resource('chapters', ChapterController::class);
+
+    // Initiative Routes
+    Route::resource('initiatives', InitiativeController::class);
+});
+
+// User Routes - Protected by auth and user middleware
 Route::middleware(['auth', 'user'])
     ->prefix('user')
     ->name('user.')
@@ -57,6 +70,17 @@ Route::middleware(['auth', 'user'])
             ->name('step4');
         Route::post('/Step4Store/', [UserController::class, 'step4store'])
             ->name('step4.store');
+
+        Route::get('/Step5', [UserController::class, 'step5'])
+            ->name('step5');
+        Route::post('/Step5Store/', [UserController::class, 'step5store'])
+            ->name('step5.store');
+
+
+        Route::get('/Step6', [UserController::class, 'step6'])
+            ->name('step6');
+        Route::post('/Step6Store/', [UserController::class, 'step6store'])
+            ->name('step6.store');
 
 
         Route::get('/Step7', [UserController::class, 'step7'])

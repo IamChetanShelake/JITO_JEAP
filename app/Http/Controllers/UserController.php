@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\Familydetail;
 use App\Models\EducationDetail;
 use App\Models\FundingDetail;
+use App\Models\GuarantorDetail;
+use App\Models\Document;
 use Illuminate\Http\Request;
 use App\Models\Loan_category;
 use Illuminate\Support\Carbon;
@@ -618,7 +620,195 @@ class UserController extends Controller
         return redirect()->route('user.home')->with('success', 'Funding details saved successfully!');
     }
 
+    public function step5(Request $request)
+    {
+        $user_id = Auth::id();
+        $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
+        return view('user.step5', compact('type'));
+    }
 
+    public function step5store(Request $request)
+    {
+        $request->validate([
+            // First Guarantor
+            'g_one_name' => 'required|string|max:255',
+            'g_one_gender' => 'required|in:male,female',
+            'g_one_permanent_address' => 'required|string|max:500',
+            'g_one_phone' => 'required|string|max:15',
+            'g_one_email' => 'required|email|max:255',
+            'g_one_relation_with_student' => 'required|string|max:255',
+            'g_one_aadhar_card_number' => 'required|string|max:12',
+            'g_one_pan_card_no' => 'required|string|max:10',
+            'g_one_d_o_b' => 'required|date_format:d-m-Y',
+            'g_one_income' => 'required|string|max:50',
+            'g_one_pan_card' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+
+            // Second Guarantor
+            'g_two_name' => 'required|string|max:255',
+            'g_two_gender' => 'required|in:male,female',
+            'g_two_permanent_address' => 'required|string|max:500',
+            'g_two_phone' => 'required|string|max:15',
+            'g_two_email' => 'required|email|max:255',
+            'g_two_relation_with_student' => 'required|string|max:255',
+            'g_two_aadhar_card_number' => 'required|string|max:12',
+            'g_two_pan_card_no' => 'required|string|max:10',
+            'g_two_d_o_b' => 'required|date_format:d-m-Y',
+            'g_two_income' => 'required|string|max:50',
+            'g_two_pan_card' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+
+            // Power of Attorney
+            'attorney_name' => 'required|string|max:255',
+            'attorney_email' => 'required|email|max:255',
+            'attorney_phone' => 'required|string|max:15',
+            'attorney_address' => 'required|string|max:500',
+            'attorney_relation_with_student' => 'required|string|max:255',
+        ]);
+
+        $user_id = Auth::id();
+
+        $data = [
+            'user_id' => $user_id,
+
+            // First Guarantor
+            'g_one_name' => $request->g_one_name,
+            'g_one_gender' => $request->g_one_gender,
+            'g_one_permanent_address' => $request->g_one_permanent_address,
+            'g_one_phone' => $request->g_one_phone,
+            'g_one_email' => $request->g_one_email,
+            'g_one_relation_with_student' => $request->g_one_relation_with_student,
+            'g_one_aadhar_card_number' => $request->g_one_aadhar_card_number,
+            'g_one_pan_card_no' => $request->g_one_pan_card_no,
+            'g_one_d_o_b' => Carbon::createFromFormat('d-m-Y', $request->g_one_d_o_b)->format('Y-m-d'),
+            'g_one_income' => $request->g_one_income,
+
+            // Second Guarantor
+            'g_two_name' => $request->g_two_name,
+            'g_two_gender' => $request->g_two_gender,
+            'g_two_permanent_address' => $request->g_two_permanent_address,
+            'g_two_phone' => $request->g_two_phone,
+            'g_two_email' => $request->g_two_email,
+            'g_two_relation_with_student' => $request->g_two_relation_with_student,
+            'g_two_aadhar_card_number' => $request->g_two_aadhar_card_number,
+            'g_two_pan_card_no' => $request->g_two_pan_card_no,
+            'g_two_d_o_b' => Carbon::createFromFormat('d-m-Y', $request->g_two_d_o_b)->format('Y-m-d'),
+            'g_two_income' => $request->g_two_income,
+
+            // Power of Attorney
+            'attorney_name' => $request->attorney_name,
+            'attorney_email' => $request->attorney_email,
+            'attorney_phone' => $request->attorney_phone,
+            'attorney_address' => $request->attorney_address,
+            'attorney_relation_with_student' => $request->attorney_relation_with_student,
+
+            'status' => 'step5_completed',
+        ];
+
+        // Handle file uploads
+        if ($request->hasFile('g_one_pan_card')) {
+            $gOnePanName = time() . '_g_one_pan.' . $request->g_one_pan_card->extension();
+            $request->g_one_pan_card->move('images', $gOnePanName);
+            $data['g_one_pan_card_upload'] = 'images/' . $gOnePanName;
+        }
+
+        if ($request->hasFile('g_two_pan_card')) {
+            $gTwoPanName = time() . '_g_two_pan.' . $request->g_two_pan_card->extension();
+            $request->g_two_pan_card->move('images', $gTwoPanName);
+            $data['g_two_pan_card_upload'] = 'images/' . $gTwoPanName;
+        }
+
+        GuarantorDetail::create($data);
+
+        return redirect()->route('user.step6')->with('success', 'Guarantor details saved successfully!');
+    }
+
+    public function step6(Request $request)
+    {
+        $user_id = Auth::id();
+        $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
+        return view('user.step6', compact('type'));
+    }
+
+    public function step6store(Request $request)
+    {
+        $request->validate([
+            // Education Documents
+            'board' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'board2' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'graduation' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'post_graduation' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'fee_structure' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'admission_letter' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'statement' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+            // Identity & Address Proof
+            'visa' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+            'passport' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'applicant_aadhar' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'applicant_pan' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'birth_certificate' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+            'electricity_bill' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            // Financial Documents
+            'father_itr' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'father_balanceSheet_pr_lss_stmnt' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'form16_salary_sleep' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'father_mother_income' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'loan_arrangement' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+            'father_bank_stmnt' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'mother_bank_stmnt' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'student_main_bank_details' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            // Additional Documents
+            'jain_sangh_cert' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'jatf_recommendation' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'other_docs' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+            'extra_curri' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+        ]);
+
+        $user_id = Auth::id();
+
+        $data = [
+            'user_id' => $user_id,
+        ];
+
+        // Handle file uploads
+        $files = [
+            'board',
+            'board2',
+            'graduation',
+            'post_graduation',
+            'fee_structure',
+            'admission_letter',
+            'statement',
+            'visa',
+            'passport',
+            'applicant_aadhar',
+            'applicant_pan',
+            'birth_certificate',
+            'electricity_bill',
+            'father_itr',
+            'father_balanceSheet_pr_lss_stmnt',
+            'form16_salary_sleep',
+            'father_mother_income',
+            'loan_arrangement',
+            'father_bank_stmnt',
+            'mother_bank_stmnt',
+            'student_main_bank_details',
+            'jain_sangh_cert',
+            'jatf_recommendation',
+            'other_docs',
+            'extra_curri'
+        ];
+
+        foreach ($files as $file) {
+            if ($request->hasFile($file)) {
+                $fileName = time() . '_' . $file . '.' . $request->$file->extension();
+                $request->$file->move('user_document_images', $fileName);
+                $data[$file] = 'user_document_images/' . $fileName;
+            }
+        }
+
+        Document::create($data);
+
+        return redirect()->route('user.step7')->with('success', 'Documents uploaded successfully!');
+    }
 
     public function step7(Request $request)
     {
@@ -627,8 +817,8 @@ class UserController extends Controller
         return view('user.step7', compact('type'));
     }
 
-    public function step7store(Request $request)
+    public function step7store()
     {
-        dd("Done");
+        dd('done');
     }
 }

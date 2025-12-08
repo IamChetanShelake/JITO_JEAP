@@ -1,4 +1,8 @@
  @extends('user.layout.master')
+ @section('step')
+     <button class="btn btn-purple me-2" style="background-color: #393185; color: white;">Step 7 of
+         7</button>
+ @endsection
  @section('content')
      <!-- Main Content -->
      <div class="col-lg-9 main-content">

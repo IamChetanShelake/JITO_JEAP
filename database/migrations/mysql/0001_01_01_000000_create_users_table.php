@@ -50,16 +50,17 @@ return new class extends Migration
             $table->string('district')->nullable();
             $table->string('new_zone')->nullable();
             // $table->string('pin_code')->nullable();
+            $table->enum('submit_status', ['pending', 'submited', 'approved', 'resubmit'])->nullable();
             $table->timestamps();
         });
 
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
+        Schema::connection('mysql')->create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');
             $table->timestamp('created_at')->nullable();
         });
 
-        Schema::create('sessions', function (Blueprint $table) {
+        Schema::connection('mysql')->create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
@@ -74,8 +75,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('sessions');
+        Schema::connection('mysql')->dropIfExists('users');
+        Schema::connection('mysql')->dropIfExists('password_reset_tokens');
+        Schema::connection('mysql')->dropIfExists('sessions');
     }
 };

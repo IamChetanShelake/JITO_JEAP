@@ -17,13 +17,54 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    private function getCurrentStepBasedOnSubmitStatus($userId)
+{
+    // Step 1: Check if user details submitted
+    if (User::where('id', $userId)->where('submit_status', 'submited')->exists()) {
+        
+        // Step 2: Check family details submitted
+        if (Familydetail::where('user_id', $userId)->where('submit_status', 'submited')->exists()) {
+            
+            // Step 3: Check education details submitted
+            if (EducationDetail::where('user_id', $userId)->where('submit_status', 'submited')->exists()) {
+                
+                // Step 4: Check funding details submitted
+                if (FundingDetail::where('user_id', $userId)->where('submit_status', 'submited')->exists()) {
+                    
+                    // Step 5: Check guarantor details submitted
+                    if (GuarantorDetail::where('user_id', $userId)->where('submit_status', 'submited')->exists()) {
+                        
+                        // Step 6: Only for "above" category, check documents submitted
+                        $loanType = Loan_category::where('user_id', $userId)->latest()->first()->type;
+                        if ($loanType === 'above') {
+                            if (Document::where('user_id', $userId)->where('submit_status', 'submited')->exists()) {
+                                return 7; // All steps completed
+                            }
+                            return 6; // Document step not submitted
+                        }
+                        return 7; // Below category skips step 6
+                    }
+                    return 5; // Guarantor step not submitted
+                }
+                return 4; // Funding step not submitted
+            }
+            return 3; // Education step not submitted
+        }
+        return 2; // Family step not submitted
+    }
+    return 1; // User step not submitted
+}
     public function index()
     {
         $user_id = Auth::id();
         $existingLoan = Loan_category::where('user_id', $user_id)->latest()->first();
+       
         if ($existingLoan) {
-            return redirect()->route('user.step1');
+             $currentStep = $this->getCurrentStepBasedOnSubmitStatus($user_id);
+        return redirect()->route('user.step' . $currentStep);
+            // return redirect()->route('user.step1');
         }
+        // dd('home');
         return view('user.home');
     }
 
@@ -71,7 +112,7 @@ class UserController extends Controller
             'nationality' => 'required|in:indian,foreigner',
             'aadhar_address' => 'required|string',
             'alternate_email' => 'nullable|email|max:255',
-            'd_o_b' => 'required|date_format:d-m-Y',
+            'd_o_b' => 'required|date_format:Y-m-d',
             'birth_place' => 'required|string|max:100',
             'gender' => 'required',
             'age' => 'required|integer|min:18',
@@ -103,7 +144,7 @@ class UserController extends Controller
             'nationality' => $request->nationality,
             'aadhar_address' => $request->aadhar_address,
             'alternate_email' => $request->alternate_email,
-            'd_o_b' => Carbon::createFromFormat('d-m-Y', $request->d_o_b)->format('Y-m-d'),
+            'd_o_b' => $request->d_o_b,
             'birth_place' => $request->birth_place,
             'gender' => $request->gender,
             'age' => $request->age,
@@ -118,7 +159,7 @@ class UserController extends Controller
         // Handle image upload (only once)
         if ($request->hasFile('image')) {
             $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('images'), $imageName);
+            $request->image->move('images', $imageName);
             $data['image'] = 'images/' . $imageName;
         }
 
@@ -503,7 +544,7 @@ class UserController extends Controller
 
     public function step4store(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
 
         $request->validate([
             // Amount Requested

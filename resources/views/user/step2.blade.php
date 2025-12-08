@@ -175,19 +175,22 @@
                                         <div class="form-group mb-3">
                                             <input type="number" class="form-control" name="number_family_members"
                                                 placeholder="Number of Family Members *"
-                                                value="{{ old('number_family_members') }}" required>
+                                                value="{{ old('number_family_members', $familyDetail->number_family_members ?? '') }}"
+                                                required>
                                             <small class="text-danger">{{ $errors->first('number_family_members') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <input type="number" class="form-control" name="total_family_income"
                                                 placeholder="Total Family Income (₹) *"
-                                                value="{{ old('total_family_income') }}" required>
+                                                value="{{ old('total_family_income', $familyDetail->total_family_income ?? '') }}"
+                                                required>
                                             <small class="text-danger">{{ $errors->first('total_family_income') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
                                             <input type="number" class="form-control" name="total_students"
-                                                placeholder="Total Number of Students *" value="{{ old('total_students') }}"
+                                                placeholder="Total Number of Students *"
+                                                value="{{ old('total_students', $familyDetail->total_students ?? '') }}"
                                                 required>
                                             <small class="text-danger">{{ $errors->first('total_students') }}</small>
                                         </div>
@@ -199,14 +202,15 @@
                                         <div class="form-group mb-3">
                                             <input type="text" class="form-control" name="family_member_diksha"
                                                 placeholder="Family Member Taken Diksha "
-                                                value="{{ old('family_member_diksha') }}">
+                                                value="{{ old('family_member_diksha', $familyDetail->family_member_diksha ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('family_member_diksha') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <input type="number" class="form-control" name="total_insurance_coverage"
                                                 placeholder="Total Insurance Coverage of Family (₹) *"
-                                                value="{{ old('total_insurance_coverage') }}" required>
+                                                value="{{ old('total_insurance_coverage', $familyDetail->total_insurance_coverage ?? '') }}"
+                                                required>
                                             <small
                                                 class="text-danger">{{ $errors->first('total_insurance_coverage') }}</small>
                                         </div>
@@ -216,7 +220,8 @@
                                         <div class="form-group mb-3">
                                             <input type="number" class="form-control" name="total_premium_paid"
                                                 placeholder="Total Premium Paid in Rupees/Year *"
-                                                value="{{ old('total_premium_paid') }}" required>
+                                                value="{{ old('total_premium_paid', $familyDetail->total_premium_paid ?? '') }}"
+                                                required>
                                             <small class="text-danger">{{ $errors->first('total_premium_paid') }}</small>
                                         </div>
 
@@ -254,26 +259,29 @@
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control" name="father_name"
-                                                        placeholder="Father's Name *" value="{{ old('father_name') }}"
+                                                        placeholder="Father's Name *"
+                                                        value="{{ old('father_name', $familyDetail->father_name ?? '') }}"
                                                         required>
                                                     <small class="text-danger">{{ $errors->first('father_name') }}</small>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="number" class="form-control" name="father_age"
-                                                        placeholder="Age *" value="{{ old('father_age') }}" required
-                                                        min="18" max="120">
+                                                        placeholder="Age *"
+                                                        value="{{ old('father_age', $familyDetail->father_age ?? '') }}"
+                                                        required min="18" max="120">
                                                     <small class="text-danger">{{ $errors->first('father_age') }}</small>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <select class="form-control" name="father_marital_status" required>
                                                         <option disabled
-                                                            {{ old('father_marital_status') ? '' : 'selected' }} hidden>
+                                                            {{ (old('father_marital_status') ?: $familyDetail->father_marital_status ?? '') ? '' : 'selected' }}
+                                                            hidden>
                                                             Marital Status *</option>
                                                         <option value="married"
-                                                            {{ old('father_marital_status') == 'married' ? 'selected' : '' }}>
+                                                            {{ (old('father_marital_status') ?: $familyDetail->father_marital_status ?? '') == 'married' ? 'selected' : '' }}>
                                                             Married</option>
                                                         <option value="unmarried"
-                                                            {{ old('father_marital_status') == 'unmarried' ? 'selected' : '' }}>
+                                                            {{ (old('father_marital_status') ?: $familyDetail->father_marital_status ?? '') == 'unmarried' ? 'selected' : '' }}>
                                                             Unmarried</option>
                                                     </select>
                                                     <small
@@ -282,20 +290,23 @@
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control"
                                                         name="father_qualification" placeholder="Qualification *"
-                                                        value="{{ old('father_qualification') }}" required>
+                                                        value="{{ old('father_qualification', $familyDetail->father_qualification ?? '') }}"
+                                                        required>
                                                     <small
                                                         class="text-danger">{{ $errors->first('father_qualification') }}</small>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control" name="father_occupation"
-                                                        placeholder="Occupation *" value="{{ old('father_occupation') }}"
+                                                        placeholder="Occupation *"
+                                                        value="{{ old('father_occupation', $familyDetail->father_occupation ?? '') }}"
                                                         required>
                                                     <small
                                                         class="text-danger">{{ $errors->first('father_occupation') }}</small>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="tel" class="form-control" name="father_mobile"
-                                                        placeholder="Mobile Number *" value="{{ old('father_mobile') }}"
+                                                        placeholder="Mobile Number *"
+                                                        value="{{ old('father_mobile', $familyDetail->father_mobile ?? '') }}"
                                                         required>
                                                     <small
                                                         class="text-danger">{{ $errors->first('father_mobile') }}</small>
@@ -306,7 +317,7 @@
                                                 <div class="form-group mb-3">
                                                     <input type="email" class="form-control" name="father_email"
                                                         placeholder="Father's Email address"
-                                                        value="{{ old('father_email') }}">
+                                                        value="{{ old('father_email', $familyDetail->father_email ?? '') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('father_email') }}</small>
                                                 </div>
@@ -314,7 +325,8 @@
                                                     <input type="number" class="form-control"
                                                         name="father_yearly_gross_income"
                                                         placeholder="Father's Yearly Gross Income (₹) *"
-                                                        value="{{ old('father_yearly_gross_income') }}" required>
+                                                        value="{{ old('father_yearly_gross_income', $familyDetail->father_yearly_gross_income ?? '') }}"
+                                                        required>
                                                     <small
                                                         class="text-danger">{{ $errors->first('father_yearly_gross_income') }}</small>
                                                 </div>
@@ -322,7 +334,7 @@
                                                     <input type="number" class="form-control"
                                                         name="father_individual_insurance_coverage"
                                                         placeholder="Father's Individual Insurance Coverage Value (₹) "
-                                                        value="{{ old('father_individual_insurance_coverage') }}">
+                                                        value="{{ old('father_individual_insurance_coverage', $familyDetail->father_individual_insurance_coverage ?? '') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('father_individual_insurance_coverage') }}</small>
                                                 </div>
@@ -330,7 +342,7 @@
                                                     <input type="number" class="form-control"
                                                         name="father_individual_premium_paid"
                                                         placeholder="Father's Individual Premium Paid Year (₹) "
-                                                        value="{{ old('father_individual_premium_paid') }}">
+                                                        value="{{ old('father_individual_premium_paid', $familyDetail->father_individual_premium_paid ?? '') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('father_individual_premium_paid') }}</small>
                                                 </div>
@@ -338,10 +350,10 @@
                                                     <div class="photo-upload-box">
                                                         <div class="row mb-2 align-items-center">
                                                             <div class="col-9">
-                                                                <span class="photo-label">Father's Aadhaar Card*</span>
+                                                                <span class="photo-label">Father's Aadhar Card*</span>
                                                                 <input type="file" id="father_aadhaar"
                                                                     name="father_aadhaar" hidden
-                                                                    accept=".jpg,.jpeg,.png,.pdf" required>
+                                                                    accept=".jpg,.jpeg,.png,.pdf">
                                                                 <small
                                                                     class="text-danger">{{ $errors->first('father_aadhaar') }}</small>
                                                             </div>
@@ -373,6 +385,16 @@
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    @if ($familyDetail->father_aadhaar)
+                                                        <div class="uploadedimg"
+                                                            style="cursor: pointer;width: 48px;height: 48px;display: flex;">
+                                                            <img src="{{ asset($familyDetail->father_aadhaar) }}"
+                                                                alt="" style="width:100%;">
+                                                            <i class="bi bi-x remove-upload"
+                                                                style="color: #F43333;border: none;display:block;width:100%;font-size: 100%;">
+                                                            </i>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <div class="photo-upload-box">
@@ -413,6 +435,16 @@
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    @if ($familyDetail->father_photo)
+                                                        <div class="uploadedimg"
+                                                            style="cursor: pointer;width: 48px;height: 48px;display: flex;">
+                                                            <img src="{{ asset($familyDetail->father_photo) }}"
+                                                                alt="" style="width:100%;">
+                                                            <i class="bi bi-x remove-upload"
+                                                                style="color: #F43333;border: none;display:block;width:100%;font-size: 100%;">
+                                                            </i>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -424,26 +456,29 @@
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control" name="mother_name"
-                                                        placeholder="Mother's Name *" value="{{ old('mother_name') }}"
+                                                        placeholder="Mother's Name *"
+                                                        value="{{ old('mother_name', $familyDetail->mother_name ?? '') }}"
                                                         required>
                                                     <small class="text-danger">{{ $errors->first('mother_name') }}</small>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="number" class="form-control" name="mother_age"
-                                                        placeholder="Age *" value="{{ old('mother_age') }}" required
-                                                        min="18" max="120">
+                                                        placeholder="Age *"
+                                                        value="{{ old('mother_age', $familyDetail->mother_age ?? '') }}"
+                                                        required min="18" max="120">
                                                     <small class="text-danger">{{ $errors->first('mother_age') }}</small>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <select class="form-control" name="mother_marital_status" required>
                                                         <option disabled
-                                                            {{ old('mother_marital_status') ? '' : 'selected' }} hidden>
+                                                            {{ (old('mother_marital_status') ?: $familyDetail->mother_marital_status ?? '') ? '' : 'selected' }}
+                                                            hidden>
                                                             Marital Status *</option>
                                                         <option value="married"
-                                                            {{ old('mother_marital_status') == 'married' ? 'selected' : '' }}>
+                                                            {{ (old('mother_marital_status') ?: $familyDetail->mother_marital_status ?? '') == 'married' ? 'selected' : '' }}>
                                                             Married</option>
                                                         <option value="unmarried"
-                                                            {{ old('mother_marital_status') == 'unmarried' ? 'selected' : '' }}>
+                                                            {{ (old('mother_marital_status') ?: $familyDetail->mother_marital_status ?? '') == 'unmarried' ? 'selected' : '' }}>
                                                             Unmarried</option>
                                                     </select>
                                                     <small
@@ -452,20 +487,23 @@
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control"
                                                         name="mother_qualification" placeholder="Qualification *"
-                                                        value="{{ old('mother_qualification') }}" required>
+                                                        value="{{ old('mother_qualification', $familyDetail->mother_qualification ?? '') }}"
+                                                        required>
                                                     <small
                                                         class="text-danger">{{ $errors->first('mother_qualification') }}</small>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control" name="mother_occupation"
-                                                        placeholder="Occupation *" value="{{ old('mother_occupation') }}"
+                                                        placeholder="Occupation *"
+                                                        value="{{ old('mother_occupation', $familyDetail->mother_occupation ?? '') }}"
                                                         required>
                                                     <small
                                                         class="text-danger">{{ $errors->first('mother_occupation') }}</small>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="tel" class="form-control" name="mother_mobile"
-                                                        placeholder="Mobile Number *" value="{{ old('mother_mobile') }}"
+                                                        placeholder="Mobile Number *"
+                                                        value="{{ old('mother_mobile', $familyDetail->mother_mobile ?? '') }}"
                                                         required>
                                                     <small
                                                         class="text-danger">{{ $errors->first('mother_mobile') }}</small>
@@ -476,7 +514,7 @@
                                                 <div class="form-group mb-3">
                                                     <input type="email" class="form-control" name="mother_email"
                                                         placeholder="Mother's Email address"
-                                                        value="{{ old('mother_email') }}">
+                                                        value="{{ old('mother_email', $familyDetail->mother_email ?? '') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('mother_email') }}</small>
                                                 </div>
@@ -484,7 +522,8 @@
                                                     <input type="number" class="form-control"
                                                         name="mother_yearly_gross_income"
                                                         placeholder="Mother's Yearly Gross Income (₹) *"
-                                                        value="{{ old('mother_yearly_gross_income') }}" required>
+                                                        value="{{ old('mother_yearly_gross_income', $familyDetail->mother_yearly_gross_income ?? '') }}"
+                                                        required>
                                                     <small
                                                         class="text-danger">{{ $errors->first('mother_yearly_gross_income') }}</small>
                                                 </div>
@@ -492,7 +531,7 @@
                                                     <input type="number" class="form-control"
                                                         name="mother_individual_insurance_coverage"
                                                         placeholder="Mother's Individual Insurance Coverage Value (₹) "
-                                                        value="{{ old('mother_individual_insurance_coverage') }}">
+                                                        value="{{ old('mother_individual_insurance_coverage', $familyDetail->mother_individual_insurance_coverage ?? '') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('mother_individual_insurance_coverage') }}</small>
                                                 </div>
@@ -500,7 +539,7 @@
                                                     <input type="number" class="form-control"
                                                         name="mother_individual_premium_paid"
                                                         placeholder="Mother's Individual Premium Paid Year (₹) "
-                                                        value="{{ old('mother_individual_premium_paid') }}">
+                                                        value="{{ old('mother_individual_premium_paid', $familyDetail->mother_individual_premium_paid ?? '') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('mother_individual_premium_paid') }}</small>
                                                 </div>
@@ -508,10 +547,10 @@
                                                     <div class="photo-upload-box">
                                                         <div class="row mb-2 align-items-center">
                                                             <div class="col-9">
-                                                                <span class="photo-label">Mother's Aadhaar Card*</span>
+                                                                <span class="photo-label">Mother's Aadhar Card*</span>
                                                                 <input type="file" id="mother_aadhaar"
                                                                     name="mother_aadhaar" hidden
-                                                                    accept=".jpg,.jpeg,.png,.pdf" required>
+                                                                    accept=".jpg,.jpeg,.png,.pdf">
                                                                 <small
                                                                     class="text-danger">{{ $errors->first('mother_aadhaar') }}</small>
                                                             </div>
@@ -543,6 +582,16 @@
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    @if ($familyDetail->mother_aadhaar)
+                                                        <div class="uploadedimg"
+                                                            style="cursor: pointer;width: 48px;height: 48px;display: flex;">
+                                                            <img src="{{ asset($familyDetail->mother_aadhaar) }}"
+                                                                alt="" style="width:100%;">
+                                                            <i class="bi bi-x remove-upload"
+                                                                style="color: #F43333;border: none;display:block;width:100%;font-size: 100%;">
+                                                            </i>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <div class="photo-upload-box">
@@ -583,6 +632,16 @@
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    @if ($familyDetail->mother_photo)
+                                                        <div class="uploadedimg"
+                                                            style="cursor: pointer;width: 48px;height: 48px;display: flex;">
+                                                            <img src="{{ asset($familyDetail->mother_photo) }}"
+                                                                alt="" style="width:100%;">
+                                                            <i class="bi bi-x remove-upload"
+                                                                style="color: #F43333;border: none;display:block;width:100%;font-size: 100%;">
+                                                            </i>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -631,11 +690,11 @@
                                                     <div>
                                                         <input type="radio" name="has_sibling" value="yes"
                                                             id="has_sibling_yes"
-                                                            {{ old('has_sibling') == 'yes' ? 'checked' : '' }}> <label
-                                                            for="has_sibling_yes">Yes</label>
+                                                            {{ (old('has_sibling') ?: $familyDetail->has_sibling ?? 'no') == 'yes' ? 'checked' : '' }}>
+                                                        <label for="has_sibling_yes">Yes</label>
                                                         <input type="radio" name="has_sibling" value="no"
                                                             id="has_sibling_no"
-                                                            {{ old('has_sibling') == 'no' || !old('has_sibling') ? 'checked' : '' }}>
+                                                            {{ (old('has_sibling') ?: $familyDetail->has_sibling ?? 'no') == 'no' ? 'checked' : '' }}>
                                                         <label for="has_sibling_no">No</label>
                                                     </div>
                                                     <small class="text-danger">{{ $errors->first('has_sibling') }}</small>
@@ -644,27 +703,28 @@
                                                     <div class="form-group mb-3">
                                                         <input type="number" class="form-control"
                                                             name="number_of_siblings" placeholder="Number Of Siblings *"
-                                                            value="{{ old('number_of_siblings') }}">
+                                                            value="{{ old('number_of_siblings', $familyDetail->number_of_siblings ?? '') }}">
                                                         <small
                                                             class="text-danger">{{ $errors->first('number_of_siblings') }}</small>
                                                     </div>
                                                     <div class="form-group mb-3">
                                                         <input type="text" class="form-control" name="sibling_name_1"
-                                                            placeholder="Name *" value="{{ old('sibling_name_1') }}">
+                                                            placeholder="Name *"
+                                                            value="{{ old('sibling_name_1', $familyDetail->sibling_name_1 ?? '') }}">
                                                         <small
                                                             class="text-danger">{{ $errors->first('sibling_name_1') }}</small>
                                                     </div>
                                                     <div class="form-group mb-3">
                                                         <input type="text" class="form-control"
                                                             name="sibling_qualification" placeholder="Qualification"
-                                                            value="{{ old('sibling_qualification') }}">
+                                                            value="{{ old('sibling_qualification', $familyDetail->sibling_qualification ?? '') }}">
                                                         <small
                                                             class="text-danger">{{ $errors->first('sibling_qualification') }}</small>
                                                     </div>
                                                     <div class="form-group mb-3">
                                                         <input type="text" class="form-control"
                                                             name="sibling_occupation" placeholder="Occupation"
-                                                            value="{{ old('sibling_occupation') }}">
+                                                            value="{{ old('sibling_occupation', $familyDetail->sibling_occupation ?? '') }}">
                                                         <small
                                                             class="text-danger">{{ $errors->first('sibling_occupation') }}</small>
                                                     </div>
@@ -676,14 +736,14 @@
                                                     <div class="form-group mb-3">
                                                         <input type="text" class="form-control" name="sibling_mobile"
                                                             placeholder="Mobile Number"
-                                                            value="{{ old('sibling_mobile') }}">
+                                                            value="{{ old('sibling_mobile', $familyDetail->sibling_mobile ?? '') }}">
                                                         <small
                                                             class="text-danger">{{ $errors->first('sibling_mobile') }}</small>
                                                     </div>
                                                     <div class="form-group mb-3">
                                                         <input type="email" class="form-control" name="sibling_email"
                                                             placeholder="Email Address"
-                                                            value="{{ old('sibling_email') }}">
+                                                            value="{{ old('sibling_email', $familyDetail->sibling_email ?? '') }}">
                                                         <small
                                                             class="text-danger">{{ $errors->first('sibling_email') }}</small>
                                                     </div>
@@ -691,7 +751,7 @@
                                                         <input type="number" class="form-control"
                                                             name="sibling_yearly_income"
                                                             placeholder="Yearly Gross Income (₹)"
-                                                            value="{{ old('sibling_yearly_income') }}">
+                                                            value="{{ old('sibling_yearly_income', $familyDetail->sibling_yearly_income ?? '') }}">
                                                         <small
                                                             class="text-danger">{{ $errors->first('sibling_yearly_income') }}</small>
                                                     </div>
@@ -699,7 +759,7 @@
                                                         <input type="number" class="form-control"
                                                             name="sibling_insurance_coverage"
                                                             placeholder="Individual Insurance Coverage Value (₹)"
-                                                            value="{{ old('sibling_insurance_coverage') }}">
+                                                            value="{{ old('sibling_insurance_coverage', $familyDetail->sibling_insurance_coverage ?? '') }}">
                                                         <small
                                                             class="text-danger">{{ $errors->first('sibling_insurance_coverage') }}</small>
                                                     </div>
@@ -707,7 +767,7 @@
                                                         <input type="number" class="form-control"
                                                             name="sibling_premium_paid"
                                                             placeholder="Individual Premium Paid Year (₹)"
-                                                            value="{{ old('sibling_premium_paid') }}">
+                                                            value="{{ old('sibling_premium_paid', $familyDetail->sibling_premium_paid ?? '') }}">
                                                         <small
                                                             class="text-danger">{{ $errors->first('sibling_premium_paid') }}</small>
                                                     </div>
@@ -738,29 +798,35 @@
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control" name="paternal_uncle_name"
-                                                        placeholder="Paternal Uncle's Name">
+                                                        placeholder="Paternal Uncle's Name"
+                                                        value="{{ old('paternal_uncle_name', $familyDetail->paternal_uncle_name ?? '') }}">
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="tel" class="form-control"
-                                                        name="paternal_uncle_mobile" placeholder="His Mobile Number">
+                                                        name="paternal_uncle_mobile" placeholder="His Mobile Number"
+                                                        value="{{ old('paternal_uncle_mobile', $familyDetail->paternal_uncle_mobile ?? '') }}">
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="email" class="form-control"
-                                                        name="paternal_uncle_email" placeholder="His Email Address">
+                                                        name="paternal_uncle_email" placeholder="His Email Address"
+                                                        value="{{ old('paternal_uncle_email', $familyDetail->paternal_uncle_email ?? '') }}">
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control" name="paternal_aunt_name"
-                                                        placeholder="Paternal Aunt's Name">
+                                                        placeholder="Paternal Aunt's Name"
+                                                        value="{{ old('paternal_aunt_name', $familyDetail->paternal_aunt_name ?? '') }}">
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="tel" class="form-control"
-                                                        name="paternal_aunt_mobile" placeholder="Her Mobile Number">
+                                                        name="paternal_aunt_mobile" placeholder="Her Mobile Number"
+                                                        value="{{ old('paternal_aunt_mobile', $familyDetail->paternal_aunt_mobile ?? '') }}">
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="email" class="form-control" name="paternal_aunt_email"
-                                                        placeholder="Her Email Address">
+                                                        placeholder="Her Email Address"
+                                                        value="{{ old('paternal_aunt_email', $familyDetail->paternal_aunt_email ?? '') }}">
                                                 </div>
                                             </div>
                                         </div>
@@ -772,29 +838,35 @@
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control" name="maternal_uncle_name"
-                                                        placeholder="Maternal Uncle's Name">
+                                                        placeholder="Maternal Uncle's Name"
+                                                        value="{{ old('maternal_uncle_name', $familyDetail->maternal_uncle_name ?? '') }}">
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="tel" class="form-control"
-                                                        name="maternal_uncle_mobile" placeholder="His Mobile Number">
+                                                        name="maternal_uncle_mobile" placeholder="His Mobile Number"
+                                                        value="{{ old('maternal_uncle_mobile', $familyDetail->maternal_uncle_mobile ?? '') }}">
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="email" class="form-control"
-                                                        name="maternal_uncle_email" placeholder="His Email Address">
+                                                        name="maternal_uncle_email" placeholder="His Email Address"
+                                                        value="{{ old('maternal_uncle_email', $familyDetail->maternal_uncle_email ?? '') }}">
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control" name="maternal_aunt_name"
-                                                        placeholder="Maternal Aunt's Name">
+                                                        placeholder="Maternal Aunt's Name"
+                                                        value="{{ old('maternal_aunt_name', $familyDetail->maternal_aunt_name ?? '') }}">
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="tel" class="form-control"
-                                                        name="maternal_aunt_mobile" placeholder="Her Mobile Number">
+                                                        name="maternal_aunt_mobile" placeholder="Her Mobile Number"
+                                                        value="{{ old('maternal_aunt_mobile', $familyDetail->maternal_aunt_mobile ?? '') }}">
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <input type="email" class="form-control" name="maternal_aunt_email"
-                                                        placeholder="Her Email Address">
+                                                        placeholder="Her Email Address"
+                                                        value="{{ old('maternal_aunt_email', $familyDetail->maternal_aunt_email ?? '') }}">
                                                 </div>
                                             </div>
                                         </div>

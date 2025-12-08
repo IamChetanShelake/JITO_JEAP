@@ -144,6 +144,7 @@ class UserController extends Controller
             'nationality' => $request->nationality,
             'aadhar_address' => $request->aadhar_address,
             'alternate_email' => $request->alternate_email,
+            // 'd_o_b' => Carbon::createFromFormat('d-m-Y', $request->d_o_b)->format('Y-m-d'),
             'd_o_b' => $request->d_o_b,
             'birth_place' => $request->birth_place,
             'gender' => $request->gender,
@@ -175,14 +176,19 @@ class UserController extends Controller
     {
         $user_id = Auth::id();
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
-        return view('user.step2', compact('type'));
+        $familyDetail = Familydetail::where('user_id', $user_id)->first();
+        return view('user.step2', compact('type', 'familyDetail'));
     }
 
 
     public function step2store(Request $request)
     {
-        //dd($request->all());
-        $request->validate([
+        
+        // Get existing family detail to check for existing files
+        // $existingFamilyDetail = Familydetail::where('user_id', Auth::id())->first();
+       
+
+        $validationRules = [
             'number_family_members' => 'required|integer|min:1',
             'total_family_income' => 'required|integer|min:0',
             'total_students' => 'required|integer|min:0',
@@ -200,8 +206,6 @@ class UserController extends Controller
             'father_yearly_gross_income' => 'required|integer|min:0',
             'father_individual_insurance_coverage' => 'nullable|integer|min:0',
             'father_individual_premium_paid' => 'nullable|integer|min:0',
-            'father_aadhaar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'father_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             // Mother details
             'mother_name' => 'required|string|max:255',
             'mother_age' => 'required|integer|min:18|max:120',
@@ -213,8 +217,6 @@ class UserController extends Controller
             'mother_yearly_gross_income' => 'required|integer|min:0',
             'mother_individual_insurance_coverage' => 'nullable|integer|min:0',
             'mother_individual_premium_paid' => 'nullable|integer|min:0',
-            'mother_aadhaar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'mother_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             // Siblings
             'has_sibling' => 'required|in:yes,no',
             'number_of_siblings' => 'nullable|integer|min:0',
@@ -244,9 +246,15 @@ class UserController extends Controller
             'maternal_aunt_name' => 'nullable|string|max:255',
             'maternal_aunt_mobile' => 'nullable|string|max:15',
             'maternal_aunt_email' => 'nullable|email|max:255',
-        ]);
+        ];
 
         $user_id = Auth::id();
+
+        // Check if family details already exist and are submitted
+         $existingFamilyDetail = Familydetail::where('user_id', $user_id)->first();
+        if ($existingFamilyDetail && $existingFamilyDetail->submit_status === 'submited') {
+            return redirect()->route('user.step3')->with('info', 'Family details already submitted.');
+        }
 
         $data = [
             'user_id' => $user_id,
@@ -307,36 +315,52 @@ class UserController extends Controller
             'maternal_aunt_name' => $request->maternal_aunt_name,
             'maternal_aunt_mobile' => $request->maternal_aunt_mobile,
             'maternal_aunt_email' => $request->maternal_aunt_email,
+            'submit_status' => 'submited',
         ];
 
-        // Handle file uploads
+        // Handle file uploads - only update if new file is uploaded
         if ($request->hasFile('father_aadhaar')) {
             $fatherAadhaarName = time() . '_father_aadhaar.' . $request->father_aadhaar->extension();
             $request->father_aadhaar->move('images', $fatherAadhaarName);
             $data['father_aadhaar'] = 'images/' . $fatherAadhaarName;
+        } else {
+            // Keep existing value if no new file uploaded
+            unset($data['father_aadhaar']);
         }
 
         if ($request->hasFile('father_photo')) {
             $fatherPhotoName = time() . '_father.' . $request->father_photo->extension();
             $request->father_photo->move('images', $fatherPhotoName);
             $data['father_photo'] = 'images/' . $fatherPhotoName;
+        } else {
+            unset($data['father_photo']);
         }
 
         if ($request->hasFile('mother_aadhaar')) {
             $motherAadhaarName = time() . '_mother_aadhaar.' . $request->mother_aadhaar->extension();
             $request->mother_aadhaar->move('images', $motherAadhaarName);
             $data['mother_aadhaar'] = 'images/' . $motherAadhaarName;
+        } else {
+            unset($data['mother_aadhaar']);
         }
 
         if ($request->hasFile('mother_photo')) {
             $motherPhotoName = time() . '_mother.' . $request->mother_photo->extension();
             $request->mother_photo->move('images', $motherPhotoName);
             $data['mother_photo'] = 'images/' . $motherPhotoName;
+        } else {
+            unset($data['mother_photo']);
         }
 
-        Familydetail::create($data);
+        if ($existingFamilyDetail) {
+            // Update existing record
+            $existingFamilyDetail->update($data);
+        } else {
+            // Create new record
+            Familydetail::create($data);
+        }
 
-        return redirect()->route('user.home')->with('success', 'Family details saved successfully!');
+        return redirect()->route('user.step3')->with('success', 'Family details saved successfully!');
     }
 
 
@@ -437,7 +461,7 @@ class UserController extends Controller
             'group_4_year3' => 'nullable|numeric|min:0',
             'group_4_year4' => 'nullable|numeric|min:0',
         ]);
-
+       
         $user_id = Auth::id();
 
         $data = [
@@ -524,11 +548,23 @@ class UserController extends Controller
             'group_4_year4' => $request->group_4_year4,
 
             'status' => 'step3_completed',
+            'submit_status' => 'submited',
         ];
+        //  dd('correct');
+         // FIX: do not create duplicates
+         $existing_education_details = EducationDetail::where('user_id', $user_id)->where('submit_status', 'submited')->first();
+         if($existing_education_details){
+            $existing_education_details->update($data);
+         }
+    EducationDetail::updateOrCreate(
+        ['user_id' => $user_id],
+        $data
 
-        EducationDetail::create($data);
+    );
 
-        return redirect()->route('user.home')->with('success', 'Education details saved successfully!');
+        // EducationDetail::create($data);
+
+        return redirect()->route('user.step4')->with('success', 'Education details saved successfully!');
     }
 
 
@@ -536,7 +572,8 @@ class UserController extends Controller
     {
         $user_id = Auth::id();
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
-        return view('user.step4', compact('type'));
+        $fundingDetail = \App\Models\FundingDetail::where('user_id', $user_id)->latest()->first();
+        return view('user.step4', compact('type', 'fundingDetail'));
     }
 
 
@@ -590,10 +627,10 @@ class UserController extends Controller
                 'sibling_applied_amount' => 'required|numeric|min:0',
             ]);
         }
-
+        
         $data = [
             'user_id' => $user_id,
-
+            
             // Amount Requested
             'amount_requested_year' => $request->amount_requested_year,
             'tuition_fees_amount' => $request->tuition_fees_amount,
@@ -635,8 +672,8 @@ class UserController extends Controller
 
             // Total funding amount (calculate from table)
             'total_funding_amount' => ($request->family_funding_amount ?: 0) +
-                ($request->bank_loan_amount ?: 0) +
-                ($request->other_assistance1_amount ?: 0) +
+            ($request->bank_loan_amount ?: 0) +
+            ($request->other_assistance1_amount ?: 0) +
                 ($request->other_assistance2_amount ?: 0) +
                 ($request->local_assistance_amount ?: 0),
 
@@ -646,7 +683,7 @@ class UserController extends Controller
             'sibling_loan_status' => $request->sibling_loan_status,
             'sibling_applied_year' => $request->sibling_applied_year,
             'sibling_applied_amount' => $request->sibling_applied_amount,
-
+            
             // Bank Details
             'account_holder_name' => $request->account_holder_name,
             'bank_name' => $request->bank_name,
@@ -654,11 +691,17 @@ class UserController extends Controller
             'branch_name' => $request->branch_name,
             'ifsc_code' => $request->ifsc_code,
             'bank_address' => $request->bank_address,
-
             'status' => 'step4_completed',
+            'submit_status' => 'submited',
         ];
+        
+        
+        FundingDetail::updateOrCreate(
+            ['user_id' => $user_id],
+            $data
+        );
 
-        FundingDetail::create($data);
+        // FundingDetail::create($data);
 
         return redirect()->route('user.home')->with('success', 'Funding details saved successfully!');
     }

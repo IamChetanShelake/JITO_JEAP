@@ -864,4 +864,19 @@ class UserController extends Controller
     {
         dd('done');
     }
+
+    // Delete uploaded image
+    public function deleteImage(Request $request)
+    {
+        $user = Auth::user();
+        $imagePath = $user->image;
+
+        if ($imagePath && file_exists(public_path($imagePath))) {
+            unlink(public_path($imagePath));
+            $user->update(['image' => null]);
+            return response()->json(['success' => true, 'message' => 'Image deleted successfully']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Image not found'], 404);
+    }
 }

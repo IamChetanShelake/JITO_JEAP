@@ -628,8 +628,63 @@
                             }
                         }
                     });
+
+                    // Image deletion functionality for uploadedimg
+                    const uploadedImages = document.querySelectorAll('.uploadedimg');
+                    uploadedImages.forEach(function(imageContainer) {
+                        imageContainer.addEventListener('click', function() {
+                            if (confirm('Are you sure you want to delete this image?')) {
+                                // Make DELETE request to server
+                                fetch('{{ route('user.delete-image') }}', {
+                                        method: 'DELETE',
+                                        headers: {
+                                            'X-CSRF-TOKEN': document.querySelector(
+                                                    'meta[name="csrf-token"]') ?
+                                                document.querySelector('meta[name="csrf-token"]')
+                                                .getAttribute('content') : "{{ csrf_token() }}",
+                                            'Content-Type': 'application/json',
+                                            'Accept': 'application/json'
+                                        }
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            // Hide/remove the uploaded image container
+                                            imageContainer.style.display = 'none';
+                                            // You might also want to show the upload button again
+                                            const photoUploadBox = imageContainer.closest(
+                                                '.photo-upload-box, .form-group');
+                                            if (photoUploadBox) {
+                                                const uploadBtn = photoUploadBox.querySelector(
+                                                    '.upload-btn');
+                                                if (uploadBtn) {
+                                                    uploadBtn.style.display = 'inline-block';
+                                                }
+                                                const uploadedBtn = photoUploadBox.querySelector(
+                                                    '.uploaded-btn');
+                                                if (uploadedBtn) {
+                                                    uploadedBtn.style.display = 'none';
+                                                }
+                                            }
+                                            // Show success message
+                                            alert('Image deleted successfully!');
+                                        } else {
+                                            alert('Failed to delete image: ' + (data.message ||
+                                                'Unknown error'));
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error:', error);
+                                        alert('Error deleting image. Please try again.');
+                                    });
+                            }
+                        });
+                    });
                 });
             </script>
+
+            <!-- CSRF Token Meta -->
+            <meta name="csrf-token" content="{{ csrf_token() }}">
         </div>
 </body>
 

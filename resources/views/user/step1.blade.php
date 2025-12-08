@@ -44,6 +44,7 @@
                                                             accept=".jpg,.jpeg,.png">
                                                         <small class="text-danger">{{ $errors->first('image') }}</small>
                                                     </div>
+
                                                     <div class="col-3">
                                                         <label for="uploadInput" class="upload-btn">
                                                             <span class="upload-icon">⭱</span> Upload
@@ -71,6 +72,15 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            @if ($user->image)
+                                                <div class="uploadedimg"
+                                                    style="cursor: pointer;width: 48px;height: 48px;display: flex;">
+                                                    <img src="{{ asset($user->image) }}" alt="" style="width:100%;">
+                                                    <i class="bi bi-x remove-upload"
+                                                        style="color: #F43333;border: none;display:block;width:100%;font-size: 100%;">
+                                                    </i>
+                                                </div>
+                                            @endif
                                         </div>
 
                                         {{-- <div class="form-group mb-3">

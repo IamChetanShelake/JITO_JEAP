@@ -49,7 +49,7 @@ return new class extends Migration
             $table->string('attorney_relation_with_student');
 
             $table->string('status')->default('step5_completed');
-            $table->enum('submit_status', ['pending', 'submited', 'approved', 'resubmit'])->nullable();
+            $table->enum('submit_status', ['pending', 'submited', 'approved', 'resubmit'])->default('pending');
             $table->timestamps();
         });
     }

@@ -76,8 +76,8 @@ return new class extends Migration
             $table->string('maternal_aunt_name')->nullable();
             $table->string('maternal_aunt_mobile')->nullable();
             $table->string('maternal_aunt_email')->nullable();
-            $table->enum('status', ['pending', 'completed', 'rejected'])->default('pending');
-            $table->enum('submit_status', ['pending', 'submited', 'approved', 'resubmit'])->nullable();
+            // $table->enum('status', ['pending', 'completed', 'rejected'])->default('pending');
+            $table->enum('submit_status', ['pending', 'submited', 'approved', 'resubmit'])->default('pending');
             $table->timestamps();
         });
     }

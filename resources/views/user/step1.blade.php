@@ -33,22 +33,47 @@
 
                                         <div class="form-group mb-3">
                                             <input type="text" class="form-control" name="name"
-                                                placeholder="Applicant's Name *" value="{{ old('name') }}" required>
+                                                placeholder="Applicant's Name *"
+                                                value="{{ old('name', $user->name ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('name') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <div class="photo-upload-box">
-                                                <span class="photo-label">Add Photo *</span>
-
-                                                <label for="uploadInput" class="upload-btn">
-                                                    <span class="upload-icon">⭱</span> Upload
-                                                </label>
-
-                                                <input type="file" id="uploadInput" name="image" hidden
-                                                    accept=".jpg,.jpeg,.png">
+                                                <div class="row mb-2 align-items-center">
+                                                    <div class="col-9">
+                                                        <span class="photo-label">Add Photo *</span>
+                                                        <input type="file" id="uploadInput" name="image" hidden
+                                                            accept=".jpg,.jpeg,.png">
+                                                        <small class="text-danger">{{ $errors->first('image') }}</small>
+                                                    </div>
+                                                    <div class="col-3">
+                                                        <label for="uploadInput" class="upload-btn">
+                                                            <span class="upload-icon">⭱</span> Upload
+                                                        </label>
+                                                        <label class="uploaded-btn" style="display: none;">
+                                                            <span class="upload-icon">✔</span> Upload
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2 align-items-center">
+                                                    <div class="col-12 align-items-center">
+                                                        <div class="upload-status" style="display:none;">
+                                                            <div class="row">
+                                                                <div class="col-9">
+                                                                    <div class="upload-summary"></div>
+                                                                </div>
+                                                                <div class="col-3">
+                                                                    <button type="button" class="remove-upload btn bt-sm"
+                                                                        style="display:none;">
+                                                                        <i class="bi bi-trash"></i>
+                                                                        Remove</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <small class="text-danger">{{ $errors->first('image') }}</small>
                                         </div>
 
                                         {{-- <div class="form-group mb-3">
@@ -61,13 +86,15 @@
                                                 </div> --}}
                                         <div class="form-group mb-3">
                                             <select class="form-control " name="financial_asset_type" required>
-                                                <option disabled {{ old('financial_asset_type') ? '' : 'selected' }} hidden>
+                                                <option disabled
+                                                    {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') ? '' : 'selected' }}
+                                                    hidden>
                                                     Financial Asst Type *</option>
                                                 <option value="domestic"
-                                                    {{ old('financial_asset_type') == 'domestic' ? 'selected' : '' }}>
+                                                    {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'domestic' ? 'selected' : '' }}>
                                                     Domestic</option>
                                                 <option value="foreign_finance_assistant"
-                                                    {{ old('financial_asset_type') == 'foreign_finance_assistant' ? 'selected' : '' }}>
+                                                    {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'foreign_finance_assistant' ? 'selected' : '' }}>
                                                     Foreign Financial
                                                     Assistance</option>
                                             </select>
@@ -77,13 +104,15 @@
 
                                         <div class="form-group mb-3">
                                             <select class="form-control" name="financial_asset_for" required>
-                                                <option disabled {{ old('financial_asset_for') ? '' : 'selected' }} hidden>
+                                                <option disabled
+                                                    {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') ? '' : 'selected' }}
+                                                    hidden>
                                                     Financial Asset For *</option>
                                                 <option value="graduation"
-                                                    {{ old('financial_asset_for') == 'graduation' ? 'selected' : '' }}>
+                                                    {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'graduation' ? 'selected' : '' }}>
                                                     Graduation</option>
                                                 <option value="post_graduation"
-                                                    {{ old('financial_asset_for') == 'post_graduation' ? 'selected' : '' }}>
+                                                    {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'post_graduation' ? 'selected' : '' }}>
                                                     Post Graduation</option>
                                             </select>
                                             <small class="text-danger">{{ $errors->first('financial_asset_for') }}</small>
@@ -91,32 +120,37 @@
 
                                         <div class="form-group mb-3">
                                             <input type="number" name="aadhar_card_number" class="form-control"
-                                                placeholder="Aadhar Card Number *" value="{{ old('aadhar_card_number') }}"
+                                                placeholder="Aadhar Card Number *"
+                                                value="{{ old('aadhar_card_number', $user->aadhar_card_number ?? '') }}"
                                                 required>
                                             <small class="text-danger">{{ $errors->first('aadhar_card_number') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <input type="text" class="form-control" name="pan_card"
-                                                placeholder="Pan card" value="{{ old('pan_card') }}" required>
+                                                placeholder="Pan card"
+                                                value="{{ old('pan_card', $user->pan_card ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('pan_card') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <input type="tel" name="phone" class="form-control"
-                                                placeholder="Phone Number *" value="{{ old('phone') }}" required>
+                                                placeholder="Phone Number *" value="{{ old('phone', $user->phone ?? '') }}"
+                                                required>
                                             <small class="text-danger">{{ $errors->first('phone') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <input type="email" name="email" class="form-control"
-                                                placeholder="Email Address *" value="{{ old('email') }}" required>
+                                                placeholder="Email Address *"
+                                                value="{{ old('email', $user->email ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('email') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <input type="tel" name="alternate_phone" class="form-control"
-                                                placeholder="Alternate Phone Number" value="{{ old('alternate_phone') }}">
+                                                placeholder="Alternate Phone Number"
+                                                value="{{ old('alternate_phone', $user->alternate_phone ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('alternate_phone') }}</small>
                                         </div>
 
@@ -127,28 +161,32 @@
                                         </div>
                                          --}}
                                         <div class="form-group mb-3">
-                                            <textarea class="form-control" name="address" rows="3" placeholder="Flat No, Building No/Street Name*" required>{{ old('address') }}</textarea>
+                                            <textarea class="form-control" name="address" rows="3" placeholder="Flat No, Building No/Street Name*"
+                                                required>{{ old('address', $user->address ?? '') }}</textarea>
                                             <small class="text-danger">{{ $errors->first('address') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
-                                            <textarea class="form-control" name="address1" rows="3" placeholder="Address 1*" required>{{ old('address1') }}</textarea>
+                                            <textarea class="form-control" name="address1" rows="3" placeholder="Address 1*" required>{{ old('address1', $user->address1 ?? '') }}</textarea>
                                             <small class="text-danger">{{ $errors->first('address1') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
-                                            <input type="text" class="form-control" name="city" placeholder="City *"
-                                                value="{{ old('city') }}" required>
+                                            <input type="text" class="form-control" name="city"
+                                                placeholder="City *" value="{{ old('city', $user->city ?? '') }}"
+                                                required>
                                             <small class="text-danger">{{ $errors->first('city') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <input type="text" class="form-control" name="district"
-                                                placeholder="District *" value="{{ old('district') }}" required>
+                                                placeholder="District *"
+                                                value="{{ old('district', $user->district ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('district') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
                                             <input type="text" class="form-control" name="state"
-                                                placeholder="State *" value="{{ old('state') }}" required>
+                                                placeholder="State *" value="{{ old('state', $user->state ?? '') }}"
+                                                required>
                                             <small class="text-danger">{{ $errors->first('state') }}</small>
                                         </div>
 
@@ -162,13 +200,15 @@
 
                                         <div class="form-group mb-3">
                                             <input type="number" name="pin_code" class="form-control"
-                                                placeholder="Pin Code *" value="{{ old('pin_code') }}" required>
+                                                placeholder="Pin Code *"
+                                                value="{{ old('pin_code', $user->pin_code ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('pin_code') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <input type="text" name="chapter" class="form-control"
-                                                placeholder="Chapter *" value="{{ old('chapter') }}" required>
+                                                placeholder="Chapter *"
+                                                value="{{ old('chapter', $user->chapter ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('chapter') }}</small>
                                         </div>
 
@@ -176,25 +216,29 @@
 
                                         <div class="form-group mb-3">
                                             <select class="form-control" name="nationality" required>
-                                                <option disabled {{ old('nationality') ? '' : 'selected' }} hidden>
+                                                <option disabled
+                                                    {{ (old('nationality') ?: $user->nationality ?? '') ? '' : 'selected' }}
+                                                    hidden>
                                                     Nationality *</option>
                                                 <option value="indian"
-                                                    {{ old('nationality') == 'indian' ? 'selected' : '' }}>Indian</option>
+                                                    {{ (old('nationality') ?: $user->nationality ?? '') == 'indian' ? 'selected' : '' }}>
+                                                    Indian</option>
                                                 <option value="foreigner"
-                                                    {{ old('nationality') == 'foreigner' ? 'selected' : '' }}>Foreigner
+                                                    {{ (old('nationality') ?: $user->nationality ?? '') == 'foreigner' ? 'selected' : '' }}>
+                                                    Foreigner
                                                 </option>
                                             </select>
                                             <small class="text-danger">{{ $errors->first('nationality') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
-                                            <textarea class="form-control" name="aadhar_address" rows="3" placeholder="Aadhar/Pan Address *" required>{{ old('aadhar_address') }}</textarea>
+                                            <textarea class="form-control" name="aadhar_address" rows="3" placeholder="Aadhar/Pan Address *" required>{{ old('aadhar_address', $user->aadhar_address ?? '') }}</textarea>
                                             <small class="text-danger">{{ $errors->first('aadhar_address') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <input type="email" name="alternate_email" class="form-control"
                                                 placeholder="Alternate Email Address"
-                                                value="{{ old('alternate_email') }}">
+                                                value="{{ old('alternate_email', $user->alternate_email ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('alternate_email') }}</small>
                                         </div>
 
@@ -223,7 +267,8 @@
 
                                         <div class="form-group mb-3">
                                             <input type="text" name="d_o_b" class="form-control"
-                                                placeholder="Date of Birth (dd-mm-yyyy) *" value="{{ old('d_o_b') }}"
+                                                placeholder="Date of Birth (dd-mm-yyyy) *"
+                                                value="{{ old('d_o_b', $user->d_o_b ? $user->d_o_b->format('d-m-Y') : '') }}"
                                                 pattern="\d{2}-\d{2}-\d{4}" title="Format: dd-mm-yyyy"
                                                 inputmode="numeric" required>
                                             <small class="text-danger">{{ $errors->first('d_o_b') }}</small>
@@ -233,17 +278,22 @@
 
                                         <div class="form-group mb-3">
                                             <input type="text" name="birth_place" class="form-control"
-                                                placeholder="Birth Place *" value="{{ old('birth_place') }}" required>
+                                                placeholder="Birth Place *"
+                                                value="{{ old('birth_place', $user->birth_place ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('birth_place') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <select class="form-control" name="gender" required>
-                                                <option disabled {{ old('gender') ? '' : 'selected' }} hidden>Gender *
+                                                <option disabled
+                                                    {{ (old('gender') ?: $user->gender ?? '') ? '' : 'selected' }} hidden>
+                                                    Gender *
                                                 </option>
-                                                <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>
+                                                <option value="male"
+                                                    {{ (old('gender') ?: $user->gender ?? '') == 'male' ? 'selected' : '' }}>
                                                     Male</option>
-                                                <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>
+                                                <option value="female"
+                                                    {{ (old('gender') ?: $user->gender ?? '') == 'female' ? 'selected' : '' }}>
                                                     Female</option>
                                             </select>
                                             <small class="text-danger">{{ $errors->first('gender') }}</small>
@@ -251,19 +301,23 @@
 
                                         <div class="form-group mb-3">
                                             <input type="number" name="age" class="form-control"
-                                                placeholder="Age *" value="{{ old('age') }}" required>
+                                                placeholder="Age *" value="{{ old('age', $user->age ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('age') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <select class="form-control" name="marital_status" required>
-                                                <option disabled {{ old('marital_status') ? '' : 'selected' }} hidden>
+                                                <option disabled
+                                                    {{ (old('marital_status') ?: $user->marital_status ?? '') ? '' : 'selected' }}
+                                                    hidden>
                                                     Marital Status *</option>
                                                 <option value="married"
-                                                    {{ old('marital_status') == 'married' ? 'selected' : '' }}>Married
+                                                    {{ (old('marital_status') ?: $user->marital_status ?? '') == 'married' ? 'selected' : '' }}>
+                                                    Married
                                                 </option>
                                                 <option value="unmarried"
-                                                    {{ old('marital_status') == 'unmarried' ? 'selected' : '' }}>Unmarried
+                                                    {{ (old('marital_status') ?: $user->marital_status ?? '') == 'unmarried' ? 'selected' : '' }}>
+                                                    Unmarried
                                                 </option>
                                             </select>
                                             <small class="text-danger">{{ $errors->first('marital_status') }}</small>
@@ -271,35 +325,47 @@
 
                                         <div class="form-group mb-3">
                                             <input type="text" name="religion" class="form-control"
-                                                placeholder="Religion *" value="{{ old('religion') }}" required>
+                                                placeholder="Religion *"
+                                                value="{{ old('religion', $user->religion ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('religion') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <input type="text" name="sub_cast" class="form-control"
-                                                placeholder="Sub caste *" value="{{ old('sub_cast') }}" required>
+                                                placeholder="Sub caste *"
+                                                value="{{ old('sub_cast', $user->sub_cast ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('sub_cast') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <select class="form-control" name="blood_group" required>
-                                                <option disabled {{ old('blood_group') ? '' : 'selected' }} hidden>Blood
+                                                <option disabled
+                                                    {{ (old('blood_group') ?: $user->blood_group ?? '') ? '' : 'selected' }}
+                                                    hidden>Blood
                                                     Group *</option>
-                                                <option value="A+" {{ old('blood_group') == 'A+' ? 'selected' : '' }}>
+                                                <option value="A+"
+                                                    {{ (old('blood_group') ?: $user->blood_group ?? '') == 'A+' ? 'selected' : '' }}>
                                                     A+</option>
-                                                <option value="A-" {{ old('blood_group') == 'A-' ? 'selected' : '' }}>
+                                                <option value="A-"
+                                                    {{ (old('blood_group') ?: $user->blood_group ?? '') == 'A-' ? 'selected' : '' }}>
                                                     A-</option>
-                                                <option value="B+" {{ old('blood_group') == 'B+' ? 'selected' : '' }}>
+                                                <option value="B+"
+                                                    {{ (old('blood_group') ?: $user->blood_group ?? '') == 'B+' ? 'selected' : '' }}>
                                                     B+</option>
-                                                <option value="B-" {{ old('blood_group') == 'B-' ? 'selected' : '' }}>
+                                                <option value="B-"
+                                                    {{ (old('blood_group') ?: $user->blood_group ?? '') == 'B-' ? 'selected' : '' }}>
                                                     B-</option>
                                                 <option value="AB+"
-                                                    {{ old('blood_group') == 'AB+' ? 'selected' : '' }}>AB+</option>
+                                                    {{ (old('blood_group') ?: $user->blood_group ?? '') == 'AB+' ? 'selected' : '' }}>
+                                                    AB+</option>
                                                 <option value="AB-"
-                                                    {{ old('blood_group') == 'AB-' ? 'selected' : '' }}>AB-</option>
-                                                <option value="O+" {{ old('blood_group') == 'O+' ? 'selected' : '' }}>
+                                                    {{ (old('blood_group') ?: $user->blood_group ?? '') == 'AB-' ? 'selected' : '' }}>
+                                                    AB-</option>
+                                                <option value="O+"
+                                                    {{ (old('blood_group') ?: $user->blood_group ?? '') == 'O+' ? 'selected' : '' }}>
                                                     O+</option>
-                                                <option value="O-" {{ old('blood_group') == 'O-' ? 'selected' : '' }}>
+                                                <option value="O-"
+                                                    {{ (old('blood_group') ?: $user->blood_group ?? '') == 'O-' ? 'selected' : '' }}>
                                                     O-</option>
                                             </select>
                                             <small class="text-danger">{{ $errors->first('blood_group') }}</small>
@@ -307,12 +373,16 @@
 
                                         <div class="form-group mb-3">
                                             <select class="form-control" name="specially_abled" required>
-                                                <option disabled {{ old('specially_abled') ? '' : 'selected' }} hidden>
+                                                <option disabled
+                                                    {{ (old('specially_abled') ?: $user->specially_abled ?? '') ? '' : 'selected' }}
+                                                    hidden>
                                                     Specially Abled *</option>
                                                 <option value="yes"
-                                                    {{ old('specially_abled') == 'yes' ? 'selected' : '' }}>Yes</option>
+                                                    {{ (old('specially_abled') ?: $user->specially_abled ?? '') == 'yes' ? 'selected' : '' }}>
+                                                    Yes</option>
                                                 <option value="no"
-                                                    {{ old('specially_abled') == 'no' ? 'selected' : '' }}>No</option>
+                                                    {{ (old('specially_abled') ?: $user->specially_abled ?? '') == 'no' ? 'selected' : '' }}>
+                                                    No</option>
                                             </select>
                                             <small class="text-danger">{{ $errors->first('specially_abled') }}</small>
                                         </div>
@@ -345,5 +415,4 @@
                 </div>
             </div>
         </div>
-    </div>
-@endsection
+    @endsection

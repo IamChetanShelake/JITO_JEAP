@@ -336,24 +336,82 @@
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <div class="photo-upload-box">
-                                                        <span class="photo-label">Father's Aadhaar Card*</span>
-                                                        <label for="father_aadhaar" class="upload-btn">
-                                                            <span class="upload-icon">⭱</span> Upload
-                                                        </label>
-                                                        <input type="file" id="father_aadhaar" name="father_aadhaar"
-                                                            hidden accept=".jpg,.jpeg,.png,.pdf" required>
-                                                        <small
-                                                            class="text-danger">{{ $errors->first('father_aadhaar') }}</small>
+                                                        <div class="row mb-2 align-items-center">
+                                                            <div class="col-9">
+                                                                <span class="photo-label">Father's Aadhaar Card*</span>
+                                                                <input type="file" id="father_aadhaar"
+                                                                    name="father_aadhaar" hidden
+                                                                    accept=".jpg,.jpeg,.png,.pdf" required>
+                                                                <small
+                                                                    class="text-danger">{{ $errors->first('father_aadhaar') }}</small>
+                                                            </div>
+                                                            <div class="col-3">
+                                                                <label for="father_aadhaar" class="upload-btn">
+                                                                    <span class="upload-icon">⭱</span> Upload
+                                                                </label>
+                                                                <label class="uploaded-btn" style="display: none;">
+                                                                    <span class="upload-icon">✔</span> Upload
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mb-2 align-items-center">
+                                                            <div class="col-12 align-items-center">
+                                                                <div class="upload-status" style="display:none;">
+                                                                    <div class="row">
+                                                                        <div class="col-9">
+                                                                            <div class="upload-summary"></div>
+                                                                        </div>
+                                                                        <div class="col-3">
+                                                                            <button type="button"
+                                                                                class="remove-upload btn bt-sm"
+                                                                                style="display:none;">
+                                                                                <i class="bi bi-trash"></i>
+                                                                                Remove</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <div class="photo-upload-box">
-                                                        <span class="photo-label">Father's Passport Size Photo</span>
-                                                        <label for="father_photo" class="upload-btn">
-                                                            <span class="upload-icon">⭱</span> Upload
-                                                        </label>
-                                                        <input type="file" id="father_photo" name="father_photo"
-                                                            hidden accept=".jpg,.jpeg,.png">
+                                                        <div class="row mb-2 align-items-center">
+                                                            <div class="col-9">
+                                                                <span class="photo-label">Father's Passport Size
+                                                                    Photo</span>
+                                                                <input type="file" id="father_photo"
+                                                                    name="father_photo" hidden accept=".jpg,.jpeg,.png">
+                                                                <small
+                                                                    class="text-danger">{{ $errors->first('father_photo') }}</small>
+                                                            </div>
+                                                            <div class="col-3">
+                                                                <label for="father_photo" class="upload-btn">
+                                                                    <span class="upload-icon">⭱</span> Upload
+                                                                </label>
+                                                                <label class="uploaded-btn" style="display: none;">
+                                                                    <span class="upload-icon">✔</span> Upload
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mb-2 align-items-center">
+                                                            <div class="col-12 align-items-center">
+                                                                <div class="upload-status" style="display:none;">
+                                                                    <div class="row">
+                                                                        <div class="col-9">
+                                                                            <div class="upload-summary"></div>
+                                                                        </div>
+                                                                        <div class="col-3">
+                                                                            <button type="button"
+                                                                                class="remove-upload btn bt-sm"
+                                                                                style="display:none;">
+                                                                                <i class="bi bi-trash"></i>
+                                                                                Remove</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -448,24 +506,82 @@
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <div class="photo-upload-box">
-                                                        <span class="photo-label">Mother's Aadhaar Card*</span>
-                                                        <label for="mother_aadhaar" class="upload-btn">
-                                                            <span class="upload-icon">⭱</span> Upload
-                                                        </label>
-                                                        <input type="file" id="mother_aadhaar" name="mother_aadhaar"
-                                                            hidden accept=".jpg,.jpeg,.png,.pdf" required>
-                                                        <small
-                                                            class="text-danger">{{ $errors->first('mother_aadhaar') }}</small>
+                                                        <div class="row mb-2 align-items-center">
+                                                            <div class="col-9">
+                                                                <span class="photo-label">Mother's Aadhaar Card*</span>
+                                                                <input type="file" id="mother_aadhaar"
+                                                                    name="mother_aadhaar" hidden
+                                                                    accept=".jpg,.jpeg,.png,.pdf" required>
+                                                                <small
+                                                                    class="text-danger">{{ $errors->first('mother_aadhaar') }}</small>
+                                                            </div>
+                                                            <div class="col-3">
+                                                                <label for="mother_aadhaar" class="upload-btn">
+                                                                    <span class="upload-icon">⭱</span> Upload
+                                                                </label>
+                                                                <label class="uploaded-btn" style="display: none;">
+                                                                    <span class="upload-icon">✔</span> Upload
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mb-2 align-items-center">
+                                                            <div class="col-12 align-items-center">
+                                                                <div class="upload-status" style="display:none;">
+                                                                    <div class="row">
+                                                                        <div class="col-9">
+                                                                            <div class="upload-summary"></div>
+                                                                        </div>
+                                                                        <div class="col-3">
+                                                                            <button type="button"
+                                                                                class="remove-upload btn bt-sm"
+                                                                                style="display:none;">
+                                                                                <i class="bi bi-trash"></i>
+                                                                                Remove</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <div class="photo-upload-box">
-                                                        <span class="photo-label">Mother's Passport Size Photo</span>
-                                                        <label for="mother_photo" class="upload-btn">
-                                                            <span class="upload-icon">⭱</span> Upload
-                                                        </label>
-                                                        <input type="file" id="mother_photo" name="mother_photo"
-                                                            hidden accept=".jpg,.jpeg,.png">
+                                                        <div class="row mb-2 align-items-center">
+                                                            <div class="col-9">
+                                                                <span class="photo-label">Mother's Passport Size
+                                                                    Photo</span>
+                                                                <input type="file" id="mother_photo"
+                                                                    name="mother_photo" hidden accept=".jpg,.jpeg,.png">
+                                                                <small
+                                                                    class="text-danger">{{ $errors->first('mother_photo') }}</small>
+                                                            </div>
+                                                            <div class="col-3">
+                                                                <label for="mother_photo" class="upload-btn">
+                                                                    <span class="upload-icon">⭱</span> Upload
+                                                                </label>
+                                                                <label class="uploaded-btn" style="display: none;">
+                                                                    <span class="upload-icon">✔</span> Upload
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mb-2 align-items-center">
+                                                            <div class="col-12 align-items-center">
+                                                                <div class="upload-status" style="display:none;">
+                                                                    <div class="row">
+                                                                        <div class="col-9">
+                                                                            <div class="upload-summary"></div>
+                                                                        </div>
+                                                                        <div class="col-3">
+                                                                            <button type="button"
+                                                                                class="remove-upload btn bt-sm"
+                                                                                style="display:none;">
+                                                                                <i class="bi bi-trash"></i>
+                                                                                Remove</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>

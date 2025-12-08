@@ -42,7 +42,8 @@ class UserController extends Controller
     {
         $user_id = Auth::id();
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
-        return view('user.step1', compact('type'));
+        $user = Auth::user();
+        return view('user.step1', compact('type', 'user'));
     }
 
 
@@ -56,7 +57,7 @@ class UserController extends Controller
             'financial_asset_type' => 'required|in:domestic,foreign_finance_assistant',
             'financial_asset_for' => 'required|in:graduation,post_graduation',
             'aadhar_card_number' => 'required|string|max:12',
-            'pan_card' => 'required|string|max:10',
+            'pan_card' => 'nullable|string|max:10',
             'phone' => 'required|string|max:15',
             'email' => 'required|email|max:255',
             'alternate_phone' => 'nullable|string|max:15',
@@ -65,7 +66,7 @@ class UserController extends Controller
             'city' => 'required|string|max:100',
             'district' => 'required|string|max:100',
             'state' => 'required|string|max:100',
-            'pin_code' => 'required|integer|max:6',
+            'pin_code' => 'required|digits:6',
             'chapter' => 'required|string|max:100',
             'nationality' => 'required|in:indian,foreigner',
             'aadhar_address' => 'required|string',
@@ -111,6 +112,7 @@ class UserController extends Controller
             'sub_cast' => $request->sub_cast,
             'blood_group' => $request->blood_group,
             'specially_abled' => $request->specially_abled,
+            'submit_status' => 'submited',
         ];
 
         // Handle image upload (only once)

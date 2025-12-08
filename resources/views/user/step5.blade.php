@@ -149,16 +149,42 @@
 
                                             <div class="form-group mb-3">
                                                 <div class="photo-upload-box">
-                                                    <span class="photo-label">Guarantor 1 - Pan card copy *</span>
-
-                                                    <label for="uploadInput1" class="upload-btn">
-                                                        <span class="upload-icon">⭱</span> Upload
-                                                    </label>
-
-                                                    <input type="file" id="uploadInput1" name="g_one_pan_card" hidden
-                                                        accept=".jpg,.jpeg,.png">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Guarantor 1 - Pan card copy *</span>
+                                                            <input type="file" id="uploadInput1" name="g_one_pan_card"
+                                                                hidden accept=".jpg,.jpeg,.png">
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('g_one_pan_card') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="uploadInput1" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <small class="text-danger">{{ $errors->first('g_one_pan_card') }}</small>
                                             </div>
 
 
@@ -271,16 +297,42 @@
 
                                             <div class="form-group mb-3">
                                                 <div class="photo-upload-box">
-                                                    <span class="photo-label">Guarantor 2 - Pan card copy *</span>
-
-                                                    <label for="uploadInput2" class="upload-btn">
-                                                        <span class="upload-icon">⭱</span> Upload
-                                                    </label>
-
-                                                    <input type="file" id="uploadInput2" name="g_two_pan_card" hidden
-                                                        accept=".jpg,.jpeg,.png">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Guarantor 2 - Pan card copy *</span>
+                                                            <input type="file" id="uploadInput2" name="g_two_pan_card"
+                                                                hidden accept=".jpg,.jpeg,.png">
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('g_two_pan_card') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="uploadInput2" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <small class="text-danger">{{ $errors->first('g_two_pan_card') }}</small>
                                             </div>
 
 

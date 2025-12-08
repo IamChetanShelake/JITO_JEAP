@@ -49,7 +49,7 @@ return new class extends Migration
             $table->string('extra_curri')->nullable();
 
             $table->string('status')->default('step6_completed');
-            $table->enum('submit_status', ['pending', 'submited', 'approved', 'resubmit'])->nullable();
+            $table->enum('submit_status', ['pending', 'submited', 'approved', 'resubmit'])->default('pending');
             $table->timestamps();
         });
     }

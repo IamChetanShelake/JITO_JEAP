@@ -17,6 +17,15 @@
             color: #4C4C4C !important;
         }
 
+        ::placeholder,
+        select option,
+        textarea::placeholder {
+            color: #494C4E;
+            font-weight: 300;
+            font-size: 14px;
+        }
+
+
         --webkit-scrollbar-thumb {
             border-radius: 9px;
         }
@@ -132,6 +141,17 @@
             color: #FFC727;
             font-weight: 400;
             font-family: 'Poppins', sans-serif;
+        }
+
+        /* Completed Step */
+        .completed-step {
+            background-color: green !important;
+            border-color: green !important;
+        }
+
+        .active-step {
+            background-color: #FFC727 !important;
+            border-color: #FFC727 !important;
         }
 
         /* Step text */
@@ -310,10 +330,10 @@
             height: 50px;
             border: 1px solid #d9d9d9;
             border-radius: 7px;
-            padding: 12px 18px;
-            display: flex;
+            padding: 3px 18px;
+            /* display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: center; */
             font-family: 'Poppins', sans-serif;
             color: #4C4C4C;
             background: white;
@@ -347,6 +367,15 @@
         #uploadInput:focus {
             outline: none;
         }
+
+        .remove-upload {
+            color: #F43333;
+            border: 1px solid #F43333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 91%;
+        }
     </style>
 </head>
 
@@ -369,8 +398,9 @@
                     </b></span>
             </a>
             <div class="ms-auto d-flex align-items-center">
-                <button class="btn btn-purple me-2" style="background-color: #393185; color: white;">Step 1 of
-                    7</button>
+                {{-- <button class="btn btn-purple me-2" style="background-color: #393185; color: white;">Step 1 of
+                    7</button> --}}
+                @yield('step')
                 <button class="btn btn-danger" href="{{ route('logout') }}"
                     onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();"><svg
@@ -398,11 +428,46 @@
 
                 <ul class="stepper">
 
+                    {{-- <li class="{{ request()->routeIs('user.step1') ? 'active' : '' }}">
+                        <a href="{{ route('user.step1') }}">
+                            <div class="step-icon @if (auth()->check() && auth()->user()->submit_status === 'submited') completed-step @endif">
+                                @if (auth()->check() && auth()->user()->submit_status === 'submited')
+                                    <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
+                                            fill="white" />
+                                    </svg>
+                                @else
+                                    <i class="bi bi-person"></i>
+                                @endif
+                            </div>
+                            <div class="step-content">
+                                <div class="step-number">Step 1</div>
+                                <div class="step-title">Personal Details</div>
+                            </div>
+                        </a>
+                    </li> --}}
                     <li class="{{ request()->routeIs('user.step1') ? 'active' : '' }}">
                         <a href="{{ route('user.step1') }}">
-                            <div class="step-icon">
-                                <i class="bi bi-person"></i>
+                            <div
+                                class="step-icon
+                                @if (auth()->check() && auth()->user()->submit_status === 'submited') completed-step @endif
+                                @if (request()->routeIs('user.step1')) active-step @endif">
+
+                                @if (auth()->check() && auth()->user()->submit_status === 'submited')
+                                    {{-- Tick SVG --}}
+                                    <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
+                                            fill="white" />
+                                    </svg>
+                                @else
+                                    {{-- Default Icon --}}
+                                    <i class="bi bi-person"></i>
+                                @endif
+
                             </div>
+
                             <div class="step-content">
                                 <div class="step-number">Step 1</div>
                                 <div class="step-title">Personal Details</div>
@@ -410,17 +475,90 @@
                         </a>
                     </li>
 
+
+                    @php
+                        $family = \App\Models\FamilyDetail::where('user_id', auth()->id())->first();
+                        $fundingDetail = \App\Models\FundingDetail::where('user_id', auth()->id())->first();
+                    @endphp
+                    {{-- 
                     <li class="{{ request()->routeIs('user.step2') ? 'active' : '' }}">
                         <a href="{{ route('user.step2') }}">
-                            <div class="step-icon">
-                                <i class="bi bi-people"></i>
+
+                            <div class="step-icon @if ($family && $family->submit_status === 'submited') completed-step @endif">
+
+                                @if ($family && $family->submit_status === 'submited')
+                                    <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
+                                            fill="white" />
+                                    </svg>
+                                @else
+                                    <i class="bi bi-people"></i>
+                                @endif
+
                             </div>
                             <div class="step-content">
                                 <div class="step-number">Step 2</div>
                                 <div class="step-title">Family Details</div>
                             </div>
                         </a>
+                    </li> --}}
+
+                    {{-- <li class="{{ request()->routeIs('user.step2') ? 'active' : '' }}">
+                        <a href="{{ route('user.step2') }}">
+                            <div class="step-icon 
+                                @if ($family && $family->submit_status === 'submited') completed-step @endif">
+
+                                @if ($family && $family->submit_status === 'submited')
+                                    <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
+                                            fill="white" />
+                                    </svg>
+                                @else
+                                    <i class="bi bi-people"></i>
+                                @endif
+                            </div>
+
+                            <div class="step-content">
+                                <div class="step-number">Step 2</div>
+                                <div class="step-title">Family Details</div>
+                            </div>
+
+                        </a>
+                    </li> --}}
+
+                    <li class="{{ request()->routeIs('user.step2') ? 'active' : '' }}">
+                        <a href="{{ route('user.step2') }}">
+
+                            <div
+                                class="step-icon
+            @if ($family && $family->submit_status === 'submited') completed-step @endif
+            @if (request()->routeIs('user.step2')) active-step @endif">
+
+                                @if ($family && $family->submit_status === 'submited')
+                                    <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
+                                            fill="white" />
+                                    </svg>
+                                @else
+                                    <i class="bi bi-people"></i>
+                                @endif
+
+                            </div>
+
+                            <div class="step-content">
+                                <div class="step-number">Step 2</div>
+                                <div class="step-title">Education Details </div>
+                            </div>
+
+                        </a>
                     </li>
+
+
+
+
 
                     <li class="{{ request()->routeIs('user.step3') ? 'active' : '' }}">
                         <a href="{{ route('user.step3') }}">
@@ -429,15 +567,27 @@
                             </div>
                             <div class="step-content">
                                 <div class="step-number">Step 3</div>
-                                <div class="step-title">Education Details</div>
+                                <div class="step-title">Family Details</div>
                             </div>
                         </a>
                     </li>
 
                     <li class="{{ request()->routeIs('user.step4') ? 'active' : '' }}">
                         <a href="{{ route('user.step4') }}">
-                            <div class="step-icon">
-                                <i class="bi bi-currency-rupee"></i>
+                            <div
+                                class="step-icon  @if ($fundingDetail && $fundingDetail->submit_status === 'submited') completed-step @endif
+                               @if (request()->routeIs('user.step4')) active-step @endif">
+
+                                @if ($fundingDetail && $fundingDetail->submit_status === 'submited')
+                                    <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
+                                            fill="white" />
+                                    </svg>
+                                @else
+                                    <i class="bi bi-currency-rupee"></i>
+                                @endif
+
                             </div>
                             <div class="step-content">
                                 <div class="step-number">Step 4</div>
@@ -446,8 +596,8 @@
                         </a>
                     </li>
 
-                    <li>
-                        <a href="{{ route('user.step1') }}">
+                    <li class="{{ request()->routeIs('user.step5') ? 'active' : '' }}">
+                        <a href="{{ route('user.step5') }}">
                             <div class="step-icon">
                                 {{-- <i class="bi bi-pen"></i> --}}
                                 {{-- <i class="bi bi-file-check"></i> --}}
@@ -462,8 +612,8 @@
                         </a>
                     </li>
 
-                    <li>
-                        <a href="{{ route('user.step1') }}">
+                    <li class="{{ request()->routeIs('user.step6') ? 'active' : '' }}">
+                        <a href="{{ route('user.step6') }}">
                             <div class="step-icon">
                                 <i class="bi bi-journal-text"></i>
                             </div>
@@ -474,8 +624,8 @@
                         </a>
                     </li>
 
-                    <li>
-                        <a href="{{ route('user.step1') }}">
+                    <li class="{{ request()->routeIs('user.step7') ? 'active' : '' }}">
+                        <a href="{{ route('user.step7') }}">
                             <div class="step-icon">
                                 <i class="bi bi-eye"></i>
                             </div>
@@ -507,6 +657,95 @@
                     sidebar.classList.toggle('open');
                     overlay.classList.toggle('show');
                 }
+            </script>
+
+            <!-- File Upload Functionality Script -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Function to handle file upload
+                    function handleFileUpload(fileInput) {
+                        console.log('File upload triggered for input:', fileInput.name);
+                        const photoUploadBox = fileInput.closest('.photo-upload-box');
+                        const uploadStatus = photoUploadBox.querySelector('.upload-status');
+                        const uploadButton = photoUploadBox.querySelector('.upload-btn');
+                        const uploadedButton = photoUploadBox.querySelector('.uploaded-btn');
+                        console.log('Upload status element:', uploadStatus);
+                        const uploadSummary = photoUploadBox.querySelector('.upload-summary');
+                        const removeBtn = photoUploadBox.querySelector('.remove-upload');
+
+                        if (fileInput.files.length > 0) {
+                            const file = fileInput.files[0];
+                            console.log('Selected file:', file);
+                            const fileSizeKB = Math.round(file.size / 1024);
+                            const fileSizeText = fileSizeKB > 1024 ? (fileSizeKB / 1024).toFixed(2) + ' MB' : fileSizeKB +
+                                ' KB';
+
+                            uploadSummary.innerHTML = `
+                                <div class="text-success mb-1">✔ Document uploaded successfully</div>
+                                <small class="text-muted">
+                                    <strong>Name:</strong> ${file.name}<br>
+                                    <strong>Size:</strong> ${fileSizeText}
+                                </small>
+                            `;
+
+                            photoUploadBox.style.height = '143px';
+                            uploadButton.style.display = 'none';
+                            uploadedButton.style.display = 'block';
+                            uploadedButton.style.color = '#009846';
+                            uploadedButton.style.border = '1px solid #009846';
+                            uploadedButton.style.display = 'flex';
+                            uploadedButton.style.justifyContent = 'center';
+                            uploadedButton.style.alignItems = 'center';
+                            uploadedButton.style.fontSize = '91%';
+                            uploadedButton.style.borderRadius = '10px';
+                            uploadStatus.style.display = 'block';
+                            removeBtn.style.display = 'inline-block';
+                        } else {
+                            photoUploadBox.style.height = '50px';
+                            uploadStatus.style.display = 'none';
+                            removeBtn.style.display = 'none';
+                            uploadSummary.innerHTML = '';
+                        }
+                    }
+
+                    // Function to remove upload
+                    function removeUpload(fileInput) {
+                        const photoUploadBox = fileInput.closest('.photo-upload-box');
+                        const uploadStatus = photoUploadBox.querySelector('.upload-status');
+                        const uploadSummary = photoUploadBox.querySelector('.upload-summary');
+                        const uploadButton = photoUploadBox.querySelector('.upload-btn');
+                        const uploadedButton = photoUploadBox.querySelector('.uploaded-btn');
+                        const removeBtn = photoUploadBox.querySelector('.remove-upload');
+
+                        fileInput.value = '';
+                        photoUploadBox.style.height = '50px';
+                        uploadStatus.style.display = 'none';
+                        removeBtn.style.display = 'none';
+                        uploadSummary.innerHTML = '';
+                        uploadButton.style.display = 'block';
+                        uploadedButton.style.display = 'none';
+                    }
+
+                    // Add event listeners to all file inputs
+                    const fileInputs = document.querySelectorAll('input[type="file"]');
+                    fileInputs.forEach(function(input) {
+                        input.addEventListener('change', function() {
+                            // console.log(input);
+                            handleFileUpload(this);
+                        });
+
+                        // Add remove button functionality
+                        const photoUploadBox = input.closest('.photo-upload-box');
+                        if (photoUploadBox) {
+                            const removeBtn = photoUploadBox.querySelector('.remove-upload');
+                            if (removeBtn) {
+                                removeBtn.addEventListener('click', function() {
+                                    removeUpload(input);
+                                });
+                            }
+                        }
+                    });
+                });
             </script>
         </div>
 </body>

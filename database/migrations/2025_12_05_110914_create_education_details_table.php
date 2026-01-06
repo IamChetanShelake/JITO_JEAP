@@ -25,6 +25,7 @@ return new class extends Migration
             $table->enum('current_mode_of_study', ['full-time', 'part-time', 'distance', 'online'])->nullable();
 
             // Completed Qualifications
+            // $table->enum('qualifications', ['diploma', 'graduation', 'masters', 'phd', 'none'])->nullable();
             $table->enum('qualifications', ['diploma', 'graduation', 'masters', 'phd', 'none'])->nullable();
             $table->string('qualification_course_name')->nullable();
             $table->string('qualification_institution')->nullable();
@@ -96,6 +97,7 @@ return new class extends Migration
             $table->decimal('group_4_year4', 15, 2)->nullable();
 
             $table->string('status')->default('step3_completed');
+            $table->enum('submit_status', ['pending', 'submited', 'approved', 'resubmit'])->default('pending');
             $table->timestamps();
         });
     }

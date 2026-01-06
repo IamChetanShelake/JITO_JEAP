@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('number_family_members')->nullable();
             $table->integer('total_family_income')->nullable();
             $table->integer('total_students')->nullable();
-            $table->integer('family_member_diksha')->nullable()->nullable();
+            $table->string('family_member_diksha')->nullable()->nullable();
             $table->integer('total_insurance_coverage')->nullable();
             $table->integer('total_premium_paid')->nullable();
             // Father details
@@ -61,8 +61,8 @@ return new class extends Migration
             // Scholar details
             $table->string('additional_email')->nullable();
             $table->integer('yearly_gross_income')->nullable();
-            $table->integer('individual_insurance_coverage');
-            $table->integer('individual_premium_paid');
+            $table->integer('individual_insurance_coverage')->nullable();
+            $table->integer('individual_premium_paid')->nullable();
             // Relatives
             $table->string('paternal_uncle_name')->nullable();
             $table->string('paternal_uncle_mobile')->nullable();
@@ -76,7 +76,8 @@ return new class extends Migration
             $table->string('maternal_aunt_name')->nullable();
             $table->string('maternal_aunt_mobile')->nullable();
             $table->string('maternal_aunt_email')->nullable();
-            $table->enum('status', ['pending', 'completed', 'rejected'])->default('pending');
+            // $table->enum('status', ['pending', 'completed', 'rejected'])->default('pending');
+            $table->enum('submit_status', ['pending', 'submited', 'approved', 'resubmit'])->default('pending');
             $table->timestamps();
         });
     }

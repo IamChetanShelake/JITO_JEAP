@@ -1,43 +1,3 @@
-{{-- @extends('layouts.app')
-
-@section('content')
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-
-                    <div class="card-header">{{ __('Dashboard') }}</div>
-
-                    <div class="card-body">
-                        @if (session('status'))
-                            <div class="alert alert-success" role="alert">
-                                {{ session('status') }}
-                            </div>
-                        @endif
-
-
-
-                        {{ __('User are logged in!') }}
-
-
-                       
-                        <a class="dropdown-item" href="{{ route('logout') }}"
-                            onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                            {{ __('Logout') }}
-                        </a>
-
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                            @csrf
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-@endsection --}}
-
-
 @extends('layouts.app')
 
 @section('content')
@@ -154,17 +114,20 @@
         .category-card:hover {
             border-color: var(--primary-color) !important;
             box-shadow: 0 4px 18px rgba(57, 49, 133, 0.30);
+            border: 3px solid var(--primary-color) !important;
         }
 
         /* Icon wrapper hover */
         .category-card:hover .icon-wrapper {
             background: var(--light-purple-bg) !important;
             border-color: var(--primary-color) !important;
+            border: 3px solid var(--primary-color) !important;
         }
 
         /* SVG color change */
         .category-card:hover .icon-wrapper svg path {
             stroke: #393185;
+
         }
 
         /* Title color change */
@@ -175,6 +138,8 @@
         /* Feature box border + icon color */
         .category-card:hover .feature-box {
             border-color: var(--primary-color) !important;
+            border: 3px solid var(--primary-color) !important;
+            background: var(--light-purple-bg) !important;
         }
 
         /* Feature title color */
@@ -202,9 +167,9 @@
             {{-- <hr style="color:#CDCDCD;border:0.75px;"> --}}
             <hr style="border: 2px solid #CDCDCD;">
 
-            <h3 class="mt-3" style="color:#4C4C4C;font-size:20px;font-family:'Poppins'; font-weight:500;">Choose Your
+            <h3 class="mt-3" style="color:#393185;font-size:20px;font-family:'Poppins'; font-weight:500;">Choose Your
                 Assistance Category</h3>
-            <p style="color:#4C4C4C;font-family:'Poppins';">Select the category that matches your total financial assistance
+            <p style="color:#E31E24;font-family:'Poppins';">Select the category that matches your total financial assistance
                 requirement. This
                 helps<br> us streamline your application process and ensure faster processing.</p>
         </div>
@@ -229,24 +194,13 @@
 
 
                     <h4 class="category-title text-center">Below ₹1,00,000</h4>
-                    <p class="text-center text-muted">For students requiring assistance up to ₹1,00,000</p>
+                    <p class="text-center text-muted">More than ₹50,000 and less than ₹1,00,000: Tuition, living, and other
+                        expenses combined must fall within this limit</p>
 
 
-                    <div class="mt-3">
+                    <div class="mt-3 mb-4">
 
-                        <div class="feature-box">
-                            <svg width="35" height="35" viewBox="0 0 25 25" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M12.5 0C15.8152 0 18.9946 1.31696 21.3388 3.66116C23.683 6.00537 25 9.18479 25 12.5C25 15.8152 23.683 18.9946 21.3388 21.3388C18.9946 23.683 15.8152 25 12.5 25C9.18479 25 6.00537 23.683 3.66116 21.3388C1.31696 18.9946 0 15.8152 0 12.5C0 9.18479 1.31696 6.00537 3.66116 3.66116C6.00537 1.31696 9.18479 0 12.5 0ZM12.5 1.31579C9.53376 1.31579 6.68902 2.49412 4.59157 4.59157C2.49412 6.68902 1.31579 9.53376 1.31579 12.5C1.31579 15.4662 2.49412 18.311 4.59157 20.4084C6.68902 22.5059 9.53376 23.6842 12.5 23.6842C13.9687 23.6842 15.4231 23.3949 16.78 22.8329C18.1369 22.2708 19.3699 21.447 20.4084 20.4084C21.447 19.3699 22.2708 18.1369 22.8329 16.78C23.3949 15.4231 23.6842 13.9687 23.6842 12.5C23.6842 9.53376 22.5059 6.68902 20.4084 4.59157C18.311 2.49412 15.4662 1.31579 12.5 1.31579ZM11.8421 5.26316H13.1579V12.3947L19.3421 15.9605L18.6842 17.1053L11.8421 13.1579V5.26316Z"
-                                    fill="#6C6C6C" />
-                            </svg>
 
-                            <div class="feature-text">
-                                <div class="feature-title">Quick Processing</div>
-                                <div class="feature-sub">4–5 business days</div>
-                            </div>
-                        </div>
                         <div class="feature-box">
                             <svg width="35" height="35" viewBox="0 0 23 26" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -260,9 +214,28 @@
 
 
                             <div class="feature-text">
+                                {{-- <div class="row">
+                                    <div class="col-11">
+                                        <div class="feature-title">Simplified Documentation</div>
+                                        <div class="feature-sub">You can view the list of documents here.</div>
+                                    </div>
+                                    <div class="col-1 text-end"><svg width="30" height="30" viewBox="0 0 24 24"
+                                            fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M12 0.5C15.05 0.5 17.9752 1.7115 20.1318 3.86816C22.2885 6.02483 23.5 8.95001 23.5 12C23.5 15.05 22.2885 17.9752 20.1318 20.1318C17.9752 22.2885 15.05 23.5 12 23.5C8.95001 23.5 6.02483 22.2885 3.86816 20.1318C1.7115 17.9752 0.5 15.05 0.5 12C0.5 8.95001 1.7115 6.02483 3.86816 3.86816C6.02483 1.7115 8.95001 0.5 12 0.5ZM12 4.21387C11.4127 4.21387 10.8498 4.44802 10.4346 4.86328C10.0194 5.27853 9.78613 5.84148 9.78613 6.42871V12.2832H7.21094C6.94295 12.2838 6.68064 12.3635 6.45801 12.5127C6.23544 12.6619 6.06241 12.8745 5.95996 13.1221C5.85763 13.3695 5.83077 13.6416 5.88281 13.9043C5.93493 14.1672 6.06373 14.4088 6.25293 14.5986V14.5996L11.0391 19.3867L11.04 19.3877C11.2945 19.6419 11.6394 19.7851 11.999 19.7852C12.3589 19.7852 12.7045 19.6421 12.959 19.3877L17.7471 14.5996V14.5986C17.9363 14.4088 18.0651 14.1672 18.1172 13.9043C18.1692 13.6416 18.1424 13.3695 18.04 13.1221C17.9376 12.8745 17.7646 12.6619 17.542 12.5127C17.3194 12.3635 17.057 12.2838 16.7891 12.2832H14.2139V6.42871C14.2139 5.84148 13.9806 5.27853 13.5654 4.86328C13.1502 4.44802 12.5873 4.21387 12 4.21387Z"
+                                                fill="#E0E0E0" stroke="#A0A0A0" />
+                                        </svg>
+                                    </div>
+                                </div> --}}
                                 <div class="feature-title">Simplified Documentation</div>
-                                <div class="feature-sub">Basic documents required</div>
+                                <div class="feature-sub">You can view the list of documents here.</div>
                             </div>
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M12 0.5C15.05 0.5 17.9752 1.7115 20.1318 3.86816C22.2885 6.02483 23.5 8.95001 23.5 12C23.5 15.05 22.2885 17.9752 20.1318 20.1318C17.9752 22.2885 15.05 23.5 12 23.5C8.95001 23.5 6.02483 22.2885 3.86816 20.1318C1.7115 17.9752 0.5 15.05 0.5 12C0.5 8.95001 1.7115 6.02483 3.86816 3.86816C6.02483 1.7115 8.95001 0.5 12 0.5ZM12 4.21387C11.4127 4.21387 10.8498 4.44802 10.4346 4.86328C10.0194 5.27853 9.78613 5.84148 9.78613 6.42871V12.2832H7.21094C6.94295 12.2838 6.68064 12.3635 6.45801 12.5127C6.23544 12.6619 6.06241 12.8745 5.95996 13.1221C5.85763 13.3695 5.83077 13.6416 5.88281 13.9043C5.93493 14.1672 6.06373 14.4088 6.25293 14.5986V14.5996L11.0391 19.3867L11.04 19.3877C11.2945 19.6419 11.6394 19.7851 11.999 19.7852C12.3589 19.7852 12.7045 19.6421 12.959 19.3877L17.7471 14.5996V14.5986C17.9363 14.4088 18.0651 14.1672 18.1172 13.9043C18.1692 13.6416 18.1424 13.3695 18.04 13.1221C17.9376 12.8745 17.7646 12.6619 17.542 12.5127C17.3194 12.3635 17.057 12.2838 16.7891 12.2832H14.2139V6.42871C14.2139 5.84148 13.9806 5.27853 13.5654 4.86328C13.1502 4.44802 12.5873 4.21387 12 4.21387Z"
+                                    fill="#E0E0E0" stroke="#A0A0A0" />
+                            </svg>
                         </div>
 
                         <div class="feature-box">
@@ -282,17 +255,17 @@
 
                     </div>
 
-                    <h6 class="mt-3 " style="font-weight:600;">&nbsp;&nbsp;Ideal for:</h6>
-                    <ul>
+                    {{-- <h6 class="mt-3 " style="font-weight:600;">&nbsp;&nbsp;Ideal for:</h6>
+                     <ul>
                         <li>School/College tuition</li>
                         <li>Books and study materials</li>
                         <li>Short-term courses</li>
                         <li>Examination fees</li>
-                    </ul>
+                    </ul> --}}
 
-                    <div class="text-center mt-3">
+                    <div class="text-center mt-4" style="margin-top:60px !important;">
                         <a href="{{ route('user.loanapply', ['type' => 'below']) }}" class="btn  w-100 py-2"
-                            style="background: #F0F0F0;border:1px solid #E9E9E9;color:color:#4E4E4E;">
+                            style="background: #F0F0F0;border:1px solid #E9E9E9;color:color:#4E4E4E;font-size:16px; ">
                             Select This Category
                         </a>
                     </div>
@@ -317,9 +290,10 @@
                     </div>
 
                     <h4 class="category-title text-center">Above ₹1,00,000</h4>
-                    <p class="text-center text-muted">For students requiring assistance above ₹1,00,000</p>
-                    <div class="mt-3">
-                        <div class="feature-box">
+                    <p class="text-center text-muted">Above ₹1,00,000: Tuition, living, and other expenses combined must be
+                        more than ₹1,00,000.</p>
+                    <div class="mt-3 mb-4">
+                        {{-- <div class="feature-box">
                             <svg width="35" height="35" viewBox="0 0 25 25" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -330,24 +304,41 @@
                                 <div class="feature-title">Detailed Review</div>
                                 <div class="feature-sub">6-7 business days</div>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="feature-box">
                             <svg width="35" height="35" viewBox="0 0 23 26" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
                                     d="M6 2.5H2.5C2.03587 2.5 1.59075 2.68437 1.26256 3.01256C0.934375 3.34075 0.75 3.78587 0.75 4.25V23.5C0.75 23.9641 0.934375 24.4092 1.26256 24.7374C1.59075 25.0656 2.03587 25.25 2.5 25.25H20C20.4641 25.25 20.9092 25.0656 21.2374 24.7374C21.5656 24.4092 21.75 23.9641 21.75 23.5V4.25C21.75 3.78587 21.5656 3.34075 21.2374 3.01256C20.9092 2.68437 20.4641 2.5 20 2.5H16.5"
-                                    stroke="#626262" stroke-width="1.5" stroke-linecap="round"
-                                    stroke-linejoin="round" />
+                                    stroke="#626262" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                 <path
                                     d="M9.5 9.5H18.25M9.5 14.75H18.25M9.5 20H18.25M4.25 9.5H6M4.25 14.75H6M4.25 20H6M7.75 0.75H14.75C15.2141 0.75 15.6592 0.934374 15.9874 1.26256C16.3156 1.59075 16.5 2.03587 16.5 2.5C16.5 2.96413 16.3156 3.40925 15.9874 3.73744C15.6592 4.06563 15.2141 4.25 14.75 4.25H7.75C7.28587 4.25 6.84075 4.06563 6.51256 3.73744C6.18437 3.40925 6 2.96413 6 2.5C6 2.03587 6.18437 1.59075 6.51256 1.26256C6.84075 0.934374 7.28587 0.75 7.75 0.75Z"
-                                    stroke="#626262" stroke-width="1.5" stroke-linecap="round"
-                                    stroke-linejoin="round" />
+                                    stroke="#626262" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
 
                             <div class="feature-text">
+                                {{-- <div class="row">
+                                    <div class="col-11">
+                                        <div class="feature-title">Comprehensive Documentation</div>
+                                        <div class="feature-sub">You can view the list of documents here.</div>
+                                    </div>
+                                    <div class="col-1 text-end"><svg width="30" height="30" viewBox="0 0 24 24"
+                                            fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M12 0.5C15.05 0.5 17.9752 1.7115 20.1318 3.86816C22.2885 6.02483 23.5 8.95001 23.5 12C23.5 15.05 22.2885 17.9752 20.1318 20.1318C17.9752 22.2885 15.05 23.5 12 23.5C8.95001 23.5 6.02483 22.2885 3.86816 20.1318C1.7115 17.9752 0.5 15.05 0.5 12C0.5 8.95001 1.7115 6.02483 3.86816 3.86816C6.02483 1.7115 8.95001 0.5 12 0.5ZM12 4.21387C11.4127 4.21387 10.8498 4.44802 10.4346 4.86328C10.0194 5.27853 9.78613 5.84148 9.78613 6.42871V12.2832H7.21094C6.94295 12.2838 6.68064 12.3635 6.45801 12.5127C6.23544 12.6619 6.06241 12.8745 5.95996 13.1221C5.85763 13.3695 5.83077 13.6416 5.88281 13.9043C5.93493 14.1672 6.06373 14.4088 6.25293 14.5986V14.5996L11.0391 19.3867L11.04 19.3877C11.2945 19.6419 11.6394 19.7851 11.999 19.7852C12.3589 19.7852 12.7045 19.6421 12.959 19.3877L17.7471 14.5996V14.5986C17.9363 14.4088 18.0651 14.1672 18.1172 13.9043C18.1692 13.6416 18.1424 13.3695 18.04 13.1221C17.9376 12.8745 17.7646 12.6619 17.542 12.5127C17.3194 12.3635 17.057 12.2838 16.7891 12.2832H14.2139V6.42871C14.2139 5.84148 13.9806 5.27853 13.5654 4.86328C13.1502 4.44802 12.5873 4.21387 12 4.21387Z"
+                                                fill="#E0E0E0" stroke="#A0A0A0" />
+                                        </svg>
+                                    </div>
+                                </div> --}}
                                 <div class="feature-title">Comprehensive Documentation</div>
-                                <div class="feature-sub">Basic documents required</div>
+                                <div class="feature-sub">You can view the list of documents here.</div>
                             </div>
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M12 0.5C15.05 0.5 17.9752 1.7115 20.1318 3.86816C22.2885 6.02483 23.5 8.95001 23.5 12C23.5 15.05 22.2885 17.9752 20.1318 20.1318C17.9752 22.2885 15.05 23.5 12 23.5C8.95001 23.5 6.02483 22.2885 3.86816 20.1318C1.7115 17.9752 0.5 15.05 0.5 12C0.5 8.95001 1.7115 6.02483 3.86816 3.86816C6.02483 1.7115 8.95001 0.5 12 0.5ZM12 4.21387C11.4127 4.21387 10.8498 4.44802 10.4346 4.86328C10.0194 5.27853 9.78613 5.84148 9.78613 6.42871V12.2832H7.21094C6.94295 12.2838 6.68064 12.3635 6.45801 12.5127C6.23544 12.6619 6.06241 12.8745 5.95996 13.1221C5.85763 13.3695 5.83077 13.6416 5.88281 13.9043C5.93493 14.1672 6.06373 14.4088 6.25293 14.5986V14.5996L11.0391 19.3867L11.04 19.3877C11.2945 19.6419 11.6394 19.7851 11.999 19.7852C12.3589 19.7852 12.7045 19.6421 12.959 19.3877L17.7471 14.5996V14.5986C17.9363 14.4088 18.0651 14.1672 18.1172 13.9043C18.1692 13.6416 18.1424 13.3695 18.04 13.1221C17.9376 12.8745 17.7646 12.6619 17.542 12.5127C17.3194 12.3635 17.057 12.2838 16.7891 12.2832H14.2139V6.42871C14.2139 5.84148 13.9806 5.27853 13.5654 4.86328C13.1502 4.44802 12.5873 4.21387 12 4.21387Z"
+                                    fill="#E0E0E0" stroke="#A0A0A0" />
+                            </svg>
                         </div>
                         <div class="feature-box">
                             <svg width="35" height="35" viewBox="0 0 25 25" fill="none"
@@ -369,17 +360,17 @@
                         {{-- <div class="feature-item"><i class="bi bi-check2-circle"></i>7 Step Enhanced Process</div> --}}
                     </div>
 
-                    <h6 class="mt-3 " style="font-weight:600;">&nbsp;&nbsp;Ideal for:</h6>
+                    {{-- <h6 class="mt-3 " style="font-weight:600;">&nbsp;&nbsp;Ideal for:</h6>
                     <ul>
                         <li>Professional degree programs</li>
                         <li>Higher education</li>
                         <li>Multi-year education plans</li>
                         <li>Specialized training programs</li>
-                    </ul>
+                    </ul> --}}
 
-                    <div class="text-center mt-3">
+                    <div class="text-center mt-4" style="margin-top:60px !important;">
                         <a href="{{ route('user.loanapply', ['type' => 'above']) }}" class="btn  w-100 py-2"
-                            style="background: #F0F0F0;border:1px solid #E9E9E9;color:#4E4E4E;">
+                            style="background: #F0F0F0;border:1px solid #E9E9E9;color:#4E4E4E;font-size:16px;">
                             Select This Category
                         </a>
                     </div>

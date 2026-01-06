@@ -60,8 +60,8 @@ return new class extends Migration
             // Sibling Assistance
             $table->enum('sibling_assistance', ['yes', 'no']);
             $table->string('sibling_ngo_name')->nullable();
-            $table->enum('sibling_loan_status', ['applied', 'approved', 'received', 'pending'])->nullable();
-            $table->enum('sibling_applied_year', ['1st_year', '2nd_year', '3rd_year', '4th_year'])->nullable();
+            $table->string('sibling_loan_status')->nullable();
+            $table->string('sibling_applied_year')->nullable();
             $table->decimal('sibling_applied_amount', 15, 2)->nullable();
 
             // Bank Details

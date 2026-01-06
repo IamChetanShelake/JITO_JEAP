@@ -172,6 +172,77 @@
                                         <p class="card-subtitle">Information about your educational background</p>
                                     </div>
                                 </div>
+
+
+                                 <!-- Section 1: Your Financial Need Overview -->
+                                <div class="education-section">
+                                    <h4 class="title" style="color:#4C4C4C;font-size:18px;">Your Financial Need Overview
+                                    </h4>
+
+                                    <div class="row">
+                                        <!-- Left Column -->
+                                        <div class="col-md-6">
+                                            
+
+                                            <div class="form-group mb-3">
+                                                <input type="text" class="form-control" name="course_name"
+                                                    placeholder="Course Name *" value="{{ old('course_name') }}">
+                                                <small class="text-danger">{{ $errors->first('course_name') }}</small>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <input type="text" class="form-control" name="institute_name"
+                                                    placeholder="Institute Name *" value="{{ old('institute_name') }}">
+                                                <small class="text-danger">{{ $errors->first('institute_name') }}</small>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <input type="text" class="form-control" name="city_name"
+                                                    placeholder="City Name *" value="{{ old('city_name') }}">
+                                                <small class="text-danger">{{ $errors->first('city_name') }}</small>
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Column -->
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <input type="text" class="form-control" name="country"
+                                                    placeholder="Country *" value="{{ old('country') }}">
+                                                <small class="text-danger">{{ $errors->first('country') }}</small>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <select class="form-control" name="duration">
+                                                    <option value="" {{ !old('duration') ? 'selected' : '' }}
+                                                        disabled hidden>Duration *</option>
+                                                    <option value="1"
+                                                        {{ old('duration') == '1' ? 'selected' : '' }}>1 Year</option>
+                                                    <option value="2"
+                                                        {{ old('duration') == '2' ? 'selected' : '' }}>2 Years</option>
+                                                    <option value="3"
+                                                        {{ old('duration') == '3' ? 'selected' : '' }}>3 Years</option>
+                                                    <option value="4"
+                                                        {{ old('duration') == '4' ? 'selected' : '' }}>4 Years</option>
+                                                    <option value="5"
+                                                        {{ old('duration') == '5' ? 'selected' : '' }}>5 Years</option>
+                                                    <option value="6"
+                                                        {{ old('duration') == '6' ? 'selected' : '' }}>6 Years</option>
+                                                    <option value="7"
+                                                        {{ old('duration') == '7' ? 'selected' : '' }}>7 Years</option>
+                                                    <option value="8"
+                                                        {{ old('duration') == '8' ? 'selected' : '' }}>8 Years</option>
+                                                    <option value="9"
+                                                        {{ old('duration') == '9' ? 'selected' : '' }}>9 Years</option>
+                                                    <option value="10"
+                                                        {{ old('duration') == '10' ? 'selected' : '' }}>10 Years</option>
+                                                </select>
+                                                <small class="text-danger">{{ $errors->first('duration') }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Section Divider -->
+                                <div class="section-divider"></div>
                                 <!-- Section 1: Current Education -->
                                 <div class="education-section">
                                     <h4 class="title" style="color:#4C4C4C;font-size:18px;">Current Education</h4>
@@ -710,74 +781,7 @@
                                 <!-- Section Divider -->
                                 <div class="section-divider"></div>
 
-                                <!-- Section 8: Your Financial Need Overview -->
-                                <div class="education-section">
-                                    <h4 class="title" style="color:#4C4C4C;font-size:18px;">Your Financial Need Overview
-                                    </h4>
-
-                                    <div class="row">
-                                        <!-- Left Column -->
-                                        <div class="col-md-6">
-                                            <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="institute_name"
-                                                    placeholder="Institute Name *" value="{{ old('institute_name') }}">
-                                                <small class="text-danger">{{ $errors->first('institute_name') }}</small>
-                                            </div>
-
-                                            <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="course_name"
-                                                    placeholder="Course Name *" value="{{ old('course_name') }}">
-                                                <small class="text-danger">{{ $errors->first('course_name') }}</small>
-                                            </div>
-
-                                            <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="city_name"
-                                                    placeholder="City Name *" value="{{ old('city_name') }}">
-                                                <small class="text-danger">{{ $errors->first('city_name') }}</small>
-                                            </div>
-                                        </div>
-
-                                        <!-- Right Column -->
-                                        <div class="col-md-6">
-                                            <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="country"
-                                                    placeholder="Country *" value="{{ old('country') }}">
-                                                <small class="text-danger">{{ $errors->first('country') }}</small>
-                                            </div>
-
-                                            <div class="form-group mb-3">
-                                                <select class="form-control" name="duration">
-                                                    <option value="" {{ !old('duration') ? 'selected' : '' }}
-                                                        disabled hidden>Duration *</option>
-                                                    <option value="1"
-                                                        {{ old('duration') == '1' ? 'selected' : '' }}>1 Year</option>
-                                                    <option value="2"
-                                                        {{ old('duration') == '2' ? 'selected' : '' }}>2 Years</option>
-                                                    <option value="3"
-                                                        {{ old('duration') == '3' ? 'selected' : '' }}>3 Years</option>
-                                                    <option value="4"
-                                                        {{ old('duration') == '4' ? 'selected' : '' }}>4 Years</option>
-                                                    <option value="5"
-                                                        {{ old('duration') == '5' ? 'selected' : '' }}>5 Years</option>
-                                                    <option value="6"
-                                                        {{ old('duration') == '6' ? 'selected' : '' }}>6 Years</option>
-                                                    <option value="7"
-                                                        {{ old('duration') == '7' ? 'selected' : '' }}>7 Years</option>
-                                                    <option value="8"
-                                                        {{ old('duration') == '8' ? 'selected' : '' }}>8 Years</option>
-                                                    <option value="9"
-                                                        {{ old('duration') == '9' ? 'selected' : '' }}>9 Years</option>
-                                                    <option value="10"
-                                                        {{ old('duration') == '10' ? 'selected' : '' }}>10 Years</option>
-                                                </select>
-                                                <small class="text-danger">{{ $errors->first('duration') }}</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Section Divider -->
-                                <div class="section-divider"></div>
+                               
 
                                 <!-- Section 9: Financial Summary Table -->
                                 <div class="education-section">

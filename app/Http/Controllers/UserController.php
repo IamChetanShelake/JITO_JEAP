@@ -43,7 +43,9 @@ class UserController extends Controller
         $user_id = Auth::id();
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
         $user = Auth::user();
-        return view('user.step1', compact('type', 'user'));
+        $familyDetail = Familydetail::where('user_id', $user_id)->first();
+        $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
+        return view('user.step1', compact('type', 'user', 'familyDetail', 'fundingDetail'));
     }
 
 
@@ -51,36 +53,83 @@ class UserController extends Controller
 
     public function step1store(Request $request)
     {
+        // dd($request->all());
+        // $request->validate([
+        //     'name' => 'required|string|max:255',
+        //     'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        //     'financial_asset_type' => 'required|in:domestic,foreign_finance_assistant',
+        //     'financial_asset_for' => 'required|in:graduation,post_graduation',
+        //     'aadhar_card_number' => 'required|string|max:12',
+        //     'pan_card' => 'nullable|string|max:10',
+        //     'phone' => 'required|string|max:15',
+        //     'email' => 'required|email|max:255',
+        //     'alternate_phone' => 'nullable|string|max:15',
+        //     'address' => 'required|string',
+        //     'address1' => 'required|string',
+        //     'city' => 'required|string|max:100',
+        //     'district' => 'required|string|max:100',
+        //     'state' => 'required|string|max:100',
+        //     'pin_code' => 'required|digits:6',
+        //     'chapter' => 'required|string|max:100',
+        //     'nationality' => 'required|in:indian,foreigner',
+        //     'aadhar_address' => 'required|string',
+        //     'alternate_email' => 'nullable|email|max:255',
+        //     'd_o_b' => 'required|date_format:Y-m-d',
+        //     'birth_place' => 'required|string|max:100',
+        //     'gender' => 'required',
+        //     'age' => 'required|integer|min:18',
+        //     'marital_status' => 'required|in:married,unmarried',
+        //     'religion' => 'required|string|max:50',
+        //     'sub_cast' => 'required|string|max:50',
+        //     'blood_group' => 'required|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+        //     'specially_abled' => 'required|in:yes,no',
+        // ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+
             'financial_asset_type' => 'required|in:domestic,foreign_finance_assistant',
             'financial_asset_for' => 'required|in:graduation,post_graduation',
-            'aadhar_card_number' => 'required|string|max:12',
+
+            'aadhar_card_number' => 'required|digits:12',
             'pan_card' => 'nullable|string|max:10',
+
             'phone' => 'required|string|max:15',
-            'email' => 'required|email|max:255',
             'alternate_phone' => 'nullable|string|max:15',
-            'address' => 'required|string',
-            'address1' => 'required|string',
+
+            'email' => 'required|email|max:255',
+            'alternate_email' => 'nullable|email|max:255',
+
+            'flat_no' => 'nullable|string',
+            'building_no' => 'nullable|string',
+            'street_name' => 'nullable|string',
+            'area' => 'nullable|string',
+            'landmark' => 'nullable|string',
+
             'city' => 'required|string|max:100',
             'district' => 'required|string|max:100',
             'state' => 'required|string|max:100',
             'pin_code' => 'required|digits:6',
+
             'chapter' => 'required|string|max:100',
             'nationality' => 'required|in:indian,foreigner',
+
             'aadhar_address' => 'required|string',
-            'alternate_email' => 'nullable|email|max:255',
-            'd_o_b' => 'required|date_format:Y-m-d',
+
+            'd_o_b' => 'required|date',
             'birth_place' => 'required|string|max:100',
-            'gender' => 'required',
-            'age' => 'required|integer|min:18',
+
+            'gender' => 'required|in:male,female,other',
+            'age' => 'required|numeric|min:18',
+
             'marital_status' => 'required|in:married,unmarried',
             'religion' => 'required|string|max:50',
             'sub_cast' => 'required|string|max:50',
             'blood_group' => 'required|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
             'specially_abled' => 'required|in:yes,no',
         ]);
+
 
         $user = User::find(Auth::user()->id);
 
@@ -93,8 +142,14 @@ class UserController extends Controller
             'phone' => $request->phone,
             'email' => $request->email,
             'alternate_phone' => $request->alternate_phone,
-            'address' => $request->address,
-            'address1' => $request->address1,
+            // 'address' => $request->address,
+            // 'address1' => $request->address1,
+            'flat_no' => $request->flat_no,
+            'building_no' => $request->building_no,
+            'street_name' => $request->street_name,
+            'area' => $request->area,
+            'landmark' => $request->landmark,
+
             'city' => $request->city,
             'district' => $request->district,
             'state' => $request->state,
@@ -128,195 +183,27 @@ class UserController extends Controller
         return redirect()->route('user.step2')->with('success', 'Personal details saved successfully!');
     }
 
-
-
-
     public function step2(Request $request)
     {
         $user_id = Auth::id();
+        $user = User::find($user_id);
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
         $familyDetail = Familydetail::where('user_id', $user_id)->first();
-        return view('user.step2', compact('type', 'familyDetail'));
+        $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
+        if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'graduation') {
+            return view('user.step2_ug', compact('type', 'user', 'familyDetail', 'fundingDetail'));
+        } else if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'post_graduation') {
+            return view('user.step2_pg', compact('type', 'user', 'familyDetail', 'fundingDetail'));
+        } else if ($user->financial_asset_type == 'foreign_finance_assistant' && $user->financial_asset_for == 'post_graduation') {
+            return view('user.step2_pg_foreign', compact('type', 'user', 'familyDetail', 'fundingDetail'));
+        }
+        //  return view('user.step2', compact('type', 'familyDetail', 'fundingDetail', 'user'));
     }
+
+
 
 
     public function step2store(Request $request)
-    {
-        //dd($request->all());
-        $request->validate([
-            'number_family_members' => 'required|integer|min:1',
-            'total_family_income' => 'required|integer|min:0',
-            'total_students' => 'required|integer|min:0',
-            'family_member_diksha' => 'nullable|in:yes,no',
-            'total_insurance_coverage' => 'required|integer|min:0',
-            'total_premium_paid' => 'required|integer|min:0',
-            // Father details
-            'father_name' => 'required|string|max:255',
-            'father_age' => 'required|integer|min:18|max:120',
-            'father_marital_status' => 'required|in:married,unmarried',
-            'father_qualification' => 'required|string|max:255',
-            'father_occupation' => 'required|string|max:255',
-            'father_mobile' => 'required|string|max:15',
-            'father_email' => 'nullable|email|max:255',
-            'father_yearly_gross_income' => 'required|integer|min:0',
-            'father_individual_insurance_coverage' => 'nullable|integer|min:0',
-            'father_individual_premium_paid' => 'nullable|integer|min:0',
-            'father_aadhaar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'father_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            // Mother details
-            'mother_name' => 'required|string|max:255',
-            'mother_age' => 'required|integer|min:18|max:120',
-            'mother_marital_status' => 'required|in:married,unmarried',
-            'mother_qualification' => 'required|string|max:255',
-            'mother_occupation' => 'required|string|max:255',
-            'mother_mobile' => 'required|string|max:15',
-            'mother_email' => 'nullable|email|max:255',
-            'mother_yearly_gross_income' => 'required|integer|min:0',
-            'mother_individual_insurance_coverage' => 'nullable|integer|min:0',
-            'mother_individual_premium_paid' => 'nullable|integer|min:0',
-            'mother_aadhaar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'mother_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            // Siblings
-            'has_sibling' => 'required|in:yes,no',
-            'number_of_siblings' => 'nullable|integer|min:0',
-            'sibling_name_1' => 'nullable|string|max:255',
-            'sibling_qualification' => 'nullable|string|max:255',
-            'sibling_occupation' => 'nullable|string|max:255',
-            'sibling_mobile' => 'nullable|string|max:15',
-            'sibling_email' => 'nullable|email|max:255',
-            'sibling_yearly_income' => 'nullable|integer|min:0',
-            'sibling_insurance_coverage' => 'nullable|integer|min:0',
-            'sibling_premium_paid' => 'nullable|integer|min:0',
-            // Scholar details
-            // 'additional_email' => 'nullable|email|max:255',
-            // 'yearly_gross_income' => 'nullable|integer|min:0',
-            // 'individual_insurance_coverage' => 'required|integer|min:0',
-            // 'individual_premium_paid' => 'required|integer|min:0',
-            // Relatives
-            'paternal_uncle_name' => 'nullable|string|max:255',
-            'paternal_uncle_mobile' => 'nullable|string|max:15',
-            'paternal_uncle_email' => 'nullable|email|max:255',
-            'paternal_aunt_name' => 'nullable|string|max:255',
-            'paternal_aunt_mobile' => 'nullable|string|max:15',
-            'paternal_aunt_email' => 'nullable|email|max:255',
-            'maternal_uncle_name' => 'nullable|string|max:255',
-            'maternal_uncle_mobile' => 'nullable|string|max:15',
-            'maternal_uncle_email' => 'nullable|email|max:255',
-            'maternal_aunt_name' => 'nullable|string|max:255',
-            'maternal_aunt_mobile' => 'nullable|string|max:15',
-            'maternal_aunt_email' => 'nullable|email|max:255',
-
-        ]);
-
-        $user_id = Auth::id();
-
-        $data = [
-            'user_id' => $user_id,
-            'number_family_members' => $request->number_family_members,
-            'total_family_income' => $request->total_family_income,
-            'total_students' => $request->total_students,
-            'family_member_diksha' => $request->family_member_diksha,
-            'total_insurance_coverage' => $request->total_insurance_coverage,
-            'total_premium_paid' => $request->total_premium_paid,
-            // Father details
-            'father_name' => $request->father_name,
-            'father_age' => $request->father_age,
-            'father_marital_status' => $request->father_marital_status,
-            'father_qualification' => $request->father_qualification,
-            'father_occupation' => $request->father_occupation,
-            'father_mobile' => $request->father_mobile,
-            'father_email' => $request->father_email,
-            'father_yearly_gross_income' => $request->father_yearly_gross_income,
-            'father_individual_insurance_coverage' => $request->father_individual_insurance_coverage,
-            'father_individual_premium_paid' => $request->father_individual_premium_paid,
-            // Mother details
-            'mother_name' => $request->mother_name,
-            'mother_age' => $request->mother_age,
-            'mother_marital_status' => $request->mother_marital_status,
-            'mother_qualification' => $request->mother_qualification,
-            'mother_occupation' => $request->mother_occupation,
-            'mother_mobile' => $request->mother_mobile,
-            'mother_email' => $request->mother_email,
-            'mother_yearly_gross_income' => $request->mother_yearly_gross_income,
-            'mother_individual_insurance_coverage' => $request->mother_individual_insurance_coverage,
-            'mother_individual_premium_paid' => $request->mother_individual_premium_paid,
-            // Siblings
-            'has_sibling' => $request->has_sibling,
-            'number_of_siblings' => $request->number_of_siblings,
-            'sibling_name_1' => $request->sibling_name_1,
-            'sibling_qualification' => $request->sibling_qualification,
-            'sibling_occupation' => $request->sibling_occupation,
-            'sibling_mobile' => $request->sibling_mobile,
-            'sibling_email' => $request->sibling_email,
-            'sibling_yearly_income' => $request->sibling_yearly_income,
-            'sibling_insurance_coverage' => $request->sibling_insurance_coverage,
-            'sibling_premium_paid' => $request->sibling_premium_paid,
-            // // Scholar details
-            // 'additional_email' => $request->additional_email,
-            // 'yearly_gross_income' => $request->yearly_gross_income,
-            // 'individual_insurance_coverage' => $request->individual_insurance_coverage,
-            // 'individual_premium_paid' => $request->individual_premium_paid,
-            // Relatives
-            'paternal_uncle_name' => $request->paternal_uncle_name,
-            'paternal_uncle_mobile' => $request->paternal_uncle_mobile,
-            'paternal_uncle_email' => $request->paternal_uncle_email,
-            'paternal_aunt_name' => $request->paternal_aunt_name,
-            'paternal_aunt_mobile' => $request->paternal_aunt_mobile,
-            'paternal_aunt_email' => $request->paternal_aunt_email,
-            'maternal_uncle_name' => $request->maternal_uncle_name,
-            'maternal_uncle_mobile' => $request->maternal_uncle_mobile,
-            'maternal_uncle_email' => $request->maternal_uncle_email,
-            'maternal_aunt_name' => $request->maternal_aunt_name,
-            'maternal_aunt_mobile' => $request->maternal_aunt_mobile,
-            'maternal_aunt_email' => $request->maternal_aunt_email,
-            'submit_status' => 'submited',
-        ];
-
-        // Handle file uploads
-        if ($request->hasFile('father_aadhaar')) {
-            $fatherAadhaarName = time() . '_father_aadhaar.' . $request->father_aadhaar->extension();
-            $request->father_aadhaar->move('images', $fatherAadhaarName);
-            $data['father_aadhaar'] = 'images/' . $fatherAadhaarName;
-        }
-
-        if ($request->hasFile('father_photo')) {
-            $fatherPhotoName = time() . '_father.' . $request->father_photo->extension();
-            $request->father_photo->move('images', $fatherPhotoName);
-            $data['father_photo'] = 'images/' . $fatherPhotoName;
-        }
-
-        if ($request->hasFile('mother_aadhaar')) {
-            $motherAadhaarName = time() . '_mother_aadhaar.' . $request->mother_aadhaar->extension();
-            $request->mother_aadhaar->move('images', $motherAadhaarName);
-            $data['mother_aadhaar'] = 'images/' . $motherAadhaarName;
-        }
-
-        if ($request->hasFile('mother_photo')) {
-            $motherPhotoName = time() . '_mother.' . $request->mother_photo->extension();
-            $request->mother_photo->move('images', $motherPhotoName);
-            $data['mother_photo'] = 'images/' . $motherPhotoName;
-        }
-
-        Familydetail::create($data);
-
-        return redirect()->route('user.step3')->with('success', 'Family details saved successfully!');
-    }
-
-
-
-
-
-    public function step3(Request $request)
-    {
-        $user_id = Auth::id();
-        $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
-        return view('user.step3', compact('type'));
-    }
-
-
-
-
-    public function step3store(Request $request)
     {
         //  dd($request->all());
         $request->validate([
@@ -495,11 +382,106 @@ class UserController extends Controller
     }
 
 
+
+
+    public function step3(Request $request)
+    {
+        $user_id = Auth::id();
+        $user = User::find($user_id);
+        $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
+        $familyDetail = Familydetail::where('user_id', $user_id)->first();
+        return view('user.step3', compact('type', 'familyDetail', 'user'));
+    }
+
+
+    public function step3store(Request $request)
+    {
+        //dd($request->all());
+        $request->validate([
+            'number_family_members' => 'required|integer|min:1',
+            'total_family_income' => 'required|integer|min:0',
+            'total_students' => 'required|integer|min:0',
+            'family_member_diksha' => 'nullable|in:yes,no',
+            'total_insurance_coverage' => 'required|integer|min:0',
+            'total_premium_paid' => 'required|integer|min:0',
+            // Relatives
+            'paternal_uncle_name' => 'nullable|string|max:255',
+            'paternal_uncle_mobile' => 'nullable|string|max:15',
+            'paternal_uncle_email' => 'nullable|email|max:255',
+            'paternal_aunt_name' => 'nullable|string|max:255',
+            'paternal_aunt_mobile' => 'nullable|string|max:15',
+            'paternal_aunt_email' => 'nullable|email|max:255',
+            'maternal_uncle_name' => 'nullable|string|max:255',
+            'maternal_uncle_mobile' => 'nullable|string|max:15',
+            'maternal_uncle_email' => 'nullable|email|max:255',
+            'maternal_aunt_name' => 'nullable|string|max:255',
+            'maternal_aunt_mobile' => 'nullable|string|max:15',
+            'maternal_aunt_email' => 'nullable|email|max:255',
+        ]);
+
+        $user_id = Auth::id();
+
+        // Collect additional family members from dynamic table
+        $additional_family_members = [];
+        $i = 1;
+        while ($request->has('family_' . $i . '_name')) {
+            $additional_family_members[] = [
+                'relation' => $request->input('family_' . $i . '_relation'),
+                'name' => $request->input('family_' . $i . '_name'),
+                'age' => $request->input('family_' . $i . '_age'),
+                'marital_status' => $request->input('family_' . $i . '_marital_status'),
+                'qualification' => $request->input('family_' . $i . '_qualification'),
+                'occupation' => $request->input('family_' . $i . '_occupation'),
+                'mobile' => $request->input('family_' . $i . '_mobile'),
+                'email' => $request->input('family_' . $i . '_email'),
+                'yearly_income' => $request->input('family_' . $i . '_yearly_income'),
+            ];
+            $i++;
+        }
+
+        $data = [
+            'user_id' => $user_id,
+            'number_family_members' => $request->number_family_members,
+            'total_family_income' => $request->total_family_income,
+            'total_students' => $request->total_students,
+            'family_member_diksha' => $request->family_member_diksha,
+            'total_insurance_coverage' => $request->total_insurance_coverage,
+            'total_premium_paid' => $request->total_premium_paid,
+            'additional_family_members' => json_encode($additional_family_members),
+            // Relatives
+            'paternal_uncle_name' => $request->paternal_uncle_name,
+            'paternal_uncle_mobile' => $request->paternal_uncle_mobile,
+            'paternal_uncle_email' => $request->paternal_uncle_email,
+            'paternal_aunt_name' => $request->paternal_aunt_name,
+            'paternal_aunt_mobile' => $request->paternal_aunt_mobile,
+            'paternal_aunt_email' => $request->paternal_aunt_email,
+            'maternal_uncle_name' => $request->maternal_uncle_name,
+            'maternal_uncle_mobile' => $request->maternal_uncle_mobile,
+            'maternal_uncle_email' => $request->maternal_uncle_email,
+            'maternal_aunt_name' => $request->maternal_aunt_name,
+            'maternal_aunt_mobile' => $request->maternal_aunt_mobile,
+            'maternal_aunt_email' => $request->maternal_aunt_email,
+            'submit_status' => 'submited',
+        ];
+
+        Familydetail::create($data);
+
+        return redirect()->route('user.step3')->with('success', 'Family details saved successfully!');
+    }
+
+
+
+
+
+
+
     public function step4(Request $request)
     {
         $user_id = Auth::id();
+        $familyDetail = Familydetail::where('user_id', $user_id)->first();
+        $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
-        return view('user.step4', compact('type'));
+        return view('user.step4', compact('type', 'familyDetail', 'fundingDetail'));
     }
 
 
@@ -507,167 +489,377 @@ class UserController extends Controller
 
     public function step4store(Request $request)
     {
-        dd($request->all());
-
+        //dd($request->all());
         $request->validate([
-            // Amount Requested
-            'amount_requested_year' => 'required|in:year1,year2,year3,year4',
-            'tuition_fees_amount' => 'required|numeric|min:0',
+            'funding' => 'nullable|array',
 
-            // Funding Details Table (all optional)
-            'family_funding_status' => 'nullable|in:applied,approved,received,pending',
-            'family_funding_amount' => 'nullable|numeric|min:0',
-            'bank_loan_status' => 'nullable|in:applied,approved,received,pending',
-            'bank_loan_amount' => 'nullable|numeric|min:0',
-            'other_assistance1_status' => 'nullable|in:applied,approved,received,pending',
-            'other_assistance1_amount' => 'nullable|numeric|min:0',
-            'other_assistance2_status' => 'nullable|in:applied,approved,received,pending',
-            'other_assistance2_amount' => 'nullable|numeric|min:0',
-            'local_assistance_status' => 'nullable|in:applied,approved,received,pending',
-            'local_assistance_amount' => 'nullable|numeric|min:0',
+            'funding.*.status' => 'nullable|in:applied,approved,received,pending',
+            'funding.*.institute_name' => 'nullable|string|max:255',
+            'funding.*.contact_person' => 'nullable|string|max:255',
+            'funding.*.contact_no' => 'nullable|string|max:15',
+            'funding.*.amount' => 'nullable|numeric|min:0',
 
             // Sibling Assistance
             'sibling_assistance' => 'required|in:yes,no',
-            'sibling_ngo_name' => 'nullable|string|max:255',
-            'sibling_loan_status' => 'nullable|string|max:255',
-            'sibling_applied_year' => 'nullable|string|max:255',
-            'sibling_applied_amount' => 'nullable|numeric|min:0',
+
+            'sibling_name' => 'required_if:sibling_assistance,yes|string|max:255',
+            'sibling_number' => 'required_if:sibling_assistance,yes|string|max:255',
+            'sibling_ngo_name' => 'required_if:sibling_assistance,yes|string|max:255',
+            'ngo_number' => 'required_if:sibling_assistance,yes|string|max:15',
+            'sibling_loan_status' => 'required_if:sibling_assistance,yes|string|max:255',
+            'sibling_applied_year' => 'required_if:sibling_assistance,yes|string|max:255',
+            'sibling_applied_amount' => 'required_if:sibling_assistance,yes|numeric|min:0',
 
             // Bank Details
-            'account_holder_name' => 'required|string|max:255',
             'bank_name' => 'required|string|max:255',
+            'account_holder_name' => 'required|string|max:255',
             'account_number' => 'required|string|max:50',
             'branch_name' => 'required|string|max:255',
             'ifsc_code' => 'required|string|max:20',
             'bank_address' => 'required|string|max:500',
         ]);
+        // dd($request->all());
+        $funding = $request->funding ?? [];
 
-        $user_id = Auth::id();
-
-        // Additional validation for sibling assistance conditional fields
-        if ($request->sibling_assistance === 'yes') {
-            $request->validate([
-                'sibling_ngo_name' => 'required|string|max:255',
-                'sibling_loan_status' => 'required|string|max:255',
-                'sibling_applied_year' => 'required|string|max:255',
-                'sibling_applied_amount' => 'required|numeric|min:0',
-            ]);
-        }
+        $total_funding_amount = collect($funding)->sum(function ($row) {
+            return $row['amount'] ?? 0;
+        });
 
         $data = [
-            'user_id' => $user_id,
+            'user_id' => Auth::id(),
 
-            // Amount Requested
-            'amount_requested_year' => $request->amount_requested_year,
-            'tuition_fees_amount' => $request->tuition_fees_amount,
+            // Own Family Funding (Row 0)
+            'family_funding_status'  => $funding[0]['status'] ?? null,
+            'family_funding_trust'   => $funding[0]['institute_name'] ?? null,
+            'family_funding_contact' => $funding[0]['contact_person'] ?? null,
+            'family_funding_mobile'  => $funding[0]['contact_no'] ?? null,
+            'family_funding_amount'  => $funding[0]['amount'] ?? null,
 
-            // Own family funding
-            'family_funding_status' => $request->family_funding_status,
-            'family_funding_trust' => $request->family_funding_trust,
-            'family_funding_contact' => $request->family_funding_contact,
-            'family_funding_mobile' => $request->family_funding_mobile,
-            'family_funding_amount' => $request->family_funding_amount,
+            // Bank Loan (Row 1)
+            'bank_loan_status'  => $funding[1]['status'] ?? null,
+            'bank_loan_trust'   => $funding[1]['institute_name'] ?? null,
+            'bank_loan_contact' => $funding[1]['contact_person'] ?? null,
+            'bank_loan_mobile'  => $funding[1]['contact_no'] ?? null,
+            'bank_loan_amount'  => $funding[1]['amount'] ?? null,
 
-            // Bank Loan
-            'bank_loan_status' => $request->bank_loan_status,
-            'bank_loan_trust' => $request->bank_loan_trust,
-            'bank_loan_contact' => $request->bank_loan_contact,
-            'bank_loan_mobile' => $request->bank_loan_mobile,
-            'bank_loan_amount' => $request->bank_loan_amount,
+            // Other Assistance 1 (Row 2)
+            'other_assistance1_status'  => $funding[2]['status'] ?? null,
+            'other_assistance1_trust'   => $funding[2]['institute_name'] ?? null,
+            'other_assistance1_contact' => $funding[2]['contact_person'] ?? null,
+            'other_assistance1_mobile'  => $funding[2]['contact_no'] ?? null,
+            'other_assistance1_amount'  => $funding[2]['amount'] ?? null,
 
-            // Other Assistance (1)
-            'other_assistance1_status' => $request->other_assistance1_status,
-            'other_assistance1_trust' => $request->other_assistance1_trust,
-            'other_assistance1_contact' => $request->other_assistance1_contact,
-            'other_assistance1_mobile' => $request->other_assistance1_mobile,
-            'other_assistance1_amount' => $request->other_assistance1_amount,
+            // Other Assistance 2 (Row 3)
+            'other_assistance2_status'  => $funding[3]['status'] ?? null,
+            'other_assistance2_trust'   => $funding[3]['institute_name'] ?? null,
+            'other_assistance2_contact' => $funding[3]['contact_person'] ?? null,
+            'other_assistance2_mobile'  => $funding[3]['contact_no'] ?? null,
+            'other_assistance2_amount'  => $funding[3]['amount'] ?? null,
 
-            // Other Assistance (2)
-            'other_assistance2_status' => $request->other_assistance2_status,
-            'other_assistance2_trust' => $request->other_assistance2_trust,
-            'other_assistance2_contact' => $request->other_assistance2_contact,
-            'other_assistance2_mobile' => $request->other_assistance2_mobile,
-            'other_assistance2_amount' => $request->other_assistance2_amount,
+            // Local Assistance (Row 4)
+            'local_assistance_status'  => $funding[4]['status'] ?? null,
+            'local_assistance_trust'   => $funding[4]['institute_name'] ?? null,
+            'local_assistance_contact' => $funding[4]['contact_person'] ?? null,
+            'local_assistance_mobile'  => $funding[4]['contact_no'] ?? null,
+            'local_assistance_amount'  => $funding[4]['amount'] ?? null,
 
-            // Local Assistance
-            'local_assistance_status' => $request->local_assistance_status,
-            'local_assistance_trust' => $request->local_assistance_trust,
-            'local_assistance_contact' => $request->local_assistance_contact,
-            'local_assistance_mobile' => $request->local_assistance_mobile,
-            'local_assistance_amount' => $request->local_assistance_amount,
-
-            // Total funding amount (calculate from table)
-            'total_funding_amount' => ($request->family_funding_amount ?: 0) +
-                ($request->bank_loan_amount ?: 0) +
-                ($request->other_assistance1_amount ?: 0) +
-                ($request->other_assistance2_amount ?: 0) +
-                ($request->local_assistance_amount ?: 0),
+            'total_funding_amount' => $total_funding_amount,
 
             // Sibling Assistance
             'sibling_assistance' => $request->sibling_assistance,
+            'sibling_name' => $request->sibling_name,
+            'sibling_number' => $request->sibling_number,
             'sibling_ngo_name' => $request->sibling_ngo_name,
+            'ngo_number' => $request->ngo_number,
             'sibling_loan_status' => $request->sibling_loan_status,
             'sibling_applied_year' => $request->sibling_applied_year,
             'sibling_applied_amount' => $request->sibling_applied_amount,
 
             // Bank Details
-            'account_holder_name' => $request->account_holder_name,
             'bank_name' => $request->bank_name,
+            'account_holder_name' => $request->account_holder_name,
             'account_number' => $request->account_number,
             'branch_name' => $request->branch_name,
             'ifsc_code' => $request->ifsc_code,
             'bank_address' => $request->bank_address,
 
             'status' => 'step4_completed',
+            'submit_status' => 'submitted',
         ];
 
         FundingDetail::create($data);
 
-        return redirect()->route('user.home')->with('success', 'Funding details saved successfully!');
+        return redirect()->route('user.step5')
+            ->with('success', 'Funding details saved successfully!');
     }
+
+
+    // public function step4store(Request $request)
+    // {
+    //     dd($request->all());
+
+    //     $request->validate([
+    //         // Amount Requested
+    //         'amount_requested_year' => 'required|in:year1,year2,year3,year4',
+    //         'tuition_fees_amount' => 'required|numeric|min:0',
+
+    //         // Funding Details Table (all optional)
+    //         'family_funding_status' => 'nullable|in:applied,approved,received,pending',
+    //         'family_funding_amount' => 'nullable|numeric|min:0',
+    //         'bank_loan_status' => 'nullable|in:applied,approved,received,pending',
+    //         'bank_loan_amount' => 'nullable|numeric|min:0',
+    //         'other_assistance1_status' => 'nullable|in:applied,approved,received,pending',
+    //         'other_assistance1_amount' => 'nullable|numeric|min:0',
+    //         'other_assistance2_status' => 'nullable|in:applied,approved,received,pending',
+    //         'other_assistance2_amount' => 'nullable|numeric|min:0',
+    //         'local_assistance_status' => 'nullable|in:applied,approved,received,pending',
+    //         'local_assistance_amount' => 'nullable|numeric|min:0',
+
+    //         // Sibling Assistance
+    //         'sibling_assistance' => 'required|in:yes,no',
+    //         'sibling_ngo_name' => 'nullable|string|max:255',
+    //         'sibling_loan_status' => 'nullable|string|max:255',
+    //         'sibling_applied_year' => 'nullable|string|max:255',
+    //         'sibling_applied_amount' => 'nullable|numeric|min:0',
+
+    //         // Bank Details
+    //         'account_holder_name' => 'required|string|max:255',
+    //         'bank_name' => 'required|string|max:255',
+    //         'account_number' => 'required|string|max:50',
+    //         'branch_name' => 'required|string|max:255',
+    //         'ifsc_code' => 'required|string|max:20',
+    //         'bank_address' => 'required|string|max:500',
+    //     ]);
+
+    //     $user_id = Auth::id();
+
+    //     // Additional validation for sibling assistance conditional fields
+    //     if ($request->sibling_assistance === 'yes') {
+    //         $request->validate([
+    //             'sibling_ngo_name' => 'required|string|max:255',
+    //             'sibling_loan_status' => 'required|string|max:255',
+    //             'sibling_applied_year' => 'required|string|max:255',
+    //             'sibling_applied_amount' => 'required|numeric|min:0',
+    //         ]);
+    //     }
+
+    //     $data = [
+    //         'user_id' => $user_id,
+
+    //         // Amount Requested
+    //         'amount_requested_year' => $request->amount_requested_year,
+    //         'tuition_fees_amount' => $request->tuition_fees_amount,
+
+    //         // Own family funding
+    //         'family_funding_status' => $request->family_funding_status,
+    //         'family_funding_trust' => $request->family_funding_trust,
+    //         'family_funding_contact' => $request->family_funding_contact,
+    //         'family_funding_mobile' => $request->family_funding_mobile,
+    //         'family_funding_amount' => $request->family_funding_amount,
+
+    //         // Bank Loan
+    //         'bank_loan_status' => $request->bank_loan_status,
+    //         'bank_loan_trust' => $request->bank_loan_trust,
+    //         'bank_loan_contact' => $request->bank_loan_contact,
+    //         'bank_loan_mobile' => $request->bank_loan_mobile,
+    //         'bank_loan_amount' => $request->bank_loan_amount,
+
+    //         // Other Assistance (1)
+    //         'other_assistance1_status' => $request->other_assistance1_status,
+    //         'other_assistance1_trust' => $request->other_assistance1_trust,
+    //         'other_assistance1_contact' => $request->other_assistance1_contact,
+    //         'other_assistance1_mobile' => $request->other_assistance1_mobile,
+    //         'other_assistance1_amount' => $request->other_assistance1_amount,
+
+    //         // Other Assistance (2)
+    //         'other_assistance2_status' => $request->other_assistance2_status,
+    //         'other_assistance2_trust' => $request->other_assistance2_trust,
+    //         'other_assistance2_contact' => $request->other_assistance2_contact,
+    //         'other_assistance2_mobile' => $request->other_assistance2_mobile,
+    //         'other_assistance2_amount' => $request->other_assistance2_amount,
+
+    //         // Local Assistance
+    //         'local_assistance_status' => $request->local_assistance_status,
+    //         'local_assistance_trust' => $request->local_assistance_trust,
+    //         'local_assistance_contact' => $request->local_assistance_contact,
+    //         'local_assistance_mobile' => $request->local_assistance_mobile,
+    //         'local_assistance_amount' => $request->local_assistance_amount,
+
+    //         // Total funding amount (calculate from table)
+    //         'total_funding_amount' => ($request->family_funding_amount ?: 0) +
+    //             ($request->bank_loan_amount ?: 0) +
+    //             ($request->other_assistance1_amount ?: 0) +
+    //             ($request->other_assistance2_amount ?: 0) +
+    //             ($request->local_assistance_amount ?: 0),
+
+    //         // Sibling Assistance
+    //         'sibling_assistance' => $request->sibling_assistance,
+    //         'sibling_ngo_name' => $request->sibling_ngo_name,
+    //         'sibling_loan_status' => $request->sibling_loan_status,
+    //         'sibling_applied_year' => $request->sibling_applied_year,
+    //         'sibling_applied_amount' => $request->sibling_applied_amount,
+
+    //         // Bank Details
+    //         'account_holder_name' => $request->account_holder_name,
+    //         'bank_name' => $request->bank_name,
+    //         'account_number' => $request->account_number,
+    //         'branch_name' => $request->branch_name,
+    //         'ifsc_code' => $request->ifsc_code,
+    //         'bank_address' => $request->bank_address,
+
+    //         'status' => 'step4_completed',
+    //     ];
+
+    //     FundingDetail::create($data);
+
+    //     return redirect()->route('user.home')->with('success', 'Funding details saved successfully!');
+    // }
 
     public function step5(Request $request)
     {
         $user_id = Auth::id();
+        $user = User::find($user_id);
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
-        return view('user.step5', compact('type'));
+        $familyDetail = Familydetail::where('user_id', $user_id)->first();
+        $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
+
+        return view('user.step5', compact('type', 'familyDetail', 'fundingDetail', 'user'));
     }
+
+    // public function step5store(Request $request)
+    // {
+    //     $request->validate([
+    //         // First Guarantor
+    //         'g_one_name' => 'required|string|max:255',
+    //         'g_one_gender' => 'required|in:male,female',
+    //         'g_one_permanent_address' => 'required|string|max:500',
+    //         'g_one_phone' => 'required|string|max:15',
+    //         'g_one_email' => 'required|email|max:255',
+    //         'g_one_relation_with_student' => 'required|string|max:255',
+    //         'g_one_aadhar_card_number' => 'required|string|max:12',
+    //         'g_one_pan_card_no' => 'required|string|max:10',
+    //         'g_one_d_o_b' => 'required|date_format:d-m-Y',
+    //         'g_one_income' => 'required|string|max:50',
+    //         'g_one_pan_card' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+
+    //         // Second Guarantor
+    //         'g_two_name' => 'required|string|max:255',
+    //         'g_two_gender' => 'required|in:male,female',
+    //         'g_two_permanent_address' => 'required|string|max:500',
+    //         'g_two_phone' => 'required|string|max:15',
+    //         'g_two_email' => 'required|email|max:255',
+    //         'g_two_relation_with_student' => 'required|string|max:255',
+    //         'g_two_aadhar_card_number' => 'required|string|max:12',
+    //         'g_two_pan_card_no' => 'required|string|max:10',
+    //         'g_two_d_o_b' => 'required|date_format:d-m-Y',
+    //         'g_two_income' => 'required|string|max:50',
+    //         'g_two_pan_card' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+
+    //         // Power of Attorney
+    //         // 'attorney_name' => 'required|string|max:255',
+    //         // 'attorney_email' => 'required|email|max:255',
+    //         // 'attorney_phone' => 'required|string|max:15',
+    //         // 'attorney_address' => 'required|string|max:500',
+    //         // 'attorney_relation_with_student' => 'required|string|max:255',
+    //     ]);
+
+    //     $user_id = Auth::id();
+
+    //     $data = [
+    //         'user_id' => $user_id,
+
+    //         // First Guarantor
+    //         'g_one_name' => $request->g_one_name,
+    //         'g_one_gender' => $request->g_one_gender,
+    //         'g_one_permanent_address' => $request->g_one_permanent_address,
+    //         'g_one_phone' => $request->g_one_phone,
+    //         'g_one_email' => $request->g_one_email,
+    //         'g_one_relation_with_student' => $request->g_one_relation_with_student,
+    //         'g_one_aadhar_card_number' => $request->g_one_aadhar_card_number,
+    //         'g_one_pan_card_no' => $request->g_one_pan_card_no,
+    //         'g_one_d_o_b' => Carbon::createFromFormat('d-m-Y', $request->g_one_d_o_b)->format('Y-m-d'),
+    //         'g_one_income' => $request->g_one_income,
+
+    //         // Second Guarantor
+    //         'g_two_name' => $request->g_two_name,
+    //         'g_two_gender' => $request->g_two_gender,
+    //         'g_two_permanent_address' => $request->g_two_permanent_address,
+    //         'g_two_phone' => $request->g_two_phone,
+    //         'g_two_email' => $request->g_two_email,
+    //         'g_two_relation_with_student' => $request->g_two_relation_with_student,
+    //         'g_two_aadhar_card_number' => $request->g_two_aadhar_card_number,
+    //         'g_two_pan_card_no' => $request->g_two_pan_card_no,
+    //         'g_two_d_o_b' => Carbon::createFromFormat('d-m-Y', $request->g_two_d_o_b)->format('Y-m-d'),
+    //         'g_two_income' => $request->g_two_income,
+
+    //         // Power of Attorney
+    //         // 'attorney_name' => $request->attorney_name,
+    //         // 'attorney_email' => $request->attorney_email,
+    //         // 'attorney_phone' => $request->attorney_phone,
+    //         // 'attorney_address' => $request->attorney_address,
+    //         // 'attorney_relation_with_student' => $request->attorney_relation_with_student,
+
+    //         'status' => 'step5_completed',
+    //     ];
+
+    //     // Handle file uploads
+    //     if ($request->hasFile('g_one_pan_card')) {
+    //         $gOnePanName = time() . '_g_one_pan.' . $request->g_one_pan_card->extension();
+    //         $request->g_one_pan_card->move('images', $gOnePanName);
+    //         $data['g_one_pan_card_upload'] = 'images/' . $gOnePanName;
+    //     }
+
+    //     if ($request->hasFile('g_two_pan_card')) {
+    //         $gTwoPanName = time() . '_g_two_pan.' . $request->g_two_pan_card->extension();
+    //         $request->g_two_pan_card->move('images', $gTwoPanName);
+    //         $data['g_two_pan_card_upload'] = 'images/' . $gTwoPanName;
+    //     }
+
+    //     GuarantorDetail::create($data);
+
+    //     return redirect()->route('user.step6')->with('success', 'Guarantor details saved successfully!');
+    // }
+
 
     public function step5store(Request $request)
     {
+        // dd($request->all());
         $request->validate([
             // First Guarantor
             'g_one_name' => 'required|string|max:255',
             'g_one_gender' => 'required|in:male,female',
-            'g_one_permanent_address' => 'required|string|max:500',
+            'g_one_permanent_flat_no' => 'required|string',
+            'g_one_permanent_address' => 'required|string',
+            'g_one_city' => 'required|string|max:100',
+            'g_one_district' => 'required|string|max:100',
+            'g_one_state' => 'required|string|max:100',
+            'g_one_pincode' => 'required|digits:6',
             'g_one_phone' => 'required|string|max:15',
             'g_one_email' => 'required|email|max:255',
             'g_one_relation_with_student' => 'required|string|max:255',
-            'g_one_aadhar_card_number' => 'required|string|max:12',
-            'g_one_pan_card_no' => 'required|string|max:10',
-            'g_one_d_o_b' => 'required|date_format:d-m-Y',
-            'g_one_income' => 'required|string|max:50',
-            'g_one_pan_card' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+            'g_one_aadhar_card_number' => 'required|digits:12',
+            'g_one_d_o_b' => 'required|date',
+            'g_one_srvice' => 'required|string|max:255',
+            'g_one_income' => 'required|numeric|min:0',
+
 
             // Second Guarantor
             'g_two_name' => 'required|string|max:255',
             'g_two_gender' => 'required|in:male,female',
-            'g_two_permanent_address' => 'required|string|max:500',
+            'g_two_permanent_flat_no' => 'required|string',
+            'g_two_permanent_address' => 'required|string',
+            'g_two_city' => 'required|string|max:100',
+            'g_two_district' => 'required|string|max:100',
+            'g_two_state' => 'required|string|max:100',
+            'g_two_pincode' => 'required|digits:6',
             'g_two_phone' => 'required|string|max:15',
             'g_two_email' => 'required|email|max:255',
             'g_two_relation_with_student' => 'required|string|max:255',
-            'g_two_aadhar_card_number' => 'required|string|max:12',
-            'g_two_pan_card_no' => 'required|string|max:10',
-            'g_two_d_o_b' => 'required|date_format:d-m-Y',
-            'g_two_income' => 'required|string|max:50',
-            'g_two_pan_card' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+            'g_two_aadhar_card_number' => 'required|digits:12',
+            'g_two_d_o_b' => 'required|date',
+            'g_two_srvice' => 'required|string|max:255',
+            'g_two_income' => 'required|numeric|min:0',
 
-            // Power of Attorney
-            'attorney_name' => 'required|string|max:255',
-            'attorney_email' => 'required|email|max:255',
-            'attorney_phone' => 'required|string|max:15',
-            'attorney_address' => 'required|string|max:500',
-            'attorney_relation_with_student' => 'required|string|max:255',
         ]);
 
         $user_id = Auth::id();
@@ -678,49 +870,41 @@ class UserController extends Controller
             // First Guarantor
             'g_one_name' => $request->g_one_name,
             'g_one_gender' => $request->g_one_gender,
+            'g_one_permanent_flat_no' => $request->g_one_permanent_flat_no,
             'g_one_permanent_address' => $request->g_one_permanent_address,
+            'g_one_permanent_city' => $request->g_one_city,
+            'g_one_permanent_district' => $request->g_one_district,
+            'g_one_permanent_state' => $request->g_one_state,
+            'g_one_permanent_pincode' => $request->g_one_pincode,
             'g_one_phone' => $request->g_one_phone,
             'g_one_email' => $request->g_one_email,
             'g_one_relation_with_student' => $request->g_one_relation_with_student,
             'g_one_aadhar_card_number' => $request->g_one_aadhar_card_number,
-            'g_one_pan_card_no' => $request->g_one_pan_card_no,
-            'g_one_d_o_b' => Carbon::createFromFormat('d-m-Y', $request->g_one_d_o_b)->format('Y-m-d'),
+            'g_one_d_o_b' => $request->g_one_d_o_b,
+
+            'g_one_srvice' => $request->g_one_srvice,
             'g_one_income' => $request->g_one_income,
 
             // Second Guarantor
             'g_two_name' => $request->g_two_name,
             'g_two_gender' => $request->g_two_gender,
+            'g_two_permanent_flat_no' => $request->g_two_permanent_flat_no,
             'g_two_permanent_address' => $request->g_two_permanent_address,
+            'g_two_permanent_city' => $request->g_two_city,
+            'g_two_permanent_district' => $request->g_two_district,
+            'g_two_permanent_state' => $request->g_two_state,
+            'g_two_permanent_pincode' => $request->g_two_pincode,
             'g_two_phone' => $request->g_two_phone,
             'g_two_email' => $request->g_two_email,
             'g_two_relation_with_student' => $request->g_two_relation_with_student,
             'g_two_aadhar_card_number' => $request->g_two_aadhar_card_number,
-            'g_two_pan_card_no' => $request->g_two_pan_card_no,
-            'g_two_d_o_b' => Carbon::createFromFormat('d-m-Y', $request->g_two_d_o_b)->format('Y-m-d'),
+            'g_two_d_o_b' =>  $request->g_two_d_o_b,
+            'g_two_srvice' => $request->g_two_srvice,
             'g_two_income' => $request->g_two_income,
 
-            // Power of Attorney
-            'attorney_name' => $request->attorney_name,
-            'attorney_email' => $request->attorney_email,
-            'attorney_phone' => $request->attorney_phone,
-            'attorney_address' => $request->attorney_address,
-            'attorney_relation_with_student' => $request->attorney_relation_with_student,
-
             'status' => 'step5_completed',
+            'submit_status' => 'submited',
         ];
-
-        // Handle file uploads
-        if ($request->hasFile('g_one_pan_card')) {
-            $gOnePanName = time() . '_g_one_pan.' . $request->g_one_pan_card->extension();
-            $request->g_one_pan_card->move('images', $gOnePanName);
-            $data['g_one_pan_card_upload'] = 'images/' . $gOnePanName;
-        }
-
-        if ($request->hasFile('g_two_pan_card')) {
-            $gTwoPanName = time() . '_g_two_pan.' . $request->g_two_pan_card->extension();
-            $request->g_two_pan_card->move('images', $gTwoPanName);
-            $data['g_two_pan_card_upload'] = 'images/' . $gTwoPanName;
-        }
 
         GuarantorDetail::create($data);
 
@@ -731,11 +915,20 @@ class UserController extends Controller
     {
         $user_id = Auth::id();
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
-        return view('user.step6', compact('type'));
+        $user = User::find($user_id);
+        if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'graduation') {
+            return view('user.step6_ug', compact('type', 'user'));
+        } else if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'post_graduation') {
+            return view('user.step6_pg', compact('type', 'user'));
+        } else if ($user->financial_asset_type == 'foreign_finance_assistant' && $user->financial_asset_for == 'post_graduation') {
+            return view('user.step6_pg_foreign', compact('type', 'user'));
+        }
+        // return view('user.step6', compact('type', 'user'));
     }
 
     public function step6store(Request $request)
     {
+        dd($request->all());
         $request->validate([
             // Education Documents
             'board' => 'required|file|mimes:jpg,jpeg,png|max:5120',

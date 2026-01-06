@@ -17,8 +17,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('role')->default('user');
             $table->string('phone')->nullable();
-            $table->longText('address')->nullable();
-            $table->longText('address1')->nullable();
+            $table->string('flat_no')->nullable();
+            $table->string('building_no')->nullable();
+            $table->string('street_name')->nullable();
+            $table->string('area')->nullable();
+            $table->string('landmark')->nullable();
             $table->string('image')->nullable();
             $table->string('status')->default('active');
             $table->string('register_date')->nullable();
@@ -49,7 +52,6 @@ return new class extends Migration
             $table->integer('pin_code')->nullable();
             $table->string('district')->nullable();
             $table->string('new_zone')->nullable();
-            // $table->string('pin_code')->nullable();
             $table->enum('submit_status', ['pending', 'submited', 'approved', 'resubmit'])->default('pending');
             $table->timestamps();
         });

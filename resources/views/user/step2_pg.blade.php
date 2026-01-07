@@ -114,6 +114,10 @@
         .form-control-sm {
             border-radius: 15px;
         }
+
+        label {
+            color: #4C4C4C;
+        }
     </style>
 
     <!-- Main Content -->
@@ -130,7 +134,7 @@
                                     style="border:2px solid #393185;border-radius:15px;" readonly required>
                                     <option disabled
                                         {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') ? '' : 'selected' }}
-                                        hidden>Financial Asst Type *</option>
+                                        hidden>Financial Asst Type <span style="color: red;">*</span></option>
                                     <option value="domestic"
                                         {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'domestic' ? 'selected' : '' }}
                                         hidden>
@@ -174,7 +178,7 @@
                                 </div>
 
 
-                                 <!-- Section 1: Your Financial Need Overview -->
+                                <!-- Section 1: Your Financial Need Overview -->
                                 <div class="education-section">
                                     <h4 class="title" style="color:#4C4C4C;font-size:18px;">Your Financial Need Overview
                                     </h4>
@@ -182,66 +186,297 @@
                                     <div class="row">
                                         <!-- Left Column -->
                                         <div class="col-md-6">
-                                            
-
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="course_name"
-                                                    placeholder="Course Name *" value="{{ old('course_name') }}">
+                                                <label for="course_name">Course Name <span
+                                                        style="color: red;">*</span></label>
+                                                <input type="text" id="course_name" class="form-control"
+                                                    name="course_name" placeholder="Enter Course Name "
+                                                    value="{{ old('course_name') }}" required>
                                                 <small class="text-danger">{{ $errors->first('course_name') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="institute_name"
-                                                    placeholder="Institute Name *" value="{{ old('institute_name') }}">
-                                                <small class="text-danger">{{ $errors->first('institute_name') }}</small>
+                                                <label for="university_name">University Name <span
+                                                        style="color: red;">*</span></label>
+                                                <input type="text" id="university_name" class="form-control"
+                                                    name="university_name" placeholder="Enter University Name "
+                                                    value="{{ old('university_name') }}" required>
+                                                <small class="text-danger">{{ $errors->first('university_name') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="city_name"
-                                                    placeholder="City Name *" value="{{ old('city_name') }}">
-                                                <small class="text-danger">{{ $errors->first('city_name') }}</small>
+                                                <label for="college_name">College Name <span
+                                                        style="color: red;">*</span></label>
+                                                <input type="text" id="college_name" class="form-control"
+                                                    name="college_name" placeholder="Enter College Name "
+                                                    value="{{ old('college_name') }}" required>
+                                                <small class="text-danger">{{ $errors->first('college_name') }}</small>
                                             </div>
+                                            <div class="form-group mb-3">
+                                                <label for="country">Country Name <span
+                                                        style="color: red;">*</span></label>
+                                                <input type="text" id="country" class="form-control" name="country"
+                                                    placeholder="Enter Country Name " value="{{ old('country') }}"
+                                                    required>
+                                                <small class="text-danger">{{ $errors->first('country') }}</small>
+                                            </div>
+
                                         </div>
 
                                         <!-- Right Column -->
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="country"
-                                                    placeholder="Country *" value="{{ old('country') }}">
-                                                <small class="text-danger">{{ $errors->first('country') }}</small>
+                                                <label for="city_name">City Name <span style="color: red;">*</span></label>
+                                                <input type="text" id="city_name" class="form-control" name="city_name"
+                                                    placeholder="Enter City Name " value="{{ old('city_name') }}" required>
+                                                <small class="text-danger">{{ $errors->first('city_name') }}</small>
                                             </div>
 
+                                            {{-- <div class="form-group mb-3">
+                                                <label for="start_year">Start Year <span
+                                                        style="color: red;">*</span></label>
+                                                <input type="number" id="start_year" class="form-control" name="start_year"
+                                                    placeholder="Enter Start Year " value="{{ old('start_year') }}"
+                                                    min="2000" max="2199" required>
+                                                <small class="text-danger">{{ $errors->first('start_year') }}</small>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label for="expected_year">Expected Year of Completion <span
+                                                        style="color: red;">*</span></label>
+                                                <input type="text" id="expected_year" class="form-control"
+                                                    name="expected_year" placeholder="Enter Expected Year of Completion  "
+                                                    value="{{ old('expected_year') }}" pattern="^(20|21)\d{2}$"
+                                                    title="Please enter a valid year (e.g. 2024)" required>
+                                                <small class="text-danger">{{ $errors->first('expected_year') }}</small>
+                                            </div> --}}
+                                            <div class="form-group mb-3">
+                                                <label for="start_year">Start Year <span style="color:red">*</span></label>
+                                                <input type="month" id="start_year" class="form-control" name="start_year"
+                                                    value="{{ old('start_year') }}" required oninput="validateStartYear()">
+                                                <small id="startYearError" class="text-danger d-none">
+                                                    Start month must be within next 4 months from current month
+                                                </small>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label for="expected_year">Expected Year of Completion <span
+                                                        style="color:red">*</span></label>
+                                                <input type="month" id="expected_year" class="form-control"
+                                                    name="expected_year" value="{{ old('expected_year') }}" required
+                                                    oninput="validateExpectedYear()">
+                                                <small id="expectedYearError" class="text-danger d-none">
+                                                    Expected month must be after start month and within next 5 years
+                                                </small>
+                                            </div>
+
+
+
+                                            <div class="form-group mb-3">
+                                                <label for="nirf_ranking">NIRF Ranking</label>
+                                                <input type="text" id="nirf_ranking" class="form-control"
+                                                    name="nirf_ranking" placeholder=" Enter NIRF Ranking"
+                                                    value="{{ old('nirf_ranking') }}">
+                                                <small class="text-danger">{{ $errors->first('nirf_ranking') }}</small>
+                                            </div>
+                                            {{-- 
                                             <div class="form-group mb-3">
                                                 <select class="form-control" name="duration">
                                                     <option value="" {{ !old('duration') ? 'selected' : '' }}
                                                         disabled hidden>Duration *</option>
-                                                    <option value="1"
-                                                        {{ old('duration') == '1' ? 'selected' : '' }}>1 Year</option>
-                                                    <option value="2"
-                                                        {{ old('duration') == '2' ? 'selected' : '' }}>2 Years</option>
-                                                    <option value="3"
-                                                        {{ old('duration') == '3' ? 'selected' : '' }}>3 Years</option>
-                                                    <option value="4"
-                                                        {{ old('duration') == '4' ? 'selected' : '' }}>4 Years</option>
-                                                    <option value="5"
-                                                        {{ old('duration') == '5' ? 'selected' : '' }}>5 Years</option>
-                                                    <option value="6"
-                                                        {{ old('duration') == '6' ? 'selected' : '' }}>6 Years</option>
-                                                    <option value="7"
-                                                        {{ old('duration') == '7' ? 'selected' : '' }}>7 Years</option>
-                                                    <option value="8"
-                                                        {{ old('duration') == '8' ? 'selected' : '' }}>8 Years</option>
-                                                    <option value="9"
-                                                        {{ old('duration') == '9' ? 'selected' : '' }}>9 Years</option>
-                                                    <option value="10"
-                                                        {{ old('duration') == '10' ? 'selected' : '' }}>10 Years</option>
+                                                    <option value="1" {{ old('duration') == '1' ? 'selected' : '' }}>1
+                                                        Year</option>
+                                                    <option value="2" {{ old('duration') == '2' ? 'selected' : '' }}>2
+                                                        Years</option>
+                                                    <option value="3" {{ old('duration') == '3' ? 'selected' : '' }}>3
+                                                        Years</option>
+                                                    <option value="4" {{ old('duration') == '4' ? 'selected' : '' }}>4
+                                                        Years</option>
+                                                    <option value="5" {{ old('duration') == '5' ? 'selected' : '' }}>5
+                                                        Years</option>
+                                                    <option value="6" {{ old('duration') == '6' ? 'selected' : '' }}>6
+                                                        Years</option>
+                                                    <option value="7" {{ old('duration') == '7' ? 'selected' : '' }}>7
+                                                        Years</option>
+                                                    <option value="8" {{ old('duration') == '8' ? 'selected' : '' }}>8
+                                                        Years</option>
+                                                    <option value="9" {{ old('duration') == '9' ? 'selected' : '' }}>9
+                                                        Years</option>
+                                                    <option value="10" {{ old('duration') == '10' ? 'selected' : '' }}>
+                                                        10 Years</option>
                                                 </select>
                                                 <small class="text-danger">{{ $errors->first('duration') }}</small>
-                                            </div>
+                                            </div> --}}
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Section Divider -->
+
+                                <!-- Section 2: Financial Summary Table -->
+                                <div class="education-section">
+                                    {{-- <h4 class="title" style="color:#4C4C4C;font-size:18px;">Financial Summary</h4> --}}
+
+                                    <div class="table-responsive mt-4">
+                                        <table class="table" id="yearWiseTable"
+                                            style="background: white; border: none; border-collapse: collapse;">
+                                            <thead style="background-color: #f8f9fa;">
+                                                <tr style="border-bottom: 1px solid lightgray;">
+                                                    <th class="text-center"
+                                                        style="width: 80px; font-weight: 600; color: #4C4C4C; border: none;">
+                                                        Sr No</th>
+                                                    <th class="text-center"
+                                                        style="font-weight: 600; color: #4C4C4C; border: none;width: 25%;">
+                                                        Group Name</th>
+                                                    <th class="text-center"
+                                                        style="width: 100px; font-weight: 600; color: #4C4C4C; border: none;">
+                                                        1 Year</th>
+                                                    <th class="text-center"
+                                                        style="width: 100px; font-weight: 600; color: #4C4C4C; border: none;">
+                                                        2 Year</th>
+                                                    <th class="text-center"
+                                                        style="width: 100px; font-weight: 600; color: #4C4C4C; border: none;">
+                                                        3 Year</th>
+                                                    <th class="text-center"
+                                                        style="width: 100px; font-weight: 600; color: #4C4C4C; border: none;">
+                                                        4 Year</th>
+                                                    <th class="text-center"
+                                                        style="width: 100px; font-weight: 600; color: #4C4C4C; border: none;">
+                                                        5 Year</th>
+                                                    <th class="text-center"
+                                                        style="width: 120px; font-weight: 600; color: #393185; border: none;">
+                                                        Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Row 1: Tuition Fees -->
+                                                <tr style="border-bottom: 1px solid lightgray;">
+                                                    <td class="text-center" style="font-weight: 500; border: none;">1</td>
+                                                    <td
+                                                        style="font-weight: 500; border: none;width: 25%;text-align:center;">
+                                                        <input type="text" class="form-control form-control-sm"
+                                                            name="group_name_1" value="Tuition Fees" hidden>Tuition Fees
+                                                    </td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="tuition_fee_year1"
+                                                            value="{{ old('tuition_fee_year1') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="tuition_fee_year2"
+                                                            value="{{ old('tuition_fee_year2') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="tuition_fee_year3"
+                                                            value="{{ old('tuition_fee_year3') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="tuition_fee_year4"
+                                                            value="{{ old('tuition_fee_year4') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="tuition_fee_year5"
+                                                            value="{{ old('tuition_fee_year5') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="tuition_fee_total"
+                                                            value="{{ old('tuition_fee_total') }}" placeholder="0"
+                                                            readonly></td>
+                                                </tr>
+
+                                                <!-- Row 2 -->
+                                                <tr style="border-bottom: 1px solid lightgray;">
+                                                    <td class="text-center" style="font-weight: 500; border: none;">2</td>
+                                                    <td style="border: none;width: 25%;text-align:center;"><input
+                                                            type="text" class="form-control form-control-sm"
+                                                            name="group_name_2" value="Living Expenses" hidden>Living
+                                                        Expenses
+                                                    </td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="group_2_year1"
+                                                            value="{{ old('group_2_year1') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="group_2_year2"
+                                                            value="{{ old('group_2_year2') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="group_2_year3"
+                                                            value="{{ old('group_2_year3') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="group_2_year4"
+                                                            value="{{ old('group_2_year4') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="group_2_year5"
+                                                            value="{{ old('group_2_year5') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="group_2_total"
+                                                            value="{{ old('group_2_total') }}" placeholder="0" readonly>
+                                                    </td>
+                                                </tr>
+
+                                                <!-- Row 3 -->
+                                                <tr style="border-bottom: 1px solid lightgray;">
+                                                    <td class="text-center" style="font-weight: 500; border: none;">3</td>
+                                                    <td style="border: none;width: 25%;text-align:center;"><input
+                                                            type="text" class="form-control form-control-sm"
+                                                            name="group_name_3" value="Other Expenses"
+                                                            placeholder="Enter Group Name" hidden>Other Expenses</td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="group_3_year1"
+                                                            value="{{ old('group_3_year1') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="group_3_year2"
+                                                            value="{{ old('group_3_year2') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="group_3_year3"
+                                                            value="{{ old('group_3_year3') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="group_3_year4"
+                                                            value="{{ old('group_3_year4') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="group_3_year5"
+                                                            value="{{ old('group_3_year5') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="group_3_total"
+                                                            value="{{ old('group_3_total') }}" placeholder="0" readonly>
+                                                    </td>
+                                                </tr>
+
+                                                <!-- Row 4 -->
+                                                <tr>
+                                                    <td class="text-center" style="font-weight: 500; border: none;">4</td>
+                                                    <td style="border: none;width: 25%;text-align:center;"><input
+                                                            type="text" class="form-control form-control-sm"
+                                                            name="group_name_4" value="Total Expenses"
+                                                            placeholder="Enter Group Name" hidden>Total Expenses</td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="group_4_year1"
+                                                            value="{{ old('group_4_year1') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="group_4_year2"
+                                                            value="{{ old('group_4_year2') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="group_4_year3"
+                                                            value="{{ old('group_4_year3') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="group_4_year4"
+                                                            value="{{ old('group_4_year4') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="group_4_year5"
+                                                            value="{{ old('group_4_year5') }}" placeholder="0"></td>
+                                                    <td style="border: none;"><input type="number"
+                                                            class="form-control form-control-sm" name="group_4_total"
+                                                            value="{{ old('group_4_total') }}" placeholder="0" readonly>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <!-- Error messages for table fields -->
+                                    <div class="mb-3">
+                                        <small class="text-danger">{{ $errors->first('tuition_fee_year1') }}</small>
+                                        <small class="text-danger">{{ $errors->first('tuition_fee_year2') }}</small>
+                                        <small class="text-danger">{{ $errors->first('tuition_fee_year3') }}</small>
+                                        <small class="text-danger">{{ $errors->first('tuition_fee_year4') }}</small>
+                                        <small class="text-danger">{{ $errors->first('group_name_2') }}</small>
+                                        <small class="text-danger">{{ $errors->first('group_name_3') }}</small>
+                                        <small class="text-danger">{{ $errors->first('group_name_4') }}</small>
+                                    </div>
+                                </div>
+
+                                {{-- <!-- Section Divider -->
                                 <div class="section-divider"></div>
                                 <!-- Section 1: Current Education -->
                                 <div class="education-section">
@@ -252,8 +487,9 @@
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
                                                 <select class="form-control" name="current_pursuing">
-                                                    <option value="" {{ !old('current_pursuing') ? 'selected' : '' }}
-                                                        disabled hidden>Are you currently pursuing any course or degree? *
+                                                    <option value=""
+                                                        {{ !old('current_pursuing') ? 'selected' : '' }} disabled hidden>
+                                                        Are you currently pursuing any course or degree? *
                                                     </option>
                                                     <option value="yes"
                                                         {{ old('current_pursuing') == 'yes' ? 'selected' : '' }}>Yes
@@ -261,7 +497,8 @@
                                                     <option value="no"
                                                         {{ old('current_pursuing') == 'no' ? 'selected' : '' }}>No</option>
                                                 </select>
-                                                <small class="text-danger">{{ $errors->first('current_pursuing') }}</small>
+                                                <small
+                                                    class="text-danger">{{ $errors->first('current_pursuing') }}</small>
                                             </div>
 
                                             <div id="current-education-fields" style="display: none;">
@@ -296,13 +533,15 @@
                                             <div id="current-education-fields-right" style="display: none;">
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control" name="current_start_year"
-                                                        placeholder="Start Year *" value="{{ old('current_start_year') }}">
+                                                        placeholder="Start Year *"
+                                                        value="{{ old('current_start_year') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('current_start_year') }}</small>
                                                 </div>
 
                                                 <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="current_expected_year"
+                                                    <input type="text" class="form-control"
+                                                        name="current_expected_year"
                                                         placeholder="Expected Completion Year *"
                                                         value="{{ old('current_expected_year') }}">
                                                     <small
@@ -331,8 +570,150 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div> --}}
+
+
+
+
+                                <!-- Section Divider -->
+                                <div class="section-divider"></div>
+
+                                <!-- Section 4: School / 10th Grade Information -->
+                                <div class="education-section">
+                                    <h4 class="title" style="color:#4C4C4C;font-size:18px;">School / 10th Grade
+                                        Information</h4>
+
+                                    <div class="row">
+                                        <!-- Left Column -->
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <input type="text" class="form-control" name="school_name"
+                                                    placeholder="School Name *" value="{{ old('school_name') }}">
+                                                <small class="text-danger">{{ $errors->first('school_name') }}</small>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <input type="text" class="form-control" name="school_board"
+                                                    placeholder="Board *" value="{{ old('school_board') }}">
+                                                <small class="text-danger">{{ $errors->first('school_board') }}</small>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <input type="text" class="form-control" name="school_completion_year"
+                                                    placeholder="Year of Completion *"
+                                                    value="{{ old('school_completion_year') }}">
+                                                <small
+                                                    class="text-danger">{{ $errors->first('school_completion_year') }}</small>
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Column -->
+                                        <div class="col-md-6">
+
+
+                                            <div class="row">
+                                                <div class="col-2 text-start">
+                                                    <div class="form-group mb-3"><label for="">Marks
+                                                            obtained:</label></div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group mb-3"><input class="form-control"
+                                                            type="number" name="10th_mark_obtained"></div>
+                                                </div>
+                                                <div class="col-2 text-start">
+                                                    <div class="form-group mb-3 text-end">
+                                                        <label for="">Out Of:</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group mb-3">
+                                                        <input class="form-control"type="number" name="10th_mark_out_of">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <input type="text" class="form-control" name="school_percentage"
+                                                    placeholder="Enter % " value="{{ old('school_percentage') }}">
+                                                <small
+                                                    class="text-danger">{{ $errors->first('school_percentage') }}</small>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <input type="text" class="form-control" name="school_CGPA"
+                                                    placeholder="Enter CGPA" value="{{ old('school_CGPA') }}">
+                                                <small class="text-danger">{{ $errors->first('school_CGPA') }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
+                                <!-- Section Divider -->
+                                <div class="section-divider"></div>
+
+                                <!-- Section 3: Junior College (12th Grade) -->
+                                <div class="education-section">
+                                    <h4 class="title" style="color:#4C4C4C;font-size:18px;">Junior College (12th Grade)
+                                    </h4>
+
+                                    <div class="row">
+                                        <!-- Left Column -->
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <input type="text" class="form-control" name="jc_college_name"
+                                                    placeholder="College / Junior College Name *"
+                                                    value="{{ old('jc_college_name') }}">
+                                                <small class="text-danger">{{ $errors->first('jc_college_name') }}</small>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <input type="text" class="form-control" name="jc_stream"
+                                                    placeholder="Select Stream *" value="{{ old('jc_stream') }}">
+                                                <small class="text-danger">{{ $errors->first('jc_stream') }}</small>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <input type="text" class="form-control" name="jc_board"
+                                                    placeholder="Select Board *" value="{{ old('jc_board') }}">
+                                                <small class="text-danger">{{ $errors->first('jc_board') }}</small>
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Column -->
+                                        <div class="col-md-6">
+                                            <div class="row">
+                                                <div class="col-2 text-start">
+                                                    <div class="form-group mb-3"><label for="">Marks
+                                                            obtained:</label></div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group mb-3"><input class="form-control"
+                                                            type="number" name="12th_mark_obtained"></div>
+                                                </div>
+                                                <div class="col-2">
+                                                    <div class="form-group mb-3 text-start">
+                                                        <label for="">Out Of:</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group mb-3">
+                                                        <input class="form-control"type="number" name="12th_mark_out_of">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="form-group mb-3">
+                                                <input type="text" class="form-control" name="jc_percentage"
+                                                    placeholder="Enter %" value="{{ old('jc_percentage') }}">
+                                                <small class="text-danger">{{ $errors->first('jc_percentage') }}</small>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <input type="text" class="form-control" name="jc_CGPA"
+                                                    placeholder="Enter CGPA" value="{{ old('jc_CGPA') }}">
+                                                <small class="text-danger">{{ $errors->first('jc_CGPA') }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <!-- Section Divider -->
                                 <div class="section-divider"></div>
@@ -345,7 +726,8 @@
                                         <!-- Left Column -->
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
-                                                <select class="form-control" name="qualifications">
+                                                <select class="form-control" name="qualifications"
+                                                    id="qualifications_select">
                                                     <option value="" {{ !old('qualifications') ? 'selected' : '' }}
                                                         disabled hidden>Add your completed qualifications *</option>
                                                     <option value="diploma"
@@ -364,35 +746,7 @@
                                                         {{ old('qualifications') == 'none' ? 'selected' : '' }}>
                                                         Not Pursued Any of the Above</option>
                                                 </select>
-                                                {{-- <select class="form-control" name="qualifications">
-                                                    <option value="" hidden>Add your completed qualifications *
-                                                    </option>
 
-                                                    <option value="diploma"
-                                                        {{ old('qualifications') == 'diploma' ? 'selected' : '' }}>
-                                                        Diploma
-                                                    </option>
-
-                                                    <option value="graduation"
-                                                        {{ old('qualifications') == 'graduation' ? 'selected' : '' }}>
-                                                        Graduation
-                                                    </option>
-
-                                                    <option value="masters"
-                                                        {{ old('qualifications') == 'masters' ? 'selected' : '' }}>
-                                                        Masters
-                                                    </option>
-
-                                                    <option value="phd"
-                                                        {{ old('qualifications') == 'phd' ? 'selected' : '' }}>
-                                                        PhD
-                                                    </option>
-
-                                                    <option value="none"
-                                                        {{ old('qualifications') == 'none' ? 'selected' : '' }}>
-                                                        Not Pursued Any of the Above
-                                                    </option>
-                                                </select> --}}
                                                 <small class="text-danger">{{ $errors->first('qualifications') }}</small>
 
 
@@ -481,102 +835,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Section Divider -->
-                                <div class="section-divider"></div>
-
-                                <!-- Section 3: Junior College (12th Grade) -->
-                                <div class="education-section">
-                                    <h4 class="title" style="color:#4C4C4C;font-size:18px;">Junior College (12th Grade)
-                                    </h4>
-
-                                    <div class="row">
-                                        <!-- Left Column -->
-                                        <div class="col-md-6">
-                                            <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="jc_college_name"
-                                                    placeholder="College / Junior College Name *"
-                                                    value="{{ old('jc_college_name') }}">
-                                                <small class="text-danger">{{ $errors->first('jc_college_name') }}</small>
-                                            </div>
-
-                                            <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="jc_stream"
-                                                    placeholder="Select Stream *" value="{{ old('jc_stream') }}">
-                                                <small class="text-danger">{{ $errors->first('jc_stream') }}</small>
-                                            </div>
-
-                                            <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="jc_board"
-                                                    placeholder="Select Board *" value="{{ old('jc_board') }}">
-                                                <small class="text-danger">{{ $errors->first('jc_board') }}</small>
-                                            </div>
-                                        </div>
-
-                                        <!-- Right Column -->
-                                        <div class="col-md-6">
-                                            <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="jc_completion_year"
-                                                    placeholder="Year of Completion *"
-                                                    value="{{ old('jc_completion_year') }}">
-                                                <small
-                                                    class="text-danger">{{ $errors->first('jc_completion_year') }}</small>
-                                            </div>
-
-                                            <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="jc_percentage"
-                                                    placeholder="Percentage / CGPA *" value="{{ old('jc_percentage') }}">
-                                                <small class="text-danger">{{ $errors->first('jc_percentage') }}</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Section Divider -->
-                                <div class="section-divider"></div>
-
-                                <!-- Section 4: School / 10th Grade Information -->
-                                <div class="education-section">
-                                    <h4 class="title" style="color:#4C4C4C;font-size:18px;">School / 10th Grade
-                                        Information</h4>
-
-                                    <div class="row">
-                                        <!-- Left Column -->
-                                        <div class="col-md-6">
-                                            <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="school_name"
-                                                    placeholder="School Name *" value="{{ old('school_name') }}">
-                                                <small class="text-danger">{{ $errors->first('school_name') }}</small>
-                                            </div>
-
-                                            <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="school_board"
-                                                    placeholder="Board *" value="{{ old('school_board') }}">
-                                                <small class="text-danger">{{ $errors->first('school_board') }}</small>
-                                            </div>
-                                        </div>
-
-                                        <!-- Right Column -->
-                                        <div class="col-md-6">
-                                            <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="school_completion_year"
-                                                    placeholder="Year of Completion *"
-                                                    value="{{ old('school_completion_year') }}">
-                                                <small
-                                                    class="text-danger">{{ $errors->first('school_completion_year') }}</small>
-                                            </div>
-
-                                            <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="school_percentage"
-                                                    placeholder="Percentage / CGPA *"
-                                                    value="{{ old('school_percentage') }}">
-                                                <small
-                                                    class="text-danger">{{ $errors->first('school_percentage') }}</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Section Divider -->
+                                {{-- <!-- Section Divider -->
                                 <div class="section-divider"></div>
 
                                 <!-- Section 5: Additional Curriculum -->
@@ -635,7 +894,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
 
                                 <!-- Section Divider -->
                                 <div class="section-divider"></div>
@@ -732,7 +991,7 @@
                                 </div>
 
                                 <!-- Section Divider -->
-                                <div class="section-divider"></div>
+                                {{-- <div class="section-divider"></div>
 
                                 <!-- Section 7: Additional Achievements -->
                                 <div class="education-section">
@@ -776,162 +1035,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
 
-                                <!-- Section Divider -->
-                                <div class="section-divider"></div>
 
-                               
-
-                                <!-- Section 9: Financial Summary Table -->
-                                <div class="education-section">
-                                    <h4 class="title" style="color:#4C4C4C;font-size:18px;">Financial Summary</h4>
-
-                                    <div class="table-responsive">
-                                        <table class="table"
-                                            style="background: white; border: none; border-collapse: collapse;">
-                                            <thead style="background-color: #f8f9fa;">
-                                                <tr style="border-bottom: 1px solid lightgray;">
-                                                    <th class="text-center"
-                                                        style="width: 80px; font-weight: 600; color: #4C4C4C; border: none;">
-                                                        Sr No</th>
-                                                    <th class="text-center"
-                                                        style="font-weight: 600; color: #4C4C4C; border: none;width: 25%;">
-                                                        Group Name</th>
-                                                    <th class="text-center"
-                                                        style="width: 100px; font-weight: 600; color: #4C4C4C; border: none;">
-                                                        1 Year</th>
-                                                    <th class="text-center"
-                                                        style="width: 100px; font-weight: 600; color: #4C4C4C; border: none;">
-                                                        2 Year</th>
-                                                    <th class="text-center"
-                                                        style="width: 100px; font-weight: 600; color: #4C4C4C; border: none;">
-                                                        3 Year</th>
-                                                    <th class="text-center"
-                                                        style="width: 100px; font-weight: 600; color: #4C4C4C; border: none;">
-                                                        4 Year</th>
-                                                    <th class="text-center"
-                                                        style="width: 120px; font-weight: 600; color: #393185; border: none;">
-                                                        Total</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <!-- Row 1: Tuition Fees -->
-                                                <tr style="border-bottom: 1px solid lightgray;">
-                                                    <td class="text-center" style="font-weight: 500; border: none;">1</td>
-                                                    <td
-                                                        style="font-weight: 500; border: none;width: 25%;text-align:center;">
-                                                        <input type="text" class="form-control form-control-sm"
-                                                            name="group_name_1" value="Tuition Fees" hidden>Tuition Fees
-                                                    </td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="tuition_fee_year1"
-                                                            value="{{ old('tuition_fee_year1') }}" placeholder="0"></td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="tuition_fee_year2"
-                                                            value="{{ old('tuition_fee_year2') }}" placeholder="0"></td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="tuition_fee_year3"
-                                                            value="{{ old('tuition_fee_year3') }}" placeholder="0"></td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="tuition_fee_year4"
-                                                            value="{{ old('tuition_fee_year4') }}" placeholder="0"></td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="tuition_fee_total"
-                                                            value="{{ old('tuition_fee_total') }}" placeholder="0"
-                                                            readonly></td>
-                                                </tr>
-
-                                                <!-- Row 2 -->
-                                                <tr style="border-bottom: 1px solid lightgray;">
-                                                    <td class="text-center" style="font-weight: 500; border: none;">2</td>
-                                                    <td style="border: none;width: 25%;text-align:center;"><input
-                                                            type="text" class="form-control form-control-sm"
-                                                            name="group_name_2" value="Living Expenses" hidden>Living
-                                                        Expenses
-                                                    </td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="group_2_year1"
-                                                            value="{{ old('group_2_year1') }}" placeholder="0"></td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="group_2_year2"
-                                                            value="{{ old('group_2_year2') }}" placeholder="0"></td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="group_2_year3"
-                                                            value="{{ old('group_2_year3') }}" placeholder="0"></td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="group_2_year4"
-                                                            value="{{ old('group_2_year4') }}" placeholder="0"></td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="group_2_total"
-                                                            value="{{ old('group_2_total') }}" placeholder="0" readonly>
-                                                    </td>
-                                                </tr>
-
-                                                <!-- Row 3 -->
-                                                <tr style="border-bottom: 1px solid lightgray;">
-                                                    <td class="text-center" style="font-weight: 500; border: none;">3</td>
-                                                    <td style="border: none;width: 25%;text-align:center;"><input
-                                                            type="text" class="form-control form-control-sm"
-                                                            name="group_name_3" value="Other Expenses"
-                                                            placeholder="Enter Group Name" hidden>Other Expenses</td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="group_3_year1"
-                                                            value="{{ old('group_3_year1') }}" placeholder="0"></td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="group_3_year2"
-                                                            value="{{ old('group_3_year2') }}" placeholder="0"></td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="group_3_year3"
-                                                            value="{{ old('group_3_year3') }}" placeholder="0"></td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="group_3_year4"
-                                                            value="{{ old('group_3_year4') }}" placeholder="0"></td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="group_3_total"
-                                                            value="{{ old('group_3_total') }}" placeholder="0" readonly>
-                                                    </td>
-                                                </tr>
-
-                                                <!-- Row 4 -->
-                                                <tr>
-                                                    <td class="text-center" style="font-weight: 500; border: none;">4</td>
-                                                    <td style="border: none;width: 25%;text-align:center;"><input
-                                                            type="text" class="form-control form-control-sm"
-                                                            name="group_name_4" value="Total Expenses"
-                                                            placeholder="Enter Group Name" hidden>Total Expenses</td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="group_4_year1"
-                                                            value="{{ old('group_4_year1') }}" placeholder="0"></td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="group_4_year2"
-                                                            value="{{ old('group_4_year2') }}" placeholder="0"></td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="group_4_year3"
-                                                            value="{{ old('group_4_year3') }}" placeholder="0"></td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="group_4_year4"
-                                                            value="{{ old('group_4_year4') }}" placeholder="0"></td>
-                                                    <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="group_4_total"
-                                                            value="{{ old('group_4_total') }}" placeholder="0" readonly>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    <!-- Error messages for table fields -->
-                                    <div class="mb-3">
-                                        <small class="text-danger">{{ $errors->first('tuition_fee_year1') }}</small>
-                                        <small class="text-danger">{{ $errors->first('tuition_fee_year2') }}</small>
-                                        <small class="text-danger">{{ $errors->first('tuition_fee_year3') }}</small>
-                                        <small class="text-danger">{{ $errors->first('tuition_fee_year4') }}</small>
-                                        <small class="text-danger">{{ $errors->first('group_name_2') }}</small>
-                                        <small class="text-danger">{{ $errors->first('group_name_3') }}</small>
-                                        <small class="text-danger">{{ $errors->first('group_name_4') }}</small>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                 </div>
@@ -960,21 +1066,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Function to toggle current education fields
-            function toggleCurrentEducation() {
-                const currentPursuingSelect = document.querySelector('select[name="current_pursuing"]');
-                const currentFieldsLeft = document.getElementById('current-education-fields');
-                const currentFieldsRight = document.getElementById('current-education-fields-right');
-
-                if (currentPursuingSelect && currentPursuingSelect.value === 'yes') {
-                    currentFieldsLeft.style.display = 'block';
-                    currentFieldsRight.style.display = 'block';
-                } else {
-                    currentFieldsLeft.style.display = 'none';
-                    currentFieldsRight.style.display = 'none';
-                }
-            }
-
             // Function to toggle qualification fields
             function toggleQualificationFields() {
                 const qualificationsSelect = document.querySelector('select[name="qualifications"]');
@@ -991,10 +1082,6 @@
                     qualificationFieldsRight.style.display = 'none';
                 }
             }
-
-            // Event listener for current pursuing dropdown
-            document.querySelector('select[name="current_pursuing"]').addEventListener('change',
-                toggleCurrentEducation);
 
             // Function to toggle work experience fields
             function toggleWorkExperienceFields() {
@@ -1022,9 +1109,244 @@
                 toggleWorkExperienceFields);
 
             // Initialize on page load
-            toggleCurrentEducation();
             toggleQualificationFields();
             toggleWorkExperienceFields();
         });
+    </script>
+    <script>
+        const now = new Date();
+
+        // current month
+        const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        // start month limit = current + 4 months
+        const maxStartMonth = new Date(now.getFullYear(), now.getMonth() + 4, 1);
+
+        function parseMonth(value) {
+            const [year, month] = value.split('-');
+            return new Date(year, month - 1, 1);
+        }
+
+        function validateStartYear() {
+            const input = document.getElementById('start_year');
+            const error = document.getElementById('startYearError');
+
+            if (!input.value) return;
+
+            const selected = parseMonth(input.value);
+
+            if (selected < currentMonth || selected > maxStartMonth) {
+                input.classList.add('is-invalid');
+                error.classList.remove('d-none');
+            } else {
+                input.classList.remove('is-invalid');
+                error.classList.add('d-none');
+            }
+        }
+
+        function validateExpectedYear() {
+            const input = document.getElementById('expected_year');
+            const error = document.getElementById('expectedYearError');
+            const startInput = document.getElementById('start_year');
+
+            if (!input.value || !startInput.value) return;
+
+            const expected = parseMonth(input.value);
+            const start = parseMonth(startInput.value);
+
+            // ✅ correct max = start + 5 years
+            const maxExpectedFromStart = new Date(
+                start.getFullYear() + 5,
+                start.getMonth(),
+                1
+            );
+
+            if (expected < start || expected > maxExpectedFromStart) {
+                input.classList.add('is-invalid');
+                error.classList.remove('d-none');
+            } else {
+                input.classList.remove('is-invalid');
+                error.classList.add('d-none');
+            }
+        }
+    </script>
+
+    <script>
+        function parseMonth(value) {
+            const [year, month] = value.split('-');
+            return new Date(year, month - 1, 1);
+        }
+
+        function calculateYearDiff() {
+            const startVal = document.getElementById('start_year').value;
+            const endVal = document.getElementById('expected_year').value;
+
+            if (!startVal || !endVal) return;
+
+            const start = parseMonth(startVal);
+            const end = parseMonth(endVal);
+
+            let yearDiff = end.getFullYear() - start.getFullYear();
+
+            // if end month < start month → reduce 1 year
+            if (end.getMonth() < start.getMonth()) {
+                yearDiff--;
+            }
+
+            if (yearDiff < 1) yearDiff = 1;
+            if (yearDiff > 5) yearDiff = 5; // cap at 5 years
+
+            generateTableColumns(yearDiff);
+        }
+
+        function generateTableColumns(years) {
+            const table = document.getElementById('yearWiseTable');
+
+            // ---- THEAD ----
+            let thead = `
+        <tr style="border-bottom:1px solid lightgray;">
+            <th class="text-center">Sr No</th>
+            <th class="text-center">Group Name</th>
+    `;
+
+            for (let i = 1; i <= years; i++) {
+                thead += `<th class="text-center">${i} Year</th>`;
+            }
+
+            thead += `<th class="text-center">Total</th></tr>`;
+            table.querySelector('thead').innerHTML = thead;
+
+            // ---- TBODY ----
+            const groups = [{
+                    id: 1,
+                    name: 'Tuition Fees'
+                },
+                {
+                    id: 2,
+                    name: 'Living Expenses'
+                },
+                {
+                    id: 3,
+                    name: 'Other Expenses'
+                },
+                {
+                    id: 4,
+                    name: 'Total Expenses'
+                }
+            ];
+
+            let tbody = '';
+
+            groups.forEach(group => {
+                tbody += `
+        <tr style="border-bottom:1px solid lightgray;">
+            <td class="text-center">${group.id}</td>
+            <td class="text-center">${group.name}</td>
+        `;
+
+                for (let y = 1; y <= years; y++) {
+                    tbody += `
+                <td>
+                    <input type="number" class="form-control form-control-sm"
+                        name="group_${group.id}_year${y}" placeholder="0">
+                </td>
+            `;
+                }
+
+                tbody += `
+            <td>
+                <input type="number" class="form-control form-control-sm"
+                    name="group_${group.id}_total" placeholder="0" readonly>
+            </td>
+        </tr>`;
+            });
+
+            table.querySelector('tbody').innerHTML = tbody;
+        }
+
+        // trigger on change
+        document.getElementById('start_year').addEventListener('change', calculateYearDiff);
+        document.getElementById('expected_year').addEventListener('change', calculateYearDiff);
+
+        // Function to calculate row totals
+        function calculateRowTotal(rowId) {
+            const totalInput = document.querySelector(`input[name="group_${rowId}_total"]`);
+            if (!totalInput) return;
+
+            const row = totalInput.closest('tr');
+            if (!row) return;
+
+            const inputs = row.querySelectorAll('input[type="number"]:not([readonly])');
+            let total = 0;
+            inputs.forEach(input => {
+                const val = parseFloat(input.value) || 0;
+                total += val;
+            });
+
+            if (totalInput) {
+                totalInput.value = total;
+            }
+        }
+
+        // Function to calculate Total Expenses column sums
+        function calculateTotalExpenses() {
+            const table = document.getElementById('yearWiseTable');
+            if (!table) return;
+
+            const rows = table.querySelectorAll('tbody tr');
+            if (rows.length < 4) return;
+
+            const totalRow = rows[3]; // 4th row (0-indexed)
+            const yearInputs = totalRow.querySelectorAll('input[type="number"]:not([name$="_total"])');
+            const totalInput = totalRow.querySelector('input[name="group_4_total"]');
+
+            let grandTotal = 0;
+
+            yearInputs.forEach((input, index) => {
+                let columnSum = 0;
+                // Sum from rows 0,1,2 for this column
+                for (let r = 0; r < 3; r++) {
+                    const rowInputs = rows[r].querySelectorAll('input[type="number"]:not([readonly])');
+                    if (rowInputs[index]) {
+                        columnSum += parseFloat(rowInputs[index].value) || 0;
+                    }
+                }
+                input.value = columnSum;
+                grandTotal += columnSum;
+            });
+
+            if (totalInput) {
+                totalInput.value = grandTotal;
+            }
+        }
+
+        // Add event listeners to table inputs for calculating totals
+        function addTotalCalculationListeners() {
+            const table = document.getElementById('yearWiseTable');
+            if (!table) return;
+
+            const inputs = table.querySelectorAll('input[type="number"]:not([readonly])');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const name = this.name;
+                    const match = name.match(/group_(\d+)_year\d+/);
+                    if (match) {
+                        const rowId = match[1];
+                        calculateRowTotal(rowId);
+                        // Also calculate total expenses if any input changes
+                        calculateTotalExpenses();
+                    }
+                });
+            });
+        }
+
+        // Call after generating table
+        // Modify generateTableColumns to add listeners
+        const originalGenerateTableColumns = generateTableColumns;
+        generateTableColumns = function(years) {
+            originalGenerateTableColumns(years);
+            // Add listeners after a short delay to ensure DOM is updated
+            setTimeout(addTotalCalculationListeners, 100);
+        };
     </script>
 @endsection

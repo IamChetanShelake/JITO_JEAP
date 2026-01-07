@@ -54,7 +54,7 @@ Route::middleware(['auth', 'user'])
             ->name('step1');
         Route::post('/Step1Store/', [UserController::class, 'step1store'])
             ->name('step1.store');
-            
+
         Route::get('/Step2', [UserController::class, 'step2'])
             ->name('step2');
         Route::post('/Step2Store/', [UserController::class, 'step2store'])
@@ -82,6 +82,12 @@ Route::middleware(['auth', 'user'])
             ->name('step6');
         Route::post('/Step6Store/', [UserController::class, 'step6store'])
             ->name('step6.store');
+
+        Route::post('/Step6Storeug/', [UserController::class, 'step6storeug'])
+            ->name('step6.storeug');
+
+        Route::post('/Step6Storeforeign/', [UserController::class, 'step6storeforeign'])
+            ->name('step6.storeforeign');
 
 
         Route::get('/Step7', [UserController::class, 'step7'])

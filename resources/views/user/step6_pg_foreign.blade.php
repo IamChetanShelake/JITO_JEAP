@@ -28,7 +28,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <form method="POST" action="{{ route('user.step6.storeug') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('user.step6.storeforeign') }}" enctype="multipart/form-data">
                         @csrf
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
@@ -191,7 +191,53 @@
                                                 </div>
                                             </div>
 
+                                            {{-- graduation  --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Graduate/Post Graduate Marksheet
+                                                                *<br>
+                                                            </span>
+                                                            <span class="photo-label" style="font-size:12px;color:red;">
+                                                                Upload all semester Marksheet
+                                                            </span>
 
+                                                            <input type="file" id="graduation"
+                                                                name="graduate_post_graduate_marksheet" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('graduate_post_graduate_marksheet') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="graduation" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
                                             {{-- post graduation  --}}
                                             {{-- <div class="form-group mb-3">
@@ -374,6 +420,102 @@
                                                     </div>
                                                 </div>
                                             </div>
+
+
+                                             <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Passport of Applicant
+                                                                *<br></span>
+                                                            <span class="photo-label"
+                                                                style="color:red;font-size:12px;">Need front and back side of Passport.
+                                                            </span>
+                                                            <input type="file" id="passport_applicant"
+                                                                name="passport_applicant" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('passport_applicant') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="passport_applicant"
+                                                                class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Visa of Applicant
+                                                                *<br></span>
+                                                            <span class="photo-label"
+                                                                style="color:red;font-size:12px;">If your visa is pending, submit the current application status now and the finalized visa later.
+                                                            </span>
+                                                            <input type="file" id="visa_applicant"
+                                                                name="visa_applicant" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('visa_applicant') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="visa_applicant"
+                                                                class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
                                             <div class="form-group mb-3">
                                                 <div class="photo-upload-box">
                                                     <div class="row mb-2 align-items-center">
@@ -661,7 +803,7 @@
                                                 <div class="photo-upload-box">
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
-                                                            <span class="photo-label">ITR Acknowledgement of Father
+                                                            <span class="photo-label">ITR Acknowledgement of Father (saving account ITR compulsory)
                                                                 *<br></span>
                                                             <span class="photo-label" style="color:red;font-size:12px;">
                                                                 Father’s ITR acknowledgement for the latest 2 years.
@@ -706,7 +848,7 @@
                                                 <div class="photo-upload-box">
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
-                                                            <span class="photo-label">ITR Computation of Father
+                                                            <span class="photo-label">ITR Computation of Father (saving account ITR compulsory)
                                                                 *<br></span>
                                                             <span class="photo-label" style="color:red;font-size:12px;">
                                                                 We accept ITR Computation of Father of latest 2 years
@@ -747,6 +889,16 @@
                                                 </div>
                                             </div>
                                             {{-- Form No.16 for Salary Income of Father --}}
+
+
+                                        </div>
+
+                                        <!-- Right Column -->
+                                        <div class="col-lg-6 col-md-6 col-sm-12 col-12">
+
+
+
+
                                             <div class="form-group mb-3">
                                                 <div class="photo-upload-box" style="padding:10px 18px;height:115px;">
                                                     <div class="row mb-2 align-items-center">
@@ -794,16 +946,6 @@
                                                     </div>
                                                 </div>
                                             </div>
-
-                                        </div>
-
-                                        <!-- Right Column -->
-                                        <div class="col-lg-6 col-md-6 col-sm-12 col-12">
-
-
-
-
-
 
 
 

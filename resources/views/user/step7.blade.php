@@ -35,37 +35,21 @@
                                          <h4 style="font-size: 16px;font-weight:600;color:#353535;">Terms and Conditions
                                          </h4>
                                          <p style="margin-bottom: 14px;color:#494C4E;">
-                                             I hereby declare that I am a member of the Jain community and all the
-                                             information provided in this application is true and correct to the best of
-                                             my
-                                             knowledge and belief.
+                                            1) A needy and deserving Jain student.
                                          </p>
                                          <p style="margin-bottom: 14px;color:#494C4E;">
-                                             I understand that JITO reserves the right to verify all information provided
-                                             and
-                                             may request additional documentation if required. Any false information may
-                                             lead
-                                             to rejection of the application or cancellation of the assistance.
+                                             2) Age between 18 and 30 years.
                                          </p>
                                          <p style="margin-bottom: 14px;color:#494C4E;">
-                                             I agree that the financial assistance provided by JITO is solely for
-                                             educational
-                                             purposes and will be utilized accordingly. I will provide proof of
-                                             expenditure
-                                             if requested by JITO.
+                                             3) Minimum eligibility criteria require an overall academic score of 60% [10th, 12th & Graduation (Only for Post Graduation)]
                                          </p>
                                          <p style="margin-bottom: 14px;color:#494C4E;">
-                                             I authorize JITO to contact my educational institution, family members, or
-                                             any
-                                             other relevant parties to verify the information provided in this
-                                             application.
+                                            4) Domestic students: For Undergraduate (UG) or Postgraduate (PG) courses in India.(Only UGC/AICTE/NAAC accredited courses or universities)
                                          </p>
                                          <p style="margin-bottom: 14px;color:#494C4E;">
-                                             I understand that the decision of the JITO selection committee is final and
-                                             binding. I will not hold JITO responsible in case my application is not
-                                             approved.
+                                             5) Foreign students: For Postgraduate (PG) courses, applications only from the Universities approved by our management, top 25 globally (QS rankings) are eligible and our listed in JEAP Website.</br>For more details, visit: [Foreign University List](https://jitojeap.in/foreign/)
                                          </p>
-                                         <p style="margin-bottom: 14px;color:#494C4E;">
+                                         {{-- <p style="margin-bottom: 14px;color:#494C4E;">
                                              I commit to maintaining satisfactory academic performance and will provide
                                              my
                                              academic reports to JITO as and when requested.
@@ -74,7 +58,7 @@
                                              I agree to participate in JITO community service activities and contribute
                                              to
                                              the Jain community as per my capabilities.
-                                         </p>
+                                         </p> --}}
                                      </div>
 
                                      <!-- Preview Section -->
@@ -151,20 +135,51 @@
                                              <label style="display: block; margin-bottom: 12px; font-weight: normal;">
                                                  <input type="checkbox" name="declaration1" required
                                                      style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                 All the information provided in this application is true, accurate, and
-                                                 complete to the best of my knowledge.
+                                                 The details in this form are true and correct to the best of my knowledge.
                                              </label>
                                              <label style="display: block; margin-bottom: 12px; font-weight: normal;">
                                                  <input type="checkbox" name="declaration2" required
                                                      style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                 I understand that providing false information may result in immediate
-                                                 disqualification and legal action.
+                                                 I give my consent to my son / daughter / ward for going to for further studies.
                                              </label>
                                              <label style="display: block; margin-bottom: 12px; font-weight: normal;">
                                                  <input type="checkbox" name="declaration3" required
                                                      style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                 I authorize JITO to verify the information provided and contact relevant
-                                                 parties for verification purposes.
+                                                 If my Financial Assistance Application is approved, I agree to abide by the terms and conditions of the   JITO-JEAP –Domestic/Foreign Education Financial Assistance Application.
+                                             </label>
+                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
+                                                 <input type="checkbox" name="declaration3" required
+                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
+                                                 In case of any change in the above information, I will inform the Institution immediately in writing within three days.
+                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
+                                                 <input type="checkbox" name="declaration3" required
+                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
+                                                 I also undertake to keep the office bearers/Trustees informed of my correct address and that of my Parents/Guarantors and recommenders from time to time.
+                                             </label>
+                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
+                                                 <input type="checkbox" name="declaration3" required
+                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
+                                                  I will send my second stage documents duly completed.
+                                             </label>
+                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
+                                                 <input type="checkbox" name="declaration3" required
+                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
+                                                 The amount of Financial Assistance will be utilized for education purpose only.
+                                             </label>
+                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
+                                                 <input type="checkbox" name="declaration3" required
+                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
+                                                  I /we agree that JEAP may reject our Financial Assistance application without giving any reasons thereof and that JEAP shall not be held responsible/liable in any manner whatsoever to us for rejection or any delay in notifying us of such rejection including any costs, losses, damages, or expenses or consequences caused by such rejection of financial assistance application.
+                                             </label>
+                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
+                                                 <input type="checkbox" name="declaration3" required
+                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
+                                                 I have read all FAQs mentioned on website and accepting the same.
+                                             </label>
+                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
+                                                 <input type="checkbox" name="declaration3" required
+                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
+                                                 I have read all the instructions properly and agree to submit the required documents as per the policy and timelines.
                                              </label>
                                          </div>
                                      </div>
@@ -172,11 +187,14 @@
                                      <!-- Ready to Submit Card -->
                                      <div
                                          style="background-color: #FEF6E0; border-radius: 14px; padding: 24px; margin-top: 32px;border:1px solid #FBBA00;">
-                                         <h5 style="color: #393185; margin-bottom: 12px;">Ready to Submit?</h5>
-                                         <p style="color: #666; margin-bottom: 0;">
+                                         <h5 style="color: red; margin-bottom: 12px;">Ready to Submit?</h5>
+                                         <p style="color: red; margin-bottom: 15px;">
                                              Once you submit this application, you will receive a confirmation email with
                                              your application reference number. Our team will review your application and
                                              contact you within 7-10 business days.
+                                         </p>
+                                         <p style="color: red; margin-bottom: 0;">
+                                             If you do not receive a response within 5 working days, please contact us at support.jitojeap@jito.org
                                          </p>
                                      </div>
 

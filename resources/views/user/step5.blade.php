@@ -89,20 +89,20 @@
                                             </h4>
                                             <div class="form-group mb-3">
                                                 <input type="text" class="form-control" name="g_one_name"
-                                                    placeholder="Name *" value="{{ old('g_one_name') }}" required>
+                                                    placeholder="Name *" value="{{ old('g_one_name') ?: ($guarantorDetail->g_one_name ?? '') }}" required>
                                                 <small class="text-danger">{{ $errors->first('g_one_name') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">
                                                 <select class="form-control" name="g_one_gender" required>
-                                                    <option disabled {{ old('g_one_gender') ? '' : 'selected' }} hidden>
+                                                    <option disabled {{ (old('g_one_gender') ?: ($guarantorDetail->g_one_gender ?? '')) ? '' : 'selected' }} hidden>
                                                         Gender *
                                                     </option>
                                                     <option value="male"
-                                                        {{ old('g_one_gender') == 'male' ? 'selected' : '' }}>
+                                                        {{ (old('g_one_gender') ?: ($guarantorDetail->g_one_gender ?? '')) == 'male' ? 'selected' : '' }}>
                                                         Male</option>
                                                     <option value="female"
-                                                        {{ old('g_one_gender') == 'female' ? 'selected' : '' }}>Female
+                                                        {{ (old('g_one_gender') ?: ($guarantorDetail->g_one_gender ?? '')) == 'female' ? 'selected' : '' }}>Female
                                                     </option>
                                                 </select>
                                                 <small class="text-danger">{{ $errors->first('g_one_gender') }}</small>
@@ -110,46 +110,46 @@
 
                                             <div class="form-group mb-3">
                                                 <textarea class="form-control" name="g_one_permanent_flat_no" rows="3"
-                                                    placeholder="Flat No, Building No/Street Name*" required>{{ old('g_one_permanent_flat_no') }}</textarea>
+                                                    placeholder="Flat No, Building No/Street Name*" required>{{ old('g_one_permanent_flat_no') ?: ($guarantorDetail->g_one_permanent_flat_no ?? '') }}</textarea>
                                                 <small
                                                     class="text-danger">{{ $errors->first('g_one_permanent_flat_no') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
-                                                <textarea class="form-control" name="g_one_permanent_address" rows="3" placeholder="Address *" required>{{ old('g_one_permanent_address') }}</textarea>
+                                                <textarea class="form-control" name="g_one_permanent_address" rows="3" placeholder="Address *" required>{{ old('g_one_permanent_address') ?: ($guarantorDetail->g_one_permanent_address ?? '') }}</textarea>
                                                 <small
                                                     class="text-danger">{{ $errors->first('g_one_permanent_address') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">
                                                 <input type="text" class="form-control" name="g_one_city"
-                                                    placeholder="City *" value="{{ old('g_one_city') }}" required>
+                                                    placeholder="City *" value="{{ old('g_one_city') ?: ($guarantorDetail->g_one_permanent_city ?? '') }}" required>
                                                 <small class="text-danger">{{ $errors->first('g_one_city') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <input type="text" class="form-control" name="g_one_district"
-                                                    placeholder="District *" value="{{ old('g_one_district') }}" required>
+                                                    placeholder="District *" value="{{ old('g_one_district') ?: ($guarantorDetail->g_one_permanent_district ?? '') }}" required>
                                                 <small class="text-danger">{{ $errors->first('g_one_district') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <input type="text" class="form-control" name="g_one_state"
-                                                    placeholder="State *" value="{{ old('g_one_state') }}" required>
+                                                    placeholder="State *" value="{{ old('g_one_state') ?: ($guarantorDetail->g_one_permanent_state ?? '') }}" required>
                                                 <small class="text-danger">{{ $errors->first('g_one_state') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <input type="number" class="form-control" name="g_one_pincode"
-                                                    placeholder="Pin Code *" value="{{ old('g_one_pincode') }}" required>
+                                                    placeholder="Pin Code *" value="{{ old('g_one_pincode') ?: ($guarantorDetail->g_one_permanent_pincode ?? '') }}" required>
                                                 <small class="text-danger">{{ $errors->first('g_one_pincode') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <input type="tel" name="g_one_phone" class="form-control"
-                                                    placeholder="Mobile number *" value="{{ old('g_one_phone') }}"
+                                                    placeholder="Mobile number *" value="{{ old('g_one_phone') ?: ($guarantorDetail->g_one_phone ?? '') }}"
                                                     maxlength="10" required>
                                                 <small class="text-danger">{{ $errors->first('g_one_phone') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">
                                                 <input type="email" name="g_one_email" class="form-control"
-                                                    placeholder="Email ID *" value="{{ old('g_one_email') }}" required>
+                                                    placeholder="Email ID *" value="{{ old('g_one_email') ?: ($guarantorDetail->g_one_email ?? '') }}" required>
                                                 <small class="text-danger">{{ $errors->first('g_one_email') }}</small>
                                             </div>
 
@@ -157,7 +157,7 @@
                                                 <input type="text" class="form-control"
                                                     name="g_one_relation_with_student"
                                                     placeholder="Relation with student *"
-                                                    value="{{ old('g_one_relation_with_student') }}" required>
+                                                    value="{{ old('g_one_relation_with_student') ?: ($guarantorDetail->g_one_relation_with_student ?? '') }}" required>
                                                 <small
                                                     class="text-danger">{{ $errors->first('g_one_relation_with_student') }}</small>
                                             </div>
@@ -166,7 +166,7 @@
                                                 <input type="number" name="g_one_aadhar_card_number"
                                                     class="form-control" placeholder="Aadhar Card Number *"
                                                     minlength="12" maxlength="12"
-                                                    value="{{ old('g_one_aadhar_card_number') }}" required>
+                                                    value="{{ old('g_one_aadhar_card_number') ?: ($guarantorDetail->g_one_aadhar_card_number ?? '') }}" required>
                                                 <small
                                                     class="text-danger">{{ $errors->first('g_one_aadhar_card_number') }}</small>
                                             </div>
@@ -182,7 +182,7 @@
                                             <div class="form-group mb-3">
                                                 <input type="text" name="g_one_d_o_b" class="form-control"
                                                     placeholder="Date of Birth(YYYY-mm-dd) *"
-                                                    value="{{ old('g_one_d_o_b') }}" pattern="\d{4}-\d{2}-\d{2}"
+                                                    value="{{ old('g_one_d_o_b') ?: ($guarantorDetail->g_one_d_o_b ?? '') }}" pattern="\d{4}-\d{2}-\d{2}"
                                                     title="Format: yyyy-mm-dd" inputmode="numeric" required>
                                                 <small class="text-danger">{{ $errors->first('g_one_d_o_b') }}</small>
                                             </div>
@@ -190,14 +190,14 @@
                                             <div class="form-group mb-3">
                                                 <input type="text" name="g_one_srvice" class="form-control"
                                                     placeholder="Name of Business/ Services *  "
-                                                    value="{{ old('g_one_srvice') }}" required>
+                                                    value="{{ old('g_one_srvice') ?: ($guarantorDetail->g_one_srvice ?? '') }}" required>
                                                 <small class="text-danger">{{ $errors->first('g_one_srvice') }}</small>
 
                                             </div>
 
                                             <div class="form-group mb-3">
                                                 <input type="number" name="g_one_income" class="form-control"
-                                                    placeholder="Annual Income *" value="{{ old('g_one_income') }}"
+                                                    placeholder="Annual Income *" value="{{ old('g_one_income') ?: ($guarantorDetail->g_one_income ?? '') }}"
                                                     required>
                                                 <small class="text-danger">{{ $errors->first('g_one_income') }}</small>
 
@@ -253,70 +253,70 @@
                                             </h4>
                                             <div class="form-group mb-3">
                                                 <input type="text" class="form-control" name="g_two_name"
-                                                    placeholder="Name *" value="{{ old('g_two_name') }}" required>
+                                                    placeholder="Name *" value="{{ old('g_two_name') ?: ($guarantorDetail->g_two_name ?? '') }}" required>
                                                 <small class="text-danger">{{ $errors->first('g_two_name') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">
                                                 <select class="form-control" name="g_two_gender" required>
-                                                    <option disabled {{ old('g_two_gender') ? '' : 'selected' }} hidden>
+                                                    <option disabled {{ (old('g_two_gender') ?: ($guarantorDetail->g_two_gender ?? '')) ? '' : 'selected' }} hidden>
                                                         Gender *
                                                     </option>
                                                     <option value="male"
-                                                        {{ old('g_two_gender') == 'male' ? 'selected' : '' }}>
+                                                        {{ (old('g_two_gender') ?: ($guarantorDetail->g_two_gender ?? '')) == 'male' ? 'selected' : '' }}>
                                                         Male</option>
                                                     <option value="female"
-                                                        {{ old('g_two_gender') == 'female' ? 'selected' : '' }}>Female
+                                                        {{ (old('g_two_gender') ?: ($guarantorDetail->g_two_gender ?? '')) == 'female' ? 'selected' : '' }}>Female
                                                     </option>
                                                 </select>
                                                 <small class="text-danger">{{ $errors->first('g_two_gender') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <textarea class="form-control" name="g_two_permanent_flat_no" rows="3"
-                                                    placeholder="Flat No, Building No/Street Name*" required>{{ old('g_two_permanent_flat_no') }}</textarea>
+                                                    placeholder="Flat No, Building No/Street Name*" required>{{ old('g_two_permanent_flat_no') ?: ($guarantorDetail->g_two_permanent_flat_no ?? '') }}</textarea>
                                                 <small
                                                     class="text-danger">{{ $errors->first('g_two_permanent_flat_no') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">
                                                 <textarea class="form-control" name="g_two_permanent_address" rows="3" placeholder="Permanent Address *"
-                                                    required>{{ old('g_two_permanent_address') }}</textarea>
+                                                    required>{{ old('g_two_permanent_address') ?: ($guarantorDetail->g_two_permanent_address ?? '') }}</textarea>
                                                 <small
                                                     class="text-danger">{{ $errors->first('g_two_permanent_address') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">
                                                 <input type="text" class="form-control" name="g_two_city"
-                                                    placeholder="City *" value="{{ old('g_two_city') }}" required>
+                                                    placeholder="City *" value="{{ old('g_two_city') ?: ($guarantorDetail->g_two_permanent_city ?? '') }}" required>
                                                 <small class="text-danger">{{ $errors->first('g_two_city') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <input type="text" class="form-control" name="g_two_district"
-                                                    placeholder="District *" value="{{ old('g_two_district') }}"
+                                                    placeholder="District *" value="{{ old('g_two_district') ?: ($guarantorDetail->g_two_permanent_district ?? '') }}"
                                                     required>
                                                 <small class="text-danger">{{ $errors->first('g_two_district') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <input type="text" class="form-control" name="g_two_state"
-                                                    placeholder="State *" value="{{ old('g_two_state') }}" required>
+                                                    placeholder="State *" value="{{ old('g_two_state') ?: ($guarantorDetail->g_two_permanent_state ?? '') }}" required>
                                                 <small class="text-danger">{{ $errors->first('g_two_state') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <input type="number" class="form-control" name="g_two_pincode"
-                                                    placeholder="Pin Code *" value="{{ old('g_two_pincode') }}" required>
+                                                    placeholder="Pin Code *" value="{{ old('g_two_pincode') ?: ($guarantorDetail->g_two_permanent_pincode ?? '') }}" required>
                                                 <small class="text-danger">{{ $errors->first('g_two_pincode') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">
                                                 <input type="tel" name="g_two_phone" class="form-control"
-                                                    placeholder="Mobile Number *" value="{{ old('g_two_phone') }}"
+                                                    placeholder="Mobile Number *" value="{{ old('g_two_phone') ?: ($guarantorDetail->g_two_phone ?? '') }}"
                                                     maxlength="10" required>
                                                 <small class="text-danger">{{ $errors->first('g_two_phone') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">
                                                 <input type="email" name="g_two_email" class="form-control"
-                                                    placeholder="Email ID *" value="{{ old('g_two_email') }}" required>
+                                                    placeholder="Email ID *" value="{{ old('g_two_email') ?: ($guarantorDetail->g_two_email ?? '') }}" required>
                                                 <small class="text-danger">{{ $errors->first('g_two_email') }}</small>
                                             </div>
 
@@ -324,7 +324,7 @@
                                                 <input type="text" class="form-control"
                                                     name="g_two_relation_with_student"
                                                     placeholder="Relation with student *"
-                                                    value="{{ old('g_two_relation_with_student') }}" required>
+                                                    value="{{ old('g_two_relation_with_student') ?: ($guarantorDetail->g_two_relation_with_student ?? '') }}" required>
                                                 <small
                                                     class="text-danger">{{ $errors->first('g_two_relation_with_student') }}</small>
                                             </div>
@@ -333,7 +333,7 @@
                                                 <input type="number" name="g_two_aadhar_card_number"
                                                     class="form-control" placeholder="Aadhar Card Number *"
                                                     minlength="12" maxlength="12"
-                                                    value="{{ old('g_two_aadhar_card_number') }}" required>
+                                                    value="{{ old('g_two_aadhar_card_number') ?: ($guarantorDetail->g_two_aadhar_card_number ?? '') }}" required>
                                                 <small
                                                     class="text-danger">{{ $errors->first('g_two_aadhar_card_number') }}</small>
                                             </div>
@@ -349,7 +349,7 @@
                                             <div class="form-group mb-3">
                                                 <input type="text" name="g_two_d_o_b" class="form-control"
                                                     placeholder="Date of Birth(yyyy-mm-dd) *"
-                                                    value="{{ old('g_two_d_o_b') }}" pattern="\d{4}-\d{2}-\d{2}"
+                                                    value="{{ old('g_two_d_o_b') ?: ($guarantorDetail->g_two_d_o_b ?? '') }}" pattern="\d{4}-\d{2}-\d{2}"
                                                     title="Format: yyyy-mm-dd" inputmode="numeric" required>
                                                 <small class="text-danger">{{ $errors->first('g_two_d_o_b') }}</small>
                                             </div>
@@ -357,14 +357,14 @@
                                             <div class="form-group mb-3">
                                                 <input type="text" name="g_two_srvice" class="form-control"
                                                     placeholder="Name of Business/ Services *  "
-                                                    value="{{ old('g_two_srvice') }}" required>
+                                                    value="{{ old('g_two_srvice') ?: ($guarantorDetail->g_two_srvice ?? '') }}" required>
                                                 <small class="text-danger">{{ $errors->first('g_two_srvice') }}</small>
 
                                             </div>
 
                                             <div class="form-group mb-3">
                                                 <input type="number" name="g_two_income" class="form-control"
-                                                    placeholder="Annual Income *" value="{{ old('g_two_income') }}"
+                                                    placeholder="Annual Income *" value="{{ old('g_two_income') ?: ($guarantorDetail->g_two_income ?? '') }}"
                                                     required>
                                                 <small class="text-danger">{{ $errors->first('g_two_income') }}</small>
 

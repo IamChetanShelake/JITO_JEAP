@@ -377,9 +377,20 @@ class UserController extends Controller
             'status' => 'step3_completed',
         ];
 
-        EducationDetail::create($data);
+        // Check if education details already exist for this user
+        $educationDetail = EducationDetail::where('user_id', $user_id)->first();
 
-        return redirect()->route('user.home')->with('success', 'Education details saved successfully!');
+        if ($educationDetail) {
+            // Update existing record
+            $educationDetail->update($data);
+            $message = 'Education details updated successfully!';
+        } else {
+            // Create new record
+            EducationDetail::create($data);
+            $message = 'Education details saved successfully!';
+        }
+
+        return redirect()->route('user.home')->with('success', $message);
     }
 
 
@@ -391,7 +402,14 @@ class UserController extends Controller
         $user = User::find($user_id);
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
         $familyDetail = Familydetail::where('user_id', $user_id)->first();
-        return view('user.step3', compact('type', 'familyDetail', 'user'));
+
+        // Get existing family members from database if they exist
+        $existingFamilyMembers = [];
+        if ($familyDetail && $familyDetail->additional_family_members) {
+            $existingFamilyMembers = json_decode($familyDetail->additional_family_members, true) ?? [];
+        }
+
+        return view('user.step3', compact('type', 'familyDetail', 'user', 'existingFamilyMembers'));
     }
 
 
@@ -405,7 +423,11 @@ class UserController extends Controller
             'family_member_diksha' => 'nullable|in:yes,no',
             'total_insurance_coverage' => 'required|integer|min:0',
             'total_premium_paid' => 'required|integer|min:0',
+            'recent_electricity_amount' => 'required|integer|min:0',
+            'total_monthly_emi' => 'required|integer|min:0',
+            'mediclaim_insurance_amount' => 'required|integer|min:0',
             // Relatives
+
             'paternal_uncle_name' => 'nullable|string|max:255',
             'paternal_uncle_mobile' => 'nullable|string|max:15',
             'paternal_uncle_email' => 'nullable|email|max:255',
@@ -419,6 +441,27 @@ class UserController extends Controller
             'maternal_aunt_mobile' => 'nullable|string|max:15',
             'maternal_aunt_email' => 'nullable|email|max:255',
         ]);
+
+        // Custom validation: At least one complete relative set must be filled
+        $paternalUncleComplete = !empty($request->paternal_uncle_name) &&
+                                !empty($request->paternal_uncle_mobile) &&
+                                !empty($request->paternal_uncle_email);
+
+        $paternalAuntComplete = !empty($request->paternal_aunt_name) &&
+                               !empty($request->paternal_aunt_mobile) &&
+                               !empty($request->paternal_aunt_email);
+
+        $maternalUncleComplete = !empty($request->maternal_uncle_name) &&
+                                !empty($request->maternal_uncle_mobile) &&
+                                !empty($request->maternal_uncle_email);
+
+        $maternalAuntComplete = !empty($request->maternal_aunt_name) &&
+                               !empty($request->maternal_aunt_mobile) &&
+                               !empty($request->maternal_aunt_email);
+
+        if (!$paternalUncleComplete && !$paternalAuntComplete && !$maternalUncleComplete && !$maternalAuntComplete) {
+            return back()->withErrors(['relatives' => 'At least one complete relative set (name, mobile, and email) must be filled.'])->withInput();
+        }
 
         $user_id = Auth::id();
 
@@ -448,6 +491,9 @@ class UserController extends Controller
             'family_member_diksha' => $request->family_member_diksha,
             'total_insurance_coverage' => $request->total_insurance_coverage,
             'total_premium_paid' => $request->total_premium_paid,
+            'recent_electricity_amount' => $request->recent_electricity_amount,
+            'total_monthly_emi' => $request->total_monthly_emi,
+            'mediclaim_insurance_amount' => $request->mediclaim_insurance_amount,
             'additional_family_members' => json_encode($additional_family_members),
             // Relatives
             'paternal_uncle_name' => $request->paternal_uncle_name,
@@ -465,9 +511,20 @@ class UserController extends Controller
             'submit_status' => 'submited',
         ];
 
-        Familydetail::create($data);
+        // Check if family details already exist for this user
+        $familyDetail = Familydetail::where('user_id', $user_id)->first();
 
-        return redirect()->route('user.step3')->with('success', 'Family details saved successfully!');
+        if ($familyDetail) {
+            // Update existing record
+            $familyDetail->update($data);
+            $message = 'Family details updated successfully!';
+        } else {
+            // Create new record
+            Familydetail::create($data);
+            $message = 'Family details saved successfully!';
+        }
+
+        return redirect()->route('user.step4')->with('success', $message);
     }
 
 
@@ -482,8 +539,52 @@ class UserController extends Controller
         $familyDetail = Familydetail::where('user_id', $user_id)->first();
         $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
-        return view('user.step4', compact('type', 'familyDetail', 'fundingDetail'));
+
+        // Get existing funding data from database if they exist
+        $existingFundingData = [];
+        if ($fundingDetail) {
+            $existingFundingData = [
+                [
+                    'status' => $fundingDetail->family_funding_status,
+                    'institute_name' => $fundingDetail->family_funding_trust,
+                    'contact_person' => $fundingDetail->family_funding_contact,
+                    'contact_no' => $fundingDetail->family_funding_mobile,
+                    'amount' => $fundingDetail->family_funding_amount,
+                ],
+                [
+                    'status' => $fundingDetail->bank_loan_status,
+                    'institute_name' => $fundingDetail->bank_loan_trust,
+                    'contact_person' => $fundingDetail->bank_loan_contact,
+                    'contact_no' => $fundingDetail->bank_loan_mobile,
+                    'amount' => $fundingDetail->bank_loan_amount,
+                ],
+                [
+                    'status' => $fundingDetail->other_assistance1_status,
+                    'institute_name' => $fundingDetail->other_assistance1_trust,
+                    'contact_person' => $fundingDetail->other_assistance1_contact,
+                    'contact_no' => $fundingDetail->other_assistance1_mobile,
+                    'amount' => $fundingDetail->other_assistance1_amount,
+                ],
+                [
+                    'status' => $fundingDetail->other_assistance2_status,
+                    'institute_name' => $fundingDetail->other_assistance2_trust,
+                    'contact_person' => $fundingDetail->other_assistance2_contact,
+                    'contact_no' => $fundingDetail->other_assistance2_mobile,
+                    'amount' => $fundingDetail->other_assistance2_amount,
+                ],
+                [
+                    'status' => $fundingDetail->local_assistance_status,
+                    'institute_name' => $fundingDetail->local_assistance_trust,
+                    'contact_person' => $fundingDetail->local_assistance_contact,
+                    'contact_no' => $fundingDetail->local_assistance_mobile,
+                    'amount' => $fundingDetail->local_assistance_amount,
+                ],
+            ];
+        }
+
+        return view('user.step4', compact('type', 'familyDetail', 'fundingDetail', 'existingFundingData'));
     }
+
 
 
 
@@ -585,13 +686,24 @@ class UserController extends Controller
             'bank_address' => $request->bank_address,
 
             'status' => 'step4_completed',
-            'submit_status' => 'submitted',
+            'submit_status' => 'submited',
         ];
 
-        FundingDetail::create($data);
+        // Check if funding details already exist for this user
+        $fundingDetail = FundingDetail::where('user_id', Auth::id())->first();
+
+        if ($fundingDetail) {
+            // Update existing record
+            $fundingDetail->update($data);
+            $message = 'Funding details updated successfully!';
+        } else {
+            // Create new record
+            FundingDetail::create($data);
+            $message = 'Funding details saved successfully!';
+        }
 
         return redirect()->route('user.step5')
-            ->with('success', 'Funding details saved successfully!');
+            ->with('success', $message);
     }
 
 
@@ -723,8 +835,9 @@ class UserController extends Controller
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
         $familyDetail = Familydetail::where('user_id', $user_id)->first();
         $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
+        $guarantorDetail = GuarantorDetail::where('user_id', $user_id)->first();
 
-        return view('user.step5', compact('type', 'familyDetail', 'fundingDetail', 'user'));
+        return view('user.step5', compact('type', 'familyDetail', 'fundingDetail', 'user','guarantorDetail'));
     }
 
     // public function step5store(Request $request)
@@ -907,9 +1020,20 @@ class UserController extends Controller
             'submit_status' => 'submited',
         ];
 
-        GuarantorDetail::create($data);
+        // Check if guarantor details already exist for this user
+        $guarantorDetail = GuarantorDetail::where('user_id', $user_id)->first();
 
-        return redirect()->route('user.step6')->with('success', 'Guarantor details saved successfully!');
+        if ($guarantorDetail) {
+            // Update existing record
+            $guarantorDetail->update($data);
+            $message = 'Guarantor details updated successfully!';
+        } else {
+            // Create new record
+            GuarantorDetail::create($data);
+            $message = 'Guarantor details saved successfully!';
+        }
+
+        return redirect()->route('user.step6')->with('success', $message);
     }
 
     public function step6(Request $request)

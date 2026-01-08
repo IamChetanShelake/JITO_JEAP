@@ -73,7 +73,16 @@
                                             <small class="text-danger">{{ $errors->first('name') }}</small>
                                         </div>
 
+
+
                                         <div class="form-group mb-3">
+
+                                            @if($user->image)
+                                                        <div class="current-image mt-2">
+                                                            <img src="{{ asset($user->image) }}" alt="Current Photo" style="max-width: 100px; max-height: 100px; border: 1px solid #ddd; border-radius: 5px;">
+                                                            <p class="mb-0 mt-1" style="font-size: 12px; color: #666;">Current Photo</p>
+                                                        </div>
+                                                    @endif
                                             <div class="photo-upload-box">
                                                 <div class="row mb-2 align-items-center">
                                                     <div class="col-9">
@@ -91,11 +100,14 @@
                                                         </label>
                                                     </div>
                                                 </div>
+
                                                 <div class="row mb-2 align-items-center">
+
                                                     <div class="col-12 align-items-center">
                                                         <div class="upload-status" style="display:none;">
                                                             <div class="row">
                                                                 <div class="col-9">
+                                                                    <img id="imagePreview" class="img-thumbnail" style="max-width: 100px; max-height: 100px; display: none;" /><br>
                                                                     <div class="upload-summary"></div>
                                                                 </div>
                                                                 <div class="col-3">
@@ -467,5 +479,27 @@
             if (dobInput.value) {
                 updateAge();
             }
+
+            // File upload preview
+            document.getElementById('uploadInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = URL.createObjectURL(file);
+                    preview.style.display = 'block';
+                    document.querySelector('.upload-summary').textContent = file.name;
+                    document.querySelector('.upload-status').style.display = 'block';
+                    document.querySelector('.remove-upload').style.display = 'block';
+                }
+            });
+
+            document.querySelector('.remove-upload').addEventListener('click', function() {
+                document.getElementById('uploadInput').value = '';
+                document.getElementById('imagePreview').style.display = 'none';
+                document.querySelector('.upload-summary').textContent = '';
+                document.querySelector('.upload-status').style.display = 'none';
+                document.querySelector('.remove-upload').style.display = 'none';
+                URL.revokeObjectURL(document.getElementById('imagePreview').src);
+            });
         });
     </script>

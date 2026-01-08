@@ -28,7 +28,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <form method="POST" action="{{ route('user.step6.storeforeign') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('user.step6.storeforeign') }}" enctype="multipart/form-data" novalidate>
                         @csrf
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
@@ -157,7 +157,7 @@
                                                             <span class="photo-label">HSC/CBSE/ICSE/IB/IGCSE *</span>
                                                             <input type="file" id="uploadInput2"
                                                                 name="hsc_diploma_marksheet" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                                accept=".jpg,.jpeg,.png,.pdf" required @if($documents && $documents->hsc_diploma_marksheet) data-filename="{{ basename($documents->hsc_diploma_marksheet) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('hsc_diploma_marksheet') }}</small>
                                                         </div>
@@ -189,6 +189,11 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                @if ($documents && $documents->hsc_diploma_marksheet)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->hsc_diploma_marksheet) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
 
                                             {{-- graduation  --}}
@@ -205,7 +210,7 @@
 
                                                             <input type="file" id="graduation"
                                                                 name="graduate_post_graduate_marksheet" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                                accept=".jpg,.jpeg,.png,.pdf" required @if($documents && $documents->graduate_post_graduate_marksheet) data-filename="{{ basename($documents->graduate_post_graduate_marksheet) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('graduate_post_graduate_marksheet') }}</small>
                                                         </div>

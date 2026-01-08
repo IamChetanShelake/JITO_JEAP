@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use App\Models\Loan_category;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 
 class UserController extends Controller
@@ -376,9 +377,20 @@ class UserController extends Controller
             'status' => 'step3_completed',
         ];
 
-        EducationDetail::create($data);
+        // Check if education details already exist for this user
+        $educationDetail = EducationDetail::where('user_id', $user_id)->first();
 
-        return redirect()->route('user.home')->with('success', 'Education details saved successfully!');
+        if ($educationDetail) {
+            // Update existing record
+            $educationDetail->update($data);
+            $message = 'Education details updated successfully!';
+        } else {
+            // Create new record
+            EducationDetail::create($data);
+            $message = 'Education details saved successfully!';
+        }
+
+        return redirect()->route('user.home')->with('success', $message);
     }
 
 
@@ -390,7 +402,14 @@ class UserController extends Controller
         $user = User::find($user_id);
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
         $familyDetail = Familydetail::where('user_id', $user_id)->first();
-        return view('user.step3', compact('type', 'familyDetail', 'user'));
+
+        // Get existing family members from database if they exist
+        $existingFamilyMembers = [];
+        if ($familyDetail && $familyDetail->additional_family_members) {
+            $existingFamilyMembers = json_decode($familyDetail->additional_family_members, true) ?? [];
+        }
+
+        return view('user.step3', compact('type', 'familyDetail', 'user', 'existingFamilyMembers'));
     }
 
 
@@ -404,7 +423,11 @@ class UserController extends Controller
             'family_member_diksha' => 'nullable|in:yes,no',
             'total_insurance_coverage' => 'required|integer|min:0',
             'total_premium_paid' => 'required|integer|min:0',
+            'recent_electricity_amount' => 'required|integer|min:0',
+            'total_monthly_emi' => 'required|integer|min:0',
+            'mediclaim_insurance_amount' => 'required|integer|min:0',
             // Relatives
+
             'paternal_uncle_name' => 'nullable|string|max:255',
             'paternal_uncle_mobile' => 'nullable|string|max:15',
             'paternal_uncle_email' => 'nullable|email|max:255',
@@ -418,6 +441,27 @@ class UserController extends Controller
             'maternal_aunt_mobile' => 'nullable|string|max:15',
             'maternal_aunt_email' => 'nullable|email|max:255',
         ]);
+
+        // Custom validation: At least one complete relative set must be filled
+        $paternalUncleComplete = !empty($request->paternal_uncle_name) &&
+                                !empty($request->paternal_uncle_mobile) &&
+                                !empty($request->paternal_uncle_email);
+
+        $paternalAuntComplete = !empty($request->paternal_aunt_name) &&
+                               !empty($request->paternal_aunt_mobile) &&
+                               !empty($request->paternal_aunt_email);
+
+        $maternalUncleComplete = !empty($request->maternal_uncle_name) &&
+                                !empty($request->maternal_uncle_mobile) &&
+                                !empty($request->maternal_uncle_email);
+
+        $maternalAuntComplete = !empty($request->maternal_aunt_name) &&
+                               !empty($request->maternal_aunt_mobile) &&
+                               !empty($request->maternal_aunt_email);
+
+        if (!$paternalUncleComplete && !$paternalAuntComplete && !$maternalUncleComplete && !$maternalAuntComplete) {
+            return back()->withErrors(['relatives' => 'At least one complete relative set (name, mobile, and email) must be filled.'])->withInput();
+        }
 
         $user_id = Auth::id();
 
@@ -447,6 +491,9 @@ class UserController extends Controller
             'family_member_diksha' => $request->family_member_diksha,
             'total_insurance_coverage' => $request->total_insurance_coverage,
             'total_premium_paid' => $request->total_premium_paid,
+            'recent_electricity_amount' => $request->recent_electricity_amount,
+            'total_monthly_emi' => $request->total_monthly_emi,
+            'mediclaim_insurance_amount' => $request->mediclaim_insurance_amount,
             'additional_family_members' => json_encode($additional_family_members),
             // Relatives
             'paternal_uncle_name' => $request->paternal_uncle_name,
@@ -464,9 +511,20 @@ class UserController extends Controller
             'submit_status' => 'submited',
         ];
 
-        Familydetail::create($data);
+        // Check if family details already exist for this user
+        $familyDetail = Familydetail::where('user_id', $user_id)->first();
 
-        return redirect()->route('user.step3')->with('success', 'Family details saved successfully!');
+        if ($familyDetail) {
+            // Update existing record
+            $familyDetail->update($data);
+            $message = 'Family details updated successfully!';
+        } else {
+            // Create new record
+            Familydetail::create($data);
+            $message = 'Family details saved successfully!';
+        }
+
+        return redirect()->route('user.step4')->with('success', $message);
     }
 
 
@@ -481,8 +539,52 @@ class UserController extends Controller
         $familyDetail = Familydetail::where('user_id', $user_id)->first();
         $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
-        return view('user.step4', compact('type', 'familyDetail', 'fundingDetail'));
+
+        // Get existing funding data from database if they exist
+        $existingFundingData = [];
+        if ($fundingDetail) {
+            $existingFundingData = [
+                [
+                    'status' => $fundingDetail->family_funding_status,
+                    'institute_name' => $fundingDetail->family_funding_trust,
+                    'contact_person' => $fundingDetail->family_funding_contact,
+                    'contact_no' => $fundingDetail->family_funding_mobile,
+                    'amount' => $fundingDetail->family_funding_amount,
+                ],
+                [
+                    'status' => $fundingDetail->bank_loan_status,
+                    'institute_name' => $fundingDetail->bank_loan_trust,
+                    'contact_person' => $fundingDetail->bank_loan_contact,
+                    'contact_no' => $fundingDetail->bank_loan_mobile,
+                    'amount' => $fundingDetail->bank_loan_amount,
+                ],
+                [
+                    'status' => $fundingDetail->other_assistance1_status,
+                    'institute_name' => $fundingDetail->other_assistance1_trust,
+                    'contact_person' => $fundingDetail->other_assistance1_contact,
+                    'contact_no' => $fundingDetail->other_assistance1_mobile,
+                    'amount' => $fundingDetail->other_assistance1_amount,
+                ],
+                [
+                    'status' => $fundingDetail->other_assistance2_status,
+                    'institute_name' => $fundingDetail->other_assistance2_trust,
+                    'contact_person' => $fundingDetail->other_assistance2_contact,
+                    'contact_no' => $fundingDetail->other_assistance2_mobile,
+                    'amount' => $fundingDetail->other_assistance2_amount,
+                ],
+                [
+                    'status' => $fundingDetail->local_assistance_status,
+                    'institute_name' => $fundingDetail->local_assistance_trust,
+                    'contact_person' => $fundingDetail->local_assistance_contact,
+                    'contact_no' => $fundingDetail->local_assistance_mobile,
+                    'amount' => $fundingDetail->local_assistance_amount,
+                ],
+            ];
+        }
+
+        return view('user.step4', compact('type', 'familyDetail', 'fundingDetail', 'existingFundingData'));
     }
+
 
 
 
@@ -584,13 +686,24 @@ class UserController extends Controller
             'bank_address' => $request->bank_address,
 
             'status' => 'step4_completed',
-            'submit_status' => 'submitted',
+            'submit_status' => 'submited',
         ];
 
-        FundingDetail::create($data);
+        // Check if funding details already exist for this user
+        $fundingDetail = FundingDetail::where('user_id', Auth::id())->first();
+
+        if ($fundingDetail) {
+            // Update existing record
+            $fundingDetail->update($data);
+            $message = 'Funding details updated successfully!';
+        } else {
+            // Create new record
+            FundingDetail::create($data);
+            $message = 'Funding details saved successfully!';
+        }
 
         return redirect()->route('user.step5')
-            ->with('success', 'Funding details saved successfully!');
+            ->with('success', $message);
     }
 
 
@@ -722,8 +835,9 @@ class UserController extends Controller
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
         $familyDetail = Familydetail::where('user_id', $user_id)->first();
         $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
+        $guarantorDetail = GuarantorDetail::where('user_id', $user_id)->first();
 
-        return view('user.step5', compact('type', 'familyDetail', 'fundingDetail', 'user'));
+        return view('user.step5', compact('type', 'familyDetail', 'fundingDetail', 'user','guarantorDetail'));
     }
 
     // public function step5store(Request $request)
@@ -906,9 +1020,20 @@ class UserController extends Controller
             'submit_status' => 'submited',
         ];
 
-        GuarantorDetail::create($data);
+        // Check if guarantor details already exist for this user
+        $guarantorDetail = GuarantorDetail::where('user_id', $user_id)->first();
 
-        return redirect()->route('user.step6')->with('success', 'Guarantor details saved successfully!');
+        if ($guarantorDetail) {
+            // Update existing record
+            $guarantorDetail->update($data);
+            $message = 'Guarantor details updated successfully!';
+        } else {
+            // Create new record
+            GuarantorDetail::create($data);
+            $message = 'Guarantor details saved successfully!';
+        }
+
+        return redirect()->route('user.step6')->with('success', $message);
     }
 
     public function step6(Request $request)
@@ -928,37 +1053,44 @@ class UserController extends Controller
 
     public function step6store(Request $request)
     {
-        dd($request->all());
-        $request->validate([
+        Log::info('Step6Store: Method called', [
+            'user_id' => Auth::id(),
+            'request_method' => $request->method(),
+            'content_type' => $request->header('Content-Type'),
+            'files_count' => count($request->allFiles()),
+            'all_files' => array_keys($request->allFiles()),
+            'has_csrf' => $request->has('_token'),
+            'csrf_token' => $request->input('_token') ? 'present' : 'missing'
+        ]);
+
+        try {
+            $request->validate([
             // Education Documents
-            'board' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            'board2' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            'graduation' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            'post_graduation' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            'fee_structure' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            'admission_letter' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            'statement' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
-            // Identity & Address Proof
-            'visa' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
-            'passport' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            'applicant_aadhar' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            'applicant_pan' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            'birth_certificate' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
-            'electricity_bill' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            // Financial Documents
-            'father_itr' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            'father_balanceSheet_pr_lss_stmnt' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            'form16_salary_sleep' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            'father_mother_income' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            'loan_arrangement' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
-            'father_bank_stmnt' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            'mother_bank_stmnt' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            'student_main_bank_details' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            // Additional Documents
-            'jain_sangh_cert' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            'jatf_recommendation' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-            'other_docs' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
-            'extra_curri' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+            'ssc_cbse_icse_ib_igcse' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'hsc_diploma_marksheet' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'graduate_post_graduate_marksheet' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'admission_letter_fees_structure' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'aadhaar_applicant' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'pan_applicant' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'student_bank_details_statement' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'jito_group_recommendation' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'jain_sangh_certificate' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'electricity_bill' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'itr_acknowledgement_father' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'itr_computation_father' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'form16_salary_income_father' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'bank_statement_father_12months' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'bank_statement_mother_12months' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'aadhaar_father_mother' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'pan_father_mother' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'guarantor1_aadhaar' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'guarantor1_pan' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'guarantor2_aadhaar' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'guarantor2_pan' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'student_handwritten_statement' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'proof_funds_arranged' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'other_documents' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'extra_curricular' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
         $user_id = Auth::id();
@@ -969,31 +1101,31 @@ class UserController extends Controller
 
         // Handle file uploads
         $files = [
-            'board',
-            'board2',
-            'graduation',
-            'post_graduation',
-            'fee_structure',
-            'admission_letter',
-            'statement',
-            'visa',
-            'passport',
-            'applicant_aadhar',
-            'applicant_pan',
-            'birth_certificate',
+            'ssc_cbse_icse_ib_igcse',
+            'hsc_diploma_marksheet',
+            'graduate_post_graduate_marksheet',
+            'admission_letter_fees_structure',
+            'aadhaar_applicant',
+            'pan_applicant',
+            'student_bank_details_statement',
+            'jito_group_recommendation',
+            'jain_sangh_certificate',
             'electricity_bill',
-            'father_itr',
-            'father_balanceSheet_pr_lss_stmnt',
-            'form16_salary_sleep',
-            'father_mother_income',
-            'loan_arrangement',
-            'father_bank_stmnt',
-            'mother_bank_stmnt',
-            'student_main_bank_details',
-            'jain_sangh_cert',
-            'jatf_recommendation',
-            'other_docs',
-            'extra_curri'
+            'itr_acknowledgement_father',
+            'itr_computation_father',
+            'form16_salary_income_father',
+            'bank_statement_father_12months',
+            'bank_statement_mother_12months',
+            'aadhaar_father_mother',
+            'pan_father_mother',
+            'guarantor1_aadhaar',
+            'guarantor1_pan',
+            'guarantor2_aadhaar',
+            'guarantor2_pan',
+            'student_handwritten_statement',
+            'proof_funds_arranged',
+            'other_documents',
+            'extra_curricular'
         ];
 
         foreach ($files as $file) {
@@ -1004,9 +1136,244 @@ class UserController extends Controller
             }
         }
 
-        Document::create($data);
+            Document::create($data);
 
-        return redirect()->route('user.step7')->with('success', 'Documents uploaded successfully!');
+            Log::info('Step6Store: Document created successfully', ['user_id' => $user_id, 'document_id' => Document::latest()->first()->id]);
+
+            return redirect()->route('user.step7')->with('success', 'Documents uploaded successfully!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Step6Store: Validation failed', [
+                'user_id' => Auth::id(),
+                'errors' => $e->errors()
+            ]);
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error('Step6Store: Unexpected error', [
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
+    }
+
+
+    public function step6storeug(Request $request)
+    {
+        Log::info('Step6Store: Method called', [
+            'user_id' => Auth::id(),
+            'request_method' => $request->method(),
+            'content_type' => $request->header('Content-Type'),
+            'files_count' => count($request->allFiles()),
+            'all_files' => array_keys($request->allFiles()),
+            'has_csrf' => $request->has('_token'),
+            'csrf_token' => $request->input('_token') ? 'present' : 'missing'
+        ]);
+
+        try {
+            $request->validate([
+            // Education Documents
+            'ssc_cbse_icse_ib_igcse' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'hsc_diploma_marksheet' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+
+            'admission_letter_fees_structure' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'aadhaar_applicant' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'pan_applicant' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'student_bank_details_statement' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'jito_group_recommendation' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'jain_sangh_certificate' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'electricity_bill' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'itr_acknowledgement_father' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'itr_computation_father' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'form16_salary_income_father' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'bank_statement_father_12months' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'bank_statement_mother_12months' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'aadhaar_father_mother' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'pan_father_mother' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'guarantor1_aadhaar' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'guarantor1_pan' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'guarantor2_aadhaar' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'guarantor2_pan' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'student_handwritten_statement' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'proof_funds_arranged' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'other_documents' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'extra_curricular' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ]);
+
+        $user_id = Auth::id();
+
+        $data = [
+            'user_id' => $user_id,
+        ];
+
+        // Handle file uploads
+        $files = [
+            'ssc_cbse_icse_ib_igcse',
+            'hsc_diploma_marksheet',
+
+            'admission_letter_fees_structure',
+            'aadhaar_applicant',
+            'pan_applicant',
+            'student_bank_details_statement',
+            'jito_group_recommendation',
+            'jain_sangh_certificate',
+            'electricity_bill',
+            'itr_acknowledgement_father',
+            'itr_computation_father',
+            'form16_salary_income_father',
+            'bank_statement_father_12months',
+            'bank_statement_mother_12months',
+            'aadhaar_father_mother',
+            'pan_father_mother',
+            'guarantor1_aadhaar',
+            'guarantor1_pan',
+            'guarantor2_aadhaar',
+            'guarantor2_pan',
+            'student_handwritten_statement',
+            'proof_funds_arranged',
+            'other_documents',
+            'extra_curricular'
+        ];
+
+        foreach ($files as $file) {
+            if ($request->hasFile($file)) {
+                $fileName = time() . '_' . $file . '.' . $request->$file->extension();
+                $request->$file->move('user_document_images', $fileName);
+                $data[$file] = 'user_document_images/' . $fileName;
+            }
+        }
+
+            Document::create($data);
+
+            Log::info('Step6Store: Document created successfully', ['user_id' => $user_id, 'document_id' => Document::latest()->first()->id]);
+
+            return redirect()->route('user.step7')->with('success', 'Documents uploaded successfully!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Step6Store: Validation failed', [
+                'user_id' => Auth::id(),
+                'errors' => $e->errors()
+            ]);
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error('Step6Store: Unexpected error', [
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
+    }
+
+
+    public function step6storeforeign(Request $request)
+    {
+        Log::info('Step6Store: Method called', [
+            'user_id' => Auth::id(),
+            'request_method' => $request->method(),
+            'content_type' => $request->header('Content-Type'),
+            'files_count' => count($request->allFiles()),
+            'all_files' => array_keys($request->allFiles()),
+            'has_csrf' => $request->has('_token'),
+            'csrf_token' => $request->input('_token') ? 'present' : 'missing'
+        ]);
+
+        try {
+            $request->validate([
+            // Education Documents
+            'ssc_cbse_icse_ib_igcse' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'hsc_diploma_marksheet' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'graduate_post_graduate_marksheet' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'admission_letter_fees_structure' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'passport_applicant' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'visa_applicant' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+
+            'aadhaar_applicant' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'pan_applicant' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'student_bank_details_statement' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'jito_group_recommendation' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'jain_sangh_certificate' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'electricity_bill' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'itr_acknowledgement_father' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'itr_computation_father' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'form16_salary_income_father' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'bank_statement_father_12months' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'bank_statement_mother_12months' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'aadhaar_father_mother' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'pan_father_mother' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'guarantor1_aadhaar' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'guarantor1_pan' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'guarantor2_aadhaar' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'guarantor2_pan' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'student_handwritten_statement' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'proof_funds_arranged' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'other_documents' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'extra_curricular' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ]);
+
+        $user_id = Auth::id();
+
+        $data = [
+            'user_id' => $user_id,
+        ];
+
+        // Handle file uploads
+        $files = [
+            'ssc_cbse_icse_ib_igcse',
+            'hsc_diploma_marksheet',
+            'graduate_post_graduate_marksheet',
+            'admission_letter_fees_structure',
+            'passport_applicant',
+            'visa_applicant',
+            'aadhaar_applicant',
+            'pan_applicant',
+            'student_bank_details_statement',
+            'jito_group_recommendation',
+            'jain_sangh_certificate',
+            'electricity_bill',
+            'itr_acknowledgement_father',
+            'itr_computation_father',
+            'form16_salary_income_father',
+            'bank_statement_father_12months',
+            'bank_statement_mother_12months',
+            'aadhaar_father_mother',
+            'pan_father_mother',
+            'guarantor1_aadhaar',
+            'guarantor1_pan',
+            'guarantor2_aadhaar',
+            'guarantor2_pan',
+            'student_handwritten_statement',
+            'proof_funds_arranged',
+            'other_documents',
+            'extra_curricular'
+        ];
+
+        foreach ($files as $file) {
+            if ($request->hasFile($file)) {
+                $fileName = time() . '_' . $file . '.' . $request->$file->extension();
+                $request->$file->move('user_document_images', $fileName);
+                $data[$file] = 'user_document_images/' . $fileName;
+            }
+        }
+
+            Document::create($data);
+
+            Log::info('Step6Store: Document created successfully', ['user_id' => $user_id, 'document_id' => Document::latest()->first()->id]);
+
+            return redirect()->route('user.step7')->with('success', 'Documents uploaded successfully!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Step6Store: Validation failed', [
+                'user_id' => Auth::id(),
+                'errors' => $e->errors()
+            ]);
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error('Step6Store: Unexpected error', [
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
     }
 
     public function step7(Request $request)

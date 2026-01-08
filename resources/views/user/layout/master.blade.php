@@ -480,8 +480,10 @@
                     @php
                         $family = \App\Models\FamilyDetail::where('user_id', auth()->id())->first();
                         $fundingDetail = \App\Models\FundingDetail::where('user_id', auth()->id())->first();
+                        $guarantorDetail = \App\Models\GuarantorDetail::where('user_id', auth()->id())->first();
+                        $document = \App\Models\Document::where('user_id', auth()->id())->first();
                     @endphp
-                    {{-- 
+                    {{--
                     <li class="{{ request()->routeIs('user.step2') ? 'active' : '' }}">
                         <a href="{{ route('user.step2') }}">
 
@@ -507,7 +509,7 @@
 
                     {{-- <li class="{{ request()->routeIs('user.step2') ? 'active' : '' }}">
                         <a href="{{ route('user.step2') }}">
-                            <div class="step-icon 
+                            <div class="step-icon
                                 @if ($family && $family->submit_status === 'submited') completed-step @endif">
 
                                 @if ($family && $family->submit_status === 'submited')
@@ -563,8 +565,21 @@
 
                     <li class="{{ request()->routeIs('user.step3') ? 'active' : '' }}">
                         <a href="{{ route('user.step3') }}">
-                            <div class="step-icon">
-                                <i class="bi bi-mortarboard"></i>
+                            <div
+                                class="step-icon
+@if ($family && $family->submit_status === 'submited') completed-step @endif
+@if (request()->routeIs('user.step3')) active-step @endif">
+
+                                @if ($family && $family->submit_status === 'submited')
+                                    <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
+                                            fill="white" />
+                                    </svg>
+                                @else
+                                    <i class="bi bi-mortarboard"></i>
+                                @endif
+
                             </div>
                             <div class="step-content">
                                 <div class="step-number">Step 3</div>
@@ -599,11 +614,20 @@
 
                     <li class="{{ request()->routeIs('user.step5') ? 'active' : '' }}">
                         <a href="{{ route('user.step5') }}">
-                            <div class="step-icon">
-                                {{-- <i class="bi bi-pen"></i> --}}
-                                {{-- <i class="bi bi-file-check"></i> --}}
-                                <i class="bi bi-check2-square"></i>
+                            <div
+                                class="step-icon
+@if ($guarantorDetail && $guarantorDetail->submit_status === 'submited') completed-step @endif
+@if (request()->routeIs('user.step5')) active-step @endif">
 
+                                @if ($guarantorDetail && $guarantorDetail->submit_status === 'submited')
+                                    <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
+                                            fill="white" />
+                                    </svg>
+                                @else
+                                    <i class="bi bi-check2-square"></i>
+                                @endif
 
                             </div>
                             <div class="step-content">
@@ -615,8 +639,21 @@
 
                     <li class="{{ request()->routeIs('user.step6') ? 'active' : '' }}">
                         <a href="{{ route('user.step6') }}">
-                            <div class="step-icon">
-                                <i class="bi bi-journal-text"></i>
+                            <div
+                                class="step-icon
+@if ($document && $document->submit_status === 'submited') completed-step @endif
+@if (request()->routeIs('user.step6')) active-step @endif">
+
+                                @if ($document && $document->submit_status === 'submited')
+                                    <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
+                                            fill="white" />
+                                    </svg>
+                                @else
+                                    <i class="bi bi-journal-text"></i>
+                                @endif
+
                             </div>
                             <div class="step-content">
                                 <div class="step-number">Step 6</div>

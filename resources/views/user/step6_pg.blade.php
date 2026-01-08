@@ -1164,8 +1164,7 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">Guarantor-2 PAN Card *</span>
                                                             <input type="file" id="guarantor2_pan"
-                                                                name="guarantor2_pan" hidden accept=".jpg,.jpeg,.png,.pdf"
-                                                                required>
+                                                                name="guarantor2_pan" hidden accept=".jpg,.jpeg,.png,.pdf">
                                                             <small
                                                                 class="text-danger">{{ $errors->first('guarantor2_pan') }}</small>
                                                         </div>
@@ -1207,7 +1206,7 @@
                                                                 for course & institute) * </span>
                                                             <input type="file" id="student_handwritten_statement"
                                                                 name="student_handwritten_statement" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                                accept=".jpg,.jpeg,.png,.pdf">
                                                             <small
                                                                 class="text-danger">{{ $errors->first('student_handwritten_statement') }}</small>
                                                         </div>
@@ -1249,7 +1248,7 @@
                                                                 taken from any other institution) *</span>
                                                             <input type="file" id="proof_funds_arranged"
                                                                 name="proof_funds_arranged" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                                accept=".jpg,.jpeg,.png,.pdf">
                                                             <small
                                                                 class="text-danger">{{ $errors->first('proof_funds_arranged') }}</small>
                                                         </div>

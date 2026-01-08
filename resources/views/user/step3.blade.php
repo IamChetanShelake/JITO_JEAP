@@ -4,6 +4,166 @@
         7</button>
 @endsection
 
+<!-- Validation Error Modal -->
+<div class="modal fade modal-modern" id="validationModal" tabindex="-1" aria-labelledby="validationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="validationModalLabel" style="color: #393185; font-weight: 600;">Validation Error</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-exclamation-triangle" style="font-size: 3rem; color: #E31E24;"></i>
+                    </div>
+                    <p style="color: #495057; font-size: 16px; margin-bottom: 0;">
+                        At least one complete relative set (name, mobile, and email) must be filled.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-modern" style="background: #393185; color: white;" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Pass existing family member data from database to JavaScript
+    const oldFamilyMembers = @json($existingFamilyMembers ?? []);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if there's a relatives validation error and show modal
+        @if($errors->has('relatives'))
+            var validationModal = new bootstrap.Modal(document.getElementById('validationModal'));
+            if (validationModal) {
+                validationModal.show();
+            }
+        @endif
+
+        // Function to show/hide sibling fields
+        function toggleSiblingFields() {
+            const hasSiblingInput = document.querySelector('input[name="has_sibling"]:checked');
+            const siblingFields1 = document.getElementById('sibling-fields');
+            const siblingFields2 = document.getElementById('sibling-fields-2');
+            const siblingInputs = document.querySelectorAll('#sibling-fields input, #sibling-fields-2 input');
+
+            if (hasSiblingInput && siblingFields1 && siblingFields2) {
+                if (hasSiblingInput.value === 'yes') {
+                    siblingFields1.style.display = 'block';
+                    siblingFields2.style.display = 'block';
+                } else {
+                    siblingFields1.style.display = 'none';
+                    siblingFields2.style.display = 'none';
+                    // Reset all sibling fields
+                    siblingInputs.forEach(input => {
+                        input.value = '';
+                    });
+                }
+            }
+        }
+
+        // Initialize sibling fields based on old value
+        toggleSiblingFields();
+
+        // Add event listeners to radio buttons
+        const radioButtons = document.querySelectorAll('input[name="has_sibling"]');
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', toggleSiblingFields);
+        });
+
+        // Initialize Bootstrap tabs
+        var triggerTabList = [].slice.call(document.querySelectorAll('#parentTabs button'))
+        triggerTabList.forEach(function(triggerEl) {
+            var tabTrigger = new bootstrap.Tab(triggerEl)
+            triggerEl.addEventListener('click', function(event) {
+                event.preventDefault()
+                tabTrigger.show()
+            })
+        })
+
+        // Initialize relatives tabs
+        var relativesTabList = [].slice.call(document.querySelectorAll('#relativesTabs button'))
+        relativesTabList.forEach(function(triggerEl) {
+            var tabTrigger = new bootstrap.Tab(triggerEl)
+            triggerEl.addEventListener('click', function(event) {
+                event.preventDefault()
+                tabTrigger.show()
+            })
+        })
+
+        // Family table functionality
+        const numberFamilyMembersInput = document.getElementById('number_family_members');
+        const familyTableContainer = document.getElementById('family-table-container');
+        const tbody = document.getElementById('family-tbody');
+
+        function toggleFamilyTable() {
+            if (!numberFamilyMembersInput || !familyTableContainer || !tbody) {
+                return;
+            }
+
+            const totalMembers = parseInt(numberFamilyMembersInput.value) || 0;
+
+            // Remove all rows except Applicant
+            const extraRows = tbody.querySelectorAll('tr:not(#applicant-row)');
+            extraRows.forEach(row => row.remove());
+
+            // Table should always be visible
+            familyTableContainer.style.display = 'block';
+
+            // Applicant is already there → add remaining members
+            const familyMembersCount = totalMembers > 1 ? totalMembers - 1 : 0;
+
+            for (let i = 1; i <= familyMembersCount; i++) {
+                const row = document.createElement('tr');
+
+                // Get old data for this family member (array is 0-indexed, i is 1-indexed)
+                const oldData = oldFamilyMembers[i - 1];
+
+                row.innerHTML = `
+              <td>
+                <select name="family_${i}_relation" class="form-control">
+                    <option value="">Select Relation</option>
+                    <option value="Father" ${oldData && oldData.relation === 'Father' ? 'selected' : ''}>Father</option>
+                    <option value="Mother" ${oldData && oldData.relation === 'Mother' ? 'selected' : ''}>Mother</option>
+                    <option value="Grandfather" ${oldData && oldData.relation === 'Grandfather' ? 'selected' : ''}>Grandfather</option>
+                    <option value="Grandmother" ${oldData && oldData.relation === 'Grandmother' ? 'selected' : ''}>Grandmother</option>
+                    <option value="Uncle" ${oldData && oldData.relation === 'Uncle' ? 'selected' : ''}>Uncle</option>
+                    <option value="Aunt" ${oldData && oldData.relation === 'Aunt' ? 'selected' : ''}>Aunt</option>
+                    <option value="Brother" ${oldData && oldData.relation === 'Brother' ? 'selected' : ''}>Brother</option>
+                </select>
+            </td>
+            <td><input type="text" name="family_${i}_name" class="form-control" value="${oldData ? oldData.name || '' : ''}"></td>
+            <td><input type="number" name="family_${i}_age" class="form-control" value="${oldData ? oldData.age || '' : ''}"></td>
+            <td>
+                <select name="family_${i}_marital_status" class="form-control">
+                    <option value="">Select</option>
+                    <option value="married" ${oldData && oldData.marital_status === 'married' ? 'selected' : ''}>Married</option>
+                    <option value="unmarried" ${oldData && oldData.marital_status === 'unmarried' ? 'selected' : ''}>Unmarried</option>
+                </select>
+            </td>
+            <td><input type="text" name="family_${i}_qualification" class="form-control" value="${oldData ? oldData.qualification || '' : ''}"></td>
+            <td><input type="text" name="family_${i}_occupation" class="form-control" value="${oldData ? oldData.occupation || '' : ''}"></td>
+            <td><input type="tel" name="family_${i}_mobile" class="form-control" value="${oldData ? oldData.mobile || '' : ''}"></td>
+            <td><input type="email" name="family_${i}_email" class="form-control" value="${oldData ? oldData.email || '' : ''}"></td>
+            <td><input type="number" name="family_${i}_yearly_income" class="form-control" value="${oldData ? oldData.yearly_income || '' : ''}"></td>
+        `;
+
+                tbody.appendChild(row);
+            }
+        }
+
+        // Run once on page load
+        toggleFamilyTable();
+
+        // Update rows when number changes
+        if (numberFamilyMembersInput) {
+            numberFamilyMembersInput.addEventListener('input', toggleFamilyTable);
+        }
+    });
+</script>
+
 @section('content')
     <style>
         .modern-form-card {
@@ -157,7 +317,7 @@
                         @csrf
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
-                                
+
                                 <select class="form-control" name="financial_asset_type" id="financial_asset_type"
                                     style="border:2px solid #393185;border-radius:15px;" readonly required>
                                     <option disabled
@@ -1009,118 +1169,8 @@
 
     </div>
 
-    <script>
-        const existingFamilyMembers = @json($familyDetail->additional_family_members ?? []);
-        document.addEventListener('DOMContentLoaded', function() {
-            // Function to show/hide sibling fields
-            function toggleSiblingFields() {
-                const hasSibling = document.querySelector('input[name="has_sibling"]:checked').value;
-                const siblingFields1 = document.getElementById('sibling-fields');
-                const siblingFields2 = document.getElementById('sibling-fields-2');
-                const siblingInputs = document.querySelectorAll('#sibling-fields input, #sibling-fields-2 input');
 
-                if (hasSibling === 'yes') {
-                    siblingFields1.style.display = 'block';
-                    siblingFields2.style.display = 'block';
-                } else {
-                    siblingFields1.style.display = 'none';
-                    siblingFields2.style.display = 'none';
-                    // Reset all sibling fields
-                    siblingInputs.forEach(input => {
-                        input.value = '';
-                    });
-                }
-            }
 
-            // Initialize sibling fields based on old value
-            toggleSiblingFields();
 
-            // Add event listeners to radio buttons
-            const radioButtons = document.querySelectorAll('input[name="has_sibling"]');
-            radioButtons.forEach(radio => {
-                radio.addEventListener('change', toggleSiblingFields);
-            });
 
-            // Initialize Bootstrap tabs
-            var triggerTabList = [].slice.call(document.querySelectorAll('#parentTabs button'))
-            triggerTabList.forEach(function(triggerEl) {
-                var tabTrigger = new bootstrap.Tab(triggerEl)
-                triggerEl.addEventListener('click', function(event) {
-                    event.preventDefault()
-                    tabTrigger.show()
-                })
-            })
-
-            // Initialize relatives tabs
-            var relativesTabList = [].slice.call(document.querySelectorAll('#relativesTabs button'))
-            relativesTabList.forEach(function(triggerEl) {
-                var tabTrigger = new bootstrap.Tab(triggerEl)
-                triggerEl.addEventListener('click', function(event) {
-                    event.preventDefault()
-                    tabTrigger.show()
-                })
-            })
-
-        });
-    </script>
-    <script>
-        const numberFamilyMembersInput = document.getElementById('number_family_members');
-        const familyTableContainer = document.getElementById('family-table-container');
-        const tbody = document.getElementById('family-tbody');
-
-        function toggleFamilyTable() {
-            const totalMembers = parseInt(numberFamilyMembersInput.value) || 0;
-
-            // Remove all rows except Applicant
-            const extraRows = tbody.querySelectorAll('tr:not(#applicant-row)');
-            extraRows.forEach(row => row.remove());
-
-            // Table should always be visible
-            familyTableContainer.style.display = 'block';
-
-            // Applicant is already there → add remaining members
-            const familyMembersCount = totalMembers > 1 ? totalMembers - 1 : 0;
-
-            for (let i = 1; i <= familyMembersCount; i++) {
-                const row = document.createElement('tr');
-
-                row.innerHTML = `
-              <td>
-                <select name="family_${i}_relation" class="form-control">
-                    <option value="">Select Relation</option>
-                    <option value="Father">Father</option>
-                    <option value="Mother">Mother</option>
-                    <option value="Grandfather">Grandfather</option>
-                    <option value="Grandmother">Grandmother</option>
-                    <option value="Uncle">Uncle</option>
-                    <option value="Aunt">Aunt</option>
-                    <option value="Brother">Brother</option>
-                </select>
-            </td>
-            <td><input type="text" name="family_${i}_name" class="form-control"></td>
-            <td><input type="number" name="family_${i}_age" class="form-control"></td>
-            <td>
-                <select name="family_${i}_marital_status" class="form-control">
-                    <option value="">Select</option>
-                    <option value="married">Married</option>
-                    <option value="unmarried">Unmarried</option>
-                </select>
-            </td>
-            <td><input type="text" name="family_${i}_qualification" class="form-control"></td>
-            <td><input type="text" name="family_${i}_occupation" class="form-control"></td>
-            <td><input type="tel" name="family_${i}_mobile" class="form-control"></td>
-            <td><input type="email" name="family_${i}_email" class="form-control"></td>
-            <td><input type="number" name="family_${i}_yearly_income" class="form-control"></td>
-        `;
-
-                tbody.appendChild(row);
-            }
-        }
-
-        // Run once on page load
-        toggleFamilyTable();
-
-        // Update rows when number changes
-        numberFamilyMembersInput.addEventListener('input', toggleFamilyTable);
-    </script>
 @endsection

@@ -10,13 +10,25 @@
             background: #e9ecef;
             margin: 30px 0;
         }
+
+        .photo-upload-box {
+            width: 100%;
+            min-height: 90px;
+            border: 1px solid #d9d9d9;
+            border-radius: 7px;
+            padding: 20px 18px 12px;
+            font-family: 'Poppins', sans-serif;
+            color: #4C4C4C;
+            background: white;
+            overflow: hidden;
+        }
     </style>
     <!-- Main Content -->
     <div class="col-lg-9 main-content">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <form method="POST" action="{{ route('user.step6.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('user.step6.storeug') }}" enctype="multipart/form-data">
                         @csrf
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
@@ -83,9 +95,9 @@
                                     <div class="row mb-3">
                                         <!-- Left Column -->
                                         <div class="col-lg-6 col-md-6 col-sm-12 col-12">
-                                            <h4 class="title mb-3" style="color:#393185;font-size:18px;">Education Documents
+                                            {{-- <h4 class="title mb-3" style="color:#393185;font-size:18px;">Education Documents
                                             </h4>
-                                            <hr>
+                                            <hr> --}}
 
                                             {{-- board 1  --}}
                                             <div class="form-group mb-3">
@@ -93,9 +105,11 @@
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">CBSE/ICSE/SSC/IB/IGCSE *</span>
-                                                            <input type="file" id="uploadInput1" name="board" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf">
-                                                            <small class="text-danger">{{ $errors->first('board') }}</small>
+                                                            <input type="file" id="uploadInput1"
+                                                                name="ssc_cbse_icse_ib_igcse" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('ssc_cbse_icse_ib_igcse') }}</small>
                                                         </div>
                                                         <div class="col-3">
                                                             <label for="uploadInput1" class="upload-btn">
@@ -141,10 +155,11 @@
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">HSC/CBSE/ICSE/IB/IGCSE *</span>
-                                                            <input type="file" id="uploadInput2" name="board2" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf">
+                                                            <input type="file" id="uploadInput2"
+                                                                name="hsc_diploma_marksheet" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
-                                                                class="text-danger">{{ $errors->first('board2') }}</small>
+                                                                class="text-danger">{{ $errors->first('hsc_diploma_marksheet') }}</small>
                                                         </div>
                                                         <div class="col-3">
                                                             <label for="uploadInput2" class="upload-btn">
@@ -176,49 +191,10 @@
                                                 </div>
                                             </div>
 
-                                            {{-- graduation  --}}
-                                            <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-9">
-                                                            <span class="photo-label">Graduation *</span>
-                                                            <input type="file" id="graduation" name="graduation"
-                                                                hidden accept=".jpg,.jpeg,.png,.pdf">
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('graduation') }}</small>
-                                                        </div>
-                                                        <div class="col-3">
-                                                            <label for="graduation" class="upload-btn">
-                                                                <span class="upload-icon">⭱</span> Upload
-                                                            </label>
-                                                            <label class="uploaded-btn" style="display: none;">
-                                                                <span class="upload-icon">✔</span> Upload
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-12 align-items-center">
-                                                            <div class="upload-status" style="display:none;">
-                                                                <div class="row">
-                                                                    <div class="col-9">
-                                                                        <div class="upload-summary"></div>
-                                                                    </div>
-                                                                    <div class="col-3">
-                                                                        <button type="button"
-                                                                            class="remove-upload btn bt-sm"
-                                                                            style="display:none;">
-                                                                            <i class="bi bi-trash"></i>
-                                                                            Remove</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+
 
                                             {{-- post graduation  --}}
-                                            <div class="form-group mb-3">
+                                            {{-- <div class="form-group mb-3">
                                                 <div class="photo-upload-box">
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
@@ -257,405 +233,30 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            {{-- fee structure  --}}
-                                            <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-9">
-                                                            <span class="photo-label">Fee Structure *</span>
-                                                            <input type="file" id="fee_structure" name="fee_structure"
-                                                                hidden accept=".jpg,.jpeg,.png,.pdf">
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('fee_structure') }}</small>
-                                                        </div>
-                                                        <div class="col-3">
-                                                            <label for="fee_structure" class="upload-btn">
-                                                                <span class="upload-icon">⭱</span> Upload
-                                                            </label>
-                                                            <label class="uploaded-btn" style="display: none;">
-                                                                <span class="upload-icon">✔</span> Upload
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-12 align-items-center">
-                                                            <div class="upload-status" style="display:none;">
-                                                                <div class="row">
-                                                                    <div class="col-9">
-                                                                        <div class="upload-summary"></div>
-                                                                    </div>
-                                                                    <div class="col-3">
-                                                                        <button type="button"
-                                                                            class="remove-upload btn bt-sm"
-                                                                            style="display:none;">
-                                                                            <i class="bi bi-trash"></i>
-                                                                            Remove</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {{-- addmission letter  --}}
-                                            <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-9">
-                                                            <span class="photo-label">1-20 or admission letter *</span>
-                                                            <input type="file" id="admission_letter"
-                                                                name="admission_letter" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf">
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('admission_letter') }}</small>
-                                                        </div>
-                                                        <div class="col-3">
-                                                            <label for="admission_letter" class="upload-btn">
-                                                                <span class="upload-icon">⭱</span> Upload
-                                                            </label>
-                                                            <label class="uploaded-btn" style="display: none;">
-                                                                <span class="upload-icon">✔</span> Upload
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-12 align-items-center">
-                                                            <div class="upload-status" style="display:none;">
-                                                                <div class="row">
-                                                                    <div class="col-9">
-                                                                        <div class="upload-summary"></div>
-                                                                    </div>
-                                                                    <div class="col-3">
-                                                                        <button type="button"
-                                                                            class="remove-upload btn bt-sm"
-                                                                            style="display:none;">
-                                                                            <i class="bi bi-trash"></i>
-                                                                            Remove</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {{-- addmission letter  --}}
-                                            <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-9">
-                                                            <span class="photo-label">Student handwritten stating for
-                                                                choosing
-                                                                course & institutes</span>
-                                                            <input type="file" id="statement" name="statement" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf">
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('statement') }}</small>
-                                                        </div>
-                                                        <div class="col-3">
-                                                            <label for="statement" class="upload-btn">
-                                                                <span class="upload-icon">⭱</span> Upload
-                                                            </label>
-                                                            <label class="uploaded-btn" style="display: none;">
-                                                                <span class="upload-icon">✔</span> Upload
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-12 align-items-center">
-                                                            <div class="upload-status" style="display:none;">
-                                                                <div class="row">
-                                                                    <div class="col-9">
-                                                                        <div class="upload-summary"></div>
-                                                                    </div>
-                                                                    <div class="col-3">
-                                                                        <button type="button"
-                                                                            class="remove-upload btn bt-sm"
-                                                                            style="display:none;">
-                                                                            <i class="bi bi-trash"></i>
-                                                                            Remove</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <br>
+                                            </div> --}}
+
+
+
 
                                             {{-- identity and address proof  --}}
 
-                                            <h4 class="title mb-3" style="color:#393185;font-size:18px;">Identity &
-                                                Address Proof
-                                            </h4>
 
-                                            {{-- visa --}}
-                                            <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-9">
-                                                            <span class="photo-label">Visa copy</span>
-                                                            <input type="file" id="visa" name="visa" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf">
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('visa') }}</small>
-                                                        </div>
-                                                        <div class="col-3">
-                                                            <label for="visa" class="upload-btn">
-                                                                <span class="upload-icon">⭱</span> Upload
-                                                            </label>
-                                                            <label class="uploaded-btn" style="display: none;">
-                                                                <span class="upload-icon">✔</span> Upload
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-12 align-items-center">
-                                                            <div class="upload-status" style="display:none;">
-                                                                <div class="row">
-                                                                    <div class="col-9">
-                                                                        <div class="upload-summary"></div>
-                                                                    </div>
-                                                                    <div class="col-3">
-                                                                        <button type="button"
-                                                                            class="remove-upload btn bt-sm"
-                                                                            style="display:none;">
-                                                                            <i class="bi bi-trash"></i>
-                                                                            Remove</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {{-- passport --}}
-                                            <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-9">
-                                                            <span class="photo-label">Passport copy *</span>
-                                                            <input type="file" id="passport" name="passport" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf">
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('applicant_aadhar') }}</small>
-                                                        </div>
-                                                        <div class="col-3">
-                                                            <label for="passport" class="upload-btn">
-                                                                <span class="upload-icon">⭱</span> Upload
-                                                            </label>
-                                                            <label class="uploaded-btn" style="display: none;">
-                                                                <span class="upload-icon">✔</span> Upload
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-12 align-items-center">
-                                                            <div class="upload-status" style="display:none;">
-                                                                <div class="row">
-                                                                    <div class="col-9">
-                                                                        <div class="upload-summary"></div>
-                                                                    </div>
-                                                                    <div class="col-3">
-                                                                        <button type="button"
-                                                                            class="remove-upload btn bt-sm"
-                                                                            style="display:none;">
-                                                                            <i class="bi bi-trash"></i>
-                                                                            Remove</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {{-- aadhar copy of applicant --}}
-                                            <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-9">
-                                                            <span class="photo-label">Aadhar card copy of applicant
-                                                                *</span>
-                                                            <input type="file" id="applicant_aadhar"
-                                                                name="applicant_aadhar" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf">
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('applicant_aadhar') }}</small>
-                                                        </div>
-                                                        <div class="col-3">
-                                                            <label for="applicant_aadhar" class="upload-btn">
-                                                                <span class="upload-icon">⭱</span> Upload
-                                                            </label>
-                                                            <label class="uploaded-btn" style="display: none;">
-                                                                <span class="upload-icon">✔</span> Upload
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-12 align-items-center">
-                                                            <div class="upload-status" style="display:none;">
-                                                                <div class="row">
-                                                                    <div class="col-9">
-                                                                        <div class="upload-summary"></div>
-                                                                    </div>
-                                                                    <div class="col-3">
-                                                                        <button type="button"
-                                                                            class="remove-upload btn bt-sm"
-                                                                            style="display:none;">
-                                                                            <i class="bi bi-trash"></i>
-                                                                            Remove</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {{-- pan  of applicant --}}
-                                            <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-9">
-                                                            <span class="photo-label">Pan card of applicant *</span>
-                                                            <input type="file" id="applicant_pan" name="applicant_pan"
-                                                                hidden accept=".jpg,.jpeg,.png,.pdf">
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('applicant_pan') }}</small>
-                                                        </div>
-                                                        <div class="col-3">
-                                                            <label for="applicant_pan" class="upload-btn">
-                                                                <span class="upload-icon">⭱</span> Upload
-                                                            </label>
-                                                            <label class="uploaded-btn" style="display: none;">
-                                                                <span class="upload-icon">✔</span> Upload
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-12 align-items-center">
-                                                            <div class="upload-status" style="display:none;">
-                                                                <div class="row">
-                                                                    <div class="col-9">
-                                                                        <div class="upload-summary"></div>
-                                                                    </div>
-                                                                    <div class="col-3">
-                                                                        <button type="button"
-                                                                            class="remove-upload btn bt-sm"
-                                                                            style="display:none;">
-                                                                            <i class="bi bi-trash"></i>
-                                                                            Remove</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {{-- birth certificate --}}
-                                            <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-9">
-                                                            <span class="photo-label">Birth certificate</span>
-                                                            <input type="file" id="birth_certificate"
-                                                                name="birth_certificate" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf">
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('birth_certificate') }}</small>
-                                                        </div>
-                                                        <div class="col-3">
-                                                            <label for="birth_certificate" class="upload-btn">
-                                                                <span class="upload-icon">⭱</span> Upload
-                                                            </label>
-                                                            <label class="uploaded-btn" style="display: none;">
-                                                                <span class="upload-icon">✔</span> Upload
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-12 align-items-center">
-                                                            <div class="upload-status" style="display:none;">
-                                                                <div class="row">
-                                                                    <div class="col-9">
-                                                                        <div class="upload-summary"></div>
-                                                                    </div>
-                                                                    <div class="col-3">
-                                                                        <button type="button"
-                                                                            class="remove-upload btn bt-sm"
-                                                                            style="display:none;">
-                                                                            <i class="bi bi-trash"></i>
-                                                                            Remove</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {{-- Electricity Bill - latest  --}}
-                                            <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-9">
-                                                            <span class="photo-label">Electricity Bill - latest *</span>
-                                                            <input type="file" id="electricity_bill"
-                                                                name="electricity_bill" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf">
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('electricity_bill') }}</small>
-                                                        </div>
-                                                        <div class="col-3">
-                                                            <label for="electricity_bill" class="upload-btn">
-                                                                <span class="upload-icon">⭱</span> Upload
-                                                            </label>
-                                                            <label class="uploaded-btn" style="display: none;">
-                                                                <span class="upload-icon">✔</span> Upload
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-12 align-items-center">
-                                                            <div class="upload-status" style="display:none;">
-                                                                <div class="row">
-                                                                    <div class="col-9">
-                                                                        <div class="upload-summary"></div>
-                                                                    </div>
-                                                                    <div class="col-3">
-                                                                        <button type="button"
-                                                                            class="remove-upload btn bt-sm"
-                                                                            style="display:none;">
-                                                                            <i class="bi bi-trash"></i>
-                                                                            Remove</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        <!-- Right Column -->
-                                        <div class="col-lg-6 col-md-6 col-sm-12 col-12">
-                                            <h4 class="title mb-3" style="color:#393185;font-size:18px;">Financial
-                                                Documents
-                                            </h4>
-                                            <hr>
-
-                                            {{-- ITR acknowledgement of father * --}}
-                                            <div class="form-group mb-3">
+                                            {{-- visa applicant --}}
+                                            {{-- <div class="form-group mb-3">
                                                 <div class="photo-upload-box">
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
-                                                            <span class="photo-label">ITR acknowledgement of father
-                                                                *</span>
-                                                            <input type="file" id="father_itr" name="father_itr"
-                                                                hidden accept=".jpg,.jpeg,.png,.pdf">
+                                                            <span class="photo-label">Visa of Applicant (Foreign case only,
+                                                                but counted once)</span>
+                                                            <input type="file" id="visa_applicant"
+                                                                name="visa_applicant" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf">
                                                             <small
-                                                                class="text-danger">{{ $errors->first('father_itr') }}</small>
+                                                                class="text-danger">{{ $errors->first('visa_applicant') }}</small>
                                                         </div>
                                                         <div class="col-3">
-                                                            <label for="father_itr" class="upload-btn">
+                                                            <label for="visa_applicant" class="upload-btn">
                                                                 <span class="upload-icon">⭱</span> Upload
                                                             </label>
                                                             <label class="uploaded-btn" style="display: none;">
@@ -682,23 +283,69 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            {{-- ITR acknowledgment with profit and loss statement and balance sheet of father --}}
+                                            </div> --}}
+                                            {{-- passport applicant --}}
+                                            {{-- <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Passport of Applicant *</span>
+                                                            <input type="file" id="passport_applicant"
+                                                                name="passport_applicant" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf">
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('passport_applicant') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="passport_applicant" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div> --}}
+                                            {{-- aadhaar applicant --}}
+
+                                            {{-- admission letter fees structure  --}}
                                             <div class="form-group mb-3">
                                                 <div class="photo-upload-box">
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
-                                                            <span class="photo-label">ITR acknowledgment with profit and
-                                                                loss
-                                                                statement and balance sheet of father *</span>
-                                                            <input type="file" id="father_balanceSheet_pr_lss_stmnt"
-                                                                name="father_balanceSheet_pr_lss_stmnt" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf">
+                                                            <span class="photo-label">Admission Letter or Fees Structure
+                                                                *<br></span>
+                                                            <span class="photo-label"
+                                                                style="color:red;font-size:12px;">The document must include
+                                                                the college/university name.
+                                                            </span>
+                                                            <input type="file" id="admission_letter_fees_structure"
+                                                                name="admission_letter_fees_structure" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
-                                                                class="text-danger">{{ $errors->first('father_balanceSheet_pr_lss_stmnt') }}</small>
+                                                                class="text-danger">{{ $errors->first('admission_letter_fees_structure') }}</small>
                                                         </div>
                                                         <div class="col-3">
-                                                            <label for="father_balanceSheet_pr_lss_stmnt"
+                                                            <label for="admission_letter_fees_structure"
                                                                 class="upload-btn">
                                                                 <span class="upload-icon">⭱</span> Upload
                                                             </label>
@@ -727,22 +374,19 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            {{-- If father/mother is salaried, upload Form No. 16 or last 6 months’ salary slips --}}
                                             <div class="form-group mb-3">
                                                 <div class="photo-upload-box">
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
-                                                            <span class="photo-label">If father/mother is salaried, upload
-                                                                Form No.
-                                                                16 or last 6 months’ salary slips *</span>
-                                                            <input type="file" id="form16_salary_sleep"
-                                                                name="form16_salary_sleep" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf">
+                                                            <span class="photo-label">Aadhaar Card of Applicant *</span>
+                                                            <input type="file" id="aadhaar_applicant"
+                                                                name="aadhaar_applicant" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
-                                                                class="text-danger">{{ $errors->first('form16_salary_sleep') }}</small>
+                                                                class="text-danger">{{ $errors->first('aadhaar_applicant') }}</small>
                                                         </div>
                                                         <div class="col-3">
-                                                            <label for="form16_salary_sleep" class="upload-btn">
+                                                            <label for="aadhaar_applicant" class="upload-btn">
                                                                 <span class="upload-icon">⭱</span> Upload
                                                             </label>
                                                             <label class="uploaded-btn" style="display: none;">
@@ -770,23 +414,20 @@
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            {{-- Father & mother income proof (at least 2 or 3 year) --}}
+                                            {{-- pan applicant --}}
                                             <div class="form-group mb-3">
                                                 <div class="photo-upload-box">
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
-                                                            <span class="photo-label">Father & mother income proof (at
-                                                                least 2 or 3
-                                                                year) *</span>
-                                                            <input type="file" id="father_mother_income"
-                                                                name="father_mother_income" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf">
+                                                            <span class="photo-label">Pancard of Applicant *</span>
+
+                                                            <input type="file" id="pan_applicant" name="pan_applicant"
+                                                                hidden accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
-                                                                class="text-danger">{{ $errors->first('father_mother_income') }}</small>
+                                                                class="text-danger">{{ $errors->first('pan_applicant') }}</small>
                                                         </div>
                                                         <div class="col-3">
-                                                            <label for="father_mother_income" class="upload-btn">
+                                                            <label for="pan_applicant" class="upload-btn">
                                                                 <span class="upload-icon">⭱</span> Upload
                                                             </label>
                                                             <label class="uploaded-btn" style="display: none;">
@@ -814,288 +455,26 @@
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            {{-- Proof of funds arranged from(Loan taken from any other institution)  --}}
+                                            {{-- Student Bank Details & Statement --}}
                                             <div class="form-group mb-3">
                                                 <div class="photo-upload-box">
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
-                                                            <span class="photo-label">Proof of funds arranged from(Loan
-                                                                taken from
-                                                                any other institution) </span>
-                                                            <input type="file" id="loan_arrangement"
-                                                                name="loan_arrangement" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf">
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('loan_arrangement') }}</small>
-                                                        </div>
-                                                        <div class="col-3">
-                                                            <label for="loan_arrangement" class="upload-btn">
-                                                                <span class="upload-icon">⭱</span> Upload
-                                                            </label>
-                                                            <label class="uploaded-btn" style="display: none;">
-                                                                <span class="upload-icon">✔</span> Upload
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-12 align-items-center">
-                                                            <div class="upload-status" style="display:none;">
-                                                                <div class="row">
-                                                                    <div class="col-9">
-                                                                        <div class="upload-summary"></div>
-                                                                    </div>
-                                                                    <div class="col-3">
-                                                                        <button type="button"
-                                                                            class="remove-upload btn bt-sm"
-                                                                            style="display:none;">
-                                                                            <i class="bi bi-trash"></i>
-                                                                            Remove</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <br>
-
-
-                                            <h4 class="title mb-3" style="color:#393185;font-size:18px;">Bank Statement
-                                            </h4>
-
-                                            {{-- Bank statement of father (last 12 months) --}}
-                                            <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-9">
-                                                            <span class="photo-label">Bank statement of father (last 12
-                                                                months)
-                                                                *</span>
-                                                            <input type="file" id="father_bank_stmnt"
-                                                                name="father_bank_stmnt" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf">
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('father_bank_stmnt') }}</small>
-                                                        </div>
-                                                        <div class="col-3">
-                                                            <label for="father_bank_stmnt" class="upload-btn">
-                                                                <span class="upload-icon">⭱</span> Upload
-                                                            </label>
-                                                            <label class="uploaded-btn" style="display: none;">
-                                                                <span class="upload-icon">✔</span> Upload
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-12 align-items-center">
-                                                            <div class="upload-status" style="display:none;">
-                                                                <div class="row">
-                                                                    <div class="col-9">
-                                                                        <div class="upload-summary"></div>
-                                                                    </div>
-                                                                    <div class="col-3">
-                                                                        <button type="button"
-                                                                            class="remove-upload btn bt-sm"
-                                                                            style="display:none;">
-                                                                            <i class="bi bi-trash"></i>
-                                                                            Remove</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {{-- Bank statement of mother (last 12 months) --}}
-                                            <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-9">
-                                                            <span class="photo-label">Bank statement of mother (last 12
-                                                                months)
-                                                                *</span>
-                                                            <input type="file" id="mother_bank_stmnt"
-                                                                name="mother_bank_stmnt" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf">
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('mother_bank_stmnt') }}</small>
-                                                        </div>
-                                                        <div class="col-3">
-                                                            <label for="mother_bank_stmnt" class="upload-btn">
-                                                                <span class="upload-icon">⭱</span> Upload
-                                                            </label>
-                                                            <label class="uploaded-btn" style="display: none;">
-                                                                <span class="upload-icon">✔</span> Upload
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-12 align-items-center">
-                                                            <div class="upload-status" style="display:none;">
-                                                                <div class="row">
-                                                                    <div class="col-9">
-                                                                        <div class="upload-summary"></div>
-                                                                    </div>
-                                                                    <div class="col-3">
-                                                                        <button type="button"
-                                                                            class="remove-upload btn bt-sm"
-                                                                            style="display:none;">
-                                                                            <i class="bi bi-trash"></i>
-                                                                            Remove</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {{-- Student main bank details & statement for last 6 months/year  --}}
-                                            <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-9">
-                                                            <span class="photo-label">Student main bank details & statement
-                                                                for
-                                                                last 6 months/year *</span>
-                                                            <input type="file" id="student_main_bank_details"
-                                                                name="student_main_bank_details" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf">
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('student_main_bank_details') }}</small>
-                                                        </div>
-                                                        <div class="col-3">
-                                                            <label for="student_main_bank_details" class="upload-btn">
-                                                                <span class="upload-icon">⭱</span> Upload
-                                                            </label>
-                                                            <label class="uploaded-btn" style="display: none;">
-                                                                <span class="upload-icon">✔</span> Upload
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-12 align-items-center">
-                                                            <div class="upload-status" style="display:none;">
-                                                                <div class="row">
-                                                                    <div class="col-9">
-                                                                        <div class="upload-summary"></div>
-                                                                    </div>
-                                                                    <div class="col-3">
-                                                                        <button type="button"
-                                                                            class="remove-upload btn bt-sm"
-                                                                            style="display:none;">
-                                                                            <i class="bi bi-trash"></i>
-                                                                            Remove</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <br>
-
-                                            <h4 class="title mb-3" style="color:#393185;font-size:18px;">Additional
-                                                Documents
-                                            </h4>
-
-                                            {{-- Jain sangh certificate --}}
-                                            <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-9">
-                                                            <span class="photo-label">Jain sangh certificate *</span>
-                                                            <input type="file" id="jain_sangh_cert"
-                                                                name="jain_sangh_cert" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf">
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('jain_sangh_cert') }}</small>
-                                                        </div>
-                                                        <div class="col-3">
-                                                            <label for="jain_sangh_cert" class="upload-btn">
-                                                                <span class="upload-icon">⭱</span> Upload
-                                                            </label>
-                                                            <label class="uploaded-btn" style="display: none;">
-                                                                <span class="upload-icon">✔</span> Upload
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-12 align-items-center">
-                                                            <div class="upload-status" style="display:none;">
-                                                                <div class="row">
-                                                                    <div class="col-9">
-                                                                        <div class="upload-summary"></div>
-                                                                    </div>
-                                                                    <div class="col-3">
-                                                                        <button type="button"
-                                                                            class="remove-upload btn bt-sm"
-                                                                            style="display:none;">
-                                                                            <i class="bi bi-trash"></i>
-                                                                            Remove</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {{-- Recommendation of JATF  --}}
-                                            <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-9">
-                                                            <span class="photo-label">Recommendation of JATF *</span>
-                                                            <input type="file" id="jatf_recommendation"
-                                                                name="jatf_recommendation" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf">
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('jatf_recommendation') }}</small>
-                                                        </div>
-                                                        <div class="col-3">
-                                                            <label for="jatf_recommendation" class="upload-btn">
-                                                                <span class="upload-icon">⭱</span> Upload
-                                                            </label>
-                                                            <label class="uploaded-btn" style="display: none;">
-                                                                <span class="upload-icon">✔</span> Upload
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-12 align-items-center">
-                                                            <div class="upload-status" style="display:none;">
-                                                                <div class="row">
-                                                                    <div class="col-9">
-                                                                        <div class="upload-summary"></div>
-                                                                    </div>
-                                                                    <div class="col-3">
-                                                                        <button type="button"
-                                                                            class="remove-upload btn bt-sm"
-                                                                            style="display:none;">
-                                                                            <i class="bi bi-trash"></i>
-                                                                            Remove</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {{-- Other documents (if any achievement)   --}}
-                                            <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-9">
-                                                            <span class="photo-label">Other documents (if any achievement)
+                                                            <span class="photo-label">Student Bank Details & Statement
+                                                                (Last 6 months / 1 year) *<br></span>
+                                                            <span class="photo-label"
+                                                                style="color:red;font-size:12px;">Kindly upload last 6
+                                                                months bank statement.
                                                             </span>
-                                                            <input type="file" id="other_docs" name="other_docs"
-                                                                hidden accept=".jpg,.jpeg,.png,.pdf">
+                                                            <input type="file" id="student_bank_details_statement"
+                                                                name="student_bank_details_statement" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
-                                                                class="text-danger">{{ $errors->first('other_docs') }}</small>
+                                                                class="text-danger">{{ $errors->first('student_bank_details_statement') }}</small>
                                                         </div>
                                                         <div class="col-3">
-                                                            <label for="other_docs" class="upload-btn">
+                                                            <label for="student_bank_details_statement"
+                                                                class="upload-btn">
                                                                 <span class="upload-icon">⭱</span> Upload
                                                             </label>
                                                             <label class="uploaded-btn" style="display: none;">
@@ -1123,19 +502,795 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            {{-- Extra curriculum  --}}
+
+
+
+
+                                            {{-- Recommendation from Members of JITO Group --}}
                                             <div class="form-group mb-3">
                                                 <div class="photo-upload-box">
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
-                                                            <span class="photo-label">Extra curriculum </span>
-                                                            <input type="file" id="extra_curri" name="extra_curri"
-                                                                hidden accept=".jpg,.jpeg,.png,.pdf">
+                                                            <span class="photo-label">Recommendation from Members of JITO
+                                                                Group *&nbsp;&nbsp;<svg width="25" height="25"
+                                                                    viewBox="0 0 19 19" fill="none"
+                                                                    xmlns="http://www.w3.org/2000/svg">
+                                                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                        d="M9.5 19C12.0196 19 14.4359 17.9991 16.2175 16.2175C17.9991 14.4359 19 12.0196 19 9.5C19 6.98044 17.9991 4.56408 16.2175 2.78249C14.4359 1.00089 12.0196 0 9.5 0C6.98044 0 4.56408 1.00089 2.78249 2.78249C1.00089 4.56408 0 6.98044 0 9.5C0 12.0196 1.00089 14.4359 2.78249 16.2175C4.56408 17.9991 6.98044 19 9.5 19ZM13.7696 11.2779L9.97907 15.0684C9.85182 15.1956 9.67925 15.267 9.49932 15.267C9.31939 15.267 9.14682 15.1956 9.01957 15.0684L5.23043 11.2779C5.13583 11.183 5.07144 11.0622 5.04538 10.9308C5.01933 10.7993 5.03276 10.6631 5.084 10.5393C5.13523 10.4155 5.22198 10.3096 5.33329 10.2351C5.44461 10.1605 5.57551 10.1205 5.7095 10.1202H8.14286V5.08929C8.14286 4.72935 8.28584 4.38415 8.54035 4.12964C8.79487 3.87513 9.14006 3.73214 9.5 3.73214C9.85994 3.73214 10.2051 3.87513 10.4596 4.12964C10.7142 4.38415 10.8571 4.72935 10.8571 5.08929V10.1202H13.2905C13.4245 10.1205 13.5554 10.1605 13.6667 10.2351C13.778 10.3096 13.8648 10.4155 13.916 10.5393C13.9672 10.6631 13.9807 10.7993 13.9546 10.9308C13.9286 11.0622 13.8642 11.183 13.7696 11.2779Z"
+                                                                        fill="#009846" />
+                                                                </svg></span>
+                                                            <input type="file" id="jito_group_recommendation"
+                                                                name="jito_group_recommendation" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
-                                                                class="text-danger">{{ $errors->first('extra_curri') }}</small>
+                                                                class="text-danger">{{ $errors->first('jito_group_recommendation') }}</small>
                                                         </div>
                                                         <div class="col-3">
-                                                            <label for="extra_curri" class="upload-btn">
+                                                            <label for="jito_group_recommendation" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Jain Sangh Certificate --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Jain Sangh Certificate
+                                                                *&nbsp;&nbsp;<svg width="25" height="25"
+                                                                    viewBox="0 0 19 19" fill="none"
+                                                                    xmlns="http://www.w3.org/2000/svg">
+                                                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                        d="M9.5 19C12.0196 19 14.4359 17.9991 16.2175 16.2175C17.9991 14.4359 19 12.0196 19 9.5C19 6.98044 17.9991 4.56408 16.2175 2.78249C14.4359 1.00089 12.0196 0 9.5 0C6.98044 0 4.56408 1.00089 2.78249 2.78249C1.00089 4.56408 0 6.98044 0 9.5C0 12.0196 1.00089 14.4359 2.78249 16.2175C4.56408 17.9991 6.98044 19 9.5 19ZM13.7696 11.2779L9.97907 15.0684C9.85182 15.1956 9.67925 15.267 9.49932 15.267C9.31939 15.267 9.14682 15.1956 9.01957 15.0684L5.23043 11.2779C5.13583 11.183 5.07144 11.0622 5.04538 10.9308C5.01933 10.7993 5.03276 10.6631 5.084 10.5393C5.13523 10.4155 5.22198 10.3096 5.33329 10.2351C5.44461 10.1605 5.57551 10.1205 5.7095 10.1202H8.14286V5.08929C8.14286 4.72935 8.28584 4.38415 8.54035 4.12964C8.79487 3.87513 9.14006 3.73214 9.5 3.73214C9.85994 3.73214 10.2051 3.87513 10.4596 4.12964C10.7142 4.38415 10.8571 4.72935 10.8571 5.08929V10.1202H13.2905C13.4245 10.1205 13.5554 10.1605 13.6667 10.2351C13.778 10.3096 13.8648 10.4155 13.916 10.5393C13.9672 10.6631 13.9807 10.7993 13.9546 10.9308C13.9286 11.0622 13.8642 11.183 13.7696 11.2779Z"
+                                                                        fill="#009846" />
+                                                                </svg> <br></span>
+                                                            <span class="photo-label" style="color:red;font-size:12px;">
+                                                                We accept only last 1 year Jain sang Certificate
+                                                            </span>
+
+                                                            <input type="file" id="jain_sangh_certificate"
+                                                                name="jain_sangh_certificate" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('jain_sangh_certificate') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+
+                                                            <label for="jain_sangh_certificate" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span>
+                                                                Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- Electricity Bill - latest  --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Electricity Bill - latest
+                                                                *<br></span>
+                                                            <span class="photo-label" style="color:red;font-size:12px;">
+                                                                We accept only latest month Electricity Bill
+                                                            </span>
+                                                            <input type="file" id="electricity_bill"
+                                                                name="electricity_bill" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('electricity_bill') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+
+                                                            <label for="electricity_bill" class="upload-btn">
+
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- ITR acknowledgement of father --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">ITR Acknowledgement of Father
+                                                                *<br></span>
+                                                            <span class="photo-label" style="color:red;font-size:12px;">
+                                                                Father’s ITR acknowledgement for the latest 2 years.
+                                                            </span>
+                                                            <input type="file" id="itr_acknowledgement_father"
+                                                                name="itr_acknowledgement_father" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('itr_acknowledgement_father') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="itr_acknowledgement_father" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- ITR computation of father --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">ITR Computation of Father
+                                                                *<br></span>
+                                                            <span class="photo-label" style="color:red;font-size:12px;">
+                                                                We accept ITR Computation of Father of latest 2 years
+                                                            </span>
+                                                            <input type="file" id="itr_computation_father"
+                                                                name="itr_computation_father" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('itr_computation_father') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="itr_computation_father" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- Form No.16 for Salary Income of Father --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box" style="padding:10px 18px;height:115px;">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Form No.16 for Salary Income of
+                                                                Father *<br></span>
+                                                            <span class="photo-label mb-2"
+                                                                style="color:red;font-size:12px;">
+                                                                If your do not get Form 16 then we also accept letter head
+                                                                format of your company in which your name, salary is
+                                                                mentioned
+                                                            </span>
+                                                            <input type="file" id="form16_salary_income_father"
+                                                                name="form16_salary_income_father" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('form16_salary_income_father') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="form16_salary_income_father" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <!-- Right Column -->
+                                        <div class="col-lg-6 col-md-6 col-sm-12 col-12">
+
+
+
+
+
+
+
+
+                                            {{-- Bank Statement of Father (Last 12 Months) --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Bank Statement of Father (Last 12
+                                                                Months) *<br></span>
+                                                            <span class="photo-label mb-2"
+                                                                style="color:red;font-size:12px;">
+                                                                Only Saving account, No Current or Business account is
+                                                                accepted
+                                                            </span>
+                                                            <input type="file" id="bank_statement_father_12months"
+                                                                name="bank_statement_father_12months" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('bank_statement_father_12months') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="bank_statement_father_12months"
+                                                                class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- Bank Statement of Mother (Last 12 Months) --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Bank Statement of Mother (Last 12
+                                                                Months) *<br></span>
+                                                            <span class="photo-label " style="color:red;font-size:12px;">
+                                                                Only Saving account, No Current or Business account is
+                                                                accepted
+                                                            </span>
+                                                            <input type="file" id="bank_statement_mother_12months"
+                                                                name="bank_statement_mother_12months" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('bank_statement_mother_12months') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="bank_statement_mother_12months"
+                                                                class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Aadhaar Card of Father / Mother --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Aadhaar Card of Father /
+                                                                Mother *</span>
+                                                            <input type="file" id="aadhaar_father_mother"
+                                                                name="aadhaar_father_mother" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('aadhaar_father_mother') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="aadhaar_father_mother" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- PAN Card of Father / Mother --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">PAN Card of Father / Mother *</span>
+                                                            <input type="file" id="pan_father_mother"
+                                                                name="pan_father_mother" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('pan_father_mother') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="pan_father_mother" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            {{-- Guarantor-1 Aadhaar Card --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Guarantor-1 Aadhaar Card *</span>
+                                                            <input type="file" id="guarantor1_aadhaar"
+                                                                name="guarantor1_aadhaar" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('guarantor1_aadhaar') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="guarantor1_aadhaar" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- Guarantor-1 PAN Card --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Guarantor-1 PAN Card *</span>
+                                                            <input type="file" id="guarantor1_pan"
+                                                                name="guarantor1_pan" hidden accept=".jpg,.jpeg,.png,.pdf"
+                                                                required>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('guarantor1_pan') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="guarantor1_pan" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- Guarantor-2 Aadhaar Card --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Guarantor-2 Aadhaar Card *</span>
+                                                            <input type="file" id="guarantor2_aadhaar"
+                                                                name="guarantor2_aadhaar" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('guarantor2_aadhaar') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="guarantor2_aadhaar" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- Guarantor-2 PAN Card --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Guarantor-2 PAN Card *</span>
+                                                            <input type="file" id="guarantor2_pan"
+                                                                name="guarantor2_pan" hidden accept=".jpg,.jpeg,.png,.pdf">
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('guarantor2_pan') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="guarantor2_pan" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- student handwritten statement  --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Student handwritten statement (reason
+                                                                for course & institute) * </span>
+                                                            <input type="file" id="student_handwritten_statement"
+                                                                name="student_handwritten_statement" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf">
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('student_handwritten_statement') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="student_handwritten_statement" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- Proof of Funds Arranged From --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Proof of Funds Arranged From (Loan
+                                                                taken from any other institution) *</span>
+                                                            <input type="file" id="proof_funds_arranged"
+                                                                name="proof_funds_arranged" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf">
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('proof_funds_arranged') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="proof_funds_arranged" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Others Documents --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Others Documents</span>
+                                                            <input type="file" id="other_documents"
+                                                                name="other_documents" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf">
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('other_documents') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="other_documents" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span> Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- Extra Curricular --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Extra Curricular</span>
+                                                            <input type="file" id="extra_curricular"
+                                                                name="extra_curricular" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf">
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('extra_curricular') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <label for="extra_curricular" class="upload-btn">
                                                                 <span class="upload-icon">⭱</span> Upload
                                                             </label>
                                                             <label class="uploaded-btn" style="display: none;">
@@ -1163,6 +1318,8 @@
                                                     </div>
                                                 </div>
                                             </div>
+
+
 
                                         </div>
                                     </div>
@@ -1209,6 +1366,15 @@
                 const uploadSummary = photoUploadBox.querySelector('.upload-summary');
                 const removeBtn = photoUploadBox.querySelector('.remove-upload');
 
+                // Hide warning spans if file uploaded
+                const warningSpans = photoUploadBox.querySelectorAll('span.photo-label');
+                warningSpans.forEach(span => {
+                    if (span.textContent.includes(
+                            'Only Saving account, No Current or Business account is accepted')) {
+                        span.style.display = fileInput.files.length > 0 ? 'none' : 'block';
+                    }
+                });
+
                 if (fileInput.files.length > 0) {
                     const file = fileInput.files[0];
                     console.log('Selected file:', file);
@@ -1217,14 +1383,12 @@
                         ' KB';
 
                     uploadSummary.innerHTML = `
-                        <div class="text-success mb-1">✔ Document uploaded successfully</div>
-                        <small class="text-muted">
+                        <div class="text-success mb-1" style="word-break: break-all;">✔ Document uploaded successfully</div>
+                        <small class="text-muted" style="word-break: break-all;">
                             <strong>Name:</strong> ${file.name}<br>
                             <strong>Size:</strong> ${fileSizeText}
                         </small>
                     `;
-
-                    photoUploadBox.style.height = '143px';
                     uploadButton.style.display = 'none';
                     uploadedButton.style.display = 'block';
                     uploadedButton.style.color = '#009846';
@@ -1252,6 +1416,15 @@
                 const uploadButton = photoUploadBox.querySelector('.upload-btn');
                 const uploadedButton = photoUploadBox.querySelector('.uploaded-btn');
                 const removeBtn = photoUploadBox.querySelector('.remove-upload');
+
+                // Show warning spans when upload is removed
+                const warningSpans = photoUploadBox.querySelectorAll('span.photo-label');
+                warningSpans.forEach(span => {
+                    if (span.textContent.includes(
+                            'Only Saving account, No Current or Business account is accepted')) {
+                        span.style.display = 'block';
+                    }
+                });
 
                 fileInput.value = '';
                 photoUploadBox.style.height = '50px';

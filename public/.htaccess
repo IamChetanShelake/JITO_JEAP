@@ -1,9 +1,8 @@
 
-php_value max_file_uploads 50
-php_value upload_max_filesize 20M
-php_value post_max_size 100M
-php_value max_execution_time 300
-php_value max_input_time 300
+# ===============================
+# PHP upload limits - now handled by .user.ini for PHP-FPM compatibility
+# ===============================
+
 <IfModule mod_rewrite.c>
 
 

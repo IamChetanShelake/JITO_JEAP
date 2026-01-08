@@ -587,18 +587,21 @@
                                         <!-- Left Column -->
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="school_name"
+                                                <label for="school_name">School Name <span style="color: red;">*</span></label>
+                                                <input type="text" class="form-control" id="school_name" name="school_name"
                                                     placeholder="School Name *" value="{{ old('school_name') }}">
                                                 <small class="text-danger">{{ $errors->first('school_name') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="school_board"
+                                                <label for="school_board">Board <span style="color: red;">*</span></label>
+                                                <input type="text" class="form-control" id="school_board" name="school_board"
                                                     placeholder="Board *" value="{{ old('school_board') }}">
                                                 <small class="text-danger">{{ $errors->first('school_board') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="school_completion_year"
+                                                <label for="school_completion_year">Year of Completion <span style="color: red;">*</span></label>
+                                                <input type="text" class="form-control" id="school_completion_year" name="school_completion_year"
                                                     placeholder="Year of Completion *"
                                                     value="{{ old('school_completion_year') }}">
                                                 <small
@@ -608,37 +611,36 @@
 
                                         <!-- Right Column -->
                                         <div class="col-md-6">
-
-
                                             <div class="row">
                                                 <div class="col-2 text-start">
-                                                    <div class="form-group mb-3"><label for="">Marks
-                                                            obtained:</label></div>
+                                                    <div class="form-group mb-3"><label for="10th_mark_obtained">Marks obtained:</label></div>
                                                 </div>
                                                 <div class="col-4">
-                                                    <div class="form-group mb-3"><input class="form-control"
+                                                    <div class="form-group mb-3"><input class="form-control" id="10th_mark_obtained"
                                                             type="number" name="10th_mark_obtained"></div>
                                                 </div>
                                                 <div class="col-2 text-start">
                                                     <div class="form-group mb-3 text-end">
-                                                        <label for="">Out Of:</label>
+                                                        <label for="10th_mark_out_of">Out Of:</label>
                                                     </div>
                                                 </div>
                                                 <div class="col-4">
                                                     <div class="form-group mb-3">
-                                                        <input class="form-control"type="number" name="10th_mark_out_of">
+                                                        <input class="form-control" id="10th_mark_out_of" type="number" name="10th_mark_out_of">
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="school_percentage"
+                                                <label for="school_percentage">Percentage (%)</label>
+                                                <input type="text" class="form-control" id="school_percentage" name="school_percentage"
                                                     placeholder="Enter % " value="{{ old('school_percentage') }}">
                                                 <small
                                                     class="text-danger">{{ $errors->first('school_percentage') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="school_CGPA"
+                                                <label for="school_CGPA">CGPA</label>
+                                                <input type="text" class="form-control" id="school_CGPA" name="school_CGPA"
                                                     placeholder="Enter CGPA" value="{{ old('school_CGPA') }}">
                                                 <small class="text-danger">{{ $errors->first('school_CGPA') }}</small>
                                             </div>
@@ -658,20 +660,23 @@
                                         <!-- Left Column -->
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="jc_college_name"
+                                                <label for="jc_college_name">College / Junior College Name <span style="color: red;">*</span></label>
+                                                <input type="text" class="form-control" id="jc_college_name" name="jc_college_name"
                                                     placeholder="College / Junior College Name *"
                                                     value="{{ old('jc_college_name') }}">
                                                 <small class="text-danger">{{ $errors->first('jc_college_name') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="jc_stream"
+                                                <label for="jc_stream">Stream <span style="color: red;">*</span></label>
+                                                <input type="text" class="form-control" id="jc_stream" name="jc_stream"
                                                     placeholder="Select Stream *" value="{{ old('jc_stream') }}">
                                                 <small class="text-danger">{{ $errors->first('jc_stream') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="jc_board"
+                                                <label for="jc_board">Board <span style="color: red;">*</span></label>
+                                                <input type="text" class="form-control" id="jc_board" name="jc_board"
                                                     placeholder="Select Board *" value="{{ old('jc_board') }}">
                                                 <small class="text-danger">{{ $errors->first('jc_board') }}</small>
                                             </div>
@@ -681,33 +686,34 @@
                                         <div class="col-md-6">
                                             <div class="row">
                                                 <div class="col-2 text-start">
-                                                    <div class="form-group mb-3"><label for="">Marks
-                                                            obtained:</label></div>
+                                                    <div class="form-group mb-3"><label for="12th_mark_obtained">Marks obtained:</label></div>
                                                 </div>
                                                 <div class="col-4">
-                                                    <div class="form-group mb-3"><input class="form-control"
+                                                    <div class="form-group mb-3"><input class="form-control" id="12th_mark_obtained"
                                                             type="number" name="12th_mark_obtained"></div>
                                                 </div>
                                                 <div class="col-2">
                                                     <div class="form-group mb-3 text-start">
-                                                        <label for="">Out Of:</label>
+                                                        <label for="12th_mark_out_of">Out Of:</label>
                                                     </div>
                                                 </div>
                                                 <div class="col-4">
                                                     <div class="form-group mb-3">
-                                                        <input class="form-control"type="number" name="12th_mark_out_of">
+                                                        <input class="form-control" id="12th_mark_out_of" type="number" name="12th_mark_out_of">
                                                     </div>
                                                 </div>
                                             </div>
 
 
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="jc_percentage"
+                                                <label for="jc_percentage">Percentage (%)</label>
+                                                <input type="text" class="form-control" id="jc_percentage" name="jc_percentage"
                                                     placeholder="Enter %" value="{{ old('jc_percentage') }}">
                                                 <small class="text-danger">{{ $errors->first('jc_percentage') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="jc_CGPA"
+                                                <label for="jc_CGPA">CGPA</label>
+                                                <input type="text" class="form-control" id="jc_CGPA" name="jc_CGPA"
                                                     placeholder="Enter CGPA" value="{{ old('jc_CGPA') }}">
                                                 <small class="text-danger">{{ $errors->first('jc_CGPA') }}</small>
                                             </div>
@@ -755,16 +761,8 @@
                                             <!-- Additional Qualification Fields in Left Column -->
                                             <div id="qualification-fields" style="display: none;">
                                                 <div class="form-group mb-3">
-                                                    <input type="text" class="form-control"
-                                                        name="qualification_course_name"
-                                                        placeholder="Course / Degree Name *"
-                                                        value="{{ old('qualification_course_name') }}">
-                                                    <small
-                                                        class="text-danger">{{ $errors->first('qualification_course_name') }}</small>
-                                                </div>
-
-                                                <div class="form-group mb-3">
-                                                    <input type="text" class="form-control"
+                                                    <label for="qualification_institution">Institution / College Name <span style="color: red;">*</span></label>
+                                                    <input type="text" class="form-control" id="qualification_institution"
                                                         name="qualification_institution"
                                                         placeholder="Institution / College Name *"
                                                         value="{{ old('qualification_institution') }}">
@@ -773,7 +771,8 @@
                                                 </div>
 
                                                 <div class="form-group mb-3">
-                                                    <input type="text" class="form-control"
+                                                    <label for="qualification_university">University Name</label>
+                                                    <input type="text" class="form-control" id="qualification_university"
                                                         name="qualification_university" placeholder="University Name"
                                                         value="{{ old('qualification_university') }}">
                                                     <small
@@ -787,49 +786,75 @@
                                         <div class="col-md-6">
                                             <div id="qualification-fields-right" style="display: none;">
                                                 <div class="form-group mb-3">
-                                                    <input type="text" class="form-control"
-                                                        name="qualification_specialization"
-                                                        placeholder="Specialization / Major *"
-                                                        value="{{ old('qualification_specialization') }}">
+                                                    <label for="qualification_start_year">Start Year <span
+                                                            style="color:red">*</span></label>
+                                                    <input type="month" class="form-control"
+                                                        id="qualification_start_year" name="qualification_start_year"
+                                                        placeholder="Start Year "
+                                                        value="{{ old('qualification_start_year') }}">
                                                     <small
-                                                        class="text-danger">{{ $errors->first('qualification_specialization') }}</small>
+                                                        class="text-danger">{{ $errors->first('qualification_start_year') }}</small>
                                                 </div>
 
                                                 <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="qualification_years"
-                                                        placeholder="Start Year - End Year *"
-                                                        value="{{ old('qualification_years') }}">
+                                                    <label for="qualification_end_year">End Year <span
+                                                            style="color:red">*</span></label>
+                                                    <input type="month" class="form-control"
+                                                        id="qualification_end_year" name="qualification_end_year"
+                                                        placeholder="End Year "
+                                                        value="{{ old('qualification_end_year') }}">
                                                     <small
-                                                        class="text-danger">{{ $errors->first('qualification_years') }}</small>
+                                                        class="text-danger">{{ $errors->first('qualification_end_year') }}</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 mt-4" id="marksheet-type-section" style="display: none;">
+                                            <div class="form-group mb-3">
+                                                <label>Enter your percentage / CGPA <span
+                                                        class="text-danger">*</span></label>
+
+                                                <div class="row">
+                                                    <div class="col-4">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                name="marksheet_type[]" id="yearBased" value="year">
+                                                            <label class="form-check-label" for="yearBased">
+                                                                Year-based marksheet
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                name="marksheet_type[]" id="semesterBased"
+                                                                value="semester">
+                                                            <label class="form-check-label" for="semesterBased">
+                                                                Semester-based marksheet
+                                                            </label>
+                                                        </div>
+
+                                                    </div>
                                                 </div>
 
-                                                <div class="form-group mb-3">
-                                                    <input type="text" class="form-control"
-                                                        name="qualification_percentage" placeholder="Percentage / CGPA *"
-                                                        value="{{ old('qualification_percentage') }}">
-                                                    <small
-                                                        class="text-danger">{{ $errors->first('qualification_percentage') }}</small>
-                                                </div>
+                                            </div>
+                                        </div>
 
-                                                <div class="form-group mb-3">
-                                                    <select class="form-control" name="qualification_mode_of_study">
-                                                        <option value="">Mode of Study *</option>
-                                                        <option value="full-time"
-                                                            {{ old('qualification_mode_of_study') == 'full-time' ? 'selected' : '' }}>
-                                                            Full-time</option>
-                                                        <option value="part-time"
-                                                            {{ old('qualification_mode_of_study') == 'part-time' ? 'selected' : '' }}>
-                                                            Part-time</option>
-                                                        <option value="distance"
-                                                            {{ old('qualification_mode_of_study') == 'distance' ? 'selected' : '' }}>
-                                                            Distance</option>
-                                                        <option value="online"
-                                                            {{ old('qualification_mode_of_study') == 'online' ? 'selected' : '' }}>
-                                                            Online</option>
-                                                    </select>
-                                                    <small
-                                                        class="text-danger">{{ $errors->first('qualification_mode_of_study') }}</small>
-                                                </div>
+                                        <div class="col-md-12">
+                                            <!-- TABLE -->
+                                            <div class="mt-4 table-responsive" id="marksheetTableWrapper"
+                                                style="display:none;">
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Year / Sem</th>
+                                                            <th>Marks Obtained</th>
+                                                            <th>Out Of</th>
+                                                            <th>Percentage</th>
+                                                            <th>CGPA</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="marksheetTableBody"></tbody>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>
@@ -907,7 +932,8 @@
                                         <!-- Left Column -->
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
-                                                <select class="form-control" name="have_work_experience">
+                                                <label for="have_work_experience">Have you worked professionally before? <span style="color: red;">*</span></label>
+                                                <select class="form-control" name="have_work_experience" id="have_work_experience">
                                                     <option value=""
                                                         {{ !old('have_work_experience') ? 'selected' : '' }} hidden>Have
                                                         you worked professionally before? *</option>
@@ -925,7 +951,8 @@
                                             <!-- Additional Work Experience Fields in Left Column -->
                                             <div id="work-experience-fields" style="display: none;">
                                                 <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="organization_name"
+                                                    <label for="organization_name">Organization / Company Name</label>
+                                                    <input type="text" class="form-control" id="organization_name" name="organization_name"
                                                         placeholder="Organization / Company Name"
                                                         value="{{ old('organization_name') }}">
                                                     <small
@@ -933,7 +960,8 @@
                                                 </div>
 
                                                 <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="work_profile"
+                                                    <label for="work_profile">Work Profile / Designation</label>
+                                                    <input type="text" class="form-control" id="work_profile" name="work_profile"
                                                         placeholder="Work Profile / Designation"
                                                         value="{{ old('work_profile') }}">
                                                     <small
@@ -941,10 +969,20 @@
                                                 </div>
 
                                                 <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="work_duration"
-                                                        placeholder="Duration" value="{{ old('work_duration') }}">
+                                                    <label for="duration_start_year">Duration Start Year</label>
+                                                    <input type="text" class="form-control" id="duration_start_year" name="duration_start_year"
+                                                        placeholder="Start Year"
+                                                        value="{{ old('duration_start_year') }}">
                                                     <small
-                                                        class="text-danger">{{ $errors->first('work_duration') }}</small>
+                                                        class="text-danger">{{ $errors->first('duration_start_year') }}</small>
+                                                </div>
+
+                                                <div class="form-group mb-3">
+                                                    <label for="duration_end_year">Duration End Year</label>
+                                                    <input type="text" class="form-control" id="duration_end_year" name="duration_end_year"
+                                                        placeholder="End Year" value="{{ old('duration_end_year') }}">
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('duration_end_year') }}</small>
                                                 </div>
                                             </div>
                                         </div>
@@ -953,7 +991,8 @@
                                         <div class="col-md-6">
                                             <div id="work-experience-fields-right" style="display: none;">
                                                 <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="work_location_city"
+                                                    <label for="work_location_city">Location – City</label>
+                                                    <input type="text" class="form-control" id="work_location_city" name="work_location_city"
                                                         placeholder="Location – City"
                                                         value="{{ old('work_location_city') }}">
                                                     <small
@@ -961,14 +1000,15 @@
                                                 </div>
 
                                                 <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="work_country"
+                                                    <label for="work_country">Country</label>
+                                                    <input type="text" class="form-control" id="work_country" name="work_country"
                                                         placeholder="Country" value="{{ old('work_country') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('work_country') }}</small>
                                                 </div>
-
                                                 <div class="form-group mb-3">
-                                                    <select class="form-control" name="work_type">
+                                                    <label for="work_type">Work Type</label>
+                                                    <select class="form-control" name="work_type" id="work_type">
                                                         <option value="">Work Type</option>
                                                         <option value="full-time"
                                                             {{ old('work_type') == 'full-time' ? 'selected' : '' }}>
@@ -985,6 +1025,37 @@
                                                     </select>
                                                     <small class="text-danger">{{ $errors->first('work_type') }}</small>
                                                 </div>
+
+                                                <div class="form-group mb-3">
+                                                    <label for="mention_your_salary">Mention your salary</label>
+                                                    <select class="form-control" name="mention_your_salary"
+                                                        id="mention_your_salary">
+                                                        <option value="">Mention your salary</option>
+                                                        <option value="monthly"
+                                                            {{ old('mention_your_salary') == 'monthly' ? 'selected' : '' }}>
+                                                            Monthly Salary</option>
+                                                        <option value="yearly"
+                                                            {{ old('mention_your_salary') == 'yearly' ? 'selected' : '' }}>
+                                                            Yearly Salary</option>
+                                                        <option value="ctc"
+                                                            {{ old('mention_your_salary') == 'ctc' ? 'selected' : '' }}>
+                                                            CTC</option>
+                                                    </select>
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('mention_your_salary') }}</small>
+                                                </div>
+
+                                                <div class="form-group mb-3" id="salary_amount_field"
+                                                    style="display: none;">
+                                                    <label for="salary_amount">Salary Amount</label>
+                                                    <input type="text" class="form-control" id="salary_amount" name="salary_amount"
+                                                        placeholder="Enter Salary Amount"
+                                                        value="{{ old('salary_amount') }}">
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('salary_amount') }}</small>
+                                                </div>
+
+
                                             </div>
                                         </div>
                                     </div>
@@ -1108,9 +1179,24 @@
             document.querySelector('select[name="have_work_experience"]').addEventListener('change',
                 toggleWorkExperienceFields);
 
+            // Function to toggle salary amount field
+            function toggleSalaryAmount() {
+                const mentionSalary = document.getElementById('mention_your_salary');
+                const field = document.getElementById('salary_amount_field');
+                if (mentionSalary && mentionSalary.value) {
+                    field.style.display = 'block';
+                } else {
+                    field.style.display = 'none';
+                }
+            }
+
+            // Event listener for salary dropdown
+            document.getElementById('mention_your_salary').addEventListener('change', toggleSalaryAmount);
+
             // Initialize on page load
             toggleQualificationFields();
             toggleWorkExperienceFields();
+            toggleSalaryAmount();
         });
     </script>
     <script>
@@ -1349,4 +1435,92 @@
             setTimeout(addTotalCalculationListeners, 100);
         };
     </script>
+    <script>
+        const startInput = document.getElementById('qualification_start_year');
+        const endInput = document.getElementById('qualification_end_year');
+        const yearBased = document.getElementById('yearBased');
+        const semesterBased = document.getElementById('semesterBased');
+        const tableWrapper = document.getElementById('marksheetTableWrapper');
+        const tableBody = document.getElementById('marksheetTableBody');
+
+        function calculateYears() {
+            if (!startInput.value || !endInput.value) return 0;
+
+            const start = new Date(startInput.value);
+            const end = new Date(endInput.value);
+
+            const months =
+                (end.getFullYear() - start.getFullYear()) * 12 +
+                (end.getMonth() - start.getMonth()) + 1;
+
+            return Math.floor(months / 12);
+        }
+
+        function generateTable(type) {
+            tableBody.innerHTML = '';
+
+            const years = calculateYears();
+            if (years <= 0) {
+                tableWrapper.style.display = 'none';
+                return;
+            }
+
+            let rows = type === 'year' ? years : years * 2;
+            let label = type === 'year' ? 'Year' : 'Sem';
+
+            for (let i = 1; i <= rows; i++) {
+                tableBody.innerHTML += `
+                <tr>
+                    <td style="color: red;">${i}${label}</td>
+                    <td><input type="number" class="form-control" name="marks_obtained[]"></td>
+                    <td><input type="number" class="form-control" name="out_of[]"></td>
+                    <td><input type="number" step="0.01" class="form-control" name="percentage[]"></td>
+                    <td><input type="number" step="0.01" class="form-control" name="cgpa[]"></td>
+                </tr>
+            `;
+            }
+
+            tableWrapper.style.display = 'block';
+        }
+
+        function toggleMarksheetTypeSection() {
+            const section = document.getElementById('marksheet-type-section');
+            if (endInput.value) {
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        }
+
+        // Ensure only one checkbox is checked at a time
+        yearBased.addEventListener('change', function() {
+            if (this.checked) {
+                semesterBased.checked = false;
+                generateTable('year');
+            }
+        });
+
+        semesterBased.addEventListener('change', function() {
+            if (this.checked) {
+                yearBased.checked = false;
+                generateTable('semester');
+            }
+        });
+
+        startInput.addEventListener('change', () => {
+            toggleMarksheetTypeSection();
+            if (yearBased.checked) generateTable('year');
+            if (semesterBased.checked) generateTable('semester');
+        });
+
+        endInput.addEventListener('change', () => {
+            toggleMarksheetTypeSection();
+            if (yearBased.checked) generateTable('year');
+            if (semesterBased.checked) generateTable('semester');
+        });
+
+        // Initialize
+        toggleMarksheetTypeSection();
+    </script>
 @endsection
+input.value = columnSum;

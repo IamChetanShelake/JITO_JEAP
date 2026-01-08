@@ -587,18 +587,21 @@
                                         <!-- Left Column -->
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="school_name"
+                                                <label for="school_name">School Name <span style="color: red;">*</span></label>
+                                                <input type="text" class="form-control" id="school_name" name="school_name"
                                                     placeholder="School Name *" value="{{ old('school_name') }}">
                                                 <small class="text-danger">{{ $errors->first('school_name') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="school_board"
+                                                <label for="school_board">Board <span style="color: red;">*</span></label>
+                                                <input type="text" class="form-control" id="school_board" name="school_board"
                                                     placeholder="Board *" value="{{ old('school_board') }}">
                                                 <small class="text-danger">{{ $errors->first('school_board') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="school_completion_year"
+                                                <label for="school_completion_year">Year of Completion <span style="color: red;">*</span></label>
+                                                <input type="text" class="form-control" id="school_completion_year" name="school_completion_year"
                                                     placeholder="Year of Completion *"
                                                     value="{{ old('school_completion_year') }}">
                                                 <small
@@ -608,37 +611,36 @@
 
                                         <!-- Right Column -->
                                         <div class="col-md-6">
-
-
                                             <div class="row">
                                                 <div class="col-2 text-start">
-                                                    <div class="form-group mb-3"><label for="">Marks
-                                                            obtained:</label></div>
+                                                    <div class="form-group mb-3"><label for="10th_mark_obtained">Marks obtained:</label></div>
                                                 </div>
                                                 <div class="col-4">
-                                                    <div class="form-group mb-3"><input class="form-control"
+                                                    <div class="form-group mb-3"><input class="form-control" id="10th_mark_obtained"
                                                             type="number" name="10th_mark_obtained"></div>
                                                 </div>
                                                 <div class="col-2 text-start">
                                                     <div class="form-group mb-3 text-end">
-                                                        <label for="">Out Of:</label>
+                                                        <label for="10th_mark_out_of">Out Of:</label>
                                                     </div>
                                                 </div>
                                                 <div class="col-4">
                                                     <div class="form-group mb-3">
-                                                        <input class="form-control"type="number" name="10th_mark_out_of">
+                                                        <input class="form-control" id="10th_mark_out_of" type="number" name="10th_mark_out_of">
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="school_percentage"
+                                                <label for="school_percentage">Percentage (%)</label>
+                                                <input type="text" class="form-control" id="school_percentage" name="school_percentage"
                                                     placeholder="Enter % " value="{{ old('school_percentage') }}">
                                                 <small
                                                     class="text-danger">{{ $errors->first('school_percentage') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="school_CGPA"
+                                                <label for="school_CGPA">CGPA</label>
+                                                <input type="text" class="form-control" id="school_CGPA" name="school_CGPA"
                                                     placeholder="Enter CGPA" value="{{ old('school_CGPA') }}">
                                                 <small class="text-danger">{{ $errors->first('school_CGPA') }}</small>
                                             </div>
@@ -658,20 +660,23 @@
                                         <!-- Left Column -->
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="jc_college_name"
+                                                <label for="jc_college_name">College / Junior College Name <span style="color: red;">*</span></label>
+                                                <input type="text" class="form-control" id="jc_college_name" name="jc_college_name"
                                                     placeholder="College / Junior College Name *"
                                                     value="{{ old('jc_college_name') }}">
                                                 <small class="text-danger">{{ $errors->first('jc_college_name') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="jc_stream"
+                                                <label for="jc_stream">Stream <span style="color: red;">*</span></label>
+                                                <input type="text" class="form-control" id="jc_stream" name="jc_stream"
                                                     placeholder="Select Stream *" value="{{ old('jc_stream') }}">
                                                 <small class="text-danger">{{ $errors->first('jc_stream') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="jc_board"
+                                                <label for="jc_board">Board <span style="color: red;">*</span></label>
+                                                <input type="text" class="form-control" id="jc_board" name="jc_board"
                                                     placeholder="Select Board *" value="{{ old('jc_board') }}">
                                                 <small class="text-danger">{{ $errors->first('jc_board') }}</small>
                                             </div>
@@ -681,33 +686,34 @@
                                         <div class="col-md-6">
                                             <div class="row">
                                                 <div class="col-2 text-start">
-                                                    <div class="form-group mb-3"><label for="">Marks
-                                                            obtained:</label></div>
+                                                    <div class="form-group mb-3"><label for="12th_mark_obtained">Marks obtained:</label></div>
                                                 </div>
                                                 <div class="col-4">
-                                                    <div class="form-group mb-3"><input class="form-control"
+                                                    <div class="form-group mb-3"><input class="form-control" id="12th_mark_obtained"
                                                             type="number" name="12th_mark_obtained"></div>
                                                 </div>
                                                 <div class="col-2">
                                                     <div class="form-group mb-3 text-start">
-                                                        <label for="">Out Of:</label>
+                                                        <label for="12th_mark_out_of">Out Of:</label>
                                                     </div>
                                                 </div>
                                                 <div class="col-4">
                                                     <div class="form-group mb-3">
-                                                        <input class="form-control"type="number" name="12th_mark_out_of">
+                                                        <input class="form-control" id="12th_mark_out_of" type="number" name="12th_mark_out_of">
                                                     </div>
                                                 </div>
                                             </div>
 
 
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="jc_percentage"
+                                                <label for="jc_percentage">Percentage (%)</label>
+                                                <input type="text" class="form-control" id="jc_percentage" name="jc_percentage"
                                                     placeholder="Enter %" value="{{ old('jc_percentage') }}">
                                                 <small class="text-danger">{{ $errors->first('jc_percentage') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
-                                                <input type="text" class="form-control" name="jc_CGPA"
+                                                <label for="jc_CGPA">CGPA</label>
+                                                <input type="text" class="form-control" id="jc_CGPA" name="jc_CGPA"
                                                     placeholder="Enter CGPA" value="{{ old('jc_CGPA') }}">
                                                 <small class="text-danger">{{ $errors->first('jc_CGPA') }}</small>
                                             </div>
@@ -716,7 +722,7 @@
                                 </div>
 
                                 <!-- Section Divider -->
-                                <div class="section-divider"></div>
+                                {{-- <div class="section-divider"></div>
 
                                 <!-- Section 2: Completed Qualifications -->
                                 <div class="education-section">
@@ -726,7 +732,8 @@
                                         <!-- Left Column -->
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
-                                                <select class="form-control" name="qualifications">
+                                                <select class="form-control" name="qualifications"
+                                                    id="qualifications_select">
                                                     <option value="" {{ !old('qualifications') ? 'selected' : '' }}
                                                         disabled hidden>Add your completed qualifications *</option>
                                                     <option value="diploma"
@@ -832,7 +839,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
 
                                 {{-- <!-- Section Divider -->
                                 <div class="section-divider"></div>
@@ -895,7 +902,7 @@
                                     </div>
                                 </div> --}}
 
-                                <!-- Section Divider -->
+                                {{-- <!-- Section Divider -->
                                 <div class="section-divider"></div>
 
                                 <!-- Section 6: Work Experience (if any) -->
@@ -987,7 +994,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
 
                                 <!-- Section Divider -->
                                 {{-- <div class="section-divider"></div>
@@ -1065,21 +1072,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Function to toggle current education fields
-            function toggleCurrentEducation() {
-                const currentPursuingSelect = document.querySelector('select[name="current_pursuing"]');
-                const currentFieldsLeft = document.getElementById('current-education-fields');
-                const currentFieldsRight = document.getElementById('current-education-fields-right');
-
-                if (currentPursuingSelect && currentPursuingSelect.value === 'yes') {
-                    currentFieldsLeft.style.display = 'block';
-                    currentFieldsRight.style.display = 'block';
-                } else {
-                    currentFieldsLeft.style.display = 'none';
-                    currentFieldsRight.style.display = 'none';
-                }
-            }
-
             // Function to toggle qualification fields
             function toggleQualificationFields() {
                 const qualificationsSelect = document.querySelector('select[name="qualifications"]');
@@ -1096,10 +1088,6 @@
                     qualificationFieldsRight.style.display = 'none';
                 }
             }
-
-            // Event listener for current pursuing dropdown
-            document.querySelector('select[name="current_pursuing"]').addEventListener('change',
-                toggleCurrentEducation);
 
             // Function to toggle work experience fields
             function toggleWorkExperienceFields() {
@@ -1127,7 +1115,6 @@
                 toggleWorkExperienceFields);
 
             // Initialize on page load
-            toggleCurrentEducation();
             toggleQualificationFields();
             toggleWorkExperienceFields();
         });
@@ -1289,7 +1276,10 @@
 
         // Function to calculate row totals
         function calculateRowTotal(rowId) {
-            const row = document.querySelector(`tr:has(input[name="group_${rowId}_total"])`);
+            const totalInput = document.querySelector(`input[name="group_${rowId}_total"]`);
+            if (!totalInput) return;
+
+            const row = totalInput.closest('tr');
             if (!row) return;
 
             const inputs = row.querySelectorAll('input[type="number"]:not([readonly])');
@@ -1299,7 +1289,6 @@
                 total += val;
             });
 
-            const totalInput = row.querySelector(`input[name="group_${rowId}_total"]`);
             if (totalInput) {
                 totalInput.value = total;
             }

@@ -295,64 +295,216 @@
     }
 
     .form-data {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-
-    @media (min-width: 768px) {
-        .form-data {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (min-width: 1024px) {
-        .form-data {
-            grid-template-columns: repeat(3, 1fr);
-        }
+        background: white;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
     }
 
     .data-group {
-        background: var(--bg-light);
-        padding: 1rem;
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .data-group:last-child {
+        border-bottom: none;
     }
 
     .data-group h4 {
-        margin: 0 0 1rem 0;
-        color: var(--text-dark);
-        font-size: 1rem;
+        background: var(--primary-purple);
+        color: white;
+        margin: 0;
+        padding: 1rem 1.5rem;
+        font-size: 1.1rem;
         font-weight: 600;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
     }
 
-    .data-item {
-        margin-bottom: 0.75rem;
+    .form-section {
+        padding: 1.5rem;
     }
 
-    .data-item:last-child {
+    .form-row {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .form-row:last-child {
         margin-bottom: 0;
     }
 
-    .data-label {
-        font-size: 0.8rem;
-        color: var(--text-light);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 0.25rem;
+    .form-field {
+        flex: 1;
+        min-width: 250px;
     }
 
-    .data-value {
+    .form-field-full {
+        width: 100%;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-input, .form-textarea, .form-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 6px;
         font-size: 0.9rem;
         color: var(--text-dark);
+        background-color: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--primary-purple);
+        background-color: white;
+        box-shadow: 0 0 0 3px rgba(57, 49, 133, 0.1);
+    }
+
+    .form-input[readonly], .form-textarea[readonly], .form-select[readonly] {
+        background-color: #f8f9fa;
+        cursor: not-allowed;
+        border-color: #dee2e6;
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .form-link {
+        color: var(--primary-blue);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .form-link:hover {
+        color: var(--primary-purple);
+        text-decoration: underline;
+    }
+
+    .form-image {
+        max-width: 120px;
+        max-height: 120px;
+        border: 2px solid #dee2e6;
+        border-radius: 6px;
+        object-fit: cover;
+    }
+
+    .table-container {
+        margin-top: 1rem;
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+
+    .custom-table th,
+    .custom-table td {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .custom-table th {
+        background-color: var(--bg-light);
+        font-weight: 600;
+        color: var(--text-dark);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.8rem;
+    }
+
+    .custom-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .amount-cell {
+        font-weight: 600;
+        color: var(--primary-green);
+    }
+
+    .status-cell {
         font-weight: 500;
     }
+
+    .status-approved { color: var(--primary-green); }
+    .status-pending { color: var(--primary-yellow); }
+    .status-rejected { color: var(--primary-red); }
 
     .no-data {
         text-align: center;
         padding: 2rem;
         color: var(--text-light);
         font-style: italic;
+    }
+
+    .data-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .data-item:last-child {
+        border-bottom: none;
+    }
+
+    .data-label {
+        font-weight: 600;
+        color: var(--text-dark);
+        flex: 1;
+    }
+
+    .data-value {
+        color: var(--text-light);
+        flex: 1;
+        text-align: right;
+    }
+
+    .table-container {
+        margin-top: 1rem;
+        overflow-x: auto;
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+
+    .custom-table th,
+    .custom-table td {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .custom-table th {
+        background-color: var(--bg-light);
+        font-weight: 600;
+        color: var(--text-dark);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.8rem;
+    }
+
+    .custom-table tbody tr:hover {
+        background-color: #f8f9fa;
     }
 </style>
 @endsection
@@ -445,35 +597,155 @@
         <div class="form-data">
             <div class="data-group">
                 <h4>Personal Information</h4>
-                <div class="data-item"><div class="data-label">Full Name</div><div class="data-value">{{ $user->name }}</div></div>
-                <div class="data-item"><div class="data-label">Photo</div><div class="data-value">@if($user->image)<img src="{{ asset($user->image) }}" alt="Photo" style="max-width:100px;max-height:100px;">@else N/A @endif</div></div>
-                <div class="data-item"><div class="data-label">Aadhar Card Number</div><div class="data-value">{{ $user->aadhar_card_number ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">PAN Card</div><div class="data-value">{{ $user->pan_card ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Mobile</div><div class="data-value">{{ $user->phone ?? $user->mobile }}</div></div>
-                <div class="data-item"><div class="data-label">Alternate Phone</div><div class="data-value">{{ $user->alternate_phone ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Email</div><div class="data-value">{{ $user->email }}</div></div>
-                <div class="data-item"><div class="data-label">Alternate Email</div><div class="data-value">{{ $user->alternate_email ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Marital Status</div><div class="data-value">{{ $user->marital_status ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Religion</div><div class="data-value">{{ $user->religion ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Sub Caste</div><div class="data-value">{{ $user->sub_cast ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Blood Group</div><div class="data-value">{{ $user->blood_group ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Date of Birth</div><div class="data-value">{{ $user->d_o_b ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Birth Place</div><div class="data-value">{{ $user->birth_place ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Gender</div><div class="data-value">{{ $user->gender ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Age</div><div class="data-value">{{ $user->age ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Flat No</div><div class="data-value">{{ $user->flat_no ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Building No</div><div class="data-value">{{ $user->building_no ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Street Name</div><div class="data-value">{{ $user->street_name ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Area</div><div class="data-value">{{ $user->area ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Landmark</div><div class="data-value">{{ $user->landmark ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">City</div><div class="data-value">{{ $user->city ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">District</div><div class="data-value">{{ $user->district ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">State</div><div class="data-value">{{ $user->state ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Nationality</div><div class="data-value">{{ $user->nationality ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Pin Code</div><div class="data-value">{{ $user->pin_code ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Chapter</div><div class="data-value">{{ $user->chapter ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Aadhar/Pan Address</div><div class="data-value">{{ $user->aadhar_address ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Specially Abled</div><div class="data-value">{{ $user->specially_abled ?? 'N/A' }}</div></div>
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-input" value="{{ $user->name }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Photo</label>
+                            <div class="form-input" style="padding:0.5rem;">
+                                @if($user->image)
+                                    <img src="{{ asset($user->image) }}" alt="Photo" class="form-image">
+                                @else
+                                    <span style="color:#6c757d;">N/A</span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Aadhar Card Number</label>
+                            <input type="text" class="form-input" value="{{ $user->aadhar_card_number ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">PAN Card</label>
+                            <input type="text" class="form-input" value="{{ $user->pan_card ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Mobile</label>
+                            <input type="tel" class="form-input" value="{{ $user->phone ?? $user->mobile }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Alternate Phone</label>
+                            <input type="tel" class="form-input" value="{{ $user->alternate_phone ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" value="{{ $user->email }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Alternate Email</label>
+                            <input type="email" class="form-input" value="{{ $user->alternate_email ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Marital Status</label>
+                            <input type="text" class="form-input" value="{{ $user->marital_status ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Religion</label>
+                            <input type="text" class="form-input" value="{{ $user->religion ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Sub Caste</label>
+                            <input type="text" class="form-input" value="{{ $user->sub_cast ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Blood Group</label>
+                            <input type="text" class="form-input" value="{{ $user->blood_group ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Date of Birth</label>
+                            <input type="text" class="form-input" value="{{ $user->d_o_b ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Birth Place</label>
+                            <input type="text" class="form-input" value="{{ $user->birth_place ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Gender</label>
+                            <input type="text" class="form-input" value="{{ $user->gender ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Age</label>
+                            <input type="text" class="form-input" value="{{ $user->age ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Nationality</label>
+                            <input type="text" class="form-input" value="{{ $user->nationality ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Specially Abled</label>
+                            <input type="text" class="form-input" value="{{ $user->specially_abled ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="data-group">
+                <h4>Address Information</h4>
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Flat No</label>
+                            <input type="text" class="form-input" value="{{ $user->flat_no ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Building No</label>
+                            <input type="text" class="form-input" value="{{ $user->building_no ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Street Name</label>
+                            <input type="text" class="form-input" value="{{ $user->street_name ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Area</label>
+                            <input type="text" class="form-input" value="{{ $user->area ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Landmark</label>
+                            <input type="text" class="form-input" value="{{ $user->landmark ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Pin Code</label>
+                            <input type="text" class="form-input" value="{{ $user->pin_code ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">City</label>
+                            <input type="text" class="form-input" value="{{ $user->city ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">District</label>
+                            <input type="text" class="form-input" value="{{ $user->district ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">State</label>
+                            <input type="text" class="form-input" value="{{ $user->state ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Chapter</label>
+                            <input type="text" class="form-input" value="{{ $user->chapter ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field form-field-full">
+                            <label class="form-label">Aadhar/Pan Address</label>
+                            <textarea class="form-textarea" readonly>{{ $user->aadhar_address ?? 'N/A' }}</textarea>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -503,78 +775,225 @@
 
         @if($user->educationDetail)
         <div class="form-data">
+            <!-- Financial Need Overview -->
             <div class="data-group">
-                <h4>Current Education</h4>
-                <div class="data-item"><div class="data-label">Currently Pursuing</div><div class="data-value">{{ ucfirst($user->educationDetail->current_pursuing ?? 'N/A') }}</div></div>
-                <div class="data-item"><div class="data-label">Course Name</div><div class="data-value">{{ $user->educationDetail->current_course_name ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Institution</div><div class="data-value">{{ $user->educationDetail->current_institution ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">University</div><div class="data-value">{{ $user->educationDetail->current_university ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Start Year</div><div class="data-value">{{ $user->educationDetail->current_start_year ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Expected Completion Year</div><div class="data-value">{{ $user->educationDetail->current_expected_year ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Mode of Study</div><div class="data-value">{{ $user->educationDetail->current_mode_of_study ?? 'N/A' }}</div></div>
+                <h4>Your Financial Need Overview</h4>
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Course Name</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->course_name ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">University Name</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->university_name ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">College Name</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->college_name ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Country</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->country ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">City</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->city_name ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">NIRF Ranking</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->nirf_ranking ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Start Year</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->start_year ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Expected Completion Year</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->expected_year ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Qualifications</label>
+                            <input type="text" class="form-input" value="{{ ucfirst($user->educationDetail->qualifications ?? 'N/A') }}" readonly>
+                        </div>
+                    </div>
+                </div>
             </div>
 
+            <!-- Financial Summary Table -->
             <div class="data-group">
-                <h4>Completed Qualifications</h4>
-                <div class="data-item"><div class="data-label">Highest Qualification</div><div class="data-value">{{ ucfirst($user->educationDetail->qualifications ?? 'N/A') }}</div></div>
-                <div class="data-item"><div class="data-label">Course / Degree Name</div><div class="data-value">{{ $user->educationDetail->qualification_course_name ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Institution</div><div class="data-value">{{ $user->educationDetail->qualification_institution ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">University</div><div class="data-value">{{ $user->educationDetail->qualification_university ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Specialization / Major</div><div class="data-value">{{ $user->educationDetail->qualification_specialization ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Duration (Start - End)</div><div class="data-value">{{ $user->educationDetail->qualification_years ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Percentage / CGPA</div><div class="data-value">{{ $user->educationDetail->qualification_percentage ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Qualification Mode of Study</div><div class="data-value">{{ $user->educationDetail->qualification_mode_of_study ?? 'N/A' }}</div></div>
+                <h4>Financial Summary Table</h4>
+                <div class="table-container">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Sr No</th>
+                                <th>Group Name</th>
+                                <th>1 Year</th>
+                                <th>2 Year</th>
+                                <th>3 Year</th>
+                                <th>4 Year</th>
+                                <th>5 Year</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Tuition Fees</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_1_year1 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_1_year2 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_1_year3 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_1_year4 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_1_year5 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_1_total ?? 0) }}</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Living Expenses</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_2_year1 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_2_year2 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_2_year3 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_2_year4 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_2_year5 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_2_total ?? 0) }}</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Other Expenses</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_3_year1 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_3_year2 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_3_year3 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_3_year4 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_3_year5 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_3_total ?? 0) }}</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>Total Expenses</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_4_year1 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_4_year2 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_4_year3 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_4_year4 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_4_year5 ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->educationDetail->group_4_total ?? 0) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
+            <!-- School Information -->
             <div class="data-group">
-                <h4>Junior College (12th) / School (10th)</h4>
-                <div class="data-item"><div class="data-label">JC College Name</div><div class="data-value">{{ $user->educationDetail->jc_college_name ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">JC Stream</div><div class="data-value">{{ $user->educationDetail->jc_stream ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">JC Board</div><div class="data-value">{{ $user->educationDetail->jc_board ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">JC Completion Year</div><div class="data-value">{{ $user->educationDetail->jc_completion_year ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">JC Percentage</div><div class="data-value">{{ $user->educationDetail->jc_percentage ?? 'N/A' }}%</div></div>
-                <div class="data-item"><div class="data-label">School Name</div><div class="data-value">{{ $user->educationDetail->school_name ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">School Board</div><div class="data-value">{{ $user->educationDetail->school_board ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">School Completion Year</div><div class="data-value">{{ $user->educationDetail->school_completion_year ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">School Percentage</div><div class="data-value">{{ $user->educationDetail->school_percentage ?? 'N/A' }}%</div></div>
+                <h4>School / 10th Grade Information</h4>
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">School Name</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->school_name ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Board</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->school_board ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Completion Year</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->school_completion_year ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Marks Obtained</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->{'10th_mark_obtained'} ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Out Of</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->{'10th_mark_out_of'} ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Percentage</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->school_percentage ?? 'N/A' }}%" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">CGPA</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->school_CGPA ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                </div>
             </div>
 
+            <!-- Junior College Information -->
             <div class="data-group">
-                <h4>Financial Need / Course Info</h4>
-                <div class="data-item"><div class="data-label">Institute Name</div><div class="data-value">{{ $user->educationDetail->institute_name ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Course Name</div><div class="data-value">{{ $user->educationDetail->course_name ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">City</div><div class="data-value">{{ $user->educationDetail->city_name ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Country</div><div class="data-value">{{ $user->educationDetail->country ?? 'N/A' }}</div></div>
+                <h4>Junior College (12th Grade)</h4>
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">College Name</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->jc_college_name ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Stream</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->jc_stream ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Board</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->jc_board ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Completion Year</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->jc_completion_year ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Marks Obtained</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->{'12th_mark_obtained'} ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Out Of</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->{'12th_mark_out_of'} ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Percentage</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->jc_percentage ?? 'N/A' }}%" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">CGPA</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->jc_CGPA ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                </div>
             </div>
 
+            <!-- Additional Information -->
             <div class="data-group">
-                <h4>Tuition Fees</h4>
-                <div class="data-item"><div class="data-label">Year 1</div><div class="data-value">₹{{ isset($user->educationDetail->tuition_fee_year1) ? number_format($user->educationDetail->tuition_fee_year1) : '0' }}</div></div>
-                <div class="data-item"><div class="data-label">Year 2</div><div class="data-value">₹{{ isset($user->educationDetail->tuition_fee_year2) ? number_format($user->educationDetail->tuition_fee_year2) : '0' }}</div></div>
-                <div class="data-item"><div class="data-label">Year 3</div><div class="data-value">₹{{ isset($user->educationDetail->tuition_fee_year3) ? number_format($user->educationDetail->tuition_fee_year3) : '0' }}</div></div>
-                <div class="data-item"><div class="data-label">Year 4</div><div class="data-value">₹{{ isset($user->educationDetail->tuition_fee_year4) ? number_format($user->educationDetail->tuition_fee_year4) : '0' }}</div></div>
+                <h4>Additional Information</h4>
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Work Experience</label>
+                            <input type="text" class="form-input" value="{{ ucfirst($user->educationDetail->have_work_experience ?? 'no') }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Organization Name</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->organization_name ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Work Profile</label>
+                            <input type="text" class="form-input" value="{{ $user->educationDetail->work_profile ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <div class="data-group">
-                <h4>Additional Curriculum & Tests</h4>
-                <div class="data-item"><div class="data-label">IELTS (Band + Year)</div><div class="data-value">{{ $user->educationDetail->ielts_overall_band_year ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">TOEFL (Score + Year)</div><div class="data-value">{{ $user->educationDetail->toefl_score_year ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Duolingo (DET)</div><div class="data-value">{{ $user->educationDetail->duolingo_det_score_year ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">GRE</div><div class="data-value">{{ $user->educationDetail->gre_score_year ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">GMAT</div><div class="data-value">{{ $user->educationDetail->gmat_score_year ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">SAT</div><div class="data-value">{{ $user->educationDetail->sat_score_year ?? 'N/A' }}</div></div>
-            </div>
-
-            <div class="data-group">
-                <h4>Work Experience</h4>
-                <div class="data-item"><div class="data-label">Have Work Experience</div><div class="data-value">{{ ucfirst($user->educationDetail->have_work_experience ?? 'no') }}</div></div>
-                <div class="data-item"><div class="data-label">Organization Name</div><div class="data-value">{{ $user->educationDetail->organization_name ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Work Profile</div><div class="data-value">{{ $user->educationDetail->work_profile ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Duration</div><div class="data-value">{{ $user->educationDetail->work_duration ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Work Location (City)</div><div class="data-value">{{ $user->educationDetail->work_location_city ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Work Country</div><div class="data-value">{{ $user->educationDetail->work_country ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Work Type</div><div class="data-value">{{ $user->educationDetail->work_type ?? 'N/A' }}</div></div>
-            </div>
+        </div>
         </div>
         @else
         <div class="no-data">
@@ -607,39 +1026,193 @@
         </div>
         @if($user->familyDetail)
         <div class="form-data">
+            <!-- Family Summary -->
             <div class="data-group">
                 <h4>Family Summary</h4>
-                <div class="data-item"><div class="data-label">Number of Family Members</div><div class="data-value">{{ $user->familyDetail->number_family_members }}</div></div>
-                <div class="data-item"><div class="data-label">Total Family Income</div><div class="data-value">₹{{ number_format($user->familyDetail->total_family_income) }}</div></div>
-                <div class="data-item"><div class="data-label">Total Students</div><div class="data-value">{{ $user->familyDetail->total_students }}</div></div>
-                <div class="data-item"><div class="data-label">Family Member Taken Diksha</div><div class="data-value">{{ $user->familyDetail->family_member_diksha ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Total Insurance Coverage</div><div class="data-value">₹{{ number_format($user->familyDetail->total_insurance_coverage) }}</div></div>
-                <div class="data-item"><div class="data-label">Total Premium Paid (Year)</div><div class="data-value">₹{{ number_format($user->familyDetail->total_premium_paid) }}</div></div>
-                <div class="data-item"><div class="data-label">Recent Electricity Bill Amount</div><div class="data-value">₹{{ number_format($user->familyDetail->recent_electricity_amount) }}</div></div>
-                <div class="data-item"><div class="data-label">Total Monthly EMI</div><div class="data-value">₹{{ number_format($user->familyDetail->total_monthly_emi) }}</div></div>
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Number of Family Members</label>
+                            <input type="text" class="form-input" value="{{ $user->familyDetail->number_family_members }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Total Family Income</label>
+                            <input type="text" class="form-input" value="₹{{ number_format($user->familyDetail->total_family_income) }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Total Students</label>
+                            <input type="text" class="form-input" value="{{ $user->familyDetail->total_students }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Family Member Taken Diksha</label>
+                            <input type="text" class="form-input" value="{{ $user->familyDetail->family_member_diksha ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Total Insurance Coverage</label>
+                            <input type="text" class="form-input" value="₹{{ number_format($user->familyDetail->total_insurance_coverage) }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Total Premium Paid (Year)</label>
+                            <input type="text" class="form-input" value="₹{{ number_format($user->familyDetail->total_premium_paid) }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Recent Electricity Bill Amount</label>
+                            <input type="text" class="form-input" value="₹{{ number_format($user->familyDetail->recent_electricity_amount) }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Total Monthly EMI</label>
+                            <input type="text" class="form-input" value="₹{{ number_format($user->familyDetail->total_monthly_emi) }}" readonly>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Additional Family Members -->
             <div class="data-group">
                 <h4>Additional Family Members</h4>
-                @if($user->familyDetail->additional_family_members)
-                    @php $addMembers = json_decode($user->familyDetail->additional_family_members, true); @endphp
-                    @foreach($addMembers as $member)
-                        <div class="data-item">
-                            <div class="data-label">{{ $member['relation'] ?? '' }}: {{ $member['name'] ?? '' }}</div>
-                            <div class="data-value">
-                                Age: {{ $member['age'] ?? '' }}<br>
-                                Marital Status: {{ $member['marital_status'] ?? '' }}<br>
-                                Qualification: {{ $member['qualification'] ?? '' }}<br>
-                                Occupation: {{ $member['occupation'] ?? '' }}<br>
-                                Mobile: {{ $member['mobile'] ?? '' }}<br>
-                                Email: {{ $member['email'] ?? '' }}<br>
-                                Yearly Income: ₹{{ isset($member['yearly_income']) ? number_format($member['yearly_income']) : '' }}
+                <div class="form-section">
+                    @if($user->familyDetail->additional_family_members)
+                        @php $addMembers = json_decode($user->familyDetail->additional_family_members, true); @endphp
+                        @foreach($addMembers as $index => $member)
+                            <div class="form-row" style="border: 1px solid #e9ecef; padding: 1rem; margin-bottom: 1rem; border-radius: 6px; background: #f8f9fa;">
+                                <div class="form-field">
+                                    <label class="form-label">Name</label>
+                                    <input type="text" class="form-input" value="{{ $member['name'] ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Relation</label>
+                                    <input type="text" class="form-input" value="{{ $member['relation'] ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Age</label>
+                                    <input type="text" class="form-input" value="{{ $member['age'] ?? 'N/A' }}" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Marital Status</label>
+                                    <input type="text" class="form-input" value="{{ $member['marital_status'] ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Qualification</label>
+                                    <input type="text" class="form-input" value="{{ $member['qualification'] ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Occupation</label>
+                                    <input type="text" class="form-input" value="{{ $member['occupation'] ?? 'N/A' }}" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Mobile</label>
+                                    <input type="text" class="form-input" value="{{ $member['mobile'] ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Email</label>
+                                    <input type="text" class="form-input" value="{{ $member['email'] ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Yearly Income</label>
+                                    <input type="text" class="form-input" value="₹{{ isset($member['yearly_income']) ? number_format($member['yearly_income']) : 'N/A' }}" readonly>
+                                </div>
+                            </div>
+                            @if(!$loop->last)
+                                <hr style="margin: 1rem 0; border: none; border-top: 1px solid #dee2e6;">
+                            @endif
+                        @endforeach
+                    @else
+                        <div class="form-row">
+                            <div class="form-field form-field-full">
+                                <label class="form-label">Additional Family Members</label>
+                                <input type="text" class="form-input" value="No additional family members data available" readonly>
                             </div>
                         </div>
-                    @endforeach
-                @else
-                    <div class="data-item"><div class="data-label">No additional family members data available</div></div>
-                @endif
+                    @endif
+                </div>
             </div>
+            <!-- Paternal & Maternal Side -->
+            @php $f = $user->familyDetail; @endphp
+            @if(
+                ($f->paternal_uncle_name ?? false) || ($f->paternal_uncle_mobile ?? false) || ($f->paternal_uncle_email ?? false) ||
+                ($f->paternal_aunt_name ?? false) || ($f->paternal_aunt_mobile ?? false) || ($f->paternal_aunt_email ?? false)
+            )
+            <div class="data-group">
+                <h4>Paternal Side</h4>
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Uncle Name</label>
+                            <input type="text" class="form-input" value="{{ $f->paternal_uncle_name ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Uncle Mobile</label>
+                            <input type="text" class="form-input" value="{{ $f->paternal_uncle_mobile ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Uncle Email</label>
+                            <input type="text" class="form-input" value="{{ $f->paternal_uncle_email ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Aunt Name</label>
+                            <input type="text" class="form-input" value="{{ $f->paternal_aunt_name ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Aunt Mobile</label>
+                            <input type="text" class="form-input" value="{{ $f->paternal_aunt_mobile ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Aunt Email</label>
+                            <input type="text" class="form-input" value="{{ $f->paternal_aunt_email ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            @if(
+                ($f->maternal_uncle_name ?? false) || ($f->maternal_uncle_mobile ?? false) || ($f->maternal_uncle_email ?? false) ||
+                ($f->maternal_aunt_name ?? false) || ($f->maternal_aunt_mobile ?? false) || ($f->maternal_aunt_email ?? false)
+            )
+            <div class="data-group">
+                <h4>Maternal Side</h4>
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Uncle Name</label>
+                            <input type="text" class="form-input" value="{{ $f->maternal_uncle_name ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Uncle Mobile</label>
+                            <input type="text" class="form-input" value="{{ $f->maternal_uncle_mobile ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Uncle Email</label>
+                            <input type="text" class="form-input" value="{{ $f->maternal_uncle_email ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Aunt Name</label>
+                            <input type="text" class="form-input" value="{{ $f->maternal_aunt_name ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Aunt Mobile</label>
+                            <input type="text" class="form-input" value="{{ $f->maternal_aunt_mobile ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Aunt Email</label>
+                            <input type="text" class="form-input" value="{{ $f->maternal_aunt_email ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
         @else
         <div class="no-data"><p>Family details not submitted yet.</p></div>
@@ -671,10 +1244,11 @@
 
         @if($user->fundingDetail)
         <div class="form-data">
+            <!-- Funding Sources Table -->
             <div class="data-group">
                 <h4>Funding Sources</h4>
-                <div class="table-responsive">
-                    <table class="table table-bordered">
+                <div class="table-container">
+                    <table class="custom-table">
                         <thead>
                             <tr>
                                 <th>Particulars</th>
@@ -692,7 +1266,7 @@
                                 <td>{{ $user->fundingDetail->family_funding_trust ?? '-' }}</td>
                                 <td>{{ $user->fundingDetail->family_funding_contact ?? '-' }}</td>
                                 <td>{{ $user->fundingDetail->family_funding_mobile ?? '-' }}</td>
-                                <td>₹{{ number_format($user->fundingDetail->family_funding_amount ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->fundingDetail->family_funding_amount ?? 0) }}</td>
                             </tr>
                             <tr>
                                 <td>Bank Loan</td>
@@ -700,7 +1274,7 @@
                                 <td>{{ $user->fundingDetail->bank_loan_trust ?? '-' }}</td>
                                 <td>{{ $user->fundingDetail->bank_loan_contact ?? '-' }}</td>
                                 <td>{{ $user->fundingDetail->bank_loan_mobile ?? '-' }}</td>
-                                <td>₹{{ number_format($user->fundingDetail->bank_loan_amount ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->fundingDetail->bank_loan_amount ?? 0) }}</td>
                             </tr>
                             <tr>
                                 <td>Other Assistance (1)</td>
@@ -708,7 +1282,7 @@
                                 <td>{{ $user->fundingDetail->other_assistance1_trust ?? '-' }}</td>
                                 <td>{{ $user->fundingDetail->other_assistance1_contact ?? '-' }}</td>
                                 <td>{{ $user->fundingDetail->other_assistance1_mobile ?? '-' }}</td>
-                                <td>₹{{ number_format($user->fundingDetail->other_assistance1_amount ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->fundingDetail->other_assistance1_amount ?? 0) }}</td>
                             </tr>
                             <tr>
                                 <td>Other Assistance (2)</td>
@@ -716,7 +1290,7 @@
                                 <td>{{ $user->fundingDetail->other_assistance2_trust ?? '-' }}</td>
                                 <td>{{ $user->fundingDetail->other_assistance2_contact ?? '-' }}</td>
                                 <td>{{ $user->fundingDetail->other_assistance2_mobile ?? '-' }}</td>
-                                <td>₹{{ number_format($user->fundingDetail->other_assistance2_amount ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->fundingDetail->other_assistance2_amount ?? 0) }}</td>
                             </tr>
                             <tr>
                                 <td>Local Assistance</td>
@@ -724,11 +1298,11 @@
                                 <td>{{ $user->fundingDetail->local_assistance_trust ?? '-' }}</td>
                                 <td>{{ $user->fundingDetail->local_assistance_contact ?? '-' }}</td>
                                 <td>{{ $user->fundingDetail->local_assistance_mobile ?? '-' }}</td>
-                                <td>₹{{ number_format($user->fundingDetail->local_assistance_amount ?? 0) }}</td>
+                                <td class="amount-cell">₹{{ number_format($user->fundingDetail->local_assistance_amount ?? 0) }}</td>
                             </tr>
                             <tr>
                                 <td colspan="5" style="text-align:right;font-weight:600">Total</td>
-                                <td>
+                                <td class="amount-cell">
                                     ₹{{ number_format((float)($user->fundingDetail->family_funding_amount ?? 0) + (float)($user->fundingDetail->bank_loan_amount ?? 0) + (float)($user->fundingDetail->other_assistance1_amount ?? 0) + (float)($user->fundingDetail->other_assistance2_amount ?? 0) + (float)($user->fundingDetail->local_assistance_amount ?? 0)) }}
                                 </td>
                             </tr>
@@ -736,18 +1310,53 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Total Funding -->
             <div class="data-group">
                 <h4>Total Funding</h4>
-                <div class="data-item"><div class="data-label">Total Amount (Rs)</div><div class="data-value">₹{{ isset($user->fundingDetail->total_funding_amount) ? number_format($user->fundingDetail->total_funding_amount) : '0' }}</div></div>
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Total Amount (Rs)</label>
+                            <input type="text" class="form-input" value="₹{{ isset($user->fundingDetail->total_funding_amount) ? number_format($user->fundingDetail->total_funding_amount) : '0' }}" readonly>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Bank Details of Applicant -->
             <div class="data-group">
                 <h4>Bank Details of Applicant</h4>
-                <div class="data-item"><div class="data-label">Account Holder</div><div class="data-value">{{ $user->fundingDetail->account_holder_name }}</div></div>
-                <div class="data-item"><div class="data-label">Bank Name</div><div class="data-value">{{ $user->fundingDetail->bank_name }}</div></div>
-                <div class="data-item"><div class="data-label">Account Number</div><div class="data-value">{{ $user->fundingDetail->account_number }}</div></div>
-                <div class="data-item"><div class="data-label">Branch Name</div><div class="data-value">{{ $user->fundingDetail->branch_name }}</div></div>
-                <div class="data-item"><div class="data-label">IFSC Code</div><div class="data-value">{{ $user->fundingDetail->ifsc_code }}</div></div>
-                <div class="data-item"><div class="data-label">Bank Address</div><div class="data-value">{{ $user->fundingDetail->bank_address }}</div></div>
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Account Holder</label>
+                            <input type="text" class="form-input" value="{{ $user->fundingDetail->account_holder_name }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Bank Name</label>
+                            <input type="text" class="form-input" value="{{ $user->fundingDetail->bank_name }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Account Number</label>
+                            <input type="text" class="form-input" value="{{ $user->fundingDetail->account_number }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Branch Name</label>
+                            <input type="text" class="form-input" value="{{ $user->fundingDetail->branch_name }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">IFSC Code</label>
+                            <input type="text" class="form-input" value="{{ $user->fundingDetail->ifsc_code }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Bank Address</label>
+                            <input type="text" class="form-input" value="{{ $user->fundingDetail->bank_address }}" readonly>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         @else
@@ -863,59 +1472,57 @@
 
         @if($user->document)
         <div class="form-data">
-            <div class="form-data">
-                <div class="data-group">
-                    <h4>All Documents</h4>
-                    @php
-                        $doc = $user->document;
-                        $fields = [
-                            'ssc_cbse_icse_ib_igcse' => 'SSC/CBSE/ICSE/IB/IGCSE',
-                            'hsc_diploma_marksheet' => 'HSC/Diploma Marksheet',
-                            'graduate_post_graduate_marksheet' => 'Graduate/Post Graduate Marksheet',
-                            'admission_letter_fees_structure' => 'Admission Letter / Fees Structure',
-                            'aadhaar_applicant' => 'Applicant Aadhaar',
-                            'pan_applicant' => 'Applicant PAN',
-                            'passport' => 'Passport',
-                            'student_bank_details_statement' => 'Student Bank Statement',
-                            'jito_group_recommendation' => 'JITO Group Recommendation',
-                            'jain_sangh_certificate' => 'Jain Sangh Certificate',
-                            'electricity_bill' => 'Electricity Bill',
-                            'itr_acknowledgement_father' => 'Father ITR Acknowledgement',
-                            'itr_computation_father' => 'Father ITR Computation',
-                            'form16_salary_income_father' => 'Form16 / Salary Slip (Father)',
-                            'bank_statement_father_12months' => 'Father Bank Statement (12 months)',
-                            'bank_statement_mother_12months' => 'Mother Bank Statement (12 months)',
-                            'aadhaar_father_mother' => 'Father/Mother Aadhaar',
-                            'pan_father_mother' => 'Father/Mother PAN',
-                            'guarantor1_aadhaar' => 'Guarantor1 Aadhaar',
-                            'guarantor1_pan' => 'Guarantor1 PAN',
-                            'guarantor2_aadhaar' => 'Guarantor2 Aadhaar',
-                            'guarantor2_pan' => 'Guarantor2 PAN',
-                            'student_handwritten_statement' => 'Student Handwritten Statement',
-                            'proof_funds_arranged' => 'Proof of Funds Arranged',
-                            'other_documents' => 'Other Documents',
-                            'extra_curricular' => 'Extra Curricular',
+            <div class="data-group">
+                <h4>All Documents</h4>
+                @php
+                    $doc = $user->document;
+                    $fields = [
+                        'ssc_cbse_icse_ib_igcse' => 'SSC/CBSE/ICSE/IB/IGCSE',
+                        'hsc_diploma_marksheet' => 'HSC/Diploma Marksheet',
+                        'graduate_post_graduate_marksheet' => 'Graduate/Post Graduate Marksheet',
+                        'admission_letter_fees_structure' => 'Admission Letter / Fees Structure',
+                        'aadhaar_applicant' => 'Applicant Aadhaar',
+                        'pan_applicant' => 'Applicant PAN',
+                        'passport' => 'Passport',
+                        'student_bank_details_statement' => 'Student Bank Statement',
+                        'jito_group_recommendation' => 'JITO Group Recommendation',
+                        'jain_sangh_certificate' => 'Jain Sangh Certificate',
+                        'electricity_bill' => 'Electricity Bill',
+                        'itr_acknowledgement_father' => 'Father ITR Acknowledgement',
+                        'itr_computation_father' => 'Father ITR Computation',
+                        'form16_salary_income_father' => 'Form16 / Salary Slip (Father)',
+                        'bank_statement_father_12months' => 'Father Bank Statement (12 months)',
+                        'bank_statement_mother_12months' => 'Mother Bank Statement (12 months)',
+                        'aadhaar_father_mother' => 'Father/Mother Aadhaar',
+                        'pan_father_mother' => 'Father/Mother PAN',
+                        'guarantor1_aadhaar' => 'Guarantor1 Aadhaar',
+                        'guarantor1_pan' => 'Guarantor1 PAN',
+                        'guarantor2_aadhaar' => 'Guarantor2 Aadhaar',
+                        'guarantor2_pan' => 'Guarantor2 PAN',
+                        'student_handwritten_statement' => 'Student Handwritten Statement',
+                        'proof_funds_arranged' => 'Proof of Funds Arranged',
+                        'other_documents' => 'Other Documents',
+                        'extra_curricular' => 'Extra Curricular',
 
-                        ];
-                    @endphp
+                    ];
+                @endphp
 
-                    @foreach($fields as $key => $label)
-                        <div class="data-item" style="display:flex;justify-content:space-between;align-items:center;">
-                            <div class="data-label">{{ $label }}</div>
-                            <div class="data-value">
-                                @if(!empty($doc->$key))
-                                    @php
-                                        $p = $doc->$key;
-                                        $href = (strpos($p, 'http') === 0) ? $p : asset('storage/' . ltrim($p, '/'));
-                                    @endphp
-                                    <a href="{{ $href }}" target="_blank">View</a>
-                                @else
-                                    <span style="color:#6c757d;">Not uploaded</span>
-                                @endif
-                            </div>
+                @foreach($fields as $key => $label)
+                    <div class="data-item">
+                        <div class="data-label">{{ $label }}</div>
+                        <div class="data-value">
+                            @if(!empty($doc->$key))
+                                @php
+                                    $p = $doc->$key;
+                                    $href = (strpos($p, 'http') === 0) ? $p : asset('storage/' . ltrim($p, '/'));
+                                @endphp
+                                <a href="{{ $href }}" target="_blank">View</a>
+                            @else
+                                <span style="color:#6c757d;">Not uploaded</span>
+                            @endif
                         </div>
-                    @endforeach
-                </div>
+                    </div>
+                @endforeach
             </div>
         </div>
         @else
@@ -1010,3 +1617,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endsection
+

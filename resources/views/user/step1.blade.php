@@ -471,8 +471,8 @@
                                             <label for="chapter" class="form-label">Chapter <span
                                                     style="color: red;">*</span></label>
                                             <input type="text" id="chapter" name="chapter" class="form-control"
-                                                placeholder="Enter Chapter"
-                                                value="{{ old('chapter', $user->chapter ?? '') }}" required>
+                                                placeholder="Chapter will be auto-filled based on pincode"
+                                                value="{{ old('chapter', $user->chapter ?? '') }}" readonly required>
                                             <small class="text-danger">{{ $errors->first('chapter') }}</small>
                                         </div>
 
@@ -586,6 +586,46 @@
                 updateAge();
             }
 
+            // Function to fetch chapters based on pincode
+            function fetchChapters(pincode) {
+                if (!pincode || pincode.length < 6) {
+                    // Clear chapter field if pincode is too short
+                    document.getElementById('chapter').value = '';
+                    return;
+                }
+
+                fetch(`/user/get-chapters/${pincode}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const chapterInput = document.getElementById('chapter');
+
+                        if (data.chapter) {
+                            chapterInput.value = data.chapter;
+                        } else {
+                            chapterInput.value = '';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching chapters:', error);
+                        const chapterInput = document.getElementById('chapter');
+                        chapterInput.value = '';
+                    });
+            }
+
+            // Add event listener to pincode field
+            const pinCodeInput = document.getElementById('pin_code');
+            if (pinCodeInput) {
+                pinCodeInput.addEventListener('input', function() {
+                    const pincode = this.value.trim();
+                    fetchChapters(pincode);
+                });
+
+                // Initialize chapters if pincode is already filled
+                if (pinCodeInput.value) {
+                    fetchChapters(pinCodeInput.value.trim());
+                }
+            }
+
             // File upload preview
             document.getElementById('uploadInput').addEventListener('change', function(e) {
                 const file = e.target.files[0];
@@ -609,3 +649,5 @@
             });
         });
     </script>
+        });
+

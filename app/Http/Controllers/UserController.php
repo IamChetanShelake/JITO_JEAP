@@ -4,16 +4,17 @@ namespace App\Http\Controllers;
 
 
 use App\Models\User;
-use App\Models\Familydetail;
-use App\Models\EducationDetail;
-use App\Models\FundingDetail;
-use App\Models\GuarantorDetail;
 use App\Models\Document;
+use App\Models\Familydetail;
+use App\Models\ReviewSubmit;
 use Illuminate\Http\Request;
+use App\Models\FundingDetail;
 use App\Models\Loan_category;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
+use App\Models\EducationDetail;
+use App\Models\GuarantorDetail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 
 class UserController extends Controller
@@ -21,7 +22,7 @@ class UserController extends Controller
     public function index()
     {
         $user_id = Auth::id();
-        
+
         $existingLoan = Loan_category::where('user_id', $user_id)->latest()->first();
         if ($existingLoan) {
             return redirect()->route('user.step1');
@@ -2048,8 +2049,32 @@ class UserController extends Controller
         return view('user.step7', compact('type'));
     }
 
-    public function step7store()
+    public function step7store(Request $request)
     {
-        dd('done');
+        $user_id = Auth::id();
+
+        // Check if review submit already exists for this user
+        $reviewSubmit = ReviewSubmit::where('user_id', $user_id)->first();
+
+        $data = [
+            'user_id' => $user_id,
+            'submit_status' => 'submited',
+        ];
+
+        if ($reviewSubmit) {
+            // Update existing record
+            $reviewSubmit->update($data);
+            $message = 'Application submitted successfully!';
+        } else {
+            // Create new record
+            ReviewSubmit::create($data);
+            $message = 'Application submitted successfully!';
+        }
+
+        // Update user's application_status to 'submitted' or similar
+        $user = User::find($user_id);
+        $user->update(['application_status' => 'submitted']);
+
+        return redirect()->route('user.home')->with('success', $message);
     }
 }

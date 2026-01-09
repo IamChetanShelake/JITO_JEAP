@@ -150,6 +150,12 @@
             border-color: green !important;
         }
 
+        /* Resubmit Step */
+        .resubmit-step {
+            background-color: #dc3545 !important;
+            border-color: #dc3545 !important;
+        }
+
         .active-step {
             background-color: #FFC727 !important;
             border-color: #FFC727 !important;
@@ -452,16 +458,20 @@
                         <a href="{{ route('user.step1') }}">
                             <div
                                 class="step-icon
-                                @if (auth()->check() && auth()->user()->submit_status === 'submited') completed-step @endif
+                                @if (auth()->check() && in_array(auth()->user()->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+                                @if (auth()->check() && auth()->user()->submit_status === 'resubmit') resubmit-step @endif
                                 @if (request()->routeIs('user.step1')) active-step @endif">
 
-                                @if (auth()->check() && auth()->user()->submit_status === 'submited')
+                                @if (auth()->check() && in_array(auth()->user()->submit_status, ['submited', 'submitted', 'approved']))
                                     {{-- Tick SVG --}}
                                     <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
                                             fill="white" />
                                     </svg>
+                                @elseif (auth()->check() && auth()->user()->submit_status === 'resubmit')
+                                    {{-- Cross Icon --}}
+                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;" title="{{ auth()->user()->admin_remark ?? 'On Hold' }}"></i>
                                 @else
                                     {{-- Default Icon --}}
                                     <i class="bi bi-person"></i>
@@ -478,10 +488,12 @@
 
 
                     @php
+                        $educationDetail = \App\Models\EducationDetail::where('user_id', auth()->id())->first();
                         $family = \App\Models\FamilyDetail::where('user_id', auth()->id())->first();
                         $fundingDetail = \App\Models\FundingDetail::where('user_id', auth()->id())->first();
                         $guarantorDetail = \App\Models\GuarantorDetail::where('user_id', auth()->id())->first();
                         $document = \App\Models\Document::where('user_id', auth()->id())->first();
+                        $reviewSubmit = \App\Models\ReviewSubmit::where('user_id', auth()->id())->first();
                     @endphp
                     {{--
                     <li class="{{ request()->routeIs('user.step2') ? 'active' : '' }}">
@@ -536,15 +548,18 @@
 
                             <div
                                 class="step-icon
-            @if ($family && $family->submit_status === 'submited') completed-step @endif
-            @if (request()->routeIs('user.step2')) active-step @endif">
+                                    @if ($educationDetail && in_array($educationDetail->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+                                    @if ($educationDetail && $educationDetail->submit_status === 'resubmit') resubmit-step @endif
+                                    @if (request()->routeIs('user.step2')) active-step @endif">
 
-                                @if ($family && $family->submit_status === 'submited')
+                                @if ($educationDetail && in_array($educationDetail->submit_status, ['submited', 'submitted', 'approved']))
                                     <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
                                             fill="white" />
                                     </svg>
+                                @elseif ($educationDetail && $educationDetail->submit_status === 'resubmit')
+                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;" title="{{ $educationDetail->admin_remark ?? 'On Hold' }}"></i>
                                 @else
                                     <i class="bi bi-people"></i>
                                 @endif
@@ -567,15 +582,18 @@
                         <a href="{{ route('user.step3') }}">
                             <div
                                 class="step-icon
-@if ($family && $family->submit_status === 'submited') completed-step @endif
+@if ($family && in_array($family->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+@if ($family && $family->submit_status === 'resubmit') resubmit-step @endif
 @if (request()->routeIs('user.step3')) active-step @endif">
 
-                                @if ($family && $family->submit_status === 'submited')
+                                @if ($family && in_array($family->submit_status, ['submited', 'submitted', 'approved']))
                                     <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
                                             fill="white" />
                                     </svg>
+                                @elseif ($family && $family->submit_status === 'resubmit')
+                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;" title="{{ $family->admin_remark ?? 'On Hold' }}"></i>
                                 @else
                                     <i class="bi bi-mortarboard"></i>
                                 @endif
@@ -591,15 +609,18 @@
                     <li class="{{ request()->routeIs('user.step4') ? 'active' : '' }}">
                         <a href="{{ route('user.step4') }}">
                             <div
-                                class="step-icon  @if ($fundingDetail && $fundingDetail->submit_status === 'submited') completed-step @endif
+                                class="step-icon  @if ($fundingDetail && in_array($fundingDetail->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+                               @if ($fundingDetail && $fundingDetail->submit_status === 'resubmit') resubmit-step @endif
                                @if (request()->routeIs('user.step4')) active-step @endif">
 
-                                @if ($fundingDetail && $fundingDetail->submit_status === 'submited')
+                                @if ($fundingDetail && in_array($fundingDetail->submit_status, ['submited', 'submitted', 'approved']))
                                     <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
                                             fill="white" />
                                     </svg>
+                                @elseif ($fundingDetail && $fundingDetail->submit_status === 'resubmit')
+                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;" title="{{ $fundingDetail->admin_remark ?? 'On Hold' }}"></i>
                                 @else
                                     <i class="bi bi-currency-rupee"></i>
                                 @endif
@@ -616,15 +637,18 @@
                         <a href="{{ route('user.step5') }}">
                             <div
                                 class="step-icon
-@if ($guarantorDetail && $guarantorDetail->submit_status === 'submited') completed-step @endif
+@if ($guarantorDetail && in_array($guarantorDetail->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+@if ($guarantorDetail && $guarantorDetail->submit_status === 'resubmit') resubmit-step @endif
 @if (request()->routeIs('user.step5')) active-step @endif">
 
-                                @if ($guarantorDetail && $guarantorDetail->submit_status === 'submited')
+                                @if ($guarantorDetail && in_array($guarantorDetail->submit_status, ['submited', 'submitted', 'approved']))
                                     <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
                                             fill="white" />
                                     </svg>
+                                @elseif ($guarantorDetail && $guarantorDetail->submit_status === 'resubmit')
+                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;" title="{{ $guarantorDetail->admin_remark ?? 'On Hold' }}"></i>
                                 @else
                                     <i class="bi bi-check2-square"></i>
                                 @endif
@@ -641,15 +665,18 @@
                         <a href="{{ route('user.step6') }}">
                             <div
                                 class="step-icon
-@if ($document && $document->submit_status === 'submited') completed-step @endif
+@if ($document && in_array($document->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+@if ($document && $document->submit_status === 'resubmit') resubmit-step @endif
 @if (request()->routeIs('user.step6')) active-step @endif">
 
-                                @if ($document && $document->submit_status === 'submited')
+                                @if ($document && in_array($document->submit_status, ['submited', 'submitted', 'approved']))
                                     <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
                                             fill="white" />
                                     </svg>
+                                @elseif ($document && $document->submit_status === 'resubmit')
+                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;" title="{{ $document->admin_remark ?? 'On Hold' }}"></i>
                                 @else
                                     <i class="bi bi-journal-text"></i>
                                 @endif
@@ -664,8 +691,24 @@
 
                     <li class="{{ request()->routeIs('user.step7') ? 'active' : '' }}">
                         <a href="{{ route('user.step7') }}">
-                            <div class="step-icon">
-                                <i class="bi bi-eye"></i>
+                            <div
+                                class="step-icon
+@if ($reviewSubmit && in_array($reviewSubmit->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+@if ($reviewSubmit && $reviewSubmit->submit_status === 'resubmit') resubmit-step @endif
+@if (request()->routeIs('user.step7')) active-step @endif">
+
+                                @if ($reviewSubmit && in_array($reviewSubmit->submit_status, ['submited', 'submitted', 'approved']))
+                                    <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
+                                            fill="white" />
+                                    </svg>
+                                @elseif ($reviewSubmit && $reviewSubmit->submit_status === 'resubmit')
+                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;" title="{{ $reviewSubmit->admin_remark ?? 'On Hold' }}"></i>
+                                @else
+                                    <i class="bi bi-eye"></i>
+                                @endif
+
                             </div>
                             <div class="step-content">
                                 <div class="step-number">Step 7</div>

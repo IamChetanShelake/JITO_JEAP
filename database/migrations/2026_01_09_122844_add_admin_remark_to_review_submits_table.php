@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('education_details', function (Blueprint $table) {
-            $table->string('college_name')->nullable()->after('university_name');
+        Schema::table('review_submits', function (Blueprint $table) {
+            $table->text('admin_remark')->nullable()->after('submit_status');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('education_details', function (Blueprint $table) {
-            $table->dropColumn('college_name');
+        Schema::table('review_submits', function (Blueprint $table) {
+            //
         });
     }
 };

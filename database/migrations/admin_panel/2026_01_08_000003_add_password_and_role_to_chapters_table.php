@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('funding_details', function (Blueprint $table) {
-            //
+        Schema::connection('admin_panel')->table('chapters', function (Blueprint $table) {
+            $table->string('password');
+            $table->string('role')->default('chapter');
         });
     }
 
@@ -21,8 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('funding_details', function (Blueprint $table) {
-            //
+        Schema::connection('admin_panel')->table('chapters', function (Blueprint $table) {
+            $table->dropColumn(['password', 'role']);
         });
     }
 };

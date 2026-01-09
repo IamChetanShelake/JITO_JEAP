@@ -25,7 +25,8 @@ class UserController extends Controller
         if ($existingLoan) {
             return redirect()->route('user.step1');
         }
-        return view('user.home');
+        $user = Auth::user()->load(['familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
+        return view('user.home', compact('user'));
     }
 
     public function applyLoan(Request $request, $type)

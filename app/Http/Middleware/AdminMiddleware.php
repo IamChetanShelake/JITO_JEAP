@@ -16,7 +16,13 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check() || Auth::user()->role !== 'admin') {
+        $user = Auth::user() ?: Auth::guard('apex')->user() ?: Auth::guard('committee')->user() ?: Auth::guard('chapter')->user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        if (!in_array($user->role, ['admin', 'apex', 'working-committee', 'chapter'])) {
             abort(403);
         }
 

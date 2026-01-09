@@ -251,6 +251,17 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+
+                    <div class="form-group">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock"></i> Password (leave blank to keep current)
+                        </label>
+                        <input type="password" class="form-control @error('password') is-invalid @enderror"
+                               id="password" name="password">
+                        @error('password')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
             </div>
 

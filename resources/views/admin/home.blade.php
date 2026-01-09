@@ -250,6 +250,13 @@
         align-items: center;
         gap: 0.5rem;
         border: 1px solid;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .status-badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
     /* Desktop large screens (1280px and above) */
     @media (min-width: 1280px) {
@@ -690,33 +697,33 @@
                     <div class="progress-bar-custom" style="width: 80%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
                 </div>
                  <div class="status-badges">
-                    <div class="status-badge approved">
+                    <a href="{{ route('admin.apex.stage1.approved') }}" class="status-badge approved" style="text-decoration: none; color: inherit;">
                         <div class="status-icon approved">
                             <i class="fas fa-check"></i>
                         </div>
                         <div>
                             <div class="status-label">Approved</div>
-                            <div class="status-value">{{ \App\Models\Zone::where('status', true)->count() }}</div>
+                            <div class="status-value">{{ \App\Models\User::where('submit_status', 'approved')->count() }}</div>
                         </div>
-                    </div>
-                    <div class="status-badge pending">
+                    </a>
+                    <a href="{{ route('admin.apex.stage1.pending') }}" class="status-badge pending" style="text-decoration: none; color: inherit;">
                         <div class="status-icon pending">
                             <i class="fas fa-clock"></i>
                         </div>
                         <div>
                             <div class="status-label">Pending</div>
-                            <div class="status-value">1</div>
+                            <div class="status-value">{{ \App\Models\User::where('submit_status', 'submited')->count() }}</div>
                         </div>
-                    </div>
-                    <div class="status-badge hold">
+                    </a>
+                    <a href="{{ route('admin.apex.stage1.hold') }}" class="status-badge hold" style="text-decoration: none; color: inherit;">
                         <div class="status-icon hold">
                             <i class="fas fa-exclamation"></i>
                         </div>
                         <div>
                             <div class="status-label">Hold</div>
-                            <div class="status-value">1</div>
+                            <div class="status-value">{{ \App\Models\User::where('submit_status', 'resubmit')->count() }}</div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
 

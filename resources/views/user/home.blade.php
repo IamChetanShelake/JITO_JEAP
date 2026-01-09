@@ -162,6 +162,38 @@
 
     <div class="container py-4">
 
+        {{-- Show admin hold remarks for any step --}}
+        @if(isset($user))
+            @php
+                $remarks = [];
+                if(isset($user->familyDetail) && $user->familyDetail->submit_status == 'resubmit' && $user->familyDetail->admin_remark) {
+                    $remarks[] = ['step' => 'Step 1 (Personal)', 'message' => $user->familyDetail->admin_remark];
+                }
+                if(isset($user->educationDetail) && $user->educationDetail->submit_status == 'resubmit' && $user->educationDetail->admin_remark) {
+                    $remarks[] = ['step' => 'Step 2 (Education)', 'message' => $user->educationDetail->admin_remark];
+                }
+                if(isset($user->fundingDetail) && $user->fundingDetail->submit_status == 'resubmit' && $user->fundingDetail->admin_remark) {
+                    $remarks[] = ['step' => 'Step 4 (Funding)', 'message' => $user->fundingDetail->admin_remark];
+                }
+                if(isset($user->guarantorDetail) && $user->guarantorDetail->submit_status == 'resubmit' && $user->guarantorDetail->admin_remark) {
+                    $remarks[] = ['step' => 'Step 5 (Guarantor)', 'message' => $user->guarantorDetail->admin_remark];
+                }
+                if(isset($user->document) && $user->document->submit_status == 'resubmit' && $user->document->admin_remark) {
+                    $remarks[] = ['step' => 'Step 6/7 (Documents/Final)', 'message' => $user->document->admin_remark];
+                }
+            @endphp
+
+            @if(count($remarks) > 0)
+                <div class="mb-4">
+                    @foreach($remarks as $r)
+                        <div class="alert alert-warning">
+                            <strong>{{ $r['step'] }}:</strong> {{ $r['message'] }}
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        @endif
+
         <div class="text-center mb-4">
             <img src="{{ asset('jitojeaplogo.png') }}" alt="JITO Logo" class="mb-3" style="width:160px;">
             {{-- <hr style="color:#CDCDCD;border:0.75px;"> --}}

@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 
-class Chapter extends Model
+class Chapter extends Authenticatable implements AuthenticatableContract
 {
     /**
      * The connection name for the model.
@@ -34,8 +36,19 @@ class Chapter extends Model
         'state',
         'email',
         'contact',
+        'password',
+        'role',
         'status',
         'show_hide'
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password',
     ];
 
     /**
@@ -46,6 +59,7 @@ class Chapter extends Model
     protected $casts = [
         'status' => 'boolean',
         'show_hide' => 'boolean',
+        'password' => 'hashed',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

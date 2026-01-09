@@ -588,7 +588,7 @@
                     </form>
                     <form action="{{ route('admin.apex.stage1.hold.step', [$user, 1]) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
                         @csrf
-                        <input type="text" name="admin_remark" placeholder="Hold remark" required style="padding:6px;border-radius:6px;border:1px solid #ddd;" />
+                        <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
                         <button type="submit" class="btn-hold">Hold</button>
                     </form>
                 </div>
@@ -766,7 +766,7 @@
                     </form>
                     <form action="{{ route('admin.apex.stage1.hold.step', [$user, 2]) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
                         @csrf
-                        <input type="text" name="admin_remark" placeholder="Hold remark" required style="padding:6px;border-radius:6px;border:1px solid #ddd;" />
+                        <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
                         <button type="submit" class="btn-hold">Hold</button>
                     </form>
                 </div>
@@ -1018,7 +1018,7 @@
                     </form>
                     <form action="{{ route('admin.apex.stage1.hold.step', [$user, 3]) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
                         @csrf
-                        <input type="text" name="admin_remark" placeholder="Hold remark" required style="padding:6px;border-radius:6px;border:1px solid #ddd;" />
+                        <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
                         <button type="submit" class="btn-hold">Hold</button>
                     </form>
                 </div>
@@ -1235,7 +1235,7 @@
                     </form>
                     <form action="{{ route('admin.apex.stage1.hold.step', [$user, 4]) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
                         @csrf
-                        <input type="text" name="admin_remark" placeholder="Hold remark" required style="padding:6px;border-radius:6px;border:1px solid #ddd;" />
+                        <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
                         <button type="submit" class="btn-hold">Hold</button>
                     </form>
                 </div>
@@ -1382,7 +1382,7 @@
                     </form>
                     <form action="{{ route('admin.apex.stage1.hold.step', [$user, 5]) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
                         @csrf
-                        <input type="text" name="admin_remark" placeholder="Hold remark" required style="padding:6px;border-radius:6px;border:1px solid #ddd;" />
+                        <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
                         <button type="submit" class="btn-hold">Hold</button>
                     </form>
                 </div>
@@ -1393,42 +1393,142 @@
         <div class="form-data">
             <div class="data-group">
                 <h4>Guarantor 1</h4>
-                <div class="data-item"><div class="data-label">Name</div><div class="data-value">{{ $user->guarantorDetail->g_one_name ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Gender</div><div class="data-value">{{ ucfirst($user->guarantorDetail->g_one_gender ?? 'N/A') }}</div></div>
-                <div class="data-item"><div class="data-label">Date of Birth</div><div class="data-value">{{ optional($user->guarantorDetail->g_one_d_o_b)->format ? $user->guarantorDetail->g_one_d_o_b : ($user->guarantorDetail->g_one_d_o_b ?? 'N/A') }}</div></div>
-                <div class="data-item"><div class="data-label">Relation</div><div class="data-value">{{ $user->guarantorDetail->g_one_relation_with_student ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Phone</div><div class="data-value">{{ $user->guarantorDetail->g_one_phone ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Email</div><div class="data-value">{{ $user->guarantorDetail->g_one_email ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Permanent Address</div><div class="data-value">
-                    {{ $user->guarantorDetail->g_one_permanent_flat_no ?? '' }} {{ $user->guarantorDetail->g_one_permanent_address ?? '' }}<br>
-                    {{ $user->guarantorDetail->g_one_permanent_city ?? '' }}, {{ $user->guarantorDetail->g_one_permanent_district ?? '' }}<br>
-                    {{ $user->guarantorDetail->g_one_permanent_state ?? '' }} - {{ $user->guarantorDetail->g_one_permanent_pincode ?? '' }}
-                </div></div>
-                <div class="data-item"><div class="data-label">Service / Business</div><div class="data-value">{{ $user->guarantorDetail->g_one_srvice ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Annual Income</div><div class="data-value">@if(is_numeric($user->guarantorDetail->g_one_income)) ₹{{ number_format($user->guarantorDetail->g_one_income) }} @else {{ $user->guarantorDetail->g_one_income ?? 'N/A' }} @endif</div></div>
-                <div class="data-item"><div class="data-label">Aadhaar</div><div class="data-value">{{ $user->guarantorDetail->g_one_aadhar_card_number ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">PAN Card No</div><div class="data-value">{{ $user->guarantorDetail->g_one_pan_card_no ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">PAN Upload</div><div class="data-value">@if(!empty($user->guarantorDetail->g_one_pan_card_upload))<a href="{{ asset( $user->guarantorDetail->g_one_pan_card_upload) }}" target="_blank">View PAN</a>@else N/A @endif</div></div>
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-input" value="{{ $user->guarantorDetail->g_one_name ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Gender</label>
+                            <input type="text" class="form-input" value="{{ ucfirst($user->guarantorDetail->g_one_gender ?? 'N/A') }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Date of Birth</label>
+                            <input type="text" class="form-input" value="{{ optional($user->guarantorDetail->g_one_d_o_b)->format ? $user->guarantorDetail->g_one_d_o_b : ($user->guarantorDetail->g_one_d_o_b ?? 'N/A') }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Relation</label>
+                            <input type="text" class="form-input" value="{{ $user->guarantorDetail->g_one_relation_with_student ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Phone</label>
+                            <input type="text" class="form-input" value="{{ $user->guarantorDetail->g_one_phone ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Email</label>
+                            <input type="text" class="form-input" value="{{ $user->guarantorDetail->g_one_email ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field form-field-full">
+                            <label class="form-label">Permanent Address</label>
+                            <textarea class="form-textarea" readonly>{{ $user->guarantorDetail->g_one_permanent_flat_no ?? '' }} {{ $user->guarantorDetail->g_one_permanent_address ?? '' }} {{ $user->guarantorDetail->g_one_permanent_city ?? '' }}, {{ $user->guarantorDetail->g_one_permanent_district ?? '' }} {{ $user->guarantorDetail->g_one_permanent_state ?? '' }} - {{ $user->guarantorDetail->g_one_permanent_pincode ?? '' }}</textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Service / Business</label>
+                            <input type="text" class="form-input" value="{{ $user->guarantorDetail->g_one_srvice ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Annual Income</label>
+                            <input type="text" class="form-input" value="@if(is_numeric($user->guarantorDetail->g_one_income)) ₹{{ number_format($user->guarantorDetail->g_one_income) }} @else {{ $user->guarantorDetail->g_one_income ?? 'N/A' }} @endif" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Aadhaar</label>
+                            <input type="text" class="form-input" value="{{ $user->guarantorDetail->g_one_aadhar_card_number ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">PAN Card No</label>
+                            <input type="text" class="form-input" value="{{ $user->guarantorDetail->g_one_pan_card_no ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">PAN Upload</label>
+                            <div class="form-input" style="padding:0.5rem; background:transparent; border:none;">
+                                @if(!empty($user->guarantorDetail->g_one_pan_card_upload))
+                                    <a href="{{ asset($user->guarantorDetail->g_one_pan_card_upload) }}" target="_blank">View PAN</a>
+                                @else
+                                    <span style="color:#6c757d;">N/A</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="data-group">
                 <h4>Guarantor 2</h4>
-                <div class="data-item"><div class="data-label">Name</div><div class="data-value">{{ $user->guarantorDetail->g_two_name ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Gender</div><div class="data-value">{{ ucfirst($user->guarantorDetail->g_two_gender ?? 'N/A') }}</div></div>
-                <div class="data-item"><div class="data-label">Date of Birth</div><div class="data-value">{{ optional($user->guarantorDetail->g_two_d_o_b)->format ? $user->guarantorDetail->g_two_d_o_b : ($user->guarantorDetail->g_two_d_o_b ?? 'N/A') }}</div></div>
-                <div class="data-item"><div class="data-label">Relation</div><div class="data-value">{{ $user->guarantorDetail->g_two_relation_with_student ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Phone</div><div class="data-value">{{ $user->guarantorDetail->g_two_phone ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Email</div><div class="data-value">{{ $user->guarantorDetail->g_two_email ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Permanent Address</div><div class="data-value">
-                    {{ $user->guarantorDetail->g_two_permanent_flat_no ?? '' }} {{ $user->guarantorDetail->g_two_permanent_address ?? '' }}<br>
-                    {{ $user->guarantorDetail->g_two_permanent_city ?? '' }}, {{ $user->guarantorDetail->g_two_permanent_district ?? '' }}<br>
-                    {{ $user->guarantorDetail->g_two_permanent_state ?? '' }} - {{ $user->guarantorDetail->g_two_permanent_pincode ?? '' }}
-                </div></div>
-                <div class="data-item"><div class="data-label">Service / Business</div><div class="data-value">{{ $user->guarantorDetail->g_two_srvice ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Annual Income</div><div class="data-value">@if(is_numeric($user->guarantorDetail->g_two_income)) ₹{{ number_format($user->guarantorDetail->g_two_income) }} @else {{ $user->guarantorDetail->g_two_income ?? 'N/A' }} @endif</div></div>
-                <div class="data-item"><div class="data-label">Aadhaar</div><div class="data-value">{{ $user->guarantorDetail->g_two_aadhar_card_number ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">PAN Card No</div><div class="data-value">{{ $user->guarantorDetail->g_two_pan_card_no ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">PAN Upload</div><div class="data-value">@if(!empty($user->guarantorDetail->g_two_pan_card_upload))<a href="{{ asset( $user->guarantorDetail->g_two_pan_card_upload) }}" target="_blank">View PAN</a>@else N/A @endif</div></div>
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-input" value="{{ $user->guarantorDetail->g_two_name ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Gender</label>
+                            <input type="text" class="form-input" value="{{ ucfirst($user->guarantorDetail->g_two_gender ?? 'N/A') }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Date of Birth</label>
+                            <input type="text" class="form-input" value="{{ optional($user->guarantorDetail->g_two_d_o_b)->format ? $user->guarantorDetail->g_two_d_o_b : ($user->guarantorDetail->g_two_d_o_b ?? 'N/A') }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Relation</label>
+                            <input type="text" class="form-input" value="{{ $user->guarantorDetail->g_two_relation_with_student ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Phone</label>
+                            <input type="text" class="form-input" value="{{ $user->guarantorDetail->g_two_phone ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Email</label>
+                            <input type="text" class="form-input" value="{{ $user->guarantorDetail->g_two_email ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field form-field-full">
+                            <label class="form-label">Permanent Address</label>
+                            <textarea class="form-textarea" readonly>{{ $user->guarantorDetail->g_two_permanent_flat_no ?? '' }} {{ $user->guarantorDetail->g_two_permanent_address ?? '' }} {{ $user->guarantorDetail->g_two_permanent_city ?? '' }}, {{ $user->guarantorDetail->g_two_permanent_district ?? '' }} {{ $user->guarantorDetail->g_two_permanent_state ?? '' }} - {{ $user->guarantorDetail->g_two_permanent_pincode ?? '' }}</textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Service / Business</label>
+                            <input type="text" class="form-input" value="{{ $user->guarantorDetail->g_two_srvice ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Annual Income</label>
+                            <input type="text" class="form-input" value="@if(is_numeric($user->guarantorDetail->g_two_income)) ₹{{ number_format($user->guarantorDetail->g_two_income) }} @else {{ $user->guarantorDetail->g_two_income ?? 'N/A' }} @endif" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Aadhaar</label>
+                            <input type="text" class="form-input" value="{{ $user->guarantorDetail->g_two_aadhar_card_number ?? 'N/A' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">PAN Card No</label>
+                            <input type="text" class="form-input" value="{{ $user->guarantorDetail->g_two_pan_card_no ?? 'N/A' }}" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">PAN Upload</label>
+                            <div class="form-input" style="padding:0.5rem; background:transparent; border:none;">
+                                @if(!empty($user->guarantorDetail->g_two_pan_card_upload))
+                                    <a href="{{ asset($user->guarantorDetail->g_two_pan_card_upload) }}" target="_blank">View PAN</a>
+                                @else
+                                    <span style="color:#6c757d;">N/A</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {{-- <div class="data-group">
@@ -1463,7 +1563,7 @@
                     </form>
                     <form action="{{ route('admin.apex.stage1.hold.step', [$user, 6]) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
                         @csrf
-                        <input type="text" name="admin_remark" placeholder="Hold remark" required style="padding:6px;border-radius:6px;border:1px solid #ddd;" />
+                        <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
                         <button type="submit" class="btn-hold">Hold</button>
                     </form>
                 </div>
@@ -1474,55 +1574,71 @@
         <div class="form-data">
             <div class="data-group">
                 <h4>All Documents</h4>
-                @php
-                    $doc = $user->document;
-                    $fields = [
-                        'ssc_cbse_icse_ib_igcse' => 'SSC/CBSE/ICSE/IB/IGCSE',
-                        'hsc_diploma_marksheet' => 'HSC/Diploma Marksheet',
-                        'graduate_post_graduate_marksheet' => 'Graduate/Post Graduate Marksheet',
-                        'admission_letter_fees_structure' => 'Admission Letter / Fees Structure',
-                        'aadhaar_applicant' => 'Applicant Aadhaar',
-                        'pan_applicant' => 'Applicant PAN',
-                        'passport' => 'Passport',
-                        'student_bank_details_statement' => 'Student Bank Statement',
-                        'jito_group_recommendation' => 'JITO Group Recommendation',
-                        'jain_sangh_certificate' => 'Jain Sangh Certificate',
-                        'electricity_bill' => 'Electricity Bill',
-                        'itr_acknowledgement_father' => 'Father ITR Acknowledgement',
-                        'itr_computation_father' => 'Father ITR Computation',
-                        'form16_salary_income_father' => 'Form16 / Salary Slip (Father)',
-                        'bank_statement_father_12months' => 'Father Bank Statement (12 months)',
-                        'bank_statement_mother_12months' => 'Mother Bank Statement (12 months)',
-                        'aadhaar_father_mother' => 'Father/Mother Aadhaar',
-                        'pan_father_mother' => 'Father/Mother PAN',
-                        'guarantor1_aadhaar' => 'Guarantor1 Aadhaar',
-                        'guarantor1_pan' => 'Guarantor1 PAN',
-                        'guarantor2_aadhaar' => 'Guarantor2 Aadhaar',
-                        'guarantor2_pan' => 'Guarantor2 PAN',
-                        'student_handwritten_statement' => 'Student Handwritten Statement',
-                        'proof_funds_arranged' => 'Proof of Funds Arranged',
-                        'other_documents' => 'Other Documents',
-                        'extra_curricular' => 'Extra Curricular',
+                <div class="form-section">
+                    @php
+                        $doc = $user->document;
+                        $fields = [
+                            'ssc_cbse_icse_ib_igcse' => 'SSC/CBSE/ICSE/IB/IGCSE',
+                            'hsc_diploma_marksheet' => 'HSC/Diploma Marksheet',
+                            'graduate_post_graduate_marksheet' => 'Graduate/Post Graduate Marksheet',
+                            'admission_letter_fees_structure' => 'Admission Letter / Fees Structure',
+                            'aadhaar_applicant' => 'Applicant Aadhaar',
+                            'pan_applicant' => 'Applicant PAN',
+                            'passport' => 'Passport',
+                            'student_bank_details_statement' => 'Student Bank Statement',
+                            'jito_group_recommendation' => 'JITO Group Recommendation',
+                            'jain_sangh_certificate' => 'Jain Sangh Certificate',
+                            'electricity_bill' => 'Electricity Bill',
+                            'itr_acknowledgement_father' => 'Father ITR Acknowledgement',
+                            'itr_computation_father' => 'Father ITR Computation',
+                            'form16_salary_income_father' => 'Form16 / Salary Slip (Father)',
+                            'bank_statement_father_12months' => 'Father Bank Statement (12 months)',
+                            'bank_statement_mother_12months' => 'Mother Bank Statement (12 months)',
+                            'aadhaar_father_mother' => 'Father/Mother Aadhaar',
+                            'pan_father_mother' => 'Father/Mother PAN',
+                            'guarantor1_aadhaar' => 'Guarantor1 Aadhaar',
+                            'guarantor1_pan' => 'Guarantor1 PAN',
+                            'guarantor2_aadhaar' => 'Guarantor2 Aadhaar',
+                            'guarantor2_pan' => 'Guarantor2 PAN',
+                            'student_handwritten_statement' => 'Student Handwritten Statement',
+                            'proof_funds_arranged' => 'Proof of Funds Arranged',
+                            'other_documents' => 'Other Documents',
+                            'extra_curricular' => 'Extra Curricular',
+                        ];
+                    @endphp
 
-                    ];
-                @endphp
-
-                @foreach($fields as $key => $label)
-                    <div class="data-item">
-                        <div class="data-label">{{ $label }}</div>
-                        <div class="data-value">
-                            @if(!empty($doc->$key))
-                                @php
-                                    $p = $doc->$key;
-                                    $href = (strpos($p, 'http') === 0) ? $p : asset('storage/' . ltrim($p, '/'));
-                                @endphp
-                                <a href="{{ $href }}" target="_blank">View</a>
-                            @else
-                                <span style="color:#6c757d;">Not uploaded</span>
-                            @endif
+                    @foreach($fields as $key => $label)
+                        <div class="form-row" style="align-items:center;">
+                            <div class="form-field" style="min-width:250px;">
+                                <label class="form-label">{{ $label }}</label>
+                            </div>
+                            <div class="form-field form-field-full" style="flex:1;text-align:left;">
+                                @if(!empty($doc->$key))
+                                    @php
+                                        $p = $doc->$key;
+                                        if (strpos($p, 'http') === 0) {
+                                            $href = $p;
+                                        } else {
+                                            $trimmed = ltrim($p, '/');
+                                            if (file_exists(public_path($trimmed))) {
+                                                $href = asset($trimmed);
+                                            } elseif (file_exists(public_path('storage/' . $trimmed))) {
+                                                $href = asset('storage/' . $trimmed);
+                                            } elseif (file_exists(public_path('user_document_images/' . $trimmed))) {
+                                                $href = asset('user_document_images/' . $trimmed);
+                                            } else {
+                                                $href = asset($trimmed);
+                                            }
+                                        }
+                                    @endphp
+                                    <a href="{{ $href }}" target="_blank">View Document</a>
+                                @else
+                                    <input type="text" class="form-input" value="Not uploaded" readonly>
+                                @endif
+                            </div>
                         </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
             </div>
         </div>
         @else
@@ -1548,7 +1664,7 @@
                     </form>
                     <form action="{{ route('admin.apex.stage1.hold.step', [$user, 7]) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
                         @csrf
-                        <input type="text" name="admin_remark" placeholder="Hold remark" required style="padding:6px;border-radius:6px;border:1px solid #ddd;" />
+                        <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
                         <button type="submit" class="btn-hold">Hold</button>
                     </form>
                 </div>

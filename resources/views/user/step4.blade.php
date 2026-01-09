@@ -14,31 +14,36 @@
             existingFundingData.forEach((funding, index) => {
                 if (funding) {
                     // Update status select
-                    const statusSelect = document.querySelector(`select[name="funding[${index}][status]"]`);
+                    const statusSelect = document.querySelector(
+                        `select[name="funding[${index}][status]"]`);
                     if (statusSelect && funding.status) {
                         statusSelect.value = funding.status;
                     }
 
                     // Update institute name
-                    const instituteInput = document.querySelector(`input[name="funding[${index}][institute_name]"]`);
+                    const instituteInput = document.querySelector(
+                        `input[name="funding[${index}][institute_name]"]`);
                     if (instituteInput && funding.institute_name) {
                         instituteInput.value = funding.institute_name;
                     }
 
                     // Update contact person
-                    const contactInput = document.querySelector(`input[name="funding[${index}][contact_person]"]`);
+                    const contactInput = document.querySelector(
+                        `input[name="funding[${index}][contact_person]"]`);
                     if (contactInput && funding.contact_person) {
                         contactInput.value = funding.contact_person;
                     }
 
                     // Update contact number
-                    const contactNoInput = document.querySelector(`input[name="funding[${index}][contact_no]"]`);
+                    const contactNoInput = document.querySelector(
+                        `input[name="funding[${index}][contact_no]"]`);
                     if (contactNoInput && funding.contact_no) {
                         contactNoInput.value = funding.contact_no;
                     }
 
                     // Update amount
-                    const amountInput = document.querySelector(`input[name="funding[${index}][amount]"]`);
+                    const amountInput = document.querySelector(
+                        `input[name="funding[${index}][amount]"]`);
                     if (amountInput && funding.amount) {
                         amountInput.value = funding.amount;
                     }
@@ -109,6 +114,43 @@
                 <div class="col-12">
                     <form method="POST" action="{{ route('user.step4.store') }}" enctype="multipart/form-data">
                         @csrf
+                        <div class="row mb-3">
+                            <div class="col-md-5 offset-md-1">
+
+                                <select class="form-control" name="financial_asset_type" id="financial_asset_type"
+                                    style="border:2px solid #393185;border-radius:15px;" readonly required>
+                                    <option disabled
+                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') ? '' : 'selected' }}
+                                        hidden>Financial Asst Type *</option>
+                                    <option value="domestic"
+                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'domestic' ? 'selected' : '' }}
+                                        hidden>
+                                        Domestic</option>
+                                    <option value="foreign_finance_assistant"
+                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'foreign_finance_assistant' ? 'selected' : '' }}
+                                        hidden>
+                                        Foreign Financial Assistance</option>
+                                </select>
+                                <small class="text-danger">{{ $errors->first('financial_asset_type') }}</small>
+                            </div>
+                            <div class="col-md-5">
+                                <select class="form-control" name="financial_asset_for" id="financial_asset_for"
+                                    style="border:2px solid #393185;border-radius:15px;" readonly required>
+                                    <option disabled
+                                        {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') ? '' : 'selected' }}
+                                        hidden>Financial Asst For *</option>
+                                    <option value="graduation"
+                                        {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'graduation' ? 'selected' : '' }}
+                                        hidden>
+                                        Graduation</option>
+                                    <option value="post_graduation"
+                                        {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'post_graduation' ? 'selected' : '' }}
+                                        hidden>
+                                        Post Graduation</option>
+                                </select>
+                                <small class="text-danger">{{ $errors->first('financial_asset_for') }}</small>
+                            </div>
+                        </div>
                         <div class="card form-card">
                             <div class="card-body">
 
@@ -203,7 +245,8 @@
                                                     <td style="font-weight: 500; border: none;">Own family funding (Father +
                                                         Mother)</td>
                                                     <td style="border: none;">
-                                                        <select class="form-control form-control-sm" name="funding[0][status]">
+                                                        <select class="form-control form-control-sm"
+                                                            name="funding[0][status]">
                                                             <option value="">Select Status</option>
                                                             <option value="applied">Applied</option>
                                                             <option value="approved">Approved</option>
@@ -213,12 +256,15 @@
                                                     </td>
                                                     <td style="border: none;"><input type="text"
                                                             class="form-control form-control-sm"
-                                                            placeholder="Name of Trust/Institute" name="funding[0][institute_name]"></td>
+                                                            placeholder="Name of Trust/Institute"
+                                                            name="funding[0][institute_name]"></td>
                                                     <td style="border: none;"><input type="text"
                                                             class="form-control form-control-sm"
-                                                            placeholder="Name of contact person" name="funding[0][contact_person]"></td>
+                                                            placeholder="Name of contact person"
+                                                            name="funding[0][contact_person]"></td>
                                                     <td style="border: none;"><input type="text"
-                                                            class="form-control form-control-sm" placeholder="Contact No" name="funding[0][contact_no]">
+                                                            class="form-control form-control-sm" placeholder="Contact No"
+                                                            name="funding[0][contact_no]">
                                                     </td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" placeholder="00"
@@ -229,7 +275,8 @@
                                                 <tr style="border-bottom: 1px solid lightgray; background-color: #f8f9fa;">
                                                     <td style="font-weight: 500; border: none;">Bank Loan</td>
                                                     <td style="border: none;">
-                                                        <select class="form-control form-control-sm" name="funding[1][status]">
+                                                        <select class="form-control form-control-sm"
+                                                            name="funding[1][status]">
                                                             <option value="">Select Status</option>
                                                             <option value="applied">Applied</option>
                                                             <option value="approved">Approved</option>
@@ -239,12 +286,15 @@
                                                     </td>
                                                     <td style="border: none;"><input type="text"
                                                             class="form-control form-control-sm"
-                                                            placeholder="Name of Trust/Institute" name="funding[1][institute_name]"></td>
+                                                            placeholder="Name of Trust/Institute"
+                                                            name="funding[1][institute_name]"></td>
                                                     <td style="border: none;"><input type="text"
                                                             class="form-control form-control-sm"
-                                                            placeholder="Name of contact person" name="funding[1][contact_person]"></td>
+                                                            placeholder="Name of contact person"
+                                                            name="funding[1][contact_person]"></td>
                                                     <td style="border: none;"><input type="text"
-                                                            class="form-control form-control-sm" placeholder="Contact No" name="funding[1][contact_no]">
+                                                            class="form-control form-control-sm" placeholder="Contact No"
+                                                            name="funding[1][contact_no]">
                                                     </td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" placeholder="00"
@@ -255,7 +305,8 @@
                                                 <tr style="border-bottom: 1px solid lightgray;">
                                                     <td style="font-weight: 500; border: none;">Other Assistance (1)</td>
                                                     <td style="border: none;">
-                                                        <select class="form-control form-control-sm" name="funding[2][status]">
+                                                        <select class="form-control form-control-sm"
+                                                            name="funding[2][status]">
                                                             <option value="">Select Status</option>
                                                             <option value="applied">Applied</option>
                                                             <option value="approved">Approved</option>
@@ -265,12 +316,15 @@
                                                     </td>
                                                     <td style="border: none;"><input type="text"
                                                             class="form-control form-control-sm"
-                                                            placeholder="Name of Trust/Institute" name="funding[2][institute_name]"></td>
+                                                            placeholder="Name of Trust/Institute"
+                                                            name="funding[2][institute_name]"></td>
                                                     <td style="border: none;"><input type="text"
                                                             class="form-control form-control-sm"
-                                                            placeholder="Name of contact person" name="funding[2][contact_person]"></td>
+                                                            placeholder="Name of contact person"
+                                                            name="funding[2][contact_person]"></td>
                                                     <td style="border: none;"><input type="text"
-                                                            class="form-control form-control-sm" placeholder="Contact No" name="funding[2][contact_no]">
+                                                            class="form-control form-control-sm" placeholder="Contact No"
+                                                            name="funding[2][contact_no]">
                                                     </td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" placeholder="00"
@@ -281,7 +335,8 @@
                                                 <tr style="border-bottom: 1px solid lightgray; background-color: #f8f9fa;">
                                                     <td style="font-weight: 500; border: none;">Other Assistance (2)</td>
                                                     <td style="border: none;">
-                                                        <select class="form-control form-control-sm" name="funding[3][status]">
+                                                        <select class="form-control form-control-sm"
+                                                            name="funding[3][status]">
                                                             <option value="">Select Status</option>
                                                             <option value="applied">Applied</option>
                                                             <option value="approved">Approved</option>
@@ -291,12 +346,15 @@
                                                     </td>
                                                     <td style="border: none;"><input type="text"
                                                             class="form-control form-control-sm"
-                                                            placeholder="Name of Trust/Institute" name="funding[3][institute_name]"></td>
+                                                            placeholder="Name of Trust/Institute"
+                                                            name="funding[3][institute_name]"></td>
                                                     <td style="border: none;"><input type="text"
                                                             class="form-control form-control-sm"
-                                                            placeholder="Name of contact person" name="funding[3][contact_person]"></td>
+                                                            placeholder="Name of contact person"
+                                                            name="funding[3][contact_person]"></td>
                                                     <td style="border: none;"><input type="text"
-                                                            class="form-control form-control-sm" placeholder="Contact No" name="funding[3][contact_no]">
+                                                            class="form-control form-control-sm" placeholder="Contact No"
+                                                            name="funding[3][contact_no]">
                                                     </td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" placeholder="00"
@@ -307,7 +365,8 @@
                                                 <tr style="border-bottom: 1px solid lightgray;">
                                                     <td style="font-weight: 500; border: none;">Local Assistance</td>
                                                     <td style="border: none;">
-                                                        <select class="form-control form-control-sm" name="funding[4][status]">
+                                                        <select class="form-control form-control-sm"
+                                                            name="funding[4][status]">
                                                             <option value="">Select Status</option>
                                                             <option value="applied">Applied</option>
                                                             <option value="approved">Approved</option>
@@ -317,12 +376,15 @@
                                                     </td>
                                                     <td style="border: none;"><input type="text"
                                                             class="form-control form-control-sm"
-                                                            placeholder="Name of Trust/Institute" name="funding[4][institute_name]"></td>
+                                                            placeholder="Name of Trust/Institute"
+                                                            name="funding[4][institute_name]"></td>
                                                     <td style="border: none;"><input type="text"
                                                             class="form-control form-control-sm"
-                                                            placeholder="Name of contact person" name="funding[4][contact_person]"></td>
+                                                            placeholder="Name of contact person"
+                                                            name="funding[4][contact_person]"></td>
                                                     <td style="border: none;"><input type="text"
-                                                            class="form-control form-control-sm" placeholder="Contact No" name="funding[4][contact_no]">
+                                                            class="form-control form-control-sm" placeholder="Contact No"
+                                                            name="funding[4][contact_no]">
                                                     </td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" placeholder="00"
@@ -351,218 +413,27 @@
                                     <h4 class="title" style="color:#4C4C4C;font-size:18px;">Have your Brother/Sister
                                         received financial assistance<br> from JITO JEAP/ JATF/SEED or JITO Chapter?
                                     </h4>
-
-                                    <!-- Additional Fields when Yes is selected -->
-                                    {{-- <div id="sibling-assistance-fields">
-                                        <div class="row mt-4">
-                                            <div class="col-md-6">
-                                                <div class="form-group mb-3">
-                                                    <select class="form-control" name="sibling_assistance">
-                                                        <option value=""
-                                                            {{ !old('sibling_assistance') ? 'selected' : '' }} disabled hidden>
-                                                            Yes/No*
-                                                        </option>
-                                                        <option value="yes"
-                                                            {{ old('sibling_assistance') == 'yes' ? 'selected' : '' }}>Yes
-                                                        </option>
-                                                        <option value="no"
-                                                            {{ old('sibling_assistance') == 'no' ? 'selected' : '' }}>No
-                                                        </option>
-                                                    </select>
-                                                    <small
-                                                        class="text-danger">{{ $errors->first('sibling_assistance') }}</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div id="sibling-fields" style="display: none;">
-                                        <div class="row">
-                                            <!-- Left Column -->
-                                            <div class="col-md-6">
-                                                <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="sibling_name"
-                                                        placeholder="Sibling name *" value="{{ old('sibling_name') }}">
-                                                    <small class="text-danger">{{ $errors->first('sibling_name') }}</small>
-                                                </div>
-                                                <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="sibling_number"
-                                                        placeholder="Sibling number *"
-                                                        value="{{ old('sibling_number') }}">
-                                                    <small
-                                                        class="text-danger">{{ $errors->first('sibling_number') }}</small>
-                                                </div>
-                                                <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="ngo_number"
-                                                        placeholder="NGO Phone number *" value="{{ old('ngo_number') }}">
-                                                    <small class="text-danger">{{ $errors->first('ngo_number') }}</small>
-                                                </div>
-                                            </div>
-
-                                            <!-- Right Column -->
-                                            <div class="col-md-6">
-                                                <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="sibling_ngo_name"
-                                                        placeholder="NGO name? *" value="{{ old('sibling_ngo_name') }}">
-                                                    <small
-                                                        class="text-danger">{{ $errors->first('sibling_ngo_name') }}</small>
-                                                </div>
-                                                <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="sibling_loan_status"
-                                                        placeholder="Loan status? *"
-                                                        value="{{ old('sibling_loan_status') }}">
-                                                    <small
-                                                        class="text-danger">{{ $errors->first('sibling_loan_status') }}</small>
-                                                </div>
-                                                <div class="form-group mb-3">
-                                                    <input type="text" class="form-control"
-                                                        name="sibling_applied_year" placeholder="Applied for year? *"
-                                                        value="{{ old('sibling_applied_year') }}">
-                                                    <small
-                                                        class="text-danger">{{ $errors->first('sibling_applied_year') }}</small>
-                                                </div>
-
-                                                <div class="form-group mb-3">
-                                                    <input type="number" class="form-control"
-                                                        name="sibling_applied_amount" placeholder="Applied amount? *"
-                                                        min="0" value="{{ old('sibling_applied_amount') }}">
-                                                    <small
-                                                        class="text-danger">{{ $errors->first('sibling_applied_amount') }}</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div> --}}
-                                    <!-- Sibling Assistance Wrapper -->
-                                    {{-- <div id="sibling-assistance-fields">
-
-                                        <div class="row mt-4">
-
-                                            <!-- Left Column -->
-                                            <div class="col-md-6">
-
-                                                <!-- Yes / No Dropdown (Moved here) -->
-                                                <div class="form-group mb-3">
-                                                    <select class="form-control" name="sibling_assistance">
-                                                        <option value=""
-                                                            {{ !old('sibling_assistance') ? 'selected' : '' }} disabled
-                                                            hidden>
-                                                            Yes/No *
-                                                        </option>
-                                                        <option value="yes"
-                                                            {{ old('sibling_assistance') == 'yes' ? 'selected' : '' }}>
-                                                            Yes
-                                                        </option>
-                                                        <option value="no"
-                                                            {{ old('sibling_assistance') == 'no' ? 'selected' : '' }}>
-                                                            No
-                                                        </option>
-                                                    </select>
-                                                    <small
-                                                        class="text-danger">{{ $errors->first('sibling_assistance') }}</small>
-                                                </div>
-
-                                                <!-- Left side fields -->
-                                                <div id="sibling-fields" style="display: none;">
-                                                    <div class="form-group mb-3">
-                                                        <input type="text" class="form-control" name="sibling_name"
-                                                            placeholder="Sibling name *"
-                                                            value="{{ old('sibling_name') }}">
-                                                    </div>
-
-                                                    <div class="form-group mb-3">
-                                                        <input type="text" class="form-control" name="sibling_number"
-                                                            placeholder="Sibling number *"
-                                                            value="{{ old('sibling_number') }}">
-                                                    </div>
-
-                                                    <div class="form-group mb-3">
-                                                        <input type="text" class="form-control" name="ngo_number"
-                                                            placeholder="NGO Phone number *"
-                                                            value="{{ old('ngo_number') }}">
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Right Column -->
-                                            <div class="col-md-6">
-                                                <div id="sibling-fields" style="display: none;">
-
-                                                    <div class="form-group mb-3">
-                                                        <input type="text" class="form-control"
-                                                            name="sibling_ngo_name" placeholder="NGO name *"
-                                                            value="{{ old('sibling_ngo_name') }}">
-                                                    </div>
-
-                                                    <div class="form-group mb-3">
-                                                        <input type="text" class="form-control"
-                                                            name="sibling_loan_status" placeholder="Loan status *"
-                                                            value="{{ old('sibling_loan_status') }}">
-                                                    </div>
-
-                                                    <div class="form-group mb-3">
-                                                        <input type="text" class="form-control"
-                                                            name="sibling_applied_year" placeholder="Applied for year *"
-                                                            value="{{ old('sibling_applied_year') }}">
-                                                    </div>
-
-                                                    <div class="form-group mb-3">
-                                                        <input type="number" class="form-control"
-                                                            name="sibling_applied_amount" placeholder="Applied amount *"
-                                                            min="0" value="{{ old('sibling_applied_amount') }}">
-                                                    </div>
-
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </div> --}}
-
                                     <div id="sibling-assistance-fields">
 
-                                        {{-- <div class="row mt-4">
-
-                                            <!-- Yes / No Dropdown -->
-                                            <div class="col-md-6">
-                                                <div class="form-group mb-3">
-                                                    <select class="form-control" name="sibling_assistance">
-                                                        <option value=""
-                                                            {{ !old('sibling_assistance') ? 'selected' : '' }} disabled
-                                                            hidden>
-                                                            Yes/No *
-                                                        </option>
-                                                        <option value="yes"
-                                                            {{ old('sibling_assistance') == 'yes' ? 'selected' : '' }}>
-                                                            Yes
-                                                        </option>
-                                                        <option value="no"
-                                                            {{ old('sibling_assistance') == 'no' ? 'selected' : '' }}>
-                                                            No
-                                                        </option>
-                                                    </select>
-                                                    <small
-                                                        class="text-danger">{{ $errors->first('sibling_assistance') }}</small>
-                                                </div>
-                                            </div>
-
-                                        </div> --}}
-
-                                        <!-- ✅ BOTH COLUMNS WRAPPED INSIDE ONE DIV -->
-                                        {{-- <div id="sibling-fields" style="display:none;"> --}}
                                         <div class="row">
 
                                             <!-- Left Column -->
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
+                                                    <label for="sibling_assistance">Yes/No <span
+                                                            style="color: red">*</span></label>
                                                     <select class="form-control" name="sibling_assistance">
                                                         <option value=""
-                                                            {{ (!old('sibling_assistance') && !$fundingDetail) ? 'selected' : '' }} disabled
-                                                            hidden>
-                                                            Yes/No *
+                                                            {{ !old('sibling_assistance') && !$fundingDetail ? 'selected' : '' }}
+                                                            disabled hidden>
+                                                            Yes/No
                                                         </option>
                                                         <option value="yes"
-                                                            {{ (old('sibling_assistance') == 'yes' || $fundingDetail && $fundingDetail->sibling_assistance === 'yes') ? 'selected' : '' }}>
+                                                            {{ old('sibling_assistance') == 'yes' || ($fundingDetail && $fundingDetail->sibling_assistance === 'yes') ? 'selected' : '' }}>
                                                             Yes
                                                         </option>
                                                         <option value="no"
-                                                            {{ (old('sibling_assistance') == 'no' || $fundingDetail && $fundingDetail->sibling_assistance === 'no') ? 'selected' : '' }}>
+                                                            {{ old('sibling_assistance') == 'no' || ($fundingDetail && $fundingDetail->sibling_assistance === 'no') ? 'selected' : '' }}>
                                                             No
                                                         </option>
                                                     </select>
@@ -571,20 +442,26 @@
                                                 </div>
                                                 <div class="sibling-fields" style="display:none;">
                                                     <div class="form-group mb-3">
+                                                        <label for="sibling_name">Sibling name <span
+                                                                style="color: red">*</span></label>
                                                         <input type="text" class="form-control" name="sibling_name"
-                                                            placeholder="Sibling name *"
+                                                            placeholder="Sibling name "
                                                             value="{{ old('sibling_name', $fundingDetail->sibling_name ?? '') }}">
                                                     </div>
 
                                                     <div class="form-group mb-3">
+                                                        <label for="sibling_number">Sibling number <span
+                                                                style="color: red">*</span></label>
                                                         <input type="text" class="form-control" name="sibling_number"
-                                                            placeholder="Sibling number *"
+                                                            placeholder="Sibling number "
                                                             value="{{ old('sibling_number', $fundingDetail->sibling_number ?? '') }}">
                                                     </div>
 
                                                     <div class="form-group mb-3">
+                                                        <label for="sibling_ngo_name">NGO name <span
+                                                                style="color: red">*</span></label>
                                                         <input type="text" class="form-control"
-                                                            name="sibling_ngo_name" placeholder="NGO name *"
+                                                            name="sibling_ngo_name" placeholder="NGO name "
                                                             value="{{ old('sibling_ngo_name', $fundingDetail->sibling_ngo_name ?? '') }}">
                                                     </div>
                                                 </div>
@@ -594,28 +471,37 @@
                                             <div class="col-md-6">
                                                 <div class="sibling-fields" style="display:none;">
                                                     <div class="form-group mb-3">
+                                                        <label for="ngo_number">NGO Phone number <span
+                                                                style="color: red">*</span></label>
                                                         <input type="text" class="form-control" name="ngo_number"
-                                                            placeholder="NGO Phone number *"
+                                                            placeholder="NGO Phone number "
                                                             value="{{ old('ngo_number', $fundingDetail->ngo_number ?? '') }}">
                                                     </div>
 
 
                                                     <div class="form-group mb-3">
+                                                        <label for="sibling_loan_status">Loan status <span
+                                                                style="color: red">*</span></label>
                                                         <input type="text" class="form-control"
-                                                            name="sibling_loan_status" placeholder="Loan status *"
+                                                            name="sibling_loan_status" placeholder="Loan status "
                                                             value="{{ old('sibling_loan_status', $fundingDetail->sibling_loan_status ?? '') }}">
                                                     </div>
 
                                                     <div class="form-group mb-3">
+                                                        <label for="sibling_applied_year">Applied for year <span
+                                                                style="color: red">*</span></label>
                                                         <input type="text" class="form-control"
-                                                            name="sibling_applied_year" placeholder="Applied for year *"
+                                                            name="sibling_applied_year" placeholder="Applied for year "
                                                             value="{{ old('sibling_applied_year', $fundingDetail->sibling_applied_year ?? '') }}">
                                                     </div>
 
                                                     <div class="form-group mb-3">
+                                                        <label for="sibling_applied_amount">Applied amount <span
+                                                                style="color: red">*</span></label>
                                                         <input type="number" class="form-control"
-                                                            name="sibling_applied_amount" placeholder="Applied amount *"
-                                                            min="0" value="{{ old('sibling_applied_amount', $fundingDetail->sibling_applied_amount ?? '') }}">
+                                                            name="sibling_applied_amount" placeholder="Applied amount "
+                                                            min="0"
+                                                            value="{{ old('sibling_applied_amount', $fundingDetail->sibling_applied_amount ?? '') }}">
                                                     </div>
                                                 </div>
                                             </div>
@@ -656,62 +542,81 @@
                                     <div class="col-md-6">
 
                                         <div class="form-group mb-3">
-                                            <select class="form-control" name="bank_name">
-                                                <option value="" {{ (!old('bank_name') && !$fundingDetail) ? 'selected' : '' }} disabled
-                                                    hidden>Select Bank *</option>
+                                            <label for="bank_name">Bank Name <span style="color: red">*</span></label>
+                                            <select class="form-control" name="bank_name" required>
+                                                <option value=""
+                                                    {{ !old('bank_name') && !$fundingDetail ? 'selected' : '' }} disabled
+                                                    hidden>Select Bank </option>
                                                 <option value="HDFC Bank"
-                                                    {{ (old('bank_name') == 'HDFC Bank' || $fundingDetail && $fundingDetail->bank_name === 'HDFC Bank') ? 'selected' : '' }}>HDFC Bank
+                                                    {{ old('bank_name') == 'HDFC Bank' || ($fundingDetail && $fundingDetail->bank_name === 'HDFC Bank') ? 'selected' : '' }}>
+                                                    HDFC Bank
                                                 </option>
                                                 <option value="ICICI Bank"
-                                                    {{ (old('bank_name') == 'ICICI Bank' || $fundingDetail && $fundingDetail->bank_name === 'ICICI Bank') ? 'selected' : '' }}>ICICI Bank
+                                                    {{ old('bank_name') == 'ICICI Bank' || ($fundingDetail && $fundingDetail->bank_name === 'ICICI Bank') ? 'selected' : '' }}>
+                                                    ICICI Bank
                                                 </option>
                                                 <option value="Kotak Mahindra Bank"
-                                                    {{ (old('bank_name') == 'Kotak Mahindra Bank' || $fundingDetail && $fundingDetail->bank_name === 'Kotak Mahindra Bank') ? 'selected' : '' }}>Kotak
+                                                    {{ old('bank_name') == 'Kotak Mahindra Bank' || ($fundingDetail && $fundingDetail->bank_name === 'Kotak Mahindra Bank') ? 'selected' : '' }}>
+                                                    Kotak
                                                     Mahindra Bank</option>
                                                 <option value="Axis Bank"
-                                                    {{ (old('bank_name') == 'Axis Bank' || $fundingDetail && $fundingDetail->bank_name === 'Axis Bank') ? 'selected' : '' }}>Axis Bank
+                                                    {{ old('bank_name') == 'Axis Bank' || ($fundingDetail && $fundingDetail->bank_name === 'Axis Bank') ? 'selected' : '' }}>
+                                                    Axis Bank
                                                 </option>
                                                 <option value="IndusInd Bank"
-                                                    {{ (old('bank_name') == 'IndusInd Bank' || $fundingDetail && $fundingDetail->bank_name === 'IndusInd Bank') ? 'selected' : '' }}>IndusInd
+                                                    {{ old('bank_name') == 'IndusInd Bank' || ($fundingDetail && $fundingDetail->bank_name === 'IndusInd Bank') ? 'selected' : '' }}>
+                                                    IndusInd
                                                     Bank</option>
                                                 <option value="IDBI Bank"
-                                                    {{ (old('bank_name') == 'IDBI Bank' || $fundingDetail && $fundingDetail->bank_name === 'IDBI Bank') ? 'selected' : '' }}>IDBI Bank
+                                                    {{ old('bank_name') == 'IDBI Bank' || ($fundingDetail && $fundingDetail->bank_name === 'IDBI Bank') ? 'selected' : '' }}>
+                                                    IDBI Bank
                                                 </option>
                                                 <option value="Yes Bank"
-                                                    {{ (old('bank_name') == 'Yes Bank' || $fundingDetail && $fundingDetail->bank_name === 'Yes Bank') ? 'selected' : '' }}>Yes Bank
+                                                    {{ old('bank_name') == 'Yes Bank' || ($fundingDetail && $fundingDetail->bank_name === 'Yes Bank') ? 'selected' : '' }}>
+                                                    Yes Bank
                                                 </option>
                                                 <option value="IDFC First Bank"
-                                                    {{ (old('bank_name') == 'IDFC First Bank' || $fundingDetail && $fundingDetail->bank_name === 'IDFC First Bank') ? 'selected' : '' }}>IDFC
+                                                    {{ old('bank_name') == 'IDFC First Bank' || ($fundingDetail && $fundingDetail->bank_name === 'IDFC First Bank') ? 'selected' : '' }}>
+                                                    IDFC
                                                     First Bank</option>
                                                 <option value="State Bank of India"
-                                                    {{ (old('bank_name') == 'State Bank of India' || $fundingDetail && $fundingDetail->bank_name === 'State Bank of India') ? 'selected' : '' }}>State
+                                                    {{ old('bank_name') == 'State Bank of India' || ($fundingDetail && $fundingDetail->bank_name === 'State Bank of India') ? 'selected' : '' }}>
+                                                    State
                                                     Bank of India</option>
                                                 <option value="Punjab National Bank"
-                                                    {{ (old('bank_name') == 'Punjab National Bank' || $fundingDetail && $fundingDetail->bank_name === 'Punjab National Bank') ? 'selected' : '' }}>
+                                                    {{ old('bank_name') == 'Punjab National Bank' || ($fundingDetail && $fundingDetail->bank_name === 'Punjab National Bank') ? 'selected' : '' }}>
                                                     Punjab National Bank</option>
                                                 <option value="Bank of Baroda"
-                                                    {{ (old('bank_name') == 'Bank of Baroda' || $fundingDetail && $fundingDetail->bank_name === 'Bank of Baroda') ? 'selected' : '' }}>Bank of
+                                                    {{ old('bank_name') == 'Bank of Baroda' || ($fundingDetail && $fundingDetail->bank_name === 'Bank of Baroda') ? 'selected' : '' }}>
+                                                    Bank of
                                                     Baroda</option>
                                                 <option value="Canara Bank"
-                                                    {{ (old('bank_name') == 'Canara Bank' || $fundingDetail && $fundingDetail->bank_name === 'Canara Bank') ? 'selected' : '' }}>Canara Bank
+                                                    {{ old('bank_name') == 'Canara Bank' || ($fundingDetail && $fundingDetail->bank_name === 'Canara Bank') ? 'selected' : '' }}>
+                                                    Canara Bank
                                                 </option>
                                                 <option value="Union Bank of India"
-                                                    {{ (old('bank_name') == 'Union Bank of India' || $fundingDetail && $fundingDetail->bank_name === 'Union Bank of India') ? 'selected' : '' }}>Union
+                                                    {{ old('bank_name') == 'Union Bank of India' || ($fundingDetail && $fundingDetail->bank_name === 'Union Bank of India') ? 'selected' : '' }}>
+                                                    Union
                                                     Bank of India</option>
                                             </select>
                                             <small class="text-danger">{{ $errors->first('bank_name') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
+                                            <label for="account_holder_name">Account Holder's Name <span
+                                                    style="color: red">*</span></label>
                                             <input type="text" class="form-control" name="account_holder_name"
-                                                placeholder="Account Holder's Name *"
+                                                placeholder="Account Holder's Name "
                                                 value="{{ old('account_holder_name', $fundingDetail->account_holder_name ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('account_holder_name') }}</small>
                                         </div>
 
 
                                         <div class="form-group mb-3">
+                                            <label for="account_number">Account Number <span
+                                                    style="color: red">*</span></label>
                                             <input type="text" class="form-control" name="account_number"
-                                                placeholder="Account Number *" value="{{ old('account_number', $fundingDetail->account_number ?? '') }}">
+                                                placeholder="Account Number "
+                                                value="{{ old('account_number', $fundingDetail->account_number ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('account_number') }}</small>
                                         </div>
                                     </div>
@@ -719,34 +624,31 @@
                                     <!-- Right Column -->
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
+                                            <label for="branch_name">Branch Name <span style="color: red">*</span></label>
                                             <input type="text" class="form-control" name="branch_name"
-                                                placeholder="Branch Name *" value="{{ old('branch_name', $fundingDetail->branch_name ?? '') }}">
+                                                placeholder="Branch Name "
+                                                value="{{ old('branch_name', $fundingDetail->branch_name ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('branch_name') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
+                                            <label for="ifsc_code">IFSC Code <span style="color: red">*</span></label>
                                             <input type="text" class="form-control" name="ifsc_code"
-                                                placeholder="IFSC Code *" value="{{ old('ifsc_code', $fundingDetail->ifsc_code ?? '') }}">
+                                                placeholder="IFSC Code "
+                                                value="{{ old('ifsc_code', $fundingDetail->ifsc_code ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('ifsc_code') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
-                                            <textarea class="form-control" name="bank_address" rows="3" placeholder="Bank Address *"
+                                            <label for="bank_address">Bank Address <span
+                                                    style="color: red">*</span></label>
+                                            <textarea class="form-control" name="bank_address" rows="3" placeholder="Bank Address "
                                                 style="resize: vertical;">{{ old('bank_address', $fundingDetail->bank_address ?? '') }}</textarea>
                                             <small class="text-danger">{{ $errors->first('bank_address') }}</small>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-
-
-
-
-
-
-
-
                         </div>
                 </div>
                 <div class="d-flex justify-content-between mt-4 mb-4">

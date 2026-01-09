@@ -18,7 +18,7 @@
                 <div class="col-12">
                     <form method="POST" action="{{ route('user.step1.store') }}" enctype="multipart/form-data">
                         @csrf
-                        <div class="row mb-3">
+                        {{-- <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
                                 <label for="financial_asset_type" class="form-label">Financial Asset Type <span
                                         style="color: red;">*</span></label>
@@ -49,6 +49,43 @@
                                         Graduation</option>
                                     <option value="post_graduation"
                                         {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'post_graduation' ? 'selected' : '' }}>
+                                        Post Graduation</option>
+                                </select>
+                                <small class="text-danger">{{ $errors->first('financial_asset_for') }}</small>
+                            </div>
+                        </div> --}}
+                        <div class="row mb-3">
+                            <div class="col-md-5 offset-md-1">
+
+                                <select class="form-control" name="financial_asset_type" id="financial_asset_type"
+                                    style="border:2px solid #393185;border-radius:15px;" readonly required>
+                                    <option disabled
+                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') ? '' : 'selected' }}
+                                        hidden>Financial Asst Type <span style="color: red;">*</span></option>
+                                    <option value="domestic"
+                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'domestic' ? 'selected' : '' }}
+                                        hidden>
+                                        Domestic</option>
+                                    <option value="foreign_finance_assistant"
+                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'foreign_finance_assistant' ? 'selected' : '' }}
+                                        hidden>
+                                        Foreign Financial Assistance</option>
+                                </select>
+                                <small class="text-danger">{{ $errors->first('financial_asset_type') }}</small>
+                            </div>
+                            <div class="col-md-5">
+                                <select class="form-control" name="financial_asset_for" id="financial_asset_for"
+                                    style="border:2px solid #393185;border-radius:15px;" readonly required>
+                                    <option disabled
+                                        {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') ? '' : 'selected' }}
+                                        hidden>Financial Asst For *</option>
+                                    <option value="graduation"
+                                        {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'graduation' ? 'selected' : '' }}
+                                        hidden>
+                                        Graduation</option>
+                                    <option value="post_graduation"
+                                        {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'post_graduation' ? 'selected' : '' }}
+                                        hidden>
                                         Post Graduation</option>
                                 </select>
                                 <small class="text-danger">{{ $errors->first('financial_asset_for') }}</small>
@@ -310,7 +347,8 @@
                                     <div class="col-md-6">
 
                                         <div class="form-group mb-3">
-                                            <label for="age" class="form-label">Age <span style="color: red;">*</span></label>
+                                            <label for="age" class="form-label">Age <span
+                                                    style="color: red;">*</span></label>
                                             <input type="number" id="age" name="age" class="form-control"
                                                 placeholder="Age" value="{{ old('age', $user->age ?? '') }}" readonly
                                                 required>
@@ -329,27 +367,30 @@
                                         <div class="form-group mb-3">
                                             <label for="flat_no" class="form-label">Flat No</label>
                                             <input type="text" id="flat_no" class="form-control" name="flat_no"
-                                                placeholder="Enter Flat No" value="{{ old('flat_no', $user->flat_no ?? '') }}">
+                                                placeholder="Enter Flat No"
+                                                value="{{ old('flat_no', $user->flat_no ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('flat_no') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
-                                            <label for="building_no" class="form-label">Building No <span style="color: red;">*</span></label>
-                                            <input type="text" id="building_no" class="form-control" name="building_no"
-                                                placeholder="Enter Building No"
+                                            <label for="building_no" class="form-label">Building No <span
+                                                    style="color: red;">*</span></label>
+                                            <input type="text" id="building_no" class="form-control"
+                                                name="building_no" placeholder="Enter Building No"
                                                 value="{{ old('building_no', $user->building_no ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('building_no') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
-                                            <label for="street_name" class="form-label">Street Name <span style="color: red;">*</span></label>
-                                            <input type="text" id="street_name" class="form-control" name="street_name"
-                                                placeholder="Enter Street Name"
+                                            <label for="street_name" class="form-label">Street Name <span
+                                                    style="color: red;">*</span></label>
+                                            <input type="text" id="street_name" class="form-control"
+                                                name="street_name" placeholder="Enter Street Name"
                                                 value="{{ old('street_name', $user->street_name ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('street_name') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
                                             <label for="area" class="form-label">Area</label>
-                                            <input type="text" id="area" class="form-control" name="area" placeholder="Enter Area"
-                                                value="{{ old('area', $user->area ?? '') }}">
+                                            <input type="text" id="area" class="form-control" name="area"
+                                                placeholder="Enter Area" value="{{ old('area', $user->area ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('area') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
@@ -361,7 +402,8 @@
                                         </div>
 
                                         <div class="form-group mb-3">
-                                            <label for="city" class="form-label">City <span style="color: red;">*</span></label>
+                                            <label for="city" class="form-label">City <span
+                                                    style="color: red;">*</span></label>
                                             <input type="text" id="city" class="form-control" name="city"
                                                 placeholder="Enter City" value="{{ old('city', $user->city ?? '') }}"
                                                 required>
@@ -371,14 +413,16 @@
 
 
                                         <div class="form-group mb-3">
-                                            <label for="district" class="form-label">District <span style="color: red;">*</span></label>
+                                            <label for="district" class="form-label">District <span
+                                                    style="color: red;">*</span></label>
                                             <input type="text" id="district" class="form-control" name="district"
                                                 placeholder="Enter District"
                                                 value="{{ old('district', $user->district ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('district') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
-                                            <label for="state" class="form-label">State <span style="color: red;">*</span></label>
+                                            <label for="state" class="form-label">State <span
+                                                    style="color: red;">*</span></label>
                                             <input type="text" id="state" class="form-control" name="state"
                                                 placeholder="Enter State" value="{{ old('state', $user->state ?? '') }}"
                                                 required>
@@ -388,7 +432,8 @@
 
 
                                         <div class="form-group mb-3">
-                                            <label for="nationality" class="form-label">Nationality <span style="color: red;">*</span></label>
+                                            <label for="nationality" class="form-label">Nationality <span
+                                                    style="color: red;">*</span></label>
                                             <select class="form-control" id="nationality" name="nationality" required>
                                                 <option disabled
                                                     {{ (old('nationality') ?: $user->nationality ?? '') ? '' : 'selected' }}
@@ -405,7 +450,8 @@
                                             <small class="text-danger">{{ $errors->first('nationality') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
-                                            <label for="pin_code" class="form-label">Pin Code <span style="color: red;">*</span></label>
+                                            <label for="pin_code" class="form-label">Pin Code <span
+                                                    style="color: red;">*</span></label>
                                             <input type="number" id="pin_code" name="pin_code" class="form-control"
                                                 placeholder="Enter Pin Code"
                                                 value="{{ old('pin_code', $user->pin_code ?? '') }}" required>
@@ -413,7 +459,8 @@
                                         </div>
 
                                         <div class="form-group mb-3">
-                                            <label for="chapter" class="form-label">Chapter <span style="color: red;">*</span></label>
+                                            <label for="chapter" class="form-label">Chapter <span
+                                                    style="color: red;">*</span></label>
                                             <input type="text" id="chapter" name="chapter" class="form-control"
                                                 placeholder="Enter Chapter"
                                                 value="{{ old('chapter', $user->chapter ?? '') }}" required>
@@ -424,15 +471,19 @@
 
 
                                         <div class="form-group mb-3">
-                                            <label for="aadhar_address" class="form-label">Aadhar/Pan Address <span style="color: red;">*</span></label>
-                                            <textarea class="form-control" id="aadhar_address" name="aadhar_address" rows="3" placeholder="Enter Aadhar/Pan Address" required>{{ old('aadhar_address', $user->aadhar_address ?? '') }}</textarea>
+                                            <label for="aadhar_address" class="form-label">Aadhar/Pan Address <span
+                                                    style="color: red;">*</span></label>
+                                            <textarea class="form-control" id="aadhar_address" name="aadhar_address" rows="3"
+                                                placeholder="Enter Aadhar/Pan Address" required>{{ old('aadhar_address', $user->aadhar_address ?? '') }}</textarea>
                                             <small class="text-danger">{{ $errors->first('aadhar_address') }}</small>
                                         </div>
 
 
                                         <div class="form-group mb-3">
-                                            <label for="specially_abled" class="form-label">Specially Abled <span style="color: red;">*</span></label>
-                                            <select class="form-control" id="specially_abled" name="specially_abled" required>
+                                            <label for="specially_abled" class="form-label">Specially Abled <span
+                                                    style="color: red;">*</span></label>
+                                            <select class="form-control" id="specially_abled" name="specially_abled"
+                                                required>
                                                 <option disabled
                                                     {{ (old('specially_abled') ?: $user->specially_abled ?? '') ? '' : 'selected' }}
                                                     hidden>

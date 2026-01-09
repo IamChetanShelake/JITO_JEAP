@@ -21,6 +21,7 @@ class UserController extends Controller
     public function index()
     {
         $user_id = Auth::id();
+        
         $existingLoan = Loan_category::where('user_id', $user_id)->latest()->first();
         if ($existingLoan) {
             return redirect()->route('user.step1');
@@ -43,8 +44,9 @@ class UserController extends Controller
     public function step1(Request $request)
     {
         $user_id = Auth::id();
+        $user = User::find($user_id);
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
-        $user = Auth::user();
+       // $user = Auth::user();
         $familyDetail = Familydetail::where('user_id', $user_id)->first();
         $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
         return view('user.step1', compact('type', 'user', 'familyDetail', 'fundingDetail'));
@@ -1037,7 +1039,7 @@ class UserController extends Controller
             'number_family_members' => 'required|integer|min:1',
             'total_family_income' => 'required|integer|min:0',
             'total_students' => 'required|integer|min:0',
-            'family_member_diksha' => 'nullable|in:yes,no',
+            'family_member_diksha' => 'required',
             'total_insurance_coverage' => 'required|integer|min:0',
             'total_premium_paid' => 'required|integer|min:0',
             'recent_electricity_amount' => 'required|integer|min:0',
@@ -1151,6 +1153,7 @@ class UserController extends Controller
     public function step4(Request $request)
     {
         $user_id = Auth::id();
+        $user = User::find($user_id);
         $familyDetail = Familydetail::where('user_id', $user_id)->first();
         $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
@@ -1197,7 +1200,7 @@ class UserController extends Controller
             ];
         }
 
-        return view('user.step4', compact('type', 'familyDetail', 'fundingDetail', 'existingFundingData'));
+        return view('user.step4', compact('type', 'familyDetail', 'fundingDetail', 'existingFundingData', 'user'));
     }
 
 

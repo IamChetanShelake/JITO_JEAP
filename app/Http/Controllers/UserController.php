@@ -21,7 +21,7 @@ class UserController extends Controller
     public function index()
     {
         $user_id = Auth::id();
-        
+
         $existingLoan = Loan_category::where('user_id', $user_id)->latest()->first();
         if ($existingLoan) {
             return redirect()->route('user.step1');
@@ -46,7 +46,7 @@ class UserController extends Controller
         $user_id = Auth::id();
         $user = User::find($user_id);
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
-       // $user = Auth::user();
+        // $user = Auth::user();
         $familyDetail = Familydetail::where('user_id', $user_id)->first();
         $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
         return view('user.step1', compact('type', 'user', 'familyDetail', 'fundingDetail'));
@@ -2044,8 +2044,9 @@ class UserController extends Controller
     public function step7(Request $request)
     {
         $user_id = Auth::id();
+        $user = User::find($user_id);
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
-        return view('user.step7', compact('type'));
+        return view('user.step7', compact('type', 'user'));
     }
 
     public function step7store()

@@ -18,20 +18,20 @@
                 <div class="col-12">
                     <form method="POST" action="{{ route('user.step1.store') }}" enctype="multipart/form-data">
                         @csrf
-                        {{-- <div class="row mb-3">
+                        <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
                                 <label for="financial_asset_type" class="form-label">Financial Asset Type <span
                                         style="color: red;">*</span></label>
                                 <select class="form-control" name="financial_asset_type" id="financial_asset_type"
-                                    style="border:2px solid #393185;border-radius:15px;" required>
+                                    style="border:2px solid #393185;border-radius:15px;" @if($user->submit_status == 'submited') readonly @endif required>
                                     <option disabled
-                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') ? '' : 'selected' }}
+                                        {{ $user->financial_asset_type ? '' : 'selected' }}
                                         hidden>Select Financial Asset Type</option>
                                     <option value="domestic"
-                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'domestic' ? 'selected' : '' }}>
+                                        {{ $user->financial_asset_type == 'domestic' ? 'selected' : '' }}>
                                         Domestic</option>
                                     <option value="foreign_finance_assistant"
-                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'foreign_finance_assistant' ? 'selected' : '' }}>
+                                        {{ $user->financial_asset_type == 'foreign_finance_assistant' ? 'selected' : '' }}>
                                         Foreign Financial Assistance</option>
                                 </select>
                                 <small class="text-danger">{{ $errors->first('financial_asset_type') }}</small>
@@ -40,25 +40,25 @@
                                 <label for="financial_asset_for" class="form-label">Financial Asset For <span
                                         style="color: red;">*</span></label>
                                 <select class="form-control" name="financial_asset_for" id="financial_asset_for"
-                                    style="border:2px solid #393185;border-radius:15px;" required>
+                                    style="border:2px solid #393185;border-radius:15px;" @if($user->submit_status == 'submited') readonly @endif required>
                                     <option disabled
-                                        {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') ? '' : 'selected' }}
+                                        {{ $user->financial_asset_for ? '' : 'selected' }}
                                         hidden>Select Financial Asset For</option>
                                     <option value="graduation"
-                                        {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'graduation' ? 'selected' : '' }}>
+                                        {{ $user->financial_asset_for == 'graduation' ? 'selected' : '' }}>
                                         Graduation</option>
                                     <option value="post_graduation"
-                                        {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'post_graduation' ? 'selected' : '' }}>
+                                        {{ $user->financial_asset_for == 'post_graduation' ? 'selected' : '' }}>
                                         Post Graduation</option>
                                 </select>
                                 <small class="text-danger">{{ $errors->first('financial_asset_for') }}</small>
                             </div>
-                        </div> --}}
-                        <div class="row mb-3">
+                        </div>
+                        {{-- <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
 
                                 <select class="form-control" name="financial_asset_type" id="financial_asset_type"
-                                    style="border:2px solid #393185;border-radius:15px;" readonly required>
+                                    style="border:2px solid #393185;border-radius:15px;" @if ($user->submit_status == 'submited') readonly @endif required>
                                     <option disabled
                                         {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') ? '' : 'selected' }}
                                         hidden>Financial Asst Type <span style="color: red;">*</span></option>
@@ -75,7 +75,7 @@
                             </div>
                             <div class="col-md-5">
                                 <select class="form-control" name="financial_asset_for" id="financial_asset_for"
-                                    style="border:2px solid #393185;border-radius:15px;" readonly required>
+                                    style="border:2px solid #393185;border-radius:15px;" @if ($user->submit_status == 'submited') readonly @endif required>
                                     <option disabled
                                         {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') ? '' : 'selected' }}
                                         hidden>Financial Asst For *</option>
@@ -90,7 +90,7 @@
                                 </select>
                                 <small class="text-danger">{{ $errors->first('financial_asset_for') }}</small>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="card form-card">
                             <div class="card-body">
 
@@ -153,8 +153,8 @@
                                                         <div class="upload-status" style="display:none;">
                                                             <div class="row">
                                                                 <div class="col-9">
-                                                                    <img id="imagePreview" class="img-thumbnail"
-                                                                        style="max-width: 100px; max-height: 100px; display: none;" /><br>
+                                                                    {{-- <img id="imagePreview" class="img-thumbnail"
+                                                                        style="max-width: 100px; max-height: 100px; display: none;" /><br> --}}
                                                                     <div class="upload-summary"></div>
                                                                 </div>
                                                                 <div class="col-3">
@@ -372,19 +372,17 @@
                                             <small class="text-danger">{{ $errors->first('flat_no') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
-                                            <label for="building_no" class="form-label">Building No <span
-                                                    style="color: red;">*</span></label>
+                                            <label for="building_no" class="form-label">Building No </label>
                                             <input type="text" id="building_no" class="form-control"
                                                 name="building_no" placeholder="Enter Building No"
-                                                value="{{ old('building_no', $user->building_no ?? '') }}" required>
+                                                value="{{ old('building_no', $user->building_no ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('building_no') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
-                                            <label for="street_name" class="form-label">Street Name <span
-                                                    style="color: red;">*</span></label>
+                                            <label for="street_name" class="form-label">Street Name</label>
                                             <input type="text" id="street_name" class="form-control"
                                                 name="street_name" placeholder="Enter Street Name"
-                                                value="{{ old('street_name', $user->street_name ?? '') }}" required>
+                                                value="{{ old('street_name', $user->street_name ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('street_name') }}</small>
                                         </div>
                                         <div class="form-group mb-3">

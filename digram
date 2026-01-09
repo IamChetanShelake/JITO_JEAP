@@ -1,0 +1,179 @@
+# JITO JEAP - Comprehensive Approval Workflow System
+
+## Overview
+
+This document describes the redesigned approval workflow system that provides clear, easy-to-understand status management for admins. The system tracks applications through 4 approval levels with per-form status tracking.
+
+---
+
+## 1. WORKFLOW ARCHITECTURE
+
+### 1.1 Approval Levels (Sequential)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    USER SUBMITS APPLICATION                     │
+│                    (All 7 forms submitted)                      │
+└────────────────────────────┬────────────────────────────────────┘
+                             ↓
+┌─────────────────────────────────────────────────────────────────┐
+│                      APEX REVIEW (Level 1)                      │
+│  - Review all 7 forms individually                              │
+│  - Can approve, reject, or hold each form                       │
+│  - All forms must be approved to proceed                        │
+│  - Status: apex_status (pending/approved/rejected/on_hold)      │
+└────────────────────────────┬────────────────────────────────────┘
+                             ↓
+                    (All forms approved?)
+                             ↓
+┌─────────────────────────────────────────────────────────────────┐
+│              WORKING COMMITTEE REVIEW (Level 2)                 │
+│  - Review all 7 forms individually                              │
+│  - Can approve, reject, or hold each form                       │
+��  - All forms must be approved to proceed                        │
+│  - Status: working_committee_status                             │
+└────────────────────────────┬────────────────────────────────────┘
+                             ↓
+                    (All forms approved?)
+                             ↓
+┌─────────────────────────────────────────────────────────────────┐
+│                   CHAPTER REVIEW (Level 3)                      │
+│  - Review all 7 forms individually                              │
+│  - Can approve, reject, or hold each form                       │
+│  - All forms must be approved to proceed                        │
+│  - Status: chapter_status                                       │
+└────────────────────────────┬────────────────────────────────────┘
+                             ↓
+                    (All forms approved?)
+                             ↓
+┌─────────────��───────────────────────────────────────────────────┐
+│                  APEX FINAL REVIEW (Level 4)                    │
+│  - Final review by Apex                                         │
+│  - Can approve, reject, or hold each form                       │
+│  - All forms must be approved to complete                       │
+│  - Status: apex_final_status                                    │
+└────────────────────────────┬────────────────────────────────────┘
+                             ↓
+                    (All forms approved?)
+                             ↓
+┌─────────────────────────────────────────────────────────────────┐
+│                    APPLICATION COMPLETED                        │
+│                  (application_status = 'approved')              │
+└─────────────────────────────────────────────────────────────────┘
+
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    ADMIN DASHBOARD                          │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  Total Applications: 245                                    │
+│  ├─ Approved: 120                                           │
+│  ├─ In Review: 85                                           │
+│  ├─ On Hold: 30                                             │
+│  └─ Rejected: 10                                            │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ APEX LEVEL                                          │   │
+│  ├─────────────────────────────────────────────────────┤   │
+│  │ Pending: 45 | Approved: 50 | On Hold: 15 | Rej: 5  │   │
+│  │ [View Pending] [View Approved] [View On Hold]       │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ WORKING COMMITTEE LEVEL                             │   │
+│  ├─────────────────────────────────────────────────────┤   │
+│  │ Pending: 30 | Approved: 40 | On Hold: 10 | Rej: 3  │   │
+│  │ [View Pending] [View Approved] [View On Hold]       │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ CHAPTER LEVEL                                       │   │
+│  ├─────────────────────────────────────────────────────┤   │
+│  │ Pending: 20 | Approved: 30 | On Hold: 5 | Rej: 2   │   │
+│  │ [View Pending] [View Approved] [View On Hold]       │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ APEX FINAL LEVEL                                    │   │
+│  ├──────────────────────────────���──────────────────────┤   │
+│  │ Pending: 10 | Approved: 20 | On Hold: 2 | Rej: 1   │   │
+│  │ [View Pending] [View Approved] [View On Hold]       │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 5.2 Application Review View
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              APPLICATION REVIEW - John Doe                  │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  Current Level: APEX REVIEW                                 │
+│  Application Status: IN REVIEW                              │
+│  Overall Progress: 3/7 forms approved at Apex               │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ FORM 1: Personal Details                            │   │
+│  ├─────────────────────────────────────────────────────┤   │
+│  │ Apex: ✓ APPROVED                                    │   │
+│  │ Working Committee: ⏳ PENDING                        │   │
+│  │ Chapter: ⏳ PENDING                                  │   │
+│  │ Apex Final: ⏳ PENDING                               │   │
+│  │ [View Details]                                      │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ FORM 2: Education Details                           │   │
+│  ├─────────────────────────────────────────────────────┤   │
+│  │ Apex: ⏸ ON HOLD                                     │   │
+│  │ Remark: "Missing graduation certificate"           │   │
+│  │ Working Committee: ⏳ PENDING                        │   │
+│  │ Chapter: ⏳ PENDING                                  │   │
+│  │ Apex Final: ⏳ PENDING                               │   │
+│  │ [View Details] [Approve] [Reject] [Hold]            │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ FORM 3: Family Details                              │   │
+│  ├──────────────────────────���──────────────────────────┤   │
+│  │ Apex: ⏳ PENDING                                     │   │
+│  │ Working Committee: ⏳ PENDING                        │   │
+│  │ Chapter: ⏳ PENDING                                  │   │
+│  │ Apex Final: ⏳ PENDING                               │   │
+│  │ [View Details] [Approve] [Reject] [Hold]            │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                              │
+│  ... (Forms 4-7)                                            │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ [Approve All Remaining] [Audit Trail] [Export]      │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                              │
+└────────────���────────────────────────────────────────────────┘
+```
+
+### 5.3 Form Action Modal
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              APPROVE FORM 1 - Personal Details              │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  Form: Personal Details                                     │
+│  Current Level: APEX                                        │
+│  Current Status: PENDING                                    │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ Remarks (Optional):                                 │   │
+│  │ ┌─────────────────────────────────────────────────┐ │   │
+│  │ │ All details verified and correct                │ │   │
+│  │ └─────────────────────────────────────────────────┘ │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                              │
+│  [Cancel] [Approve]                                         │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+

@@ -703,7 +703,26 @@
                         </div>
                         <div>
                             <div class="status-label">Approved</div>
-                            <div class="status-value">{{ \App\Models\User::where('submit_status', 'approved')->count() }}</div>
+                            <div class="status-value">{{
+                                \App\Models\User::where('role', 'user')
+                                    ->whereHas('familyDetail', function($q) {
+                                            $q->where('submit_status', 'approved');
+                                        })
+                                        ->whereHas('educationDetail', function($q) {
+                                            $q->where('submit_status', 'approved');
+                                        })
+                                        ->whereHas('fundingDetail', function($q) {
+                                            $q->where('submit_status', 'approved');
+                                        })
+                                        ->whereHas('guarantorDetail', function($q) {
+                                            $q->where('submit_status', 'approved');
+                                        })
+                                        ->whereHas('document', function($q) {
+                                            $q->where('submit_status', 'approved');
+                                        })
+                                        ->where('submit_status', 'approved')
+                                        ->count()
+                            }}</div>
                         </div>
                     </a>
                     <a href="{{ route('admin.apex.stage1.pending') }}" class="status-badge pending" style="text-decoration: none; color: inherit;">
@@ -712,7 +731,37 @@
                         </div>
                         <div>
                             <div class="status-label">Pending</div>
-                            <div class="status-value">{{ \App\Models\User::where('submit_status', 'submited')->count() }}</div>
+                            <div class="status-value">{{
+                                \App\Models\User::where('role', 'user')
+                                    ->where(function ($query) {
+                                        $query->whereIn('submit_status', ['pending', 'submited']);
+                                        $query->orWhere(function ($q) {
+                                            $q->whereHas('educationDetail', function ($qq) {
+                                                $qq->where('submit_status', 'pending');
+                                            })->orWhereDoesntHave('educationDetail');
+                                        });
+                                        $query->orWhere(function ($q) {
+                                            $q->whereHas('familyDetail', function ($qq) {
+                                                $qq->where('submit_status', 'pending');
+                                            })->orWhereDoesntHave('familyDetail');
+                                        });
+                                        $query->orWhere(function ($q) {
+                                            $q->whereHas('fundingDetail', function ($qq) {
+                                                $qq->where('submit_status', 'pending');
+                                            })->orWhereDoesntHave('fundingDetail');
+                                        });
+                                        $query->orWhere(function ($q) {
+                                            $q->whereHas('guarantorDetail', function ($qq) {
+                                                $qq->where('submit_status', 'pending');
+                                            })->orWhereDoesntHave('guarantorDetail');
+                                        });
+                                        $query->orWhere(function ($q) {
+                                            $q->whereHas('document', function ($qq) {
+                                                $qq->where('submit_status', 'pending');
+                                            })->orWhereDoesntHave('document');
+                                        });
+                                    })->count()
+                            }}</div>
                         </div>
                     </a>
                     <a href="{{ route('admin.apex.stage1.hold') }}" class="status-badge hold" style="text-decoration: none; color: inherit;">
@@ -721,7 +770,38 @@
                         </div>
                         <div>
                             <div class="status-label">Hold</div>
-                            <div class="status-value">{{ \App\Models\User::where('submit_status', 'resubmit')->count() }}</div>
+                            <div class="status-value">{{
+                                \App\Models\User::where('role', 'user')
+                                    ->where(function($query) {
+                                        $query->where('submit_status', 'resubmit')
+                                            ->orWhere(function($q) {
+                                                $q->whereHas('educationDetail', function($qq) {
+                                                    $qq->where('submit_status', 'resubmit');
+                                                });
+                                            })
+                                            ->orWhere(function($q) {
+                                                $q->whereHas('familyDetail', function($qq) {
+                                                    $qq->where('submit_status', 'resubmit');
+                                                });
+                                            })
+                                            ->orWhere(function($q) {
+                                                $q->whereHas('fundingDetail', function($qq) {
+                                                    $qq->where('submit_status', 'resubmit');
+                                                });
+                                            })
+                                            ->orWhere(function($q) {
+                                                $q->whereHas('guarantorDetail', function($qq) {
+                                                    $qq->where('submit_status', 'resubmit');
+                                                });
+                                            })
+                                            ->orWhere(function($q) {
+                                                $q->whereHas('document', function($qq) {
+                                                    $qq->where('submit_status', 'resubmit');
+                                                });
+                                            });
+                                    })
+                                    ->count()
+                            }}</div>
                         </div>
                     </a>
                 </div>
@@ -743,34 +823,34 @@
                 <div class="progress-custom">
                     <div class="progress-bar-custom" style="width: 70%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
                 </div>
-                <div class="status-badges">
-                    <div class="status-badge approved">
+                 <div class="status-badges">
+                    <a href="{{ route('admin.apex.stage1.approved') }}" class="status-badge approved" style="text-decoration: none; color: inherit;">
                         <div class="status-icon approved">
                             <i class="fas fa-check"></i>
                         </div>
                         <div>
                             <div class="status-label">Approved</div>
-                            <div class="status-value">{{ \App\Models\Zone::where('status', true)->count() }}</div>
+                            <div class="status-value">{{ \App\Models\User::whereHas('familyDetail', function($q) { $q->where('submit_status', 'approved'); })->whereHas('educationDetail', function($q) { $q->where('submit_status', 'approved'); })->whereHas('fundingDetail', function($q) { $q->where('submit_status', 'approved'); })->whereHas('guarantorDetail', function($q) { $q->where('submit_status', 'approved'); })->whereHas('document', function($q) { $q->where('submit_status', 'approved'); })->where('submit_status', 'approved')->count() }}</div>
                         </div>
-                    </div>
-                    <div class="status-badge pending">
+                    </a>
+                    <a href="{{ route('admin.apex.stage1.pending') }}" class="status-badge pending" style="text-decoration: none; color: inherit;">
                         <div class="status-icon pending">
                             <i class="fas fa-clock"></i>
                         </div>
                         <div>
                             <div class="status-label">Pending</div>
-                            <div class="status-value">1</div>
+                            <div class="status-value">{{ \App\Models\User::where(function($query) { $query->where('submit_status', 'pending')->orWhere('submit_status', 'submited'); })->orWhere(function($query) { $query->whereHas('educationDetail', function($q) { $q->where('submit_status', 'pending'); }); })->orWhere(function($query) { $query->whereHas('familyDetail', function($q) { $q->where('submit_status', 'pending'); }); })->orWhere(function($query) { $query->whereHas('fundingDetail', function($q) { $q->where('submit_status', 'pending'); }); })->orWhere(function($query) { $query->whereHas('guarantorDetail', function($q) { $q->where('submit_status', 'pending'); }); })->orWhere(function($query) { $query->whereHas('document', function($q) { $q->where('submit_status', 'pending'); }); })->count() }}</div>
                         </div>
-                    </div>
-                    <div class="status-badge hold">
+                    </a>
+                    <a href="{{ route('admin.apex.stage1.hold') }}" class="status-badge hold" style="text-decoration: none; color: inherit;">
                         <div class="status-icon hold">
                             <i class="fas fa-exclamation"></i>
                         </div>
                         <div>
                             <div class="status-label">Hold</div>
-                            <div class="status-value">1</div>
+                            <div class="status-value">{{ \App\Models\User::where('submit_status', 'resubmit')->orWhere(function($query) { $query->whereHas('educationDetail', function($q) { $q->where('submit_status', 'resubmit'); }); })->orWhere(function($query) { $query->whereHas('familyDetail', function($q) { $q->where('submit_status', 'resubmit'); }); })->orWhere(function($query) { $query->whereHas('fundingDetail', function($q) { $q->where('submit_status', 'resubmit'); }); })->orWhere(function($query) { $query->whereHas('guarantorDetail', function($q) { $q->where('submit_status', 'resubmit'); }); })->orWhere(function($query) { $query->whereHas('document', function($q) { $q->where('submit_status', 'resubmit'); }); })->count() }}</div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
 
@@ -969,3 +1049,4 @@
     </div>
 </div>
 @endsection
+

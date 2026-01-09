@@ -16,19 +16,123 @@ class AdminController extends Controller
 
     public function apexStage1Approved()
     {
-        $users = User::where('submit_status', 'approved')->with('familyDetail')->get();
+        // Get users where ALL 7 forms have submit_status = 'approved' and role = 'user'
+        $users = User::where('role', 'user')
+            ->whereHas('familyDetail', function($q) {
+                $q->where('submit_status', 'approved');
+            })
+            ->whereHas('educationDetail', function($q) {
+                $q->where('submit_status', 'approved');
+            })
+            ->whereHas('fundingDetail', function($q) {
+                $q->where('submit_status', 'approved');
+            })
+            ->whereHas('guarantorDetail', function($q) {
+                $q->where('submit_status', 'approved');
+            })
+            ->whereHas('document', function($q) {
+                $q->where('submit_status', 'approved');
+            })
+            ->whereHas('document', function($q) {
+                $q->where('submit_status', 'approved');
+            })
+            ->where('submit_status', 'approved')
+            ->with('familyDetail')
+            ->get();
         return view('admin.apex.stage1.approved', compact('users'));
     }
 
     public function apexStage1Pending()
     {
-        $users = User::where('submit_status', 'submited')->with('familyDetail')->get();
+        $users = User::where('role', 'user')
+            ->where(function ($query) {
+
+                // User main submit status
+                $query->whereIn('submit_status', ['pending', 'submited']);
+
+                // Education
+                $query->orWhere(function ($q) {
+                    $q->whereHas('educationDetail', function ($qq) {
+                        $qq->where('submit_status', 'pending');
+                    })->orWhereDoesntHave('educationDetail');
+                });
+
+                // Family
+                $query->orWhere(function ($q) {
+                    $q->whereHas('familyDetail', function ($qq) {
+                        $qq->where('submit_status', 'pending');
+                    })->orWhereDoesntHave('familyDetail');
+                });
+
+                // Funding
+                $query->orWhere(function ($q) {
+                    $q->whereHas('fundingDetail', function ($qq) {
+                        $qq->where('submit_status', 'pending');
+                    })->orWhereDoesntHave('fundingDetail');
+                });
+
+                // Guarantor
+                $query->orWhere(function ($q) {
+                    $q->whereHas('guarantorDetail', function ($qq) {
+                        $qq->where('submit_status', 'pending');
+                    })->orWhereDoesntHave('guarantorDetail');
+                });
+
+                // Documents
+                $query->orWhere(function ($q) {
+                    $q->whereHas('document', function ($qq) {
+                        $qq->where('submit_status', 'pending');
+                    })->orWhereDoesntHave('document');
+                });
+
+            })
+            ->with([
+                'educationDetail',
+                'familyDetail',
+                'fundingDetail',
+                'guarantorDetail',
+                'document'
+            ])
+            ->get();
+
         return view('admin.apex.stage1.pending', compact('users'));
     }
 
+
     public function apexStage1Hold()
     {
-        $users = User::where('submit_status', 'resubmit')->with('familyDetail')->get();
+        // Get users who have ANY form on hold (resubmit) and role = 'user'
+        $users = User::where('role', 'user')
+            ->where(function($query) {
+                $query->where('submit_status', 'resubmit')
+                    ->orWhere(function($q) {
+                        $q->whereHas('educationDetail', function($qq) {
+                            $qq->where('submit_status', 'resubmit');
+                        });
+                    })
+                    ->orWhere(function($q) {
+                        $q->whereHas('familyDetail', function($qq) {
+                            $qq->where('submit_status', 'resubmit');
+                        });
+                    })
+                    ->orWhere(function($q) {
+                        $q->whereHas('fundingDetail', function($qq) {
+                            $qq->where('submit_status', 'resubmit');
+                        });
+                    })
+                    ->orWhere(function($q) {
+                        $q->whereHas('guarantorDetail', function($qq) {
+                            $qq->where('submit_status', 'resubmit');
+                        });
+                    })
+                    ->orWhere(function($q) {
+                        $q->whereHas('document', function($qq) {
+                            $qq->where('submit_status', 'resubmit');
+                        });
+                    });
+            })
+            ->with('familyDetail')
+            ->get();
         return view('admin.apex.stage1.hold', compact('users'));
     }
 

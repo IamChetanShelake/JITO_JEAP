@@ -53,35 +53,35 @@ class AdminController extends Controller
                 // Education
                 $query->orWhere(function ($q) {
                     $q->whereHas('educationDetail', function ($qq) {
-                        $qq->where('submit_status', 'pending');
+                        $qq->where('submit_status', 'submited');
                     })->orWhereDoesntHave('educationDetail');
                 });
 
                 // Family
                 $query->orWhere(function ($q) {
                     $q->whereHas('familyDetail', function ($qq) {
-                        $qq->where('submit_status', 'pending');
+                        $qq->where('submit_status', 'submited');
                     })->orWhereDoesntHave('familyDetail');
                 });
 
                 // Funding
                 $query->orWhere(function ($q) {
                     $q->whereHas('fundingDetail', function ($qq) {
-                        $qq->where('submit_status', 'pending');
+                        $qq->where('submit_status', 'submited');
                     })->orWhereDoesntHave('fundingDetail');
                 });
 
                 // Guarantor
                 $query->orWhere(function ($q) {
                     $q->whereHas('guarantorDetail', function ($qq) {
-                        $qq->where('submit_status', 'pending');
+                        $qq->where('submit_status', 'submited');
                     })->orWhereDoesntHave('guarantorDetail');
                 });
 
                 // Documents
                 $query->orWhere(function ($q) {
                     $q->whereHas('document', function ($qq) {
-                        $qq->where('submit_status', 'pending');
+                        $qq->where('submit_status', 'submited');
                     })->orWhereDoesntHave('document');
                 });
 

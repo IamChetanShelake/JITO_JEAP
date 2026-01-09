@@ -40,6 +40,18 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'apex' => [
+            'driver' => 'session',
+            'provider' => 'apex',
+        ],
+        'committee' => [
+            'driver' => 'session',
+            'provider' => 'committee',
+        ],
+        'chapter' => [
+            'driver' => 'session',
+            'provider' => 'chapter',
+        ],
     ],
 
     /*
@@ -63,6 +75,21 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
+        ],
+
+        'apex' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\ApexLeadership::class,
+        ],
+
+        'committee' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\WorkingCommittee::class,
+        ],
+
+        'chapter' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Chapter::class,
         ],
 
         // 'users' => [

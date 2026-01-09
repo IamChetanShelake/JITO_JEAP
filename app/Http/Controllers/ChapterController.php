@@ -40,12 +40,15 @@ class ChapterController extends Controller
             'state' => 'required|string|max:255',
             'email' => 'required|email|unique:admin_panel.chapters,email',
             'contact' => 'required|string|max:20',
+            'password' => 'required|string|min:8',
             'status' => 'nullable|boolean',
             'show_hide' => 'nullable|boolean',
         ]);
 
         $validated['status'] = $request->has('status') ? 1 : 0;
         $validated['show_hide'] = $request->has('show_hide') ? 1 : 0;
+        $validated['role'] = 'chapter';
+        $validated['password'] = bcrypt($validated['password']);
 
         Chapter::create($validated);
 
@@ -85,12 +88,19 @@ class ChapterController extends Controller
             'state' => 'required|string|max:255',
             'email' => 'required|email|unique:admin_panel.chapters,email,' . $chapter->id,
             'contact' => 'required|string|max:20',
+            'password' => 'nullable|string|min:8',
             'status' => 'nullable|boolean',
             'show_hide' => 'nullable|boolean',
         ]);
 
         $validated['status'] = $request->has('status') ? 1 : 0;
         $validated['show_hide'] = $request->has('show_hide') ? 1 : 0;
+
+        if (!empty($validated['password'])) {
+            $validated['password'] = bcrypt($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
 
         $chapter->update($validated);
 

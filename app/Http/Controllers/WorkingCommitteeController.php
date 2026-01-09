@@ -35,12 +35,15 @@ class WorkingCommitteeController extends Controller
             'designation' => 'required|string|max:255',
             'email' => 'required|email|unique:admin_panel.working_committee,email',
             'contact' => 'required|string|max:20',
+            'password' => 'required|string|min:8',
             'status' => 'nullable|boolean',
             'show_hide' => 'nullable|boolean',
         ]);
 
         $validated['status'] = $request->has('status') ? 1 : 0;
         $validated['show_hide'] = $request->has('show_hide') ? 1 : 0;
+        $validated['role'] = 'working-committee';
+        $validated['password'] = bcrypt($validated['password']);
 
         WorkingCommittee::create($validated);
 
@@ -75,12 +78,19 @@ class WorkingCommitteeController extends Controller
             'designation' => 'required|string|max:255',
             'email' => 'required|email|unique:admin_panel.working_committee,email,' . $committee->id,
             'contact' => 'required|string|max:20',
+            'password' => 'nullable|string|min:8',
             'status' => 'nullable|boolean',
             'show_hide' => 'nullable|boolean',
         ]);
 
         $validated['status'] = $request->has('status') ? 1 : 0;
         $validated['show_hide'] = $request->has('show_hide') ? 1 : 0;
+
+        if (!empty($validated['password'])) {
+            $validated['password'] = bcrypt($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
 
         $committee->update($validated);
 

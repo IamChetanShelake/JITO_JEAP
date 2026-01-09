@@ -46,4 +46,24 @@ class User extends Authenticatable
     {
         return $this->hasOne(Familydetail::class);
     }
+
+    public function educationDetail()
+    {
+        return $this->hasOne(EducationDetail::class);
+    }
+
+    public function fundingDetail()
+    {
+        return $this->hasOne(FundingDetail::class);
+    }
+
+    public function guarantorDetail()
+    {
+        return $this->hasOne(GuarantorDetail::class);
+    }
+
+    public function document()
+    {
+        return $this->hasOne(Document::class);
+    }
 }

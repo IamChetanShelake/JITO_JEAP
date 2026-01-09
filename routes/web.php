@@ -18,10 +18,28 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-// Admin Routes - Protected by auth and admin middleware
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+// Admin Routes - Protected by admin middleware
+Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/home', [AdminController::class, 'index'])->name('home');
+
+    // Apex Stage 1 Forms
+    Route::get('/apex-stage1/approved', [AdminController::class, 'apexStage1Approved'])->name('apex.stage1.approved');
+    Route::get('/apex-stage1/pending', [AdminController::class, 'apexStage1Pending'])->name('apex.stage1.pending');
+    Route::get('/apex-stage1/hold', [AdminController::class, 'apexStage1Hold'])->name('apex.stage1.hold');
+    Route::get('/apex-stage1/user/{user}', [AdminController::class, 'apexStage1UserDetail'])->name('apex.stage1.user.detail');
+    Route::post('/apex-stage1/user/{user}/approve-step/{step}', [AdminController::class, 'approveStep'])->name('apex.stage1.approve.step');
+    Route::post('/apex-stage1/user/{user}/hold-step/{step}', [AdminController::class, 'holdStep'])->name('apex.stage1.hold.step');
+
+    // Approval workflow endpoints
+    Route::post('/user/{user}/appex/approve', [AdminController::class, 'appexApprove'])->name('user.appex.approve');
+    Route::post('/user/{user}/appex/hold', [AdminController::class, 'appexHold'])->name('user.appex.hold');
+
+    Route::post('/user/{user}/work/approve', [AdminController::class, 'workApprove'])->name('user.work.approve');
+    Route::post('/user/{user}/work/hold', [AdminController::class, 'workHold'])->name('user.work.hold');
+
+    Route::post('/user/{user}/chapter/approve', [AdminController::class, 'chapterApprove'])->name('user.chapter.approve');
+    Route::post('/user/{user}/chapter/hold', [AdminController::class, 'chapterHold'])->name('user.chapter.hold');
 
     // Apex Leadership Routes
     Route::resource('apex', ApexLeadershipController::class);

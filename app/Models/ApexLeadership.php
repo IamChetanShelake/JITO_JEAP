@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 
-class ApexLeadership extends Model
+class ApexLeadership extends Authenticatable implements AuthenticatableContract
 {
     /**
      * The connection name for the model.
@@ -31,8 +33,19 @@ class ApexLeadership extends Model
         'designation',
         'email',
         'contact',
+        'password',
+        'role',
         'status',
         'show_hide'
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password',
     ];
 
     /**
@@ -43,6 +56,7 @@ class ApexLeadership extends Model
     protected $casts = [
         'status' => 'boolean',
         'show_hide' => 'boolean',
+        'password' => 'hashed',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

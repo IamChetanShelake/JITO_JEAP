@@ -35,12 +35,15 @@ class ApexLeadershipController extends Controller
             'designation' => 'required|string|max:255',
             'email' => 'required|email|unique:admin_panel.apex_leadership,email',
             'contact' => 'required|string|max:20',
+            'password' => 'required|string|min:8',
             'status' => 'nullable|boolean',
             'show_hide' => 'nullable|boolean',
         ]);
 
         $validated['status'] = $request->has('status') ? 1 : 0;
         $validated['show_hide'] = $request->has('show_hide') ? 1 : 0;
+        $validated['role'] = 'apex';
+        $validated['password'] = bcrypt($validated['password']);
 
         ApexLeadership::create($validated);
 
@@ -75,12 +78,19 @@ class ApexLeadershipController extends Controller
             'designation' => 'required|string|max:255',
             'email' => 'required|email|unique:admin_panel.apex_leadership,email,' . $apex->id,
             'contact' => 'required|string|max:20',
+            'password' => 'nullable|string|min:8',
             'status' => 'nullable|boolean',
             'show_hide' => 'nullable|boolean',
         ]);
 
         $validated['status'] = $request->has('status') ? 1 : 0;
         $validated['show_hide'] = $request->has('show_hide') ? 1 : 0;
+
+        if (!empty($validated['password'])) {
+            $validated['password'] = bcrypt($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
 
         $apex->update($validated);
 

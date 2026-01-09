@@ -729,6 +729,18 @@ class UserController extends Controller
             'percentage' => 'nullable|array',
             'cgpa' => 'nullable|array',
 
+            // Work Experience
+            'have_work_experience' => 'nullable|in:yes,no',
+            'organization_name' => 'nullable|string|max:255',
+            'work_profile' => 'nullable|string|max:255',
+            'duration_start_year' => 'nullable|string|max:50',
+            'duration_end_year' => 'nullable|string|max:50',
+            'work_location_city' => 'nullable|string|max:100',
+            'work_country' => 'nullable|string|max:100',
+            'work_type' => 'nullable|in:full-time,internship,freelance,volunteer',
+            'mention_your_salary' => 'nullable|in:monthly,yearly,ctc',
+            'salary_amount' => 'nullable|numeric|min:0',
+
 
         ]);
 
@@ -806,7 +818,17 @@ class UserController extends Controller
             'percentage' => json_encode($request->percentage),
             'cgpa' => json_encode($request->cgpa),
 
-
+            // Work Experience
+            'have_work_experience' => $request->have_work_experience,
+            'organization_name' => $request->organization_name,
+            'work_profile' => $request->work_profile,
+            'duration_start_year' => $request->duration_start_year,
+            'duration_end_year' => $request->duration_end_year,
+            'work_location_city' => $request->work_location_city,
+            'work_country' => $request->work_country,
+            'work_type' => $request->work_type,
+            'mention_your_salary' => $request->mention_your_salary,
+            'salary_amount' => $request->salary_amount,
 
             'status' => 'step2_completed',
             'submit_status' => 'submited',
@@ -901,6 +923,18 @@ class UserController extends Controller
             'percentage' => 'nullable|array',
             'cgpa' => 'nullable|array',
 
+            // Work Experience
+            'have_work_experience' => 'nullable|in:yes,no',
+            'organization_name' => 'nullable|string|max:255',
+            'work_profile' => 'nullable|string|max:255',
+            'duration_start_year' => 'nullable|string|max:50',
+            'duration_end_year' => 'nullable|string|max:50',
+            'work_location_city' => 'nullable|string|max:100',
+            'work_country' => 'nullable|string|max:100',
+            'work_type' => 'nullable|in:full-time,internship,freelance,volunteer',
+            'mention_your_salary' => 'nullable|in:monthly,yearly,ctc',
+            'salary_amount' => 'nullable|numeric|min:0',
+
             // Additional Curriculum
             'ielts_overall_band_year' => 'nullable|string|max:100',
             'toefl_score_year' => 'nullable|string|max:100',
@@ -983,6 +1017,18 @@ class UserController extends Controller
             'out_of' => json_encode($request->out_of),
             'percentage' => json_encode($request->percentage),
             'cgpa' => json_encode($request->cgpa),
+
+            // Work Experience
+            'have_work_experience' => $request->have_work_experience,
+            'organization_name' => $request->organization_name,
+            'work_profile' => $request->work_profile,
+            'duration_start_year' => $request->duration_start_year,
+            'duration_end_year' => $request->duration_end_year,
+            'work_location_city' => $request->work_location_city,
+            'work_country' => $request->work_country,
+            'work_type' => $request->work_type,
+            'mention_your_salary' => $request->mention_your_salary,
+            'salary_amount' => $request->salary_amount,
 
             // Additional Curriculum
             'ielts_overall_band_year' => $request->ielts_overall_band_year,

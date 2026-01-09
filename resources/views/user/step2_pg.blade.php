@@ -265,7 +265,7 @@
                                             <div class="form-group mb-3">
                                                 <label for="start_year">Start Year <span style="color:red">*</span></label>
                                                 <input type="month" id="start_year" class="form-control" name="start_year"
-                                                    value="{{ old('start_year', $educationDetail->start_year ?? '') }}"
+                                                    value="{{ old('start_year') ?: ($educationDetail->start_year ? \Carbon\Carbon::parse($educationDetail->start_year)->format('Y-m') : '') }}"
                                                     required oninput="validateStartYear()">
                                                 <small id="startYearError" class="text-danger d-none">
                                                     Start month must be within next 4 months from current month
@@ -277,7 +277,7 @@
                                                         style="color:red">*</span></label>
                                                 <input type="month" id="expected_year" class="form-control"
                                                     name="expected_year"
-                                                    value="{{ old('expected_year', $educationDetail->expected_year ?? '') }}"
+                                                    value="{{ old('expected_year') ?: ($educationDetail->expected_year ? \Carbon\Carbon::parse($educationDetail->expected_year)->format('Y-m') : '') }}"
                                                     required oninput="validateExpectedYear()">
                                                 <small id="expectedYearError" class="text-danger d-none">
                                                     Expected month must be after start month and within next 5 years
@@ -865,7 +865,7 @@
                                                     <input type="month" class="form-control"
                                                         id="qualification_start_year" name="qualification_start_year"
                                                         placeholder="Start Year "
-                                                        value="{{ old('qualification_start_year') ?: $educationDetail->qualification_start_year ?? '' }}">
+                                                        value="{{ old('qualification_start_year') ?: ($educationDetail->qualification_start_year ? \Carbon\Carbon::parse($educationDetail->qualification_start_year)->format('Y-m') : '') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('qualification_start_year') }}</small>
                                                 </div>
@@ -876,7 +876,7 @@
                                                     <input type="month" class="form-control"
                                                         id="qualification_end_year" name="qualification_end_year"
                                                         placeholder="End Year "
-                                                        value="{{ old('qualification_end_year') ?: $educationDetail->qualification_end_year ?? '' }}">
+                                                        value="{{ old('qualification_end_year') ?: ($educationDetail->qualification_end_year ? \Carbon\Carbon::parse($educationDetail->qualification_end_year)->format('Y-m') : '') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('qualification_end_year') }}</small>
                                                 </div>

@@ -123,13 +123,14 @@
     <!-- Main Content -->
     <div class="col-lg-9 main-content">
         <!-- Hold Remark Alert -->
-    @if($educationDetail && $educationDetail->submit_status === 'resubmit' && $educationDetail->admin_remark)
-        <div class="alert alert-warning alert-dismissible fade show" role="alert" style="background-color: #fff3cd; border-color: #ffeaa7; color: #856404; border-radius: 8px; margin-bottom: 20px;">
-            <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
-            <p style="margin: 8px 0 0 0; font-size: 14px;">{{ $educationDetail->admin_remark }}</p>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+        @if ($educationDetail && $educationDetail->submit_status === 'resubmit' && $educationDetail->admin_remark)
+            <div class="alert alert-warning alert-dismissible fade show" role="alert"
+                style="background-color: #fff3cd; border-color: #ffeaa7; color: #856404; border-radius: 8px; margin-bottom: 20px;">
+                <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
+                <p style="margin: 8px 0 0 0; font-size: 14px;">{{ $educationDetail->admin_remark }}</p>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
@@ -258,9 +259,12 @@
                                                 <small class="text-danger">{{ $errors->first('expected_year') }}</small>
                                             </div> --}}
                                             <div class="form-group mb-3">
-                                                <label for="start_year">Start Year <span style="color:red">*</span></label>
-                                                <input type="month" id="start_year" class="form-control" name="start_year"
-                                                    value="{{ old('start_year') }}" required oninput="validateStartYear()">
+                                                <label for="start_year">Start Year <span
+                                                        style="color:red">*</span></label>
+                                                <input type="month" id="start_year" class="form-control"
+                                                    name="start_year"
+                                                    value="{{ old('start_year') ?: ($educationDetail->start_year ? \Carbon\Carbon::parse($educationDetail->start_year)->format('Y-m') : '') }}"
+                                                    required oninput="validateStartYear()">
                                                 <small id="startYearError" class="text-danger d-none">
                                                     Start month must be within next 4 months from current month
                                                 </small>
@@ -270,8 +274,9 @@
                                                 <label for="expected_year">Expected Year of Completion <span
                                                         style="color:red">*</span></label>
                                                 <input type="month" id="expected_year" class="form-control"
-                                                    name="expected_year" value="{{ old('expected_year') }}" required
-                                                    oninput="validateExpectedYear()">
+                                                    name="expected_year"
+                                                    value="{{ old('expected_year') ?: ($educationDetail->expected_year ? \Carbon\Carbon::parse($educationDetail->expected_year)->format('Y-m') : '') }}"
+                                                    required oninput="validateExpectedYear()">
                                                 <small id="expectedYearError" class="text-danger d-none">
                                                     Expected month must be after start month and within next 5 years
                                                 </small>
@@ -827,7 +832,7 @@
                                                     <input type="month" class="form-control"
                                                         id="qualification_start_year" name="qualification_start_year"
                                                         placeholder="Start Year "
-                                                        value="{{ old('qualification_start_year') }}">
+                                                        value="{{ old('qualification_start_year') ?: ($educationDetail->qualification_start_year ? \Carbon\Carbon::parse($educationDetail->qualification_start_year)->format('Y-m') : '') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('qualification_start_year') }}</small>
                                                 </div>
@@ -838,7 +843,7 @@
                                                     <input type="month" class="form-control"
                                                         id="qualification_end_year" name="qualification_end_year"
                                                         placeholder="End Year "
-                                                        value="{{ old('qualification_end_year') }}">
+                                                        value="{{ old('qualification_end_year') ?: ($educationDetail->qualification_end_year ? \Carbon\Carbon::parse($educationDetail->qualification_end_year)->format('Y-m') : '') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('qualification_end_year') }}</small>
                                                 </div>

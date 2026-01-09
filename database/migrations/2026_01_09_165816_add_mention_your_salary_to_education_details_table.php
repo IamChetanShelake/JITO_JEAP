@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Column already added in create_review_submits_table migration
+        Schema::table('education_details', function (Blueprint $table) {
+            $table->string('mention_your_salary', 50)->nullable();
+        });
     }
 
     /**
@@ -19,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('review_submits', function (Blueprint $table) {
-            //
+        Schema::table('education_details', function (Blueprint $table) {
+            $table->dropColumn('mention_your_salary');
         });
     }
 };

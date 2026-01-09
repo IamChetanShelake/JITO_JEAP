@@ -16,32 +16,33 @@
     <!-- Main Content -->
     <div class="col-lg-9 main-content">
         <!-- Hold Remark Alert -->
-    @if(auth()->check() && auth()->user()->submit_status === 'resubmit' && auth()->user()->admin_remark)
-        <div class="alert alert-warning alert-dismissible fade show" role="alert" style="background-color: #fff3cd; border-color: #ffeaa7; color: #856404; border-radius: 8px; margin-bottom: 20px;">
-            <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
-            <p style="margin: 8px 0 0 0; font-size: 14px;">{{ auth()->user()->admin_remark }}</p>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+        @if (auth()->check() && auth()->user()->submit_status === 'resubmit' && auth()->user()->admin_remark)
+            <div class="alert alert-warning alert-dismissible fade show" role="alert"
+                style="background-color: #fff3cd; border-color: #ffeaa7; color: #856404; border-radius: 8px; margin-bottom: 20px;">
+                <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
+                <p style="margin: 8px 0 0 0; font-size: 14px;">{{ auth()->user()->admin_remark }}</p>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
                     <form method="POST" action="{{ route('user.step1.store') }}" enctype="multipart/form-data">
                         @csrf
-                        <div class="row mb-3">
+                        {{-- <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
                                 <label for="financial_asset_type" class="form-label">Financial Asset Type <span
                                         style="color: red;">*</span></label>
                                 <select class="form-control" name="financial_asset_type" id="financial_asset_type"
-                                    style="border:2px solid #393185;border-radius:15px;" @if($user->submit_status == 'submited') readonly @endif required>
+                                    style="border:2px solid #393185;border-radius:15px;" @if ($user->submit_status == 'submited') readonly @endif required>
                                     <option disabled
-                                        {{ $user->financial_asset_type ? '' : 'selected' }}
+                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') ? '' : 'selected' }}
                                         hidden>Select Financial Asset Type</option>
                                     <option value="domestic"
-                                        {{ $user->financial_asset_type == 'domestic' ? 'selected' : '' }}>
+                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'domestic' ? 'selected' : '' }}>
                                         Domestic</option>
                                     <option value="foreign_finance_assistant"
-                                        {{ $user->financial_asset_type == 'foreign_finance_assistant' ? 'selected' : '' }}>
+                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'foreign_finance_assistant' ? 'selected' : '' }}>
                                         Foreign Financial Assistance</option>
                                 </select>
                                 <small class="text-danger">{{ $errors->first('financial_asset_type') }}</small>
@@ -50,25 +51,25 @@
                                 <label for="financial_asset_for" class="form-label">Financial Asset For <span
                                         style="color: red;">*</span></label>
                                 <select class="form-control" name="financial_asset_for" id="financial_asset_for"
-                                    style="border:2px solid #393185;border-radius:15px;" @if($user->submit_status == 'submited') readonly @endif required>
+                                    style="border:2px solid #393185;border-radius:15px;" @if ($user->submit_status == 'submited') readonly @endif required>
                                     <option disabled
-                                        {{ $user->financial_asset_for ? '' : 'selected' }}
+                                        {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') ? '' : 'selected' }}
                                         hidden>Select Financial Asset For</option>
                                     <option value="graduation"
-                                        {{ $user->financial_asset_for == 'graduation' ? 'selected' : '' }}>
+                                        {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'graduation' ? 'selected' : '' }}>
                                         Graduation</option>
                                     <option value="post_graduation"
-                                        {{ $user->financial_asset_for == 'post_graduation' ? 'selected' : '' }}>
+                                        {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'post_graduation' ? 'selected' : '' }}>
                                         Post Graduation</option>
                                 </select>
                                 <small class="text-danger">{{ $errors->first('financial_asset_for') }}</small>
                             </div>
-                        </div>
+                        </div> --}}
                         {{-- <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
 
                                 <select class="form-control" name="financial_asset_type" id="financial_asset_type"
-                                    style="border:2px solid #393185;border-radius:15px;" @if ($user->submit_status == 'submited') readonly @endif required>
+                                    style="border:2px solid #393185;border-radius:15px;" readonly required>
                                     <option disabled
                                         {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') ? '' : 'selected' }}
                                         hidden>Financial Asst Type <span style="color: red;">*</span></option>
@@ -85,7 +86,7 @@
                             </div>
                             <div class="col-md-5">
                                 <select class="form-control" name="financial_asset_for" id="financial_asset_for"
-                                    style="border:2px solid #393185;border-radius:15px;" @if ($user->submit_status == 'submited') readonly @endif required>
+                                    style="border:2px solid #393185;border-radius:15px;" readonly required>
                                     <option disabled
                                         {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') ? '' : 'selected' }}
                                         hidden>Financial Asst For *</option>

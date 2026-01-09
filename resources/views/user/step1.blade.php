@@ -29,12 +29,13 @@
                 <div class="col-12">
                     <form method="POST" action="{{ route('user.step1.store') }}" enctype="multipart/form-data">
                         @csrf
-                        {{-- <div class="row mb-3">
+                        <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
                                 <label for="financial_asset_type" class="form-label">Financial Asset Type <span
                                         style="color: red;">*</span></label>
                                 <select class="form-control" name="financial_asset_type" id="financial_asset_type"
-                                    style="border:2px solid #393185;border-radius:15px;" @if ($user->submit_status == 'submited') readonly @endif required>
+                                    style="border:2px solid #393185;border-radius:15px;"
+                                    @if ($user->submit_status == 'submited') readonly @endif required>
                                     <option disabled
                                         {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') ? '' : 'selected' }}
                                         hidden>Select Financial Asset Type</option>
@@ -51,7 +52,8 @@
                                 <label for="financial_asset_for" class="form-label">Financial Asset For <span
                                         style="color: red;">*</span></label>
                                 <select class="form-control" name="financial_asset_for" id="financial_asset_for"
-                                    style="border:2px solid #393185;border-radius:15px;" @if ($user->submit_status == 'submited') readonly @endif required>
+                                    style="border:2px solid #393185;border-radius:15px;"
+                                    @if ($user->submit_status == 'submited') readonly @endif required>
                                     <option disabled
                                         {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') ? '' : 'selected' }}
                                         hidden>Select Financial Asset For</option>
@@ -64,7 +66,7 @@
                                 </select>
                                 <small class="text-danger">{{ $errors->first('financial_asset_for') }}</small>
                             </div>
-                        </div> --}}
+                        </div>
                         {{-- <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
 
@@ -649,5 +651,4 @@
             });
         });
     </script>
-        });
-
+    });

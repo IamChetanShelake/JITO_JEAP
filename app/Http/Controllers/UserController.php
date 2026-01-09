@@ -100,7 +100,7 @@ class UserController extends Controller
             'aadhar_card_number' => 'required|digits:12',
             'pan_card' => 'nullable|string|max:10',
 
-            'phone' => 'required|string|max:15|unique:users,phone',
+            'phone' => 'required|string|max:15',
             'alternate_phone' => 'nullable|string|max:15',
 
             'email' => 'required|email|max:255|unique:users,email',

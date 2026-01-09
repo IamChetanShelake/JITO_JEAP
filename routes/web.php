@@ -57,14 +57,23 @@ Route::middleware(['auth', 'user'])
 
         Route::get('/Step2', [UserController::class, 'step2'])
             ->name('step2');
-        Route::post('/Step2Store/', [UserController::class, 'step2store'])
-            ->name('step2.store');
+    // Route::post('/Step2Store/', [UserController::class, 'step2store'])
+    //     ->name('step2.store');
+
+
+    Route::post('/Step2UGStore/', [UserController::class, 'step2UGstore'])
+        ->name('step2ug.store');
+    Route::post('/Step2PGStore/', [UserController::class, 'step2PGstore'])
+        ->name('step2pg.store');
+    Route::post('/Step2ForeignPgStore/', [UserController::class, 'step2_foreign_pg_store'])
+        ->name('step2_foreign_pg.store');
 
 
         Route::get('/Step3', [UserController::class, 'step3'])
             ->name('step3');
-        Route::post('/Step3Store/', [UserController::class, 'step3store'])
+        Route::post('/Step3Store', [UserController::class, 'step3store'])
             ->name('step3.store');
+
 
 
         Route::get('/Step4', [UserController::class, 'step4'])

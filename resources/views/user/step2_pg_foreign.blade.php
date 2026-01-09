@@ -125,7 +125,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <form method="POST" action="{{ route('user.step3.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('user.step2_foreign_pg.store') }}" enctype="multipart/form-data">
                         @csrf
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
@@ -356,24 +356,24 @@
                                                             name="group_name_1" value="Tuition Fees" hidden>Tuition Fees
                                                     </td>
                                                     <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="tuition_fee_year1"
-                                                            value="{{ old('tuition_fee_year1') }}" placeholder="0"></td>
+                                                            class="form-control form-control-sm" name="group_1_year1"
+                                                            value="{{ old('group_1_year1') }}" placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="tuition_fee_year2"
-                                                            value="{{ old('tuition_fee_year2') }}" placeholder="0"></td>
+                                                            class="form-control form-control-sm" name="group_1_year2"
+                                                            value="{{ old('group_1_year2') }}" placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="tuition_fee_year3"
-                                                            value="{{ old('tuition_fee_year3') }}" placeholder="0"></td>
+                                                            class="form-control form-control-sm" name="group_1_year3"
+                                                            value="{{ old('group_1_year3') }}" placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="tuition_fee_year4"
-                                                            value="{{ old('tuition_fee_year4') }}" placeholder="0"></td>
+                                                            class="form-control form-control-sm" name="group_1_year4"
+                                                            value="{{ old('group_1_year4') }}" placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="tuition_fee_year5"
-                                                            value="{{ old('tuition_fee_year5') }}" placeholder="0"></td>
+                                                            class="form-control form-control-sm" name="group_1_year5"
+                                                            value="{{ old('group_1_year5') }}" placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="tuition_fee_total"
-                                                            value="{{ old('tuition_fee_total') }}" placeholder="0"
-                                                            readonly></td>
+                                                            class="form-control form-control-sm" name="group_1_total"
+                                                            value="{{ old('group_1_total') }}" placeholder="0" readonly>
+                                                    </td>
                                                 </tr>
 
                                                 <!-- Row 2 -->
@@ -466,10 +466,11 @@
 
                                     <!-- Error messages for table fields -->
                                     <div class="mb-3">
-                                        <small class="text-danger">{{ $errors->first('tuition_fee_year1') }}</small>
-                                        <small class="text-danger">{{ $errors->first('tuition_fee_year2') }}</small>
-                                        <small class="text-danger">{{ $errors->first('tuition_fee_year3') }}</small>
-                                        <small class="text-danger">{{ $errors->first('tuition_fee_year4') }}</small>
+                                        <small class="text-danger">{{ $errors->first('group_1_year1') }}</small>
+                                        <small class="text-danger">{{ $errors->first('group_1_year2') }}</small>
+                                        <small class="text-danger">{{ $errors->first('group_1_year3') }}</small>
+                                        <small class="text-danger">{{ $errors->first('group_1_year4') }}</small>
+                                        <small class="text-danger">{{ $errors->first('group_1_year5') }}</small>
                                         <small class="text-danger">{{ $errors->first('group_name_2') }}</small>
                                         <small class="text-danger">{{ $errors->first('group_name_3') }}</small>
                                         <small class="text-danger">{{ $errors->first('group_name_4') }}</small>
@@ -691,6 +692,15 @@
                                                     name="jc_board" placeholder="Select Board *"
                                                     value="{{ old('jc_board') }}">
                                                 <small class="text-danger">{{ $errors->first('jc_board') }}</small>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="jc_completion_year">Year of Completion <span
+                                                        style="color: red;">*</span></label>
+                                                <input type="text" class="form-control" id="jc_completion_year"
+                                                    name="jc_completion_year" placeholder="Year of Completion *"
+                                                    value="{{ old('jc_completion_year') }}">
+                                                <small
+                                                    class="text-danger">{{ $errors->first('jc_completion_year') }}</small>
                                             </div>
                                         </div>
 
@@ -1116,7 +1126,8 @@
                                                 <input type="text" class="form-control" name="gmat_score_year"
                                                     placeholder="GMAT (Score + Test Year)"
                                                     value="{{ old('gmat_score_year') }}">
-                                                <small class="text-danger">{{ $errors->first('gmat_score_year') }}</small>
+                                                <small
+                                                    class="text-danger">{{ $errors->first('gmat_score_year') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">

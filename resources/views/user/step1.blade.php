@@ -20,11 +20,13 @@
                         @csrf
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
+                                <label for="financial_asset_type" class="form-label">Financial Asset Type <span
+                                        style="color: red;">*</span></label>
                                 <select class="form-control" name="financial_asset_type" id="financial_asset_type"
                                     style="border:2px solid #393185;border-radius:15px;" required>
                                     <option disabled
                                         {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') ? '' : 'selected' }}
-                                        hidden>Financial Asst Type *</option>
+                                        hidden>Select Financial Asset Type</option>
                                     <option value="domestic"
                                         {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'domestic' ? 'selected' : '' }}>
                                         Domestic</option>
@@ -35,11 +37,13 @@
                                 <small class="text-danger">{{ $errors->first('financial_asset_type') }}</small>
                             </div>
                             <div class="col-md-5">
+                                <label for="financial_asset_for" class="form-label">Financial Asset For <span
+                                        style="color: red;">*</span></label>
                                 <select class="form-control" name="financial_asset_for" id="financial_asset_for"
                                     style="border:2px solid #393185;border-radius:15px;" required>
                                     <option disabled
                                         {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') ? '' : 'selected' }}
-                                        hidden>Financial Asst For *</option>
+                                        hidden>Select Financial Asset For</option>
                                     <option value="graduation"
                                         {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'graduation' ? 'selected' : '' }}>
                                         Graduation</option>
@@ -67,8 +71,10 @@
                                     <div class="col-md-6">
 
                                         <div class="form-group mb-3">
-                                            <input type="text" class="form-control" name="name"
-                                                placeholder="Applicant's Name *"
+                                            <label for="name" class="form-label">Applicant's Name <span
+                                                    style="color: red;">*</span></label>
+                                            <input type="text" class="form-control" id="name" name="name"
+                                                placeholder="Enter Applicant's Name"
                                                 value="{{ old('name', $user->name ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('name') }}</small>
                                         </div>
@@ -76,17 +82,20 @@
 
 
                                         <div class="form-group mb-3">
-
-                                            @if($user->image)
-                                                        <div class="current-image mt-2">
-                                                            <img src="{{ asset($user->image) }}" alt="Current Photo" style="max-width: 100px; max-height: 100px; border: 1px solid #ddd; border-radius: 5px;">
-                                                            <p class="mb-0 mt-1" style="font-size: 12px; color: #666;">Current Photo</p>
-                                                        </div>
-                                                    @endif
+                                            <label for="uploadInput" class="form-label">Photo <span
+                                                    style="color: red;">*</span></label>
+                                            @if ($user->image)
+                                                <div class="current-image mt-2">
+                                                    <img src="{{ asset($user->image) }}" alt="Current Photo"
+                                                        style="max-width: 100px; max-height: 100px; border: 1px solid #ddd; border-radius: 5px;">
+                                                    <p class="mb-0 mt-1" style="font-size: 12px; color: #666;">Current Photo
+                                                    </p>
+                                                </div>
+                                            @endif
                                             <div class="photo-upload-box">
                                                 <div class="row mb-2 align-items-center">
                                                     <div class="col-9">
-                                                        <span class="photo-label">Add Photo *</span>
+                                                        <span class="photo-label">Upload Photo</span>
                                                         <input type="file" id="uploadInput" name="image" hidden
                                                             accept=".jpg,.jpeg,.png">
                                                         <small class="text-danger">{{ $errors->first('image') }}</small>
@@ -107,7 +116,8 @@
                                                         <div class="upload-status" style="display:none;">
                                                             <div class="row">
                                                                 <div class="col-9">
-                                                                    <img id="imagePreview" class="img-thumbnail" style="max-width: 100px; max-height: 100px; display: none;" /><br>
+                                                                    <img id="imagePreview" class="img-thumbnail"
+                                                                        style="max-width: 100px; max-height: 100px; display: none;" /><br>
                                                                     <div class="upload-summary"></div>
                                                                 </div>
                                                                 <div class="col-3">
@@ -126,36 +136,44 @@
 
 
                                         <div class="form-group mb-3">
-                                            <input type="number" name="aadhar_card_number" class="form-control"
-                                                placeholder="Applicant’s Aadhar Card Number *"
+                                            <label for="aadhar_card_number" class="form-label">Applicant's Aadhar Card
+                                                Number <span style="color: red;">*</span></label>
+                                            <input type="number" id="aadhar_card_number" name="aadhar_card_number"
+                                                class="form-control" placeholder="Enter Applicant's Aadhar Card Number"
                                                 value="{{ old('aadhar_card_number', $user->aadhar_card_number ?? '') }}"
                                                 required>
                                             <small class="text-danger">{{ $errors->first('aadhar_card_number') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
-                                            <input type="text" class="form-control" name="pan_card"
-                                                placeholder="Applicant’s Pan Card-Major"
+                                            <label for="pan_card" class="form-label">Applicant's Pan Card</label>
+                                            <input type="text" id="pan_card" class="form-control" name="pan_card"
+                                                placeholder="Enter Applicant's Pan Card"
                                                 value="{{ old('pan_card', $user->pan_card ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('pan_card') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
-                                            <input type="tel" name="phone" class="form-control"
-                                                placeholder="Applicant’s Phone Number *"
+                                            <label for="phone" class="form-label">Applicant's Phone Number <span
+                                                    style="color: red;">*</span></label>
+                                            <input type="tel" id="phone" name="phone" class="form-control"
+                                                placeholder="Enter Applicant's Phone Number"
                                                 value="{{ old('phone', $user->phone ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('phone') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
-                                            <input type="tel" name="alternate_phone" class="form-control"
-                                                placeholder="Alternate Phone Number"
+                                            <label for="alternate_phone" class="form-label">Alternate Phone Number</label>
+                                            <input type="tel" id="alternate_phone" name="alternate_phone"
+                                                class="form-control" placeholder="Enter Alternate Phone Number"
                                                 value="{{ old('alternate_phone', $user->alternate_phone ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('alternate_phone') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
-                                            <input type="email" name="email" class="form-control"
-                                                placeholder="Applicant’s Email Address *"
+                                            <label for="email" class="form-label">Applicant's Email Address <span
+                                                    style="color: red;">*</span></label>
+                                            <input type="email" id="email" name="email" class="form-control"
+                                                placeholder="Enter Applicant's Email Address"
                                                 value="{{ old('email', $user->email ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('email') }}</small>
                                         </div>
@@ -165,17 +183,22 @@
 
 
                                         <div class="form-group mb-3">
-                                            <input type="email" name="alternate_email" class="form-control"
-                                                placeholder="Alternate Email Address"
+                                            <label for="alternate_email" class="form-label">Alternate Email
+                                                Address</label>
+                                            <input type="email" id="alternate_email" name="alternate_email"
+                                                class="form-control" placeholder="Enter Alternate Email Address"
                                                 value="{{ old('alternate_email') }}">
                                             <small class="text-danger">{{ $errors->first('alternate_email') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
-                                            <select class="form-control" name="marital_status" required>
+                                            <label for="marital_status" class="form-label">Marital Status <span
+                                                    style="color: red;">*</span></label>
+                                            <select class="form-control" id="marital_status" name="marital_status"
+                                                required>
                                                 <option disabled
                                                     {{ (old('marital_status') ?: $user->marital_status ?? '') ? '' : 'selected' }}
                                                     hidden>
-                                                    Marital Status *</option>
+                                                    Select Marital Status</option>
                                                 <option value="married"
                                                     {{ (old('marital_status') ?: $user->marital_status ?? '') == 'married' ? 'selected' : '' }}>
                                                     Married
@@ -189,25 +212,30 @@
                                         </div>
 
                                         <div class="form-group mb-3">
-                                            <input type="text" name="religion" class="form-control"
-                                                placeholder="Religion *"
+                                            <label for="religion" class="form-label">Religion <span
+                                                    style="color: red;">*</span></label>
+                                            <input type="text" id="religion" name="religion" class="form-control"
+                                                placeholder="Enter Religion"
                                                 value="{{ old('religion', $user->religion ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('religion') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
-                                            <input type="text" name="sub_cast" class="form-control"
-                                                placeholder="Sub caste *"
+                                            <label for="sub_cast" class="form-label">Sub Caste <span
+                                                    style="color: red;">*</span></label>
+                                            <input type="text" id="sub_cast" name="sub_cast" class="form-control"
+                                                placeholder="Enter Sub Caste"
                                                 value="{{ old('sub_cast', $user->sub_cast ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('sub_cast') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
-                                            <select class="form-control" name="blood_group" required>
+                                            <label for="blood_group" class="form-label">Blood Group <span
+                                                    style="color: red;">*</span></label>
+                                            <select class="form-control" id="blood_group" name="blood_group" required>
                                                 <option disabled
                                                     {{ (old('blood_group') ?: $user->blood_group ?? '') ? '' : 'selected' }}
-                                                    hidden>Blood
-                                                    Group *</option>
+                                                    hidden>Select Blood Group</option>
                                                 <option value="A+"
                                                     {{ (old('blood_group') ?: $user->blood_group ?? '') == 'A+' ? 'selected' : '' }}>
                                                     A+</option>
@@ -236,10 +264,10 @@
                                             <small class="text-danger">{{ $errors->first('blood_group') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
-
-                                            <input type="text" name="d_o_b" class="form-control"
-                                                placeholder="Date of Birth (yyyy-mm-dd) *"
-                                                value="{{ old('d_o_b', $user->d_o_b ?? '') }}"
+                                            <label for="d_o_b" class="form-label">Date of Birth <span
+                                                    style="color: red;">*</span></label>
+                                            <input type="text" id="d_o_b" name="d_o_b" class="form-control"
+                                                placeholder="yyyy-mm-dd" value="{{ old('d_o_b', $user->d_o_b ?? '') }}"
                                                 pattern="\d{4}-\d{2}-\d{2}" title="Format: yyyy-mm-dd" readonly required>
 
                                             <small class="text-danger">{{ $errors->first('d_o_b') }}</small>
@@ -248,17 +276,21 @@
 
 
                                         <div class="form-group mb-3">
-                                            <input type="text" name="birth_place" class="form-control"
-                                                placeholder="Birth Place *"
+                                            <label for="birth_place" class="form-label">Birth Place <span
+                                                    style="color: red;">*</span></label>
+                                            <input type="text" id="birth_place" name="birth_place"
+                                                class="form-control" placeholder="Enter Birth Place"
                                                 value="{{ old('birth_place', $user->birth_place ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('birth_place') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
-                                            <select class="form-control" name="gender" required>
+                                            <label for="gender" class="form-label">Gender <span
+                                                    style="color: red;">*</span></label>
+                                            <select class="form-control" id="gender" name="gender" required>
                                                 <option disabled
                                                     {{ (old('gender') ?: $user->gender ?? '') ? '' : 'selected' }} hidden>
-                                                    Gender *
+                                                    Select Gender
                                                 </option>
                                                 <option value="male"
                                                     {{ (old('gender') ?: $user->gender ?? '') == 'male' ? 'selected' : '' }}>
@@ -278,8 +310,9 @@
                                     <div class="col-md-6">
 
                                         <div class="form-group mb-3">
-                                            <input type="number" name="age" class="form-control"
-                                                placeholder="Age *" value="{{ old('age', $user->age ?? '') }}" readonly
+                                            <label for="age" class="form-label">Age <span style="color: red;">*</span></label>
+                                            <input type="number" id="age" name="age" class="form-control"
+                                                placeholder="Age" value="{{ old('age', $user->age ?? '') }}" readonly
                                                 required>
                                             <small class="text-danger">{{ $errors->first('age') }}</small>
                                         </div>
@@ -294,37 +327,43 @@
                                             <small class="text-danger">{{ $errors->first('address1') }}</small>
                                         </div> --}}
                                         <div class="form-group mb-3">
-                                            <input type="text" class="form-control" name="flat_no"
-                                                placeholder="Flat No" value="{{ old('flat_no', $user->flat_no ?? '') }}">
+                                            <label for="flat_no" class="form-label">Flat No</label>
+                                            <input type="text" id="flat_no" class="form-control" name="flat_no"
+                                                placeholder="Enter Flat No" value="{{ old('flat_no', $user->flat_no ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('flat_no') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
-                                            <input type="text" class="form-control" name="building_no"
-                                                placeholder="Building No"
+                                            <label for="building_no" class="form-label">Building No <span style="color: red;">*</span></label>
+                                            <input type="text" id="building_no" class="form-control" name="building_no"
+                                                placeholder="Enter Building No"
                                                 value="{{ old('building_no', $user->building_no ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('building_no') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
-                                            <input type="text" class="form-control" name="street_name"
-                                                placeholder="Street name "
+                                            <label for="street_name" class="form-label">Street Name <span style="color: red;">*</span></label>
+                                            <input type="text" id="street_name" class="form-control" name="street_name"
+                                                placeholder="Enter Street Name"
                                                 value="{{ old('street_name', $user->street_name ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('street_name') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
-                                            <input type="text" class="form-control" name="area" placeholder="Area"
+                                            <label for="area" class="form-label">Area</label>
+                                            <input type="text" id="area" class="form-control" name="area" placeholder="Enter Area"
                                                 value="{{ old('area', $user->area ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('area') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
-                                            <input type="text" class="form-control" name="landmark"
-                                                placeholder="Landmark "
+                                            <label for="landmark" class="form-label">Landmark</label>
+                                            <input type="text" id="landmark" class="form-control" name="landmark"
+                                                placeholder="Enter Landmark"
                                                 value="{{ old('landmark', $user->landmark ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('landmark') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
-                                            <input type="text" class="form-control" name="city"
-                                                placeholder="City *" value="{{ old('city', $user->city ?? '') }}"
+                                            <label for="city" class="form-label">City <span style="color: red;">*</span></label>
+                                            <input type="text" id="city" class="form-control" name="city"
+                                                placeholder="Enter City" value="{{ old('city', $user->city ?? '') }}"
                                                 required>
                                             <small class="text-danger">{{ $errors->first('city') }}</small>
                                         </div>
@@ -332,14 +371,16 @@
 
 
                                         <div class="form-group mb-3">
-                                            <input type="text" class="form-control" name="district"
-                                                placeholder="District *"
+                                            <label for="district" class="form-label">District <span style="color: red;">*</span></label>
+                                            <input type="text" id="district" class="form-control" name="district"
+                                                placeholder="Enter District"
                                                 value="{{ old('district', $user->district ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('district') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
-                                            <input type="text" class="form-control" name="state"
-                                                placeholder="State *" value="{{ old('state', $user->state ?? '') }}"
+                                            <label for="state" class="form-label">State <span style="color: red;">*</span></label>
+                                            <input type="text" id="state" class="form-control" name="state"
+                                                placeholder="Enter State" value="{{ old('state', $user->state ?? '') }}"
                                                 required>
                                             <small class="text-danger">{{ $errors->first('state') }}</small>
                                         </div>
@@ -347,11 +388,12 @@
 
 
                                         <div class="form-group mb-3">
-                                            <select class="form-control" name="nationality" required>
+                                            <label for="nationality" class="form-label">Nationality <span style="color: red;">*</span></label>
+                                            <select class="form-control" id="nationality" name="nationality" required>
                                                 <option disabled
                                                     {{ (old('nationality') ?: $user->nationality ?? '') ? '' : 'selected' }}
                                                     hidden>
-                                                    Nationality *</option>
+                                                    Select Nationality</option>
                                                 <option value="indian"
                                                     {{ (old('nationality') ?: $user->nationality ?? '') == 'indian' ? 'selected' : '' }}>
                                                     Indian</option>
@@ -363,15 +405,17 @@
                                             <small class="text-danger">{{ $errors->first('nationality') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
-                                            <input type="number" name="pin_code" class="form-control"
-                                                placeholder="Pin Code *"
+                                            <label for="pin_code" class="form-label">Pin Code <span style="color: red;">*</span></label>
+                                            <input type="number" id="pin_code" name="pin_code" class="form-control"
+                                                placeholder="Enter Pin Code"
                                                 value="{{ old('pin_code', $user->pin_code ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('pin_code') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
-                                            <input type="text" name="chapter" class="form-control"
-                                                placeholder="Chapter *"
+                                            <label for="chapter" class="form-label">Chapter <span style="color: red;">*</span></label>
+                                            <input type="text" id="chapter" name="chapter" class="form-control"
+                                                placeholder="Enter Chapter"
                                                 value="{{ old('chapter', $user->chapter ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('chapter') }}</small>
                                         </div>
@@ -380,17 +424,19 @@
 
 
                                         <div class="form-group mb-3">
-                                            <textarea class="form-control" name="aadhar_address" rows="3" placeholder="Aadhar/Pan Address *" required>{{ old('aadhar_address', $user->aadhar_address ?? '') }}</textarea>
+                                            <label for="aadhar_address" class="form-label">Aadhar/Pan Address <span style="color: red;">*</span></label>
+                                            <textarea class="form-control" id="aadhar_address" name="aadhar_address" rows="3" placeholder="Enter Aadhar/Pan Address" required>{{ old('aadhar_address', $user->aadhar_address ?? '') }}</textarea>
                                             <small class="text-danger">{{ $errors->first('aadhar_address') }}</small>
                                         </div>
 
 
                                         <div class="form-group mb-3">
-                                            <select class="form-control" name="specially_abled" required>
+                                            <label for="specially_abled" class="form-label">Specially Abled <span style="color: red;">*</span></label>
+                                            <select class="form-control" id="specially_abled" name="specially_abled" required>
                                                 <option disabled
                                                     {{ (old('specially_abled') ?: $user->specially_abled ?? '') ? '' : 'selected' }}
                                                     hidden>
-                                                    Specially Abled *</option>
+                                                    Select Specially Abled</option>
                                                 <option value="yes"
                                                     {{ (old('specially_abled') ?: $user->specially_abled ?? '') == 'yes' ? 'selected' : '' }}>
                                                     Yes</option>

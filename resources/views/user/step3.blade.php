@@ -5,11 +5,13 @@
 @endsection
 
 <!-- Validation Error Modal -->
-<div class="modal fade modal-modern" id="validationModal" tabindex="-1" aria-labelledby="validationModalLabel" aria-hidden="true">
+<div class="modal fade modal-modern" id="validationModal" tabindex="-1" aria-labelledby="validationModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="validationModalLabel" style="color: #393185; font-weight: 600;">Validation Error</h5>
+                <h5 class="modal-title" id="validationModalLabel" style="color: #393185; font-weight: 600;">Validation
+                    Error</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -23,7 +25,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-modern" style="background: #393185; color: white;" data-bs-dismiss="modal">OK</button>
+                <button type="button" class="btn btn-modern" style="background: #393185; color: white;"
+                    data-bs-dismiss="modal">OK</button>
             </div>
         </div>
     </div>
@@ -35,7 +38,7 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         // Check if there's a relatives validation error and show modal
-        @if($errors->has('relatives'))
+        @if ($errors->has('relatives'))
             var validationModal = new bootstrap.Modal(document.getElementById('validationModal'));
             if (validationModal) {
                 validationModal.show();
@@ -370,8 +373,10 @@
                                     <div class="col-md-6">
 
                                         <div class="form-group mb-3">
+                                            <label for="number_family_members" class="form-label">Number of Family Members
+                                                *</label>
                                             <input type="number" id="number_family_members" class="form-control"
-                                                name="number_family_members" placeholder="Number of Family Members *"
+                                                name="number_family_members" placeholder="Enter number of family members"
                                                 value="{{ old('number_family_members', $familyDetail->number_family_members ?? '') }}"
                                                 required>
                                             <small
@@ -498,7 +503,8 @@
                                             <input type="text" class="form-control" name="family_member_diksha"
                                                 placeholder="Family Member Taken Diksha "
                                                 value="{{ old('family_member_diksha', $familyDetail->family_member_diksha ?? '') }}">
-                                            <small class="text-danger">{{ $errors->first('family_member_diksha') }}</small>
+                                            <small
+                                                class="text-danger">{{ $errors->first('family_member_diksha') }}</small>
                                         </div>
                                         <div class="form-group mb-3">
                                             <input type="number" class="form-control" name="total_insurance_coverage"
@@ -1168,9 +1174,4 @@
     </div>
 
     </div>
-
-
-
-
-
 @endsection

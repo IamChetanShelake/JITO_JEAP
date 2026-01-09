@@ -2077,4 +2077,27 @@ class UserController extends Controller
 
         return redirect()->route('user.home')->with('success', $message);
     }
+
+    public function getChapters(Request $request, $pincode)
+    {
+        try {
+            // Get the first matching chapter for the pincode
+            $chapter = \App\Models\Chapter::where('pincode', $pincode)
+                ->where('status', true) // Only active chapters
+                ->where('show_hide', true) // Only visible chapters
+                ->orderBy('chapter_name')
+                ->first(['chapter_name']);
+
+            return response()->json([
+                'success' => true,
+                'chapter' => $chapter ? $chapter->chapter_name : null
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching chapter',
+                'chapter' => null
+            ], 500);
+        }
+    }
 }

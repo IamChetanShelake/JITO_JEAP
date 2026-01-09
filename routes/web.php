@@ -121,4 +121,8 @@ Route::middleware(['auth', 'user'])
             ->name('step7');
         Route::post('/Step7Store/', [UserController::class, 'step7store'])
             ->name('step7.store');
+
+        // API route for fetching chapters by pincode
+        Route::get('/get-chapters/{pincode}', [UserController::class, 'getChapters'])
+            ->name('get.chapters');
     });

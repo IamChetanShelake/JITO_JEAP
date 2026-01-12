@@ -16,7 +16,7 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = Auth::user() ?: Auth::guard('apex')->user() ?: Auth::guard('committee')->user() ?: Auth::guard('chapter')->user();
+        $user = Auth::user() ?: Auth::guard('admin')->user() ?: Auth::guard('apex')->user() ?: Auth::guard('committee')->user() ?: Auth::guard('chapter')->user();
 
         if (!$user) {
             return redirect()->route('login');

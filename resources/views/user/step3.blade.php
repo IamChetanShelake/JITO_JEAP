@@ -164,6 +164,35 @@
         if (numberFamilyMembersInput) {
             numberFamilyMembersInput.addEventListener('input', toggleFamilyTable);
         }
+
+        // Function to calculate total family income
+        function calculateTotalFamilyIncome() {
+            const applicantIncome = parseFloat(@json($user->applicant_yearly_income ?? 0)) || 0;
+            let total = applicantIncome;
+
+            // Sum incomes from other family members
+            const incomeInputs = document.querySelectorAll('input[name^="family_"][name$="_yearly_income"]');
+            incomeInputs.forEach(input => {
+                const value = parseFloat(input.value) || 0;
+                total += value;
+            });
+
+            // Set the total to the input field
+            const totalInput = document.querySelector('input[name="total_family_income"]');
+            if (totalInput) {
+                totalInput.value = total;
+            }
+        }
+
+        // Calculate initially
+        calculateTotalFamilyIncome();
+
+        // Add event listeners to income inputs to recalculate on change
+        document.addEventListener('input', function(e) {
+            if (e.target.name && e.target.name.endsWith('_yearly_income')) {
+                calculateTotalFamilyIncome();
+            }
+        });
     });
 </script>
 

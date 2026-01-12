@@ -103,7 +103,7 @@ class UserController extends Controller
             'phone' => 'required|string|max:15',
             'alternate_phone' => 'nullable|string|max:15',
 
-            'email' => 'required|email|max:255|unique:users,email',
+            'email' => 'required|email|max:255',
             'alternate_email' => 'nullable|email|max:255',
 
             'flat_no' => 'nullable|string',

@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JITO JEAP Student Registration</title>
+
+    {{-- <link rel="icon" href="{{ asset('jitojeaplogo.png') }}" type="image/png">
+    <link rel="shortcut icon" href="{{ asset('jitojeaplogo.png') }}" type="image/png"> --}}
     <link rel="icon" href="{{ asset('jitojeaplogo.png') }}" type="image/x-icon">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -471,7 +474,8 @@
                                     </svg>
                                 @elseif (auth()->check() && auth()->user()->submit_status === 'resubmit')
                                     {{-- Cross Icon --}}
-                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;" title="{{ auth()->user()->admin_remark ?? 'On Hold' }}"></i>
+                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
+                                        title="{{ auth()->user()->admin_remark ?? 'On Hold' }}"></i>
                                 @else
                                     {{-- Default Icon --}}
                                     <i class="bi bi-person"></i>
@@ -559,7 +563,8 @@
                                             fill="white" />
                                     </svg>
                                 @elseif ($educationDetail && $educationDetail->submit_status === 'resubmit')
-                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;" title="{{ $educationDetail->admin_remark ?? 'On Hold' }}"></i>
+                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
+                                        title="{{ $educationDetail->admin_remark ?? 'On Hold' }}"></i>
                                 @else
                                     <i class="bi bi-people"></i>
                                 @endif
@@ -593,7 +598,8 @@
                                             fill="white" />
                                     </svg>
                                 @elseif ($family && $family->submit_status === 'resubmit')
-                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;" title="{{ $family->admin_remark ?? 'On Hold' }}"></i>
+                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
+                                        title="{{ $family->admin_remark ?? 'On Hold' }}"></i>
                                 @else
                                     <i class="bi bi-mortarboard"></i>
                                 @endif
@@ -620,7 +626,8 @@
                                             fill="white" />
                                     </svg>
                                 @elseif ($fundingDetail && $fundingDetail->submit_status === 'resubmit')
-                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;" title="{{ $fundingDetail->admin_remark ?? 'On Hold' }}"></i>
+                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
+                                        title="{{ $fundingDetail->admin_remark ?? 'On Hold' }}"></i>
                                 @else
                                     <i class="bi bi-currency-rupee"></i>
                                 @endif
@@ -648,7 +655,8 @@
                                             fill="white" />
                                     </svg>
                                 @elseif ($guarantorDetail && $guarantorDetail->submit_status === 'resubmit')
-                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;" title="{{ $guarantorDetail->admin_remark ?? 'On Hold' }}"></i>
+                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
+                                        title="{{ $guarantorDetail->admin_remark ?? 'On Hold' }}"></i>
                                 @else
                                     <i class="bi bi-check2-square"></i>
                                 @endif
@@ -676,7 +684,8 @@
                                             fill="white" />
                                     </svg>
                                 @elseif ($document && $document->submit_status === 'resubmit')
-                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;" title="{{ $document->admin_remark ?? 'On Hold' }}"></i>
+                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
+                                        title="{{ $document->admin_remark ?? 'On Hold' }}"></i>
                                 @else
                                     <i class="bi bi-journal-text"></i>
                                 @endif
@@ -704,7 +713,8 @@
                                             fill="white" />
                                     </svg>
                                 @elseif ($reviewSubmit && $reviewSubmit->submit_status === 'resubmit')
-                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;" title="{{ $reviewSubmit->admin_remark ?? 'On Hold' }}"></i>
+                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
+                                        title="{{ $reviewSubmit->admin_remark ?? 'On Hold' }}"></i>
                                 @else
                                     <i class="bi bi-eye"></i>
                                 @endif

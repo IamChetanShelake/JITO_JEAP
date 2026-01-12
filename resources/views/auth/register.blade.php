@@ -231,7 +231,7 @@
                                     autofocus>
 
                             </div>
-                            <p class="mt-2">(Applicant’s Name, Father’s Name and Surname)</p>
+                            <p class="mt-2">(Applicant’s Name, Father’s/Husband's Name and Surname)</p>
                             @error('name')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
@@ -249,10 +249,10 @@
                                     fill="currentColor" viewBox="0 0 16 16">
                                     <path
                                         d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h.5
-                                                                                                                                                                                                                    A1.5 1.5 0 0 1 15 2.5v11A1.5 1.5 0 0 1 13.5 15h-11
-                                                                                                                                                                                                                    A1.5 1.5 0 0 1 1 13.5v-11A1.5 1.5 0 0 1 2.5 1H3V.5
-                                                                                                                                                                                                                    a.5.5 0 0 1 .5-.5zM2 6v7.5a.5.5 0 0 0 .5.5h11
-                                                                                                                                                                                                                    a.5.5 0 0 0 .5-.5V6H2z" />
+                                                                                                                                                                                                                        A1.5 1.5 0 0 1 15 2.5v11A1.5 1.5 0 0 1 13.5 15h-11
+                                                                                                                                                                                                                        A1.5 1.5 0 0 1 1 13.5v-11A1.5 1.5 0 0 1 2.5 1H3V.5
+                                                                                                                                                                                                                        a.5.5 0 0 1 .5-.5zM2 6v7.5a.5.5 0 0 0 .5.5h11
+                                                                                                                                                                                                                        a.5.5 0 0 0 .5-.5V6H2z" />
                                 </svg>
 
                                 <input id="dob" type="date"

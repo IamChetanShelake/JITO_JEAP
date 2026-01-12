@@ -50,7 +50,15 @@ class LoginController extends Controller
     {
         $credentials = $this->credentials($request);
 
-        // Try web guard first
+        // Try admin guard first for admin users
+        if (Auth::guard('admin')->attempt($credentials, $request->filled('remember'))) {
+            // Log the admin user into web guard for middleware compatibility
+            $user = Auth::guard('admin')->user();
+            Auth::login($user);
+            return true;
+        }
+
+        // Try web guard for regular users
         if (Auth::guard('web')->attempt($credentials, $request->filled('remember'))) {
             return true;
         }
@@ -108,7 +116,7 @@ class LoginController extends Controller
     {
         $request->session()->regenerate();
 
-        $user = Auth::user() ?: Auth::guard('apex')->user();
+        $user = Auth::user() ?: Auth::guard('admin')->user() ?: Auth::guard('apex')->user();
 
         $response = $this->authenticated($request, $user);
 
@@ -128,6 +136,7 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         Auth::logout();
+        Auth::guard('admin')->logout();
         Auth::guard('apex')->logout();
         Auth::guard('committee')->logout();
         Auth::guard('chapter')->logout();

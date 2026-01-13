@@ -639,8 +639,8 @@
                     <span class="logo-text">JitoJeap Admin</span>
                 </div>
             </div>
-            <nav class="sidebar-nav">
-                <ul class="nav flex-column">
+            <nav class="sidebar-nav ">
+                <ul class="nav flex-column" style="margin-bottom:50px;">
                     <li class="nav-item">
                         <a class="nav-link {{ Route::currentRouteName() == 'admin.home' ? 'active' : '' }}"
                             href="{{ route('admin.home') }}">
@@ -693,7 +693,7 @@
                     <li class="nav-item">
                         <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.banks') ? 'active' : '' }}"
                             href="{{ route('admin.banks.index') }}">
-                            <i class="fas fa-lightbulb"></i>
+                            <i class="fas fa-bank"></i>
                             <span class="nav-text">Banks</span>
                         </a>
                     </li>
@@ -701,7 +701,7 @@
                     <li class="nav-item">
                         <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.subcasts') ? 'active' : '' }}"
                             href="{{ route('admin.subcasts.index') }}">
-                            <i class="fas fa-lightbulb"></i>
+                            <i class="fas fa-users"></i>
                             <span class="nav-text">Subcast</span>
                         </a>
                     </li>
@@ -717,7 +717,7 @@
                     </li>
                 </ul>
             </nav>
-            <div class="sidebar-footer">
+            <div class="sidebar-footer mt-4">
                 <button class="sidebar-toggle-btn" id="sidebarToggle">
                     <i class="fas fa-chevron-right"></i>
                     <span class="toggle-text">Expand</span>

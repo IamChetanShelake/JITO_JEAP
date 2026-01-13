@@ -46,6 +46,7 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
 
     // Apex Leadership Routes
     Route::resource('apex', ApexLeadershipController::class);
+    Route::post('apex/{apex}/toggle-status', [ApexLeadershipController::class, 'toggleStatus'])->name('apex.toggle-status');
 
     // Working Committee Routes
     Route::resource('committee', WorkingCommitteeController::class);

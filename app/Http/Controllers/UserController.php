@@ -15,6 +15,8 @@ use App\Models\EducationDetail;
 use App\Models\GuarantorDetail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Subcast;
+use App\Models\Bank;
 
 
 class UserController extends Controller
@@ -50,7 +52,8 @@ class UserController extends Controller
         // $user = Auth::user();
         $familyDetail = Familydetail::where('user_id', $user_id)->first();
         $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
-        return view('user.step1', compact('type', 'user', 'familyDetail', 'fundingDetail'));
+        $subcasts = Subcast::all();
+        return view('user.step1', compact('type', 'user', 'familyDetail', 'fundingDetail', 'subcasts'));
     }
 
 
@@ -1204,6 +1207,7 @@ class UserController extends Controller
         $familyDetail = Familydetail::where('user_id', $user_id)->first();
         $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
+        $banks = Bank::all();
 
         // Get existing funding data from database if they exist
         $existingFundingData = [];
@@ -1247,7 +1251,7 @@ class UserController extends Controller
             ];
         }
 
-        return view('user.step4', compact('type', 'familyDetail', 'fundingDetail', 'existingFundingData', 'user'));
+        return view('user.step4', compact('type', 'familyDetail', 'fundingDetail', 'existingFundingData', 'user', 'banks'));
     }
 
 
@@ -2141,11 +2145,17 @@ class UserController extends Controller
             ]);
 
             $chapterName = $result['chapter']?->chapter_name ?? null;
+            $zoneName = $result['chapter']?->zone?->zone_name ?? null;
+            $chairman = $result['chapter']?->chapter_head ?? null;
+            $contact = $result['chapter']?->contact ?? null;
             $fallback = in_array($result['assigned_by'], ['nearest', 'nearest_pincode']);
 
             return response()->json([
                 'success' => true,
                 'chapter' => $chapterName,
+                'zone' => $zoneName,
+                'chairman' => $chairman,
+                'contact' => $contact,
                 'fallback' => $fallback,
                 'nearest_pincode' => $result['nearest_pincode'] ?? null,
                 'distance' => $result['distance'] ?? null,

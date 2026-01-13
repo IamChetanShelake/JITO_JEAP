@@ -557,57 +557,12 @@
                                                 <option value=""
                                                     {{ !old('bank_name') && !$fundingDetail ? 'selected' : '' }} disabled
                                                     hidden>Select Bank </option>
-                                                <option value="HDFC Bank"
-                                                    {{ old('bank_name') == 'HDFC Bank' || ($fundingDetail && $fundingDetail->bank_name === 'HDFC Bank') ? 'selected' : '' }}>
-                                                    HDFC Bank
-                                                </option>
-                                                <option value="ICICI Bank"
-                                                    {{ old('bank_name') == 'ICICI Bank' || ($fundingDetail && $fundingDetail->bank_name === 'ICICI Bank') ? 'selected' : '' }}>
-                                                    ICICI Bank
-                                                </option>
-                                                <option value="Kotak Mahindra Bank"
-                                                    {{ old('bank_name') == 'Kotak Mahindra Bank' || ($fundingDetail && $fundingDetail->bank_name === 'Kotak Mahindra Bank') ? 'selected' : '' }}>
-                                                    Kotak
-                                                    Mahindra Bank</option>
-                                                <option value="Axis Bank"
-                                                    {{ old('bank_name') == 'Axis Bank' || ($fundingDetail && $fundingDetail->bank_name === 'Axis Bank') ? 'selected' : '' }}>
-                                                    Axis Bank
-                                                </option>
-                                                <option value="IndusInd Bank"
-                                                    {{ old('bank_name') == 'IndusInd Bank' || ($fundingDetail && $fundingDetail->bank_name === 'IndusInd Bank') ? 'selected' : '' }}>
-                                                    IndusInd
-                                                    Bank</option>
-                                                <option value="IDBI Bank"
-                                                    {{ old('bank_name') == 'IDBI Bank' || ($fundingDetail && $fundingDetail->bank_name === 'IDBI Bank') ? 'selected' : '' }}>
-                                                    IDBI Bank
-                                                </option>
-                                                <option value="Yes Bank"
-                                                    {{ old('bank_name') == 'Yes Bank' || ($fundingDetail && $fundingDetail->bank_name === 'Yes Bank') ? 'selected' : '' }}>
-                                                    Yes Bank
-                                                </option>
-                                                <option value="IDFC First Bank"
-                                                    {{ old('bank_name') == 'IDFC First Bank' || ($fundingDetail && $fundingDetail->bank_name === 'IDFC First Bank') ? 'selected' : '' }}>
-                                                    IDFC
-                                                    First Bank</option>
-                                                <option value="State Bank of India"
-                                                    {{ old('bank_name') == 'State Bank of India' || ($fundingDetail && $fundingDetail->bank_name === 'State Bank of India') ? 'selected' : '' }}>
-                                                    State
-                                                    Bank of India</option>
-                                                <option value="Punjab National Bank"
-                                                    {{ old('bank_name') == 'Punjab National Bank' || ($fundingDetail && $fundingDetail->bank_name === 'Punjab National Bank') ? 'selected' : '' }}>
-                                                    Punjab National Bank</option>
-                                                <option value="Bank of Baroda"
-                                                    {{ old('bank_name') == 'Bank of Baroda' || ($fundingDetail && $fundingDetail->bank_name === 'Bank of Baroda') ? 'selected' : '' }}>
-                                                    Bank of
-                                                    Baroda</option>
-                                                <option value="Canara Bank"
-                                                    {{ old('bank_name') == 'Canara Bank' || ($fundingDetail && $fundingDetail->bank_name === 'Canara Bank') ? 'selected' : '' }}>
-                                                    Canara Bank
-                                                </option>
-                                                <option value="Union Bank of India"
-                                                    {{ old('bank_name') == 'Union Bank of India' || ($fundingDetail && $fundingDetail->bank_name === 'Union Bank of India') ? 'selected' : '' }}>
-                                                    Union
-                                                    Bank of India</option>
+                                                @foreach($banks as $bank)
+                                                    <option value="{{ $bank->name }}"
+                                                        {{ old('bank_name') == $bank->name || ($fundingDetail && $fundingDetail->bank_name === $bank->name) ? 'selected' : '' }}>
+                                                        {{ $bank->name }}
+                                                    </option>
+                                                @endforeach
                                             </select>
                                             <small class="text-danger">{{ $errors->first('bank_name') }}</small>
                                         </div>

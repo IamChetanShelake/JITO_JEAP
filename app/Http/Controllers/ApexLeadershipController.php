@@ -117,4 +117,13 @@ class ApexLeadershipController extends Controller
         $apex->update(['show_hide' => !$apex->show_hide]);
         return response()->json(['success' => true, 'show_hide' => $apex->show_hide]);
     }
+
+    /**
+     * Toggle active/inactive status
+     */
+    public function toggleStatus(ApexLeadership $apex)
+    {
+        $apex->update(['status' => !$apex->status]);
+        return response()->json(['success' => true, 'status' => $apex->status]);
+    }
 }

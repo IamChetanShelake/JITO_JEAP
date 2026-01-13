@@ -53,13 +53,13 @@ class PincodeService
         $response = Http::withHeaders([
             'User-Agent' => 'JITO-JEAP/1.0 (admin@yourdomain.com)',
         ])
-        ->timeout(15)
-        ->get('https://nominatim.openstreetmap.org/search', [
-            'q' => "India {$pincode}",
-            'format' => 'json',
-            'limit' => 1,
-            'countrycodes' => 'IN',
-        ]);
+            ->timeout(15)
+            ->get('https://nominatim.openstreetmap.org/search', [
+                'q' => "India {$pincode}",
+                'format' => 'json',
+                'limit' => 1,
+                'countrycodes' => 'IN',
+            ]);
 
         if (! $response->successful()) {
             throw new \Exception('Geocoding API failed');
@@ -83,12 +83,15 @@ class PincodeService
     public function resolveChapter(string $pincode): array
     {
         // 1. Check for exact pincode match
-        $exact = Chapter::whereHas('pincodes', fn ($q) =>
+        $exact = Chapter::whereHas(
+            'pincodes',
+            fn($q) =>
             $q->where('pincode', $pincode)
         )
-        ->where('status', true)
-        ->where('show_hide', true)
-        ->first();
+            ->where('status', true)
+            ->where('show_hide', true)
+            ->with('zone')
+            ->first();
 
         if ($exact) {
             return [
@@ -109,12 +112,15 @@ class PincodeService
 
             if ($nearestPincodeData) {
                 // 4. Get chapter associated with nearest pincode
-                $chapter = Chapter::whereHas('pincodes', fn ($q) =>
+                $chapter = Chapter::whereHas(
+                    'pincodes',
+                    fn($q) =>
                     $q->where('pincode', $nearestPincodeData['pincode'])
                 )
-                ->where('status', true)
-                ->where('show_hide', true)
-                ->first();
+                    ->where('status', true)
+                    ->where('show_hide', true)
+                    ->with('zone')
+                    ->first();
 
                 if ($chapter) {
                     return [
@@ -198,5 +204,4 @@ class PincodeService
             ->limit(1)
             ->first();
     }
-
 }

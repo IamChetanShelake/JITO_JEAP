@@ -273,9 +273,16 @@
                                         <div class="form-group mb-3">
                                             <label for="sub_cast" class="form-label">Sub Caste <span
                                                     style="color: red;">*</span></label>
-                                            <input type="text" id="sub_cast" name="sub_cast" class="form-control"
-                                                placeholder="Enter Sub Caste"
-                                                value="{{ old('sub_cast', $user->sub_cast ?? '') }}" required>
+                                            <select class="form-control" id="sub_cast" name="sub_cast" required>
+                                                <option disabled
+                                                    {{ (old('sub_cast') ?: $user->sub_cast ?? '') ? '' : 'selected' }}
+                                                    hidden>Select Sub Caste</option>
+                                                @foreach($subcasts as $subcast)
+                                                    <option value="{{ $subcast->name }}"
+                                                        {{ (old('sub_cast') ?: $user->sub_cast ?? '') == $subcast->name ? 'selected' : '' }}>
+                                                        {{ $subcast->name }}</option>
+                                                @endforeach
+                                            </select>
                                             <small class="text-danger">{{ $errors->first('sub_cast') }}</small>
                                         </div>
 
@@ -478,6 +485,27 @@
                                             <small class="text-danger">{{ $errors->first('chapter') }}</small>
                                         </div>
 
+                                        <div class="form-group mb-3">
+                                            <label for="zone" class="form-label">Zone</label>
+                                            <input type="text" id="zone" name="zone" class="form-control"
+                                                placeholder="Zone will be auto-filled"
+                                                value="{{ old('zone') }}" readonly>
+                                        </div>
+
+                                        <div class="form-group mb-3">
+                                            <label for="chairman" class="form-label">Chairman</label>
+                                            <input type="text" id="chairman" name="chairman" class="form-control"
+                                                placeholder="Chairman will be auto-filled"
+                                                value="{{ old('chairman') }}" readonly>
+                                        </div>
+
+                                        <div class="form-group mb-3">
+                                            <label for="contact" class="form-label">Contact</label>
+                                            <input type="text" id="contact" name="contact" class="form-control"
+                                                placeholder="Contact will be auto-filled"
+                                                value="{{ old('contact') }}" readonly>
+                                        </div>
+
 
 
 
@@ -609,6 +637,12 @@
 
                         if (data.chapter) {
                             chapterInput.value = data.chapter;
+                            const zoneInput = document.getElementById('zone');
+                            if (zoneInput) zoneInput.value = data.zone || '';
+                            const chairmanInput = document.getElementById('chairman');
+                            if (chairmanInput) chairmanInput.value = data.chairman || '';
+                            const contactInput = document.getElementById('contact');
+                            if (contactInput) contactInput.value = data.contact || '';
 
                             if (data.fallback) {
                                 // Show alert for fallback assignment
@@ -633,6 +667,12 @@
                             }
                         } else {
                             chapterInput.value = '';
+                            const zoneInput = document.getElementById('zone');
+                            if (zoneInput) zoneInput.value = '';
+                            const chairmanInput = document.getElementById('chairman');
+                            if (chairmanInput) chairmanInput.value = '';
+                            const contactInput = document.getElementById('contact');
+                            if (contactInput) contactInput.value = '';
                             // Show no chapter found message
                             const alertDiv = document.createElement('div');
                             alertDiv.id = 'chapter-alert';
@@ -648,6 +688,12 @@
                         console.error('Error fetching chapters:', error);
                         const chapterInput = document.getElementById('chapter');
                         chapterInput.value = '';
+                        const zoneInput = document.getElementById('zone');
+                        if (zoneInput) zoneInput.value = '';
+                        const chairmanInput = document.getElementById('chairman');
+                        if (chairmanInput) chairmanInput.value = '';
+                        const contactInput = document.getElementById('contact');
+                        if (contactInput) contactInput.value = '';
                     });
             }
 

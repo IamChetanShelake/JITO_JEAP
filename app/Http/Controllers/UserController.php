@@ -2086,23 +2086,39 @@ class UserController extends Controller
             $service = new \App\Services\PincodeService();
             $result = $service->resolveChapter($pincode);
 
-            Log::info('resolveChapter result', [
+            Log::info('getChapters - resolveChapter result', [
+                'pincode' => $pincode,
                 'assigned_by' => $result['assigned_by'],
                 'chapter' => $result['chapter']?->chapter_name ?? null,
+                'chapter_id' => $result['chapter']?->id ?? null,
                 'nearest_pincode' => $result['nearest_pincode'] ?? null,
-                'distance' => $result['distance'] ?? null
+                'distance' => $result['distance'] ?? null,
+                'state' => $result['state'] ?? null
             ]);
 
             $chapterName = $result['chapter']?->chapter_name ?? null;
-            $fallback = in_array($result['assigned_by'], ['nearest', 'nearest_pincode']);
+            $fallback = in_array($result['assigned_by'], ['nearest_pincode_same_state', 'nearest_pincode_any_state', 'nearest_chapter']);
 
-            return response()->json([
+            // Include distance and location info for all assignments that have distance data
+            $response = [
                 'success' => true,
                 'chapter' => $chapterName,
                 'fallback' => $fallback,
-                'nearest_pincode' => $result['nearest_pincode'] ?? null,
-                'distance' => $result['distance'] ?? null,
+                'assigned_by' => $result['assigned_by'],
+            ];
+
+            if (isset($result['distance']) && $result['distance'] !== null) {
+                $response['distance'] = round($result['distance'], 1);
+                $response['nearest_pincode'] = $result['nearest_pincode'] ?? null;
+                $response['state'] = $result['state'] ?? null;
+            }
+
+            Log::info('getChapters response', [
+                'pincode' => $pincode,
+                'response' => $response
             ]);
+
+            return response()->json($response);
         } catch (\Exception $e) {
             Log::error('getChapters error: ' . $e->getMessage(), [
                 'pincode' => $pincode,

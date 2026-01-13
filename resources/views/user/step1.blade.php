@@ -609,19 +609,23 @@
                         if (data.chapter) {
                             chapterInput.value = data.chapter;
 
-                            if (data.fallback) {
-                                // Show alert for fallback assignment
+                            // Show distance/location info whenever available
+                            if (data.distance !== undefined) {
                                 const alertDiv = document.createElement('div');
                                 alertDiv.id = 'chapter-alert';
-                                alertDiv.className = 'alert alert-info alert-dismissible fade show mt-2';
+                                alertDiv.className = data.fallback ? 'alert alert-info alert-dismissible fade show mt-2' : 'alert alert-success alert-dismissible fade show mt-2';
 
-                                let message = `<strong>Chapter Assigned:</strong> "${data.chapter}" `;
+                                let message = `<strong>Chapter Info:</strong> "${data.chapter}" `;
                                 if (data.nearest_pincode && data.distance) {
-                                    message += `based on nearest pincode ${data.nearest_pincode} (${data.distance} km away).`;
+                                    if (data.fallback) {
+                                        const assignmentType = data.assigned_by === 'nearest_pincode_same_state' ?
+                                            'within your state' : 'in the nearest available location';
+                                        message += `based on nearest pincode ${data.nearest_pincode} (${data.distance} km away, ${assignmentType}).`;
+                                    } else {
+                                        message += `is located approximately ${data.distance} km from your pincode.`;
+                                    }
                                 } else if (data.distance) {
                                     message += `is approximately ${data.distance} km away from your location.`;
-                                } else {
-                                    message += `is the nearest available chapter.`;
                                 }
 
                                 alertDiv.innerHTML = `
@@ -687,5 +691,4 @@
             });
         });
     </script>
-        });
 

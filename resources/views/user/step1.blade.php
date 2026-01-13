@@ -593,6 +593,9 @@
                 if (!pincode || pincode.length < 6) {
                     // Clear chapter field if pincode is too short
                     document.getElementById('chapter').value = '';
+                    // Hide any existing alert
+                    const existingAlert = document.getElementById('chapter-alert');
+                    if (existingAlert) existingAlert.remove();
                     return;
                 }
 
@@ -600,11 +603,45 @@
                     .then(response => response.json())
                     .then(data => {
                         const chapterInput = document.getElementById('chapter');
+                        // Remove any existing alert
+                        const existingAlert = document.getElementById('chapter-alert');
+                        if (existingAlert) existingAlert.remove();
 
                         if (data.chapter) {
                             chapterInput.value = data.chapter;
+
+                            if (data.fallback) {
+                                // Show alert for fallback assignment
+                                const alertDiv = document.createElement('div');
+                                alertDiv.id = 'chapter-alert';
+                                alertDiv.className = 'alert alert-info alert-dismissible fade show mt-2';
+
+                                let message = `<strong>Chapter Assigned:</strong> "${data.chapter}" `;
+                                if (data.nearest_pincode && data.distance) {
+                                    message += `based on nearest pincode ${data.nearest_pincode} (${data.distance} km away).`;
+                                } else if (data.distance) {
+                                    message += `is approximately ${data.distance} km away from your location.`;
+                                } else {
+                                    message += `is the nearest available chapter.`;
+                                }
+
+                                alertDiv.innerHTML = `
+                                    ${message}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                `;
+                                chapterInput.parentNode.appendChild(alertDiv);
+                            }
                         } else {
                             chapterInput.value = '';
+                            // Show no chapter found message
+                            const alertDiv = document.createElement('div');
+                            alertDiv.id = 'chapter-alert';
+                            alertDiv.className = 'alert alert-warning alert-dismissible fade show mt-2';
+                            alertDiv.innerHTML = `
+                                <strong>No Chapter Available:</strong> No suitable chapter found for your pincode. Please contact support.
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            `;
+                            chapterInput.parentNode.appendChild(alertDiv);
                         }
                     })
                     .catch(error => {

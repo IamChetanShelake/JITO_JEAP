@@ -208,12 +208,18 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="pincode" class="form-label">
-                            <i class="fas fa-map-pin"></i> Pincode <span class="text-danger">*</span>
+                        <label for="pincodes" class="form-label">
+                            <i class="fas fa-map-pin"></i> Pincodes <span class="text-danger">*</span>
                         </label>
-                        <input type="text" class="form-control @error('pincode') is-invalid @enderror"
-                               id="pincode" name="pincode" value="{{ old('pincode') }}" required>
-                        @error('pincode')
+                        <select class="form-select @error('pincodes') is-invalid @enderror" id="pincodes" name="pincodes[]" multiple required>
+                            @foreach($pincodes as $pincode)
+                                <option value="{{ $pincode->pincode }}" {{ in_array($pincode->pincode, old('pincodes', [])) ? 'selected' : '' }}>
+                                    {{ $pincode->pincode }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="form-text text-muted">Hold Ctrl (or Cmd on Mac) to select multiple pincodes</small>
+                        @error('pincodes')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>

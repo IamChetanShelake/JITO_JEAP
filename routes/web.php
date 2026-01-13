@@ -8,6 +8,7 @@ use App\Http\Controllers\BankController;
 use App\Http\Controllers\SubcastController;
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\ChapterController;
+use App\Http\Controllers\PincodeController;
 use App\Http\Controllers\ApexLeadershipController;
 use App\Http\Controllers\WorkingCommitteeController;
 use App\Http\Controllers\InitiativeController;
@@ -54,6 +55,9 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
 
     // Chapter Routes
     Route::resource('chapters', ChapterController::class);
+
+    // Pincode Routes
+    Route::resource('pincodes', PincodeController::class);
 
     // Initiative Routes
     Route::resource('initiatives', InitiativeController::class);

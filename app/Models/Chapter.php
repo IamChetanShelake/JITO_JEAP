@@ -71,4 +71,12 @@ class Chapter extends Authenticatable implements AuthenticatableContract
     {
         return $this->belongsTo(Zone::class);
     }
+
+    /**
+     * Get the pincodes associated with the chapter.
+     */
+    public function pincodes()
+    {
+        return $this->belongsToMany(Pincode::class, 'chapter_pincodes');
+    }
 }

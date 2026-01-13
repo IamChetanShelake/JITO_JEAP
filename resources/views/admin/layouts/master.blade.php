@@ -677,6 +677,13 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.pincodes') ? 'active' : '' }}"
+                            href="{{ route('admin.pincodes.index') }}">
+                            <i class="fas fa-thumbtack"></i>
+                            <span class="nav-text">Pincodes</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.initiatives') ? 'active' : '' }}"
                             href="{{ route('admin.initiatives.index') }}">
                             <i class="fas fa-lightbulb"></i>

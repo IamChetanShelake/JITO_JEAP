@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Chapter;
 use App\Models\Zone;
+use App\Models\Pincode;
 use Illuminate\Http\Request;
 
 class ChapterController extends Controller
@@ -23,7 +24,8 @@ class ChapterController extends Controller
     public function create()
     {
         $zones = Zone::where('status', true)->get();
-        return view('admin.chapters.create', compact('zones'));
+        $pincodes = Pincode::orderBy('pincode')->get();
+        return view('admin.chapters.create', compact('zones', 'pincodes'));
     }
 
     /**
@@ -36,7 +38,8 @@ class ChapterController extends Controller
             'chapter_head' => 'required|string|max:255',
             'chapter_name' => 'required|string|max:255',
             'city' => 'required|string|max:255',
-            'pincode' => 'required|string|max:20',
+            'pincodes' => 'required|array|min:1',
+            'pincodes.*' => 'required|string|max:20',
             'state' => 'required|string|max:255',
             'email' => 'required|email|unique:admin_panel.chapters,email',
             'contact' => 'required|string|max:20',
@@ -50,7 +53,36 @@ class ChapterController extends Controller
         $validated['role'] = 'chapter';
         $validated['password'] = bcrypt($validated['password']);
 
-        Chapter::create($validated);
+        // Store pincodes as comma-separated string for backward compatibility
+        $pincodesArray = $validated['pincodes'];
+        $validated['pincode'] = implode(',', $pincodesArray);
+
+        $chapter = Chapter::create($validated);
+
+        // Attach pincodes to pivot table and ensure coordinates are cached
+        foreach ($pincodesArray as $pincodeStr) {
+            $pincode = \App\Models\Pincode::firstOrCreate(['pincode' => $pincodeStr]);
+
+            // Ensure coordinates are cached for new pincodes
+            if (!$pincode->latitude || !$pincode->longitude) {
+                try {
+                    $service = new \App\Services\PincodeService();
+                    $coords = $service->resolveCoordinates($pincodeStr);
+
+                    $pincode->update([
+                        'latitude' => $coords['lat'],
+                        'longitude' => $coords['lng'],
+                        'cached_at' => now(),
+                    ]);
+
+                    \Illuminate\Support\Facades\Log::info('Coordinates cached for pincode from chapter: ' . $pincodeStr);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('Failed to cache coordinates for pincode from chapter: ' . $pincodeStr . ' - ' . $e->getMessage());
+                }
+            }
+
+            $chapter->pincodes()->attach($pincode->id);
+        }
 
         return redirect()->route('admin.chapters.index')
             ->with('success', 'Chapter added successfully');
@@ -71,7 +103,8 @@ class ChapterController extends Controller
     public function edit(Chapter $chapter)
     {
         $zones = Zone::where('status', true)->get();
-        return view('admin.chapters.edit', compact('chapter', 'zones'));
+        $pincodes = Pincode::orderBy('pincode')->get();
+        return view('admin.chapters.edit', compact('chapter', 'zones', 'pincodes'));
     }
 
     /**
@@ -84,7 +117,8 @@ class ChapterController extends Controller
             'chapter_head' => 'required|string|max:255',
             'chapter_name' => 'required|string|max:255',
             'city' => 'required|string|max:255',
-            'pincode' => 'required|string|max:20',
+            'pincodes' => 'required|array|min:1',
+            'pincodes.*' => 'required|string|max:20',
             'state' => 'required|string|max:255',
             'email' => 'required|email|unique:admin_panel.chapters,email,' . $chapter->id,
             'contact' => 'required|string|max:20',
@@ -96,6 +130,10 @@ class ChapterController extends Controller
         $validated['status'] = $request->has('status') ? 1 : 0;
         $validated['show_hide'] = $request->has('show_hide') ? 1 : 0;
 
+        // Store pincodes as comma-separated string for backward compatibility
+        $pincodesArray = $validated['pincodes'];
+        $validated['pincode'] = implode(',', $pincodesArray);
+
         if (!empty($validated['password'])) {
             $validated['password'] = bcrypt($validated['password']);
         } else {
@@ -103,6 +141,31 @@ class ChapterController extends Controller
         }
 
         $chapter->update($validated);
+
+        // Sync pincodes and ensure coordinates are cached
+        $pincodeIds = [];
+        foreach ($pincodesArray as $pincodeStr) {
+            $pincode = \App\Models\Pincode::firstOrCreate(['pincode' => $pincodeStr]);
+
+            // Ensure coordinates are cached for new pincodes
+            if (!$pincode->latitude || !$pincode->longitude) {
+                try {
+                    $service = new \App\Services\PincodeService();
+                    $coords = $service->resolveCoordinates($pincodeStr);
+
+                    $pincode->update([
+                        'latitude' => $coords['lat'],
+                        'longitude' => $coords['lng'],
+                        'cached_at' => now(),
+                    ]);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('Failed to cache coordinates for updated pincode: ' . $pincodeStr . ' - ' . $e->getMessage());
+                }
+            }
+
+            $pincodeIds[] = $pincode->id;
+        }
+        $chapter->pincodes()->sync($pincodeIds);
 
         return redirect()->route('admin.chapters.index')
             ->with('success', 'Chapter updated successfully');

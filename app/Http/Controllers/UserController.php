@@ -2081,21 +2081,37 @@ class UserController extends Controller
     public function getChapters(Request $request, $pincode)
     {
         try {
-            // Get the first matching chapter for the pincode
-            $chapter = \App\Models\Chapter::where('pincode', $pincode)
-                ->where('status', true) // Only active chapters
-                ->where('show_hide', true) // Only visible chapters
-                ->orderBy('chapter_name')
-                ->first(['chapter_name']);
+            Log::info('getChapters called with pincode: ' . $pincode);
+
+            $service = new \App\Services\PincodeService();
+            $result = $service->resolveChapter($pincode);
+
+            Log::info('resolveChapter result', [
+                'assigned_by' => $result['assigned_by'],
+                'chapter' => $result['chapter']?->chapter_name ?? null,
+                'nearest_pincode' => $result['nearest_pincode'] ?? null,
+                'distance' => $result['distance'] ?? null
+            ]);
+
+            $chapterName = $result['chapter']?->chapter_name ?? null;
+            $fallback = in_array($result['assigned_by'], ['nearest', 'nearest_pincode']);
 
             return response()->json([
                 'success' => true,
-                'chapter' => $chapter ? $chapter->chapter_name : null
+                'chapter' => $chapterName,
+                'fallback' => $fallback,
+                'nearest_pincode' => $result['nearest_pincode'] ?? null,
+                'distance' => $result['distance'] ?? null,
             ]);
         } catch (\Exception $e) {
+            Log::error('getChapters error: ' . $e->getMessage(), [
+                'pincode' => $pincode,
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error fetching chapter',
+                'message' => 'Error fetching chapter: ' . $e->getMessage(),
                 'chapter' => null
             ], 500);
         }

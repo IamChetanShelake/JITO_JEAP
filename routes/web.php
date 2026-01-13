@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\BankController;
+use App\Http\Controllers\SubcastController;
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\ApexLeadershipController;
@@ -55,6 +57,12 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
 
     // Initiative Routes
     Route::resource('initiatives', InitiativeController::class);
+
+    // Bank Routes
+    Route::resource('banks', BankController::class);
+
+    // Subcast Routes
+    Route::resource('subcasts', SubcastController::class);
 });
 
 // User Routes - Protected by auth and user middleware
@@ -75,16 +83,16 @@ Route::middleware(['auth', 'user'])
 
         Route::get('/Step2', [UserController::class, 'step2'])
             ->name('step2');
-    // Route::post('/Step2Store/', [UserController::class, 'step2store'])
-    //     ->name('step2.store');
+        // Route::post('/Step2Store/', [UserController::class, 'step2store'])
+        //     ->name('step2.store');
 
 
-    Route::post('/Step2UGStore/', [UserController::class, 'step2UGstore'])
-        ->name('step2ug.store');
-    Route::post('/Step2PGStore/', [UserController::class, 'step2PGstore'])
-        ->name('step2pg.store');
-    Route::post('/Step2ForeignPgStore/', [UserController::class, 'step2_foreign_pg_store'])
-        ->name('step2_foreign_pg.store');
+        Route::post('/Step2UGStore/', [UserController::class, 'step2UGstore'])
+            ->name('step2ug.store');
+        Route::post('/Step2PGStore/', [UserController::class, 'step2PGstore'])
+            ->name('step2pg.store');
+        Route::post('/Step2ForeignPgStore/', [UserController::class, 'step2_foreign_pg_store'])
+            ->name('step2_foreign_pg.store');
 
 
         Route::get('/Step3', [UserController::class, 'step3'])

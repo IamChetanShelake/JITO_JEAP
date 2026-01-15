@@ -570,25 +570,25 @@
                                                     <option value="grandparent"
                                                         {{ old('diksha_member_relation') == 'grandfather' ? 'selected' : '' }}>
                                                         GrandFather</option>
-                                                    <option value="grandparent"
+                                                         <option value="grandparent"
                                                         {{ old('diksha_member_relation') == 'grandmother' ? 'selected' : '' }}>
                                                         GrandMother</option>
                                                     <option value="parents"
                                                         {{ old('diksha_member_relation') == 'father' ? 'selected' : '' }}>
                                                         Father</option>
-                                                    <option value="parents"
+                                                         <option value="parents"
                                                         {{ old('diksha_member_relation') == 'mother' ? 'selected' : '' }}>
                                                         Mother</option>
                                                     <option value="uncle and aunt"
                                                         {{ old('diksha_member_relation') == 'uncle' ? 'selected' : '' }}>
                                                         Uncle </option>
-                                                    <option value="uncle and aunt"
+                                                         <option value="uncle and aunt"
                                                         {{ old('diksha_member_relation') == 'aunt' ? 'selected' : '' }}>
-                                                        Aunt</option>
+                                                         Aunt</option>
                                                     <option value="brother and sister"
                                                         {{ old('diksha_member_relation') == 'brother' ? 'selected' : '' }}>
                                                         Brother and Sister</option>
-                                                    <option value="brother and sister"
+                                                         <option value="brother and sister"
                                                         {{ old('diksha_member_relation') == 'sister' ? 'selected' : '' }}>
                                                         Sister</option>
                                                 </select>

@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Http;
+use Carbon\Carbon;
 
 class RegisterController extends Controller
 {
@@ -41,6 +43,76 @@ class RegisterController extends Controller
     }
 
     /**
+     * Handle a registration request for the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function register(\Illuminate\Http\Request $request)
+    {
+        $validator = $this->validator($request->all());
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        // Perform PAN verification
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc2Nzc3MjYwNCwianRpIjoiMTBjODNjNTktZTY3ZC00ZGNhLTgyZDktZTc1ZWQ4YmVmOGZiIiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LnNsdW5hd2F0ZmluQHN1cmVwYXNzLmlvIiwibmJmIjoxNzY3NzcyNjA0LCJleHAiOjIzOTg0OTI2MDQsImVtYWlsIjoic2x1bmF3YXRmaW5Ac3VyZXBhc3MuaW8iLCJ0ZW5hbnRfaWQiOiJtYWluIiwidXNlcl9jbGFpbXMiOnsic2NvcGVzIjpbInVzZXIiXX19.4PUIOM6lMXFUKqUxsNi1ZYIW5BLJ3A63LxZqiYB9a3c'
+            ])->post('https://kyc-api.surepass.io/api/v1/pan/pan-comprehensive', [
+                'id_number' => $request->pan_card
+            ]);
+
+            if (!$response->successful()) {
+                return redirect()->back()->withErrors(['pan_card' => 'PAN verification failed. Please try again.'])->withInput();
+            }
+
+            $apiData = $response->json();
+
+            if (!isset($apiData['data']['dob'])) {
+                return redirect()->back()->withErrors(['pan_card' => 'Unable to retrieve date of birth from PAN.'])->withInput();
+            }
+
+            $dob = Carbon::parse($apiData['data']['dob']);
+            $age = $dob->age;
+
+            if ($age < 18 || $age > 30) {
+                return redirect()->back()->withErrors(['pan_card' => 'Age criteria not satisfied. You must be between 18 and 30 years old.'])->withInput();
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['pan_card' => 'API error occurred. Please try again later.'])->withInput();
+        }
+
+        // Extract additional data from API
+        $additionalData = [];
+        if (isset($apiData['data']['full_name'])) {
+            $additionalData['name'] = $apiData['data']['full_name'];
+        }
+        if (isset($apiData['data']['dob'])) {
+            $additionalData['d_o_b'] = $apiData['data']['dob'];
+        }
+        $additionalData['age'] = $age;
+        if (isset($apiData['data']['gender'])) {
+            $additionalData['gender'] = strtolower($apiData['data']['gender']) === 'm' ? 'male' : (strtolower($apiData['data']['gender']) === 'f' ? 'female' : null);
+        }
+        if (isset($apiData['data']['masked_aadhaar'])) {
+            $additionalData['aadhar_card_number'] = $apiData['data']['masked_aadhaar'];
+        }
+
+        $userData = array_merge($request->all(), $additionalData);
+        $user = $this->create($userData);
+
+        $this->guard()->login($user);
+
+        return $this->registered($request, $user)
+            ?: redirect($this->redirectPath());
+    }
+
+    /**
      * Get a validator for an incoming registration request.
      *
      * @param  array  $data
@@ -48,20 +120,10 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        // dd($data);
+        //  dd($data);
         return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
-            'd_o_b' => ['required', 'date'],
-            // 'aadhar_card_number' => ['required',
-            //     'regex:/^[2-9]{1}[0-9]{11}$/', 'max:20', 'unique:users'],
-            'aadhar_card_number' => [
-                'required',
-                'digits:12',
-                'unique:users,aadhar_card_number'
-            ],
-
+            'pan_card' => ['required', 'string', 'regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            // 'phone' => ['required', 'string', 'max:15'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
     }
@@ -75,11 +137,13 @@ class RegisterController extends Controller
     protected function create(array $data)
     {
         return User::create([
-            'name' => $data['name'],
-            'd_o_b' => $data['d_o_b'],
-            'aadhar_card_number' => $data['aadhar_card_number'],
+            'name' => $data['name'] ?? null,
+            'd_o_b' => $data['d_o_b'] ?? null,
+            'age' => $data['age'] ?? null,
+            'gender' => $data['gender'] ?? null,
+            'aadhar_card_number' => $data['aadhar_card_number'] ?? null,
+            'pan_card' => $data['pan_card'],
             'email' => $data['email'],
-            // 'phone' => $data['phone'],
             'password' => Hash::make($data['password']),
         ]);
     }

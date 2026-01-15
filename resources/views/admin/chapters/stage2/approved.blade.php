@@ -1,6 +1,6 @@
 @extends('admin.layouts.master')
 
-@section('title', 'Apex Stage 1 - Pending Forms - JitoJeap Admin')
+@section('title', 'Chapter - Approved Forms - JitoJeap Admin')
 
 @section('styles')
 <style>
@@ -128,7 +128,7 @@
 
     .table {
         width: 100%;
-        min-width: 1000px;
+        min-width: 1200px;
         margin-bottom: 0;
         color: var(--text-dark);
     }
@@ -175,9 +175,9 @@
         gap: 0.3rem;
     }
 
-    .status-pending {
-        background: #fff8e1;
-        color: var(--primary-yellow);
+    .status-approved {
+        background: #e8f5e9;
+        color: var(--primary-green);
     }
 
     .action-btn {
@@ -204,24 +204,9 @@
         color: white;
     }
 
-    .action-btn.approve-btn {
-        background-color: #e8f5e9;
+    .amount-cell {
+        font-weight: 600;
         color: var(--primary-green);
-    }
-
-    .action-btn.approve-btn:hover {
-        background-color: var(--primary-green);
-        color: white;
-    }
-
-    .action-btn.hold-btn {
-        background-color: #ffebee;
-        color: var(--primary-red);
-    }
-
-    .action-btn.hold-btn:hover {
-        background-color: var(--primary-red);
-        color: white;
     }
 
     .empty-state {
@@ -294,10 +279,10 @@
 <div class="page-header">
     <div class="page-title-section">
         <h1 class="page-title">
-            <i class="fas fa-users" style="color: var(--primary-purple); margin-right: 0.5rem;"></i>
-            Apex Stage 1 - Pending Forms
+            <i class="fas fa-check-circle" style="color: var(--primary-green); margin-right: 0.5rem;"></i>
+            Chapter - Approved Forms
         </h1>
-        <p class="page-subtitle">List of pending user forms for approval</p>
+        <p class="page-subtitle">List of approved user forms from chapter stage</p>
     </div>
     <a href="{{ route('admin.home') }}" class="back-btn">
         <i class="fas fa-arrow-left"></i> Back to Dashboard
@@ -315,11 +300,13 @@
                     <tr>
                         <th style="width: 5%;">Seq</th>
                         <th style="width: 15%;">Name</th>
-                        <th style="width: 20%;">Email</th>
-                        <th style="width: 15%;">Mobile</th>
-                        <th style="width: 15%;">Father Name</th>
-                        <th style="width: 15%;">Status</th>
-                        <th style="width: 15%;">Actions</th>
+                        <th style="width: 18%;">Email</th>
+                        <th style="width: 12%;">Mobile</th>
+                        <th style="width: 12%;">Father Name</th>
+                        <th style="width: 10%;">Assistance Amount</th>
+                        <th style="width: 10%;">Approved Date</th>
+                        <th style="width: 8%;">Status</th>
+                        <th style="width: 10%;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -332,36 +319,33 @@
                         <td>{{ $user->email }}</td>
                         <td>{{ $user->mobile }}</td>
                         <td>{{ $user->familyDetail ? $user->familyDetail->father_name : 'N/A' }}</td>
+                        <td class="amount-cell">
+                            ₹{{ $user->workflowStatus && $user->workflowStatus->chapter_assistance_amount ? number_format($user->workflowStatus->chapter_assistance_amount) : 'N/A' }}
+                        </td>
                         <td>
-                            @if($user->workflowStatus && $user->workflowStatus->apex_1_reject_remarks)
-                                <span class="status-badge" style="background: #fff3e0; color: #f57c00;">
-                                    <i class="fas fa-redo" style="font-size: 0.6rem;"></i>
-                                    Resubmitted
-                                </span>
+                            @if($user->workflowStatus && $user->workflowStatus->chapter_updated_at)
+                                {{ \Carbon\Carbon::parse($user->workflowStatus->chapter_updated_at)->format('d M Y') }}
                             @else
-                                <span class="status-badge status-pending">
-                                    <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
-                                    Pending
-                                </span>
+                                N/A
                             @endif
                         </td>
+                        <td>
+                            <span class="status-badge status-approved">
+                                <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
+                                Approved
+                            </span>
+                        </td>
                         <td class="actions-cell">
-                            <a href="{{ route('admin.apex.stage1.user.detail', $user) }}" class="action-btn view-btn" title="View Details">
+                            <a href="{{ route('admin.chapter.user.detail', $user) }}" class="action-btn view-btn" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <button class="action-btn approve-btn" title="Approve">
-                                <i class="fas fa-check"></i>
-                            </button>
-                            <button class="action-btn hold-btn" title="Hold">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </button>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="empty-state">
-                            <i class="fas fa-inbox"></i>
-                            <p>No pending forms found.</p>
+                        <td colspan="9" class="empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <p>No approved forms found.</p>
                         </td>
                     </tr>
                     @endforelse

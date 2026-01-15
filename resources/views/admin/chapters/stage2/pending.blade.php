@@ -1,6 +1,6 @@
 @extends('admin.layouts.master')
 
-@section('title', 'Apex Stage 1 - Pending Forms - JitoJeap Admin')
+@section('title', 'Chapter - Pending Forms - JitoJeap Admin')
 
 @section('styles')
 <style>
@@ -294,10 +294,10 @@
 <div class="page-header">
     <div class="page-title-section">
         <h1 class="page-title">
-            <i class="fas fa-users" style="color: var(--primary-purple); margin-right: 0.5rem;"></i>
-            Apex Stage 1 - Pending Forms
+            <i class="fas fa-map-marker-alt" style="color: var(--primary-purple); margin-right: 0.5rem;"></i>
+            Chapter - Pending Forms
         </h1>
-        <p class="page-subtitle">List of pending user forms for approval</p>
+        <p class="page-subtitle">List of pending user forms for chapter approval</p>
     </div>
     <a href="{{ route('admin.home') }}" class="back-btn">
         <i class="fas fa-arrow-left"></i> Back to Dashboard
@@ -333,7 +333,7 @@
                         <td>{{ $user->mobile }}</td>
                         <td>{{ $user->familyDetail ? $user->familyDetail->father_name : 'N/A' }}</td>
                         <td>
-                            @if($user->workflowStatus && $user->workflowStatus->apex_1_reject_remarks)
+                            @if($user->workflowStatus && $user->workflowStatus->chapter_reject_remarks)
                                 <span class="status-badge" style="background: #fff3e0; color: #f57c00;">
                                     <i class="fas fa-redo" style="font-size: 0.6rem;"></i>
                                     Resubmitted
@@ -346,7 +346,7 @@
                             @endif
                         </td>
                         <td class="actions-cell">
-                            <a href="{{ route('admin.apex.stage1.user.detail', $user) }}" class="action-btn view-btn" title="View Details">
+                            <a href="{{ route('admin.chapter.user.detail', $user) }}" class="action-btn view-btn" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>
                             <button class="action-btn approve-btn" title="Approve">

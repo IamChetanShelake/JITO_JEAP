@@ -29,18 +29,20 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::get('/apex-stage1/pending', [AdminController::class, 'apexStage1Pending'])->name('apex.stage1.pending');
     Route::get('/apex-stage1/hold', [AdminController::class, 'apexStage1Hold'])->name('apex.stage1.hold');
     Route::get('/apex-stage1/user/{user}', [AdminController::class, 'apexStage1UserDetail'])->name('apex.stage1.user.detail');
-    Route::post('/apex-stage1/user/{user}/approve-step/{step}', [AdminController::class, 'approveStep'])->name('apex.stage1.approve.step');
-    Route::post('/apex-stage1/user/{user}/hold-step/{step}', [AdminController::class, 'holdStep'])->name('apex.stage1.hold.step');
+
+    // Chapter Forms
+    Route::get('/chapter/approved', [AdminController::class, 'chapterApproved'])->name('chapter.approved');
+    Route::get('/chapter/pending', [AdminController::class, 'chapterPending'])->name('chapter.pending');
+    Route::get('/chapter/hold', [AdminController::class, 'chapterHold'])->name('chapter.hold');
+    Route::get('/chapter/user/{user}', [AdminController::class, 'chapterUserDetail'])->name('chapter.user.detail');
 
     // Approval workflow endpoints
-    Route::post('/user/{user}/appex/approve', [AdminController::class, 'appexApprove'])->name('user.appex.approve');
-    Route::post('/user/{user}/appex/hold', [AdminController::class, 'appexHold'])->name('user.appex.hold');
+    Route::post('/user/{user}/approve/{stage}', [AdminController::class, 'approveStage'])->name('user.approve');
+    Route::post('/user/{user}/reject/{stage}', [AdminController::class, 'rejectStage'])->name('user.reject');
 
-    Route::post('/user/{user}/work/approve', [AdminController::class, 'workApprove'])->name('user.work.approve');
-    Route::post('/user/{user}/work/hold', [AdminController::class, 'workHold'])->name('user.work.hold');
-
-    Route::post('/user/{user}/chapter/approve', [AdminController::class, 'chapterApprove'])->name('user.chapter.approve');
-    Route::post('/user/{user}/chapter/hold', [AdminController::class, 'chapterHold'])->name('user.chapter.hold');
+    // Chapter Interview endpoints
+    Route::post('/chapter/interview/save', [AdminController::class, 'saveChapterInterview'])->name('chapter.interview.save');
+    Route::get('/chapter/interview/answers/{user}/{workflow}', [AdminController::class, 'getChapterInterviewAnswers'])->name('chapter.interview.answers');
 
     // Apex Leadership Routes
     Route::resource('apex', ApexLeadershipController::class);

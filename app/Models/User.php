@@ -66,4 +66,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Document::class);
     }
+
+    public function workflowStatus()
+    {
+        return $this->hasOne(ApplicationWorkflowStatus::class);
+    }
 }

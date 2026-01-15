@@ -147,7 +147,17 @@
                 </select>
             </td>
             <td><input type="text" name="family_${i}_qualification" class="form-control" value="${oldData ? oldData.qualification || '' : ''}"></td>
-            <td><input type="text" name="family_${i}_occupation" class="form-control" value="${oldData ? oldData.occupation || '' : ''}"></td>
+            <td>
+                <select name="family_${i}_occupation" class="form-control">
+                    <option value="">Select Occupation</option>
+                    <option value="Job" ${oldData && oldData.occupation === 'Job' ? 'selected' : ''}>Job</option>
+                    <option value="Business" ${oldData && oldData.occupation === 'Business' ? 'selected' : ''}>Business</option>
+                    <option value="Agriculture" ${oldData && oldData.occupation === 'Agriculture' ? 'selected' : ''}>Agriculture</option>
+                    <option value="Professional" ${oldData && oldData.occupation === 'Professional' ? 'selected' : ''}>Professional</option>
+                    <option value="Student" ${oldData && oldData.occupation === 'Student' ? 'selected' : ''}>Student</option>
+                    <option value="Homemaker" ${oldData && oldData.occupation === 'Homemaker' ? 'selected' : ''}>Homemaker</option>
+                </select>
+            </td>
             <td><input type="tel" name="family_${i}_mobile" class="form-control" value="${oldData ? oldData.mobile || '' : ''}"></td>
             <td><input type="email" name="family_${i}_email" class="form-control" value="${oldData ? oldData.email || '' : ''}"></td>
             <td><input type="number" name="family_${i}_yearly_income" class="form-control" value="${oldData ? oldData.yearly_income || '' : ''}"></td>

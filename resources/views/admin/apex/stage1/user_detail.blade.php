@@ -99,10 +99,11 @@
 
     .user-info-card {
         background: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
-        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 2rem;
         margin-bottom: 2rem;
+        border: 1px solid rgba(57, 49, 133, 0.1);
     }
 
     .user-info-header {
@@ -506,6 +507,183 @@
     .custom-table tbody tr:hover {
         background-color: #f8f9fa;
     }
+
+    /* Professional Workflow Status Styles */
+    .workflow-status-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--bg-light);
+    }
+
+    .workflow-status-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-purple), var(--primary-blue));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        box-shadow: 0 4px 12px rgba(57, 49, 133, 0.3);
+    }
+
+    .workflow-stage-info h3 {
+        margin: 0;
+        color: var(--text-dark);
+        font-size: 1.4rem;
+        font-weight: 600;
+    }
+
+    .workflow-stage-info p {
+        margin: 0.25rem 0;
+        color: var(--text-light);
+        font-size: 0.95rem;
+    }
+
+    .workflow-stage-info .status-highlight {
+        font-weight: 600;
+        color: var(--primary-purple);
+    }
+
+    .workflow-action-card {
+        background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-top: 1.5rem;
+        border: 1px solid rgba(57, 49, 133, 0.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    .action-title {
+        color: var(--primary-purple);
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .action-title::before {
+        content: "⚖️";
+        font-size: 1.2rem;
+    }
+
+    .action-form {
+        margin-bottom: 1.5rem;
+    }
+
+    .remark-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        color: var(--text-dark);
+        background-color: #f8f9fa;
+        transition: all 0.3s ease;
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .remark-input:focus {
+        outline: none;
+        border-color: var(--primary-purple);
+        background-color: white;
+        box-shadow: 0 0 0 3px rgba(57, 49, 133, 0.1);
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        min-width: 140px;
+        justify-content: center;
+    }
+
+    .btn-approve {
+        background: linear-gradient(135deg, var(--primary-green), #4caf50);
+        color: white;
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+
+    .btn-approve:hover {
+        background: linear-gradient(135deg, #4caf50, #45a049);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+    }
+
+    .btn-reject {
+        background: linear-gradient(135deg, var(--primary-red), #e53935);
+        color: white;
+        box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+    }
+
+    .btn-reject:hover {
+        background: linear-gradient(135deg, #e53935, #d32f2f);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(244, 67, 54, 0.4);
+    }
+
+    .divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(57, 49, 133, 0.2), transparent);
+        margin: 1.5rem 0;
+        position: relative;
+    }
+
+    .divider::after {
+        content: "OR";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 0 1rem;
+        color: var(--text-light);
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .action-form-row {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .action-form-row .remark-input {
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .action-form-row .btn {
+        align-self: flex-end;
+    }
+
+    @media (max-width: 768px) {
+        .action-form-row {
+            flex-direction: column;
+        }
+
+        .action-form-row .btn {
+            align-self: stretch;
+        }
+    }
 </style>
 @endsection
 
@@ -536,6 +714,194 @@
         </div>
     </div>
 </div>
+
+{{-- <!-- Workflow Status Card -->
+<div class="user-info-card">
+    <div class="user-info-header">
+        <div class="user-details">
+            <h3>Workflow Status</h3>
+            <p>Current Stage: {{ $user->workflowStatus ? ucfirst(str_replace('_', ' ', $user->workflowStatus->current_stage)) : 'N/A' }}</p>
+            <p>Final Status: {{ $user->workflowStatus ? $user->workflowStatus->final_status : 'N/A' }}</p>
+        </div>
+    </div>
+    @if($user->workflowStatus && $user->workflowStatus->current_stage == 'apex_1' && $user->workflowStatus->final_status == 'in_progress')
+    <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+        <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
+            @csrf
+            <button type="submit" class="btn-approve">Approve Apex 1</button>
+        </form>
+        <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
+            @csrf
+            <textarea name="admin_remark" placeholder="Reject remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:20rem;box-sizing:border-box;"></textarea>
+            <button type="submit" class="btn-hold">Reject Apex 1</button>
+        </form>
+    </div>
+    @endif
+</div> --}}
+<!-- Workflow Status Card -->
+<div class="user-info-card">
+    <div class="workflow-status-header">
+        <div class="workflow-status-icon">
+            <i class="fas fa-tasks"></i>
+        </div>
+        <div class="workflow-stage-info">
+            <h3>Workflow Status</h3>
+            <p><strong>Current Stage:</strong> <span class="status-highlight">{{ $user->workflowStatus ? ucfirst(str_replace('_', ' ', $user->workflowStatus->current_stage)) : 'N/A' }}</span></p>
+            <p><strong>Final Status:</strong> <span class="status-highlight">{{ $user->workflowStatus ? ucfirst($user->workflowStatus->final_status) : 'N/A' }}</span></p>
+        </div>
+    </div>
+
+    @if($user->workflowStatus
+        && $user->workflowStatus->current_stage === 'apex_1'
+        && $user->workflowStatus->final_status === 'in_progress')
+
+        <!-- Validation Errors Display -->
+        @if ($errors->any())
+            <div style="background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.2); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                <h5 style="color: var(--primary-red); margin: 0 0 0.5rem 0; font-size: 0.9rem;">⚠️ Validation Errors:</h5>
+                <ul style="margin: 0; padding-left: 1.2rem; color: var(--primary-red); font-size: 0.85rem;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <!-- Success/Error Messages Display -->
+        @if(session('success'))
+            <div style="background: rgba(76, 175, 80, 0.1); border: 1px solid rgba(76, 175, 80, 0.2); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                <p style="color: var(--primary-green); margin: 0; font-size: 0.9rem;">✅ {{ session('success') }}</p>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div style="background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.2); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                <p style="color: var(--primary-red); margin: 0; font-size: 0.9rem;">❌ {{ session('error') }}</p>
+            </div>
+        @endif
+
+        <div class="workflow-action-card">
+            <h4 class="action-title">Apex 1 Decision</h4>
+
+            <!-- Approve Form -->
+            <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}"
+                  method="POST">
+                @csrf
+                <div class="action-form-row">
+                    <div style="flex: 2;">
+                        <textarea name="admin_remark"
+                                  placeholder="Approval remark (optional but recommended)"
+                                  rows="3"
+                                  class="remark-input"></textarea>
+
+                        <div style="margin-top: 1rem; padding: 1rem; background: rgba(76, 175, 80, 0.05); border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.1);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <h5 style="color: var(--primary-green); margin: 0; font-size: 0.9rem;">Verify and approve steps:</h5>
+                                <button type="button" onclick="toggleAllCheckboxes(true, 'approve')" style="background: var(--primary-green); color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Select All</button>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                    <input type="checkbox" name="approved_steps[]" value="personal" style="width: 16px; height: 16px;" required>
+                                    Step 1: Personal Details
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                    <input type="checkbox" name="approved_steps[]" value="education" style="width: 16px; height: 16px;" required>
+                                    Step 2: Education Details
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                    <input type="checkbox" name="approved_steps[]" value="family" style="width: 16px; height: 16px;" required>
+                                    Step 3: Family Details
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                    <input type="checkbox" name="approved_steps[]" value="funding" style="width: 16px; height: 16px;" required>
+                                    Step 4: Funding Details
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                    <input type="checkbox" name="approved_steps[]" value="guarantor" style="width: 16px; height: 16px;" required>
+                                    Step 5: Guarantor Details
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                    <input type="checkbox" name="approved_steps[]" value="documents" style="width: 16px; height: 16px;" required>
+                                    Step 6: Documents
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                    <input type="checkbox" name="approved_steps[]" value="final" style="width: 16px; height: 16px;" required>
+                                    Step 7: Final Submission
+                                </label>
+                            </div>
+                            <p style="font-size: 0.75rem; color: var(--text-light); margin: 0.5rem 0 0 0;">
+                                Check steps to approve them. All selected steps will have their submit_status updated to 'approved'.
+                            </p>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-approve">
+                        <i class="fas fa-check"></i>
+                        Approve Application
+                    </button>
+                </div>
+            </form>
+
+            <div class="divider"></div>
+
+            <!-- Reject Form -->
+            <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}"
+                  method="POST">
+                @csrf
+                <div class="action-form-row">
+                    <div style="flex: 2;">
+                        <textarea name="admin_remark"
+                                  placeholder="Rejection remark (required)"
+                                  rows="3"
+                                  class="remark-input"
+                                  required></textarea>
+
+                        <div style="margin-top: 1rem; padding: 1rem; background: rgba(244, 67, 54, 0.05); border-radius: 8px; border: 1px solid rgba(244, 67, 54, 0.1);">
+                            <h5 style="color: var(--primary-red); margin: 0 0 0.5rem 0; font-size: 0.9rem;">Select steps to resubmit:</h5>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                    <input type="checkbox" name="resubmit_steps[]" value="personal" style="width: 16px; height: 16px;">
+                                    Step 1: Personal Details
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                    <input type="checkbox" name="resubmit_steps[]" value="education" style="width: 16px; height: 16px;">
+                                    Step 2: Education Details
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                    <input type="checkbox" name="resubmit_steps[]" value="family" style="width: 16px; height: 16px;">
+                                    Step 3: Family Details
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                    <input type="checkbox" name="resubmit_steps[]" value="funding" style="width: 16px; height: 16px;">
+                                    Step 4: Funding Details
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                    <input type="checkbox" name="resubmit_steps[]" value="guarantor" style="width: 16px; height: 16px;">
+                                    Step 5: Guarantor Details
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                    <input type="checkbox" name="resubmit_steps[]" value="documents" style="width: 16px; height: 16px;">
+                                    Step 6: Documents
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                    <input type="checkbox" name="resubmit_steps[]" value="final" style="width: 16px; height: 16px;">
+                                    Step 7: Final Submission
+                                </label>
+                            </div>
+                            <p style="font-size: 0.75rem; color: var(--text-light); margin: 0.5rem 0 0 0;">
+                                Leave unchecked to reject the entire application permanently.
+                            </p>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-reject">
+                        <i class="fas fa-times"></i>
+                        Reject Application
+                    </button>
+                </div>
+            </form>
+        </div>
+    @endif
+</div>
+
 
 <!-- Steps Container -->
 <div class="steps-container">
@@ -581,17 +947,7 @@
                     <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
                     {{ ucfirst($user->submit_status ?? 'Pending') }}
                 </span>
-                <div class="action-buttons">
-                    <form action="{{ route('admin.apex.stage1.approve.step', [$user, 1]) }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="btn-approve">Approve</button>
-                    </form>
-                    <form action="{{ route('admin.apex.stage1.hold.step', [$user, 1]) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
-                        @csrf
-                        <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
-                        <button type="submit" class="btn-hold">Hold</button>
-                    </form>
-                </div>
+
             </div>
         </div>
         <div class="form-data">
@@ -759,17 +1115,7 @@
                     <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
                     {{ $user->educationDetail ? ucfirst($user->educationDetail->submit_status) : 'Pending' }}
                 </span>
-                <div class="action-buttons">
-                    <form action="{{ route('admin.apex.stage1.approve.step', [$user, 2]) }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="btn-approve">Approve</button>
-                    </form>
-                    <form action="{{ route('admin.apex.stage1.hold.step', [$user, 2]) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
-                        @csrf
-                        <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
-                        <button type="submit" class="btn-hold">Hold</button>
-                    </form>
-                </div>
+
             </div>
         </div>
 
@@ -1011,17 +1357,17 @@
                     <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
                     {{ $user->familyDetail ? ucfirst($user->familyDetail->submit_status) : 'Pending' }}
                 </span>
-                <div class="action-buttons">
-                    <form action="{{ route('admin.apex.stage1.approve.step', [$user, 3]) }}" method="POST" style="display: inline;">
+                {{-- <div class="action-buttons">
+                    <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
                         @csrf
                         <button type="submit" class="btn-approve">Approve</button>
                     </form>
-                    <form action="{{ route('admin.apex.stage1.hold.step', [$user, 3]) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
+                    <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
                         @csrf
                         <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
                         <button type="submit" class="btn-hold">Hold</button>
                     </form>
-                </div>
+                </div> --}}
             </div>
         </div>
         @if($user->familyDetail)
@@ -1228,17 +1574,17 @@
                     <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
                     {{ $user->fundingDetail ? ucfirst($user->fundingDetail->submit_status) : 'Pending' }}
                 </span>
-                <div class="action-buttons">
-                    <form action="{{ route('admin.apex.stage1.approve.step', [$user, 4]) }}" method="POST" style="display: inline;">
+                {{-- <div class="action-buttons">
+                    <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
                         @csrf
                         <button type="submit" class="btn-approve">Approve</button>
                     </form>
-                    <form action="{{ route('admin.apex.stage1.hold.step', [$user, 4]) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
+                    <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
                         @csrf
                         <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
                         <button type="submit" class="btn-hold">Hold</button>
                     </form>
-                </div>
+                </div> --}}
             </div>
         </div>
 
@@ -1375,17 +1721,17 @@
                     <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
                     {{ $user->guarantorDetail ? ucfirst($user->guarantorDetail->submit_status) : 'Pending' }}
                 </span>
-                <div class="action-buttons">
-                    <form action="{{ route('admin.apex.stage1.approve.step', [$user, 5]) }}" method="POST" style="display: inline;">
+                {{-- <div class="action-buttons">
+                    <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
                         @csrf
                         <button type="submit" class="btn-approve">Approve</button>
                     </form>
-                    <form action="{{ route('admin.apex.stage1.hold.step', [$user, 5]) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
+                    <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
                         @csrf
                         <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
                         <button type="submit" class="btn-hold">Hold</button>
                     </form>
-                </div>
+                </div> --}}
             </div>
         </div>
 
@@ -1556,17 +1902,17 @@
                     <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
                     {{ $user->document ? ucfirst($user->document->submit_status) : 'Pending' }}
                 </span>
-                <div class="action-buttons">
-                    <form action="{{ route('admin.apex.stage1.approve.step', [$user, 6]) }}" method="POST" style="display: inline;">
+                {{-- <div class="action-buttons">
+                    <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
                         @csrf
                         <button type="submit" class="btn-approve">Approve</button>
                     </form>
-                    <form action="{{ route('admin.apex.stage1.hold.step', [$user, 6]) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
+                    <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
                         @csrf
                         <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
                         <button type="submit" class="btn-hold">Hold</button>
                     </form>
-                </div>
+                </div> --}}
             </div>
         </div>
 
@@ -1657,17 +2003,17 @@
                     <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
                     {{ $user->document ? ucfirst($user->document->submit_status) : 'Pending' }}
                 </span>
-                <div class="action-buttons">
-                    <form action="{{ route('admin.apex.stage1.approve.step', [$user, 7]) }}" method="POST" style="display: inline;">
+                {{-- <div class="action-buttons">
+                    <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
                         @csrf
                         <button type="submit" class="btn-approve">Approve</button>
                     </form>
-                    <form action="{{ route('admin.apex.stage1.hold.step', [$user, 7]) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
+                    <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
                         @csrf
                         <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
                         <button type="submit" class="btn-hold">Hold</button>
                     </form>
-                </div>
+                </div> --}}
             </div>
         </div>
 
@@ -1704,7 +2050,7 @@
 </div>
 @endsection
 
-@section('scripts')
+
 <script>
 function showStep(stepNumber) {
     // Hide all step contents
@@ -1730,7 +2076,33 @@ document.addEventListener('DOMContentLoaded', function() {
     if (activeStep) {
         activeStep.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }
+
+    // Toggle all checkboxes function
+    function toggleAllCheckboxes(selectAll, type) {
+        let selector;
+        if (type === 'approve') {
+            selector = 'input[name="approved_steps[]"]';
+        } else {
+            selector = 'input[name="resubmit_steps[]"]';
+        }
+        const checkboxes = document.querySelectorAll(selector);
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAll;
+        });
+    }
+
+    // Sync textarea values for forms
+    const approveForm = document.querySelector('form[action*="approve"]');
+    const rejectForm = document.querySelector('form[action*="reject"]');
+    const approveTextarea = approveForm ? approveForm.querySelector('textarea[name="admin_remark"]') : null;
+    const rejectTextarea = rejectForm ? rejectForm.querySelector('textarea[name="admin_remark"]') : null;
+
+    if (approveForm && approveTextarea) {
+        approveForm.addEventListener('submit', function() {
+            document.getElementById('approve_remark').value = approveTextarea.value;
+        });
+    }
 });
 </script>
-@endsection
+
 

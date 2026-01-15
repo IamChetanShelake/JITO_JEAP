@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Document;
 use App\Models\Familydetail;
 use App\Models\ReviewSubmit;
+use App\Models\ApplicationWorkflowStatus;
 use Illuminate\Http\Request;
 use App\Models\FundingDetail;
 use App\Models\Loan_category;
@@ -187,6 +188,26 @@ class UserController extends Controller
         }
 
         $user->update($data);
+
+        // Check if workflow status already exists for this user
+        $workflow = ApplicationWorkflowStatus::where('user_id', $user->id)->first();
+
+        if (!$workflow) {
+            // Create new workflow entry
+            ApplicationWorkflowStatus::create([
+                'user_id' => $user->id,
+                'current_stage' => 'apex_1',
+                'final_status' => 'in_progress',
+            ]);
+            $message = 'Application submitted successfully!';
+        } else {
+            // Update if exists
+            $workflow->update([
+                'current_stage' => 'apex_1',
+                'final_status' => 'in_progress',
+            ]);
+            $message = 'Application resubmitted successfully!';
+        }
 
         return redirect()->route('user.step2')->with('success', 'Personal details saved successfully!');
     }
@@ -2104,22 +2125,24 @@ class UserController extends Controller
     {
         $user_id = Auth::id();
 
-        // Check if review submit already exists for this user
-        $reviewSubmit = ReviewSubmit::where('user_id', $user_id)->first();
+        // Check if workflow status already exists for this user
+        $workflow = ApplicationWorkflowStatus::where('user_id', $user_id)->first();
 
-        $data = [
-            'user_id' => $user_id,
-            'submit_status' => 'submited',
-        ];
-
-        if ($reviewSubmit) {
-            // Update existing record
-            $reviewSubmit->update($data);
+        if (!$workflow) {
+            // Create new workflow entry
+            ApplicationWorkflowStatus::create([
+                'user_id' => $user_id,
+                'current_stage' => 'apex_1',
+                'final_status' => 'in_progress',
+            ]);
             $message = 'Application submitted successfully!';
         } else {
-            // Create new record
-            ReviewSubmit::create($data);
-            $message = 'Application submitted successfully!';
+            // Update if exists
+            $workflow->update([
+                'current_stage' => 'apex_1',
+                'final_status' => 'in_progress',
+            ]);
+            $message = 'Application resubmitted successfully!';
         }
 
         // Update user's application_status to 'submitted' or similar

@@ -687,7 +687,7 @@
                         <i class="fas fa-users"></i>
                         Apex Stage 1
                     </div>
-                    <div class="approval-total">Total - 15</div>
+                    <div class="approval-total">Total - {{ \App\Models\User::where('role', 'user')->whereHas('workflowStatus')->count() }}</div>
                 </div>
                 <div class="approval-rate">
                     <span>Approval Rate</span>
@@ -705,23 +705,10 @@
                             <div class="status-label">Approved</div>
                             <div class="status-value">{{
                                 \App\Models\User::where('role', 'user')
-                                    ->whereHas('familyDetail', function($q) {
-                                            $q->where('submit_status', 'approved');
-                                        })
-                                        ->whereHas('educationDetail', function($q) {
-                                            $q->where('submit_status', 'approved');
-                                        })
-                                        ->whereHas('fundingDetail', function($q) {
-                                            $q->where('submit_status', 'approved');
-                                        })
-                                        ->whereHas('guarantorDetail', function($q) {
-                                            $q->where('submit_status', 'approved');
-                                        })
-                                        ->whereHas('document', function($q) {
-                                            $q->where('submit_status', 'approved');
-                                        })
-                                        ->where('submit_status', 'approved')
-                                        ->count()
+                                    ->whereHas('workflowStatus', function($q) {
+                                        $q->where('apex_1_status', 'approved');
+                                    })
+                                    ->count()
                             }}</div>
                         </div>
                     </a>
@@ -733,34 +720,11 @@
                             <div class="status-label">Pending</div>
                             <div class="status-value">{{
                                 \App\Models\User::where('role', 'user')
-                                    ->where(function ($query) {
-                                        $query->whereIn('submit_status', ['pending', 'submited']);
-                                        $query->orWhere(function ($q) {
-                                            $q->whereHas('educationDetail', function ($qq) {
-                                                $qq->where('submit_status', 'pending');
-                                            })->orWhereDoesntHave('educationDetail');
-                                        });
-                                        $query->orWhere(function ($q) {
-                                            $q->whereHas('familyDetail', function ($qq) {
-                                                $qq->where('submit_status', 'pending');
-                                            })->orWhereDoesntHave('familyDetail');
-                                        });
-                                        $query->orWhere(function ($q) {
-                                            $q->whereHas('fundingDetail', function ($qq) {
-                                                $qq->where('submit_status', 'pending');
-                                            })->orWhereDoesntHave('fundingDetail');
-                                        });
-                                        $query->orWhere(function ($q) {
-                                            $q->whereHas('guarantorDetail', function ($qq) {
-                                                $qq->where('submit_status', 'pending');
-                                            })->orWhereDoesntHave('guarantorDetail');
-                                        });
-                                        $query->orWhere(function ($q) {
-                                            $q->whereHas('document', function ($qq) {
-                                                $qq->where('submit_status', 'pending');
-                                            })->orWhereDoesntHave('document');
-                                        });
-                                    })->count()
+                                    ->whereHas('workflowStatus', function($q) {
+                                        $q->where('current_stage', 'apex_1')
+                                          ->where('final_status', 'in_progress');
+                                    })
+                                    ->count()
                             }}</div>
                         </div>
                     </a>
@@ -772,33 +736,8 @@
                             <div class="status-label">Hold</div>
                             <div class="status-value">{{
                                 \App\Models\User::where('role', 'user')
-                                    ->where(function($query) {
-                                        $query->where('submit_status', 'resubmit')
-                                            ->orWhere(function($q) {
-                                                $q->whereHas('educationDetail', function($qq) {
-                                                    $qq->where('submit_status', 'resubmit');
-                                                });
-                                            })
-                                            ->orWhere(function($q) {
-                                                $q->whereHas('familyDetail', function($qq) {
-                                                    $qq->where('submit_status', 'resubmit');
-                                                });
-                                            })
-                                            ->orWhere(function($q) {
-                                                $q->whereHas('fundingDetail', function($qq) {
-                                                    $qq->where('submit_status', 'resubmit');
-                                                });
-                                            })
-                                            ->orWhere(function($q) {
-                                                $q->whereHas('guarantorDetail', function($qq) {
-                                                    $qq->where('submit_status', 'resubmit');
-                                                });
-                                            })
-                                            ->orWhere(function($q) {
-                                                $q->whereHas('document', function($qq) {
-                                                    $qq->where('submit_status', 'resubmit');
-                                                });
-                                            });
+                                    ->whereHas('workflowStatus', function($q) {
+                                        $q->where('final_status', 'rejected');
                                     })
                                     ->count()
                             }}</div>
@@ -903,49 +842,84 @@
 
         <div class="col-lg-6">
             <!-- chapter -->
+            @php
+                $chapter_total = \App\Models\User::where('role', 'user')
+                    ->whereHas('workflowStatus', function($q) {
+                        $q->whereIn('current_stage', ['chapter', 'working_committee', 'apex_2']);
+                    })
+                    ->count();
+                $chapter_approved = \App\Models\User::where('role', 'user')
+                    ->whereHas('workflowStatus', function($q) {
+                        $q->whereIn('current_stage', ['chapter', 'working_committee', 'apex_2'])
+                          ->where('final_status', 'approved');
+                    })
+                    ->count();
+                $chapter_progress = $chapter_total > 0 ? (($chapter_approved / $chapter_total) * 100) : 0;
+            @endphp
             <div class="approval-section">
                 <div class="approval-header">
                     <div class="approval-title working-committee-title">
                         <i class="fas fa-user-tie"></i>
                         Chapter
                     </div>
-                    <div class="approval-total">Total - 42</div>
+                    <div class="approval-total">Total - {{ $chapter_total }}</div>
                 </div>
                 <div class="approval-rate">
                     <span>Approval Rate</span>
-                    <span>83%</span>
+                    <span>{{ $chapter_total > 0 ? round(($chapter_approved / $chapter_total) * 100) : 0 }}%</span>
                 </div>
                 <div class="progress-custom">
-                    <div class="progress-bar-custom" style="width: 83%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
+                    <div class="progress-bar-custom" style="width: {{ $chapter_progress }}%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
                 </div>
                 <div class="status-badges">
-                    <div class="status-badge approved">
+                    <a href="{{ route('admin.chapter.approved') }}" class="status-badge approved" style="text-decoration: none; color: inherit;">
                         <div class="status-icon approved">
                             <i class="fas fa-check"></i>
                         </div>
                         <div>
                             <div class="status-label">Approved</div>
-                            <div class="status-value">35</div>
+                            <div class="status-value">{{
+                                \App\Models\User::where('role', 'user')
+                                    ->whereHas('workflowStatus', function($q) {
+                                        $q->whereIn('current_stage', ['chapter', 'working_committee', 'apex_2'])
+                                          ->where('chapter_status', 'approved');
+                                    })
+                                    ->count()
+                            }}</div>
                         </div>
-                    </div>
-                    <div class="status-badge pending">
+                    </a>
+                    <a href="{{ route('admin.chapter.pending') }}" class="status-badge pending" style="text-decoration: none; color: inherit;">
                         <div class="status-icon pending">
                             <i class="fas fa-clock"></i>
                         </div>
                         <div>
                             <div class="status-label">Pending</div>
-                            <div class="status-value">5</div>
+                            <div class="status-value">{{
+                                \App\Models\User::where('role', 'user')
+                                    ->whereHas('workflowStatus', function($q) {
+                                        $q->where('current_stage', 'chapter')
+                                          ->where('final_status', 'in_progress');
+                                    })
+                                    ->count()
+                            }}</div>
                         </div>
-                    </div>
-                    <div class="status-badge hold">
+                    </a>
+                    <a href="{{ route('admin.chapter.hold') }}" class="status-badge hold" style="text-decoration: none; color: inherit;">
                         <div class="status-icon hold">
                             <i class="fas fa-exclamation"></i>
                         </div>
                         <div>
                             <div class="status-label">Hold</div>
-                            <div class="status-value">2</div>
+                            <div class="status-value">{{
+                                \App\Models\User::where('role', 'user')
+                                    ->whereHas('workflowStatus', function($q) {
+                                        $q->whereIn('current_stage', ['chapter', 'working_committee', 'apex_2'])
+                                          ->where('final_status', 'rejected');
+                                    })
+                                    ->count()
+                            }}</div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
 

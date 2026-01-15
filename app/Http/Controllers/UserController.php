@@ -1179,6 +1179,8 @@ class UserController extends Controller
             'total_family_income' => $request->total_family_income,
             'total_students' => $request->total_students,
             'family_member_diksha' => $request->family_member_diksha,
+            'diksha_member_name' => $request->diksha_member_name,
+            'diksha_member_relation' => $request->diksha_member_relation,
             'total_insurance_coverage' => $request->total_insurance_coverage,
             'total_premium_paid' => $request->total_premium_paid,
             'recent_electricity_amount' => $request->recent_electricity_amount,

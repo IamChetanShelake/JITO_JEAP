@@ -492,9 +492,15 @@
                                                     <div class="form-group mb-3">
                                                         <label for="sibling_loan_status">Loan status <span
                                                                 style="color: red">*</span></label>
-                                                        <input type="text" class="form-control"
-                                                            name="sibling_loan_status" placeholder="Loan status "
-                                                            value="{{ old('sibling_loan_status', $fundingDetail->sibling_loan_status ?? '') }}">
+                                                        <select class="form-control" name="sibling_loan_status">
+                                                            <option value="" {{ !old('sibling_loan_status') && !$fundingDetail ? 'selected' : '' }} disabled hidden>Loan status</option>
+                                                            <option value="applied" {{ old('sibling_loan_status') == 'applied' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'applied') ? 'selected' : '' }}>Applied</option>
+                                                            <option value="approved" {{ old('sibling_loan_status') == 'approved' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'approved') ? 'selected' : '' }}>Approved</option>
+                                                            <option value="sanctioned" {{ old('sibling_loan_status') == 'sanctioned' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'sanctioned') ? 'selected' : '' }}>Sanctioned</option>
+                                                            <option value="disbursed" {{ old('sibling_loan_status') == 'disbursed' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'disbursed') ? 'selected' : '' }}>Disbursed</option>
+                                                            <option value="closed" {{ old('sibling_loan_status') == 'closed' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'closed') ? 'selected' : '' }}>Closed</option>
+                                                            <option value="not applicable" {{ old('sibling_loan_status') == 'not applicable' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'not applicable') ? 'selected' : '' }}>Not Applicable</option>
+                                                        </select>
                                                     </div>
 
                                                     <div class="form-group mb-3">

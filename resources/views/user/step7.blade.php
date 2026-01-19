@@ -171,68 +171,23 @@
                                          <h4 style="font-size: 18px;font-weight:600;color:#353535;">I Hereby declare That:
                                          </h4>
                                          <div style="margin-top: 16px;">
+                                             <ol style="margin-bottom: 16px;">
+                                                 <li>The details in this form are true and correct to the best of my knowledge.</li>
+                                                 <li>I give my consent to my son / daughter / ward for going to for further studies.</li>
+                                                 <li>If my Financial Assistance Application is approved, I agree to abide by the terms and conditions of the JITO-JEAP –Domestic/Foreign Education Financial Assistance Application.</li>
+                                                 <li>In case of any change in the above information, I will inform the Institution immediately in writing within three days.</li>
+                                                 <li>I also undertake to keep the office bearers/Trustees informed of my correct address and that of my Parents/Guarantors and recommenders from time to time.</li>
+                                                 <li>I will send my second stage documents duly completed.</li>
+                                                 <li>The amount of Financial Assistance will be utilized for education purpose only.</li>
+                                                 <li>I /we agree that JEAP may reject our Financial Assistance application without giving any reasons thereof and that JEAP shall not be held responsible/liable in any manner whatsoever to us for rejection or any delay in notifying us of such rejection including any costs, losses, damages, or expenses or consequences caused by such rejection of financial assistance application.</li>
+                                                 <li>I have read all FAQs mentioned on website and accepting the same.</li>
+                                                 <li>I have read all the instructions properly and agree to submit the required documents as per the policy and timelines.</li>
+                                             </ol>
                                              <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                 <input type="checkbox" name="declaration1" required
+                                                 <input type="checkbox" name="declaration" required
                                                      style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                 The details in this form are true and correct to the best of my knowledge.
+                                                 I agree to all the above declarations.
                                              </label>
-                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                 <input type="checkbox" name="declaration2" required
-                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                 I give my consent to my son / daughter / ward for going to for further
-                                                 studies.
-                                             </label>
-                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                 <input type="checkbox" name="declaration3" required
-                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                 If my Financial Assistance Application is approved, I agree to abide by the
-                                                 terms and conditions of the JITO-JEAP –Domestic/Foreign Education Financial
-                                                 Assistance Application.
-                                             </label>
-                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                 <input type="checkbox" name="declaration3" required
-                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                 In case of any change in the above information, I will inform the
-                                                 Institution immediately in writing within three days.
-                                                 <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                     <input type="checkbox" name="declaration3" required
-                                                         style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                     I also undertake to keep the office bearers/Trustees informed of my
-                                                     correct address and that of my Parents/Guarantors and recommenders from
-                                                     time to time.
-                                                 </label>
-                                                 <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                     <input type="checkbox" name="declaration3" required
-                                                         style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                     I will send my second stage documents duly completed.
-                                                 </label>
-                                                 <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                     <input type="checkbox" name="declaration3" required
-                                                         style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                     The amount of Financial Assistance will be utilized for education
-                                                     purpose only.
-                                                 </label>
-                                                 <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                     <input type="checkbox" name="declaration3" required
-                                                         style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                     I /we agree that JEAP may reject our Financial Assistance application
-                                                     without giving any reasons thereof and that JEAP shall not be held
-                                                     responsible/liable in any manner whatsoever to us for rejection or any
-                                                     delay in notifying us of such rejection including any costs, losses,
-                                                     damages, or expenses or consequences caused by such rejection of
-                                                     financial assistance application.
-                                                 </label>
-                                                 <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                     <input type="checkbox" name="declaration3" required
-                                                         style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                     I have read all FAQs mentioned on website and accepting the same.
-                                                 </label>
-                                                 <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                     <input type="checkbox" name="declaration3" required
-                                                         style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                     I have read all the instructions properly and agree to submit the
-                                                     required documents as per the policy and timelines.
-                                                 </label>
                                          </div>
                                      </div>
 

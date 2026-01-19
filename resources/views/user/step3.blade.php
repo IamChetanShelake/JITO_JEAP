@@ -552,43 +552,45 @@
                                         </div>
                                         <div class="diksha-fields" style="display:none;">
                                             <div class="form-group mb-3">
-                                                <label for="diksha_member_name" class="form-label">Name of Family Member
+                                                <label for="diksha_member_name" class="form-label">Name of Family
+                                                    Member<span style="color: red;">*</span>
                                                 </label>
                                                 <input type="text" class="form-control" name="diksha_member_name"
                                                     placeholder="Name of Family Member"
-                                                    value="{{ old('diksha_member_name', $familyDetail->diksha_member_name ?? '') }}">
-                                                <small
-                                                    class="text-danger">{{ $errors->first('diksha_member_name') }}</small>
+                                                    value="{{ old('diksha_member_name', $familyDetail->diksha_member_name ?? '') }}"
+                                                    required>
+                                                <small class="text-danger"
+                                                    id="diksha_member_name_error">{{ $errors->first('diksha_member_name') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="diksha_member_relation" class="form-label">Relation with
-                                                    Applicant </label>
-                                                <select class="form-control" name="diksha_member_relation">
+                                                    Applicant <span style="color: red;">*</span></label>
+                                                <select class="form-control" name="diksha_member_relation" required>
                                                     <option value=""
                                                         {{ !old('diksha_member_relation') ? 'selected' : '' }} disabled
                                                         hidden>Select Relation</option>
                                                     <option value="grandparent"
                                                         {{ old('diksha_member_relation') == 'grandfather' ? 'selected' : '' }}>
                                                         GrandFather</option>
-                                                         <option value="grandparent"
+                                                    <option value="grandparent"
                                                         {{ old('diksha_member_relation') == 'grandmother' ? 'selected' : '' }}>
                                                         GrandMother</option>
                                                     <option value="parents"
                                                         {{ old('diksha_member_relation') == 'father' ? 'selected' : '' }}>
                                                         Father</option>
-                                                         <option value="parents"
+                                                    <option value="parents"
                                                         {{ old('diksha_member_relation') == 'mother' ? 'selected' : '' }}>
                                                         Mother</option>
                                                     <option value="uncle and aunt"
                                                         {{ old('diksha_member_relation') == 'uncle' ? 'selected' : '' }}>
                                                         Uncle </option>
-                                                         <option value="uncle and aunt"
+                                                    <option value="uncle and aunt"
                                                         {{ old('diksha_member_relation') == 'aunt' ? 'selected' : '' }}>
-                                                         Aunt</option>
-                                                    <option value="brother and sister"
+                                                        Aunt</option>
+                                                    <option value="brother"
                                                         {{ old('diksha_member_relation') == 'brother' ? 'selected' : '' }}>
-                                                        Brother and Sister</option>
-                                                         <option value="brother and sister"
+                                                        Brother </option>
+                                                    <option value="sister"
                                                         {{ old('diksha_member_relation') == 'sister' ? 'selected' : '' }}>
                                                         Sister</option>
                                                 </select>

@@ -266,7 +266,8 @@
                                                     style="color: red;">*</span></label>
                                             <input type="text" id="religion" name="religion" class="form-control"
                                                 placeholder="Enter Religion"
-                                                value="{{ old('religion', $user->religion ?? '') }}" required>
+                                                value="{{ old('religion', $user->religion ?? 'Jainism') }}" required
+                                                readonly>
                                             <small class="text-danger">{{ $errors->first('religion') }}</small>
                                         </div>
 
@@ -277,7 +278,7 @@
                                                 <option disabled
                                                     {{ (old('sub_cast') ?: $user->sub_cast ?? '') ? '' : 'selected' }}
                                                     hidden>Select Sub Caste</option>
-                                                @foreach($subcasts as $subcast)
+                                                @foreach ($subcasts as $subcast)
                                                     <option value="{{ $subcast->name }}"
                                                         {{ (old('sub_cast') ?: $user->sub_cast ?? '') == $subcast->name ? 'selected' : '' }}>
                                                         {{ $subcast->name }}</option>
@@ -358,14 +359,6 @@
                                             </select>
                                             <small class="text-danger">{{ $errors->first('gender') }}</small>
                                         </div>
-
-
-
-                                    </div>
-
-                                    <!-- Right Column -->
-                                    <div class="col-md-6">
-
                                         <div class="form-group mb-3">
                                             <label for="age" class="form-label">Age <span
                                                     style="color: red;">*</span></label>
@@ -374,6 +367,14 @@
                                                 required>
                                             <small class="text-danger">{{ $errors->first('age') }}</small>
                                         </div>
+
+
+                                    </div>
+
+                                    <!-- Right Column -->
+                                    <div class="col-md-6">
+
+
                                         {{-- <div class="form-group mb-3">
                                             <textarea class="form-control" name="address" rows="3" placeholder="Flat No, Building No/Street Name*"
                                                 required>{{ old('address', $user->address ?? '') }}</textarea>
@@ -486,24 +487,27 @@
                                         </div>
 
                                         <div class="form-group mb-3">
-                                            <label for="zone" class="form-label">Zone</label>
+                                            <label for="zone" class="form-label">Zone<span
+                                                    style="color: red;">*</span></label>
                                             <input type="text" id="zone" name="zone" class="form-control"
-                                                placeholder="Zone will be auto-filled"
-                                                value="{{ old('zone') }}" readonly>
+                                                placeholder="Zone will be auto-filled" value="{{ old('zone') }}"
+                                                readonly>
                                         </div>
 
                                         <div class="form-group mb-3">
-                                            <label for="chairman" class="form-label">Chairman</label>
+                                            <label for="chairman" class="form-label">Chairman<span
+                                                    style="color: red;">*</span></label>
                                             <input type="text" id="chairman" name="chairman" class="form-control"
-                                                placeholder="Chairman will be auto-filled"
-                                                value="{{ old('chairman') }}" readonly>
+                                                placeholder="Chairman will be auto-filled" value="{{ old('chairman') }}"
+                                                readonly>
                                         </div>
 
                                         <div class="form-group mb-3">
-                                            <label for="contact" class="form-label">Contact</label>
+                                            <label for="contact" class="form-label">Contact<span
+                                                    style="color: red;">*</span></label>
                                             <input type="text" id="contact" name="contact" class="form-control"
-                                                placeholder="Contact will be auto-filled"
-                                                value="{{ old('contact') }}" readonly>
+                                                placeholder="Contact will be auto-filled" value="{{ old('contact') }}"
+                                                readonly>
                                         </div>
 
 
@@ -582,15 +586,15 @@
 
             function updateForOptions() {
                 var type = typeSelect.value;
+                var currentValue = forSelect.value;
                 forSelect.innerHTML = '<option disabled selected hidden>Financial Asst For *</option>';
                 if (type === 'domestic') {
                     forSelect.innerHTML +=
-                        '<option value="graduation">Graduation</option><option value="post_graduation">Post Graduation</option>';
+                        '<option value="graduation" ' + (currentValue === 'graduation' ? 'selected' : '') + '>Graduation</option><option value="post_graduation" ' + (currentValue === 'post_graduation' ? 'selected' : '') + '>Post Graduation</option>';
                 } else if (type === 'foreign_finance_assistant') {
-                    forSelect.innerHTML += '<option value="post_graduation">Post Graduation</option>';
+                    forSelect.innerHTML += '<option value="post_graduation" ' + (currentValue === 'post_graduation' ? 'selected' : '') + '>Post Graduation</option>';
                 }
                 // Reset selection if current value is not available
-                var currentValue = forSelect.value;
                 if (currentValue && !Array.from(forSelect.options).some(option => option.value === currentValue)) {
                     forSelect.selectedIndex = 0;
                 }
@@ -648,16 +652,21 @@
                             if (data.distance !== undefined) {
                                 const alertDiv = document.createElement('div');
                                 alertDiv.id = 'chapter-alert';
-                                alertDiv.className = data.fallback ? 'alert alert-info alert-dismissible fade show mt-2' : 'alert alert-success alert-dismissible fade show mt-2';
+                                alertDiv.className = data.fallback ?
+                                    'alert alert-info alert-dismissible fade show mt-2' :
+                                    'alert alert-success alert-dismissible fade show mt-2';
 
                                 let message = `<strong>Chapter Info:</strong> "${data.chapter}" `;
                                 if (data.nearest_pincode && data.distance) {
                                     if (data.fallback) {
-                                        const assignmentType = data.assigned_by === 'nearest_pincode_same_state' ?
+                                        const assignmentType = data.assigned_by ===
+                                            'nearest_pincode_same_state' ?
                                             'within your state' : 'in the nearest available location';
-                                        message += `based on nearest pincode ${data.nearest_pincode} (${data.distance} km away, ${assignmentType}).`;
+                                        message +=
+                                            `based on nearest pincode ${data.nearest_pincode} (${data.distance} km away, ${assignmentType}).`;
                                     } else {
-                                        message += `is located approximately ${data.distance} km from your pincode.`;
+                                        message +=
+                                            `is located approximately ${data.distance} km from your pincode.`;
                                     }
                                 } else if (data.distance) {
                                     message += `is approximately ${data.distance} km away from your location.`;

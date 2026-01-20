@@ -94,20 +94,22 @@ class UserController extends Controller
         //     'specially_abled' => 'required|in:yes,no',
         // ]);
 
+        // dd($request->all());
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
 
             'financial_asset_type' => 'required|in:domestic,foreign_finance_assistant',
             'financial_asset_for' => 'required|in:graduation,post_graduation',
 
             'aadhar_card_number' => 'required|digits:12',
-            'pan_card' => 'nullable|string|max:10',
+            'pan_card' => 'required|string|max:10',
 
-            'phone' => 'required|string|max:15',
+            'phone' => 'required|string|max:15|unique:users,phone,' . auth()->id(),
             'alternate_phone' => 'nullable|string|max:15',
 
-            'email' => 'required|email|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . auth()->id(),
             'alternate_email' => 'nullable|email|max:255',
 
             'flat_no' => 'nullable|string',
@@ -122,6 +124,10 @@ class UserController extends Controller
             'pin_code' => 'required|digits:6',
 
             'chapter' => 'required|string|max:100',
+            'chapter_id' => 'required|integer',
+            'zone' => 'required|string|max:100',
+            'chapter_chairman' => 'required|string|max:100',
+            'chapter_contact' => 'required|string|max:15',
             'nationality' => 'required|in:indian,foreigner',
 
             'aadhar_address' => 'required|string',
@@ -164,6 +170,10 @@ class UserController extends Controller
             'state' => $request->state,
             'pin_code' => $request->pin_code,
             'chapter' => $request->chapter,
+            'chapter_id' => $request->chapter_id,
+            'zone' => $request->zone,
+            'chapter_chairman' => $request->chapter_chairman,
+            'chapter_contact' => $request->chapter_contact,
             'nationality' => $request->nationality,
             'aadhar_address' => $request->aadhar_address,
             'alternate_email' => $request->alternate_email,
@@ -428,7 +438,7 @@ class UserController extends Controller
 
     public function step2UGstore(Request $request)
     {
-      //  dd($request->all());
+        //  dd($request->all());
         // Validation for education details
         $request->validate([
             // Financial Need Overview
@@ -1786,7 +1796,11 @@ class UserController extends Controller
                 'pan_father_mother',
                 'guarantor1_aadhaar',
                 'guarantor1_pan',
-                'guarantor2_aadhaar'
+                'guarantor2_aadhaar',
+                'guarantor2_pan',
+                'student_handwritten_statement',
+                'proof_funds_arranged',
+
             ];
             foreach ($requiredFields as $field) {
                 $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
@@ -1908,14 +1922,18 @@ class UserController extends Controller
                 'pan_father_mother',
                 'guarantor1_aadhaar',
                 'guarantor1_pan',
-                'guarantor2_aadhaar'
+                'guarantor2_aadhaar',
+                'guarantor2_pan',
+                'student_handwritten_statement',
+                'proof_funds_arranged',
+
             ];
             foreach ($requiredFields as $field) {
                 $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
             }
-            $rules['guarantor2_pan'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
-            $rules['student_handwritten_statement'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
-            $rules['proof_funds_arranged'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+            // $rules['guarantor2_pan'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+            // $rules['student_handwritten_statement'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+            // $rules['proof_funds_arranged'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             $rules['other_documents'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             $rules['extra_curricular'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
 
@@ -2033,7 +2051,11 @@ class UserController extends Controller
                 'pan_father_mother',
                 'guarantor1_aadhaar',
                 'guarantor1_pan',
-                'guarantor2_aadhaar'
+                'guarantor2_aadhaar',
+                'guarantor2_pan',
+                'student_handwritten_statement',
+                'proof_funds_arranged'
+
             ];
             foreach ($requiredFields as $field) {
                 $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
@@ -2180,6 +2202,7 @@ class UserController extends Controller
             ]);
 
             $chapterName = $result['chapter']?->chapter_name ?? null;
+            $chapterId = $result['chapter']?->id ?? null;
             $zoneName = $result['chapter']?->zone?->zone_name ?? null;
             $chairman = $result['chapter']?->chapter_head ?? null;
             $contact = $result['chapter']?->contact ?? null;
@@ -2190,6 +2213,7 @@ class UserController extends Controller
             $response = [
                 'success' => true,
                 'chapter' => $chapterName,
+                'chapter_id' => $chapterId,
                 'zone' => $zoneName,
                 'chairman' => $chairman,
                 'contact' => $contact,

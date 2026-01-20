@@ -27,7 +27,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <form method="POST" action="{{ route('user.step1.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('user.step1.store') }}" enctype="multipart/form-data" novalidate>
                         @csrf
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
@@ -147,7 +147,7 @@
                                                     <div class="col-9">
                                                         <span class="photo-label">Upload Photo</span>
                                                         <input type="file" id="uploadInput" name="image" hidden
-                                                            accept=".jpg,.jpeg,.png">
+                                                            accept=".jpg,.jpeg,.png" required>
                                                         <small class="text-danger">{{ $errors->first('image') }}</small>
                                                     </div>
                                                     <div class="col-3">
@@ -483,6 +483,8 @@
                                             <input type="text" id="chapter" name="chapter" class="form-control"
                                                 placeholder="Chapter will be auto-filled based on pincode"
                                                 value="{{ old('chapter', $user->chapter ?? '') }}" readonly required>
+                                            <input type="hidden" id="chapter_id" name="chapter_id"
+                                                value="{{ old('chapter_id', $user->chapter_id ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('chapter') }}</small>
                                         </div>
 
@@ -491,23 +493,26 @@
                                                     style="color: red;">*</span></label>
                                             <input type="text" id="zone" name="zone" class="form-control"
                                                 placeholder="Zone will be auto-filled" value="{{ old('zone') }}"
-                                                readonly>
+                                                readonly required>
+                                            <small class="text-danger">{{ $errors->first('zone') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <label for="chairman" class="form-label">Chairman<span
                                                     style="color: red;">*</span></label>
-                                            <input type="text" id="chairman" name="chairman" class="form-control"
-                                                placeholder="Chairman will be auto-filled" value="{{ old('chairman') }}"
-                                                readonly>
+                                            <input type="text" id="chapter_chairman" name="chapter_chairman"
+                                                class="form-control" placeholder="Chairman will be auto-filled"
+                                                value="{{ old('chapter_chairman') }}" readonly required>
+                                            <small class="text-danger">{{ $errors->first('chapter_chairman') }}</small>
                                         </div>
 
                                         <div class="form-group mb-3">
                                             <label for="contact" class="form-label">Contact<span
                                                     style="color: red;">*</span></label>
-                                            <input type="text" id="contact" name="contact" class="form-control"
-                                                placeholder="Contact will be auto-filled" value="{{ old('contact') }}"
-                                                readonly>
+                                            <input type="text" id="chapter_contact" name="chapter_contact"
+                                                class="form-control" placeholder="Contact will be auto-filled"
+                                                value="{{ old('chapter_contact') }}" readonly required>
+                                            <small class="text-danger">{{ $errors->first('chapter_contact') }}</small>
                                         </div>
 
 
@@ -590,9 +595,12 @@
                 forSelect.innerHTML = '<option disabled selected hidden>Financial Asst For *</option>';
                 if (type === 'domestic') {
                     forSelect.innerHTML +=
-                        '<option value="graduation" ' + (currentValue === 'graduation' ? 'selected' : '') + '>Graduation</option><option value="post_graduation" ' + (currentValue === 'post_graduation' ? 'selected' : '') + '>Post Graduation</option>';
+                        '<option value="graduation" ' + (currentValue === 'graduation' ? 'selected' : '') +
+                        '>Graduation</option><option value="post_graduation" ' + (currentValue ===
+                            'post_graduation' ? 'selected' : '') + '>Post Graduation</option>';
                 } else if (type === 'foreign_finance_assistant') {
-                    forSelect.innerHTML += '<option value="post_graduation" ' + (currentValue === 'post_graduation' ? 'selected' : '') + '>Post Graduation</option>';
+                    forSelect.innerHTML += '<option value="post_graduation" ' + (currentValue ===
+                        'post_graduation' ? 'selected' : '') + '>Post Graduation</option>';
                 }
                 // Reset selection if current value is not available
                 if (currentValue && !Array.from(forSelect.options).some(option => option.value === currentValue)) {
@@ -641,11 +649,13 @@
 
                         if (data.chapter) {
                             chapterInput.value = data.chapter;
+                            const chapterIdInput = document.getElementById('chapter_id');
+                            if (chapterIdInput) chapterIdInput.value = data.chapter_id || '';
                             const zoneInput = document.getElementById('zone');
                             if (zoneInput) zoneInput.value = data.zone || '';
-                            const chairmanInput = document.getElementById('chairman');
+                            const chairmanInput = document.getElementById('chapter_chairman');
                             if (chairmanInput) chairmanInput.value = data.chairman || '';
-                            const contactInput = document.getElementById('contact');
+                            const contactInput = document.getElementById('chapter_contact');
                             if (contactInput) contactInput.value = data.contact || '';
 
                             // Show distance/location info whenever available
@@ -680,11 +690,13 @@
                             }
                         } else {
                             chapterInput.value = '';
+                            const chapterIdInput = document.getElementById('chapter_id');
+                            if (chapterIdInput) chapterIdInput.value = '';
                             const zoneInput = document.getElementById('zone');
                             if (zoneInput) zoneInput.value = '';
-                            const chairmanInput = document.getElementById('chairman');
+                            const chairmanInput = document.getElementById('chapter_chairman');
                             if (chairmanInput) chairmanInput.value = '';
-                            const contactInput = document.getElementById('contact');
+                            const contactInput = document.getElementById('chapter_contact');
                             if (contactInput) contactInput.value = '';
                             // Show no chapter found message
                             const alertDiv = document.createElement('div');
@@ -701,11 +713,13 @@
                         console.error('Error fetching chapters:', error);
                         const chapterInput = document.getElementById('chapter');
                         chapterInput.value = '';
+                        const chapterIdInput = document.getElementById('chapter_id');
+                        if (chapterIdInput) chapterIdInput.value = '';
                         const zoneInput = document.getElementById('zone');
                         if (zoneInput) zoneInput.value = '';
-                        const chairmanInput = document.getElementById('chairman');
+                        const chairmanInput = document.getElementById('chapter_chairman');
                         if (chairmanInput) chairmanInput.value = '';
-                        const contactInput = document.getElementById('contact');
+                        const contactInput = document.getElementById('chapter_contact');
                         if (contactInput) contactInput.value = '';
                     });
             }

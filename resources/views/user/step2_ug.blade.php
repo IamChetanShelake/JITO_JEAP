@@ -139,6 +139,20 @@
                     <form method="POST" action="{{ route('user.step2ug.store') }}" enctype="multipart/form-data"
                         novalidate>
                         @csrf
+                        @if (session('success'))
+                            <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
+                                id="successAlert">
+
+                                {{ session('success') }}
+
+                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
+
+
+
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
 
@@ -247,9 +261,10 @@
                                         <!-- Right Column -->
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
-                                                <label for="city_name">City Name <span style="color: red;">*</span></label>
-                                                <input type="text" id="city_name" class="form-control" name="city_name"
-                                                    placeholder="Enter City Name "
+                                                <label for="city_name">City Name <span
+                                                        style="color: red;">*</span></label>
+                                                <input type="text" id="city_name" class="form-control"
+                                                    name="city_name" placeholder="Enter City Name "
                                                     value="{{ old('city_name') ?: $educationDetail->city_name ?? '' }}"
                                                     required>
                                                 <small class="text-danger"
@@ -295,7 +310,7 @@
                                                 <small id="startYearError" class="text-danger d-none">
                                                     Start month must be within next 4 months from current month
                                                 </small>
-                                               
+
 
                                             </div>
 
@@ -318,7 +333,8 @@
                                                 <input type="text" id="nirf_ranking" class="form-control"
                                                     name="nirf_ranking" placeholder=" Enter NIRF Ranking"
                                                     value="{{ old('nirf_ranking') ?: $educationDetail->nirf_ranking ?? '' }}">
-                                                <small class="text-danger" id="">{{ $errors->first('nirf_ranking') }}</small>
+                                                <small class="text-danger"
+                                                    id="">{{ $errors->first('nirf_ranking') }}</small>
                                             </div>
                                             {{--
                                             <div class="form-group mb-3">
@@ -821,7 +837,8 @@
                                                 <input type="text" class="form-control" id="school_name"
                                                     name="school_name" placeholder="School Name "
                                                     value="{{ old('school_name') ?: $educationDetail->school_name ?? '' }}">
-                                                <small class="text-danger" id="school_name">{{ $errors->first('school_name') }}</small>
+                                                <small class="text-danger"
+                                                    id="school_name">{{ $errors->first('school_name') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">
@@ -845,7 +862,8 @@
                                         <!-- Right Column -->
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
-                                                <label for="school_grade_system">Grade System</label>
+                                                <label for="school_grade_system">Grade System<span
+                                                        style="color: red;">*</span></label>
                                                 <div>
                                                     <input type="radio" id="grade_percentage"
                                                         name="school_grade_system" value="percentage"
@@ -966,7 +984,8 @@
                                         <!-- Right Column -->
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
-                                                <label for="jc_grade_system">Grade System</label>
+                                                <label for="jc_grade_system">Grade System <span
+                                                        style="color: red;">*</span></label>
                                                 <div>
                                                     <input type="radio" id="jc_grade_percentage" name="jc_grade_system"
                                                         value="percentage"

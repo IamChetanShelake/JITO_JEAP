@@ -13,10 +13,10 @@
 
         .photo-upload-box {
             width: 100%;
-            min-height: 90px;
+            height: 100% !important;
             border: 1px solid #d9d9d9;
             border-radius: 7px;
-            padding: 20px 18px 12px;
+            padding: 20px 18px 0px 12px;
             font-family: 'Poppins', sans-serif;
             color: #4C4C4C;
             background: white;

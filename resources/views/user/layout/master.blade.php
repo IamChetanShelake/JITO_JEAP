@@ -386,6 +386,14 @@
             align-items: center;
             font-size: 91%;
         }
+
+        .custom-close {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 0;
+        }
     </style>
 </head>
 
@@ -838,6 +846,15 @@
                     });
                 });
             </script>
+            <script>
+                setTimeout(function() {
+                    $('#successAlert').alert('close');
+                }, 4000);
+            </script>
+            <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
         </div>
 </body>
 

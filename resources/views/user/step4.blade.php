@@ -122,7 +122,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <form method="POST" action="{{ route('user.step4.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('user.step4.store') }}" enctype="multipart/form-data" novalidate>
                         @csrf
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">

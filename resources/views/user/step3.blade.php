@@ -392,7 +392,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <form method="POST" action="{{ route('user.step3.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('user.step3.store') }}" enctype="multipart/form-data" novalidate>
                         @csrf
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
@@ -531,6 +531,10 @@
                                                 value="{{ old('total_students', $familyDetail->total_students ?? '') }}"
                                                 required>
                                             <small class="text-danger">{{ $errors->first('total_students') }}</small>
+                                            {{-- @error('total_students')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror --}}
+
                                         </div>
                                         <div class="form-group mb-3">
                                             <label for="family_member_diksha" class="form-label">Family Member Taken

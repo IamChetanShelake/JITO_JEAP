@@ -13,24 +13,48 @@ return new class extends Migration
     {
         Schema::table('application_workflow_statuses', function (Blueprint $table) {
             // Apex 1
-            $table->text('apex_1_approval_remarks')->nullable()->after('apex_1_status');
-            $table->text('apex_1_reject_remarks')->nullable()->after('apex_1_approval_remarks');
-            $table->dropColumn('apex_1_remarks');
+            if (!Schema::hasColumn('application_workflow_statuses', 'apex_1_approval_remarks')) {
+                $table->text('apex_1_approval_remarks')->nullable()->after('apex_1_status');
+            }
+            if (!Schema::hasColumn('application_workflow_statuses', 'apex_1_reject_remarks')) {
+                $table->text('apex_1_reject_remarks')->nullable()->after('apex_1_approval_remarks');
+            }
+            if (Schema::hasColumn('application_workflow_statuses', 'apex_1_remarks')) {
+                $table->dropColumn('apex_1_remarks');
+            }
 
             // Chapter
-            $table->text('chapter_approval_remarks')->nullable()->after('chapter_status');
-            $table->text('chapter_reject_remarks')->nullable()->after('chapter_approval_remarks');
-            $table->dropColumn('chapter_remarks');
+            if (!Schema::hasColumn('application_workflow_statuses', 'chapter_approval_remarks')) {
+                $table->text('chapter_approval_remarks')->nullable()->after('chapter_status');
+            }
+            if (!Schema::hasColumn('application_workflow_statuses', 'chapter_reject_remarks')) {
+                $table->text('chapter_reject_remarks')->nullable()->after('chapter_approval_remarks');
+            }
+            if (Schema::hasColumn('application_workflow_statuses', 'chapter_remarks')) {
+                $table->dropColumn('chapter_remarks');
+            }
 
             // Working Committee
-            $table->text('working_committee_approval_remarks')->nullable()->after('working_committee_status');
-            $table->text('working_committee_reject_remarks')->nullable()->after('working_committee_approval_remarks');
-            $table->dropColumn('working_committee_remarks');
+            if (!Schema::hasColumn('application_workflow_statuses', 'working_committee_approval_remarks')) {
+                $table->text('working_committee_approval_remarks')->nullable()->after('working_committee_status');
+            }
+            if (!Schema::hasColumn('application_workflow_statuses', 'working_committee_reject_remarks')) {
+                $table->text('working_committee_reject_remarks')->nullable()->after('working_committee_approval_remarks');
+            }
+            if (Schema::hasColumn('application_workflow_statuses', 'working_committee_remarks')) {
+                $table->dropColumn('working_committee_remarks');
+            }
 
             // Apex 2
-            $table->text('apex_2_approval_remarks')->nullable()->after('apex_2_status');
-            $table->text('apex_2_reject_remarks')->nullable()->after('apex_2_approval_remarks');
-            $table->dropColumn('apex_2_remarks');
+            if (!Schema::hasColumn('application_workflow_statuses', 'apex_2_approval_remarks')) {
+                $table->text('apex_2_approval_remarks')->nullable()->after('apex_2_status');
+            }
+            if (!Schema::hasColumn('application_workflow_statuses', 'apex_2_reject_remarks')) {
+                $table->text('apex_2_reject_remarks')->nullable()->after('apex_2_approval_remarks');
+            }
+            if (Schema::hasColumn('application_workflow_statuses', 'apex_2_remarks')) {
+                $table->dropColumn('apex_2_remarks');
+            }
         });
     }
 

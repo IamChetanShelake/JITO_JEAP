@@ -43,6 +43,17 @@
                     <form method="POST" action="{{ route('user.step6.storeug') }}" enctype="multipart/form-data"
                         novalidate>
                         @csrf
+                         @if (session('success'))
+                            <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
+                                id="successAlert">
+
+                                {{ session('success') }}
+
+                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
 

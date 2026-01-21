@@ -11,7 +11,17 @@
                  <div class="col-12">
                      <form method="POST" action="{{ route('user.step7.store') }}" enctype="multipart/form-data">
                          @csrf
+                         @if (session('success'))
+                             <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
+                                 id="successAlert">
 
+                                 {{ session('success') }}
+
+                                 <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                     <span aria-hidden="true">&times;</span>
+                                 </button>
+                             </div>
+                         @endif
                          <div class="row mb-3">
                              <div class="col-md-5 offset-md-1">
 
@@ -109,37 +119,40 @@
                                                  <a href="{{ route('user.step1') }}"
                                                      style="text-decoration: none; color: inherit;">
                                                      <div
-                                                         style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px;">
+                                                         style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px; @if ($user->submit_status == 'submited') background-color: green;color:white; @elseif($user->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->submit_status == 'approved') background-color: orange;color:white; @endif">
                                                          1
                                                      </div>
                                                      <span class="mt-4">Personal Details</span>
+                                                 </a>
+                                             </div>
+
+                                             <div class="col-4 col-md-2" style="text-align: center; color:#393185;">
+                                                 <a href="{{ route('user.step3') }}"
+                                                     style="text-decoration: none; color: inherit;">
+                                                     <div
+                                                         style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px;
+                                                         @if ($user->educationDetail && $user->educationDetail->submit_status == 'submited') background-color: green;color:white; @elseif($user->educationDetail && $user->educationDetail->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->educationDetail && $user->educationDetail->submit_status == 'approved') background-color: orange;color:white; @endif
+                                                         ">
+                                                         2
+                                                     </div>
+                                                     <span>Education Details</span>
                                                  </a>
                                              </div>
                                              <div class="col-4 col-md-2" style="text-align: center; color:#393185;">
                                                  <a href="{{ route('user.step2') }}"
                                                      style="text-decoration: none; color: inherit;">
                                                      <div
-                                                         style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px;">
-                                                         2
-                                                     </div>
-                                                     <span>Family Details</span>
-                                                 </a>
-                                             </div>
-                                             <div class="col-4 col-md-2" style="text-align: center; color:#393185;">
-                                                 <a href="{{ route('user.step3') }}"
-                                                     style="text-decoration: none; color: inherit;">
-                                                     <div
-                                                         style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px;">
+                                                         style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px;  @if ($user->familyDetail && $user->familyDetail->submit_status == 'submited') background-color: green;color:white; @elseif($user->familyDetail && $user->familyDetail->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->familyDetail && $user->familyDetail->submit_status == 'approved') background-color: orange;color:white; @endif">
                                                          3
                                                      </div>
-                                                     <span>Education Details</span>
+                                                     <span>Family Details</span>
                                                  </a>
                                              </div>
                                              <div class="col-4 col-md-2" style="text-align: center; color:#393185;">
                                                  <a href="{{ route('user.step4') }}"
                                                      style="text-decoration: none; color: inherit;">
                                                      <div
-                                                         style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px;">
+                                                         style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px; @if ($user->fundingDetail && $user->fundingDetail->submit_status == 'submited') background-color: green;color:white; @elseif($user->fundingDetail && $user->fundingDetail->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->fundingDetail && $user->fundingDetail->submit_status == 'approved') background-color: orange;color:white; @endif">
                                                          4
                                                      </div>
                                                      <span>Funding Details</span>
@@ -148,7 +161,7 @@
                                              <div class="col-4 col-md-2" style="text-align: center; color:#393185;">
                                                  <a href="" style="text-decoration: none; color: inherit;">
                                                      <div
-                                                         style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px;">
+                                                         style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px; @if ($user->guarantorDetail && $user->guarantorDetail->submit_status == 'submited') background-color: green;color:white; @elseif($user->guarantorDetail && $user->guarantorDetail->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->guarantorDetail && $user->guarantorDetail->submit_status == 'approved') background-color: orange;color:white; @endif">
                                                          5
                                                      </div>
                                                      <span>Guarantor Details</span>
@@ -157,7 +170,7 @@
                                              <div class="col-4 col-md-2" style="text-align: center; color:#393185;">
                                                  <a href="" style="text-decoration: none; color: inherit;">
                                                      <div
-                                                         style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px;">
+                                                         style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px; @if ($user->document && $user->document->submit_status == 'submited') background-color: green;color:white; @elseif($user->document && $user->document->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->document && $user->document->submit_status == 'approved') background-color: orange;color:white; @endif">
                                                          6
                                                      </div>
                                                      <span>Documents Upload</span>
@@ -172,16 +185,30 @@
                                          </h4>
                                          <div style="margin-top: 16px;">
                                              <ol style="margin-bottom: 16px;">
-                                                 <li>The details in this form are true and correct to the best of my knowledge.</li>
-                                                 <li>I give my consent to my son / daughter / ward for going to for further studies.</li>
-                                                 <li>If my Financial Assistance Application is approved, I agree to abide by the terms and conditions of the JITO-JEAP –Domestic/Foreign Education Financial Assistance Application.</li>
-                                                 <li>In case of any change in the above information, I will inform the Institution immediately in writing within three days.</li>
-                                                 <li>I also undertake to keep the office bearers/Trustees informed of my correct address and that of my Parents/Guarantors and recommenders from time to time.</li>
+                                                 <li>The details in this form are true and correct to the best of my
+                                                     knowledge.</li>
+                                                 <li>I give my consent to my son / daughter / ward for going to for further
+                                                     studies.</li>
+                                                 <li>If my Financial Assistance Application is approved, I agree to abide by
+                                                     the terms and conditions of the JITO-JEAP –Domestic/Foreign Education
+                                                     Financial Assistance Application.</li>
+                                                 <li>In case of any change in the above information, I will inform the
+                                                     Institution immediately in writing within three days.</li>
+                                                 <li>I also undertake to keep the office bearers/Trustees informed of my
+                                                     correct address and that of my Parents/Guarantors and recommenders from
+                                                     time to time.</li>
                                                  <li>I will send my second stage documents duly completed.</li>
-                                                 <li>The amount of Financial Assistance will be utilized for education purpose only.</li>
-                                                 <li>I /we agree that JEAP may reject our Financial Assistance application without giving any reasons thereof and that JEAP shall not be held responsible/liable in any manner whatsoever to us for rejection or any delay in notifying us of such rejection including any costs, losses, damages, or expenses or consequences caused by such rejection of financial assistance application.</li>
+                                                 <li>The amount of Financial Assistance will be utilized for education
+                                                     purpose only.</li>
+                                                 <li>I /we agree that JEAP may reject our Financial Assistance application
+                                                     without giving any reasons thereof and that JEAP shall not be held
+                                                     responsible/liable in any manner whatsoever to us for rejection or any
+                                                     delay in notifying us of such rejection including any costs, losses,
+                                                     damages, or expenses or consequences caused by such rejection of
+                                                     financial assistance application.</li>
                                                  <li>I have read all FAQs mentioned on website and accepting the same.</li>
-                                                 <li>I have read all the instructions properly and agree to submit the required documents as per the policy and timelines.</li>
+                                                 <li>I have read all the instructions properly and agree to submit the
+                                                     required documents as per the policy and timelines.</li>
                                              </ol>
                                              <label style="display: block; margin-bottom: 12px; font-weight: normal;">
                                                  <input type="checkbox" name="declaration" required
@@ -222,13 +249,81 @@
                                  </svg>
 
                                  Previous</button>
-                             <button type="submit" class="btn"
-                                 style="background:#F0FDF4;color:#009846;border:1px solid #009846"><i
-                                     class="bi bi-check-lg" style="color: green; font-size: 24px;"></i>
+                             @if (
+                                 $user->submit_status == 'submited' &&
+                                     ($user->educationDetail && $user->educationDetail->submit_status == 'submited') &&
+                                     ($user->familyDetail && $user->familyDetail->submit_status == 'submited') &&
+                                     ($user->fundingDetail && $user->fundingDetail->submit_status == 'submited') &&
+                                     ($user->guarantorDetail && $user->guarantorDetail->submit_status == 'submited') &&
+                                     ($user->document && $user->document->submit_status == 'submited') &&
+                                     $user->application_status != 'submitted')
+                                 <button type="submit" class="btn"
+                                     style="background:#F0FDF4;color:#009846;border:1px solid #009846"><i
+                                         class="bi bi-check-lg" style="color: green; font-size: 24px;"></i>
 
-                                 Submit Application
+                                     Submit Application
 
-                             </button>
+                                 </button>
+                             @elseif($user->application_status == 'submitted')
+                                 <button type="button" class="btn"
+                                     style="background:green;color:white;border:1px solid green" disabled><i
+                                         class="bi bi-check-lg" style="color: white; font-size: 24px;"></i>
+
+                                     Application Submitted
+                                 </button>
+                             @else
+                                 <button type="button" class="btn"
+                                     style="background:#F0FDF4;color:red;border:1px solid red" data-toggle="modal"
+                                     data-target="#stepWarningModal">
+                                     <i class="bi bi-check-lg" style="color: red; font-size: 24px;"></i>
+                                     Submit Application
+                                 </button>
+                                 <div class="modal fade" id="stepWarningModal" tabindex="-1" role="dialog"
+                                     aria-labelledby="stepWarningModalLabel" aria-hidden="true">
+                                     <div class="modal-dialog modal-dialog-centered" role="document">
+                                         <div class="modal-content" style="border:2px solid #2E2A85;">
+
+                                             <div class="modal-header" style="border-bottom:1px solid #2E2A85;">
+                                                 <h5 class="modal-title" id="stepWarningModalLabel"
+                                                     style="color:#2E2A85;">
+                                                     Incomplete Application
+                                                 </h5>
+                                                 <button type="button" class="close" data-dismiss="modal"
+                                                     aria-label="Close">
+                                                     <span aria-hidden="true">&times;</span>
+                                                 </button>
+                                             </div>
+
+                                             <div class="modal-body">
+                                                 <p style="color:red; font-weight:500;">
+                                                     Please submit all 6 steps first.
+                                                     Only after completing all steps will the application be submitted.
+                                                 </p>
+                                             </div>
+
+                                             <div class="modal-footer" style="border-top:1px solid #2E2A85;">
+                                                 <button type="button" class="btn btn-outline-primary"
+                                                     data-dismiss="modal" style="border-color:#2E2A85; color:#2E2A85;">
+                                                     OK
+                                                 </button>
+                                             </div>
+
+                                         </div>
+                                     </div>
+                                 </div>
+
+                                 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+                                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+                                 {{-- <button type="submit" class="btn"
+                                     style="background:#F0FDF4;color:#009846;border:1px solid #009846"><i
+                                         class="bi bi-check-lg" style="color: green; font-size: 24px;"></i>
+
+                                     Submit Application
+
+                                 </button> --}}
+                             @endif
                          </div>
                      </form>
                  </div>

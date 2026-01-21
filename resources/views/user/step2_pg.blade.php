@@ -137,6 +137,17 @@
                     <form method="POST" action="{{ route('user.step2pg.store') }}" enctype="multipart/form-data"
                         novalidate>
                         @csrf
+                        @if (session('success'))
+                            <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
+                                id="successAlert">
+
+                                {{ session('success') }}
+
+                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
 
@@ -244,9 +255,10 @@
                                         <!-- Right Column -->
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
-                                                <label for="city_name">City Name <span style="color: red;">*</span></label>
-                                                <input type="text" id="city_name" class="form-control" name="city_name"
-                                                    placeholder="Enter City Name "
+                                                <label for="city_name">City Name <span
+                                                        style="color: red;">*</span></label>
+                                                <input type="text" id="city_name" class="form-control"
+                                                    name="city_name" placeholder="Enter City Name "
                                                     value="{{ old('city_name', $educationDetail->city_name ?? '') }}"
                                                     required>
                                                 <small class="text-danger"
@@ -1105,11 +1117,20 @@
                                                     <option value=""
                                                         {{ !old('have_work_experience') ? 'selected' : '' }} hidden>Have
                                                         you worked professionally before? </option>
-                                                    <option value="yes"
+                                                    {{-- <option value="yes"
                                                         {{ old('have_work_experience') == 'yes' ? 'selected' : '' }}>Yes
                                                     </option>
                                                     <option value="no"
                                                         {{ old('have_work_experience') == 'no' ? 'selected' : '' }}>No
+                                                    </option> --}}
+                                                    <option value="yes"
+                                                        {{ old('have_work_experience', $educationDetail->have_work_experience ?? '') == 'yes' ? 'selected' : '' }}>
+                                                        Yes
+                                                    </option>
+
+                                                    <option value="no"
+                                                        {{ old('have_work_experience', $educationDetail->have_work_experience ?? '') == 'no' ? 'selected' : '' }}>
+                                                        No
                                                     </option>
                                                 </select>
                                                 <small class="text-danger"

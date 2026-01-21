@@ -27,6 +27,17 @@
                 <div class="col-12">
                     <form method="POST" action="{{ route('user.step5.store') }}" enctype="multipart/form-data" novalidate>
                         @csrf
+                        @if (session('success'))
+                            <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
+                                id="successAlert">
+
+                                {{ session('success') }}
+
+                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
 
@@ -146,8 +157,8 @@
                                             <div class="form-group mb-3">
                                                 <label for="g_one_city" class="form-label">City <span
                                                         style="color: red;">*</span></label>
-                                                <input type="text" id="g_one_city" class="form-control" name="g_one_city"
-                                                    placeholder="Enter city"
+                                                <input type="text" id="g_one_city" class="form-control"
+                                                    name="g_one_city" placeholder="Enter city"
                                                     value="{{ old('g_one_city') ?: $guarantorDetail->g_one_permanent_city ?? '' }}"
                                                     required>
                                                 <small class="text-danger">{{ $errors->first('g_one_city') }}</small>
@@ -261,10 +272,10 @@
                                             </div>
 
                                             <div class="form-group mb-3">
-                                                <label for="g_one_income" class="form-label">Annual Income <span
+                                                <label for="g_one_income" class="form-label">Income as Per ITR<span
                                                         style="color: red;">*</span></label>
                                                 <input type="number" name="g_one_income" class="form-control"
-                                                    placeholder="Annual Income "
+                                                    placeholder="Income as Per ITR"
                                                     value="{{ old('g_one_income') ?: $guarantorDetail->g_one_income ?? '' }}"
                                                     required>
                                                 <small class="text-danger">{{ $errors->first('g_one_income') }}</small>
@@ -443,7 +454,7 @@
                                                 <label for="g_two_income" class="form-label">Income as Per ITR <span
                                                         style="color: red;">*</span></label>
                                                 <input type="number" name="g_two_income" class="form-control"
-                                                    placeholder="Annual Income "
+                                                    placeholder="Income as Per ITR"
                                                     value="{{ old('g_two_income') ?: $guarantorDetail->g_two_income ?? '' }}"
                                                     required>
                                                 <small class="text-danger">{{ $errors->first('g_two_income') }}</small>

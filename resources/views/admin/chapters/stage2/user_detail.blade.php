@@ -881,11 +881,8 @@
     <div class="steps-container">
         <!-- Step Navigation -->
         <div class="step-nav">
-            <div class="step-nav-item active step-interview" onclick="showStep('interview')">
-                <span class="step-number"><i class="fas fa-microphone" style="font-size: 0.8rem;"></i></span>
-                <span class="step-title">Interview</span>
-            </div>
-            <div class="step-nav-item step-1" onclick="showStep(1)">
+
+            <div class="step-nav-item active step-1" onclick="showStep(1)">
                 <span class="step-number">1</span>
                 <span class="step-title">Personal Details</span>
             </div>
@@ -912,6 +909,10 @@
             <div class="step-nav-item step-7" onclick="showStep(7)">
                 <span class="step-number">7</span>
                 <span class="step-title">Final Submission</span>
+            </div>
+            <div class="step-nav-item step-interview" onclick="showStep('interview')">
+                <span class="step-number"><i class="fas fa-microphone" style="font-size: 0.8rem;"></i></span>
+                <span class="step-title">Interview</span>
             </div>
             <div class="step-nav-item step-decision" onclick="showStep('decision')">
                 <span class="step-number"><i class="fas fa-gavel" style="font-size: 0.8rem;"></i></span>
@@ -2337,7 +2338,7 @@
 
 
                                 <!-- Approval Checkboxes -->
-                                <div
+                                {{-- <div
                                     style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(76, 175, 80, 0.1); border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.3);">
                                     <h6 style="color: #2E7D32; margin: 0 0 0.5rem 0; font-size: 0.9rem;">Verify before
                                         approval:</h6>
@@ -2390,7 +2391,7 @@
                                         style="font-size: 0.75rem; color: #2E7D32; margin: 0.5rem 0 0 0; font-style: italic;">
                                         All steps must be verified before approval
                                     </p>
-                                </div>
+                                </div> --}}
 
                                 <button type="submit" class="btn btn-approve" style="width: 100%;">
                                     <i class="fas fa-check"></i>
@@ -2400,7 +2401,7 @@
                         </div>
 
                         <!-- Reject Form -->
-                        <div
+                        {{-- <div
                             style="flex: 1; min-width: 300px; padding: 2rem;  border-radius: 12px; border: 2px solid #f44336;">
                             <h6
                                 style="color: #c62828; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
@@ -2479,7 +2480,7 @@
                                     Reject Application
                                 </button>
                             </form>
-                        </div>
+                        </div> --}}
                     </div>
 
                     <!-- Decision Summary -->

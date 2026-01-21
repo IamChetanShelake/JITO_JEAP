@@ -794,7 +794,7 @@
                                   rows="3"
                                   class="remark-input"></textarea>
 
-                        <div style="margin-top: 1rem; padding: 1rem; background: rgba(76, 175, 80, 0.05); border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.1);">
+                        {{-- <div style="margin-top: 1rem; padding: 1rem; background: rgba(76, 175, 80, 0.05); border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.1);">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                                 <h5 style="color: var(--primary-green); margin: 0; font-size: 0.9rem;">Verify and approve steps:</h5>
                             </div>
@@ -831,7 +831,7 @@
                             <p style="font-size: 0.75rem; color: var(--text-light); margin: 0.5rem 0 0 0;">
                                 Check steps to approve them. All selected steps will have their submit_status updated to 'approved'.
                             </p>
-                        </div>
+                        </div> --}}
                     </div>
                     <button type="submit" class="btn btn-approve">
                         <i class="fas fa-check"></i>

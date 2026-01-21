@@ -293,11 +293,11 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th style="width: 5%;">Seq</th>
+                        <th style="width: 5%;">Sr. No</th>
                         <th style="width: 15%;">Name</th>
-                        <th style="width: 20%;">Email</th>
-                        <th style="width: 15%;">Mobile</th>
-                        <th style="width: 15%;">Father Name</th>
+                        <th style="width: 20%;">Aadhar Number</th>
+                        <th style="width: 15%;">Financial Assistance Type</th>
+                        <th style="width: 15%;">Financial Assistance For</th>
                         <th style="width: 15%;">Status</th>
                         <th style="width: 10%;">Actions</th>
                     </tr>
@@ -309,9 +309,9 @@
                         <td>
                             <strong>{{ $user->name }}</strong>
                         </td>
-                        <td>{{ $user->email }}</td>
-                        <td>{{ $user->mobile }}</td>
-                        <td>{{ $user->familyDetail ? $user->familyDetail->father_name : 'N/A' }}</td>
+                        <td>{{ $user->aadhar_card_number }}</td>
+                        <td>{{ $user->financial_asset_type }}</td>
+                        <td>{{ $user->financial_asset_for }}</td>
                         <td>
                             <span class="status-badge status-approved">
                                 <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>

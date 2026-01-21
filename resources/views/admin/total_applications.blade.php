@@ -1,6 +1,6 @@
 @extends('admin.layouts.master')
 
-@section('title', 'Apex Stage 1 - Pending Forms - JitoJeap Admin')
+@section('title', 'Total Applications - JitoJeap Admin')
 
 @section('styles')
 <style>
@@ -175,53 +175,19 @@
         gap: 0.3rem;
     }
 
+    .status-approved {
+        background: #e8f5e9;
+        color: var(--primary-green);
+    }
+
     .status-pending {
         background: #fff8e1;
         color: var(--primary-yellow);
     }
 
-    .action-btn {
-        width: 32px;
-        height: 32px;
-        border-radius: 6px;
-        border: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 0.1rem;
-        transition: all 0.2s ease;
-        cursor: pointer;
-        font-size: 0.9rem;
-    }
-
-    .action-btn.view-btn {
-        background-color: #e3f2fd;
-        color: var(--primary-blue);
-    }
-
-    .action-btn.view-btn:hover {
-        background-color: var(--primary-blue);
-        color: white;
-    }
-
-    .action-btn.approve-btn {
-        background-color: #e8f5e9;
-        color: var(--primary-green);
-    }
-
-    .action-btn.approve-btn:hover {
-        background-color: var(--primary-green);
-        color: white;
-    }
-
-    .action-btn.hold-btn {
-        background-color: #ffebee;
+    .status-hold {
+        background: #ffebee;
         color: var(--primary-red);
-    }
-
-    .action-btn.hold-btn:hover {
-        background-color: var(--primary-red);
-        color: white;
     }
 
     .empty-state {
@@ -240,6 +206,27 @@
         display: flex;
         justify-content: center;
         gap: 0.2rem;
+    }
+
+    .action-btn.view-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 0.1rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        font-size: 0.9rem;
+        background-color: #e3f2fd;
+        color: var(--primary-blue);
+    }
+
+    .action-btn.view-btn:hover {
+        background-color: var(--primary-blue);
+        color: white;
     }
 
     /* Mobile specific styles */
@@ -295,9 +282,9 @@
     <div class="page-title-section">
         <h1 class="page-title">
             <i class="fas fa-users" style="color: var(--primary-purple); margin-right: 0.5rem;"></i>
-            Apex Stage 1 - Pending Forms
+            Total Applications
         </h1>
-        <p class="page-subtitle">List of pending user forms for approval</p>
+        <p class="page-subtitle">List of all applications</p>
     </div>
     <a href="{{ route('admin.home') }}" class="back-btn">
         <i class="fas fa-arrow-left"></i> Back to Dashboard
@@ -318,50 +305,58 @@
                         <th style="width: 20%;">Aadhar Number</th>
                         <th style="width: 15%;">Financial Assistance Type</th>
                         <th style="width: 15%;">Financial Assistance For</th>
-                        <th style="width: 15%;">Status</th>
-                        <th style="width: 15%;">Actions</th>
+                        <th style="width: 15%;">Current Stage</th>
+                        <th style="width: 10%;">Status</th>
+                        {{-- <th style="width: 10%;">Actions</th> --}}
                     </tr>
                 </thead>
                 <tbody>
+                    @php
+                        $users = \App\Models\User::with('workflowStatus')->where('role', 'user')->get();
+                    @endphp
                     @forelse($users as $index => $user)
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>
                             <strong>{{ $user->name }}</strong>
                         </td>
-                        <td>{{ $user->aadhar_card_number }}</td>
-                        <td>{{ $user->financial_asset_type }}</td>
-                        <td>{{ $user->financial_asset_for }}</td>
+                        <td>{{ $user->aadhar_card_number ?? $user->aadhar_number ?? 'N/A' }}</td>
+                        <td>{{ $user->financial_asset_type ?? $user->financial_assistance_type ?? 'N/A' }}</td>
+                        <td>{{ $user->financial_asset_for ?? $user->financial_assistance_for ?? 'N/A' }}</td>
+                        <td>{{ $user->workflowStatus ? ucfirst(str_replace('_', ' ', $user->workflowStatus->current_stage)) : 'N/A' }}</td>
                         <td>
-                            @if($user->workflowStatus && $user->workflowStatus->apex_1_reject_remarks)
-                                <span class="status-badge" style="background: #fff3e0; color: #f57c00;">
-                                    <i class="fas fa-redo" style="font-size: 0.6rem;"></i>
-                                    Resubmitted
-                                </span>
+                            @if($user->workflowStatus)
+                                @if($user->workflowStatus->final_status == 'approved')
+                                    <span class="status-badge status-approved">
+                                        <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
+                                        Approved
+                                    </span>
+                                @elseif($user->workflowStatus->final_status == 'rejected')
+                                    <span class="status-badge status-hold">
+                                        <i class="fas fa-exclamation-triangle" style="font-size: 0.6rem;"></i>
+                                        Hold
+                                    </span>
+                                @else
+                                    <span class="status-badge status-pending">
+                                        <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
+                                        Pending
+                                    </span>
+                                @endif
                             @else
-                                <span class="status-badge status-pending">
-                                    <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
-                                    Pending
-                                </span>
+                                <span class="status-badge" style="background: #f0f0f0; color: #666;">N/A</span>
                             @endif
                         </td>
-                        <td class="actions-cell">
-                            <a href="{{ route('admin.apex.stage1.user.detail', $user) }}" class="action-btn view-btn" title="View Details">
+                        {{-- <td class="actions-cell">
+                            <a href="{{ route('admin.user.detail', $user) }}" class="action-btn view-btn" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <button class="action-btn approve-btn" title="Approve">
-                                <i class="fas fa-check"></i>
-                            </button>
-                            <button class="action-btn hold-btn" title="Hold">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </button>
-                        </td>
+                        </td> --}}
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="empty-state">
+                        <td colspan="8" class="empty-state">
                             <i class="fas fa-inbox"></i>
-                            <p>No pending forms found.</p>
+                            <p>No applications found.</p>
                         </td>
                     </tr>
                     @endforelse

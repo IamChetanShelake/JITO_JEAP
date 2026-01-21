@@ -66,7 +66,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
+
         width: 100%;
         height: 44px;
         text-align: center;
@@ -118,7 +118,6 @@
         border: 1px solid #e0e0e0;
         transition: all 0.3s ease;
         height: 100%;
-        margin-bottom: 1rem;
     }
 
     .stat-card:hover {
@@ -620,18 +619,20 @@
     <!-- Statistics Cards -->
     <div class="row g-3 mb-4">
         <div class="col-md-6 col-lg-3">
-            <div class="stat-card">
-                <div class="d-flex align-items-start">
-                    <div class="flex-grow-1">
-                        <div class="stat-card-title">Total Applicants</div>
-                        <div class="stat-card-value">245</div>
-                        <p class="stat-card-subtitle" style="color: #666;">+ 48 this month</p>
-                    </div>
-                    <div class="stat-card-icon" style="background: #e8eaf6;">
-                        <i class="fas fa-file-alt" style="color: #393185;"></i>
+            <a href="{{ route('admin.total.applications') }}" style="text-decoration: none; color: inherit;display:block;">
+                <div class="stat-card">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="stat-card-title">Total Applicants</div>
+                            <div class="stat-card-value">{{ \App\Models\User::where('role', 'user')->count() }}</div>
+                            <p class="stat-card-subtitle" style="color: #666;">+ 48 this month</p>
+                        </div>
+                        <div class="stat-card-icon" style="background: #e8eaf6;">
+                            <i class="fas fa-file-alt" style="color: #393185;"></i>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-6 col-lg-3">
             <div class="stat-card">
@@ -652,7 +653,7 @@
                 <div class="d-flex align-items-start">
                     <div class="flex-grow-1">
                         <div class="stat-card-title">Pending Reviews</div>
-                        <div class="stat-card-value" style="color: #FBBA00;">17</div>
+                        <div class="stat-card-value" style="color: #FBBA00;">{{ \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function($q) { $q->where('final_status', 'in_progress'); })->count() }}</div>
                         <p class="stat-card-subtitle" style="color: #FBBA00;">Across all categories</p>
                     </div>
                     <div class="stat-card-icon" style="background: #fff8e1;">
@@ -662,18 +663,20 @@
             </div>
         </div>
         <div class="col-md-6 col-lg-3">
-            <div class="stat-card">
-                <div class="d-flex align-items-start">
-                    <div class="flex-grow-1">
-                        <div class="stat-card-title">On Hold</div>
-                        <div class="stat-card-value" style="color: #E31E24;">6</div>
-                        <p class="stat-card-subtitle" style="color: #E31E24;">Need attention</p>
-                    </div>
-                    <div class="stat-card-icon" style="background: #ffebee;">
-                        <i class="fas fa-exclamation-circle" style="color: #E31E24;"></i>
+            <a href="{{ route('admin.total.hold') }}" style="text-decoration: none; color: inherit;display:block;">
+                <div class="stat-card">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="stat-card-title">On Hold</div>
+                            <div class="stat-card-value" style="color: #E31E24;">{{ \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function($q) { $q->where('final_status', 'rejected'); })->count() }}</div>
+                            <p class="stat-card-subtitle" style="color: #E31E24;">Need attention</p>
+                        </div>
+                        <div class="stat-card-icon" style="background: #ffebee;">
+                            <i class="fas fa-exclamation-circle" style="color: #E31E24;"></i>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 

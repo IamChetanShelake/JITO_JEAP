@@ -300,9 +300,9 @@
                     <tr>
                         <th style="width: 5%;">Seq</th>
                         <th style="width: 15%;">Name</th>
-                        <th style="width: 18%;">Email</th>
-                        <th style="width: 12%;">Mobile</th>
-                        <th style="width: 12%;">Father Name</th>
+                        <th style="width: 18%;">Aadhar Number</th>
+                        <th style="width: 12%;">Financial Assistance Type</th>
+                        <th style="width: 12%;">Financial Assistance For</th>
                         <th style="width: 10%;">Assistance Amount</th>
                         <th style="width: 10%;">Approved Date</th>
                         <th style="width: 8%;">Status</th>
@@ -316,9 +316,9 @@
                         <td>
                             <strong>{{ $user->name }}</strong>
                         </td>
-                        <td>{{ $user->email }}</td>
-                        <td>{{ $user->mobile }}</td>
-                        <td>{{ $user->familyDetail ? $user->familyDetail->father_name : 'N/A' }}</td>
+                        <td>{{ $user->aadhar_card_number }}</td>
+                        <td>{{ $user->financial_asset_type }}</td>
+                        <td>{{ $user->financial_asset_for }}</td>
                         <td class="amount-cell">
                             ₹{{ $user->workflowStatus && $user->workflowStatus->chapter_assistance_amount ? number_format($user->workflowStatus->chapter_assistance_amount) : 'N/A' }}
                         </td>

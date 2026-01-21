@@ -63,138 +63,74 @@ class AdminController extends Controller
     }
 
     public function approveStage(Request $request, User $user, $stage)
-    {
-        $rules = [
-            'admin_remark' => 'nullable|string|max:2000',
-            'approved_steps' => 'required|array|min:1',
-            'approved_steps.*' => 'in:personal,education,family,funding,guarantor,documents,final',
-        ];
+{
+    // Validation
+    $rules = [
+        'admin_remark' => 'nullable|string|max:2000',
+    ];
 
-        // Add assistance_amount validation for chapter stage
-        if ($stage === 'chapter') {
-            $rules['assistance_amount'] = 'required|numeric|min:0';
-        }
-
-        $request->validate($rules);
-
-        $approvedSteps = $request->input('approved_steps', []);
-
-        if (empty($approvedSteps)) {
-            return back()->with('error', 'At least one step must be selected for approval');
-        }
-
-        $workflow = $user->workflowStatus;
-        if (!$workflow) {
-            return back()->with('error', 'Workflow not found');
-        }
-
-        if ($workflow->current_stage !== $stage) {
-            return back()->with('error', 'Invalid stage');
-        }
-
-        // Handle selective step approval
-        $approvalCount = 0;
-        foreach ($approvedSteps as $step) {
-            if ($step === 'personal') {
-                // Handle personal details (users table)
-                $user->update([
-                    'submit_status' => 'approved',
-                    'admin_remark' => $request->admin_remark,
-                    'updated_at' => now(),
-                ]);
-                $approvalCount++;
-                Log::info("Personal details approved for user {$user->id}");
-            } else {
-                // Handle other steps
-                $stepTableMap = [
-                    'education' => 'educationDetail',
-                    'family' => 'familyDetail',
-                    'funding' => 'fundingDetail',
-                    'guarantor' => 'guarantorDetail',
-                    'documents' => 'document',
-                    'final' => 'document', // Final submission also uses document table
-                ];
-
-                if (isset($stepTableMap[$step])) {
-                    $tableRelation = $stepTableMap[$step];
-                    if ($user->$tableRelation) {
-                        $user->$tableRelation->update([
-                            'submit_status' => 'approved',
-                            'admin_remark' => $request->admin_remark,
-                            'updated_at' => now(),
-                        ]);
-                        $approvalCount++;
-                        Log::info("Step {$step} approved for user {$user->id}");
-                    }
-                }
-            }
-        }
-
-        // Check if all steps are approved to move to next stage
-        $allStepsApproved = $this->checkAllStepsApproved($user);
-
-        if ($allStepsApproved) {
-            // Move to next stage or set final approved
-            $stages = ['apex_1', 'chapter', 'working_committee', 'apex_2'];
-            $currentStage = trim($workflow->current_stage);
-            $currentIndex = array_search($currentStage, $stages);
-
-            Log::info("All steps approved - moving to next stage. current_stage='{$currentStage}', stage_param='{$stage}', currentIndex={$currentIndex}");
-
-            $statusField = $stage . '_status';
-            $updatedAtField = $stage . '_updated_at';
-            $approvalRemarksField = $stage . '_approval_remarks';
-
-            $updateData = [
-                $statusField => 'approved',
-                $updatedAtField => now(),
-                $approvalRemarksField => $request->admin_remark,
-            ];
-
-            // Add assistance_amount for chapter stage
-            if ($stage === 'chapter') {
-                $updateData[$stage . '_assistance_amount'] = $request->assistance_amount;
-            }
-
-            if ($currentStage === 'apex_1' && $stage === 'apex_1') {
-                $updateData['current_stage'] = 'chapter';
-                Log::info("Apex 1 approved - moving to chapter stage");
-            } elseif ($currentStage === 'chapter' && $stage === 'chapter') {
-                $updateData['current_stage'] = 'working_committee';
-                Log::info("Chapter approved - moving to working_committee stage");
-            } elseif ($currentStage === 'working_committee' && $stage === 'working_committee') {
-                $updateData['current_stage'] = 'apex_2';
-                Log::info("Working Committee approved - moving to apex_2 stage");
-            } elseif ($currentStage === 'apex_2' && $stage === 'apex_2') {
-                $updateData['final_status'] = 'approved';
-                Log::info("Apex 2 approved - final approval granted");
-            } else {
-                Log::error("Invalid stage progression: current_stage='{$currentStage}', stage_param='{$stage}', currentIndex={$currentIndex}");
-                return back()->with('error', 'Invalid stage progression');
-            }
-
-            Log::info("About to update workflow", $updateData);
-            $workflow->update($updateData);
-            $workflow->refresh(); // Refresh to get updated data
-            Log::info("After update: current_stage={$workflow->current_stage}, final_status={$workflow->final_status}");
-
-            return back()->with('success', "All steps approved successfully. " . ucfirst(str_replace('_', ' ', $stage)) . " stage completed.");
-        } else {
-            // Update workflow stage status to approved but keep current stage
-            $statusField = $stage . '_status';
-            $updatedAtField = $stage . '_updated_at';
-            $approvalRemarksField = $stage . '_approval_remarks';
-
-            $workflow->update([
-                $statusField => 'approved',
-                $updatedAtField => now(),
-                $approvalRemarksField => $request->admin_remark,
-                // Keep current_stage and final_status as is
-            ]);
-
-            return back()->with('success', "{$approvalCount} step(s) approved successfully");
-        }
+    if ($stage === 'chapter') {
+        $rules['assistance_amount'] = 'required|numeric|min:0';
     }
+
+    $request->validate($rules);
+
+    $workflow = $user->workflowStatus;
+
+    if (!$workflow) {
+        return back()->with('error', 'Workflow not found');
+    }
+
+    if ($workflow->current_stage !== $stage) {
+        return back()->with('error', 'Invalid stage');
+    }
+
+    // Prepare update fields
+    $statusField = $stage . '_status';
+    $updatedAtField = $stage . '_updated_at';
+    $remarksField = $stage . '_approval_remarks';
+
+    $updateData = [
+        $statusField => 'approved',
+        $updatedAtField => now(),
+        $remarksField => $request->admin_remark,
+    ];
+
+    // Chapter assistance amount
+    if ($stage === 'chapter') {
+        $updateData[$stage . '_assistance_amount'] = $request->assistance_amount;
+    }
+
+    // Stage progression
+    switch ($stage) {
+        case 'apex_1':
+            $updateData['current_stage'] = 'chapter';
+            break;
+
+        case 'chapter':
+            $updateData['current_stage'] = 'working_committee';
+            break;
+
+        case 'working_committee':
+            $updateData['current_stage'] = 'apex_2';
+            break;
+
+        case 'apex_2':
+            $updateData['final_status'] = 'approved';
+            break;
+
+        default:
+            return back()->with('error', 'Invalid stage');
+    }
+
+    $workflow->update($updateData);
+
+    return back()->with(
+        'success',
+        ucfirst(str_replace('_', ' ', $stage)) . ' stage approved successfully'
+    );
+}
+
 
     private function checkAllStepsApproved(User $user)
     {
@@ -302,12 +238,15 @@ class AdminController extends Controller
 
     public function chapterPending()
     {
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($query) {
                 $query->where('current_stage', 'chapter')
                       ->where('final_status', 'in_progress');
-            })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            });
+        if(request('chapter_id')){
+            $query->where('chapter_id', request('chapter_id'));
+        }
+        $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
         return view('admin.chapters.stage2.pending', compact('users'));
@@ -315,22 +254,28 @@ class AdminController extends Controller
 
     public function chapterApproved()
     {
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function($q) {
                 $q->where('chapter_status', 'approved');
-            })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            });
+        if(request('chapter_id')){
+            $query->where('chapter_id', request('chapter_id'));
+        }
+        $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
         return view('admin.chapters.stage2.approved', compact('users'));
     }
 
     public function chapterHold()
     {
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function($q) {
                 $q->where('chapter_status', 'rejected');
-            })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            });
+        if(request('chapter_id')){
+            $query->where('chapter_id', request('chapter_id'));
+        }
+        $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
         return view('admin.chapters.stage2.hold', compact('users'));
     }
@@ -417,6 +362,83 @@ class AdminController extends Controller
     {
         $users = User::with('workflowStatus')->where('role', 'user')->whereHas('workflowStatus', function($q) { $q->where('final_status', 'rejected'); })->get();
         return view('admin.total_hold', compact('users'));
+    }
+
+    public function chapterStats()
+    {
+        $chapters = Chapter::all();
+        return view('admin.chapters.stats', compact('chapters'));
+    }
+
+    public function chapterDetails(Chapter $chapter)
+    {
+        return view('admin.chapters.chapter_details', compact('chapter'));
+    }
+
+    public function chapterTotalApplied()
+    {
+        $chapter_id = request('chapter_id');
+        $users = User::where('role', 'user')
+            ->where('chapter_id', $chapter_id)
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            ->get();
+        return view('admin.chapters.stage2.approved', compact('users')); // Reuse existing view
+    }
+
+    public function chapterDraft()
+    {
+        $chapter_id = request('chapter_id');
+        $users = User::where('role', 'user')
+    ->where('chapter_id', $chapter_id)
+    ->where('application_status', 'draft')
+    ->get();
+
+
+        return view('admin.chapters.stage2.pending', compact('users')); // Reuse existing view
+    }
+
+    public function chapterApexPending()
+    {
+        $chapter_id = request('chapter_id');
+        $users = User::where('role', 'user')
+            ->where('chapter_id', $chapter_id)
+            ->where('submit_status', 'submited')
+            ->where('application_status', 'submitted')
+            ->whereHas('workflowStatus', function($q) {
+                $q->where('apex_1_status', 'pending');
+            })
+            ->get();
+        return view('admin.chapters.stage2.pending', compact('users')); // Reuse existing view
+    }
+
+    public function chapterWorkingCommitteePending()
+    {
+        $chapter_id = request('chapter_id');
+         $query = User::where('role', 'user')
+            ->whereHas('workflowStatus', function($q) {
+                $q->where('chapter_status', 'approved')
+                ->where('working_committee_status', 'pending');
+            });
+
+        if(request('chapter_id')){
+            $query->where('chapter_id', request('chapter_id'));
+        }
+        $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            ->get();
+        return view('admin.chapters.stage2.pending', compact('users')); // Reuse existing view
+    }
+
+    public function chapterResubmit()
+    {
+        $chapter_id = request('chapter_id');
+        $users = User::where('role', 'user')
+            ->where('chapter_id', $chapter_id)
+            ->whereHas('workflowStatus', function($q) {
+                $q->where('apex_1_status', 'rejected');
+            })
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            ->get();
+        return view('admin.chapters.stage2.hold', compact('users')); // Reuse existing view
     }
 
 }

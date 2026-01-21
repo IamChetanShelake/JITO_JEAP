@@ -180,6 +180,21 @@
         color: var(--primary-green);
     }
 
+    .status-pending {
+        background: #fff8e1;
+        color: var(--primary-yellow);
+    }
+
+    .status-hold {
+        background: #ffebee;
+        color: var(--primary-red);
+    }
+
+    .status-draft {
+        background: #f5f5f5;
+        color: #9e9e9e;
+    }
+
     .action-btn {
         width: 32px;
         height: 32px;
@@ -330,9 +345,61 @@
                             @endif
                         </td>
                         <td>
-                            <span class="status-badge status-approved">
-                                <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
-                                Approved
+                            @php
+                                $status = 'Unknown';
+                                $statusClass = 'status-approved';
+                                $statusIcon = 'fas fa-check-circle';
+
+                                // Check workflow statuses first (highest priority)
+                                if ($user->workflowStatus && $user->workflowStatus->final_status === 'approved') {
+                                    $status = 'Final Approved';
+                                    $statusClass = 'status-approved';
+                                    $statusIcon = 'fas fa-check-double';
+                                } elseif ($user->workflowStatus && $user->workflowStatus->apex_2_status === 'approved') {
+                                    $status = 'Apex 2 Approved';
+                                    $statusClass = 'status-approved';
+                                    $statusIcon = 'fas fa-user-tie';
+                                } elseif ($user->workflowStatus && $user->workflowStatus->working_committee_status === 'approved') {
+                                    $status = 'Working Committee Approved';
+                                    $statusClass = 'status-approved';
+                                    $statusIcon = 'fas fa-users-cog';
+                                } elseif ($user->workflowStatus && $user->workflowStatus->chapter_status === 'approved') {
+                                    $status = 'Chapter Approved';
+                                    $statusClass = 'status-approved';
+                                    $statusIcon = 'fas fa-check-circle';
+                                } elseif ($user->workflowStatus && $user->workflowStatus->apex_1_status === 'approved') {
+                                    $status = 'Apex Approved';
+                                    $statusClass = 'status-approved';
+                                    $statusIcon = 'fas fa-user-check';
+                                } elseif ($user->workflowStatus && $user->workflowStatus->final_status === 'rejected') {
+                                    $status = 'Rejected';
+                                    $statusClass = 'status-hold';
+                                    $statusIcon = 'fas fa-times-circle';
+                                } elseif ($user->workflowStatus && $user->workflowStatus->current_stage === 'apex_2') {
+                                    $status = 'Apex 2 Pending';
+                                    $statusClass = 'status-pending';
+                                    $statusIcon = 'fas fa-user-tie';
+                                } elseif ($user->workflowStatus && $user->workflowStatus->current_stage === 'working_committee') {
+                                    $status = 'Working Committee Pending';
+                                    $statusClass = 'status-pending';
+                                    $statusIcon = 'fas fa-users-cog';
+                                } elseif ($user->workflowStatus && $user->workflowStatus->current_stage === 'chapter') {
+                                    $status = 'Chapter Pending';
+                                    $statusClass = 'status-pending';
+                                    $statusIcon = 'fas fa-clock';
+                                } elseif ($user->application_status === 'submitted' && $user->submit_status === 'submited') {
+                                    $status = 'Submitted';
+                                    $statusClass = 'status-pending';
+                                    $statusIcon = 'fas fa-paper-plane';
+                                } elseif ($user->application_status === 'draft') {
+                                    $status = 'Draft';
+                                    $statusClass = 'status-draft';
+                                    $statusIcon = 'fas fa-edit';
+                                }
+                            @endphp
+                            <span class="status-badge {{ $statusClass }}">
+                                <i class="{{ $statusIcon }}" style="font-size: 0.6rem;"></i>
+                                {{ $status }}
                             </span>
                         </td>
                         <td class="actions-cell">

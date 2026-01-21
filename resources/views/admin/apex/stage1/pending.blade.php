@@ -362,63 +362,6 @@
                     </tbody>
                 </table>
             </div>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th style="width: 5%;">Sr. No</th>
-                        <th style="width: 15%;">Name</th>
-                        <th style="width: 20%;">Aadhar Number</th>
-                        <th style="width: 15%;">Financial Assistance Type</th>
-                        <th style="width: 15%;">Financial Assistance For</th>
-                        <th style="width: 15%;">Status</th>
-                        <th style="width: 15%;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($users as $index => $user)
-                    <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>
-                            <strong>{{ $user->name }}</strong>
-                        </td>
-                        <td>{{ $user->aadhar_card_number }}</td>
-                        <td>{{ $user->financial_asset_type }}</td>
-                        <td>{{ $user->financial_asset_for }}</td>
-                        <td>
-                            @if($user->workflowStatus && $user->workflowStatus->apex_1_reject_remarks)
-                                <span class="status-badge" style="background: #fff3e0; color: #f57c00;">
-                                    <i class="fas fa-redo" style="font-size: 0.6rem;"></i>
-                                    Resubmitted
-                                </span>
-                            @else
-                                <span class="status-badge status-pending">
-                                    <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
-                                    Pending
-                                </span>
-                            @endif
-                        </td>
-                        <td class="actions-cell">
-                            <a href="{{ route('admin.apex.stage1.user.detail', $user) }}" class="action-btn view-btn" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <button class="action-btn approve-btn" title="Approve">
-                                <i class="fas fa-check"></i>
-                            </button>
-                            <button class="action-btn hold-btn" title="Hold">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="7" class="empty-state">
-                            <i class="fas fa-inbox"></i>
-                            <p>No pending forms found.</p>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
         </div>
     </div>
 @endsection

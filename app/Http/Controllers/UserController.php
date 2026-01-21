@@ -543,7 +543,7 @@ class UserController extends Controller
             // School / 10th Grade Information
             'school_name' => $request->school_name,
             'school_board' => $request->school_board,
-            'school_completion_year' => $request->school_completion_year,
+            'school_completion_year' => $request->school_completion_year ? $request->school_completion_year . '-01' : null,
             '10th_mark_obtained' => $request->input('10th_mark_obtained'),
             '10th_mark_out_of' => $request->input('10th_mark_out_of'),
             'school_percentage' => $request->school_percentage,
@@ -736,25 +736,28 @@ class UserController extends Controller
             'group_4_year3' => 'nullable|numeric|min:0',
             'group_4_year4' => 'nullable|numeric|min:0',
             'group_4_year5' => 'nullable|numeric|min:0',
-
             // School / 10th Grade Information
             'school_name' => 'required|string|max:255',
             'school_board' => 'required|string|max:100',
             'school_completion_year' => 'required|string|max:50',
+            'school_grade_system' => 'required',
             '10th_mark_obtained' => 'nullable|integer|min:0',
             '10th_mark_out_of' => 'nullable|integer|min:0',
             'school_percentage' => 'nullable|string|max:50',
             'school_CGPA' => 'nullable|string|max:50',
+            'school_sgpa' => 'nullable|string|max:50',
 
             // Junior College (12th Grade)
             'jc_college_name' => 'required|string|max:255',
             'jc_stream' => 'required|string|max:100',
             'jc_board' => 'required|string|max:100',
             'jc_completion_year' => 'required|string|max:50',
+            'jc_grade_system' => 'required',
             '12th_mark_obtained' => 'nullable|integer|min:0',
             '12th_mark_out_of' => 'nullable|integer|min:0',
             'jc_percentage' => 'nullable|string|max:50',
             'jc_CGPA' => 'nullable|string|max:50',
+            'jc_sgpa' => 'nullable|string|max:50',
 
 
             // Completed Qualifications
@@ -831,7 +834,7 @@ class UserController extends Controller
             // School / 10th Grade Information
             'school_name' => $request->school_name,
             'school_board' => $request->school_board,
-            'school_completion_year' => $request->school_completion_year,
+            'school_completion_year' => $request->school_completion_year ? $request->school_completion_year . '-01' : null,
             '10th_mark_obtained' => $request->input('10th_mark_obtained'),
             '10th_mark_out_of' => $request->input('10th_mark_out_of'),
             'school_percentage' => $request->school_percentage,
@@ -898,7 +901,7 @@ class UserController extends Controller
     public function step2_foreign_pg_store(Request $request)
     {
         // Validation for education details
-        //  dd($request->all());
+        //dd($request->all());
         $request->validate([
             // Financial Need Overview
             'course_name' => 'required|string|max:255',
@@ -933,39 +936,43 @@ class UserController extends Controller
             'group_4_year5' => 'nullable|numeric|min:0',
 
             // School / 10th Grade Information
-            'school_name' => 'nullable|string|max:255',
-            'school_board' => 'nullable|string|max:100',
-            'school_completion_year' => 'nullable|string|max:50',
+            'school_name' => 'required|string|max:255',
+            'school_board' => 'required|string|max:100',
+            'school_completion_year' => 'required|string|max:50',
+            'school_grade_system' => 'required',
             '10th_mark_obtained' => 'nullable|integer|min:0',
             '10th_mark_out_of' => 'nullable|integer|min:0',
             'school_percentage' => 'nullable|string|max:50',
             'school_CGPA' => 'nullable|string|max:50',
+            'school_sgpa' => 'nullable|string|max:50',
 
             // Junior College (12th Grade)
-            'jc_college_name' => 'nullable|string|max:255',
-            'jc_stream' => 'nullable|string|max:100',
-            'jc_board' => 'nullable|string|max:100',
-            'jc_completion_year' => 'nullable|string|max:50',
+            'jc_college_name' => 'required|string|max:255',
+            'jc_stream' => 'required|string|max:100',
+            'jc_board' => 'required|string|max:100',
+            'jc_completion_year' => 'required|string|max:50',
+            'jc_grade_system' => 'required',
             '12th_mark_obtained' => 'nullable|integer|min:0',
             '12th_mark_out_of' => 'nullable|integer|min:0',
             'jc_percentage' => 'nullable|string|max:50',
             'jc_CGPA' => 'nullable|string|max:50',
+            'jc_sgpa' => 'nullable|string|max:50',
 
 
             // Completed Qualifications
-            'qualifications' => 'nullable|string',
-            'qualification_institution' => 'nullable|string|max:255',
+            'qualifications' => 'required|string',
+            'qualification_institution' => 'required|string|max:255',
             'qualification_university' => 'nullable|string|max:255',
-            'qualification_start_year' => 'nullable|date',
-            'qualification_end_year' => 'nullable|date',
-            'marksheet_type' => 'nullable|array',
+            'qualification_start_year' => 'required|date',
+            'qualification_end_year' => 'required|date',
+            'marksheet_type' => 'required|array',
             'marks_obtained' => 'nullable|array',
             'out_of' => 'nullable|array',
             'percentage' => 'nullable|array',
             'cgpa' => 'nullable|array',
 
             // Work Experience
-            'have_work_experience' => 'nullable|in:yes,no',
+            'have_work_experience' => 'required|in:yes,no',
             'organization_name' => 'nullable|string|max:255',
             'work_profile' => 'nullable|string|max:255',
             'duration_start_year' => 'nullable|string|max:50',
@@ -1031,7 +1038,7 @@ class UserController extends Controller
             // School / 10th Grade Information
             'school_name' => $request->school_name,
             'school_board' => $request->school_board,
-            'school_completion_year' => $request->school_completion_year,
+            'school_completion_year' => $request->school_completion_year ? $request->school_completion_year . '-01' : null,
             '10th_mark_obtained' => $request->input('10th_mark_obtained'),
             '10th_mark_out_of' => $request->input('10th_mark_out_of'),
             'school_percentage' => $request->school_percentage,

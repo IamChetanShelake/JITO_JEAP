@@ -134,7 +134,8 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <form method="POST" action="{{ route('user.step2_foreign_pg.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('user.step2_foreign_pg.store') }}" enctype="multipart/form-data"
+                        novalidate>
                         @csrf
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
@@ -200,7 +201,8 @@
                                                         style="color: red;">*</span></label>
                                                 <input type="text" id="course_name" class="form-control"
                                                     name="course_name" placeholder="Enter Course Name "
-                                                    value="{{ old('course_name') }}" required>
+                                                    value="{{ old('course_name') ?: $educationDetail->course_name ?? '' }}"
+                                                    required>
                                                 <small class="text-danger">{{ $errors->first('course_name') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
@@ -208,7 +210,8 @@
                                                         style="color: red;">*</span></label>
                                                 <input type="text" id="university_name" class="form-control"
                                                     name="university_name" placeholder="Enter University Name "
-                                                    value="{{ old('university_name') ?: $educationDetail->university_name ?? '' }}">
+                                                    value="{{ old('university_name') ?: $educationDetail->university_name ?? '' }}"
+                                                    required>
                                                 <small class="text-danger">{{ $errors->first('university_name') }}</small>
                                             </div>
 
@@ -217,14 +220,16 @@
                                                         style="color: red;">*</span></label>
                                                 <input type="text" id="college_name" class="form-control"
                                                     name="college_name" placeholder="Enter College Name "
-                                                    value="{{ old('college_name') }}" required>
+                                                    value="{{ old('college_name') ?: $educationDetail->college_name ?? '' }}"
+                                                    required>
                                                 <small class="text-danger">{{ $errors->first('college_name') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="country">Country Name <span
                                                         style="color: red;">*</span></label>
                                                 <input type="text" id="country" class="form-control" name="country"
-                                                    placeholder="Enter Country Name " value="{{ old('country') }}"
+                                                    placeholder="Enter Country Name "
+                                                    value="   {{ old('country') ?: $educationDetail->country ?? '' }}"
                                                     required>
                                                 <small class="text-danger">{{ $errors->first('country') }}</small>
                                             </div>
@@ -236,7 +241,9 @@
                                             <div class="form-group mb-3">
                                                 <label for="city_name">City Name <span style="color: red;">*</span></label>
                                                 <input type="text" id="city_name" class="form-control" name="city_name"
-                                                    placeholder="Enter City Name " value="{{ old('city_name') }}" required>
+                                                    placeholder="Enter City Name "
+                                                    value="{{ old('city_name') ?: $educationDetail->city_name ?? '' }}"
+                                                    required>
                                                 <small class="text-danger">{{ $errors->first('city_name') }}</small>
                                             </div>
 
@@ -300,7 +307,7 @@
                                                 <label for="nirf_ranking">NIRF Ranking</label>
                                                 <input type="text" id="nirf_ranking" class="form-control"
                                                     name="nirf_ranking" placeholder=" Enter NIRF Ranking"
-                                                    value="{{ old('nirf_ranking') }}">
+                                                    value="{{ old('nirf_ranking') ?: $educationDetail->nirf_ranking ?? '' }}">
                                                 <small class="text-danger">{{ $errors->first('nirf_ranking') }}</small>
                                             </div>
                                             {{--
@@ -382,22 +389,28 @@
                                                     </td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_1_year1"
-                                                            value="{{ old('group_1_year1') }}" placeholder="0"></td>
+                                                            value="{{ old('group_1_year1') ?: $educationDetail->group_1_year1 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_1_year2"
-                                                            value="{{ old('group_1_year2') }}" placeholder="0"></td>
+                                                            value="{{ old('group_1_year2') ?: $educationDetail->group_1_year2 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_1_year3"
-                                                            value="{{ old('group_1_year3') }}" placeholder="0"></td>
+                                                            value="{{ old('group_1_year3') ?: $educationDetail->group_1_year3 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_1_year4"
-                                                            value="{{ old('group_1_year4') }}" placeholder="0"></td>
+                                                            value="{{ old('group_1_year4') ?: $educationDetail->group_1_year4 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_1_year5"
-                                                            value="{{ old('group_1_year5') }}" placeholder="0"></td>
+                                                            value="{{ old('group_1_year5') ?: $educationDetail->group_1_year5 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_1_total"
-                                                            value="{{ old('group_1_total') }}" placeholder="0" readonly>
+                                                            value="{{ old('group_1_total') ?: $educationDetail->group_1_total ?? '' }}"
+                                                            placeholder="0" readonly>
                                                     </td>
                                                 </tr>
 
@@ -411,22 +424,28 @@
                                                     </td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_2_year1"
-                                                            value="{{ old('group_2_year1') }}" placeholder="0"></td>
+                                                            value="{{ old('group_2_year1') ?: $educationDetail->group_2_year1 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_2_year2"
-                                                            value="{{ old('group_2_year2') }}" placeholder="0"></td>
+                                                            value="{{ old('group_2_year2') ?: $educationDetail->group_2_year2 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_2_year3"
-                                                            value="{{ old('group_2_year3') }}" placeholder="0"></td>
+                                                            value="{{ old('group_2_year3') ?: $educationDetail->group_2_year3 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_2_year4"
-                                                            value="{{ old('group_2_year4') }}" placeholder="0"></td>
+                                                            value="{{ old('group_2_year4') ?: $educationDetail->group_2_year4 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_2_year5"
-                                                            value="{{ old('group_2_year5') }}" placeholder="0"></td>
+                                                            value="{{ old('group_2_year5') ?: $educationDetail->group_2_year5 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_2_total"
-                                                            value="{{ old('group_2_total') }}" placeholder="0" readonly>
+                                                            value="{{ old('group_2_total') ?: $educationDetail->group_2_total ?? '' }}"
+                                                            placeholder="0" readonly>
                                                     </td>
                                                 </tr>
 
@@ -439,22 +458,28 @@
                                                             placeholder="Enter Group Name" hidden>Other Expenses</td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_3_year1"
-                                                            value="{{ old('group_3_year1') }}" placeholder="0"></td>
+                                                            value="{{ old('group_3_year1') ?: $educationDetail->group_3_year1 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_3_year2"
-                                                            value="{{ old('group_3_year2') }}" placeholder="0"></td>
+                                                            value="{{ old('group_3_year2') ?: $educationDetail->group_3_year2 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_3_year3"
-                                                            value="{{ old('group_3_year3') }}" placeholder="0"></td>
+                                                            value="{{ old('group_3_year3') ?: $educationDetail->group_3_year3 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_3_year4"
-                                                            value="{{ old('group_3_year4') }}" placeholder="0"></td>
+                                                            value="{{ old('group_3_year4') ?: $educationDetail->group_3_year4 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_3_year5"
-                                                            value="{{ old('group_3_year5') }}" placeholder="0"></td>
+                                                            value="{{ old('group_3_year5') ?: $educationDetail->group_3_year5 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_3_total"
-                                                            value="{{ old('group_3_total') }}" placeholder="0" readonly>
+                                                            value="{{ old('group_3_total') ?: $educationDetail->group_3_total ?? '' }}"
+                                                            placeholder="0" readonly>
                                                     </td>
                                                 </tr>
 
@@ -467,22 +492,28 @@
                                                             placeholder="Enter Group Name" hidden>Total Expenses</td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_4_year1"
-                                                            value="{{ old('group_4_year1') }}" placeholder="0"></td>
+                                                            value="{{ old('group_4_year1') ?: $educationDetail->group_4_year1 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_4_year2"
-                                                            value="{{ old('group_4_year2') }}" placeholder="0"></td>
+                                                            value="{{ old('group_4_year2') ?: $educationDetail->group_4_year2 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_4_year3"
-                                                            value="{{ old('group_4_year3') }}" placeholder="0"></td>
+                                                            value="{{ old('group_4_year3') ?: $educationDetail->group_4_year3 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_4_year4"
-                                                            value="{{ old('group_4_year4') }}" placeholder="0"></td>
+                                                            value="{{ old('group_4_year4') ?: $educationDetail->group_4_year4 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_4_year5"
-                                                            value="{{ old('group_4_year5') }}" placeholder="0"></td>
+                                                            value="{{ old('group_4_year5') ?: $educationDetail->group_4_year5 ?? '' }}"
+                                                            placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
                                                             class="form-control form-control-sm" name="group_4_total"
-                                                            value="{{ old('group_4_total') }}" placeholder="0" readonly>
+                                                            value="{{ old('group_4_total') ?: $educationDetail->group_4_total ?? '' }}"
+                                                            placeholder="0" readonly>
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -786,7 +817,8 @@
                                                         style="color: red;">*</span></label>
                                                 <input type="text" class="form-control" id="school_name"
                                                     name="school_name" placeholder="School Name "
-                                                    value="{{ old('school_name') ?: $educationDetail->school_name ?? '' }}">
+                                                    value="{{ old('school_name') ?: $educationDetail->school_name ?? '' }}"
+                                                    required>
                                                 <small class="text-danger">{{ $errors->first('school_name') }}</small>
                                             </div>
 
@@ -794,7 +826,8 @@
                                                 <label for="school_board">Board <span style="color: red;">*</span></label>
                                                 <input type="text" class="form-control" id="school_board"
                                                     name="school_board" placeholder="Board "
-                                                    value="{{ old('school_board') ?: $educationDetail->school_board ?? '' }}">
+                                                    value="{{ old('school_board') ?: $educationDetail->school_board ?? '' }}"
+                                                    required>
                                                 <small class="text-danger">{{ $errors->first('school_board') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
@@ -802,7 +835,8 @@
                                                         style="color: red;">*</span></label>
                                                 <input type="month" class="form-control" id="school_completion_year"
                                                     name="school_completion_year" placeholder="Select Month and Year"
-                                                    value="{{ old('school_completion_year') ?: ($educationDetail && $educationDetail->school_completion_year ? $educationDetail->school_completion_year . '-01' : '') }}">
+                                                    value="{{ old('school_completion_year') ?: ($educationDetail && $educationDetail->school_completion_year ? \Carbon\Carbon::parse($educationDetail->school_completion_year)->format('Y-m') : '') }}"
+                                                    required>
                                                 <small
                                                     class="text-danger">{{ $errors->first('school_completion_year') }}</small>
                                             </div>
@@ -900,7 +934,8 @@
                                                         style="color: red;">*</span></label>
                                                 <input type="text" class="form-control" id="jc_college_name"
                                                     name="jc_college_name" placeholder="College / Junior College Name "
-                                                    value="{{ old('jc_college_name') ?: $educationDetail->jc_college_name ?? '' }}">
+                                                    value="{{ old('jc_college_name') ?: $educationDetail->jc_college_name ?? '' }}"
+                                                    required>
                                                 <small class="text-danger">{{ $errors->first('jc_college_name') }}</small>
                                             </div>
 
@@ -908,7 +943,8 @@
                                                 <label for="jc_stream">Stream <span style="color: red;">*</span></label>
                                                 <input type="text" class="form-control" id="jc_stream"
                                                     name="jc_stream" placeholder="Select Stream "
-                                                    value="{{ old('jc_stream') ?: $educationDetail->jc_stream ?? '' }}">
+                                                    value="{{ old('jc_stream') ?: $educationDetail->jc_stream ?? '' }}"
+                                                    required>
                                                 <small class="text-danger">{{ $errors->first('jc_stream') }}</small>
                                             </div>
 
@@ -916,7 +952,8 @@
                                                 <label for="jc_board">Board <span style="color: red;">*</span></label>
                                                 <input type="text" class="form-control" id="jc_board"
                                                     name="jc_board" placeholder="Select Board "
-                                                    value="{{ old('jc_board') ?: $educationDetail->jc_board ?? '' }}">
+                                                    value="{{ old('jc_board') ?: $educationDetail->jc_board ?? '' }}"
+                                                    required>
                                                 <small class="text-danger">{{ $errors->first('jc_board') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
@@ -924,7 +961,8 @@
                                                         style="color: red;">*</span></label>
                                                 <input type="month" class="form-control" id="jc_completion_year"
                                                     name="jc_completion_year" placeholder="Select Month and Year"
-                                                    value="{{ old('jc_completion_year') ?: ($educationDetail && $educationDetail->jc_completion_year ? $educationDetail->jc_completion_year . '-01' : '') }}">
+                                                    value="{{ old('jc_completion_year') ?: ($educationDetail && $educationDetail->jc_completion_year ? \Carbon\Carbon::parse($educationDetail->jc_completion_year)->format('Y-m') : '') }}"
+                                                    required>
                                                 <small
                                                     class="text-danger">{{ $errors->first('jc_completion_year') }}</small>
                                             </div>
@@ -1012,7 +1050,7 @@
                                 <!-- Section Divider -->
                                 <div class="section-divider"></div>
 
-                                <!-- Section 2: Completed Qualifications -->
+                                {{-- <!-- Section 2: Completed Qualifications -->
                                 <div class="education-section">
                                     <h4 class="title" style="color:#4C4C4C;font-size:18px;">Completed Qualifications</h4>
 
@@ -1023,7 +1061,7 @@
                                                 <label for="qualifications">Add your completed qualifications<span
                                                         style="color: red;">*</span></label>
                                                 <select class="form-control" name="qualifications"
-                                                    id="qualifications_select">
+                                                    id="qualifications_select" required>
                                                     <option value="" {{ !old('qualifications') ? 'selected' : '' }}
                                                         disabled hidden>Add your completed qualifications </option>
                                                     <option value="diploma"
@@ -1150,6 +1188,148 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div> --}}
+                                <!-- Section 2: Completed Qualifications -->
+                                <div class="education-section">
+                                    <h4 class="title" style="color:#4C4C4C;font-size:18px;">Completed Qualifications</h4>
+
+                                    <div class="row">
+                                        <!-- Left Column -->
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label for="qualifications">Add your completed qualifications<span
+                                                        style="color: red;">*</span></label>
+                                                <select class="form-control" name="qualifications"
+                                                    id="qualifications_select">
+                                                    <option value=""
+                                                        {{ !old('qualifications') && !($educationDetail->qualifications ?? '') ? 'selected' : '' }}
+                                                        disabled hidden>Add your completed qualifications </option>
+                                                    <option value="diploma"
+                                                        {{ (old('qualifications') ?: $educationDetail->qualifications ?? '') == 'diploma' ? 'selected' : '' }}>
+                                                        Diploma</option>
+                                                    <option value="graduation"
+                                                        {{ (old('qualifications') ?: $educationDetail->qualifications ?? '') == 'graduation' ? 'selected' : '' }}>
+                                                        Graduation</option>
+                                                    <option value="masters"
+                                                        {{ (old('qualifications') ?: $educationDetail->qualifications ?? '') == 'masters' ? 'selected' : '' }}>
+                                                        Masters</option>
+                                                    <option value="phd"
+                                                        {{ (old('qualifications') ?: $educationDetail->qualifications ?? '') == 'phd' ? 'selected' : '' }}>
+                                                        PhD</option>
+                                                    <option value="none"
+                                                        {{ (old('qualifications') ?: $educationDetail->qualifications ?? '') == 'none' ? 'selected' : '' }}>
+                                                        Not Pursued Any of the Above</option>
+                                                </select>
+
+                                                <small class="text-danger">{{ $errors->first('qualifications') }}</small>
+
+
+                                            </div>
+
+                                            <!-- Additional Qualification Fields in Left Column -->
+                                            <div id="qualification-fields" style="display: none;">
+                                                <div class="form-group mb-3">
+                                                    <label for="qualification_institution">Institution / College Name <span
+                                                            style="color: red;">*</span></label>
+                                                    <input type="text" class="form-control"
+                                                        id="qualification_institution" name="qualification_institution"
+                                                        placeholder="Institution / College Name "
+                                                        value="{{ old('qualification_institution') ?: $educationDetail->qualification_institution ?? '' }}">
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('qualification_institution') }}</small>
+                                                </div>
+
+                                                <div class="form-group mb-3">
+                                                    <label for="qualification_university">University Name</label>
+                                                    <input type="text" class="form-control"
+                                                        id="qualification_university" name="qualification_university"
+                                                        placeholder="University Name"
+                                                        value="{{ old('qualification_university') ?: $educationDetail->qualification_university ?? '' }}">
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('qualification_university') }}</small>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <!-- Right Column -->
+                                        <div class="col-md-6">
+                                            <div id="qualification-fields-right" style="display: none;">
+                                                <div class="form-group mb-3">
+                                                    <label for="qualification_start_year">Start Year <span
+                                                            style="color:red">*</span></label>
+                                                    <input type="month" class="form-control"
+                                                        id="qualification_start_year" name="qualification_start_year"
+                                                        placeholder="Start Year "
+                                                        value="{{ old('qualification_start_year') ?: ($educationDetail && $educationDetail->qualification_start_year ? \Carbon\Carbon::parse($educationDetail->qualification_start_year)->format('Y-m') : '') }}">
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('qualification_start_year') }}</small>
+                                                </div>
+
+                                                <div class="form-group mb-3">
+                                                    <label for="qualification_end_year">End Year <span
+                                                            style="color:red">*</span></label>
+                                                    <input type="month" class="form-control"
+                                                        id="qualification_end_year" name="qualification_end_year"
+                                                        placeholder="End Year "
+                                                        value="{{ old('qualification_end_year') ?: ($educationDetail && $educationDetail->qualification_end_year ? \Carbon\Carbon::parse($educationDetail->qualification_end_year)->format('Y-m') : '') }}">
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('qualification_end_year') }}</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 mt-4" id="marksheet-type-section" style="display: none;">
+                                            <div class="form-group mb-3">
+                                                <label>Enter your percentage / CGPA <span
+                                                        class="text-danger">*</span></label>
+
+                                                <div class="row">
+                                                    <div class="col-4">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                name="marksheet_type[]" id="yearBased" value="year"
+                                                                {{ in_array('year', old('marksheet_type', json_decode($educationDetail->marksheet_type ?? '[]', true))) ? 'checked' : '' }}>
+                                                            <label class="form-check-label" for="yearBased">
+                                                                Year-based marksheet
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                name="marksheet_type[]" id="semesterBased"
+                                                                value="semester"
+                                                                {{ in_array('semester', old('marksheet_type', json_decode($educationDetail->marksheet_type ?? '[]', true))) ? 'checked' : '' }}>
+                                                            <label class="form-check-label" for="semesterBased">
+                                                                Semester-based marksheet
+                                                            </label>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <!-- TABLE -->
+                                            <div class="mt-4 table-responsive" id="marksheetTableWrapper"
+                                                style="display:none;">
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Year / Sem</th>
+                                                            <th>Marks Obtained</th>
+                                                            <th>Out Of</th>
+                                                            <th>Percentage</th>
+                                                            <th>CGPA</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="marksheetTableBody"></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <!-- Section Divider -->
@@ -1170,7 +1350,7 @@
                                                 <label for="have_work_experience">Have you worked professionally before?
                                                     <span style="color: red;">*</span></label>
                                                 <select class="form-control" name="have_work_experience"
-                                                    id="have_work_experience">
+                                                    id="have_work_experience" required>
                                                     <option value=""
                                                         {{ !old('have_work_experience') ? 'selected' : '' }} hidden>Have
                                                         you worked professionally before? </option>
@@ -1894,15 +2074,48 @@
                 tableBody.innerHTML += `
                 <tr>
                     <td style="color: red;">${i}${label}</td>
-                    <td><input type="number" class="form-control" name="marks_obtained[]"></td>
-                    <td><input type="number" class="form-control" name="out_of[]"></td>
-                    <td><input type="number" step="0.01" class="form-control" name="percentage[]"></td>
-                    <td><input type="number" step="0.01" class="form-control" name="cgpa[]"></td>
+                    <td><input type="number" class="form-control marks-obtained" name="marks_obtained[]" required></td>
+                    <td><input type="number" class="form-control out-of" name="out_of[]" required></td>
+                    <td><input type="number" step="0.01" class="form-control percentage" name="percentage[]" required readonly></td>
+                    <td><input type="number" step="0.01" class="form-control cgpa" name="cgpa[]" required readonly></td>
                 </tr>
             `;
             }
 
+            // Add event listeners for calculation
+            addCalculationListeners();
+
             tableWrapper.style.display = 'block';
+        }
+
+        function addCalculationListeners() {
+            const rows = tableBody.querySelectorAll('tr');
+            rows.forEach(row => {
+                const marksObtained = row.querySelector('.marks-obtained');
+                const outOf = row.querySelector('.out-of');
+                const percentage = row.querySelector('.percentage');
+                const cgpa = row.querySelector('.cgpa');
+
+                function calculate() {
+                    const obtained = parseFloat(marksObtained.value) || 0;
+                    const total = parseFloat(outOf.value) || 0;
+
+                    if (total > 0) {
+                        const perc = (obtained / total) * 100;
+                        percentage.value = perc.toFixed(2);
+
+                        // CGPA calculation: assuming CGPA = percentage / 10 (common conversion)
+                        const cgpaValue = perc / 10;
+                        cgpa.value = cgpaValue.toFixed(2);
+                    } else {
+                        percentage.value = '';
+                        cgpa.value = '';
+                    }
+                }
+
+                marksObtained.addEventListener('input', calculate);
+                outOf.addEventListener('input', calculate);
+            });
         }
 
         function toggleMarksheetTypeSection() {

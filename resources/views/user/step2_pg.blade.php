@@ -134,7 +134,8 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <form method="POST" action="{{ route('user.step2pg.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('user.step2pg.store') }}" enctype="multipart/form-data"
+                        novalidate>
                         @csrf
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
@@ -153,7 +154,8 @@
                                         hidden>
                                         Foreign Financial Assistance</option>
                                 </select>
-                                <small class="text-danger" id="financial_asset_type_error">{{ $errors->first('financial_asset_type') }}</small>
+                                <small class="text-danger"
+                                    id="financial_asset_type_error">{{ $errors->first('financial_asset_type') }}</small>
                             </div>
                             <div class="col-md-5">
                                 <select class="form-control" name="financial_asset_for" id="financial_asset_for"
@@ -170,7 +172,8 @@
                                         hidden>
                                         Post Graduation</option>
                                 </select>
-                                <small class="text-danger" id="financial_asset_for_error">{{ $errors->first('financial_asset_for') }}</small>
+                                <small class="text-danger"
+                                    id="financial_asset_for_error">{{ $errors->first('financial_asset_for') }}</small>
                             </div>
                         </div>
                         <div class="card form-card">
@@ -202,7 +205,8 @@
                                                     name="course_name" placeholder="Enter Course Name "
                                                     value="{{ old('course_name', $educationDetail->course_name ?? '') }}"
                                                     required>
-                                                <small class="text-danger" id="course_name_error">{{ $errors->first('course_name') }}</small>
+                                                <small class="text-danger"
+                                                    id="course_name_error">{{ $errors->first('course_name') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="university_name">University Name <span
@@ -211,7 +215,8 @@
                                                     name="university_name" placeholder="Enter University Name "
                                                     value="{{ old('university_name', $educationDetail->university_name ?? '') }}"
                                                     required>
-                                                <small class="text-danger" id="university_name_error">{{ $errors->first('university_name') }}</small>
+                                                <small class="text-danger"
+                                                    id="university_name_error">{{ $errors->first('university_name') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">
@@ -221,7 +226,8 @@
                                                     name="college_name" placeholder="Enter College Name "
                                                     value="{{ old('college_name', $educationDetail->college_name ?? '') }}"
                                                     required>
-                                                <small class="text-danger" id="college_name_error">{{ $errors->first('college_name') }}</small>
+                                                <small class="text-danger"
+                                                    id="college_name_error">{{ $errors->first('college_name') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="country">Country Name <span
@@ -229,7 +235,8 @@
                                                 <input type="text" id="country" class="form-control" name="country"
                                                     placeholder="Enter Country Name "
                                                     value="{{ old('country', $educationDetail->country ?? '') }}" required>
-                                                <small class="text-danger" id="country_error">{{ $errors->first('country') }}</small>
+                                                <small class="text-danger"
+                                                    id="country_error">{{ $errors->first('country') }}</small>
                                             </div>
 
                                         </div>
@@ -242,7 +249,8 @@
                                                     placeholder="Enter City Name "
                                                     value="{{ old('city_name', $educationDetail->city_name ?? '') }}"
                                                     required>
-                                                <small class="text-danger" id="city_name_error">{{ $errors->first('city_name') }}</small>
+                                                <small class="text-danger"
+                                                    id="city_name_error">{{ $errors->first('city_name') }}</small>
                                             </div>
 
                                             {{-- <div class="form-group mb-3">
@@ -264,7 +272,8 @@
                                                 <small class="text-danger">{{ $errors->first('expected_year') }}</small>
                                             </div> --}}
                                             <div class="form-group mb-3">
-                                                <label for="start_year">Start Year <span style="color:red">*</span></label>
+                                                <label for="start_year">Start Year <span
+                                                        style="color:red">*</span></label>
                                                 <input type="month" id="start_year" class="form-control"
                                                     name="start_year"
                                                     value="{{ old('start_year') ?: ($educationDetail && $educationDetail->start_year ? \Carbon\Carbon::parse($educationDetail->start_year)->format('Y-m') : '') }}"
@@ -293,7 +302,8 @@
                                                 <input type="text" id="nirf_ranking" class="form-control"
                                                     name="nirf_ranking" placeholder=" Enter NIRF Ranking"
                                                     value="{{ old('nirf_ranking', $educationDetail->nirf_ranking ?? '') }}">
-                                                <small class="text-danger" id="nirf_ranking_error">{{ $errors->first('nirf_ranking') }}</small>
+                                                <small class="text-danger"
+                                                    id="nirf_ranking_error">{{ $errors->first('nirf_ranking') }}</small>
                                             </div>
                                             {{--
                                             <div class="form-group mb-3">
@@ -506,7 +516,8 @@
 
                                     <!-- Error messages for table fields -->
                                     <div class="mb-3">
-                                        <small class="text-danger" id="table_error" style="display: none;">Please fill all financial summary fields with values greater than 0.</small>
+                                        <small class="text-danger" id="table_error" style="display: none;">Please fill
+                                            all financial summary fields with values greater than 0.</small>
                                     </div>
                                 </div>
 
@@ -626,7 +637,8 @@
                                                 <input type="text" class="form-control" id="school_name"
                                                     name="school_name" placeholder="School Name "
                                                     value="{{ old('school_name') ?: $educationDetail->school_name ?? '' }}">
-                                                <small class="text-danger" id="school_name_error">{{ $errors->first('school_name') }}</small>
+                                                <small class="text-danger"
+                                                    id="school_name_error">{{ $errors->first('school_name') }}</small>
                                             </div>
 
                                             <div class="form-group mb-3">
@@ -636,12 +648,22 @@
                                                     value="{{ old('school_board') ?: $educationDetail->school_board ?? '' }}">
                                                 <small class="text-danger">{{ $errors->first('school_board') }}</small>
                                             </div>
+                                            {{-- <div class="form-group mb-3">
+                                                <label for="school_completion_year">Year of Completion <span
+                                                        style="color: red;">*</span></label>
+                                                <input type="month" class="form-control" id="school_completion_year"
+                                                    name="school_completion_year" placeholder="Select Month and Year"
+                                                    value="{{ old('school_completion_year') ?: ($educationDetail && $educationDetail->school_completion_year ? $educationDetail->\Carbon\Carbon::parse($educationDetail->school_completion_year)->format('Y-m') : '') }}">
+                                                <small
+                                                    class="text-danger">{{ $errors->first('school_completion_year') }}</small>
+                                            </div> --}}
                                             <div class="form-group mb-3">
                                                 <label for="school_completion_year">Year of Completion <span
                                                         style="color: red;">*</span></label>
                                                 <input type="month" class="form-control" id="school_completion_year"
                                                     name="school_completion_year" placeholder="Select Month and Year"
-                                                    value="{{ old('school_completion_year') ?: ($educationDetail && $educationDetail->school_completion_year ? $educationDetail->school_completion_year . '-01' : '') }}">
+                                                    value="{{ old('school_completion_year') ?: ($educationDetail && $educationDetail->school_completion_year ? \Carbon\Carbon::parse($educationDetail->school_completion_year)->format('Y-m') : '') }}"
+                                                    required>
                                                 <small
                                                     class="text-danger">{{ $errors->first('school_completion_year') }}</small>
                                             </div>
@@ -758,12 +780,23 @@
                                                     value="{{ old('jc_board') ?: $educationDetail->jc_board ?? '' }}">
                                                 <small class="text-danger">{{ $errors->first('jc_board') }}</small>
                                             </div>
+                                            {{-- <div class="form-group mb-3">
+                                                <label for="jc_completion_year">Year of Completion <span
+                                                        style="color: red;">*</span></label>
+                                                <input type="month" class="form-control" id="jc_completion_year"
+                                                    name="jc_completion_year" placeholder="Select Month and Year"
+                                                    value="{{ old('jc_completion_year') ?: ($educationDetail && $educationDetail->jc_completion_year ? $educationDetail->\Carbon\Carbon::parse($educationDetail->jc_completion_year)->format('Y-m') : '') }}">
+                                                <small
+                                                    class="text-danger">{{ $errors->first('jc_completion_year') }}</small>
+                                            </div> --}}
+
                                             <div class="form-group mb-3">
                                                 <label for="jc_completion_year">Year of Completion <span
                                                         style="color: red;">*</span></label>
                                                 <input type="month" class="form-control" id="jc_completion_year"
                                                     name="jc_completion_year" placeholder="Select Month and Year"
-                                                    value="{{ old('jc_completion_year') ?: ($educationDetail && $educationDetail->jc_completion_year ? $educationDetail->jc_completion_year . '-01' : '') }}">
+                                                    value="{{ old('jc_completion_year') ?: ($educationDetail && $educationDetail->jc_completion_year ? \Carbon\Carbon::parse($educationDetail->jc_completion_year)->format('Y-m') : '') }}"
+                                                    required>
                                                 <small
                                                     class="text-danger">{{ $errors->first('jc_completion_year') }}</small>
                                             </div>
@@ -1079,8 +1112,8 @@
                                                         {{ old('have_work_experience') == 'no' ? 'selected' : '' }}>No
                                                     </option>
                                                 </select>
-                                                <small
-                                                    class="text-danger" id="have_work_experience_error">{{ $errors->first('have_work_experience') }}</small>
+                                                <small class="text-danger"
+                                                    id="have_work_experience_error">{{ $errors->first('have_work_experience') }}</small>
                                             </div>
 
                                             <!-- Additional Work Experience Fields in Left Column -->
@@ -1103,7 +1136,7 @@
                                                         class="text-danger">{{ $errors->first('work_profile') }}</small>
                                                 </div>
 
-                                                <div class="form-group mb-3">
+                                                {{-- <div class="form-group mb-3">
                                                     <label for="duration_start_year">Duration Start Year</label>
                                                     <input type="text" class="form-control" id="duration_start_year"
                                                         name="duration_start_year" placeholder="Start Year"
@@ -1117,6 +1150,23 @@
                                                     <input type="text" class="form-control" id="duration_end_year"
                                                         name="duration_end_year" placeholder="End Year"
                                                         value="{{ old('duration_end_year') ?: $educationDetail->duration_end_year ?? '' }}">
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('duration_end_year') }}</small>
+                                                </div> --}}
+                                                <div class="form-group mb-3">
+                                                    <label for="duration_start_year">Duration Start Year</label>
+                                                    <input type="date" class="form-control" id="duration_start_year"
+                                                        name="duration_start_year" placeholder="Start Year"
+                                                        value="{{ old('duration_start_year') }}">
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('duration_start_year') }}</small>
+                                                </div>
+
+                                                <div class="form-group mb-3">
+                                                    <label for="duration_end_year">Duration End Year</label>
+                                                    <input type="date" class="form-control" id="duration_end_year"
+                                                        name="duration_end_year" placeholder="End Year"
+                                                        value="{{ old('duration_end_year') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('duration_end_year') }}</small>
                                                 </div>
@@ -1829,15 +1879,48 @@
                 tableBody.innerHTML += `
                 <tr>
                     <td style="color: red;">${i}${label}</td>
-                    <td><input type="number" class="form-control" name="marks_obtained[]"></td>
-                    <td><input type="number" class="form-control" name="out_of[]"></td>
-                    <td><input type="number" step="0.01" class="form-control" name="percentage[]"></td>
-                    <td><input type="number" step="0.01" class="form-control" name="cgpa[]"></td>
+                    <td><input type="number" class="form-control marks-obtained" name="marks_obtained[]" required></td>
+                    <td><input type="number" class="form-control out-of" name="out_of[]" required></td>
+                    <td><input type="number" step="0.01" class="form-control percentage" name="percentage[]" required readonly></td>
+                    <td><input type="number" step="0.01" class="form-control cgpa" name="cgpa[]" required readonly></td>
                 </tr>
             `;
             }
 
+            // Add calculation listeners for auto-calculating percentage and CGPA
+            addCalculationListeners();
+
             tableWrapper.style.display = 'block';
+        }
+
+        function addCalculationListeners() {
+            const rows = tableBody.querySelectorAll('tr');
+            rows.forEach(row => {
+                const marksObtained = row.querySelector('.marks-obtained');
+                const outOf = row.querySelector('.out-of');
+                const percentage = row.querySelector('.percentage');
+                const cgpa = row.querySelector('.cgpa');
+
+                function calculate() {
+                    const obtained = parseFloat(marksObtained.value) || 0;
+                    const total = parseFloat(outOf.value) || 0;
+
+                    if (total > 0) {
+                        const perc = (obtained / total) * 100;
+                        percentage.value = perc.toFixed(2);
+
+                        // CGPA calculation: assuming CGPA = percentage / 10 (common conversion)
+                        const cgpaValue = perc / 10;
+                        cgpa.value = cgpaValue.toFixed(2);
+                    } else {
+                        percentage.value = '';
+                        cgpa.value = '';
+                    }
+                }
+
+                marksObtained.addEventListener('input', calculate);
+                outOf.addEventListener('input', calculate);
+            });
         }
 
         function toggleMarksheetTypeSection() {
@@ -1883,14 +1966,26 @@
 
             if (!savedData) return;
 
-            // Check if marksheet data exists
-            const marksObtained = @json($educationDetail->marks_obtained ?? '[]');
-            const outOf = @json($educationDetail->out_of ?? '[]');
-            const percentage = @json($educationDetail->percentage ?? '[]');
-            const cgpa = @json($educationDetail->cgpa ?? '[]');
-            const marksheetType = @json($educationDetail->marksheet_type ?? '[]');
+            // Check if marksheet data exists (decode JSON arrays)
+            const marksObtained = @json(json_decode($educationDetail->marks_obtained ?? '[]', true));
+            const outOf = @json(json_decode($educationDetail->out_of ?? '[]', true));
+            const percentage = @json(json_decode($educationDetail->percentage ?? '[]', true));
+            const cgpa = @json(json_decode($educationDetail->cgpa ?? '[]', true));
+            const marksheetType = @json(json_decode($educationDetail->marksheet_type ?? '[]', true));
 
             if (marksObtained.length === 0) return;
+
+            // Show the marksheet type section
+            const section = document.getElementById('marksheet-type-section');
+            section.style.display = 'block';
+
+            // Ensure start and end dates are set for calculateYears
+            if (!startInput.value && savedData.qualification_start_year) {
+                startInput.value = new Date(savedData.qualification_start_year).toISOString().slice(0, 7);
+            }
+            if (!endInput.value && savedData.qualification_end_year) {
+                endInput.value = new Date(savedData.qualification_end_year).toISOString().slice(0, 7);
+            }
 
             // Set the appropriate checkbox
             if (marksheetType.includes('year')) {
@@ -1903,7 +1998,7 @@
                 generateTable('semester');
             }
 
-            // Populate table data after a short delay to ensure DOM is updated
+            // Populate table data after a delay to ensure DOM is updated
             setTimeout(() => {
                 const rows = tableBody.querySelectorAll('tr');
                 rows.forEach((row, index) => {
@@ -1917,7 +2012,7 @@
                         }
                     }
                 });
-            }, 100);
+            }, 500);
         }
 
         // Initialize
@@ -2088,7 +2183,8 @@
                 // If qualification is selected and not 'none', validate additional fields
                 const qualification = document.getElementById('qualifications');
                 if (qualification && qualification.value && qualification.value !== 'none') {
-                    isValid &= validateRequired('qualification_institution', 'Institution Name is required');
+                    isValid &= validateRequired('qualification_institution',
+                        'Institution Name is required');
                     isValid &= validateRequired('qualification_start_year', 'Start Year is required');
                     isValid &= validateRequired('qualification_end_year', 'End Year is required');
                 }
@@ -2121,9 +2217,13 @@
                 if (!isValid) {
                     e.preventDefault();
                     // Scroll to first error
-                    const firstError = document.querySelector('.text-danger[style*="display: block"], .is-invalid');
+                    const firstError = document.querySelector(
+                        '.text-danger[style*="display: block"], .is-invalid');
                     if (firstError) {
-                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstError.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
                     }
                     return false;
                 }

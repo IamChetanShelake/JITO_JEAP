@@ -874,54 +874,9 @@
                 <div class="progress-custom">
                     <div class="progress-bar-custom" style="width: {{ $chapter_progress }}%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
                 </div>
-                <div class="status-badges">
-                    <a href="{{ route('admin.chapter.approved') }}" class="status-badge approved" style="text-decoration: none; color: inherit;">
-                        <div class="status-icon approved">
-                            <i class="fas fa-check"></i>
-                        </div>
-                        <div>
-                            <div class="status-label">Approved</div>
-                            <div class="status-value">{{
-                                \App\Models\User::where('role', 'user')
-                                    ->whereHas('workflowStatus', function($q) {
-                                        $q->whereIn('current_stage', ['chapter', 'working_committee', 'apex_2'])
-                                          ->where('chapter_status', 'approved');
-                                    })
-                                    ->count()
-                            }}</div>
-                        </div>
-                    </a>
-                    <a href="{{ route('admin.chapter.pending') }}" class="status-badge pending" style="text-decoration: none; color: inherit;">
-                        <div class="status-icon pending">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div>
-                            <div class="status-label">Pending</div>
-                            <div class="status-value">{{
-                                \App\Models\User::where('role', 'user')
-                                    ->whereHas('workflowStatus', function($q) {
-                                        $q->where('current_stage', 'chapter')
-                                          ->where('final_status', 'in_progress');
-                                    })
-                                    ->count()
-                            }}</div>
-                        </div>
-                    </a>
-                    <a href="{{ route('admin.chapter.hold') }}" class="status-badge hold" style="text-decoration: none; color: inherit;">
-                        <div class="status-icon hold">
-                            <i class="fas fa-exclamation"></i>
-                        </div>
-                        <div>
-                            <div class="status-label">Hold</div>
-                            <div class="status-value">{{
-                                \App\Models\User::where('role', 'user')
-                                    ->whereHas('workflowStatus', function($q) {
-                                        $q->whereIn('current_stage', ['chapter', 'working_committee', 'apex_2'])
-                                          ->where('final_status', 'rejected');
-                                    })
-                                    ->count()
-                            }}</div>
-                        </div>
+                <div class="text-center">
+                    <a href="{{ route('admin.chapters.stats') }}" class="btn btn-primary btn-lg" style="padding: 0.75rem 2rem; font-size: 1rem;">
+                        <i class="fas fa-chart-bar me-2"></i> View Chapter Statistics
                     </a>
                 </div>
             </div>

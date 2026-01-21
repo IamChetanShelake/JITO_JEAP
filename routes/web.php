@@ -60,6 +60,17 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     // Zone Routes
     Route::resource('zones', ZoneController::class);
 
+    // Chapter Statistics
+    Route::get('/chapters/stats', [AdminController::class, 'chapterStats'])->name('chapters.stats');
+    Route::get('/chapters/{chapter}/details', [AdminController::class, 'chapterDetails'])->name('chapter.details');
+
+    // Chapter Status Lists
+    Route::get('/chapters/total-applied', [AdminController::class, 'chapterTotalApplied'])->name('chapter.total-applied');
+    Route::get('/chapters/draft', [AdminController::class, 'chapterDraft'])->name('chapter.draft');
+    Route::get('/chapters/apex-pending', [AdminController::class, 'chapterApexPending'])->name('chapter.apex-pending');
+    Route::get('/chapters/working-committee-pending', [AdminController::class, 'chapterWorkingCommitteePending'])->name('chapter.working-committee-pending');
+    Route::get('/chapters/resubmit', [AdminController::class, 'chapterResubmit'])->name('chapter.resubmit');
+
     // Chapter Routes
     Route::resource('chapters', ChapterController::class);
 

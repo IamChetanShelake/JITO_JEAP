@@ -893,7 +893,7 @@
                     </div>
                     <button type="submit" class="btn btn-reject">
                         <i class="fas fa-times"></i>
-                        Reject Application
+                        Send Back For Correction
                     </button>
                 </div>
             </form>

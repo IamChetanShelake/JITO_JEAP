@@ -1,6 +1,6 @@
 @extends('admin.layouts.master')
 
-@section('title', 'Apex Stage 1 - Approved Forms - JitoJeap Admin')
+@section('title', 'Total Hold Applications - JitoJeap Admin')
 
 @section('styles')
 <style>
@@ -180,28 +180,14 @@
         color: var(--primary-green);
     }
 
-    .action-btn {
-        width: 32px;
-        height: 32px;
-        border-radius: 6px;
-        border: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 0.1rem;
-        transition: all 0.2s ease;
-        cursor: pointer;
-        font-size: 0.9rem;
+    .status-pending {
+        background: #fff8e1;
+        color: var(--primary-yellow);
     }
 
-    .action-btn.view-btn {
-        background-color: #e3f2fd;
-        color: var(--primary-blue);
-    }
-
-    .action-btn.view-btn:hover {
-        background-color: var(--primary-blue);
-        color: white;
+    .status-hold {
+        background: #ffebee;
+        color: var(--primary-red);
     }
 
     .empty-state {
@@ -220,6 +206,27 @@
         display: flex;
         justify-content: center;
         gap: 0.2rem;
+    }
+
+    .action-btn.view-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 0.1rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        font-size: 0.9rem;
+        background-color: #e3f2fd;
+        color: var(--primary-blue);
+    }
+
+    .action-btn.view-btn:hover {
+        background-color: var(--primary-blue);
+        color: white;
     }
 
     /* Mobile specific styles */
@@ -274,10 +281,10 @@
 <div class="page-header">
     <div class="page-title-section">
         <h1 class="page-title">
-            <i class="fas fa-users" style="color: var(--primary-purple); margin-right: 0.5rem;"></i>
-            Apex Stage 1 - Approved Forms
+            <i class="fas fa-exclamation-triangle" style="color: var(--primary-red); margin-right: 0.5rem;"></i>
+            Total Hold Applications
         </h1>
-        <p class="page-subtitle">List of approved user forms</p>
+        <p class="page-subtitle">List of all applications on hold</p>
     </div>
     <a href="{{ route('admin.home') }}" class="back-btn">
         <i class="fas fa-arrow-left"></i> Back to Dashboard
@@ -298,37 +305,42 @@
                         <th style="width: 20%;">Aadhar Number</th>
                         <th style="width: 15%;">Financial Assistance Type</th>
                         <th style="width: 15%;">Financial Assistance For</th>
-                        <th style="width: 15%;">Status</th>
+                        <th style="width: 15%;">Current Stage</th>
+                        <th style="width: 10%;">Status</th>
                         <th style="width: 10%;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
+                    @php
+                        $users = \App\Models\User::with('workflowStatus')->where('role', 'user')->whereHas('workflowStatus', function($q) { $q->where('final_status', 'rejected'); })->get();
+                    @endphp
                     @forelse($users as $index => $user)
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>
                             <strong>{{ $user->name }}</strong>
                         </td>
-                        <td>{{ $user->aadhar_card_number }}</td>
-                        <td>{{ $user->financial_asset_type }}</td>
-                        <td>{{ $user->financial_asset_for }}</td>
+                        <td>{{ $user->aadhar_card_number ?? $user->aadhar_number ?? 'N/A' }}</td>
+                        <td>{{ $user->financial_asset_type ?? $user->financial_assistance_type ?? 'N/A' }}</td>
+                        <td>{{ $user->financial_asset_for ?? $user->financial_assistance_for ?? 'N/A' }}</td>
+                        <td>{{ $user->workflowStatus ? ucfirst(str_replace('_', ' ', $user->workflowStatus->current_stage)) : 'N/A' }}</td>
                         <td>
-                            <span class="status-badge status-approved">
-                                <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
-                                Approved
+                            <span class="status-badge status-hold">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 0.6rem;"></i>
+                                Hold
                             </span>
                         </td>
                         <td class="actions-cell">
-                            <a href="{{ route('admin.apex.stage1.user.detail', $user) }}" class="action-btn view-btn" title="View Details">
+                            <a href="{{ route('admin.user.detail', $user) }}" class="action-btn view-btn" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="empty-state">
-                            <i class="fas fa-inbox"></i>
-                            <p>No approved forms found.</p>
+                        <td colspan="8" class="empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <p>No hold applications found.</p>
                         </td>
                     </tr>
                     @endforelse

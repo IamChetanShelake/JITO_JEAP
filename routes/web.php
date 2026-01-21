@@ -46,6 +46,10 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::post('/chapter/interview/save', [AdminController::class, 'saveChapterInterview'])->name('chapter.interview.save');
     Route::get('/chapter/interview/answers/{user}/{workflow}', [AdminController::class, 'getChapterInterviewAnswers'])->name('chapter.interview.answers');
 
+    // Total Applications
+    Route::get('/total-applications', [AdminController::class, 'totalApplications'])->name('total.applications');
+    Route::get('/total-hold', [AdminController::class, 'totalHold'])->name('total.hold');
+
     // Apex Leadership Routes
     Route::resource('apex', ApexLeadershipController::class);
     Route::post('apex/{apex}/toggle-status', [ApexLeadershipController::class, 'toggleStatus'])->name('apex.toggle-status');

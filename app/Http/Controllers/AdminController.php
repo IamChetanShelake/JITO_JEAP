@@ -332,7 +332,7 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
-        return view('admin.chapter.hold', compact('users'));
+        return view('admin.chapters.stage2.hold', compact('users'));
     }
 
     public function chapterUserDetail(User $user)
@@ -407,6 +407,16 @@ class AdminController extends Controller
         }
     }
 
+    public function totalApplications()
+    {
+        $users = User::with('workflowStatus')->where('role', 'user')->get();
+        return view('admin.total_applications', compact('users'));
+    }
 
+    public function totalHold()
+    {
+        $users = User::with('workflowStatus')->where('role', 'user')->whereHas('workflowStatus', function($q) { $q->where('final_status', 'rejected'); })->get();
+        return view('admin.total_hold', compact('users'));
+    }
 
 }

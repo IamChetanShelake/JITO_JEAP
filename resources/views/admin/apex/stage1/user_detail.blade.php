@@ -797,7 +797,6 @@
                         <div style="margin-top: 1rem; padding: 1rem; background: rgba(76, 175, 80, 0.05); border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.1);">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                                 <h5 style="color: var(--primary-green); margin: 0; font-size: 0.9rem;">Verify and approve steps:</h5>
-                                <button type="button" onclick="toggleAllCheckboxes(true, 'approve')" style="background: var(--primary-green); color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Select All</button>
                             </div>
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
                                 <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">

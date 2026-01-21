@@ -1,6 +1,6 @@
 @extends('admin.layouts.master')
 
-@section('title', 'Apex Stage 1 - Approved Forms - JitoJeap Admin')
+@section('title', 'Chapter - Hold Forms - JitoJeap Admin')
 
 @section('styles')
 <style>
@@ -175,9 +175,9 @@
         gap: 0.3rem;
     }
 
-    .status-approved {
-        background: #e8f5e9;
-        color: var(--primary-green);
+    .status-hold {
+        background: #ffebee;
+        color: var(--primary-red);
     }
 
     .action-btn {
@@ -202,6 +202,23 @@
     .action-btn.view-btn:hover {
         background-color: var(--primary-blue);
         color: white;
+    }
+
+    .action-btn.approve-btn {
+        background-color: #e8f5e9;
+        color: var(--primary-green);
+    }
+
+    .action-btn.approve-btn:hover {
+        background-color: var(--primary-green);
+        color: white;
+    }
+
+    .hold-reason {
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 0.25rem;
+        font-style: italic;
     }
 
     .empty-state {
@@ -274,10 +291,10 @@
 <div class="page-header">
     <div class="page-title-section">
         <h1 class="page-title">
-            <i class="fas fa-users" style="color: var(--primary-purple); margin-right: 0.5rem;"></i>
-            Apex Stage 1 - Approved Forms
+            <i class="fas fa-map-marker-alt" style="color: var(--primary-purple); margin-right: 0.5rem;"></i>
+            Chapter - Hold Forms
         </h1>
-        <p class="page-subtitle">List of approved user forms</p>
+        <p class="page-subtitle">List of forms on hold with reasons</p>
     </div>
     <a href="{{ route('admin.home') }}" class="back-btn">
         <i class="fas fa-arrow-left"></i> Back to Dashboard
@@ -293,13 +310,13 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th style="width: 5%;">Sr. No</th>
+                        <th style="width: 5%;">Seq</th>
                         <th style="width: 15%;">Name</th>
-                        <th style="width: 20%;">Aadhar Number</th>
-                        <th style="width: 15%;">Financial Assistance Type</th>
-                        <th style="width: 15%;">Financial Assistance For</th>
+                        <th style="width: 18%;">Aadhar Number</th>
+                        <th style="width: 12%;">Financial Assistance Type</th>
+                        <th style="width: 12%;">Financial Assistance For</th>
                         <th style="width: 15%;">Status</th>
-                        <th style="width: 10%;">Actions</th>
+                        <th style="width: 15%;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -313,22 +330,26 @@
                         <td>{{ $user->financial_asset_type }}</td>
                         <td>{{ $user->financial_asset_for }}</td>
                         <td>
-                            <span class="status-badge status-approved">
-                                <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
-                                Approved
+                            <span class="status-badge status-hold">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 0.6rem;"></i>
+                                On Hold
                             </span>
+                            <div class="hold-reason">Reason: Missing documents</div>
                         </td>
                         <td class="actions-cell">
-                            <a href="{{ route('admin.apex.stage1.user.detail', $user) }}" class="action-btn view-btn" title="View Details">
+                            <a href="{{ route('admin.chapter.user.detail', $user) }}" class="action-btn view-btn" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>
+                            <button class="action-btn approve-btn" title="Approve">
+                                <i class="fas fa-check"></i>
+                            </button>
                         </td>
                     </tr>
                     @empty
                     <tr>
                         <td colspan="7" class="empty-state">
                             <i class="fas fa-inbox"></i>
-                            <p>No approved forms found.</p>
+                            <p>No forms on hold.</p>
                         </td>
                     </tr>
                     @endforelse

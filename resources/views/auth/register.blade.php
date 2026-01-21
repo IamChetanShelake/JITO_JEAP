@@ -215,82 +215,60 @@
                     <form method="POST" action="{{ route('register') }}" autocomplete="off">
                         @csrf
 
-                        <!-- NAME -->
+                        <!-- PAN Card Number -->
                         <div class="mb-3">
-                            <label class="form-label fw-semibold" style="color:#4C4C4C;">Applicant’s Full Name</label>
+                            <label class="form-label fw-semibold" style="color:#4C4C4C;">PAN Card Number</label>
                             <div class="input-box">
-                                {{--  <i class="fas fa-person input-icon"></i>  --}}
-                                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
+                                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                    fill="currentColor" viewBox="0 0 16 16">
                                     <path
-                                        d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
+                                        d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.5 0a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-3zm0 3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-3zm0 3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-3zm0 3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-3z" />
                                 </svg>
-                                <input id="name" type="text"
-                                    class="form-control ps-5 @error('name') is-invalid @enderror" name="name"
-                                    value="{{ old('name') }}" placeholder="Enter Applicant’s Full  name " required
-                                    autofocus>
-
+                                <input id="pan_card" type="text"
+                                    class="form-control ps-5 @error('pan_card') is-invalid @enderror" name="pan_card"
+                                    value="{{ old('pan_card') }}" placeholder="Enter PAN Card Number" required autofocus
+                                    pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" title="PAN must be in format: AAAAA9999A" maxlength="10">
                             </div>
-                            <p class="mt-2">(Applicant’s Name, Father’s Name and Surname)</p>
-                            @error('name')
+                            @error('pan_card')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
                         </div>
-                        <!-- Date Of Birth -->
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold" style="color:#4C4C4C;">Date Of Birth</label>
+
+                        {{-- <div class="mb-3">
+
                             <div class="input-box">
-                                {{-- <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
-                                    <path
-                                        d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
-                                </svg> --}}
+                              
                                 <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                     fill="currentColor" viewBox="0 0 16 16">
                                     <path
                                         d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h.5
-                                                                                                                                                                                                                    A1.5 1.5 0 0 1 15 2.5v11A1.5 1.5 0 0 1 13.5 15h-11
-                                                                                                                                                                                                                    A1.5 1.5 0 0 1 1 13.5v-11A1.5 1.5 0 0 1 2.5 1H3V.5
-                                                                                                                                                                                                                    a.5.5 0 0 1 .5-.5zM2 6v7.5a.5.5 0 0 0 .5.5h11
-                                                                                                                                                                                                                    a.5.5 0 0 0 .5-.5V6H2z" />
+                                                                                                                                                                                                                        A1.5 1.5 0 0 1 15 2.5v11A1.5 1.5 0 0 1 13.5 15h-11
+                                                                                                                                                                                                                        A1.5 1.5 0 0 1 1 13.5v-11A1.5 1.5 0 0 1 2.5 1H3V.5
+                                                                                                                                                                                                                        a.5.5 0 0 1 .5-.5zM2 6v7.5a.5.5 0 0 0 .5.5h11
+                                                                                                                                                                                                                        a.5.5 0 0 0 .5-.5V6H2z" />
                                 </svg>
 
-                                <input id="dob" type="date"
-                                    class="form-control ps-5 @error('d_o_b') is-invalid @enderror" name="d_o_b"
-                                    value="{{ old('d_o_b') }}" placeholder="Enter Date Of Birth " required autofocus>
+
 
                             </div>
-                            @error('d_o_b')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-                        <!--  Applicant’s  Aadhar Card Number -->
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold" style="color:#4C4C4C;">Applicant’s Aadhar Card
-                                Number</label>
+
+                        </div> --}}
+
+                        {{-- <div class="mb-3">
+
                             <div class="input-box">
-                                {{--  <i class="fas fa-person input-icon"></i>  --}}
-                                {{-- <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
-                                    <path
-                                        d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
-                                </svg> --}}
+                               
                                 <svg class=" input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                     fill="currentColor" class="bi bi-telephone" viewBox="0 0 16 16">
                                     <path
                                         d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z" />
                                 </svg>
-                                <input id="name" type="text"
-                                    class="form-control ps-5 @error('aadhar_card_number') is-invalid @enderror"
-                                    name="aadhar_card_number" value="{{ old('aadhar_card_number') }}"
-                                    placeholder="Enter Applicant’s  Aadhar Card Number " required autofocus>
+
 
                             </div>
-                            {{-- <p class="mt-2">(Applicant’s Name, Father’s Name and Surname)</p> --}}
-                            @error('aadhar_card_number')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
+                        
+
+                        </div> --}}
 
                         <!-- EMAIL -->
                         <div class="mb-3">
@@ -330,8 +308,8 @@
                             <label class="form-label fw-semibold" style="color:#4C4C4C;">Password</label>
                             <div class="input-box">
                                 {{--  <i class="bi bi-lock input-icon"></i>  --}}
-                                <svg class=" input-icon" xmlns="http://www.w3.org/2000/svg" width="20"
-                                    height="20" fill="currentColor" class="bi bi-lock" viewBox="0 0 16 16">
+                                <svg class=" input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    fill="currentColor" class="bi bi-lock" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd"
                                         d="M8 0a4 4 0 0 1 4 4v2.05a2.5 2.5 0 0 1 2 2.45v5a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 13.5v-5a2.5 2.5 0 0 1 2-2.45V4a4 4 0 0 1 4-4M4.5 7A1.5 1.5 0 0 0 3 8.5v5A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 7zM8 1a3 3 0 0 0-3 3v2h6V4a3 3 0 0 0-3-3" />
                                 </svg>
@@ -349,8 +327,8 @@
                             <label class="form-label fw-semibold" style="color:#4C4C4C;">Confirm Password</label>
                             <div class="input-box">
                                 {{--  <i class="bi bi-lock input-icon"></i>  --}}
-                                <svg class=" input-icon" xmlns="http://www.w3.org/2000/svg" width="20"
-                                    height="20" fill="currentColor" class="bi bi-lock" viewBox="0 0 16 16">
+                                <svg class=" input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    fill="currentColor" class="bi bi-lock" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd"
                                         d="M8 0a4 4 0 0 1 4 4v2.05a2.5 2.5 0 0 1 2 2.45v5a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 13.5v-5a2.5 2.5 0 0 1 2-2.45V4a4 4 0 0 1 4-4M4.5 7A1.5 1.5 0 0 0 3 8.5v5A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 7zM8 1a3 3 0 0 0-3 3v2h6V4a3 3 0 0 0-3-3" />
                                 </svg>
@@ -476,42 +454,10 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var isValidAge = true;
-            var dobInput = document.getElementById('dob');
-            var form = document.querySelector('form');
-
-            dobInput.addEventListener('change', function() {
-                var dob = this.value;
-                if (dob) {
-                    var age = calculateAge(dob);
-                    if (age <= 18) {
-                        isValidAge = false;
-                        var modal = new bootstrap.Modal(document.getElementById('ageModal'));
-                        modal.show();
-                    } else {
-                        isValidAge = true;
-                    }
-                }
-            });
-
-            form.addEventListener('submit', function(e) {
-                if (!isValidAge) {
-                    e.preventDefault();
-                    var modal = new bootstrap.Modal(document.getElementById('ageModal'));
-                    modal.show();
-                }
-            });
-
-            function calculateAge(dob) {
-                var today = new Date();
-                var birthDate = new Date(dob);
-                var age = today.getFullYear() - birthDate.getFullYear();
-                var m = today.getMonth() - birthDate.getMonth();
-                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-                    age--;
-                }
-                return age;
-            }
+            @if ($errors->has('pan_card') && str_contains($errors->first('pan_card'), 'Age criteria'))
+                var modal = new bootstrap.Modal(document.getElementById('ageModal'));
+                modal.show();
+            @endif
         });
     </script>
 @endsection

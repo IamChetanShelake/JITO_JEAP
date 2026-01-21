@@ -11,6 +11,44 @@
                  <div class="col-12">
                      <form method="POST" action="{{ route('user.step7.store') }}" enctype="multipart/form-data">
                          @csrf
+
+                         <div class="row mb-3">
+                             <div class="col-md-5 offset-md-1">
+
+                                 <select class="form-control" name="financial_asset_type" id="financial_asset_type"
+                                     style="border:2px solid #393185;border-radius:15px;" readonly required>
+                                     <option disabled
+                                         {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') ? '' : 'selected' }}
+                                         hidden>Financial Asst Type *</option>
+                                     <option value="domestic"
+                                         {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'domestic' ? 'selected' : '' }}
+                                         hidden>
+                                         Domestic</option>
+                                     <option value="foreign_finance_assistant"
+                                         {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'foreign_finance_assistant' ? 'selected' : '' }}
+                                         hidden>
+                                         Foreign Financial Assistance</option>
+                                 </select>
+                                 <small class="text-danger">{{ $errors->first('financial_asset_type') }}</small>
+                             </div>
+                             <div class="col-md-5">
+                                 <select class="form-control" name="financial_asset_for" id="financial_asset_for"
+                                     style="border:2px solid #393185;border-radius:15px;" readonly required>
+                                     <option disabled
+                                         {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') ? '' : 'selected' }}
+                                         hidden>Financial Asst For *</option>
+                                     <option value="graduation"
+                                         {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'graduation' ? 'selected' : '' }}
+                                         hidden>
+                                         Graduation</option>
+                                     <option value="post_graduation"
+                                         {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'post_graduation' ? 'selected' : '' }}
+                                         hidden>
+                                         Post Graduation</option>
+                                 </select>
+                                 <small class="text-danger">{{ $errors->first('financial_asset_for') }}</small>
+                             </div>
+                         </div>
                          <div class="card form-card">
                              <div class="card-body">
 
@@ -25,29 +63,30 @@
                                      </div>
                                  </div>
 
-
-
-
-
                                  <div class="row">
                                      {{-- <div class="col-md-12"> --}}
                                      <div style="margin-top: 20px;padding:0 20px;">
                                          <h4 style="font-size: 16px;font-weight:600;color:#353535;">Terms and Conditions
                                          </h4>
                                          <p style="margin-bottom: 14px;color:#494C4E;">
-                                            1) A needy and deserving Jain student.
+                                             1) A needy and deserving Jain student.
                                          </p>
                                          <p style="margin-bottom: 14px;color:#494C4E;">
                                              2) Age between 18 and 30 years.
                                          </p>
                                          <p style="margin-bottom: 14px;color:#494C4E;">
-                                             3) Minimum eligibility criteria require an overall academic score of 60% [10th, 12th & Graduation (Only for Post Graduation)]
+                                             3) Minimum eligibility criteria require an overall academic score of 60% [10th,
+                                             12th & Graduation (Only for Post Graduation)]
                                          </p>
                                          <p style="margin-bottom: 14px;color:#494C4E;">
-                                            4) Domestic students: For Undergraduate (UG) or Postgraduate (PG) courses in India.(Only UGC/AICTE/NAAC accredited courses or universities)
+                                             4) Domestic students: For Undergraduate (UG) or Postgraduate (PG) courses in
+                                             India.(Only UGC/AICTE/NAAC accredited courses or universities)
                                          </p>
                                          <p style="margin-bottom: 14px;color:#494C4E;">
-                                             5) Foreign students: For Postgraduate (PG) courses, applications only from the Universities approved by our management, top 25 globally (QS rankings) are eligible and our listed in JEAP Website.</br>For more details, visit: [Foreign University List](https://jitojeap.in/foreign/)
+                                             5) Foreign students: For Postgraduate (PG) courses, applications only from the
+                                             Universities approved by our management, top 25 globally (QS rankings) are
+                                             eligible and our listed in JEAP Website.</br>For more details, visit: [Foreign
+                                             University List](https://jitojeap.in/foreign/)
                                          </p>
                                          {{-- <p style="margin-bottom: 14px;color:#494C4E;">
                                              I commit to maintaining satisfactory academic performance and will provide
@@ -132,54 +171,22 @@
                                          <h4 style="font-size: 18px;font-weight:600;color:#353535;">I Hereby declare That:
                                          </h4>
                                          <div style="margin-top: 16px;">
+                                             <ol style="margin-bottom: 16px;">
+                                                 <li>The details in this form are true and correct to the best of my knowledge.</li>
+                                                 <li>I give my consent to my son / daughter / ward for going to for further studies.</li>
+                                                 <li>If my Financial Assistance Application is approved, I agree to abide by the terms and conditions of the JITO-JEAP –Domestic/Foreign Education Financial Assistance Application.</li>
+                                                 <li>In case of any change in the above information, I will inform the Institution immediately in writing within three days.</li>
+                                                 <li>I also undertake to keep the office bearers/Trustees informed of my correct address and that of my Parents/Guarantors and recommenders from time to time.</li>
+                                                 <li>I will send my second stage documents duly completed.</li>
+                                                 <li>The amount of Financial Assistance will be utilized for education purpose only.</li>
+                                                 <li>I /we agree that JEAP may reject our Financial Assistance application without giving any reasons thereof and that JEAP shall not be held responsible/liable in any manner whatsoever to us for rejection or any delay in notifying us of such rejection including any costs, losses, damages, or expenses or consequences caused by such rejection of financial assistance application.</li>
+                                                 <li>I have read all FAQs mentioned on website and accepting the same.</li>
+                                                 <li>I have read all the instructions properly and agree to submit the required documents as per the policy and timelines.</li>
+                                             </ol>
                                              <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                 <input type="checkbox" name="declaration1" required
+                                                 <input type="checkbox" name="declaration" required
                                                      style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                 The details in this form are true and correct to the best of my knowledge.
-                                             </label>
-                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                 <input type="checkbox" name="declaration2" required
-                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                 I give my consent to my son / daughter / ward for going to for further studies.
-                                             </label>
-                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                 <input type="checkbox" name="declaration3" required
-                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                 If my Financial Assistance Application is approved, I agree to abide by the terms and conditions of the   JITO-JEAP –Domestic/Foreign Education Financial Assistance Application.
-                                             </label>
-                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                 <input type="checkbox" name="declaration3" required
-                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                 In case of any change in the above information, I will inform the Institution immediately in writing within three days.
-                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                 <input type="checkbox" name="declaration3" required
-                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                 I also undertake to keep the office bearers/Trustees informed of my correct address and that of my Parents/Guarantors and recommenders from time to time.
-                                             </label>
-                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                 <input type="checkbox" name="declaration3" required
-                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                  I will send my second stage documents duly completed.
-                                             </label>
-                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                 <input type="checkbox" name="declaration3" required
-                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                 The amount of Financial Assistance will be utilized for education purpose only.
-                                             </label>
-                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                 <input type="checkbox" name="declaration3" required
-                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                  I /we agree that JEAP may reject our Financial Assistance application without giving any reasons thereof and that JEAP shall not be held responsible/liable in any manner whatsoever to us for rejection or any delay in notifying us of such rejection including any costs, losses, damages, or expenses or consequences caused by such rejection of financial assistance application.
-                                             </label>
-                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                 <input type="checkbox" name="declaration3" required
-                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                 I have read all FAQs mentioned on website and accepting the same.
-                                             </label>
-                                             <label style="display: block; margin-bottom: 12px; font-weight: normal;">
-                                                 <input type="checkbox" name="declaration3" required
-                                                     style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
-                                                 I have read all the instructions properly and agree to submit the required documents as per the policy and timelines.
+                                                 I agree to all the above declarations.
                                              </label>
                                          </div>
                                      </div>
@@ -194,7 +201,8 @@
                                              contact you within 7-10 business days.
                                          </p>
                                          <p style="color: red; margin-bottom: 0;">
-                                             If you do not receive a response within 5 working days, please contact us at support.jitojeap@jito.org
+                                             If you do not receive a response within 5 working days, please contact us at
+                                             support.jitojeap@jito.org
                                          </p>
                                      </div>
 
@@ -215,8 +223,8 @@
 
                                  Previous</button>
                              <button type="submit" class="btn"
-                                 style="background:#F0FDF4;color:#009846;border:1px solid #009846"><i class="bi bi-check-lg"
-                                     style="color: green; font-size: 24px;"></i>
+                                 style="background:#F0FDF4;color:#009846;border:1px solid #009846"><i
+                                     class="bi bi-check-lg" style="color: green; font-size: 24px;"></i>
 
                                  Submit Application
 

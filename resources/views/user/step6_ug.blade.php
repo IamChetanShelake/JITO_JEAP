@@ -13,10 +13,10 @@
 
         .photo-upload-box {
             width: 100%;
-            min-height: 90px;
+            height: 100% !important;
             border: 1px solid #d9d9d9;
             border-radius: 7px;
-            padding: 20px 18px 12px;
+            padding: 20px 18px 0px 12px;
             font-family: 'Poppins', sans-serif;
             color: #4C4C4C;
             background: white;
@@ -28,18 +28,20 @@
     <!-- Main Content -->
     <div class="col-lg-9 main-content">
         <!-- Hold Remark Alert -->
-    @if($documents && $documents->submit_status === 'resubmit' && $documents->admin_remark)
-        <div class="alert alert-warning alert-dismissible fade show" role="alert" style="background-color: #fff3cd; border-color: #ffeaa7; color: #856404; border-radius: 8px; margin-bottom: 20px;">
-            <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
-            <p style="margin: 8px 0 0 0; font-size: 14px;">{{ $documents->admin_remark }}</p>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+        @if ($documents && $documents->submit_status === 'resubmit' && $documents->admin_remark)
+            <div class="alert alert-warning alert-dismissible fade show" role="alert"
+                style="background-color: #fff3cd; border-color: #ffeaa7; color: #856404; border-radius: 8px; margin-bottom: 20px;">
+                <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
+                <p style="margin: 8px 0 0 0; font-size: 14px;">{{ $documents->admin_remark }}</p>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <form method="POST" action="{{ route('user.step6.storeug') }}" enctype="multipart/form-data" novalidate>
+                    <form method="POST" action="{{ route('user.step6.storeug') }}" enctype="multipart/form-data"
+                        novalidate>
                         @csrf
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
@@ -117,7 +119,8 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">CBSE/ICSE/SSC/IB/IGCSE *</span>
                                                             <input type="file" id="uploadInput1"
-                                                                name="ssc_cbse_icse_ib_igcse" hidden @if($documents && $documents->ssc_cbse_icse_ib_igcse) data-filename="{{ basename($documents->ssc_cbse_icse_ib_igcse) }}" @endif
+                                                                name="ssc_cbse_icse_ib_igcse" hidden
+                                                                @if ($documents && $documents->ssc_cbse_icse_ib_igcse) data-filename="{{ basename($documents->ssc_cbse_icse_ib_igcse) }}" @endif
                                                                 accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('ssc_cbse_icse_ib_igcse') }}</small>
@@ -157,11 +160,13 @@
                                                     </div>
 
                                                 </div>
-                                                @if($documents && $documents->ssc_cbse_icse_ib_igcse)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->ssc_cbse_icse_ib_igcse) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->ssc_cbse_icse_ib_igcse)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->ssc_cbse_icse_ib_igcse) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
 
 
                                             </div>
@@ -173,7 +178,8 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">HSC/CBSE/ICSE/IB/IGCSE *</span>
                                                             <input type="file" id="uploadInput2"
-                                                                name="hsc_diploma_marksheet" hidden @if($documents && $documents->hsc_diploma_marksheet) data-filename="{{ basename($documents->hsc_diploma_marksheet) }}" @endif
+                                                                name="hsc_diploma_marksheet" hidden
+                                                                @if ($documents && $documents->hsc_diploma_marksheet) data-filename="{{ basename($documents->hsc_diploma_marksheet) }}" @endif
                                                                 accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('hsc_diploma_marksheet') }}</small>
@@ -206,11 +212,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->hsc_diploma_marksheet)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->hsc_diploma_marksheet) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->hsc_diploma_marksheet)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->hsc_diploma_marksheet) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
 
 
@@ -361,7 +369,8 @@
                                                                 the college/university name.
                                                             </span>
                                                             <input type="file" id="admission_letter_fees_structure"
-                                                                name="admission_letter_fees_structure" hidden @if($documents && $documents->admission_letter_fees_structure) data-filename="{{ basename($documents->admission_letter_fees_structure) }}" @endif
+                                                                name="admission_letter_fees_structure" hidden
+                                                                @if ($documents && $documents->admission_letter_fees_structure) data-filename="{{ basename($documents->admission_letter_fees_structure) }}" @endif
                                                                 accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('admission_letter_fees_structure') }}</small>
@@ -396,18 +405,21 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->admission_letter_fees_structure)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->admission_letter_fees_structure) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->admission_letter_fees_structure)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->admission_letter_fees_structure) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
                                             <div class="form-group mb-3">
                                                 <div class="photo-upload-box">
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">Aadhaar Card of Applicant *</span>
-                                                            <input type="file" id="aadhaar_applicant" @if($documents && $documents->aadhaar_applicant) data-filename="{{ basename($documents->aadhaar_applicant) }}" @endif
+                                                            <input type="file" id="aadhaar_applicant"
+                                                                @if ($documents && $documents->aadhaar_applicant) data-filename="{{ basename($documents->aadhaar_applicant) }}" @endif
                                                                 name="aadhaar_applicant" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
@@ -442,11 +454,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->aadhaar_applicant)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->aadhaar_applicant) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->aadhaar_applicant)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->aadhaar_applicant) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
                                             {{-- pan applicant --}}
                                             <div class="form-group mb-3">
@@ -455,8 +469,10 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">Pancard of Applicant *</span>
 
-                                                            <input type="file" id="pan_applicant" @if($documents && $documents->pan_applicant) data-filename="{{ basename($documents->pan_applicant) }}" @endif name="pan_applicant"
-                                                                hidden accept=".jpg,.jpeg,.png,.pdf" required>
+                                                            <input type="file" id="pan_applicant"
+                                                                @if ($documents && $documents->pan_applicant) data-filename="{{ basename($documents->pan_applicant) }}" @endif
+                                                                name="pan_applicant" hidden accept=".jpg,.jpeg,.png,.pdf"
+                                                                required>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('pan_applicant') }}</small>
                                                         </div>
@@ -488,11 +504,12 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->pan_applicant)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->pan_applicant) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->pan_applicant)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->pan_applicant) }}" target="_blank"
+                                                            class="btn btn-sm btn-success">View Existing Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
                                             {{-- Student Bank Details & Statement --}}
                                             <div class="form-group mb-3">
@@ -505,7 +522,8 @@
                                                                 style="color:red;font-size:12px;">Kindly upload last 6
                                                                 months bank statement.
                                                             </span>
-                                                            <input type="file" id="student_bank_details_statement" @if($documents && $documents->student_bank_details_statement) data-filename="{{ basename($documents->student_bank_details_statement) }}" @endif
+                                                            <input type="file" id="student_bank_details_statement"
+                                                                @if ($documents && $documents->student_bank_details_statement) data-filename="{{ basename($documents->student_bank_details_statement) }}" @endif
                                                                 name="student_bank_details_statement" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
@@ -540,11 +558,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->student_bank_details_statement)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->student_bank_details_statement) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->student_bank_details_statement)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->student_bank_details_statement) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
 
 
@@ -563,7 +583,8 @@
                                                                         d="M9.5 19C12.0196 19 14.4359 17.9991 16.2175 16.2175C17.9991 14.4359 19 12.0196 19 9.5C19 6.98044 17.9991 4.56408 16.2175 2.78249C14.4359 1.00089 12.0196 0 9.5 0C6.98044 0 4.56408 1.00089 2.78249 2.78249C1.00089 4.56408 0 6.98044 0 9.5C0 12.0196 1.00089 14.4359 2.78249 16.2175C4.56408 17.9991 6.98044 19 9.5 19ZM13.7696 11.2779L9.97907 15.0684C9.85182 15.1956 9.67925 15.267 9.49932 15.267C9.31939 15.267 9.14682 15.1956 9.01957 15.0684L5.23043 11.2779C5.13583 11.183 5.07144 11.0622 5.04538 10.9308C5.01933 10.7993 5.03276 10.6631 5.084 10.5393C5.13523 10.4155 5.22198 10.3096 5.33329 10.2351C5.44461 10.1605 5.57551 10.1205 5.7095 10.1202H8.14286V5.08929C8.14286 4.72935 8.28584 4.38415 8.54035 4.12964C8.79487 3.87513 9.14006 3.73214 9.5 3.73214C9.85994 3.73214 10.2051 3.87513 10.4596 4.12964C10.7142 4.38415 10.8571 4.72935 10.8571 5.08929V10.1202H13.2905C13.4245 10.1205 13.5554 10.1605 13.6667 10.2351C13.778 10.3096 13.8648 10.4155 13.916 10.5393C13.9672 10.6631 13.9807 10.7993 13.9546 10.9308C13.9286 11.0622 13.8642 11.183 13.7696 11.2779Z"
                                                                         fill="#009846" />
                                                                 </svg></span>
-                                                            <input type="file" id="jito_group_recommendation" @if($documents && $documents->jito_group_recommendation) data-filename="{{ basename($documents->jito_group_recommendation) }}" @endif
+                                                            <input type="file" id="jito_group_recommendation"
+                                                                @if ($documents && $documents->jito_group_recommendation) data-filename="{{ basename($documents->jito_group_recommendation) }}" @endif
                                                                 name="jito_group_recommendation" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
@@ -597,11 +618,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->jito_group_recommendation)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->jito_group_recommendation) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->jito_group_recommendation)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->jito_group_recommendation) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
 
                                             {{-- Jain Sangh Certificate --}}
@@ -621,7 +644,8 @@
                                                                 We accept only last 1 year Jain sang Certificate
                                                             </span>
 
-                                                            <input type="file" id="jain_sangh_certificate" @if($documents && $documents->jain_sangh_certificate) data-filename="{{ basename($documents->jain_sangh_certificate) }}" @endif
+                                                            <input type="file" id="jain_sangh_certificate"
+                                                                @if ($documents && $documents->jain_sangh_certificate) data-filename="{{ basename($documents->jain_sangh_certificate) }}" @endif
                                                                 name="jain_sangh_certificate" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
@@ -657,11 +681,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->jain_sangh_certificate)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->jain_sangh_certificate) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->jain_sangh_certificate)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->jain_sangh_certificate) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
                                             {{-- Electricity Bill - latest  --}}
                                             <div class="form-group mb-3">
@@ -673,7 +699,8 @@
                                                             <span class="photo-label" style="color:red;font-size:12px;">
                                                                 We accept only latest month Electricity Bill
                                                             </span>
-                                                            <input type="file" id="electricity_bill" @if($documents && $documents->electricity_bill) data-filename="{{ basename($documents->electricity_bill) }}" @endif
+                                                            <input type="file" id="electricity_bill"
+                                                                @if ($documents && $documents->electricity_bill) data-filename="{{ basename($documents->electricity_bill) }}" @endif
                                                                 name="electricity_bill" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
@@ -709,11 +736,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->electricity_bill)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->electricity_bill) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->electricity_bill)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->electricity_bill) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
                                             {{-- ITR acknowledgement of father --}}
                                             <div class="form-group mb-3">
@@ -725,7 +754,8 @@
                                                             <span class="photo-label" style="color:red;font-size:12px;">
                                                                 Father’s ITR acknowledgement for the latest 2 years.
                                                             </span>
-                                                            <input type="file" id="itr_acknowledgement_father" @if($documents && $documents->itr_acknowledgement_father) data-filename="{{ basename($documents->itr_acknowledgement_father) }}" @endif
+                                                            <input type="file" id="itr_acknowledgement_father"
+                                                                @if ($documents && $documents->itr_acknowledgement_father) data-filename="{{ basename($documents->itr_acknowledgement_father) }}" @endif
                                                                 name="itr_acknowledgement_father" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
@@ -759,11 +789,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->itr_acknowledgement_father)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->itr_acknowledgement_father) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->itr_acknowledgement_father)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->itr_acknowledgement_father) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
                                             {{-- ITR computation of father --}}
                                             <div class="form-group mb-3">
@@ -775,7 +807,8 @@
                                                             <span class="photo-label" style="color:red;font-size:12px;">
                                                                 We accept ITR Computation of Father of latest 2 years
                                                             </span>
-                                                            <input type="file" id="itr_computation_father" @if($documents && $documents->itr_computation_father) data-filename="{{ basename($documents->itr_computation_father) }}" @endif
+                                                            <input type="file" id="itr_computation_father"
+                                                                @if ($documents && $documents->itr_computation_father) data-filename="{{ basename($documents->itr_computation_father) }}" @endif
                                                                 name="itr_computation_father" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
@@ -810,15 +843,17 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->itr_computation_father)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->itr_computation_father) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->itr_computation_father)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->itr_computation_father) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
                                             {{-- Form No.16 for Salary Income of Father --}}
                                             <div class="form-group mb-3">
-                                                <div class="photo-upload-box" style="padding:10px 18px;height:115px;">
+                                                <div class="photo-upload-box" style="">
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">Form No.16 for Salary Income of
@@ -829,7 +864,8 @@
                                                                 format of your company in which your name, salary is
                                                                 mentioned
                                                             </span>
-                                                            <input type="file" id="form16_salary_income_father" @if($documents && $documents->form16_salary_income_father) data-filename="{{ basename($documents->form16_salary_income_father) }}" @endif
+                                                            <input type="file" id="form16_salary_income_father"
+                                                                @if ($documents && $documents->form16_salary_income_father) data-filename="{{ basename($documents->form16_salary_income_father) }}" @endif
                                                                 name="form16_salary_income_father" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
@@ -864,11 +900,13 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            @if($documents && $documents->form16_salary_income_father)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->form16_salary_income_father) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                            @if ($documents && $documents->form16_salary_income_father)
+                                                <div class="existing-document mt-2">
+                                                    <a href="{{ asset($documents->form16_salary_income_father) }}"
+                                                        target="_blank" class="btn btn-sm btn-success">View Existing
+                                                        Document</a>
+                                                </div>
+                                            @endif
 
                                         </div>
 
@@ -894,7 +932,8 @@
                                                                 Only Saving account, No Current or Business account is
                                                                 accepted
                                                             </span>
-                                                            <input type="file" id="bank_statement_father_12months" @if($documents && $documents->bank_statement_father_12months) data-filename="{{ basename($documents->bank_statement_father_12months) }}" @endif
+                                                            <input type="file" id="bank_statement_father_12months"
+                                                                @if ($documents && $documents->bank_statement_father_12months) data-filename="{{ basename($documents->bank_statement_father_12months) }}" @endif
                                                                 name="bank_statement_father_12months" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
@@ -929,11 +968,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                 @if($documents && $documents->bank_statement_father_12months)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->bank_statement_father_12months) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->bank_statement_father_12months)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->bank_statement_father_12months) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
                                             {{-- Bank Statement of Mother (Last 12 Months) --}}
                                             <div class="form-group mb-3">
@@ -946,7 +987,8 @@
                                                                 Only Saving account, No Current or Business account is
                                                                 accepted
                                                             </span>
-                                                            <input type="file" id="bank_statement_mother_12months" @if($documents && $documents->bank_statement_mother_12months) data-filename="{{ basename($documents->bank_statement_mother_12months) }}" @endif
+                                                            <input type="file" id="bank_statement_mother_12months"
+                                                                @if ($documents && $documents->bank_statement_mother_12months) data-filename="{{ basename($documents->bank_statement_mother_12months) }}" @endif
                                                                 name="bank_statement_mother_12months" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
@@ -981,11 +1023,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->bank_statement_mother_12months)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->bank_statement_mother_12months) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->bank_statement_mother_12months)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->bank_statement_mother_12months) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
 
                                             {{-- Aadhaar Card of Father / Mother --}}
@@ -995,7 +1039,8 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">Aadhaar Card of Father /
                                                                 Mother *</span>
-                                                            <input type="file" id="aadhaar_father_mother" @if($documents && $documents->aadhaar_father_mother) data-filename="{{ basename($documents->aadhaar_father_mother) }}" @endif
+                                                            <input type="file" id="aadhaar_father_mother"
+                                                                @if ($documents && $documents->aadhaar_father_mother) data-filename="{{ basename($documents->aadhaar_father_mother) }}" @endif
                                                                 name="aadhaar_father_mother" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
@@ -1029,11 +1074,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->aadhaar_father_mother)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->aadhaar_father_mother) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->aadhaar_father_mother)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->aadhaar_father_mother) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
                                             {{-- PAN Card of Father / Mother --}}
                                             <div class="form-group mb-3">
@@ -1041,7 +1088,8 @@
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">PAN Card of Father / Mother *</span>
-                                                            <input type="file" id="pan_father_mother" @if($documents && $documents->pan_father_mother) data-filename="{{ basename($documents->pan_father_mother) }}" @endif
+                                                            <input type="file" id="pan_father_mother"
+                                                                @if ($documents && $documents->pan_father_mother) data-filename="{{ basename($documents->pan_father_mother) }}" @endif
                                                                 name="pan_father_mother" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
@@ -1075,11 +1123,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->pan_father_mother)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->pan_father_mother) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->pan_father_mother)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->pan_father_mother) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
 
 
@@ -1089,7 +1139,8 @@
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">Guarantor-1 Aadhaar Card *</span>
-                                                            <input type="file" id="guarantor1_aadhaar" @if($documents && $documents->guarantor1_aadhaar) data-filename="{{ basename($documents->guarantor1_aadhaar) }}" @endif
+                                                            <input type="file" id="guarantor1_aadhaar"
+                                                                @if ($documents && $documents->guarantor1_aadhaar) data-filename="{{ basename($documents->guarantor1_aadhaar) }}" @endif
                                                                 name="guarantor1_aadhaar" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
@@ -1123,11 +1174,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->guarantor1_aadhaar)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->guarantor1_aadhaar) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->guarantor1_aadhaar)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->guarantor1_aadhaar) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
                                             {{-- Guarantor-1 PAN Card --}}
                                             <div class="form-group mb-3">
@@ -1135,7 +1188,8 @@
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">Guarantor-1 PAN Card *</span>
-                                                            <input type="file" id="guarantor1_pan" @if($documents && $documents->guarantor1_pan) data-filename="{{ basename($documents->guarantor1_pan) }}" @endif
+                                                            <input type="file" id="guarantor1_pan"
+                                                                @if ($documents && $documents->guarantor1_pan) data-filename="{{ basename($documents->guarantor1_pan) }}" @endif
                                                                 name="guarantor1_pan" hidden accept=".jpg,.jpeg,.png,.pdf"
                                                                 required>
                                                             <small
@@ -1169,11 +1223,12 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->guarantor1_pan)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->guarantor1_pan) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->guarantor1_pan)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->guarantor1_pan) }}" target="_blank"
+                                                            class="btn btn-sm btn-success">View Existing Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
                                             {{-- Guarantor-2 Aadhaar Card --}}
                                             <div class="form-group mb-3">
@@ -1181,7 +1236,8 @@
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">Guarantor-2 Aadhaar Card *</span>
-                                                            <input type="file" id="guarantor2_aadhaar" @if($documents && $documents->guarantor2_aadhaar) data-filename="{{ basename($documents->guarantor2_aadhaar) }}" @endif
+                                                            <input type="file" id="guarantor2_aadhaar"
+                                                                @if ($documents && $documents->guarantor2_aadhaar) data-filename="{{ basename($documents->guarantor2_aadhaar) }}" @endif
                                                                 name="guarantor2_aadhaar" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required>
                                                             <small
@@ -1215,11 +1271,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->guarantor2_aadhaar)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->guarantor2_aadhaar) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->guarantor2_aadhaar)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->guarantor2_aadhaar) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
                                             {{-- Guarantor-2 PAN Card --}}
                                             <div class="form-group mb-3">
@@ -1227,8 +1285,10 @@
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">Guarantor-2 PAN Card *</span>
-                                                            <input type="file" id="guarantor2_pan" @if($documents && $documents->guarantor2_pan) data-filename="{{ basename($documents->guarantor2_pan) }}" @endif
-                                                                name="guarantor2_pan" hidden accept=".jpg,.jpeg,.png,.pdf">
+                                                            <input type="file" id="guarantor2_pan"
+                                                                @if ($documents && $documents->guarantor2_pan) data-filename="{{ basename($documents->guarantor2_pan) }}" @endif
+                                                                name="guarantor2_pan" hidden accept=".jpg,.jpeg,.png,.pdf"
+                                                                required>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('guarantor2_pan') }}</small>
                                                         </div>
@@ -1260,11 +1320,12 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                 @if($documents && $documents->guarantor2_pan)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->guarantor2_pan) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->guarantor2_pan)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->guarantor2_pan) }}" target="_blank"
+                                                            class="btn btn-sm btn-success">View Existing Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
                                             {{-- student handwritten statement  --}}
                                             <div class="form-group mb-3">
@@ -1273,7 +1334,8 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">Student handwritten statement (reason
                                                                 for course & institute) * </span>
-                                                            <input type="file" id="student_handwritten_statement" @if($documents && $documents->student_handwritten_statement) data-filename="{{ basename($documents->student_handwritten_statement) }}" @endif
+                                                            <input type="file" id="student_handwritten_statement"
+                                                                @if ($documents && $documents->student_handwritten_statement) data-filename="{{ basename($documents->student_handwritten_statement) }}" @endif
                                                                 name="student_handwritten_statement" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf">
                                                             <small
@@ -1307,11 +1369,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->student_handwritten_statement)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->student_handwritten_statement) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->student_handwritten_statement)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->student_handwritten_statement) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
                                             {{-- Proof of Funds Arranged From --}}
                                             <div class="form-group mb-3">
@@ -1320,7 +1384,8 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">Proof of Funds Arranged From (Loan
                                                                 taken from any other institution) *</span>
-                                                            <input type="file" id="proof_funds_arranged" @if($documents && $documents->proof_funds_arranged) data-filename="{{ basename($documents->proof_funds_arranged) }}" @endif
+                                                            <input type="file" id="proof_funds_arranged"
+                                                                @if ($documents && $documents->proof_funds_arranged) data-filename="{{ basename($documents->proof_funds_arranged) }}" @endif
                                                                 name="proof_funds_arranged" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf">
                                                             <small
@@ -1354,11 +1419,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->proof_funds_arranged)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->proof_funds_arranged) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->proof_funds_arranged)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->proof_funds_arranged) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
 
                                             {{-- Others Documents --}}
@@ -1367,7 +1434,8 @@
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">Others Documents</span>
-                                                            <input type="file" id="other_documents" @if($documents && $documents->other_documents) data-filename="{{ basename($documents->other_documents) }}" @endif
+                                                            <input type="file" id="other_documents"
+                                                                @if ($documents && $documents->other_documents) data-filename="{{ basename($documents->other_documents) }}" @endif
                                                                 name="other_documents" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf">
                                                             <small
@@ -1401,11 +1469,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->other_documents)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->other_documents) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->other_documents)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->other_documents) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
                                             {{-- Extra Curricular --}}
                                             <div class="form-group mb-3">
@@ -1413,7 +1483,8 @@
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">Extra Curricular</span>
-                                                            <input type="file" id="extra_curricular" @if($documents && $documents->extra_curricular) data-filename="{{ basename($documents->extra_curricular) }}" @endif
+                                                            <input type="file" id="extra_curricular"
+                                                                @if ($documents && $documents->extra_curricular) data-filename="{{ basename($documents->extra_curricular) }}" @endif
                                                                 name="extra_curricular" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf">
                                                             <small
@@ -1447,11 +1518,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($documents && $documents->extra_curricular)
-                                                            <div class="existing-document mt-2">
-                                                                <a href="{{ asset($documents->extra_curricular) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                            </div>
-                                                            @endif
+                                                @if ($documents && $documents->extra_curricular)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->extra_curricular) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
                                             </div>
 
 

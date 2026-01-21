@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users');
             $table->enum('submit_status', ['pending', 'submited', 'submitted', 'approved', 'resubmit'])->default('pending');
-            $table->text('admin_remark')->nullable()->after('submit_status');
+            $table->text('admin_remark')->nullable();
             $table->timestamps();
         });
     }

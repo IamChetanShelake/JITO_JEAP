@@ -389,7 +389,7 @@
                         <th style="width: 15%;">Email</th>
                         <th style="width: 12%;">Contact</th>
                         <th style="width: 10%;">Status</th>
-                        <th style="width: 8%;">Show/Hide</th>
+                        {{-- <th style="width: 8%;">Show/Hide</th> --}}
                         <th style="width: 10%;">Actions</th>
                     </tr>
                 </thead>
@@ -405,18 +405,19 @@
                         <td>{{ $member->email }}</td>
                         <td>{{ $member->contact }}</td>
                         <td>
-                            <span class="status-badge {{ $member->status ? 'active' : 'inactive' }}">
-                                <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
-                                {{ $member->status ? 'Active' : 'Inactive' }}
-                            </span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" {{ $member->status ? 'checked' : '' }}
+                                       onchange="toggleStatus({{ $member->id }}, this)">
+                                <span class="slider"></span>
+                            </label>
                         </td>
-                        <td>
+                        {{-- <td>
                             <label class="toggle-switch">
                                 <input type="checkbox" {{ $member->show_hide ? 'checked' : '' }}
                                        onchange="toggleShowHide({{ $member->id }}, this)">
                                 <span class="slider"></span>
                             </label>
-                        </td>
+                        </td> --}}
                         <td class="actions-cell">
                             <a href="{{ route('admin.apex.show', $member) }}" class="action-btn view-btn">
                                 <i class="fas fa-eye"></i>
@@ -453,6 +454,27 @@
 <script>
 function toggleShowHide(id, checkbox) {
     fetch(`/admin/apex/${id}/toggle-show-hide`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            checkbox.checked = !checkbox.checked;
+            alert('Failed to update status');
+        }
+    })
+    .catch(error => {
+        checkbox.checked = !checkbox.checked;
+        alert('An error occurred');
+    });
+}
+
+function toggleStatus(id, checkbox) {
+    fetch(`/admin/apex/${id}/toggle-status`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

@@ -11,9 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('review_submits', function (Blueprint $table) {
-            $table->text('admin_remark')->nullable()->after('submit_status');
-        });
+        // Column already added in create_review_submits_table migration
     }
 
     /**

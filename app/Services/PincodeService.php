@@ -294,5 +294,4 @@ class PincodeService
             ->limit(1)
             ->first();
     }
-
 }

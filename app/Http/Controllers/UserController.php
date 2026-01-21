@@ -16,6 +16,8 @@ use App\Models\EducationDetail;
 use App\Models\GuarantorDetail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Subcast;
+use App\Models\Bank;
 
 
 class UserController extends Controller
@@ -48,10 +50,11 @@ class UserController extends Controller
         $user_id = Auth::id();
         $user = User::find($user_id);
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
-       // $user = Auth::user();
+        // $user = Auth::user();
         $familyDetail = Familydetail::where('user_id', $user_id)->first();
         $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
-        return view('user.step1', compact('type', 'user', 'familyDetail', 'fundingDetail'));
+        $subcasts = Subcast::all();
+        return view('user.step1', compact('type', 'user', 'familyDetail', 'fundingDetail', 'subcasts'));
     }
 
 
@@ -91,20 +94,22 @@ class UserController extends Controller
         //     'specially_abled' => 'required|in:yes,no',
         // ]);
 
+        // dd($request->all());
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
 
             'financial_asset_type' => 'required|in:domestic,foreign_finance_assistant',
             'financial_asset_for' => 'required|in:graduation,post_graduation',
 
             'aadhar_card_number' => 'required|digits:12',
-            'pan_card' => 'nullable|string|max:10',
+            'pan_card' => 'required|string|max:10',
 
-            'phone' => 'required|string|max:15',
+            'phone' => 'required|string|max:15|unique:users,phone,' . auth()->id(),
             'alternate_phone' => 'nullable|string|max:15',
 
-            'email' => 'required|email|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . auth()->id(),
             'alternate_email' => 'nullable|email|max:255',
 
             'flat_no' => 'nullable|string',
@@ -119,6 +124,10 @@ class UserController extends Controller
             'pin_code' => 'required|digits:6',
 
             'chapter' => 'required|string|max:100',
+            'chapter_id' => 'required|integer',
+            'zone' => 'required|string|max:100',
+            'chapter_chairman' => 'required|string|max:100',
+            'chapter_contact' => 'required|string|max:15',
             'nationality' => 'required|in:indian,foreigner',
 
             'aadhar_address' => 'required|string',
@@ -161,6 +170,10 @@ class UserController extends Controller
             'state' => $request->state,
             'pin_code' => $request->pin_code,
             'chapter' => $request->chapter,
+            'chapter_id' => $request->chapter_id,
+            'zone' => $request->zone,
+            'chapter_chairman' => $request->chapter_chairman,
+            'chapter_contact' => $request->chapter_contact,
             'nationality' => $request->nationality,
             'aadhar_address' => $request->aadhar_address,
             'alternate_email' => $request->alternate_email,
@@ -425,7 +438,7 @@ class UserController extends Controller
 
     public function step2UGstore(Request $request)
     {
-        // dd($request->all());
+        //  dd($request->all());
         // Validation for education details
         $request->validate([
             // Financial Need Overview
@@ -461,23 +474,27 @@ class UserController extends Controller
             'group_4_year5' => 'nullable|numeric|min:0',
 
             // School / 10th Grade Information
-            'school_name' => 'nullable|string|max:255',
-            'school_board' => 'nullable|string|max:100',
-            'school_completion_year' => 'nullable|string|max:50',
+            'school_name' => 'required|string|max:255',
+            'school_board' => 'required|string|max:100',
+            'school_completion_year' => 'required|string|max:50',
+            'school_grade_system' => 'required',
             '10th_mark_obtained' => 'nullable|integer|min:0',
             '10th_mark_out_of' => 'nullable|integer|min:0',
             'school_percentage' => 'nullable|string|max:50',
             'school_CGPA' => 'nullable|string|max:50',
+            'school_sgpa' => 'nullable|string|max:50',
 
             // Junior College (12th Grade)
-            'jc_college_name' => 'nullable|string|max:255',
-            'jc_stream' => 'nullable|string|max:100',
-            'jc_board' => 'nullable|string|max:100',
-            'jc_completion_year' => 'nullable|string|max:50',
+            'jc_college_name' => 'required|string|max:255',
+            'jc_stream' => 'required|string|max:100',
+            'jc_board' => 'required|string|max:100',
+            'jc_completion_year' => 'required|string|max:50',
+            'jc_grade_system' => 'required',
             '12th_mark_obtained' => 'nullable|integer|min:0',
             '12th_mark_out_of' => 'nullable|integer|min:0',
             'jc_percentage' => 'nullable|string|max:50',
             'jc_CGPA' => 'nullable|string|max:50',
+            'jc_sgpa' => 'nullable|string|max:50',
         ]);
 
         $user_id = Auth::id();
@@ -526,11 +543,12 @@ class UserController extends Controller
             // School / 10th Grade Information
             'school_name' => $request->school_name,
             'school_board' => $request->school_board,
-            'school_completion_year' => $request->school_completion_year,
+            'school_completion_year' => $request->school_completion_year ? $request->school_completion_year . '-01' : null,
             '10th_mark_obtained' => $request->input('10th_mark_obtained'),
             '10th_mark_out_of' => $request->input('10th_mark_out_of'),
             'school_percentage' => $request->school_percentage,
             'school_CGPA' => $request->school_CGPA,
+            'school_sgpa' => $request->school_sgpa,
 
             // Junior College (12th Grade)
             'jc_college_name' => $request->jc_college_name,
@@ -541,6 +559,7 @@ class UserController extends Controller
             '12th_mark_out_of' => $request->input('12th_mark_out_of'),
             'jc_percentage' => $request->jc_percentage,
             'jc_CGPA' => $request->jc_CGPA,
+            'jc_sgpa' => $request->jc_sgpa,
 
             'status' => 'step2_completed',
             'submit_status' => 'submited',
@@ -717,38 +736,54 @@ class UserController extends Controller
             'group_4_year3' => 'nullable|numeric|min:0',
             'group_4_year4' => 'nullable|numeric|min:0',
             'group_4_year5' => 'nullable|numeric|min:0',
-
             // School / 10th Grade Information
-            'school_name' => 'nullable|string|max:255',
-            'school_board' => 'nullable|string|max:100',
-            'school_completion_year' => 'nullable|string|max:50',
+            'school_name' => 'required|string|max:255',
+            'school_board' => 'required|string|max:100',
+            'school_completion_year' => 'required|string|max:50',
+            'school_grade_system' => 'required',
             '10th_mark_obtained' => 'nullable|integer|min:0',
             '10th_mark_out_of' => 'nullable|integer|min:0',
             'school_percentage' => 'nullable|string|max:50',
             'school_CGPA' => 'nullable|string|max:50',
+            'school_sgpa' => 'nullable|string|max:50',
 
             // Junior College (12th Grade)
-            'jc_college_name' => 'nullable|string|max:255',
-            'jc_stream' => 'nullable|string|max:100',
-            'jc_board' => 'nullable|string|max:100',
-            'jc_completion_year' => 'nullable|string|max:50',
+            'jc_college_name' => 'required|string|max:255',
+            'jc_stream' => 'required|string|max:100',
+            'jc_board' => 'required|string|max:100',
+            'jc_completion_year' => 'required|string|max:50',
+            'jc_grade_system' => 'required',
             '12th_mark_obtained' => 'nullable|integer|min:0',
             '12th_mark_out_of' => 'nullable|integer|min:0',
             'jc_percentage' => 'nullable|string|max:50',
             'jc_CGPA' => 'nullable|string|max:50',
+            'jc_sgpa' => 'nullable|string|max:50',
 
 
             // Completed Qualifications
-            'qualifications' => 'nullable|string',
-            'qualification_institution' => 'nullable|string|max:255',
-            'qualification_university' => 'nullable|string|max:255',
-            'qualification_start_year' => 'nullable|date',
-            'qualification_end_year' => 'nullable|date',
-            'marksheet_type' => 'nullable|array',
+            'qualifications' => 'required|string',
+            'qualification_institution' => 'required|string|max:255',
+            'qualification_university' => 'required|string|max:255',
+            'qualification_start_year' => 'required|date',
+            'qualification_end_year' => 'required|date',
+            'marksheet_type' => 'required|array',
             'marks_obtained' => 'nullable|array',
             'out_of' => 'nullable|array',
             'percentage' => 'nullable|array',
             'cgpa' => 'nullable|array',
+            'sgpa' => 'nullable|array',
+
+            // Work Experience
+            'have_work_experience' => 'required|in:yes,no',
+            'organization_name' => 'nullable|string|max:255',
+            'work_profile' => 'nullable|string|max:255',
+            'duration_start_year' => 'nullable|string|max:50',
+            'duration_end_year' => 'nullable|string|max:50',
+            'work_location_city' => 'nullable|string|max:100',
+            'work_country' => 'nullable|string|max:100',
+            'work_type' => 'nullable|in:full-time,internship,freelance,volunteer',
+            'mention_your_salary' => 'nullable|in:monthly,yearly,ctc',
+            'salary_amount' => 'nullable|numeric|min:0',
 
 
         ]);
@@ -799,7 +834,7 @@ class UserController extends Controller
             // School / 10th Grade Information
             'school_name' => $request->school_name,
             'school_board' => $request->school_board,
-            'school_completion_year' => $request->school_completion_year,
+            'school_completion_year' => $request->school_completion_year ? $request->school_completion_year . '-01' : null,
             '10th_mark_obtained' => $request->input('10th_mark_obtained'),
             '10th_mark_out_of' => $request->input('10th_mark_out_of'),
             'school_percentage' => $request->school_percentage,
@@ -827,7 +862,17 @@ class UserController extends Controller
             'percentage' => json_encode($request->percentage),
             'cgpa' => json_encode($request->cgpa),
 
-
+            // Work Experience
+            'have_work_experience' => $request->have_work_experience,
+            'organization_name' => $request->organization_name,
+            'work_profile' => $request->work_profile,
+            'duration_start_year' => $request->duration_start_year,
+            'duration_end_year' => $request->duration_end_year,
+            'work_location_city' => $request->work_location_city,
+            'work_country' => $request->work_country,
+            'work_type' => $request->work_type,
+            'mention_your_salary' => $request->mention_your_salary,
+            'salary_amount' => $request->salary_amount,
 
             'status' => 'step2_completed',
             'submit_status' => 'submited',
@@ -856,7 +901,7 @@ class UserController extends Controller
     public function step2_foreign_pg_store(Request $request)
     {
         // Validation for education details
-        //  dd($request->all());
+        //dd($request->all());
         $request->validate([
             // Financial Need Overview
             'course_name' => 'required|string|max:255',
@@ -891,36 +936,52 @@ class UserController extends Controller
             'group_4_year5' => 'nullable|numeric|min:0',
 
             // School / 10th Grade Information
-            'school_name' => 'nullable|string|max:255',
-            'school_board' => 'nullable|string|max:100',
-            'school_completion_year' => 'nullable|string|max:50',
+            'school_name' => 'required|string|max:255',
+            'school_board' => 'required|string|max:100',
+            'school_completion_year' => 'required|string|max:50',
+            'school_grade_system' => 'required',
             '10th_mark_obtained' => 'nullable|integer|min:0',
             '10th_mark_out_of' => 'nullable|integer|min:0',
             'school_percentage' => 'nullable|string|max:50',
             'school_CGPA' => 'nullable|string|max:50',
+            'school_sgpa' => 'nullable|string|max:50',
 
             // Junior College (12th Grade)
-            'jc_college_name' => 'nullable|string|max:255',
-            'jc_stream' => 'nullable|string|max:100',
-            'jc_board' => 'nullable|string|max:100',
-            'jc_completion_year' => 'nullable|string|max:50',
+            'jc_college_name' => 'required|string|max:255',
+            'jc_stream' => 'required|string|max:100',
+            'jc_board' => 'required|string|max:100',
+            'jc_completion_year' => 'required|string|max:50',
+            'jc_grade_system' => 'required',
             '12th_mark_obtained' => 'nullable|integer|min:0',
             '12th_mark_out_of' => 'nullable|integer|min:0',
             'jc_percentage' => 'nullable|string|max:50',
             'jc_CGPA' => 'nullable|string|max:50',
+            'jc_sgpa' => 'nullable|string|max:50',
 
 
             // Completed Qualifications
-            'qualifications' => 'nullable|string',
-            'qualification_institution' => 'nullable|string|max:255',
+            'qualifications' => 'required|string',
+            'qualification_institution' => 'required|string|max:255',
             'qualification_university' => 'nullable|string|max:255',
-            'qualification_start_year' => 'nullable|date',
-            'qualification_end_year' => 'nullable|date',
-            'marksheet_type' => 'nullable|array',
+            'qualification_start_year' => 'required|date',
+            'qualification_end_year' => 'required|date',
+            'marksheet_type' => 'required|array',
             'marks_obtained' => 'nullable|array',
             'out_of' => 'nullable|array',
             'percentage' => 'nullable|array',
             'cgpa' => 'nullable|array',
+
+            // Work Experience
+            'have_work_experience' => 'required|in:yes,no',
+            'organization_name' => 'nullable|string|max:255',
+            'work_profile' => 'nullable|string|max:255',
+            'duration_start_year' => 'nullable|string|max:50',
+            'duration_end_year' => 'nullable|string|max:50',
+            'work_location_city' => 'nullable|string|max:100',
+            'work_country' => 'nullable|string|max:100',
+            'work_type' => 'nullable|in:full-time,internship,freelance,volunteer',
+            'mention_your_salary' => 'nullable|in:monthly,yearly,ctc',
+            'salary_amount' => 'nullable|numeric|min:0',
 
             // Additional Curriculum
             'ielts_overall_band_year' => 'nullable|string|max:100',
@@ -977,7 +1038,7 @@ class UserController extends Controller
             // School / 10th Grade Information
             'school_name' => $request->school_name,
             'school_board' => $request->school_board,
-            'school_completion_year' => $request->school_completion_year,
+            'school_completion_year' => $request->school_completion_year ? $request->school_completion_year . '-01' : null,
             '10th_mark_obtained' => $request->input('10th_mark_obtained'),
             '10th_mark_out_of' => $request->input('10th_mark_out_of'),
             'school_percentage' => $request->school_percentage,
@@ -1004,6 +1065,18 @@ class UserController extends Controller
             'out_of' => json_encode($request->out_of),
             'percentage' => json_encode($request->percentage),
             'cgpa' => json_encode($request->cgpa),
+
+            // Work Experience
+            'have_work_experience' => $request->have_work_experience,
+            'organization_name' => $request->organization_name,
+            'work_profile' => $request->work_profile,
+            'duration_start_year' => $request->duration_start_year,
+            'duration_end_year' => $request->duration_end_year,
+            'work_location_city' => $request->work_location_city,
+            'work_country' => $request->work_country,
+            'work_type' => $request->work_type,
+            'mention_your_salary' => $request->mention_your_salary,
+            'salary_amount' => $request->salary_amount,
 
             // Additional Curriculum
             'ielts_overall_band_year' => $request->ielts_overall_band_year,
@@ -1130,6 +1203,8 @@ class UserController extends Controller
             'total_family_income' => $request->total_family_income,
             'total_students' => $request->total_students,
             'family_member_diksha' => $request->family_member_diksha,
+            'diksha_member_name' => $request->diksha_member_name,
+            'diksha_member_relation' => $request->diksha_member_relation,
             'total_insurance_coverage' => $request->total_insurance_coverage,
             'total_premium_paid' => $request->total_premium_paid,
             'recent_electricity_amount' => $request->recent_electricity_amount,
@@ -1179,6 +1254,7 @@ class UserController extends Controller
         $familyDetail = Familydetail::where('user_id', $user_id)->first();
         $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
+        $banks = Bank::all();
 
         // Get existing funding data from database if they exist
         $existingFundingData = [];
@@ -1222,7 +1298,7 @@ class UserController extends Controller
             ];
         }
 
-        return view('user.step4', compact('type', 'familyDetail', 'fundingDetail', 'existingFundingData', 'user'));
+        return view('user.step4', compact('type', 'familyDetail', 'fundingDetail', 'existingFundingData', 'user', 'banks'));
     }
 
 
@@ -1588,8 +1664,8 @@ class UserController extends Controller
             'g_one_district' => 'required|string|max:100',
             'g_one_state' => 'required|string|max:100',
             'g_one_pincode' => 'required|digits:6',
-            'g_one_phone' => 'required|string|max:15',
-            'g_one_email' => 'required|email|max:255',
+            'g_one_phone' => 'required|string|max:15|unique:guarantor_details,g_one_phone',
+            'g_one_email' => 'required|email|max:255|unique:guarantor_details,g_one_email',
             'g_one_relation_with_student' => 'required|string|max:255',
             'g_one_aadhar_card_number' => 'required|digits:12',
             'g_one_d_o_b' => 'required|date',
@@ -1606,8 +1682,8 @@ class UserController extends Controller
             'g_two_district' => 'required|string|max:100',
             'g_two_state' => 'required|string|max:100',
             'g_two_pincode' => 'required|digits:6',
-            'g_two_phone' => 'required|string|max:15',
-            'g_two_email' => 'required|email|max:255',
+            'g_two_phone' => 'required|string|max:15|unique:guarantor_details,g_two_phone',
+            'g_two_email' => 'required|email|max:255|unique:guarantor_details,g_two_email',
             'g_two_relation_with_student' => 'required|string|max:255',
             'g_two_aadhar_card_number' => 'required|digits:12',
             'g_two_d_o_b' => 'required|date',
@@ -1727,7 +1803,11 @@ class UserController extends Controller
                 'pan_father_mother',
                 'guarantor1_aadhaar',
                 'guarantor1_pan',
-                'guarantor2_aadhaar'
+                'guarantor2_aadhaar',
+                'guarantor2_pan',
+                'student_handwritten_statement',
+                'proof_funds_arranged',
+
             ];
             foreach ($requiredFields as $field) {
                 $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
@@ -1849,14 +1929,18 @@ class UserController extends Controller
                 'pan_father_mother',
                 'guarantor1_aadhaar',
                 'guarantor1_pan',
-                'guarantor2_aadhaar'
+                'guarantor2_aadhaar',
+                'guarantor2_pan',
+                'student_handwritten_statement',
+                'proof_funds_arranged',
+
             ];
             foreach ($requiredFields as $field) {
                 $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
             }
-            $rules['guarantor2_pan'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
-            $rules['student_handwritten_statement'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
-            $rules['proof_funds_arranged'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+            // $rules['guarantor2_pan'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+            // $rules['student_handwritten_statement'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+            // $rules['proof_funds_arranged'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             $rules['other_documents'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             $rules['extra_curricular'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
 
@@ -1974,7 +2058,11 @@ class UserController extends Controller
                 'pan_father_mother',
                 'guarantor1_aadhaar',
                 'guarantor1_pan',
-                'guarantor2_aadhaar'
+                'guarantor2_aadhaar',
+                'guarantor2_pan',
+                'student_handwritten_statement',
+                'proof_funds_arranged'
+
             ];
             foreach ($requiredFields as $field) {
                 $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
@@ -2066,8 +2154,9 @@ class UserController extends Controller
     public function step7(Request $request)
     {
         $user_id = Auth::id();
+        $user = User::find($user_id);
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
-        return view('user.step7', compact('type'));
+        return view('user.step7', compact('type', 'user'));
     }
 
     public function step7store(Request $request)
@@ -2120,12 +2209,21 @@ class UserController extends Controller
             ]);
 
             $chapterName = $result['chapter']?->chapter_name ?? null;
+            $chapterId = $result['chapter']?->id ?? null;
+            $zoneName = $result['chapter']?->zone?->zone_name ?? null;
+            $chairman = $result['chapter']?->chapter_head ?? null;
+            $contact = $result['chapter']?->contact ?? null;
+            $fallback = in_array($result['assigned_by'], ['nearest', 'nearest_pincode']);
             $fallback = in_array($result['assigned_by'], ['nearest_pincode_same_state', 'nearest_pincode_any_state', 'nearest_chapter']);
 
             // Include distance and location info for all assignments that have distance data
             $response = [
                 'success' => true,
                 'chapter' => $chapterName,
+                'chapter_id' => $chapterId,
+                'zone' => $zoneName,
+                'chairman' => $chairman,
+                'contact' => $contact,
                 'fallback' => $fallback,
                 'assigned_by' => $result['assigned_by'],
             ];

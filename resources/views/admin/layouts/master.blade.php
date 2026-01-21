@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +16,7 @@
             --warning-color: #FBBA00;
             --dark-color: #000000;
             --light-color: #FFFFFF;
-            --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             --border-radius: 15px;
             --sidebar-width: 280px;
             --sidebar-collapsed-width: 70px;
@@ -38,7 +39,7 @@
             color: white;
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1000;
-            box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
             overflow: hidden;
         }
 
@@ -83,7 +84,7 @@
 
         .sidebar-header {
             padding: 2rem 1rem 1rem 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -136,7 +137,7 @@
             left: 0;
             right: 0;
             padding: 1rem;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-toggle-btn {
@@ -183,7 +184,7 @@
         }
 
         .nav-link {
-            color: rgba(255,255,255,0.8) !important;
+            color: rgba(255, 255, 255, 0.8) !important;
             font-weight: 500;
             padding: 1rem 1.5rem;
             margin: 0 0.5rem;
@@ -233,7 +234,7 @@
             color: var(--dark-color) !important;
             font-weight: 600;
             box-shadow: 0 4px 20px rgba(251, 186, 0, 0.4);
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .nav-link.active::before {
@@ -289,7 +290,7 @@
 
         .section-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
 
         .card-header {
@@ -359,7 +360,7 @@
         .table {
             border-radius: var(--border-radius);
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
         }
 
         .table thead th {
@@ -378,14 +379,16 @@
             background-color: rgba(57, 49, 133, 0.05);
         }
 
-        .form-control, .form-select {
+        .form-control,
+        .form-select {
             border: 2px solid #e9ecef;
             border-radius: 10px;
             padding: 0.75rem;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .form-control:focus, .form-select:focus {
+        .form-control:focus,
+        .form-select:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.2rem rgba(57, 49, 133, 0.25);
         }
@@ -429,6 +432,7 @@
 
         /* Mobile responsive styles for sidebar - Improved */
         @media (max-width: 992px) {
+
             /* Hide sidebar by default on mobile */
             .sidebar {
                 transform: translateX(-100%);
@@ -625,83 +629,107 @@
     </style>
     @yield('styles')
 </head>
+
 <body>
     <header>
         <!-- Sidebar -->
         <div class="sidebar collapsed" id="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-container">
-                <img src="{{ asset('jitojeaplogo.png') }}" alt="JitoJeap Logo">
-                <span class="logo-text">JitoJeap Admin</span>
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <img src="{{ asset('jitojeaplogo.png') }}" alt="JitoJeap Logo">
+                    <span class="logo-text">JitoJeap Admin</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav ">
+                <ul class="nav flex-column" style="margin-bottom:50px;">
+                    <li class="nav-item">
+                        <a class="nav-link {{ Route::currentRouteName() == 'admin.home' ? 'active' : '' }}"
+                            href="{{ route('admin.home') }}">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.apex') ? 'active' : '' }}"
+                            href="{{ route('admin.apex.index') }}">
+                            <i class="fas fa-users"></i>
+                            <span class="nav-text">Apex Leadership</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.committee') ? 'active' : '' }}"
+                            href="{{ route('admin.committee.index') }}">
+                            <i class="fas fa-user-tie"></i>
+                            <span class="nav-text">Working Committee</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.zones') ? 'active' : '' }}"
+                            href="{{ route('admin.zones.index') }}">
+                            <i class="fas fa-globe"></i>
+                            <span class="nav-text">Zone</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.chapters') ? 'active' : '' }}"
+                            href="{{ route('admin.chapters.index') }}">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span class="nav-text">Chapter</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.pincodes') ? 'active' : '' }}"
+                            href="{{ route('admin.pincodes.index') }}">
+                            <i class="fas fa-thumbtack"></i>
+                            <span class="nav-text">Pincodes</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.initiatives') ? 'active' : '' }}"
+                            href="{{ route('admin.initiatives.index') }}">
+                            <i class="fas fa-lightbulb"></i>
+                            <span class="nav-text">Initiatives</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.banks') ? 'active' : '' }}"
+                            href="{{ route('admin.banks.index') }}">
+                            <i class="fas fa-bank"></i>
+                            <span class="nav-text">Banks</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.subcasts') ? 'active' : '' }}"
+                            href="{{ route('admin.subcasts.index') }}">
+                            <i class="fas fa-users"></i>
+                            <span class="nav-text">Subcast</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"
+                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span class="nav-text">Logout</span>
+                        </a>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                            @csrf
+                        </form>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer mt-4">
+                <button class="sidebar-toggle-btn" id="sidebarToggle">
+                    <i class="fas fa-chevron-right"></i>
+                    <span class="toggle-text">Expand</span>
+                </button>
             </div>
         </div>
-        <nav class="sidebar-nav">
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() == 'admin.home' ? 'active' : '' }}" href="{{ route('admin.home') }}">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span class="nav-text">Dashboard</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.apex') ? 'active' : '' }}" href="{{ route('admin.apex.index') }}">
-                        <i class="fas fa-users"></i>
-                        <span class="nav-text">Apex Leadership</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.committee') ? 'active' : '' }}" href="{{ route('admin.committee.index') }}">
-                        <i class="fas fa-user-tie"></i>
-                        <span class="nav-text">Working Committee</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.zones') ? 'active' : '' }}" href="{{ route('admin.zones.index') }}">
-                        <i class="fas fa-globe"></i>
-                        <span class="nav-text">Zone</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.chapters') ? 'active' : '' }}" href="{{ route('admin.chapters.index') }}">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span class="nav-text">Chapter</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.pincodes') ? 'active' : '' }}" href="{{ route('admin.pincodes.index') }}">
-                        <i class="fas fa-thumbtack"></i>
-                        <span class="nav-text">Pincodes</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.initiatives') ? 'active' : '' }}" href="{{ route('admin.initiatives.index') }}">
-                        <i class="fas fa-lightbulb"></i>
-                        <span class="nav-text">Initiatives</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span class="nav-text">Logout</span>
-                    </a>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                        @csrf
-                    </form>
-                </li>
-            </ul>
-        </nav>
-        <div class="sidebar-footer">
-            <button class="sidebar-toggle-btn" id="sidebarToggle">
-                <i class="fas fa-chevron-right"></i>
-                <span class="toggle-text">Expand</span>
-            </button>
-        </div>
-    </div>
     </header>
 
     <div class="main-content">
         <div class="dashboard-container">
-            @if(session('success'))
+            @if (session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <i class="fas fa-check-circle me-2"></i>
                     {{ session('success') }}
@@ -709,7 +737,7 @@
                 </div>
             @endif
 
-            @if(session('error'))
+            @if (session('error'))
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="fas fa-exclamation-circle me-2"></i>
                     {{ session('error') }}
@@ -722,108 +750,109 @@
     </div>
 
     <footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Sidebar toggle functionality
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.querySelector('.main-content');
-            const toggleBtn = document.getElementById('sidebarToggle');
-            const toggleIcon = toggleBtn.querySelector('i');
-            const toggleText = toggleBtn.querySelector('.toggle-text');
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Sidebar toggle functionality
+            function toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.querySelector('.main-content');
+                const toggleBtn = document.getElementById('sidebarToggle');
+                const toggleIcon = toggleBtn.querySelector('i');
+                const toggleText = toggleBtn.querySelector('.toggle-text');
 
-            // Toggle between collapsed and expanded states
-            if (sidebar.classList.contains('collapsed')) {
-                // Expand sidebar
-                sidebar.classList.remove('collapsed');
-                sidebar.classList.add('expanded');
-                toggleIcon.classList.remove('fa-chevron-right');
-                toggleIcon.classList.add('fa-chevron-left');
-                if (toggleText) toggleText.textContent = 'Collapse';
-                if (mainContent) {
-                    mainContent.style.marginLeft = '280px';
-                }
-            } else {
-                // Collapse sidebar
-                sidebar.classList.remove('expanded');
-                sidebar.classList.add('collapsed');
-                toggleIcon.classList.remove('fa-chevron-left');
-                toggleIcon.classList.add('fa-chevron-right');
-                if (toggleText) toggleText.textContent = 'Expand';
-                if (mainContent) {
-                    mainContent.style.marginLeft = '70px';
-                }
-            }
-        }
-
-        // Initialize sidebar toggle
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.querySelector('.main-content');
-            const toggleBtn = document.getElementById('sidebarToggle');
-            const toggleIcon = toggleBtn.querySelector('i');
-            const toggleText = toggleBtn.querySelector('.toggle-text');
-
-            // Set initial collapsed state
-            if (sidebar.classList.contains('collapsed')) {
-                toggleIcon.classList.remove('fa-chevron-left');
-                toggleIcon.classList.add('fa-chevron-right');
-                if (toggleText) toggleText.textContent = 'Expand';
-                if (mainContent) {
-                    mainContent.style.marginLeft = '70px';
+                // Toggle between collapsed and expanded states
+                if (sidebar.classList.contains('collapsed')) {
+                    // Expand sidebar
+                    sidebar.classList.remove('collapsed');
+                    sidebar.classList.add('expanded');
+                    toggleIcon.classList.remove('fa-chevron-right');
+                    toggleIcon.classList.add('fa-chevron-left');
+                    if (toggleText) toggleText.textContent = 'Collapse';
+                    if (mainContent) {
+                        mainContent.style.marginLeft = '280px';
+                    }
+                } else {
+                    // Collapse sidebar
+                    sidebar.classList.remove('expanded');
+                    sidebar.classList.add('collapsed');
+                    toggleIcon.classList.remove('fa-chevron-left');
+                    toggleIcon.classList.add('fa-chevron-right');
+                    if (toggleText) toggleText.textContent = 'Expand';
+                    if (mainContent) {
+                        mainContent.style.marginLeft = '70px';
+                    }
                 }
             }
 
-            // Add event listener to sidebar toggle button
-            toggleBtn.addEventListener('click', toggleSidebar);
+            // Initialize sidebar toggle
+            document.addEventListener('DOMContentLoaded', function() {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.querySelector('.main-content');
+                const toggleBtn = document.getElementById('sidebarToggle');
+                const toggleIcon = toggleBtn.querySelector('i');
+                const toggleText = toggleBtn.querySelector('.toggle-text');
 
-            // Add hover event listeners for content adjustment
-            sidebar.addEventListener('mouseenter', function() {
-                if (sidebar.classList.contains('collapsed') && mainContent) {
-                    mainContent.style.marginLeft = '280px';
+                // Set initial collapsed state
+                if (sidebar.classList.contains('collapsed')) {
+                    toggleIcon.classList.remove('fa-chevron-left');
+                    toggleIcon.classList.add('fa-chevron-right');
+                    if (toggleText) toggleText.textContent = 'Expand';
+                    if (mainContent) {
+                        mainContent.style.marginLeft = '70px';
+                    }
                 }
-            });
 
-            sidebar.addEventListener('mouseleave', function() {
-                if (sidebar.classList.contains('collapsed') && mainContent) {
-                    mainContent.style.marginLeft = '70px';
-                }
-            });
+                // Add event listener to sidebar toggle button
+                toggleBtn.addEventListener('click', toggleSidebar);
 
-            // Mobile sidebar functionality
-            const mobileToggle = document.createElement('button');
-            mobileToggle.className = 'mobile-sidebar-toggle';
-            mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
-            document.body.prepend(mobileToggle);
-
-            const overlay = document.createElement('div');
-            overlay.className = 'sidebar-overlay';
-            document.body.prepend(overlay);
-
-            mobileToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('active');
-                overlay.classList.toggle('active');
-            });
-
-            overlay.addEventListener('click', function() {
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-            });
-
-            // Close sidebar when clicking on a nav link (mobile)
-            const navLinks = document.querySelectorAll('.sidebar .nav-link');
-            navLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth <= 992) {
-                        sidebar.classList.remove('active');
-                        overlay.classList.remove('active');
+                // Add hover event listeners for content adjustment
+                sidebar.addEventListener('mouseenter', function() {
+                    if (sidebar.classList.contains('collapsed') && mainContent) {
+                        mainContent.style.marginLeft = '280px';
                     }
                 });
+
+                sidebar.addEventListener('mouseleave', function() {
+                    if (sidebar.classList.contains('collapsed') && mainContent) {
+                        mainContent.style.marginLeft = '70px';
+                    }
+                });
+
+                // Mobile sidebar functionality
+                const mobileToggle = document.createElement('button');
+                mobileToggle.className = 'mobile-sidebar-toggle';
+                mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                document.body.prepend(mobileToggle);
+
+                const overlay = document.createElement('div');
+                overlay.className = 'sidebar-overlay';
+                document.body.prepend(overlay);
+
+                mobileToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    overlay.classList.toggle('active');
+                });
+
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                });
+
+                // Close sidebar when clicking on a nav link (mobile)
+                const navLinks = document.querySelectorAll('.sidebar .nav-link');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth <= 992) {
+                            sidebar.classList.remove('active');
+                            overlay.classList.remove('active');
+                        }
+                    });
+                });
             });
-        });
-    </script>
-    @yield('scripts')
+        </script>
+        @yield('scripts')
     </footer>
 
 </body>
+
 </html>

@@ -122,7 +122,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <form method="POST" action="{{ route('user.step4.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('user.step4.store') }}" enctype="multipart/form-data" novalidate>
                         @csrf
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
@@ -492,9 +492,15 @@
                                                     <div class="form-group mb-3">
                                                         <label for="sibling_loan_status">Loan status <span
                                                                 style="color: red">*</span></label>
-                                                        <input type="text" class="form-control"
-                                                            name="sibling_loan_status" placeholder="Loan status "
-                                                            value="{{ old('sibling_loan_status', $fundingDetail->sibling_loan_status ?? '') }}">
+                                                        <select class="form-control" name="sibling_loan_status">
+                                                            <option value="" {{ !old('sibling_loan_status') && !$fundingDetail ? 'selected' : '' }} disabled hidden>Loan status</option>
+                                                            <option value="applied" {{ old('sibling_loan_status') == 'applied' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'applied') ? 'selected' : '' }}>Applied</option>
+                                                            <option value="approved" {{ old('sibling_loan_status') == 'approved' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'approved') ? 'selected' : '' }}>Approved</option>
+                                                            <option value="sanctioned" {{ old('sibling_loan_status') == 'sanctioned' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'sanctioned') ? 'selected' : '' }}>Sanctioned</option>
+                                                            <option value="disbursed" {{ old('sibling_loan_status') == 'disbursed' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'disbursed') ? 'selected' : '' }}>Disbursed</option>
+                                                            <option value="closed" {{ old('sibling_loan_status') == 'closed' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'closed') ? 'selected' : '' }}>Closed</option>
+                                                            <option value="not applicable" {{ old('sibling_loan_status') == 'not applicable' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'not applicable') ? 'selected' : '' }}>Not Applicable</option>
+                                                        </select>
                                                     </div>
 
                                                     <div class="form-group mb-3">
@@ -557,57 +563,12 @@
                                                 <option value=""
                                                     {{ !old('bank_name') && !$fundingDetail ? 'selected' : '' }} disabled
                                                     hidden>Select Bank </option>
-                                                <option value="HDFC Bank"
-                                                    {{ old('bank_name') == 'HDFC Bank' || ($fundingDetail && $fundingDetail->bank_name === 'HDFC Bank') ? 'selected' : '' }}>
-                                                    HDFC Bank
-                                                </option>
-                                                <option value="ICICI Bank"
-                                                    {{ old('bank_name') == 'ICICI Bank' || ($fundingDetail && $fundingDetail->bank_name === 'ICICI Bank') ? 'selected' : '' }}>
-                                                    ICICI Bank
-                                                </option>
-                                                <option value="Kotak Mahindra Bank"
-                                                    {{ old('bank_name') == 'Kotak Mahindra Bank' || ($fundingDetail && $fundingDetail->bank_name === 'Kotak Mahindra Bank') ? 'selected' : '' }}>
-                                                    Kotak
-                                                    Mahindra Bank</option>
-                                                <option value="Axis Bank"
-                                                    {{ old('bank_name') == 'Axis Bank' || ($fundingDetail && $fundingDetail->bank_name === 'Axis Bank') ? 'selected' : '' }}>
-                                                    Axis Bank
-                                                </option>
-                                                <option value="IndusInd Bank"
-                                                    {{ old('bank_name') == 'IndusInd Bank' || ($fundingDetail && $fundingDetail->bank_name === 'IndusInd Bank') ? 'selected' : '' }}>
-                                                    IndusInd
-                                                    Bank</option>
-                                                <option value="IDBI Bank"
-                                                    {{ old('bank_name') == 'IDBI Bank' || ($fundingDetail && $fundingDetail->bank_name === 'IDBI Bank') ? 'selected' : '' }}>
-                                                    IDBI Bank
-                                                </option>
-                                                <option value="Yes Bank"
-                                                    {{ old('bank_name') == 'Yes Bank' || ($fundingDetail && $fundingDetail->bank_name === 'Yes Bank') ? 'selected' : '' }}>
-                                                    Yes Bank
-                                                </option>
-                                                <option value="IDFC First Bank"
-                                                    {{ old('bank_name') == 'IDFC First Bank' || ($fundingDetail && $fundingDetail->bank_name === 'IDFC First Bank') ? 'selected' : '' }}>
-                                                    IDFC
-                                                    First Bank</option>
-                                                <option value="State Bank of India"
-                                                    {{ old('bank_name') == 'State Bank of India' || ($fundingDetail && $fundingDetail->bank_name === 'State Bank of India') ? 'selected' : '' }}>
-                                                    State
-                                                    Bank of India</option>
-                                                <option value="Punjab National Bank"
-                                                    {{ old('bank_name') == 'Punjab National Bank' || ($fundingDetail && $fundingDetail->bank_name === 'Punjab National Bank') ? 'selected' : '' }}>
-                                                    Punjab National Bank</option>
-                                                <option value="Bank of Baroda"
-                                                    {{ old('bank_name') == 'Bank of Baroda' || ($fundingDetail && $fundingDetail->bank_name === 'Bank of Baroda') ? 'selected' : '' }}>
-                                                    Bank of
-                                                    Baroda</option>
-                                                <option value="Canara Bank"
-                                                    {{ old('bank_name') == 'Canara Bank' || ($fundingDetail && $fundingDetail->bank_name === 'Canara Bank') ? 'selected' : '' }}>
-                                                    Canara Bank
-                                                </option>
-                                                <option value="Union Bank of India"
-                                                    {{ old('bank_name') == 'Union Bank of India' || ($fundingDetail && $fundingDetail->bank_name === 'Union Bank of India') ? 'selected' : '' }}>
-                                                    Union
-                                                    Bank of India</option>
+                                                @foreach($banks as $bank)
+                                                    <option value="{{ $bank->name }}"
+                                                        {{ old('bank_name') == $bank->name || ($fundingDetail && $fundingDetail->bank_name === $bank->name) ? 'selected' : '' }}>
+                                                        {{ $bank->name }}
+                                                    </option>
+                                                @endforeach
                                             </select>
                                             <small class="text-danger">{{ $errors->first('bank_name') }}</small>
                                         </div>

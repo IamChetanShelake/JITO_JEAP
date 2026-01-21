@@ -147,7 +147,17 @@
                 </select>
             </td>
             <td><input type="text" name="family_${i}_qualification" class="form-control" value="${oldData ? oldData.qualification || '' : ''}"></td>
-            <td><input type="text" name="family_${i}_occupation" class="form-control" value="${oldData ? oldData.occupation || '' : ''}"></td>
+            <td>
+                <select name="family_${i}_occupation" class="form-control">
+                    <option value="">Select Occupation</option>
+                    <option value="Job" ${oldData && oldData.occupation === 'Job' ? 'selected' : ''}>Job</option>
+                    <option value="Business" ${oldData && oldData.occupation === 'Business' ? 'selected' : ''}>Business</option>
+                    <option value="Agriculture" ${oldData && oldData.occupation === 'Agriculture' ? 'selected' : ''}>Agriculture</option>
+                    <option value="Professional" ${oldData && oldData.occupation === 'Professional' ? 'selected' : ''}>Professional</option>
+                    <option value="Student" ${oldData && oldData.occupation === 'Student' ? 'selected' : ''}>Student</option>
+                    <option value="Homemaker" ${oldData && oldData.occupation === 'Homemaker' ? 'selected' : ''}>Homemaker</option>
+                </select>
+            </td>
             <td><input type="tel" name="family_${i}_mobile" class="form-control" value="${oldData ? oldData.mobile || '' : ''}"></td>
             <td><input type="email" name="family_${i}_email" class="form-control" value="${oldData ? oldData.email || '' : ''}"></td>
             <td><input type="number" name="family_${i}_yearly_income" class="form-control" value="${oldData ? oldData.yearly_income || '' : ''}"></td>
@@ -164,12 +174,67 @@
         if (numberFamilyMembersInput) {
             numberFamilyMembersInput.addEventListener('input', toggleFamilyTable);
         }
+
+        // Function to calculate total family income
+        function calculateTotalFamilyIncome() {
+            const applicantIncome = parseFloat(@json($user->applicant_yearly_income ?? 0)) || 0;
+            let total = applicantIncome;
+
+            // Sum incomes from other family members
+            const incomeInputs = document.querySelectorAll('input[name^="family_"][name$="_yearly_income"]');
+            incomeInputs.forEach(input => {
+                const value = parseFloat(input.value) || 0;
+                total += value;
+            });
+
+            // Set the total to the input field
+            const totalInput = document.querySelector('input[name="total_family_income"]');
+            if (totalInput) {
+                totalInput.value = total;
+            }
+        }
+
+        // Calculate initially
+        calculateTotalFamilyIncome();
+
+        // Add event listeners to income inputs to recalculate on change
+        document.addEventListener('input', function(e) {
+            if (e.target.name && e.target.name.endsWith('_yearly_income')) {
+                calculateTotalFamilyIncome();
+            }
+        });
+
+        // Function to show/hide diksha fields
+        function toggleDikshaFields() {
+            const dikshaSelect = document.querySelector('select[name="family_member_diksha"]');
+            const dikshaFields = document.querySelector('.diksha-fields');
+
+            if (dikshaSelect && dikshaFields) {
+                if (dikshaSelect.value === 'yes') {
+                    dikshaFields.style.display = 'block';
+                } else {
+                    dikshaFields.style.display = 'none';
+                    // Reset diksha fields
+                    const dikshaInputs = dikshaFields.querySelectorAll('input, select');
+                    dikshaInputs.forEach(input => {
+                        input.value = '';
+                    });
+                }
+            }
+        }
+
+        // Initialize diksha fields based on old value
+        toggleDikshaFields();
+
+        // Add event listener to diksha select
+        const dikshaSelect = document.querySelector('select[name="family_member_diksha"]');
+        if (dikshaSelect) {
+            dikshaSelect.addEventListener('change', toggleDikshaFields);
+        }
     });
 </script>
 
 @section('content')
-
-
     <style>
         .modern-form-card {
             background: white;
@@ -316,17 +381,18 @@
     <!-- Main Content -->
     <div class="col-lg-9 main-content">
         <!-- Hold Remark Alert -->
-    @if($familyDetail && $familyDetail->submit_status === 'resubmit' && $familyDetail->admin_remark)
-        <div class="alert alert-warning alert-dismissible fade show" role="alert" style="background-color: #fff3cd; border-color: #ffeaa7; color: #856404; border-radius: 8px; margin-bottom: 20px;">
-            <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
-            <p style="margin: 8px 0 0 0; font-size: 14px;">{{ $familyDetail->admin_remark }}</p>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+        @if ($familyDetail && $familyDetail->submit_status === 'resubmit' && $familyDetail->admin_remark)
+            <div class="alert alert-warning alert-dismissible fade show" role="alert"
+                style="background-color: #fff3cd; border-color: #ffeaa7; color: #856404; border-radius: 8px; margin-bottom: 20px;">
+                <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
+                <p style="margin: 8px 0 0 0; font-size: 14px;">{{ $familyDetail->admin_remark }}</p>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <form method="POST" action="{{ route('user.step3.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('user.step3.store') }}" enctype="multipart/form-data" novalidate>
                         @csrf
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
@@ -465,17 +531,76 @@
                                                 value="{{ old('total_students', $familyDetail->total_students ?? '') }}"
                                                 required>
                                             <small class="text-danger">{{ $errors->first('total_students') }}</small>
+                                            {{-- @error('total_students')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror --}}
+
                                         </div>
                                         <div class="form-group mb-3">
                                             <label for="family_member_diksha" class="form-label">Family Member Taken
                                                 Diksha
                                                 <span style="color: red;">*</span></label>
-                                            <input type="text" class="form-control" name="family_member_diksha"
-                                                placeholder="Family Member Taken Diksha "
-                                                value="{{ old('family_member_diksha', $familyDetail->family_member_diksha ?? '') }}"
-                                                required>
+                                            <select class="form-control" name="family_member_diksha" required>
+                                                <option value=""
+                                                    {{ !old('family_member_diksha') && !$familyDetail ? 'selected' : '' }}
+                                                    disabled hidden>Family Member Taken Diksha</option>
+                                                <option value="yes"
+                                                    {{ old('family_member_diksha') == 'yes' || ($familyDetail && $familyDetail->family_member_diksha === 'yes') ? 'selected' : '' }}>
+                                                    Yes</option>
+                                                <option value="no"
+                                                    {{ old('family_member_diksha') == 'no' || ($familyDetail && $familyDetail->family_member_diksha === 'no') ? 'selected' : '' }}>
+                                                    No</option>
+                                            </select>
                                             <small
                                                 class="text-danger">{{ $errors->first('family_member_diksha') }}</small>
+                                        </div>
+                                        <div class="diksha-fields" style="display:none;">
+                                            <div class="form-group mb-3">
+                                                <label for="diksha_member_name" class="form-label">Name of Family
+                                                    Member<span style="color: red;">*</span>
+                                                </label>
+                                                <input type="text" class="form-control" name="diksha_member_name"
+                                                    placeholder="Name of Family Member"
+                                                    value="{{ old('diksha_member_name', $familyDetail->diksha_member_name ?? '') }}"
+                                                    required>
+                                                <small class="text-danger"
+                                                    id="diksha_member_name_error">{{ $errors->first('diksha_member_name') }}</small>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="diksha_member_relation" class="form-label">Relation with
+                                                    Applicant <span style="color: red;">*</span></label>
+                                                <select class="form-control" name="diksha_member_relation" required>
+                                                    <option value=""
+                                                        {{ !old('diksha_member_relation') ? 'selected' : '' }} disabled
+                                                        hidden>Select Relation</option>
+                                                    <option value="grandparent"
+                                                        {{ old('diksha_member_relation') == 'grandfather' ? 'selected' : '' }}>
+                                                        GrandFather</option>
+                                                    <option value="grandparent"
+                                                        {{ old('diksha_member_relation') == 'grandmother' ? 'selected' : '' }}>
+                                                        GrandMother</option>
+                                                    <option value="parents"
+                                                        {{ old('diksha_member_relation') == 'father' ? 'selected' : '' }}>
+                                                        Father</option>
+                                                    <option value="parents"
+                                                        {{ old('diksha_member_relation') == 'mother' ? 'selected' : '' }}>
+                                                        Mother</option>
+                                                    <option value="uncle and aunt"
+                                                        {{ old('diksha_member_relation') == 'uncle' ? 'selected' : '' }}>
+                                                        Uncle </option>
+                                                    <option value="uncle and aunt"
+                                                        {{ old('diksha_member_relation') == 'aunt' ? 'selected' : '' }}>
+                                                        Aunt</option>
+                                                    <option value="brother"
+                                                        {{ old('diksha_member_relation') == 'brother' ? 'selected' : '' }}>
+                                                        Brother </option>
+                                                    <option value="sister"
+                                                        {{ old('diksha_member_relation') == 'sister' ? 'selected' : '' }}>
+                                                        Sister</option>
+                                                </select>
+                                                <small
+                                                    class="text-danger">{{ $errors->first('diksha_member_relation') }}</small>
+                                            </div>
                                         </div>
                                         <div class="form-group mb-3">
                                             <label for="total_insurance_coverage" class="form-label">Total Insurance

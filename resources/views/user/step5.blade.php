@@ -4,8 +4,6 @@
         7</button>
 @endsection
 @section('content')
-
-
     <style>
         .section-divider {
             height: 1px;
@@ -16,17 +14,18 @@
     <!-- Main Content -->
     <div class="col-lg-9 main-content">
         <!-- Hold Remark Alert -->
-    @if($guarantorDetail && $guarantorDetail->submit_status === 'resubmit' && $guarantorDetail->admin_remark)
-        <div class="alert alert-warning alert-dismissible fade show" role="alert" style="background-color: #fff3cd; border-color: #ffeaa7; color: #856404; border-radius: 8px; margin-bottom: 20px;">
-            <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
-            <p style="margin: 8px 0 0 0; font-size: 14px;">{{ $guarantorDetail->admin_remark }}</p>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+        @if ($guarantorDetail && $guarantorDetail->submit_status === 'resubmit' && $guarantorDetail->admin_remark)
+            <div class="alert alert-warning alert-dismissible fade show" role="alert"
+                style="background-color: #fff3cd; border-color: #ffeaa7; color: #856404; border-radius: 8px; margin-bottom: 20px;">
+                <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
+                <p style="margin: 8px 0 0 0; font-size: 14px;">{{ $guarantorDetail->admin_remark }}</p>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <form method="POST" action="{{ route('user.step5.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('user.step5.store') }}" enctype="multipart/form-data" novalidate>
                         @csrf
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
@@ -242,13 +241,12 @@
                                             </div>
 
                                             <div class="form-group mb-3">
-                                                <label for="g_one_d_o_b" class="form-label">Date of Birth(yyyy-mm-dd)
+                                                <label for="g_one_d_o_b" class="form-label">Date of Birth
                                                     <span style="color: red;">*</span></label>
-                                                <input type="text" name="g_one_d_o_b" class="form-control"
-                                                    placeholder="Date of Birth(yyyy-mm-dd) "
+                                                <input type="date" name="g_one_d_o_b" class="form-control"
                                                     value="{{ old('g_one_d_o_b') ?: $guarantorDetail->g_one_d_o_b ?? '' }}"
-                                                    pattern="\d{4}-\d{2}-\d{2}" title="Format: yyyy-mm-dd"
-                                                    inputmode="numeric" required>
+                                                    min="{{ date('Y-m-d', strtotime('-65 years')) }}"
+                                                    max="{{ date('Y-m-d', strtotime('-25 years')) }}" required>
                                                 <small class="text-danger">{{ $errors->first('g_one_d_o_b') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
@@ -409,7 +407,7 @@
 
 
 
-                                            <div class="form-group mb-3">
+                                            {{-- <div class="form-group mb-3">
                                                 <label for="g_two_d_o_b" class="form-label">Date of Birth(yyyy-mm-dd)
                                                     <span style="color: red;">*</span></label>
                                                 <input type="text" name="g_two_d_o_b" class="form-control"
@@ -417,6 +415,16 @@
                                                     value="{{ old('g_two_d_o_b') ?: $guarantorDetail->g_two_d_o_b ?? '' }}"
                                                     pattern="\d{4}-\d{2}-\d{2}" title="Format: yyyy-mm-dd"
                                                     inputmode="numeric" required>
+                                                <small class="text-danger">{{ $errors->first('g_two_d_o_b') }}</small>
+                                            </div> --}}
+
+                                            <div class="form-group mb-3">
+                                                <label for="g_two_d_o_b" class="form-label">Date of Birth
+                                                    <span style="color: red;">*</span></label>
+                                                <input type="date" name="g_two_d_o_b" class="form-control"
+                                                    value="{{ old('g_two_d_o_b') ?: $guarantorDetail->g_two_d_o_b ?? '' }}"
+                                                    min="{{ date('Y-m-d', strtotime('-65 years')) }}"
+                                                    max="{{ date('Y-m-d', strtotime('-25 years')) }}" required>
                                                 <small class="text-danger">{{ $errors->first('g_two_d_o_b') }}</small>
                                             </div>
 
@@ -432,7 +440,7 @@
                                             </div>
 
                                             <div class="form-group mb-3">
-                                                <label for="g_two_income" class="form-label">Annual Income <span
+                                                <label for="g_two_income" class="form-label">Income as Per ITR <span
                                                         style="color: red;">*</span></label>
                                                 <input type="number" name="g_two_income" class="form-control"
                                                     placeholder="Annual Income "

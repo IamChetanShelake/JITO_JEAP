@@ -755,7 +755,7 @@
                     in_array($user->workflowStatus->chapter_status, ['approved', 'rejected'])))
 
             <div class="data-group">
-                <h4>Final Chapter Decision</h4>
+                {{-- <h4>Final Chapter Decision</h4> --}}
                 <div class="form-section">
 
                     {{-- Show decision result if already decided --}}
@@ -923,7 +923,7 @@
         </div>
 
         <!-- Interview Step -->
-        <div class="step-content active" id="step-interview">
+        <div class="step-content" id="step-interview">
             <div class="step-header">
                 <h2 class="step-title-large">Chapter Interview</h2>
                 <div class="step-status">
@@ -997,7 +997,7 @@
 
         <!-- Step 1: Personal Details -->
 
-        <div class="step-content" id="step-1">
+        <div class="step-content active" id="step-1">
             <div class="step-header">
                 <h2 class="step-title-large">Step 1: Personal Details</h2>
                 <div class="step-status">
@@ -2280,33 +2280,33 @@
         <div class="data-group">
             <h4>Final Chapter Decision</h4>
             <div class="form-section">
-                <div style="margin-bottom: 2rem; padding: 2rem; border-radius: 12px; border: 2px solid #4CAF50;">
-                    <h5
-                        style="color: #2E7D32; margin: 0 0 1.5rem 0; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="fas fa-balance-scale"></i>
-                        Make Your Final Decision
-                    </h5>
+                @if (!in_array($user->workflowStatus->chapter_status ?? '', ['approved', 'rejected']))
+                    <div style="margin-bottom: 2rem; padding: 2rem; border-radius: 12px; border: 2px solid #4CAF50;">
+                        <h5
+                            style="color: #2E7D32; margin: 0 0 1.5rem 0; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-balance-scale"></i>
+                            Make Your Final Decision
+                        </h5>
 
-                    <!-- Decision Forms Container -->
-                    <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                        <!-- Decision Forms Container -->
+                        <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
 
-                        <!-- Approve Form -->
-                        <div
-                            style="flex: 1; min-width: 300px; padding: 2rem;  border-radius: 12px; border: 2px solid #4CAF50;">
-                            <h6
-                                style="color: #2E7D32; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
-                                <i class="fas fa-check-circle"></i>
-                                Approve Application
-                            </h6>
+                            <!-- Approve Form -->
+                            <div
+                                style="flex: 1; min-width: 300px; padding: 2rem;  border-radius: 12px; border: 2px solid #4CAF50;">
+                                <h6
+                                    style="color: #2E7D32; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-check-circle"></i>
+                                    Approve Application
+                                </h6>
                             <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'chapter']) }}"
                                 method="POST">
                                 @csrf
                                 <div class="form-row" style="margin-bottom: 1rem;">
                                     <div class="form-field form-field-full">
                                         <label class="form-label" style="color: #2E7D32;">Interview Date</label>
-                                        <input type="date" class="form-input"
+                                        <input type="date" name="interview_date" class="form-input"
                                             value="{{ $inter_date ? \Carbon\Carbon::parse($inter_date->updated_at)->format('Y-m-d') : '' }}"
-                                            readonly
                                             style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">
                                     </div>
                                 </div>
@@ -2317,6 +2317,13 @@
                                         <input type="text" class="form-input" value="{{ $data->group_4_total ?? 'NA' }}"
                                             readonly
                                             style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">
+                                    </div>
+                                </div>
+
+                                <div class="form-row" style="margin-bottom: 1rem;">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label" style="color: #2E7D32;">Chapter Remarks (Question 14)</label>
+                                        <textarea class="remark-input" readonly style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05); resize: vertical; min-height: 80px;">{{ \App\Models\ChapterInterviewAnswer::where('user_id', $user->id)->where('workflow_id', $user->workflowStatus->id ?? 0)->where('question_no', 14)->first()?->answer_text ?? 'Not answered' }}</textarea>
                                     </div>
                                 </div>
 
@@ -2560,7 +2567,58 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                @else
+                    <!-- Show submitted decision details -->
+                    <div style="margin-bottom: 2rem; padding: 2rem; border-radius: 12px; border: 2px solid #4CAF50;">
+                        <h5 style="color: #2E7D32; margin: 0 0 1.5rem 0; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-check-circle"></i>
+                            Decision Submitted - {{ ucfirst($user->workflowStatus->chapter_status ?? 'N/A') }}
+                        </h5>
+
+                        <div class="form-row" style="margin-bottom: 1rem;">
+                            <div class="form-field form-field-full">
+                                <label class="form-label" style="color: #2E7D32;">Interview Date</label>
+                                <input type="date" class="form-input"
+                                    value="{{ $user->workflowStatus->chapter_interview_date ? \Carbon\Carbon::parse($user->workflowStatus->chapter_interview_date)->format('Y-m-d') : '' }}"
+                                    readonly
+                                    style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="margin-bottom: 1rem;">
+                            <div class="form-field form-field-full">
+                                <label class="form-label" style="color: #2E7D32;">Total Expense</label>
+                                <input type="text" class="form-input" value="{{ $data->group_4_total ?? 'NA' }}"
+                                    readonly
+                                    style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="margin-bottom: 1rem;">
+                            <div class="form-field form-field-full">
+                                <label class="form-label" style="color: #2E7D32;">Chapter Remarks (Question 14)</label>
+                                <textarea class="remark-input" readonly style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05); resize: vertical; min-height: 80px;">{{ \App\Models\ChapterInterviewAnswer::where('user_id', $user->id)->where('workflow_id', $user->workflowStatus->id ?? 0)->where('question_no', 14)->first()?->answer_text ?? 'Not answered' }}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="margin-bottom: 1rem;">
+                            <div class="form-field form-field-full">
+                                <label class="form-label" style="color: #2E7D32;">Recommended Financial Assistance Amount</label>
+                                <input type="text" class="form-input"
+                                    value="{{ $user->workflowStatus->chapter_assistance_amount ? '₹' . number_format($user->workflowStatus->chapter_assistance_amount) : '' }}"
+                                    readonly
+                                    style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="margin-bottom: 1rem;">
+                            <div class="form-field form-field-full">
+                                <label class="form-label" style="color: #2E7D32;">Approval Remarks</label>
+                                <textarea readonly rows="4" class="remark-input" style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">{{ $user->workflowStatus->chapter_approval_remarks ?? '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -2617,6 +2675,8 @@
                 document.getElementById('reject_remark').value = rejectTextarea.value;
             });
         }
+
+
 
         // Load interview questions and answers
         loadInterviewQuestions();

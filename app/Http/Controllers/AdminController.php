@@ -35,7 +35,7 @@ class AdminController extends Controller
         $users = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($query) {
                 $query->where('current_stage', 'apex_1')
-                      ->where('final_status', 'in_progress');
+                      ->where('apex_1_status', 'pending');
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
@@ -49,7 +49,7 @@ class AdminController extends Controller
         // Get users where final_status = 'rejected'
         $users = User::where('role', 'user')
             ->whereHas('workflowStatus', function($q) {
-                $q->where('final_status', 'rejected');
+                $q->where('apex_1_status', 'rejected');
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
@@ -67,10 +67,12 @@ class AdminController extends Controller
     // Validation
     $rules = [
         'admin_remark' => 'nullable|string|max:2000',
+        'apex_staff_remark' => 'nullable|string|max:2000',
     ];
 
     if ($stage === 'chapter') {
         $rules['assistance_amount'] = 'required|numeric|min:0';
+        $rules['interview_date'] = 'required|date';
     }
 
     $request->validate($rules);
@@ -79,6 +81,13 @@ class AdminController extends Controller
 
     if (!$workflow) {
         return back()->with('error', 'Workflow not found');
+    }
+
+    if ($stage === 'chapter') {
+        $interviewCount = \App\Models\ChapterInterviewAnswer::where('user_id', $user->id)->where('workflow_id', $workflow->id)->count();
+        if ($interviewCount < 15) {
+            return back()->with('error', 'Please submit interview answers first.');
+        }
     }
 
     if ($workflow->current_stage !== $stage) {
@@ -94,11 +103,13 @@ class AdminController extends Controller
         $statusField => 'approved',
         $updatedAtField => now(),
         $remarksField => $request->admin_remark,
+        'apex_staff_remark' => $request->apex_staff_remark,
     ];
 
-    // Chapter assistance amount
+    // Chapter assistance amount and interview date
     if ($stage === 'chapter') {
         $updateData[$stage . '_assistance_amount'] = $request->assistance_amount;
+        $updateData[$stage . '_interview_date'] = $request->interview_date;
     }
 
     // Stage progression

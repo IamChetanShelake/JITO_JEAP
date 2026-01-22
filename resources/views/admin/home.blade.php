@@ -738,7 +738,7 @@
                                     <div class="status-label">Pending</div>
                                     <div class="status-value">
                                         {{ \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
-                                                $q->where('current_stage', 'apex_1')->where('final_status', 'in_progress');
+                                                $q->where('apex_1_status', 'pending')->where('final_status', 'in_progress');
                                             })->count() }}
                                     </div>
                                 </div>
@@ -752,7 +752,7 @@
                                     <div class="status-label">Hold</div>
                                     <div class="status-value">
                                         {{ \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
-                                                $q->where('final_status', 'rejected');
+                                                $q->where('apex_1_status', 'rejected');
                                             })->count() }}
                                     </div>
                                 </div>

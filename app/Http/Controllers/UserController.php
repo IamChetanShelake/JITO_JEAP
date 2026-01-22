@@ -199,6 +199,9 @@ class UserController extends Controller
 
         $user->update($data);
 
+        // Check if all steps are submitted (no resubmit remaining)
+        $this->checkAndUpdateWorkflowStatus();
+
         // Check if workflow status already exists for this user
         $workflow = ApplicationWorkflowStatus::where('user_id', $user->id)->first();
 
@@ -212,10 +215,11 @@ class UserController extends Controller
             $message = 'Application submitted successfully!';
         } else {
             // Update if exists
-            $workflow->update([
+            $updateData = [
                 'current_stage' => 'apex_1',
                 'final_status' => 'in_progress',
-            ]);
+            ];
+            $workflow->update($updateData);
             $message = 'Application resubmitted successfully!';
         }
 
@@ -704,6 +708,8 @@ class UserController extends Controller
     {
         // Validation for education details
         //  dd($request->all());
+
+        // Add workflow update here for simplicity
         $request->validate([
             // Financial Need Overview
             'course_name' => 'required|string|max:255',
@@ -890,6 +896,9 @@ class UserController extends Controller
             EducationDetail::create($data);
             $message = 'Education details saved successfully!';
         }
+
+        // Check if all steps are submitted (no resubmit remaining)
+        $this->checkAndUpdateWorkflowStatus();
 
         return redirect()->route('user.step3')->with('success', $message);
     }
@@ -1103,6 +1112,9 @@ class UserController extends Controller
             $message = 'Education details saved successfully!';
         }
 
+        // Check if all steps are submitted (no resubmit remaining)
+        $this->checkAndUpdateWorkflowStatus();
+
         return redirect()->route('user.step3')->with('success', $message);
     }
 
@@ -1238,6 +1250,12 @@ class UserController extends Controller
             // Create new record
             Familydetail::create($data);
             $message = 'Family details saved successfully!';
+        }
+
+        // If application was rejected, move back to pending
+        $workflow = ApplicationWorkflowStatus::where('user_id', $user_id)->first();
+        if ($workflow && $workflow->apex_1_status == 'rejected') {
+            $workflow->update(['apex_1_status' => 'pending']);
         }
 
         return redirect()->route('user.step4')->with('success', $message);
@@ -1416,6 +1434,12 @@ class UserController extends Controller
             // Create new record
             FundingDetail::create($data);
             $message = 'Funding details saved successfully!';
+        }
+
+        // If application was rejected, move back to pending
+        $workflow = ApplicationWorkflowStatus::where('user_id', Auth::id())->first();
+        if ($workflow && $workflow->apex_1_status == 'rejected') {
+            $workflow->update(['apex_1_status' => 'pending']);
         }
 
         return redirect()->route('user.step5')
@@ -1749,6 +1773,9 @@ class UserController extends Controller
             $message = 'Guarantor details saved successfully!';
         }
 
+        // Check if all steps are submitted (no resubmit remaining)
+        $this->checkAndUpdateWorkflowStatus();
+
         return redirect()->route('user.step6')->with('success', $message);
     }
 
@@ -1781,6 +1808,7 @@ class UserController extends Controller
         ]);
 
         try {
+            // Workflow update will be added at the end
             $existing = Document::where('user_id', Auth::id())->first();
             $rules = [];
             $requiredFields = [
@@ -2002,6 +2030,9 @@ class UserController extends Controller
             }
 
             Log::info('Step6Store: Document created successfully', ['user_id' => $user_id, 'document_id' => Document::latest()->first()->id]);
+
+            // Check if all steps are submitted (no resubmit remaining)
+            $this->checkAndUpdateWorkflowStatus();
 
             return redirect()->route('user.step7')->with('success', $message);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -2251,6 +2282,30 @@ class UserController extends Controller
                 'message' => 'Error fetching chapter: ' . $e->getMessage(),
                 'chapter' => null
             ], 500);
+        }
+    }
+
+    private function checkAndUpdateWorkflowStatus()
+    {
+        $userId = Auth::id();
+
+        // Check all steps for resubmit status
+        $steps = [
+            Auth::user()->submit_status,
+            EducationDetail::where('user_id', $userId)->first()?->submit_status,
+            Familydetail::where('user_id', $userId)->first()?->submit_status,
+            FundingDetail::where('user_id', $userId)->first()?->submit_status,
+            GuarantorDetail::where('user_id', $userId)->first()?->submit_status,
+            Document::where('user_id', $userId)->first()?->submit_status,
+        ];
+
+        $hasResubmit = in_array('resubmit', $steps);
+
+        if (!$hasResubmit) {
+            $workflow = ApplicationWorkflowStatus::where('user_id', $userId)->first();
+            if ($workflow && $workflow->apex_1_status == 'rejected') {
+                $workflow->update(['apex_1_status' => 'pending']);
+            }
         }
     }
 }

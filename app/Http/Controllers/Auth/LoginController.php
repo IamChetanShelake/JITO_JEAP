@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\AuthHelper;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -55,11 +56,13 @@ class LoginController extends Controller
             // Log the admin user into web guard for middleware compatibility
             $user = Auth::guard('admin')->user();
             Auth::login($user);
+            AuthHelper::logoutOtherGuards(['admin', 'web']);
             return true;
         }
 
         // Try web guard for regular users
         if (Auth::guard('web')->attempt($credentials, $request->filled('remember'))) {
+            AuthHelper::logoutOtherGuards(['web']);
             return true;
         }
 
@@ -68,6 +71,7 @@ class LoginController extends Controller
             // Log the apex user into web guard for middleware compatibility
             $user = Auth::guard('apex')->user();
             Auth::login($user);
+            AuthHelper::logoutOtherGuards(['apex', 'web']);
             return true;
         }
 
@@ -76,6 +80,7 @@ class LoginController extends Controller
             // Log the committee user into web guard for middleware compatibility
             $user = Auth::guard('committee')->user();
             Auth::login($user);
+            AuthHelper::logoutOtherGuards(['committee', 'web']);
             return true;
         }
 
@@ -84,6 +89,7 @@ class LoginController extends Controller
             // Log the chapter user into web guard for middleware compatibility
             $user = Auth::guard('chapter')->user();
             Auth::login($user);
+            AuthHelper::logoutOtherGuards(['chapter', 'web']);
             return true;
         }
 

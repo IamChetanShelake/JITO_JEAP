@@ -13,10 +13,9 @@ use App\Models\EducationDetail;
 
 class AdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        //dd('Reached admin home');
-        return view('admin.home');
+        return view('admin.home', ['activeGuard' => $request->active_guard]);
     }
 
     public function apexStage1Approved()
@@ -36,7 +35,7 @@ class AdminController extends Controller
         $users = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($query) {
                 $query->where('current_stage', 'apex_1')
-                      ->where('final_status', 'in_progress');
+                      ->where('apex_1_status', 'pending');
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
@@ -50,7 +49,7 @@ class AdminController extends Controller
         // Get users where final_status = 'rejected'
         $users = User::where('role', 'user')
             ->whereHas('workflowStatus', function($q) {
-                $q->where('final_status', 'rejected');
+                $q->where('apex_1_status', 'rejected');
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
@@ -68,10 +67,12 @@ class AdminController extends Controller
     // Validation
     $rules = [
         'admin_remark' => 'nullable|string|max:2000',
+        'apex_staff_remark' => 'nullable|string|max:2000',
     ];
 
     if ($stage === 'chapter') {
         $rules['assistance_amount'] = 'required|numeric|min:0';
+        $rules['interview_date'] = 'required|date';
     }
 
     $request->validate($rules);
@@ -82,7 +83,17 @@ class AdminController extends Controller
         return back()->with('error', 'Workflow not found');
     }
 
+    if ($stage === 'chapter') {
+        $interviewCount = \App\Models\ChapterInterviewAnswer::where('user_id', $user->id)->where('workflow_id', $workflow->id)->count();
+        Log::info("Chapter approval attempt - User: {$user->id}, Workflow: {$workflow->id}, Interview count: {$interviewCount}");
+        if ($interviewCount < 15) {
+            Log::info("Chapter approval blocked - insufficient interviews for user {$user->id}");
+            return back()->with('error', 'Please submit interview answers first.');
+        }
+    }
+
     if ($workflow->current_stage !== $stage) {
+        Log::info("Stage mismatch - Current: {$workflow->current_stage}, Requested: {$stage}");
         return back()->with('error', 'Invalid stage');
     }
 
@@ -95,11 +106,13 @@ class AdminController extends Controller
         $statusField => 'approved',
         $updatedAtField => now(),
         $remarksField => $request->admin_remark,
+        'apex_staff_remark' => $request->apex_staff_remark,
     ];
 
-    // Chapter assistance amount
+    // Chapter assistance amount and interview date
     if ($stage === 'chapter') {
         $updateData[$stage . '_assistance_amount'] = $request->assistance_amount;
+        $updateData[$stage . '_interview_date'] = $request->interview_date;
     }
 
     // Stage progression
@@ -406,10 +419,84 @@ class AdminController extends Controller
         return view('admin.total_hold', compact('users'));
     }
 
-    public function chapterStats()
+    public function chapterStats(Request $request)
     {
-        $chapters = Chapter::all();
-        return view('admin.chapters.stats', compact('chapters'));
+        if ($request->active_guard === 'chapter') {
+            $chapters = collect([Auth::user()]);
+        } else {
+            $chapters = Chapter::all();
+        }
+
+        // Get statistics for each chapter
+        $chapterStats = [];
+        foreach ($chapters as $chapter) {
+            $chapter_id = $chapter->id;
+
+            $stats = [
+                'chapter' => $chapter,
+                'total_applied' => User::where('role', 'user')
+                    ->where('chapter_id', $chapter_id)
+                    ->count(),
+
+                'approved' => User::where('role', 'user')
+                    ->where('chapter_id', $chapter_id)
+                    ->whereHas('workflowStatus', function($q) {
+                        $q->where('chapter_status', 'approved');
+                    })
+                    ->count(),
+
+                'pending' => User::where('role', 'user')
+                    ->where('chapter_id', $chapter_id)
+                    ->whereHas('workflowStatus', function($q) {
+                        $q->where('current_stage', 'chapter')
+                        ->where('final_status', 'in_progress');
+                    })
+                    ->count(),
+
+                'hold' => User::where('role', 'user')
+                    ->where('chapter_id', $chapter_id)
+                    ->whereHas('workflowStatus', function($q) {
+                        $q->where('chapter_status', 'rejected');
+                    })
+                    ->count(),
+
+                'apex_approved' => User::where('role', 'user')
+                    ->where('chapter_id', $chapter_id)
+                    ->whereHas('workflowStatus', function($q) {
+                        $q->where('apex_1_status', 'approved');
+                    })
+                    ->count(),
+
+                'working_committee' => User::where('role', 'user')
+                    ->where('chapter_id', $chapter_id)
+                    ->whereHas('workflowStatus', function($q) {
+                        $q->where('current_stage', 'working_committee');
+                    })
+                    ->count(),
+
+                'apex_2' => User::where('role', 'user')
+                    ->where('chapter_id', $chapter_id)
+                    ->whereHas('workflowStatus', function($q) {
+                        $q->where('current_stage', 'apex_2');
+                    })
+                    ->count(),
+
+                'final_approved' => User::where('role', 'user')
+                    ->where('chapter_id', $chapter_id)
+                    ->whereHas('workflowStatus', function($q) {
+                        $q->where('final_status', 'approved');
+                    })
+                    ->count(),
+            ];
+
+            // Calculate conversion rates
+            $stats['chapter_conversion'] = $stats['total_applied'] > 0 ? round(($stats['approved'] / $stats['total_applied']) * 100, 1) : 0;
+            $stats['overall_conversion'] = $stats['total_applied'] > 0 ? round(($stats['final_approved'] / $stats['total_applied']) * 100, 1) : 0;
+
+            $chapterStats[] = $stats;
+        }
+
+        return view('admin.chapters.stats', compact('chapterStats'));
     }
 
     public function chapterDetails(Chapter $chapter)
@@ -487,7 +574,7 @@ class AdminController extends Controller
     {
         $chapterUser = Auth::guard('chapter')->user();
 
-      
+
         if (!$chapterUser) {
             return redirect()->back()->with('error', 'Chapter user not authenticated.');
         }

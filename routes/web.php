@@ -22,7 +22,7 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 // Admin Routes - Protected by admin middleware
-Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/home', [AdminController::class, 'index'])->name('home');
 

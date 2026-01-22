@@ -751,154 +751,7 @@
         </div>
     </div>
 
-    @if($user->workflowStatus
-        && $user->workflowStatus->current_stage === 'apex_1'
-        && $user->workflowStatus->final_status === 'in_progress')
 
-        <!-- Validation Errors Display -->
-        @if ($errors->any())
-            <div style="background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.2); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
-                <h5 style="color: var(--primary-red); margin: 0 0 0.5rem 0; font-size: 0.9rem;">⚠️ Validation Errors:</h5>
-                <ul style="margin: 0; padding-left: 1.2rem; color: var(--primary-red); font-size: 0.85rem;">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <!-- Success/Error Messages Display -->
-        @if(session('success'))
-            <div style="background: rgba(76, 175, 80, 0.1); border: 1px solid rgba(76, 175, 80, 0.2); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
-                <p style="color: var(--primary-green); margin: 0; font-size: 0.9rem;">✅ {{ session('success') }}</p>
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div style="background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.2); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
-                <p style="color: var(--primary-red); margin: 0; font-size: 0.9rem;">❌ {{ session('error') }}</p>
-            </div>
-        @endif
-
-        <div class="workflow-action-card">
-            <h4 class="action-title">Apex 1 Decision</h4>
-
-            <!-- Approve Form -->
-            <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}"
-                  method="POST">
-                @csrf
-                <div class="action-form-row">
-                    <div style="flex: 2;">
-                        <textarea name="admin_remark"
-                                  placeholder="Approval remark (optional but recommended)"
-                                  rows="3"
-                                  class="remark-input"></textarea>
-
-                        {{-- <div style="margin-top: 1rem; padding: 1rem; background: rgba(76, 175, 80, 0.05); border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.1);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                <h5 style="color: var(--primary-green); margin: 0; font-size: 0.9rem;">Verify and approve steps:</h5>
-                            </div>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
-                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                    <input type="checkbox" name="approved_steps[]" value="personal" style="width: 16px; height: 16px;" required>
-                                    Step 1: Personal Details
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                    <input type="checkbox" name="approved_steps[]" value="education" style="width: 16px; height: 16px;" required>
-                                    Step 2: Education Details
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                    <input type="checkbox" name="approved_steps[]" value="family" style="width: 16px; height: 16px;" required>
-                                    Step 3: Family Details
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                    <input type="checkbox" name="approved_steps[]" value="funding" style="width: 16px; height: 16px;" required>
-                                    Step 4: Funding Details
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                    <input type="checkbox" name="approved_steps[]" value="guarantor" style="width: 16px; height: 16px;" required>
-                                    Step 5: Guarantor Details
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                    <input type="checkbox" name="approved_steps[]" value="documents" style="width: 16px; height: 16px;" required>
-                                    Step 6: Documents
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                    <input type="checkbox" name="approved_steps[]" value="final" style="width: 16px; height: 16px;" required>
-                                    Step 7: Final Submission
-                                </label>
-                            </div>
-                            <p style="font-size: 0.75rem; color: var(--text-light); margin: 0.5rem 0 0 0;">
-                                Check steps to approve them. All selected steps will have their submit_status updated to 'approved'.
-                            </p>
-                        </div> --}}
-                    </div>
-                    <button type="submit" class="btn btn-approve">
-                        <i class="fas fa-check"></i>
-                        Approve Application
-                    </button>
-                </div>
-            </form>
-
-            <div class="divider"></div>
-
-            <!-- Reject Form -->
-            <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}"
-                  method="POST">
-                @csrf
-                <div class="action-form-row">
-                    <div style="flex: 2;">
-                        <textarea name="admin_remark"
-                                  placeholder="Rejection remark (required)"
-                                  rows="3"
-                                  class="remark-input"
-                                  required></textarea>
-
-                        <div style="margin-top: 1rem; padding: 1rem; background: rgba(244, 67, 54, 0.05); border-radius: 8px; border: 1px solid rgba(244, 67, 54, 0.1);">
-                            <h5 style="color: var(--primary-red); margin: 0 0 0.5rem 0; font-size: 0.9rem;">Select steps to resubmit:</h5>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
-                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                    <input type="checkbox" name="resubmit_steps[]" value="personal" style="width: 16px; height: 16px;">
-                                    Step 1: Personal Details
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                    <input type="checkbox" name="resubmit_steps[]" value="education" style="width: 16px; height: 16px;">
-                                    Step 2: Education Details
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                    <input type="checkbox" name="resubmit_steps[]" value="family" style="width: 16px; height: 16px;">
-                                    Step 3: Family Details
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                    <input type="checkbox" name="resubmit_steps[]" value="funding" style="width: 16px; height: 16px;">
-                                    Step 4: Funding Details
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                    <input type="checkbox" name="resubmit_steps[]" value="guarantor" style="width: 16px; height: 16px;">
-                                    Step 5: Guarantor Details
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                    <input type="checkbox" name="resubmit_steps[]" value="documents" style="width: 16px; height: 16px;">
-                                    Step 6: Documents
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                    <input type="checkbox" name="resubmit_steps[]" value="final" style="width: 16px; height: 16px;">
-                                    Step 7: Final Submission
-                                </label>
-                            </div>
-                            <p style="font-size: 0.75rem; color: var(--text-light); margin: 0.5rem 0 0 0;">
-                                Leave unchecked to reject the entire application permanently.
-                            </p>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-reject">
-                        <i class="fas fa-times"></i>
-                        Send Back For Correction
-                    </button>
-                </div>
-            </form>
-        </div>
-    @endif
 </div>
 
 
@@ -933,6 +786,10 @@
         <div class="step-nav-item step-7" onclick="showStep(7)">
             <span class="step-number">7</span>
             <span class="step-title">Final Submission</span>
+        </div>
+        <div class="step-nav-item step-8" onclick="showStep(8)">
+            <span class="step-number">8</span>
+            <span class="step-title">Apex Decision</span>
         </div>
     </div>
 
@@ -2046,6 +1903,201 @@
             </div>
         </div>
     </div>
+
+
+    <!-- Step 8: Apex Decision -->
+    <div class="step-content" id="step-8">
+        <div class="step-header">
+            <h2 class="step-title-large">Step 8: Apex Decision</h2>
+            <div class="step-status">
+                @if($user->workflowStatus && $user->workflowStatus->apex_1_status === 'approved')
+                    <span class="status-badge status-approved">
+                        <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
+                        Approved
+                    </span>
+                @elseif($user->workflowStatus && $user->workflowStatus->apex_1_status === 'rejected')
+                    <span class="status-badge status-hold">
+                        <i class="fas fa-times-circle" style="font-size: 0.6rem;"></i>
+                        Send Back For Correction
+                    </span>
+                @else
+                    <span class="status-badge status-pending">
+                        <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                        Decision Required
+                    </span>
+                @endif
+            </div>
+        </div>
+
+        @if($user->workflowStatus && $user->workflowStatus->apex_1_status === 'approved')
+            <!-- Approved Decision Display -->
+            <div class="form-data">
+                <div class="data-group">
+                    <h4>✅ Application Approved</h4>
+                    <div class="form-section">
+                        {{-- <div class="data-item">
+                            <div class="data-label">Approval Date</div>
+                            <div class="data-value">{{ $user->workflowStatus->apex_1_updated_at ? $user->workflowStatus->apex_1_updated_at->format('d M Y H:i') : 'N/A' }}</div>
+                        </div> --}}
+                        @if($user->workflowStatus->apex_1_approval_remarks)
+                            <div class="data-item">
+                                <div class="data-label">Admin Approval Remarks</div>
+                                <div class="data-value">{{ $user->workflowStatus->apex_1_approval_remarks }}</div>
+                            </div>
+                        @endif
+                        @if($user->workflowStatus->apex_staff_remark)
+                            <div class="data-item">
+                                <div class="data-label">Apex Staff Remarks</div>
+                                <div class="data-value">{{ $user->workflowStatus->apex_staff_remark }}</div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+        @elseif($user->workflowStatus && $user->workflowStatus->apex_1_status === 'rejected')
+            <!-- Rejected Decision Display -->
+            <div class="form-data">
+                <div class="data-group">
+                    <h4>❌ Application Send Back For Correction</h4>
+                    <div class="form-section">
+
+                        @if($user->workflowStatus->apex_1_reject_remarks)
+                            <div class="data-item">
+                                <div class="data-label">Send Back For Correction Remarks</div>
+                                <div class="data-value">{{ $user->workflowStatus->apex_1_reject_remarks }}</div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+        @elseif($user->workflowStatus
+            && $user->workflowStatus->current_stage === 'apex_1'
+            && $user->workflowStatus->final_status === 'in_progress')
+
+            <!-- Validation Errors Display -->
+            @if ($errors->any())
+                <div style="background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.2); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                    <h5 style="color: var(--primary-red); margin: 0 0 0.5rem 0; font-size: 0.9rem;">⚠️ Validation Errors:</h5>
+                    <ul style="margin: 0; padding-left: 1.2rem; color: var(--primary-red); font-size: 0.85rem;">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <!-- Success/Error Messages Display -->
+            @if(session('success'))
+                <div style="background: rgba(76, 175, 80, 0.1); border: 1px solid rgba(76, 175, 80, 0.2); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                    <p style="color: var(--primary-green); margin: 0; font-size: 0.9rem;">✅ {{ session('success') }}</p>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div style="background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.2); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                    <p style="color: var(--primary-red); margin: 0; font-size: 0.9rem;">❌ {{ session('error') }}</p>
+                </div>
+            @endif
+
+            <div class="workflow-action-card">
+                <h4 class="action-title">Apex 1 Decision</h4>
+
+                <!-- Approve Form -->
+                <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}"
+                      method="POST">
+                    @csrf
+                    <div class="action-form-row">
+                        <div style="flex: 2;">
+                            <textarea name="admin_remark"
+                                      placeholder="Approval remark (optional but recommended)"
+                                      rows="3"
+                                      class="remark-input"></textarea>
+
+                            <div style="margin-top: 1rem;">
+                                <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Apex Staff Remark</label>
+                                <textarea name="apex_staff_remark"
+                                          placeholder="Optional apex staff remark"
+                                          rows="3"
+                                          class="remark-input"></textarea>
+                            </div>
+
+
+                        </div>
+                        <button type="submit" class="btn btn-approve">
+                            <i class="fas fa-check"></i>
+                            Approve Application
+                        </button>
+                    </div>
+                </form>
+
+                <div class="divider"></div>
+
+                <!-- Reject Form -->
+                <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}"
+                      method="POST">
+                    @csrf
+                    <div class="action-form-row">
+                        <div style="flex: 2;">
+                            <textarea name="admin_remark"
+                                      placeholder="Rejection remark (required)"
+                                      rows="3"
+                                      class="remark-input"
+                                      required></textarea>
+
+                            <div style="margin-top: 1rem; padding: 1rem; background: rgba(244, 67, 54, 0.05); border-radius: 8px; border: 1px solid rgba(244, 67, 54, 0.1);">
+                                <h5 style="color: var(--primary-red); margin: 0 0 0.5rem 0; font-size: 0.9rem;">Select steps to resubmit:</h5>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                        <input type="checkbox" name="resubmit_steps[]" value="personal" style="width: 16px; height: 16px;">
+                                        Step 1: Personal Details
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                        <input type="checkbox" name="resubmit_steps[]" value="education" style="width: 16px; height: 16px;">
+                                        Step 2: Education Details
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                        <input type="checkbox" name="resubmit_steps[]" value="family" style="width: 16px; height: 16px;">
+                                        Step 3: Family Details
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                        <input type="checkbox" name="resubmit_steps[]" value="funding" style="width: 16px; height: 16px;">
+                                        Step 4: Funding Details
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                        <input type="checkbox" name="resubmit_steps[]" value="guarantor" style="width: 16px; height: 16px;">
+                                        Step 5: Guarantor Details
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                        <input type="checkbox" name="resubmit_steps[]" value="documents" style="width: 16px; height: 16px;">
+                                        Step 6: Documents
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                        <input type="checkbox" name="resubmit_steps[]" value="final" style="width: 16px; height: 16px;">
+                                        Step 7: Final Submission
+                                    </label>
+                                </div>
+                                <p style="font-size: 0.75rem; color: var(--text-light); margin: 0.5rem 0 0 0;">
+                                    Leave unchecked to reject the entire application permanently.
+                                </p>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-reject">
+                            <i class="fas fa-times"></i>
+                            Send Back For Correction
+                        </button>
+                    </div>
+                </form>
+            </div>
+        @else
+            <div class="no-data">
+                <p>Decision not available for this application.</p>
+            </div>
+        @endif
+    </div>
+
+
 </div>
 @endsection
 

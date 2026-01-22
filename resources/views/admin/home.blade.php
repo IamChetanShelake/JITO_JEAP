@@ -573,6 +573,9 @@
 @endsection
 
 @section('content')
+
+
+
     <!-- Dashboard Header -->
     <div class="container">
         <div class="dashboard-header">
@@ -686,12 +689,13 @@
             </div>
         </div>
 
+
+
+
         <!-- Approval Sections -->
         <div class="row">
             <div class="col-lg-6">
-                @if (
-                    (Auth::guard('admin')->check() && Auth::guard('admin')->user()->role == 'admin') ||
-                        (Auth::guard('apex')->check() && Auth::guard('apex')->user()->role == 'apex'))
+                @if (in_array($activeGuard, ['admin', 'apex']))
                     <!-- Apex stage 1 -->
                     <div class="approval-section">
                         <div class="approval-header">
@@ -756,12 +760,9 @@
                         </div>
                     </div>
                 @endif
-                {{-- @if (Auth::user()->role == 'working-committee') --}}
-                {{-- @if (Auth::guard('committee')->role == 'working-committee') --}}
-                @if (
-                    (Auth::guard('committee')->check() && Auth::guard('committee')->user()->role == 'working-committee') ||
-                        (Auth::guard('admin')->check() && Auth::guard('admin')->user()->role == 'admin') ||
-                        (Auth::guard('apex')->check() && Auth::guard('apex')->user()->role == 'apex'))
+
+
+                @if (in_array($activeGuard, ['admin', 'apex', 'committee']))
                     <!-- working committee -->
                     <div class="approval-section">
                         <div class="approval-header">
@@ -820,7 +821,7 @@
                     </div>
                 @endif
 
-                @if (Auth::guard('admin')->check() && Auth::guard('admin')->user()->role == 'admin')
+               @if ($activeGuard === 'admin')
                     <!-- Accounts Department -->
                     <div class="approval-section">
                         <div class="approval-header">
@@ -889,9 +890,7 @@
                         ->count();
                     $chapter_progress = $chapter_total > 0 ? ($chapter_approved / $chapter_total) * 100 : 0;
                 @endphp
-                @if (
-                    (Auth::guard('admin')->check() && Auth::guard('admin')->user()->role == 'admin') ||
-                        (Auth::guard('apex')->check() && Auth::guard('apex')->user()->role == 'apex'))
+               @if (in_array($activeGuard, ['admin', 'apex', 'chapter']))
                     <div class="approval-section">
                         <div class="approval-header">
                             <div class="approval-title working-committee-title">
@@ -918,62 +917,9 @@
                     </div>
                 @endif
 
-                @if (
-                    (Auth::guard('admin')->check() && Auth::guard('admin')->user()->role == 'admin') ||
-                        (Auth::guard('apex')->check() && Auth::guard('apex')->user()->role == 'apex'))
-                    <!-- apex stage 2 -->
-                    <div class="approval-section">
-                        <div class="approval-header">
-                            <div class="approval-title chapter-title">
-                                <i class="fas fa-map-marker-alt"></i>
-                                Apex Stage 2
-                            </div>
-                            <div class="approval-total">Total - 10</div>
-                        </div>
-                        <div class="approval-rate">
-                            <span>Approval Rate</span>
-                            <span>75%</span>
-                        </div>
-                        <div class="progress-custom">
-                            <div class="progress-bar-custom"
-                                style="width: 75%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
-                        </div>
-                        <div class="status-badges">
-                            <div class="status-badge approved">
-                                <div class="status-icon approved">
-                                    <i class="fas fa-check"></i>
-                                </div>
-                                <div>
-                                    <div class="status-label">Approved</div>
-                                    <div class="status-value">{{ \App\Models\Chapter::where('status', true)->count() }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="status-badge pending">
-                                <div class="status-icon pending">
-                                    <i class="fas fa-clock"></i>
-                                </div>
-                                <div>
-                                    <div class="status-label">Pending</div>
-                                    <div class="status-value">2</div>
-                                </div>
-                            </div>
-                            <div class="status-badge hold">
-                                <div class="status-icon hold">
-                                    <i class="fas fa-exclamation"></i>
-                                </div>
-                                <div>
-                                    <div class="status-label">Hold</div>
-                                    <div class="status-value">2</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
 
-                @if (
-                    (Auth::guard('admin')->check() && Auth::guard('admin')->user()->role == 'admin') ||
-                        (Auth::guard('apex')->check() && Auth::guard('apex')->user()->role == 'apex'))
+
+                @if (in_array($activeGuard, ['admin', 'apex']))
                     <!-- Disbursement -->
                     <div class="approval-section">
                         <div class="approval-header">

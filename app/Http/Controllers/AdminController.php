@@ -13,10 +13,9 @@ use App\Models\EducationDetail;
 
 class AdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        //dd('Reached admin home');
-        return view('admin.home');
+        return view('admin.home', ['activeGuard' => $request->active_guard]);
     }
 
     public function apexStage1Approved()
@@ -365,9 +364,13 @@ class AdminController extends Controller
         return view('admin.total_hold', compact('users'));
     }
 
-    public function chapterStats()
+    public function chapterStats(Request $request)
     {
-        $chapters = Chapter::all();
+        if ($request->active_guard === 'chapter') {
+            $chapters = collect([Auth::user()]);
+        } else {
+            $chapters = Chapter::all();
+        }
         return view('admin.chapters.stats', compact('chapters'));
     }
 
@@ -446,7 +449,7 @@ class AdminController extends Controller
     {
         $chapterUser = Auth::guard('chapter')->user();
 
-      
+
         if (!$chapterUser) {
             return redirect()->back()->with('error', 'Chapter user not authenticated.');
         }

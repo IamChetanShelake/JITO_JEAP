@@ -1,4 +1,3 @@
-
 @extends('admin.layouts.master')
 
 
@@ -834,7 +833,7 @@
                                 {{-- Show the decision form for pending approval --}}
                                 <div
                                     style="padding: 2rem; background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%); border-radius: 12px; border: 1px solid rgba(57, 49, 133, 0.1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06); margin-top: 1.5rem;">
-                                    <h4 class="action-title">Chapter Decision</h4> --}}
+                                    <h4 class="action-title">Chapter Decision</h4>
 
                                     <!-- Approve Form -->
                                     {{-- <div class="action-form-row">
@@ -2314,8 +2313,8 @@
                                 <div class="form-row" style="margin-bottom: 1rem;">
                                     <div class="form-field form-field-full">
                                         <label class="form-label" style="color: #2E7D32;">Total Expence</label>
-                                        <input type="text" class="form-input" value="{{ $data->group_4_total ?? 'NA' }}"
-                                            readonly
+                                        <input type="text" class="form-input"
+                                            value="{{ $data->group_4_total ?? 'NA' }}" readonly
                                             style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">
                                     </div>
                                 </div>

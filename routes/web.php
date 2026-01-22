@@ -38,6 +38,12 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::get('/chapter/hold', [AdminController::class, 'chapterHold'])->name('chapter.hold');
     Route::get('/chapter/user/{user}', [AdminController::class, 'chapterUserDetail'])->name('chapter.user.detail');
 
+    // Working Committee Forms
+    Route::get('/working-committee/approved', [AdminController::class, 'workingCommitteeApproved'])->name('working_committee.approved');
+    Route::get('/working-committee/pending', [AdminController::class, 'workingCommitteePending'])->name('working_committee.pending');
+    Route::get('/working-committee/hold', [AdminController::class, 'workingCommitteeHold'])->name('working_committee.hold');
+    Route::get('/working-committee/user/{user}', [AdminController::class, 'workingCommitteeUserDetail'])->name('working_committee.user.detail');
+
     // Approval workflow endpoints
     Route::post('/user/{user}/approve/{stage}', [AdminController::class, 'approveStage'])->name('user.approve');
     Route::post('/user/{user}/reject/{stage}', [AdminController::class, 'rejectStage'])->name('user.reject');

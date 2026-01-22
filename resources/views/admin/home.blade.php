@@ -780,7 +780,7 @@
                                 style="width: 70%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
                         </div>
                         <div class="status-badges">
-                            <a href="{{ route('admin.apex.stage1.approved') }}" class="status-badge approved"
+                            <a href="{{ route('admin.working_committee.approved') }}" class="status-badge approved"
                                 style="text-decoration: none; color: inherit;">
                                 <div class="status-icon approved">
                                     <i class="fas fa-check"></i>
@@ -792,7 +792,7 @@
                                     </div>
                                 </div>
                             </a>
-                            <a href="{{ route('admin.apex.stage1.pending') }}" class="status-badge pending"
+                            <a href="{{ route('admin.working_committee.pending') }}" class="status-badge pending"
                                 style="text-decoration: none; color: inherit;">
                                 <div class="status-icon pending">
                                     <i class="fas fa-clock"></i>
@@ -804,7 +804,7 @@
                                     </div>
                                 </div>
                             </a>
-                            <a href="{{ route('admin.apex.stage1.hold') }}" class="status-badge hold"
+                            <a href="{{ route('admin.working_committee.hold') }}" class="status-badge hold"
                                 style="text-decoration: none; color: inherit;">
                                 <div class="status-icon hold">
                                     <i class="fas fa-exclamation"></i>

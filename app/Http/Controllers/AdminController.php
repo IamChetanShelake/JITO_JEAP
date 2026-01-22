@@ -289,6 +289,47 @@ class AdminController extends Controller
         return view('admin.chapters.stage2.user_detail', compact('user','data','inter_date'));
     }
 
+    public function workingCommitteeApproved()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('workflowStatus', function($q) {
+                $q->where('working_committee_status', 'approved');
+            })
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            ->get();
+        return view('admin.working_committee.approved', compact('users'));
+    }
+
+    public function workingCommitteePending()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($query) {
+                $query->where('current_stage', 'working_committee')
+                      ->where('final_status', 'in_progress');
+            })
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            ->get();
+
+        return view('admin.working_committee.pending', compact('users'));
+    }
+
+    public function workingCommitteeHold()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('workflowStatus', function($q) {
+                $q->where('working_committee_status', 'rejected');
+            })
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            ->get();
+        return view('admin.working_committee.hold', compact('users'));
+    }
+
+    public function workingCommitteeUserDetail(User $user)
+    {
+        $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
+        return view('admin.working_committee.user_detail', compact('user'));
+    }
+
     // Chapter Interview Methods
     public function saveChapterInterview(Request $request)
     {

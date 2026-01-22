@@ -1,4 +1,6 @@
+
 @extends('admin.layouts.master')
+
 
 @section('title', 'Chapter User Details - JitoJeap Admin')
 

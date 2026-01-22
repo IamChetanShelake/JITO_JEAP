@@ -99,8 +99,10 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        if ($user && in_array($user->role, ['admin', 'apex', 'working-committee', 'chapter'])) {
+        if ($user && in_array($user->role, ['admin', 'apex', 'working-committee'])) {
             return redirect()->route('admin.home');
+        } elseif ($user && $user->role === 'chapter') {
+            return redirect()->route('admin.chapter.user.dashboard');
         } elseif ($user && $user->role === 'user') {
             return redirect()->route('user.home');
         }

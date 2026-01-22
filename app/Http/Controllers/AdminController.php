@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\ApplicationWorkflowStatus;
 use App\Models\Chapter;
@@ -439,6 +440,59 @@ class AdminController extends Controller
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
         return view('admin.chapters.stage2.hold', compact('users')); // Reuse existing view
+    }
+
+    public function chapterUserDashboard()
+    {
+        $chapterUser = Auth::guard('chapter')->user();
+
+      
+        if (!$chapterUser) {
+            return redirect()->back()->with('error', 'Chapter user not authenticated.');
+        }
+        $chapter_id = $chapterUser->id;
+        $chapter = $chapterUser;
+
+
+        // Get statistics for this chapter
+        $total_applied = User::where('role', 'user')
+            ->where('chapter_id', $chapter_id)
+            ->count();
+
+        $approved = User::where('role', 'user')
+            ->where('chapter_id', $chapter_id)
+            ->whereHas('workflowStatus', function($q) {
+                $q->where('chapter_status', 'approved');
+            })
+            ->count();
+
+        $pending = User::where('role', 'user')
+            ->where('chapter_id', $chapter_id)
+            ->whereHas('workflowStatus', function($q) {
+                $q->where('current_stage', 'chapter')
+                ->where('final_status', 'in_progress');
+            })
+            ->count();
+
+        $hold = User::where('role', 'user')
+            ->where('chapter_id', $chapter_id)
+            ->whereHas('workflowStatus', function($q) {
+                $q->where('chapter_status', 'rejected');
+            })
+            ->count();
+
+        // Get recent users from this chapter who are at chapter stage
+        $users = User::where('role', 'user')
+            ->where('chapter_id', $chapter_id)
+            ->whereHas('workflowStatus', function($q) {
+                $q->whereIn('current_stage', ['chapter', 'working_committee', 'apex_2']);
+            })
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return view('admin.chapters.stage2.user_details_each_chapter', compact('users', 'total_applied', 'approved', 'pending', 'hold', 'chapter', 'chapter_id'));
     }
 
 }

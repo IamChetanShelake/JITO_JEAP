@@ -71,6 +71,9 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::get('/chapters/working-committee-pending', [AdminController::class, 'chapterWorkingCommitteePending'])->name('chapter.working-committee-pending');
     Route::get('/chapters/resubmit', [AdminController::class, 'chapterResubmit'])->name('chapter.resubmit');
 
+    // Chapter User Dashboard
+    Route::get('/chapter/dashboard', [AdminController::class, 'chapterUserDashboard'])->name('chapter.user.dashboard');
+
     // Chapter Routes
     Route::resource('chapters', ChapterController::class);
 

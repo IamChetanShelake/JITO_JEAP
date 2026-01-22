@@ -649,63 +649,65 @@
                             <span class="nav-text">Dashboard</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.apex') ? 'active' : '' }}"
-                            href="{{ route('admin.apex.index') }}">
-                            <i class="fas fa-users"></i>
-                            <span class="nav-text">Apex Leadership</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.committee') ? 'active' : '' }}"
-                            href="{{ route('admin.committee.index') }}">
-                            <i class="fas fa-user-tie"></i>
-                            <span class="nav-text">Working Committee</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.zones') ? 'active' : '' }}"
-                            href="{{ route('admin.zones.index') }}">
-                            <i class="fas fa-globe"></i>
-                            <span class="nav-text">Zone</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.chapters') ? 'active' : '' }}"
-                            href="{{ route('admin.chapters.index') }}">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span class="nav-text">Chapter</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.pincodes') ? 'active' : '' }}"
-                            href="{{ route('admin.pincodes.index') }}">
-                            <i class="fas fa-thumbtack"></i>
-                            <span class="nav-text">Pincodes</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.initiatives') ? 'active' : '' }}"
-                            href="{{ route('admin.initiatives.index') }}">
-                            <i class="fas fa-lightbulb"></i>
-                            <span class="nav-text">Initiatives</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.banks') ? 'active' : '' }}"
-                            href="{{ route('admin.banks.index') }}">
-                            <i class="fas fa-bank"></i>
-                            <span class="nav-text">Banks</span>
-                        </a>
-                    </li>
+                    @if (Auth::guard('admin')->check() && Auth::guard('admin')->user()->role == 'admin')
+                        <li class="nav-item">
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.apex') ? 'active' : '' }}"
+                                href="{{ route('admin.apex.index') }}">
+                                <i class="fas fa-users"></i>
+                                <span class="nav-text">Apex Leadership</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.committee') ? 'active' : '' }}"
+                                href="{{ route('admin.committee.index') }}">
+                                <i class="fas fa-user-tie"></i>
+                                <span class="nav-text">Working Committee</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.zones') ? 'active' : '' }}"
+                                href="{{ route('admin.zones.index') }}">
+                                <i class="fas fa-globe"></i>
+                                <span class="nav-text">Zone</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.chapters') ? 'active' : '' }}"
+                                href="{{ route('admin.chapters.index') }}">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span class="nav-text">Chapter</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.pincodes') ? 'active' : '' }}"
+                                href="{{ route('admin.pincodes.index') }}">
+                                <i class="fas fa-thumbtack"></i>
+                                <span class="nav-text">Pincodes</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.initiatives') ? 'active' : '' }}"
+                                href="{{ route('admin.initiatives.index') }}">
+                                <i class="fas fa-lightbulb"></i>
+                                <span class="nav-text">Initiatives</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.banks') ? 'active' : '' }}"
+                                href="{{ route('admin.banks.index') }}">
+                                <i class="fas fa-bank"></i>
+                                <span class="nav-text">Banks</span>
+                            </a>
+                        </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.subcasts') ? 'active' : '' }}"
-                            href="{{ route('admin.subcasts.index') }}">
-                            <i class="fas fa-users"></i>
-                            <span class="nav-text">Subcast</span>
-                        </a>
-                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.subcasts') ? 'active' : '' }}"
+                                href="{{ route('admin.subcasts.index') }}">
+                                <i class="fas fa-users"></i>
+                                <span class="nav-text">Subcast</span>
+                            </a>
+                        </li>
+                    @endif
                     <li class="nav-item">
                         <a class="nav-link" href="#"
                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -716,6 +718,7 @@
                             @csrf
                         </form>
                     </li>
+
                 </ul>
             </nav>
             <div class="sidebar-footer mt-4">

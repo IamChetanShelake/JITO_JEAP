@@ -1941,7 +1941,7 @@
                         </div> --}}
                         @if($user->workflowStatus->apex_1_approval_remarks)
                             <div class="data-item">
-                                <div class="data-label">Admin Remarks</div>
+                                <div class="data-label">Admin Approval Remarks</div>
                                 <div class="data-value">{{ $user->workflowStatus->apex_1_approval_remarks }}</div>
                             </div>
                         @endif

@@ -85,12 +85,15 @@ class AdminController extends Controller
 
     if ($stage === 'chapter') {
         $interviewCount = \App\Models\ChapterInterviewAnswer::where('user_id', $user->id)->where('workflow_id', $workflow->id)->count();
+        Log::info("Chapter approval attempt - User: {$user->id}, Workflow: {$workflow->id}, Interview count: {$interviewCount}");
         if ($interviewCount < 15) {
+            Log::info("Chapter approval blocked - insufficient interviews for user {$user->id}");
             return back()->with('error', 'Please submit interview answers first.');
         }
     }
 
     if ($workflow->current_stage !== $stage) {
+        Log::info("Stage mismatch - Current: {$workflow->current_stage}, Requested: {$stage}");
         return back()->with('error', 'Invalid stage');
     }
 
@@ -382,7 +385,77 @@ class AdminController extends Controller
         } else {
             $chapters = Chapter::all();
         }
-        return view('admin.chapters.stats', compact('chapters'));
+
+        // Get statistics for each chapter
+        $chapterStats = [];
+        foreach ($chapters as $chapter) {
+            $chapter_id = $chapter->id;
+
+            $stats = [
+                'chapter' => $chapter,
+                'total_applied' => User::where('role', 'user')
+                    ->where('chapter_id', $chapter_id)
+                    ->count(),
+
+                'approved' => User::where('role', 'user')
+                    ->where('chapter_id', $chapter_id)
+                    ->whereHas('workflowStatus', function($q) {
+                        $q->where('chapter_status', 'approved');
+                    })
+                    ->count(),
+
+                'pending' => User::where('role', 'user')
+                    ->where('chapter_id', $chapter_id)
+                    ->whereHas('workflowStatus', function($q) {
+                        $q->where('current_stage', 'chapter')
+                        ->where('final_status', 'in_progress');
+                    })
+                    ->count(),
+
+                'hold' => User::where('role', 'user')
+                    ->where('chapter_id', $chapter_id)
+                    ->whereHas('workflowStatus', function($q) {
+                        $q->where('chapter_status', 'rejected');
+                    })
+                    ->count(),
+
+                'apex_approved' => User::where('role', 'user')
+                    ->where('chapter_id', $chapter_id)
+                    ->whereHas('workflowStatus', function($q) {
+                        $q->where('apex_1_status', 'approved');
+                    })
+                    ->count(),
+
+                'working_committee' => User::where('role', 'user')
+                    ->where('chapter_id', $chapter_id)
+                    ->whereHas('workflowStatus', function($q) {
+                        $q->where('current_stage', 'working_committee');
+                    })
+                    ->count(),
+
+                'apex_2' => User::where('role', 'user')
+                    ->where('chapter_id', $chapter_id)
+                    ->whereHas('workflowStatus', function($q) {
+                        $q->where('current_stage', 'apex_2');
+                    })
+                    ->count(),
+
+                'final_approved' => User::where('role', 'user')
+                    ->where('chapter_id', $chapter_id)
+                    ->whereHas('workflowStatus', function($q) {
+                        $q->where('final_status', 'approved');
+                    })
+                    ->count(),
+            ];
+
+            // Calculate conversion rates
+            $stats['chapter_conversion'] = $stats['total_applied'] > 0 ? round(($stats['approved'] / $stats['total_applied']) * 100, 1) : 0;
+            $stats['overall_conversion'] = $stats['total_applied'] > 0 ? round(($stats['final_approved'] / $stats['total_applied']) * 100, 1) : 0;
+
+            $chapterStats[] = $stats;
+        }
+
+        return view('admin.chapters.stats', compact('chapterStats'));
     }
 
     public function chapterDetails(Chapter $chapter)

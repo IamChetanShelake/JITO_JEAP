@@ -879,6 +879,9 @@
         @endif
     </div>
 
+    <!-- Success/Error Messages Display -->
+
+
     <!-- Steps Container -->
     <div class="steps-container">
         <!-- Step Navigation -->
@@ -2305,7 +2308,7 @@
                                 <div class="form-row" style="margin-bottom: 1rem;">
                                     <div class="form-field form-field-full">
                                         <label class="form-label" style="color: #2E7D32;">Interview Date</label>
-                                        <input type="date" name="interview_date" class="form-input"
+                                        <input type="date" name="interview_date" class="form-input" required
                                             value="{{ $inter_date ? \Carbon\Carbon::parse($inter_date->updated_at)->format('Y-m-d') : '' }}"
                                             style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">
                                     </div>

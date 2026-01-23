@@ -26,11 +26,20 @@ class WorkingCommitteeApproval extends Model
      * @var array
      */
     protected $guarded = [];
-
     /**
      * The attributes that should be cast.
      *
      * @var array
      */
-    protected $casts = [];
+    protected $casts = [
+        'w_c_approval_date' => 'date',
+        'repayment_starting_from' => 'date',
+        'yearly_dates' => 'array',
+        'yearly_amounts' => 'array',
+        'half_yearly_dates' => 'array',
+        'half_yearly_amounts' => 'array',
+        'approval_financial_assistance_amount' => 'decimal:2',
+        'installment_amount' => 'decimal:2',
+        'additional_installment_amount' => 'decimal:2',
+    ];
 }

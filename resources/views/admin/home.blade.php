@@ -693,7 +693,8 @@
 
 
         <!-- Approval Sections -->
-        <div class="row">
+        <!-- Row 1: Apex Step 1, Chapter -->
+        <div class="row g-3">
             <div class="col-lg-6">
                 @if (in_array($activeGuard, ['admin', 'apex']))
                     <!-- Apex stage 1 -->
@@ -760,9 +761,81 @@
                         </div>
                     </div>
                 @endif
+            </div>
+            <div class="col-lg-6">
+                <!-- chapter -->
+                @php
+                    $chapter_total = \App\Models\User::where('role', 'user')
+                        ->whereHas('workflowStatus', function ($q) {
+                            $q->whereIn('current_stage', ['chapter', 'working_committee', 'apex_2']);
+                        })
+                        ->count();
+                    $chapter_approved = \App\Models\User::where('role', 'user')
+                        ->whereHas('workflowStatus', function ($q) {
+                            $q->whereIn('current_stage', ['chapter', 'working_committee', 'apex_2'])->where(
+                                'final_status',
+                                'approved',
+                            );
+                        })
+                        ->count();
+                    $chapter_progress = $chapter_total > 0 ? ($chapter_approved / $chapter_total) * 100 : 0;
+                @endphp
+               @if (in_array($activeGuard, ['admin', 'apex', 'chapter']))
+                    <div class="approval-section">
+                        <div class="approval-header">
+                            <div class="approval-title working-committee-title">
+                                <i class="fas fa-user-tie"></i>
+                                Chapter
+                            </div>
+                            <div class="approval-total">Total - {{ $chapter_total }}</div>
+                        </div>
+                        <div class="approval-rate">
+                            <span>Approval Rate</span>
+                            <span>{{ $chapter_total > 0 ? round(($chapter_approved / $chapter_total) * 100) : 0 }}%</span>
+                        </div>
+                        <div class="progress-custom">
+                            <div class="progress-bar-custom"
+                                style="width: {{ $chapter_progress }}%; background: linear-gradient(90deg, #495049, #6e796f);">
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <a href="{{ route('admin.chapters.stats') }}" class="btn btn-primary btn-lg"
+                                style="padding: 0.75rem 2rem; font-size: 1rem;">
+                                <i class="fas fa-chart-bar me-2"></i> View Chapter Statistics
+                            </a>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
 
-
+        <!-- Row 2: Working Committee, Apex Step 2 -->
+        <div class="row g-3">
+            <div class="col-lg-6">
                 @if (in_array($activeGuard, ['admin', 'apex', 'committee']))
+                    @php
+                        $working_committee_total = \App\Models\User::where('role', 'user')
+                            ->whereHas('workflowStatus', function ($q) {
+                                $q->where('current_stage', 'working_committee');
+                            })
+                            ->count();
+                        $working_committee_approved = \App\Models\User::where('role', 'user')
+                            ->whereHas('workflowStatus', function ($q) {
+                                $q->where('working_committee_status', 'approved');
+                            })
+                            ->count();
+                        $working_committee_pending = \App\Models\User::where('role', 'user')
+                            ->whereHas('workflowStatus', function ($q) {
+                                $q->where('current_stage', 'working_committee')->where('final_status', 'in_progress');
+                            })
+                            ->count();
+                        $working_committee_hold = \App\Models\User::where('role', 'user')
+                            ->whereHas('workflowStatus', function ($q) {
+                                $q->where('working_committee_status', 'rejected');
+                            })
+                            ->count();
+                        $working_committee_progress = $working_committee_total > 0 ? ($working_committee_approved / $working_committee_total) * 100 : 0;
+                    @endphp
                     <!-- working committee -->
                     <div class="approval-section">
                         <div class="approval-header">
@@ -770,15 +843,15 @@
                                 <i class="fas fa-globe"></i>
                                 Working Committee
                             </div>
-                            <div class="approval-total">Total - 12</div>
+                            <div class="approval-total">Total - {{ $working_committee_total }}</div>
                         </div>
                         <div class="approval-rate">
                             <span>Approval Rate</span>
-                            <span>70%</span>
+                            <span>{{ $working_committee_total > 0 ? round(($working_committee_approved / $working_committee_total) * 100) : 0 }}%</span>
                         </div>
                         <div class="progress-custom">
                             <div class="progress-bar-custom"
-                                style="width: 70%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
+                                style="width: {{ $working_committee_progress }}%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
                         </div>
                         <div class="status-badges">
                             <a href="{{ route('admin.working_committee.approved') }}" class="status-badge approved"
@@ -789,7 +862,7 @@
                                 <div>
                                     <div class="status-label">Approved</div>
                                     <div class="status-value">
-                                        {{ \App\Models\User::whereHas('familyDetail', function ($q) {$q->where('submit_status', 'approved');})->whereHas('educationDetail', function ($q) {$q->where('submit_status', 'approved');})->whereHas('fundingDetail', function ($q) {$q->where('submit_status', 'approved');})->whereHas('guarantorDetail', function ($q) {$q->where('submit_status', 'approved');})->whereHas('document', function ($q) {$q->where('submit_status', 'approved');})->where('submit_status', 'approved')->count() }}
+                                        {{ $working_committee_approved }}
                                     </div>
                                 </div>
                             </a>
@@ -801,7 +874,7 @@
                                 <div>
                                     <div class="status-label">Pending</div>
                                     <div class="status-value">
-                                        {{ \App\Models\User::where(function ($query) {$query->where('submit_status', 'pending')->orWhere('submit_status', 'submited');})->orWhere(function ($query) {$query->whereHas('educationDetail', function ($q) {$q->where('submit_status', 'pending');});})->orWhere(function ($query) {$query->whereHas('familyDetail', function ($q) {$q->where('submit_status', 'pending');});})->orWhere(function ($query) {$query->whereHas('fundingDetail', function ($q) {$q->where('submit_status', 'pending');});})->orWhere(function ($query) {$query->whereHas('guarantorDetail', function ($q) {$q->where('submit_status', 'pending');});})->orWhere(function ($query) {$query->whereHas('document', function ($q) {$q->where('submit_status', 'pending');});})->count() }}
+                                        {{ $working_committee_pending }}
                                     </div>
                                 </div>
                             </a>
@@ -813,14 +886,71 @@
                                 <div>
                                     <div class="status-label">Hold</div>
                                     <div class="status-value">
-                                        {{ \App\Models\User::where('submit_status', 'resubmit')->orWhere(function ($query) {$query->whereHas('educationDetail', function ($q) {$q->where('submit_status', 'resubmit');});})->orWhere(function ($query) {$query->whereHas('familyDetail', function ($q) {$q->where('submit_status', 'resubmit');});})->orWhere(function ($query) {$query->whereHas('fundingDetail', function ($q) {$q->where('submit_status', 'resubmit');});})->orWhere(function ($query) {$query->whereHas('guarantorDetail', function ($q) {$q->where('submit_status', 'resubmit');});})->orWhere(function ($query) {$query->whereHas('document', function ($q) {$q->where('submit_status', 'resubmit');});})->count() }}
+                                        {{ $working_committee_hold }}
                                     </div>
                                 </div>
                             </a>
                         </div>
                     </div>
                 @endif
+            </div>
+            <div class="col-lg-6">
+                @if (in_array($activeGuard, ['admin', 'apex']))
+                    <!-- apex stage 2 -->
+                    <div class="approval-section">
+                        <div class="approval-header">
+                            <div class="approval-title chapter-title">
+                                <i class="fas fa-map-marker-alt"></i>
+                                Apex Stage 2
+                            </div>
+                            <div class="approval-total">Total - 10</div>
+                        </div>
+                        <div class="approval-rate">
+                            <span>Approval Rate</span>
+                            <span>75%</span>
+                        </div>
+                        <div class="progress-custom">
+                            <div class="progress-bar-custom"
+                                style="width: 75%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
+                        </div>
+                        <div class="status-badges">
+                            <div class="status-badge approved">
+                                <div class="status-icon approved">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Approved</div>
+                                    <div class="status-value">{{ \App\Models\Chapter::where('status', true)->count() }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="status-badge pending">
+                                <div class="status-icon pending">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Pending</div>
+                                    <div class="status-value">2</div>
+                                </div>
+                            </div>
+                            <div class="status-badge hold">
+                                <div class="status-icon hold">
+                                    <i class="fas fa-exclamation"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Hold</div>
+                                    <div class="status-value">2</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
 
+        <!-- Row 3: Accounts Department, Disbursement -->
+        <div class="row g-3">
+            <div class="col-lg-6">
                @if ($activeGuard === 'admin')
                     <!-- Accounts Department -->
                     <div class="approval-section">
@@ -871,54 +1001,7 @@
                     </div>
                 @endif
             </div>
-
             <div class="col-lg-6">
-                <!-- chapter -->
-                @php
-                    $chapter_total = \App\Models\User::where('role', 'user')
-                        ->whereHas('workflowStatus', function ($q) {
-                            $q->whereIn('current_stage', ['chapter', 'working_committee', 'apex_2']);
-                        })
-                        ->count();
-                    $chapter_approved = \App\Models\User::where('role', 'user')
-                        ->whereHas('workflowStatus', function ($q) {
-                            $q->whereIn('current_stage', ['chapter', 'working_committee', 'apex_2'])->where(
-                                'final_status',
-                                'approved',
-                            );
-                        })
-                        ->count();
-                    $chapter_progress = $chapter_total > 0 ? ($chapter_approved / $chapter_total) * 100 : 0;
-                @endphp
-               @if (in_array($activeGuard, ['admin', 'apex', 'chapter']))
-                    <div class="approval-section">
-                        <div class="approval-header">
-                            <div class="approval-title working-committee-title">
-                                <i class="fas fa-user-tie"></i>
-                                Chapter
-                            </div>
-                            <div class="approval-total">Total - {{ $chapter_total }}</div>
-                        </div>
-                        <div class="approval-rate">
-                            <span>Approval Rate</span>
-                            <span>{{ $chapter_total > 0 ? round(($chapter_approved / $chapter_total) * 100) : 0 }}%</span>
-                        </div>
-                        <div class="progress-custom">
-                            <div class="progress-bar-custom"
-                                style="width: {{ $chapter_progress }}%; background: linear-gradient(90deg, #495049, #6e796f);">
-                            </div>
-                        </div>
-                        <div class="text-center">
-                            <a href="{{ route('admin.chapters.stats') }}" class="btn btn-primary btn-lg"
-                                style="padding: 0.75rem 2rem; font-size: 1rem;">
-                                <i class="fas fa-chart-bar me-2"></i> View Chapter Statistics
-                            </a>
-                        </div>
-                    </div>
-                @endif
-
-
-
                 @if (in_array($activeGuard, ['admin', 'apex']))
                     <!-- Disbursement -->
                     <div class="approval-section">
@@ -971,7 +1054,6 @@
                         </div>
                     </div>
                 @endif
-
             </div>
         </div>
     </div>

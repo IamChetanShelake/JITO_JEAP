@@ -725,314 +725,7 @@
         </div>
     </div>
 
-    <!-- Workflow Status Card -->
-    <div class="user-info-card">
-        <div class="workflow-status-header">
-            <div class="workflow-status-icon">
-                <i class="fas fa-tasks"></i>
-            </div>
-            <div class="workflow-stage-info">
-                <h3>Workflow Status</h3>
-                <p><strong>Current Stage:</strong> <span
-                        class="status-highlight">{{ $user->workflowStatus ? ucfirst(str_replace('_', ' ', $user->workflowStatus->current_stage)) : 'N/A' }}</span>
-                </p>
-                <p><strong>Final Status:</strong> <span
-                        class="status-highlight">{{ $user->workflowStatus ? ucfirst($user->workflowStatus->final_status) : 'N/A' }}</span>
-                </p>
-            </div>
-        </div>
 
-        @if (
-            $user->workflowStatus &&
-                $user->workflowStatus->current_stage === 'working_committee' &&
-                $user->workflowStatus->final_status === 'in_progress')
-            <div class="data-group">
-                <h4>Final Working Committee Decision</h4>
-                <div class="form-section">
-                    <div
-                        style="padding: 2rem; background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%); border-radius: 12px; border: 1px solid rgba(57, 49, 133, 0.1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06); margin-top: 1.5rem;">
-                        <h4 class="action-title">Working Committee Decision</h4>
-
-                        <!-- Approve Form -->
-                        <div
-                            style="flex: 1; min-width: 300px; padding: 2rem; border-radius: 12px; border: 2px solid #4CAF50;">
-                            <h6
-                                style="color: #2E7D32; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
-                                <i class="fas fa-check-circle"></i>
-                                Approve Application
-                            </h6>
-                            <form
-                                action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'working_committee']) }}"
-                                method="POST" id="approval-form">
-                                @csrf
-                                <!-- Previous Approvals Info -->
-                                <div
-                                    style="background: rgba(76, 175, 80, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid rgba(76, 175, 80, 0.2);">
-                                    <h6 style="color: #2E7D32; margin-bottom: 1rem;">Previous Approvals</h6>
-                                    <div class="form-row">
-                                        <div class="form-field">
-                                            <label class="form-label">Apex Approval Remark</label>
-                                            <textarea class="form-input" readonly>{{ $user->workflowStatus->apex_1_approval_remarks ?? 'N/A' }}</textarea>
-                                        </div>
-                                        <div class="form-field">
-                                            <label class="form-label">Apex Approval Date</label>
-                                            <input type="text" class="form-input"
-                                                value="{{ $user->workflowStatus->apex_1_updated_at ? \Carbon\Carbon::parse($user->workflowStatus->apex_1_updated_at)->format('d M Y') : 'N/A' }}"
-                                                readonly>
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-field">
-                                            <label class="form-label">Chapter Approval Remark</label>
-                                            <textarea class="form-input" readonly>{{ $user->workflowStatus->chapter_approval_remarks ?? 'N/A' }}</textarea>
-                                        </div>
-                                        <div class="form-field">
-                                            <label class="form-label">Chapter Approval Date</label>
-                                            <input type="text" class="form-input"
-                                                value="{{ $user->workflowStatus->chapter_updated_at ? \Carbon\Carbon::parse($user->workflowStatus->chapter_updated_at)->format('d M Y') : 'N/A' }}"
-                                                readonly>
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-field">
-                                            <label class="form-label">Total Expenses of Student</label>
-                                            <input type="text" class="form-input"
-                                                value="₹{{ number_format($user->educationDetail->group_4_total ?? 0) }}"
-                                                readonly>
-                                        </div>
-                                        <div class="form-field">
-                                            <label class="form-label">Amount Requested for Year</label>
-                                            <input type="text" class="form-input"
-                                                value="₹{{ number_format($user->fundingDetail->total_funding_amount ?? 0) }}"
-                                                readonly>
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-field form-field-full">
-                                            <label class="form-label">Recommended Financial Amount by Chapter</label>
-                                            <input type="text" class="form-input"
-                                                value="₹{{ number_format($user->workflowStatus->chapter_assistance_amount ?? 0) }}"
-                                                readonly>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-field form-field-full">
-                                        <label class="form-label">Working Committee Approval Remark</label>
-                                        <textarea name="w_c_approval_remark" placeholder="Provide approval remarks" rows="3" class="remark-input"
-                                            required></textarea>
-                                    </div>
-                                </div>
-                                <!-- Working Committee Approval Form -->
-                                <div class="form-row">
-                                    <div class="form-field">
-                                        <label class="form-label">Working Committee Approval Date</label>
-                                        <input type="date" name="w_c_approval_date" class="form-input" required>
-                                    </div>
-                                    <div class="form-field">
-                                        <label class="form-label">Meeting Number</label>
-                                        <input type="text" name="meeting_no" class="form-input"
-                                            placeholder="Enter meeting number" required>
-                                    </div>
-                                </div>
-
-                                <!-- Disbursement System Card -->
-                                <div
-                                    style="background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%); border-radius: 12px; padding: 2rem; margin: 1.5rem 0; border: 1px solid rgba(57, 49, 133, 0.1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);">
-                                    <h6
-                                        style="color: #2E7D32; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                                        <i class="fas fa-money-check-alt"></i>
-                                        Disbursement Planning
-                                    </h6>
-
-                                    <div class="form-row">
-                                        <div class="form-field form-field-full">
-                                            <label class="form-label">Disbursement System</label>
-                                            <div style="display: flex; gap: 1rem; padding: 0.75rem;">
-                                                <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                                    <input type="radio" name="disbursement_system" value="yearly"
-                                                        required>
-                                                    Yearly
-                                                </label>
-                                                <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                                    <input type="radio" name="disbursement_system" value="half_yearly"
-                                                        required>
-                                                    Half Yearly
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Dynamic Disbursement Fields -->
-                                    <div id="yearly-fields" style="display: none;">
-                                        <div class="form-row">
-                                            <div class="form-field">
-                                                <label class="form-label">Disbursement in Year</label>
-                                                <select name="disbursement_in_year" class="form-input"
-                                                    id="disbursement-year-select">
-                                                    <option value="">Select number of years</option>
-                                                    @for ($i = 1; $i <= 6; $i++)
-                                                        <option value="{{ $i }}">{{ $i }}</option>
-                                                    @endfor
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div id="yearly-disbursements" style="display: none;">
-                                            <!-- Dynamic yearly fields will be added here -->
-                                        </div>
-                                    </div>
-
-                                    <div id="half-yearly-fields" style="display: none;">
-                                        <div class="form-row">
-                                            <div class="form-field">
-                                                <label class="form-label">Disbursement in Half Year</label>
-                                                <select name="disbursement_in_half_year" class="form-input"
-                                                    id="disbursement-half-year-select">
-                                                    <option value="">Select number of half years</option>
-                                                    @for ($i = 1; $i <= 12; $i++)
-                                                        <option value="{{ $i }}">{{ $i }}</option>
-                                                    @endfor
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div id="half-yearly-disbursements" style="display: none;">
-                                            <!-- Dynamic half yearly fields will be added here -->
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-field">
-                                        <label class="form-label">Approved Financial Assistance Amount</label>
-                                        <input type="number" name="approval_financial_assistance_amount"
-                                            id="total-amount" class="form-input" step="0.01" readonly>
-                                    </div>
-                                    <div class="form-field">
-                                        <label class="form-label">Installment Amount</label>
-                                        <input type="number" name="installment_amount" id="installment-amount"
-                                            class="form-input" step="0.01" readonly>
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-field">
-                                        <label class="form-label">Additional Installment Amount</label>
-                                        <input type="number" name="additional_installment_amount" class="form-input"
-                                            step="0.01">
-                                    </div>
-                                    <div class="form-field">
-                                        <label class="form-label">Repayment Type</label>
-                                        <select name="repayment_type" class="form-input" required>
-                                            <option value="">Select repayment type</option>
-                                            <option value="yearly">Yearly</option>
-                                            <option value="half_yearly">Half Yearly</option>
-                                            <option value="quarterly">Quarterly</option>
-                                            <option value="monthly">Monthly</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-field">
-                                        <label class="form-label">No of Cheques to be Collected</label>
-                                        <input type="number" name="no_of_cheques_to_be_collected" class="form-input"
-                                            min="1">
-                                    </div>
-                                    <div class="form-field">
-                                        <label class="form-label">Repayment Starting From</label>
-                                        <input type="date" name="repayment_starting_from" class="form-input">
-                                    </div>
-                                </div>
-
-
-
-                                <div class="form-row">
-                                    <div class="form-field">
-                                        <label class="form-label">Processed By</label>
-                                        <input type="text" name="processed_by" class="form-input"
-                                            value="{{ Auth::user()->name ?? 'N/A' }}" readonly>
-                                    </div>
-                                    <div class="form-field">
-
-                                        <label class="form-label">Remarks for Approval</label>
-                                        <textarea name="remarks_for_approval" placeholder="Provide detailed remarks for approval" rows="4"
-                                            class="remark-input"></textarea>
-                                    </div>
-                                </div>
-
-                                <button type="submit" class="btn btn-approve" style="width: 100%; margin-top: 1rem;">
-                                    <i class="fas fa-check"></i>
-                                    Approve & Move to Apex 2
-                                </button>
-                            </form>
-                        </div>
-
-                        <div class="divider"></div>
-
-                        <!-- Reject Form -->
-                        <div
-                            style="flex: 1; min-width: 300px; padding: 2rem; border-radius: 12px; border: 2px solid #f44336;">
-                            <h6
-                                style="color: #c62828; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
-                                <i class="fas fa-times-circle"></i>
-                                Reject Application
-                            </h6>
-                            <form
-                                action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'working_committee']) }}"
-                                method="POST">
-                                @csrf
-                                <div class="form-row" style="margin-bottom: 1rem;">
-                                    <div class="form-field form-field-full">
-                                        <label class="form-label" style="color: #c62828;">Rejection Remarks *</label>
-                                        <textarea name="admin_remark" placeholder="Provide detailed rejection remarks (required)" rows="4"
-                                            class="remark-input" style="border: 2px solid #f44336; background: rgba(244, 67, 54, 0.05);" required></textarea>
-                                    </div>
-                                </div>
-
-                                {{-- <!-- Rejection Checkboxes -->
-                            <div style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(244, 67, 54, 0.1); border-radius: 8px; border: 1px solid rgba(244, 67, 54, 0.3);">
-                                <h6 style="color: #c62828; margin: 0 0 0.5rem 0; font-size: 0.9rem;">Select steps to resubmit:</h6>
-                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
-                                        <input type="checkbox" name="resubmit_steps[]" value="personal" style="width: 16px; height: 16px;">
-                                        Personal Details
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
-                                        <input type="checkbox" name="resubmit_steps[]" value="education" style="width: 16px; height: 16px;">
-                                        Education Details
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
-                                        <input type="checkbox" name="resubmit_steps[]" value="family" style="width: 16px; height: 16px;">
-                                        Family Details
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
-                                        <input type="checkbox" name="resubmit_steps[]" value="funding" style="width: 16px; height: 16px;">
-                                        Funding Details
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
-                                        <input type="checkbox" name="resubmit_steps[]" value="guarantor" style="width: 16px; height: 16px;">
-                                        Guarantor Details
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
-                                        <input type="checkbox" name="resubmit_steps[]" value="documents" style="width: 16px; height: 16px;">
-                                        Documents
-                                    </label>
-                                </div>
-                                <p style="font-size: 0.75rem; color: #c62828; margin: 0.5rem 0 0 0; font-style: italic;">Leave unchecked to reject permanently</p>
-                            </div> --}}
-
-                                <button type="submit" class="btn btn-reject" style="width: 100%;">
-                                    <i class="fas fa-times"></i>
-                                    Reject Application
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-    </div>
 
     <!-- Steps Container -->
     <div class="steps-container">
@@ -1065,6 +758,10 @@
             <div class="step-nav-item step-7" onclick="showStep(7)">
                 <span class="step-number">7</span>
                 <span class="step-title">Final Submission</span>
+            </div>
+            <div class="step-nav-item step-8" onclick="showStep(8)">
+                <span class="step-number">8</span>
+                <span class="step-title">Working Committee Decision</span>
             </div>
         </div>
 
@@ -2174,6 +1871,488 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Step 8: Working Committee Decision -->
+        <div class="step-content" id="step-8">
+            <div class="step-header">
+                <h2 class="step-title-large">Step 8: Working Committee Decision</h2>
+                <div class="step-status">
+                    <span class="status-badge status-approved">
+                        <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                        In Progress
+                    </span>
+                </div>
+            </div>
+
+            @if($workingCommitteeApproval && $workingCommitteeApproval->approval_status === 'approved')
+                <!-- Display Submitted Working Committee Data -->
+                <div class="form-data">
+                    <div class="data-group">
+                        <h4>Submitted Working Committee Decision</h4>
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Working Committee Approval Remark</label>
+                                    <textarea class="form-textarea" readonly>{{ $workingCommitteeApproval->w_c_approval_remark }}</textarea>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Approval Date</label>
+                                    <input type="text" class="form-input" value="{{ $workingCommitteeApproval->w_c_approval_date ? $workingCommitteeApproval->w_c_approval_date->format('d M Y') : 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Meeting Number</label>
+                                    <input type="text" class="form-input" value="{{ $workingCommitteeApproval->meeting_no }}" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Disbursement System</label>
+                                    <input type="text" class="form-input" value="{{ ucfirst($workingCommitteeApproval->disbursement_system) }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Approved Financial Assistance Amount</label>
+                                    <input type="text" class="form-input" value="₹{{ number_format($workingCommitteeApproval->approval_financial_assistance_amount, 2) }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Installment Amount</label>
+                                    <input type="text" class="form-input" value="₹{{ number_format($workingCommitteeApproval->installment_amount, 2) }}" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Additional Installment Amount</label>
+                                    <input type="text" class="form-input" value="₹{{ number_format($workingCommitteeApproval->additional_installment_amount, 2) }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Repayment Type</label>
+                                    <input type="text" class="form-input" value="{{ ucfirst($workingCommitteeApproval->repayment_type) }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">No. of Cheques to be Collected</label>
+                                    <input type="text" class="form-input" value="{{ $workingCommitteeApproval->no_of_cheques_to_be_collected ?: 'N/A' }}" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Repayment Starting From</label>
+                                    <input type="text" class="form-input" value="{{ $workingCommitteeApproval->repayment_starting_from ? $workingCommitteeApproval->repayment_starting_from->format('d M Y') : 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Processed By</label>
+                                    <input type="text" class="form-input" value="{{ $workingCommitteeApproval->processed_by }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Approval Status</label>
+                                    <input type="text" class="form-input" value="{{ ucfirst($workingCommitteeApproval->approval_status) }}" readonly>
+                                </div>
+                            </div>
+                            @if($workingCommitteeApproval->disbursement_system === 'yearly' && $workingCommitteeApproval->yearly_dates && is_array($workingCommitteeApproval->yearly_dates))
+                                <div class="form-row">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label">Yearly Disbursement Schedule</label>
+                                        <div class="table-container">
+                                            <table class="custom-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Year</th>
+                                                        <th>Disbursement Date</th>
+                                                        <th>Amount</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if($workingCommitteeApproval->yearly_amounts && is_array($workingCommitteeApproval->yearly_amounts))
+                                                        @foreach($workingCommitteeApproval->yearly_dates as $index => $date)
+                                                            <tr>
+                                                                <td>{{ $index + 1 }}</td>
+                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}</td>
+                                                                <td class="amount-cell">₹{{ number_format($workingCommitteeApproval->yearly_amounts[$index] ?? 0, 2) }}</td>
+                                                            </tr>
+                                                        @endforeach
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                            @if($workingCommitteeApproval->disbursement_system === 'half_yearly' && $workingCommitteeApproval->half_yearly_dates && is_array($workingCommitteeApproval->half_yearly_dates))
+                                <div class="form-row">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label">Half-Yearly Disbursement Schedule</label>
+                                        <div class="table-container">
+                                            <table class="custom-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Half Year</th>
+                                                        <th>Disbursement Date</th>
+                                                        <th>Amount</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if($workingCommitteeApproval->half_yearly_amounts && is_array($workingCommitteeApproval->half_yearly_amounts))
+                                                        @foreach($workingCommitteeApproval->half_yearly_dates as $index => $date)
+                                                            <tr>
+                                                                <td>{{ $index + 1 }} ({{ ($index % 2 === 0) ? '1st Half' : '2nd Half' }})</td>
+                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}</td>
+                                                                <td class="amount-cell">₹{{ number_format($workingCommitteeApproval->half_yearly_amounts[$index] ?? 0, 2) }}</td>
+                                                            </tr>
+                                                        @endforeach
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                            @if($workingCommitteeApproval->remarks_for_approval)
+                                <div class="form-row">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label">Remarks for Approval</label>
+                                        <textarea class="form-textarea" readonly>{{ $workingCommitteeApproval->remarks_for_approval }}</textarea>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            @if($user->workflowStatus && $user->workflowStatus->working_committee_status === 'rejected')
+                <!-- Display Working Committee Rejection Remarks -->
+                <div class="form-data">
+                    <div class="data-group" style="background: #ffebee; border-color: #f44336;">
+                        <h4 style="color: #c62828;">Working Committee Rejection Decision</h4>
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-field form-field-full">
+                                    <label class="form-label" style="color: #c62828;">Rejection Remarks</label>
+                                    <textarea class="form-textarea" readonly style="border-color: #f44336; background: rgba(244, 67, 54, 0.05);">{{ $user->workflowStatus->working_committee_reject_remarks }}</textarea>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Rejection Date</label>
+                                    <input type="text" class="form-input" value="{{ $user->workflowStatus->working_committee_updated_at ? \Carbon\Carbon::parse($user->workflowStatus->working_committee_updated_at)->format('d M Y H:i') : 'N/A' }}" readonly style="border-color: #f44336;">
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Rejected By</label>
+                                    <input type="text" class="form-input" value="{{ Auth::user()->name ?? 'N/A' }}" readonly style="border-color: #f44336;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Workflow Status Card -->
+            <div class="user-info-card">
+                <div class="workflow-status-header">
+                    <div class="workflow-status-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="workflow-stage-info">
+                        <h3>Workflow Status</h3>
+                        <p><strong>Current Stage:</strong> <span
+                                class="status-highlight">{{ $user->workflowStatus ? ucfirst(str_replace('_', ' ', $user->workflowStatus->current_stage)) : 'N/A' }}</span>
+                        </p>
+                        <p><strong>Final Status:</strong> <span
+                                class="status-highlight">{{ $user->workflowStatus ? ucfirst($user->workflowStatus->final_status) : 'N/A' }}</span>
+                        </p>
+                    </div>
+                </div>
+
+                @if (
+                    $user->workflowStatus &&
+                        $user->workflowStatus->current_stage === 'working_committee' &&
+                        $user->workflowStatus->final_status === 'in_progress')
+                    <div class="data-group">
+                        <h4>Final Working Committee Decision</h4>
+                        <div class="form-section">
+                            <div
+                                style="padding: 2rem; background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%); border-radius: 12px; border: 1px solid rgba(57, 49, 133, 0.1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06); margin-top: 1.5rem;">
+                                <h4 class="action-title">Working Committee Decision</h4>
+
+                                <!-- Approve Form -->
+                                <div
+                                    style="flex: 1; min-width: 300px; padding: 2rem; border-radius: 12px; border: 2px solid #4CAF50;">
+                                    <h6
+                                        style="color: #2E7D32; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                                        <i class="fas fa-check-circle"></i>
+                                        Approve Application
+                                    </h6>
+                                    <form
+                                        action="{{ route('admin.working_committee.user.approve', ['user' => $user, 'stage' => 'working_committee']) }}"
+                                        method="POST" id="approval-form">
+                                        @csrf
+                                        <!-- Previous Approvals Info -->
+                                        <div
+                                            style="background: rgba(76, 175, 80, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid rgba(76, 175, 80, 0.2);">
+                                            <h6 style="color: #2E7D32; margin-bottom: 1rem;">Previous Approvals</h6>
+                                            <div class="form-row">
+                                                <div class="form-field">
+                                                    <label class="form-label">Apex Approval Remark</label>
+                                                    <textarea class="form-input" readonly>{{ $user->workflowStatus->apex_1_approval_remarks ?? 'N/A' }}</textarea>
+                                                </div>
+                                                <div class="form-field">
+                                                    <label class="form-label">Apex Approval Date</label>
+                                                    <input type="text" class="form-input"
+                                                        value="{{ $user->workflowStatus->apex_1_updated_at ? \Carbon\Carbon::parse($user->workflowStatus->apex_1_updated_at)->format('d M Y') : 'N/A' }}"
+                                                        readonly>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="form-field">
+                                                    <label class="form-label">Chapter Approval Remark</label>
+                                                    <textarea class="form-input" readonly>{{ $user->workflowStatus->chapter_approval_remarks ?? 'N/A' }}</textarea>
+                                                </div>
+                                                <div class="form-field">
+                                                    <label class="form-label">Chapter Approval Date</label>
+                                                    <input type="text" class="form-input"
+                                                        value="{{ $user->workflowStatus->chapter_updated_at ? \Carbon\Carbon::parse($user->workflowStatus->chapter_updated_at)->format('d M Y') : 'N/A' }}"
+                                                        readonly>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="form-field">
+                                                    <label class="form-label">Total Expenses of Student</label>
+                                                    <input type="text" class="form-input"
+                                                        value="₹{{ number_format($user->educationDetail->group_4_total ?? 0) }}"
+                                                        readonly>
+                                                </div>
+                                                <div class="form-field">
+                                                    <label class="form-label">Amount Requested for Year</label>
+                                                    <input type="text" class="form-input"
+                                                        value="₹{{ number_format($user->fundingDetail->total_funding_amount ?? 0) }}"
+                                                        readonly>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="form-field form-field-full">
+                                                    <label class="form-label">Recommended Financial Amount by Chapter</label>
+                                                    <input type="text" class="form-input"
+                                                        value="₹{{ number_format($user->workflowStatus->chapter_assistance_amount ?? 0) }}"
+                                                        readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <div class="form-field form-field-full">
+                                                <label class="form-label">Working Committee Approval Remark</label>
+                                                <textarea name="w_c_approval_remark" placeholder="Provide approval remarks" rows="3" class="remark-input"
+                                                    required></textarea>
+                                            </div>
+                                        </div>
+                                        <!-- Working Committee Approval Form -->
+                                        <div class="form-row">
+                                            <div class="form-field">
+                                                <label class="form-label">Working Committee Approval Date</label>
+                                                <input type="date" name="w_c_approval_date" class="form-input" required>
+                                            </div>
+                                            <div class="form-field">
+                                                <label class="form-label">Meeting Number</label>
+                                                <input type="text" name="meeting_no" class="form-input"
+                                                    placeholder="Enter meeting number" required>
+                                            </div>
+                                        </div>
+
+                                        <!-- Disbursement System Card -->
+                                        <div
+                                            style="background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%); border-radius: 12px; padding: 2rem; margin: 1.5rem 0; border: 1px solid rgba(57, 49, 133, 0.1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);">
+                                            <h6
+                                                style="color: #2E7D32; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                                <i class="fas fa-money-check-alt"></i>
+                                                Disbursement Planning
+                                            </h6>
+
+                                            <div class="form-row">
+                                                <div class="form-field form-field-full">
+                                                    <label class="form-label">Disbursement System</label>
+                                                    <div style="display: flex; gap: 1rem; padding: 0.75rem;">
+                                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                                            <input type="radio" name="disbursement_system" value="yearly"
+                                                                required>
+                                                            Yearly
+                                                        </label>
+                                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                                            <input type="radio" name="disbursement_system" value="half_yearly"
+                                                                required>
+                                                            Half Yearly
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Dynamic Disbursement Fields -->
+                                            <div id="yearly-fields" style="display: none;">
+                                                <div class="form-row">
+                                                    <div class="form-field">
+                                                        <label class="form-label">Disbursement in Year</label>
+                                                        <select name="disbursement_in_year" class="form-input"
+                                                            id="disbursement-year-select">
+                                                            <option value="">Select number of years</option>
+                                                            @for ($i = 1; $i <= 6; $i++)
+                                                                <option value="{{ $i }}">{{ $i }}</option>
+                                                            @endfor
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div id="yearly-disbursements" style="display: none;">
+                                                    <!-- Dynamic yearly fields will be added here -->
+                                                </div>
+                                            </div>
+
+                                            <div id="half-yearly-fields" style="display: none;">
+                                                <div class="form-row">
+                                                    <div class="form-field">
+                                                        <label class="form-label">Disbursement in Half Year</label>
+                                                        <select name="disbursement_in_half_year" class="form-input"
+                                                            id="disbursement-half-year-select">
+                                                            <option value="">Select number of half years</option>
+                                                            @for ($i = 1; $i <= 12; $i++)
+                                                                <option value="{{ $i }}">{{ $i }}</option>
+                                                            @endfor
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div id="half-yearly-disbursements" style="display: none;">
+                                                    <!-- Dynamic half yearly fields will be added here -->
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <div class="form-field">
+                                                <label class="form-label">Approved Financial Assistance Amount</label>
+                                                <input type="number" name="approval_financial_assistance_amount"
+                                                    id="total-amount" class="form-input" step="0.01" readonly>
+                                            </div>
+                                            <div class="form-field">
+                                                <label class="form-label">Installment Amount</label>
+                                                <input type="number" name="installment_amount" id="installment-amount"
+                                                    class="form-input" step="0.01" readonly>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <div class="form-field">
+                                                <label class="form-label">Additional Installment Amount</label>
+                                                <input type="number" name="additional_installment_amount" class="form-input"
+                                                    step="0.01">
+                                            </div>
+                                            <div class="form-field">
+                                                <label class="form-label">Repayment Type</label>
+                                                <select name="repayment_type" class="form-input" required>
+                                                    <option value="">Select repayment type</option>
+                                                    <option value="yearly">Yearly</option>
+                                                    <option value="half_yearly">Half Yearly</option>
+                                                    <option value="quarterly">Quarterly</option>
+                                                    <option value="monthly">Monthly</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <div class="form-field">
+                                                <label class="form-label">No of Cheques to be Collected</label>
+                                                <input type="number" name="no_of_cheques_to_be_collected" class="form-input"
+                                                    min="1">
+                                            </div>
+                                            <div class="form-field">
+                                                <label class="form-label">Repayment Starting From</label>
+                                                <input type="date" name="repayment_starting_from" class="form-input">
+                                            </div>
+                                        </div>
+
+
+
+                                        <div class="form-row">
+                                            <div class="form-field">
+                                                <label class="form-label">Processed By</label>
+                                                <input type="text" name="processed_by" class="form-input"
+                                                    value="{{ Auth::user()->name ?? 'N/A' }}" readonly>
+                                            </div>
+                                            <div class="form-field">
+
+                                                <label class="form-label">Remarks for Approval</label>
+                                                <textarea name="remarks_for_approval" placeholder="Provide detailed remarks for approval" rows="4"
+                                                    class="remark-input"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-approve" style="width: 100%; margin-top: 1rem;">
+                                            <i class="fas fa-check"></i>
+                                            Approve & Move to Apex 2
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <!-- Reject Form -->
+                                <div
+                                    style="flex: 1; min-width: 300px; padding: 2rem; border-radius: 12px; border: 2px solid #f44336;">
+                                    <h6
+                                        style="color: #c62828; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                                        <i class="fas fa-times-circle"></i>
+                                        Reject Application
+                                    </h6>
+                                    <form
+                                        action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'working_committee']) }}"
+                                        method="POST">
+                                        @csrf
+                                        <div class="form-row" style="margin-bottom: 1rem;">
+                                            <div class="form-field form-field-full">
+                                                <label class="form-label" style="color: #c62828;">Rejection Remarks *</label>
+                                                <textarea name="admin_remark" placeholder="Provide detailed rejection remarks (required)" rows="4"
+                                                    class="remark-input" style="border: 2px solid #f44336; background: rgba(244, 67, 54, 0.05);" required></textarea>
+                                            </div>
+                                        </div>
+
+                                        {{-- <!-- Rejection Checkboxes -->
+                            <div style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(244, 67, 54, 0.1); border-radius: 8px; border: 1px solid rgba(244, 67, 54, 0.3);">
+                                <h6 style="color: #c62828; margin: 0 0 0.5rem 0; font-size: 0.9rem;">Select steps to resubmit:</h6>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
+                                        <input type="checkbox" name="resubmit_steps[]" value="personal" style="width: 16px; height: 16px;">
+                                        Personal Details
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
+                                        <input type="checkbox" name="resubmit_steps[]" value="education" style="width: 16px; height: 16px;">
+                                        Education Details
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
+                                        <input type="checkbox" name="resubmit_steps[]" value="family" style="width: 16px; height: 16px;">
+                                        Family Details
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
+                                        <input type="checkbox" name="resubmit_steps[]" value="funding" style="width: 16px; height: 16px;">
+                                        Funding Details
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
+                                        <input type="checkbox" name="resubmit_steps[]" value="guarantor" style="width: 16px; height: 16px;">
+                                        Guarantor Details
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
+                                        <input type="checkbox" name="resubmit_steps[]" value="documents" style="width: 16px; height: 16px;">
+                                        Documents
+                                    </label>
+                                </div>
+                                <p style="font-size: 0.75rem; color: #c62828; margin: 0.5rem 0 0 0; font-style: italic;">Leave unchecked to reject permanently</p>
+                            </div> --}}
+
+                                        <button type="submit" class="btn btn-reject" style="width: 100%;">
+                                            <i class="fas fa-times"></i>
+                                            Reject Application
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

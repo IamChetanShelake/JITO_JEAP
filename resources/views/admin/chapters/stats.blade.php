@@ -247,6 +247,23 @@
             Chapter Statistics
         </h1>
         <p class="page-subtitle">Overview of application statistics across all chapters</p>
+
+         @php
+            $totals = [
+                'total_applied' => array_sum(array_column($chapterStats, 'total_applied')),
+                'approved' => array_sum(array_column($chapterStats, 'approved')),
+                'pending' => array_sum(array_column($chapterStats, 'pending')),
+                'hold' => array_sum(array_column($chapterStats, 'hold')),
+            ];
+        @endphp
+
+        <div class="card text-left">
+          <img class="card-img-top"" alt="">
+          <div class="card-body">
+            <h4 class="card-title">Total Applications</h4>
+            <p class="card-text">{{ $totals['total_applied'] }}</p>
+          </div>
+        </div>
     </div>
     <a href="{{ route('admin.home') }}" class="back-btn">
         <i class="fas fa-arrow-left"></i> Back to Dashboard
@@ -262,9 +279,9 @@
                         <th style="width: 5%;">Seq</th>
                         <th style="width: 25%;">Chapter Name</th>
                         <th style="width: 12%;">Total Applied</th>
-                        <th style="width: 12%;">Approved</th>
-                        <th style="width: 12%;">Pending</th>
-                        <th style="width: 12%;">Rejected/Hold</th>
+                        <th style="width: 12%;">zone</th>
+                        <th style="width: 12%;">Chapter Head</th>
+                        <th style="width: 12%;">City</th>
                         <th style="width: 15%;">Status</th>
                         <th style="width: 7%;">Actions</th>
                     </tr>
@@ -280,9 +297,9 @@
                             @endif
                         </td>
                         <td class="amount-cell">{{ $stat['total_applied'] }}</td>
-                        <td class="amount-cell">{{ $stat['approved'] }}</td>
-                        <td class="amount-cell">{{ $stat['pending'] }}</td>
-                        <td class="amount-cell">{{ $stat['hold'] }}</td>
+                        <td class="amount-cell">{{ $stat['chapter']->zone->zone_name }}</td>
+                        <td class="amount-cell">{{  $stat['chapter']->chapter_head  }}</td>
+                        <td class="amount-cell">{{  $stat['chapter']->city }}</td>
                         <td>
                             @php
                                 $status = 'Active';
@@ -333,7 +350,7 @@
                             'hold' => array_sum(array_column($chapterStats, 'hold')),
                         ];
                     @endphp
-                    <tr style="background-color: #f8f9fa; font-weight: 600;">
+                    {{-- <tr style="background-color: #f8f9fa; font-weight: 600;">
                         <td colspan="2"><strong>Total Across All Chapters</strong></td>
                         <td class="amount-cell">{{ $totals['total_applied'] }}</td>
                         <td class="amount-cell">{{ $totals['approved'] }}</td>
@@ -341,7 +358,7 @@
                         <td class="amount-cell">{{ $totals['hold'] }}</td>
                         <td>-</td>
                         <td>-</td>
-                    </tr>
+                    </tr> --}}
                     @endif
                 </tbody>
             </table>

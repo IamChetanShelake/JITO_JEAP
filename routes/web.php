@@ -80,6 +80,9 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // Chapter User Dashboard
     Route::get('/chapter/dashboard', [AdminController::class, 'chapterUserDashboard'])->name('chapter.user.dashboard');
 
+    // Generate Application PDF
+    Route::get('/user/{user}/generate-pdf', [AdminController::class, 'generateApplicationPDF'])->name('user.generate.pdf');
+
     // Chapter Routes
     Route::resource('chapters', ChapterController::class);
 

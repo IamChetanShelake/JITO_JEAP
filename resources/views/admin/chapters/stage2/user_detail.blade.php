@@ -711,9 +711,14 @@
             </h1>
             <p class="page-subtitle">Review and approve chapter steps</p>
         </div>
-        <a href="{{ route('admin.home') }}" class="back-btn">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
-        </a>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <a href="{{ route('admin.user.generate.pdf', $user) }}" class="back-btn" style="background-color: var(--primary-blue);">
+                <i class="fas fa-download"></i> Download PDF
+            </a>
+            <a href="{{ route('admin.home') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
     </div>
 
     <!-- User Info Card -->

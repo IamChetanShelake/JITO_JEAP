@@ -10,6 +10,7 @@ use App\Models\ApplicationWorkflowStatus;
 use App\Models\Chapter;
 use App\Models\ChapterInterviewAnswer;
 use App\Models\EducationDetail;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminController extends Controller
 {
@@ -786,4 +787,36 @@ class AdminController extends Controller
 
         return view('admin.chapters.stage2.user_details_each_chapter', compact('users', 'total_applied', 'approved', 'pending', 'hold', 'chapter', 'chapter_id'));
     }
+
+    public function generateApplicationPDF(User $user)
+    {
+        // Load all related data
+        $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
+
+        $workflow = $user->workflowStatus;
+        $educationDetail = $user->educationDetail;
+        $familyDetail = $user->familyDetail;
+        $fundingDetail = $user->fundingDetail;
+        $guarantorDetail = $user->guarantorDetail;
+        $document = $user->document;
+
+        // Generate PDF
+        $pdf = Pdf::loadView('pdf.jeap-application', compact(
+            'user',
+            'workflow',
+            'educationDetail',
+            'familyDetail',
+            'fundingDetail',
+            'guarantorDetail',
+            'document'
+        ));
+
+        // Set paper size and orientation
+        $pdf->setPaper('a4', 'portrait');
+
+        // Return PDF download
+        $filename = 'JEAP_Application_' . $user->name . '_' . $user->id . '.pdf';
+        return $pdf->stream($filename);
+    }
+
 }

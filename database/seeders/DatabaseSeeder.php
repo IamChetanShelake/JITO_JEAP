@@ -25,7 +25,6 @@ class DatabaseSeeder extends Seeder
             'email' => 'jitojeapadmin@gmail.com',
             'role' => 'admin',
             'password' => Hash::make('admin@jitojeap'),
-
         ]);
     }
 }

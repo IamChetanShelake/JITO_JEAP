@@ -1244,6 +1244,8 @@ class UserController extends Controller
                 'mobile' => $request->input('family_' . $i . '_mobile'),
                 'email' => $request->input('family_' . $i . '_email'),
                 'yearly_income' => $request->input('family_' . $i . '_yearly_income'),
+                'pan_card' => $request->input('family_' . $i . '_pan_card'),
+                'aadhar_no' => $request->input('family_' . $i . '_aadhar_no'),
             ];
             $i++;
         }

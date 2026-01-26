@@ -126,18 +126,18 @@
             min-width: 120px;
         }
 
- body, table {
-        font-family: "DejaVu Sans", sans-serif;
-    }
-
     </style>
 </head>
 <body>
     <!-- Header -->
     <div class="header">
+         <img src="{{ public_path('jitojeaplogo.png') }}" alt="JITO JEAP Logo" style="height: 60px; margin-bottom: 10px;">
         <h1>JITO EDUCATION ASSISTANCE PROGRAM</h1>
         <h2>Application Form Report</h2>
-        <div class="address">
+
+    </div>
+
+    <div class="address">
             To,<br>
             The Honorary Secretaries,<br>
             JITO HOUSE, Plot No. A-56, Road No. 1, MIDC MAROL,<br>
@@ -145,28 +145,54 @@
             Mulgaon, Andheri (East), Mumbai - 400 093/ 86559 88411<br>
             Email: support.jitojeap@jito.org Website: www.jitojeap.in
         </div>
-    </div>
 
     <p>Dear Sir,</p>
     <p>I, hereby apply for JITO JEAP Educational Assistance Program for study.</p>
 
     <!-- Form Information -->
-    <div class="form-info">
-        <div class="inline-fields">
-            <div class="field-group">
-                <span class="field-label">Form No:</span> JITO-JEAP/2025/{{ str_pad($user->id, 4, '0', STR_PAD_LEFT) }}
-            </div>
-            <div class="field-group">
-                <span class="field-label">Request Date:</span> {{ now()->format('d-m-Y') }}
-            </div>
-        </div>
-        <div class="inline-fields">
-            <div class="field-group">
-                <span class="field-label">Educational Assistance Type:</span>
-                {{ $user->financial_asset_type == 'domestic' ? 'DOMESTIC' : 'FOREIGN FINANCIAL ASSISTANCE' }}
-            </div>
-        </div>
+    <style>
+    .form-info {
+        display: table;
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .form-row {
+        display: table-row;
+    }
+
+    .form-label, .form-value {
+        display: table-cell;
+        padding: 4px 8px;
+        vertical-align: top;
+    }
+
+    .form-label {
+        width: 30%;       /* Fixed width for labels */
+        font-weight: 600;
+    }
+
+    .form-value {
+        width: 70%;       /* Remaining width for values */
+    }
+</style>
+
+<div class="form-info">
+    <div class="form-row">
+        <div class="form-label">Form No:</div>
+        <div class="form-value">JITO-JEAP/2025/{{ str_pad($user->id, 4, '0', STR_PAD_LEFT) }}</div>
     </div>
+    <div class="form-row">
+        <div class="form-label">Request Date:</div>
+        <div class="form-value">{{ now()->format('d-m-Y') }}</div>
+    </div>
+    <div class="form-row">
+        <div class="form-label">Educational Assistance Type:</div>
+        <div class="form-value">{{ $user->financial_asset_type == 'domestic' ? 'DOMESTIC' : 'FOREIGN FINANCIAL ASSISTANCE' }}</div>
+    </div>
+</div>
+
 
 
 
@@ -183,10 +209,10 @@
         <tr>
             <td>0.00</td>
             <td>
-                {{ number_format($workflow->final_status == 'approved' ? 1500000 : 0, 2) }}
+                Rs.{{ number_format($workflow->final_status == 'approved' ? 1500000 : 0, 2) }}
             </td>
             <td>
-                {{ number_format($workflow->final_status == 'approved' ? 1500000 : 0, 2) }}
+                Rs.{{ number_format($workflow->final_status == 'approved' ? 1500000 : 0, 2) }}
             </td>
             <td>
                 {{ $workflow->final_status == 'approved' ? 'JITO JEAP Committee' : 'Pending' }}
@@ -319,9 +345,9 @@
                             <td>{{ $member['pan'] ?? '' }}</td>
                             <td>{{ $member['phone'] ?? '' }}</td>
                             <td>{{ $member['email'] ?? '' }}</td>
-                            <td>₹{{ number_format($member['income'] ?? 0, 2) }}</td>
-                            <td>₹{{ number_format($member['insurance'] ?? 0, 2) }}</td>
-                            <td>₹{{ number_format($member['premium'] ?? 0, 2) }}</td>
+                            <td>{{ number_format($member['income'] ?? 0, 2) }}</td>
+                            <td>{{ number_format($member['insurance'] ?? 0, 2) }}</td>
+                            <td>{{ number_format($member['premium'] ?? 0, 2) }}</td>
                         </tr>
                     @endforeach
                 @endif
@@ -332,12 +358,73 @@
         <p><strong>Signature(Parents):</strong> ___________________________</p>
     </div>
 
-    <!-- PART(3): Association with JITO -->
-    <div class="section">
-        <h2>PART(3): Association with JITO</h2>
-        <p><strong>Are you Current / Past Student of JITO-JEAP? Please mention Branch:</strong> {{ $user->chapter ?? 'N/A' }}</p>
-        <p><strong>Any close relative associated with JITO-JEAP? Name:</strong> {{ $familyDetail->relative_jito_association ?? 'N/A' }}</p>
+    <style>
+    .info-box {
+        border: 1px solid #000;
+        padding: 8px;
+        margin-top: 0; /* Remove top margin to eliminate gap */
+    }
+
+    .info-box + .info-box {
+        border-top: none; /* Optional: merge borders for continuous look */
+    }
+
+    .info-row {
+        display: table;
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .info-label,
+    .info-value {
+        display: table-cell;
+        vertical-align: top;
+        padding: 0;
+        margin: 0;
+    }
+
+    .info-label {
+        width: 75%;
+        font-weight: 600;
+    }
+
+    .info-value {
+        width: 25%;
+        text-align: left;
+    }
+</style>
+
+
+
+<div class="section">
+    <h2>PART (3): Association with JITO</h2>
+
+    <div class="info-box">
+        <div class="info-row">
+            <div class="info-label">
+                Are you Current / Past Student of JITO-JEAP? Please mention Branch:
+            </div>
+            <div class="info-value">
+                {{ $user->chapter ?? 'N/A' }}
+            </div>
+        </div>
     </div>
+
+    <div class="info-box">
+        <div class="info-row">
+            <div class="info-label">
+                Any close relative associated with JITO-JEAP? Name:
+            </div>
+            <div class="info-value">
+                {{ $familyDetail->relative_jito_association ?? 'N/A' }}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
 
     <!-- PART(4): Education Details -->
     <div class="section">
@@ -378,7 +465,7 @@
         <p><strong>Please specify work experience if any:</strong> {{ $educationDetail->have_work_experience == 'yes' ? $educationDetail->work_duration . ' years' : 'None' }}</p>
         @if($educationDetail && $educationDetail->have_work_experience == 'yes')
             <p><strong>Name of Company:</strong> {{ $educationDetail->organization_name }}</p>
-            <p><strong>Package Rs:</strong> ₹{{ number_format($educationDetail->salary_amount ?? 0, 2) }}</p>
+            <p><strong>Package Rs:</strong> {{ number_format($educationDetail->salary_amount ?? 0, 2) }}</p>
             <p><strong>Work Profile:</strong> {{ $educationDetail->work_profile }}</p>
         @endif
     </div>
@@ -413,7 +500,7 @@
     <!-- PART(6): Cost of Course Details -->
     <div class="section">
         <h2>PART(6): Cost of Course Details for which Educational Assistance is applied</h2>
-        <p><strong>Requested Year: 1st Year Amount Requested tuition fees amount:</strong> ₹{{ number_format($educationDetail->group_1_year1 ?? 0, 2) }}</p>
+        <p><strong>Requested Year: 1st Year Amount Requested tuition fees amount:</strong> {{ number_format($educationDetail->group_1_year1 ?? 0, 2) }}</p>
 
         <table>
             <thead>
@@ -430,39 +517,39 @@
             <tbody>
                 <tr>
                     <td>Tuition Fee</td>
-                    <td>₹{{ number_format($educationDetail->group_1_year1 ?? 0, 2) }}</td>
-                    <td>₹{{ number_format($educationDetail->group_1_year2 ?? 0, 2) }}</td>
-                    <td>₹{{ number_format($educationDetail->group_1_year3 ?? 0, 2) }}</td>
-                    <td>₹{{ number_format($educationDetail->group_1_year4 ?? 0, 2) }}</td>
-                    <td>₹{{ number_format($educationDetail->group_1_year5 ?? 0, 2) }}</td>
-                    <td>₹{{ number_format($educationDetail->group_1_total ?? 0, 2) }}</td>
+                    <td>{{ number_format($educationDetail->group_1_year1 ?? 0, 2) }}</td>
+                    <td>{{ number_format($educationDetail->group_1_year2 ?? 0, 2) }}</td>
+                    <td>{{ number_format($educationDetail->group_1_year3 ?? 0, 2) }}</td>
+                    <td>{{ number_format($educationDetail->group_1_year4 ?? 0, 2) }}</td>
+                    <td>{{ number_format($educationDetail->group_1_year5 ?? 0, 2) }}</td>
+                    <td>{{ number_format($educationDetail->group_1_total ?? 0, 2) }}</td>
                 </tr>
                 <tr>
                     <td>Living Expenses</td>
-                    <td>₹{{ number_format($educationDetail->group_2_year1 ?? 0, 2) }}</td>
-                    <td>₹{{ number_format($educationDetail->group_2_year2 ?? 0, 2) }}</td>
-                    <td>₹{{ number_format($educationDetail->group_2_year3 ?? 0, 2) }}</td>
-                    <td>₹{{ number_format($educationDetail->group_2_year4 ?? 0, 2) }}</td>
-                    <td>₹{{ number_format($educationDetail->group_2_year5 ?? 0, 2) }}</td>
-                    <td>₹{{ number_format($educationDetail->group_2_total ?? 0, 2) }}</td>
+                    <td>{{ number_format($educationDetail->group_2_year1 ?? 0, 2) }}</td>
+                    <td>{{ number_format($educationDetail->group_2_year2 ?? 0, 2) }}</td>
+                    <td>{{ number_format($educationDetail->group_2_year3 ?? 0, 2) }}</td>
+                    <td>{{ number_format($educationDetail->group_2_year4 ?? 0, 2) }}</td>
+                    <td>{{ number_format($educationDetail->group_2_year5 ?? 0, 2) }}</td>
+                    <td>{{ number_format($educationDetail->group_2_total ?? 0, 2) }}</td>
                 </tr>
                 <tr>
                     <td>Other Expenses</td>
-                    <td>₹{{ number_format($educationDetail->group_3_year1 ?? 0, 2) }}</td>
-                    <td>₹{{ number_format($educationDetail->group_3_year2 ?? 0, 2) }}</td>
-                    <td>₹{{ number_format($educationDetail->group_3_year3 ?? 0, 2) }}</td>
-                    <td>₹{{ number_format($educationDetail->group_3_year4 ?? 0, 2) }}</td>
-                    <td>₹{{ number_format($educationDetail->group_3_year5 ?? 0, 2) }}</td>
-                    <td>₹{{ number_format($educationDetail->group_3_total ?? 0, 2) }}</td>
+                    <td>{{ number_format($educationDetail->group_3_year1 ?? 0, 2) }}</td>
+                    <td>{{ number_format($educationDetail->group_3_year2 ?? 0, 2) }}</td>
+                    <td>{{ number_format($educationDetail->group_3_year3 ?? 0, 2) }}</td>
+                    <td>{{ number_format($educationDetail->group_3_year4 ?? 0, 2) }}</td>
+                    <td>{{ number_format($educationDetail->group_3_year5 ?? 0, 2) }}</td>
+                    <td>{{ number_format($educationDetail->group_3_total ?? 0, 2) }}</td>
                 </tr>
                 <tr>
                     <td><strong>Total Expenses Rs</strong></td>
-                    <td><strong>₹{{ number_format(($educationDetail->group_1_year1 ?? 0) + ($educationDetail->group_2_year1 ?? 0) + ($educationDetail->group_3_year1 ?? 0), 2) }}</strong></td>
-                    <td><strong>₹{{ number_format(($educationDetail->group_1_year2 ?? 0) + ($educationDetail->group_2_year2 ?? 0) + ($educationDetail->group_3_year2 ?? 0), 2) }}</strong></td>
-                    <td><strong>₹{{ number_format(($educationDetail->group_1_year3 ?? 0) + ($educationDetail->group_2_year3 ?? 0) + ($educationDetail->group_3_year3 ?? 0), 2) }}</strong></td>
-                    <td><strong>₹{{ number_format(($educationDetail->group_1_year4 ?? 0) + ($educationDetail->group_2_year4 ?? 0) + ($educationDetail->group_3_year4 ?? 0), 2) }}</strong></td>
-                    <td><strong>₹{{ number_format(($educationDetail->group_1_year5 ?? 0) + ($educationDetail->group_2_year5 ?? 0) + ($educationDetail->group_3_year5 ?? 0), 2) }}</strong></td>
-                    <td><strong>₹{{ number_format(($educationDetail->group_1_total ?? 0) + ($educationDetail->group_2_total ?? 0) + ($educationDetail->group_3_total ?? 0), 2) }}</strong></td>
+                    <td><strong>{{ number_format(($educationDetail->group_1_year1 ?? 0) + ($educationDetail->group_2_year1 ?? 0) + ($educationDetail->group_3_year1 ?? 0), 2) }}</strong></td>
+                    <td><strong>{{ number_format(($educationDetail->group_1_year2 ?? 0) + ($educationDetail->group_2_year2 ?? 0) + ($educationDetail->group_3_year2 ?? 0), 2) }}</strong></td>
+                    <td><strong>{{ number_format(($educationDetail->group_1_year3 ?? 0) + ($educationDetail->group_2_year3 ?? 0) + ($educationDetail->group_3_year3 ?? 0), 2) }}</strong></td>
+                    <td><strong>{{ number_format(($educationDetail->group_1_year4 ?? 0) + ($educationDetail->group_2_year4 ?? 0) + ($educationDetail->group_3_year4 ?? 0), 2) }}</strong></td>
+                    <td><strong>{{ number_format(($educationDetail->group_1_year5 ?? 0) + ($educationDetail->group_2_year5 ?? 0) + ($educationDetail->group_3_year5 ?? 0), 2) }}</strong></td>
+                    <td><strong>{{ number_format(($educationDetail->group_1_total ?? 0) + ($educationDetail->group_2_total ?? 0) + ($educationDetail->group_3_total ?? 0), 2) }}</strong></td>
                 </tr>
             </tbody>
         </table>
@@ -490,7 +577,7 @@
                         <td>{{ $fundingDetail->family_funding_trust ?? '' }}</td>
                         <td>{{ $fundingDetail->family_funding_contact ?? '' }}</td>
                         <td>{{ $fundingDetail->family_funding_mobile ?? '' }}</td>
-                        <td>₹{{ number_format($fundingDetail->family_funding_amount ?? 0, 2) }}</td>
+                        <td>{{ number_format($fundingDetail->family_funding_amount ?? 0, 2) }}</td>
                     </tr>
                     <tr>
                         <td>Bank Loan</td>
@@ -498,7 +585,7 @@
                         <td>{{ $fundingDetail->bank_loan_trust ?? '' }}</td>
                         <td>{{ $fundingDetail->bank_loan_contact ?? '' }}</td>
                         <td>{{ $fundingDetail->bank_loan_mobile ?? '' }}</td>
-                        <td>₹{{ number_format($fundingDetail->bank_loan_amount ?? 0, 2) }}</td>
+                        <td>{{ number_format($fundingDetail->bank_loan_amount ?? 0, 2) }}</td>
                     </tr>
                     <tr>
                         <td>Other Assistance(1)</td>
@@ -506,7 +593,7 @@
                         <td>{{ $fundingDetail->other_assistance1_trust ?? '' }}</td>
                         <td>{{ $fundingDetail->other_assistance1_contact ?? '' }}</td>
                         <td>{{ $fundingDetail->other_assistance1_mobile ?? '' }}</td>
-                        <td>₹{{ number_format($fundingDetail->other_assistance1_amount ?? 0, 2) }}</td>
+                        <td>{{ number_format($fundingDetail->other_assistance1_amount ?? 0, 2) }}</td>
                     </tr>
                     <tr>
                         <td>Other Assistance(2)</td>
@@ -514,7 +601,7 @@
                         <td>{{ $fundingDetail->other_assistance2_trust ?? '' }}</td>
                         <td>{{ $fundingDetail->other_assistance2_contact ?? '' }}</td>
                         <td>{{ $fundingDetail->other_assistance2_mobile ?? '' }}</td>
-                        <td>₹{{ number_format($fundingDetail->other_assistance2_amount ?? 0, 2) }}</td>
+                        <td>{{ number_format($fundingDetail->other_assistance2_amount ?? 0, 2) }}</td>
                     </tr>
                     <tr>
                         <td>Local Assistance</td>
@@ -522,11 +609,11 @@
                         <td>{{ $fundingDetail->local_assistance_trust ?? '' }}</td>
                         <td>{{ $fundingDetail->local_assistance_contact ?? '' }}</td>
                         <td>{{ $fundingDetail->local_assistance_mobile ?? '' }}</td>
-                        <td>₹{{ number_format($fundingDetail->local_assistance_amount ?? 0, 2) }}</td>
+                        <td>{{ number_format($fundingDetail->local_assistance_amount ?? 0, 2) }}</td>
                     </tr>
                     <tr>
                         <td><strong>Total</strong></td>
-                        <td colspan="5"><strong>₹{{ number_format($fundingDetail->total_funding_amount ?? 0, 2) }}</strong></td>
+                        <td colspan="5"><strong>{{ number_format($fundingDetail->total_funding_amount ?? 0, 2) }}</strong></td>
                     </tr>
                 @endif
             </tbody>
@@ -602,20 +689,94 @@
     </div>
 
     <!-- PART(10): Declaration By Parent and Applicant -->
-    <div class="section declaration">
-        <h2>PART(10): Declaration By Parent and Applicant</h2>
-        <p>I hereby declare that the details in this form are true and correct to the best of my knowledge.</p>
-        <p>I hereby give my consent to my son / daughter / ward for going to : {{ $educationDetail->course_name ?? 'N/A' }} for further studies.</p>
-        <p>If my Educational Assistance is approved, I agree to abide by the terms and conditions of the JEAP EDUCATION ASSISTANCE PROGRAM.</p>
-        <p>I also undertake to keep the office bearers/Trustees informed of my correct address and that of my Parents/Guarantors and recommenders from time to time.</p>
-        <p>I will send my second stage documents duly completed.</p>
-        <p>I hereby declare that amount of Educational Assistance will be utilized for education purpose only</p>
+  <style>
+    /* Declaration Boxes */
+    .info-box {
+        border: 1px solid #000;
+        padding: 5px;
+        margin: 0; /* No vertical gap */
+    }
 
-        <div class="signature-section">
-            <p><strong>Name of Applicant:</strong> {{ $user->name }}</p>
-            <p><strong>Signature of Applicant:</strong> ___________________________</p>
-            <p><strong>Date:</strong> {{ now()->format('d/m/Y') }}</p>
+    .info-box + .info-box {
+        margin-top: 0; /* No gap between boxes */
+    }
+
+    /* Signature Box */
+    .signature-box {
+        display: table;
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #000; /* outer box border */
+        margin-top: 0;
+    }
+
+    .signature-cell {
+        display: table-cell;
+        border-left: 1px solid #000; /* inner compartments */
+        padding: 8px;
+        vertical-align: middle;
+    }
+
+    .signature-cell:first-child {
+        border-left: none; /* no double border on leftmost cell */
+    }
+
+    .signature-left {
+        width: 40%;
+    }
+
+    .signature-center {
+        width: 35%;
+        text-align: center;
+    }
+
+    .signature-right {
+        width: 25%;
+        text-align: center;
+    }
+
+    /* Section Heading */
+    .section h2 {
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="section declaration">
+    <h2>PART(10): Declaration By Parent and Applicant</h2>
+
+    <!-- Box 1 -->
+    <div class="info-box">
+        <p>
+            I hereby declare that the details in this form are true and correct to the best of my knowledge.
+            I hereby give my consent to my son / daughter / ward for going to: {{ $educationDetail->course_name ?? 'N/A' }} for further studies.
+        </p>
+    </div>
+
+    <!-- Box 2 -->
+    <div class="info-box">
+        <p>
+            If my Educational Assistance is approved, I agree to abide by the terms and conditions of the JEAP EDUCATION ASSISTANCE PROGRAM.
+            I also undertake to keep the office bearers/Trustees informed of my correct address and that of my Parents/Guarantors and recommenders from time to time.
+            I will send my second stage documents duly completed.
+            I hereby declare that amount of Educational Assistance will be utilized for education purpose only.
+        </p>
+    </div>
+
+    <!-- Signature Box -->
+    <div class="signature-box">
+        <div class="signature-cell signature-left">
+            <strong>Name of Applicant:</strong> {{ $user->name }}
+        </div>
+        <div class="signature-cell signature-center">
+            <strong>Signature of Applicant:</strong> ___________________________
+        </div>
+        <div class="signature-cell signature-right">
+            <strong>Date:</strong> {{ now()->format('d/m/Y') }}
         </div>
     </div>
+</div>
+
+
 </body>
 </html>

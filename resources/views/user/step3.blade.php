@@ -4,6 +4,8 @@
         7</button>
 @endsection
 
+
+
 <!-- Validation Error Modal -->
 <div class="modal fade modal-modern" id="validationModal" tabindex="-1" aria-labelledby="validationModalLabel"
     aria-hidden="true">
@@ -161,6 +163,8 @@
             <td><input type="tel" name="family_${i}_mobile" class="form-control" value="${oldData ? oldData.mobile || '' : ''}"></td>
             <td><input type="email" name="family_${i}_email" class="form-control" value="${oldData ? oldData.email || '' : ''}"></td>
             <td><input type="number" name="family_${i}_yearly_income" class="form-control" value="${oldData ? oldData.yearly_income || '' : ''}"></td>
+            <td><input type="text" name="family_${i}_pan_card" class="form-control" value="${oldData ? oldData.pan_card || '' : ''}"></td>
+            <td><input type="text" name="family_${i}_aadhar_no" class="form-control" value="${oldData ? oldData.aadhar_no || '' : ''}"></td>
         `;
 
                 tbody.appendChild(row);
@@ -377,6 +381,10 @@
             margin-left: 15px;
             background: #4C4C4C;
         }
+
+        #family-table th, #family-table td {
+            min-width: 150px;
+        }
     </style>
     <!-- Main Content -->
     <div class="col-lg-9 main-content">
@@ -486,6 +494,8 @@
                                                         <th style="color:#4C4C4C;">Mobile Number</th>
                                                         <th style="color:#4C4C4C;">Email ID</th>
                                                         <th style="color:#4C4C4C;">Yearly Gross Income</th>
+                                                        <th style="color:#4C4C4C;">PAN Card No.</th>
+                                                        <th style="color:#4C4C4C;">Aadhar No.</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="family-tbody">
@@ -511,6 +521,8 @@
                                                         <td style="color:#E31E24">{{ $user->email ?? '' }}</td>
                                                         <td style="color:#E31E24">
                                                             {{ $user->applicant_yearly_income ?? '' }}</td>
+                                                        <td style="color:#E31E24">{{ $user->pan_card ?? '' }}</td>
+                                                        <td style="color:#E31E24">{{ $user->aadhar_card_number ?? '' }}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>

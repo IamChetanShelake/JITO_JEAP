@@ -100,7 +100,6 @@
     });
 </script>
 @section('content')
-
     <style>
         .section-divider {
             height: 1px;
@@ -111,20 +110,21 @@
     <!-- Main Content -->
     <div class="col-lg-9 main-content">
         <!-- Hold Remark Alert -->
-    @if($fundingDetail && $fundingDetail->submit_status === 'resubmit' && $fundingDetail->admin_remark)
-        <div class="alert alert-warning alert-dismissible fade show" role="alert" style="background-color: #fff3cd; border-color: #ffeaa7; color: #856404; border-radius: 8px; margin-bottom: 20px;">
-            <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
-            <p style="margin: 8px 0 0 0; font-size: 14px;">{{ $fundingDetail->admin_remark }}</p>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+        @if ($fundingDetail && $fundingDetail->submit_status === 'resubmit' && $fundingDetail->admin_remark)
+            <div class="alert alert-warning alert-dismissible fade show" role="alert"
+                style="background-color: #fff3cd; border-color: #ffeaa7; color: #856404; border-radius: 8px; margin-bottom: 20px;">
+                <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
+                <p style="margin: 8px 0 0 0; font-size: 14px;">{{ $fundingDetail->admin_remark }}</p>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
                     <form method="POST" action="{{ route('user.step4.store') }}" enctype="multipart/form-data" novalidate>
                         @csrf
-                         @if (session('success'))
+                        @if (session('success'))
                             <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
                                 id="successAlert">
 
@@ -504,13 +504,27 @@
                                                         <label for="sibling_loan_status">Loan status <span
                                                                 style="color: red">*</span></label>
                                                         <select class="form-control" name="sibling_loan_status">
-                                                            <option value="" {{ !old('sibling_loan_status') && !$fundingDetail ? 'selected' : '' }} disabled hidden>Loan status</option>
-                                                            <option value="applied" {{ old('sibling_loan_status') == 'applied' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'applied') ? 'selected' : '' }}>Applied</option>
-                                                            <option value="approved" {{ old('sibling_loan_status') == 'approved' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'approved') ? 'selected' : '' }}>Approved</option>
-                                                            <option value="sanctioned" {{ old('sibling_loan_status') == 'sanctioned' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'sanctioned') ? 'selected' : '' }}>Sanctioned</option>
-                                                            <option value="disbursed" {{ old('sibling_loan_status') == 'disbursed' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'disbursed') ? 'selected' : '' }}>Disbursed</option>
-                                                            <option value="closed" {{ old('sibling_loan_status') == 'closed' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'closed') ? 'selected' : '' }}>Closed</option>
-                                                            <option value="not applicable" {{ old('sibling_loan_status') == 'not applicable' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'not applicable') ? 'selected' : '' }}>Not Applicable</option>
+                                                            <option value=""
+                                                                {{ !old('sibling_loan_status') && !$fundingDetail ? 'selected' : '' }}
+                                                                disabled hidden>Loan status</option>
+                                                            <option value="applied"
+                                                                {{ old('sibling_loan_status') == 'applied' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'applied') ? 'selected' : '' }}>
+                                                                Applied</option>
+                                                            <option value="approved"
+                                                                {{ old('sibling_loan_status') == 'approved' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'approved') ? 'selected' : '' }}>
+                                                                Approved</option>
+                                                            <option value="sanctioned"
+                                                                {{ old('sibling_loan_status') == 'sanctioned' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'sanctioned') ? 'selected' : '' }}>
+                                                                Sanctioned</option>
+                                                            <option value="disbursed"
+                                                                {{ old('sibling_loan_status') == 'disbursed' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'disbursed') ? 'selected' : '' }}>
+                                                                Disbursed</option>
+                                                            <option value="closed"
+                                                                {{ old('sibling_loan_status') == 'closed' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'closed') ? 'selected' : '' }}>
+                                                                Closed</option>
+                                                            <option value="not applicable"
+                                                                {{ old('sibling_loan_status') == 'not applicable' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'not applicable') ? 'selected' : '' }}>
+                                                                Not Applicable</option>
                                                         </select>
                                                     </div>
 
@@ -565,6 +579,14 @@
                                 </div>
 
                                 <div class="row">
+                                    <!-- Validation Messages Container -->
+                                    <div id="bankValidationMessage" class="alert alert-dismissible fade show"
+                                        role="alert" style="display: none; margin-bottom: 20px;">
+                                        <span id="bankValidationText"></span>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                            aria-label="Close"></button>
+                                    </div>
+
                                     <!-- Left Column -->
                                     <div class="col-md-6">
 
@@ -574,7 +596,7 @@
                                                 <option value=""
                                                     {{ !old('bank_name') && !$fundingDetail ? 'selected' : '' }} disabled
                                                     hidden>Select Bank </option>
-                                                @foreach($banks as $bank)
+                                                @foreach ($banks as $bank)
                                                     <option value="{{ $bank->name }}"
                                                         {{ old('bank_name') == $bank->name || ($fundingDetail && $fundingDetail->bank_name === $bank->name) ? 'selected' : '' }}>
                                                         {{ $bank->name }}
@@ -583,48 +605,63 @@
                                             </select>
                                             <small class="text-danger">{{ $errors->first('bank_name') }}</small>
                                         </div>
-                                        <div class="form-group mb-3">
+                                        {{-- <div class="form-group mb-3">
                                             <label for="account_holder_name">Account Holder's Name <span
                                                     style="color: red">*</span></label>
                                             <input type="text" class="form-control" name="account_holder_name"
                                                 placeholder="Account Holder's Name "
                                                 value="{{ old('account_holder_name', $fundingDetail->account_holder_name ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('account_holder_name') }}</small>
-                                        </div>
+                                        </div> --}}
 
 
                                         <div class="form-group mb-3">
                                             <label for="account_number">Account Number <span
                                                     style="color: red">*</span></label>
                                             <input type="text" class="form-control" name="account_number"
-                                                placeholder="Account Number "
+                                                id="account_number" placeholder="Account Number "
                                                 value="{{ old('account_number', $fundingDetail->account_number ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('account_number') }}</small>
+                                        </div>
+                                        <div class="form-group mb-3">
+                                            <label for="ifsc_code">IFSC Code <span style="color: red">*</span></label>
+                                            <input type="text" class="form-control" name="ifsc_code" id="ifsc_code"
+                                                placeholder="IFSC Code "
+                                                value="{{ old('ifsc_code', $fundingDetail->ifsc_code ?? '') }}">
+                                            <small class="text-danger">{{ $errors->first('ifsc_code') }}</small>
                                         </div>
                                     </div>
 
                                     <!-- Right Column -->
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
+                                            <label for="account_holder_name">Account Holder's Name <span
+                                                    style="color: red">*</span></label>
+                                            <input type="text" class="form-control" name="account_holder_name"
+                                                id="account_holder_name" placeholder="Account Holder's Name "
+                                                value="{{ old('account_holder_name', $fundingDetail->account_holder_name ?? '') }}">
+                                            <small class="text-danger">{{ $errors->first('account_holder_name') }}</small>
+                                        </div>
+                                        <div class="form-group mb-3">
                                             <label for="branch_name">Branch Name <span style="color: red">*</span></label>
                                             <input type="text" class="form-control" name="branch_name"
-                                                placeholder="Branch Name "
+                                                id="branch_name" placeholder="Branch Name "
                                                 value="{{ old('branch_name', $fundingDetail->branch_name ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('branch_name') }}</small>
                                         </div>
 
-                                        <div class="form-group mb-3">
+                                        {{-- <div class="form-group mb-3">
                                             <label for="ifsc_code">IFSC Code <span style="color: red">*</span></label>
                                             <input type="text" class="form-control" name="ifsc_code"
                                                 placeholder="IFSC Code "
                                                 value="{{ old('ifsc_code', $fundingDetail->ifsc_code ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('ifsc_code') }}</small>
-                                        </div>
+                                        </div> --}}
 
                                         <div class="form-group mb-3">
                                             <label for="bank_address">Bank Address <span
                                                     style="color: red">*</span></label>
-                                            <textarea class="form-control" name="bank_address" rows="3" placeholder="Bank Address "
+                                            <textarea class="form-control" name="bank_address" id="bank_address" rows="3" placeholder="Bank Address "
                                                 style="resize: vertical;">{{ old('bank_address', $fundingDetail->bank_address ?? '') }}</textarea>
                                             <small class="text-danger">{{ $errors->first('bank_address') }}</small>
                                         </div>
@@ -702,6 +739,153 @@
 
             // Initialize total on page load
             calculateTotal();
+
+            // Bank Validation AJAX Functionality
+            const accountNumberInput = document.getElementById('account_number');
+            const ifscCodeInput = document.getElementById('ifsc_code');
+            const validationMessageDiv = document.getElementById('bankValidationMessage');
+            const validationText = document.getElementById('bankValidationText');
+
+            const API_ENDPOINT = 'https://kyc-api.surepass.io/api/v1/bank-verification/';
+            const API_TOKEN =
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc2Nzc3MjYwNCwianRpIjoiMTBjODNjNTktZTY3ZC00ZGNhLTgyZDktZTc1ZWQ4YmVmOGZiIiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LnNsdW5hd2F0ZmluQHN1cmVwYXNzLmlvIiwibmJmIjoxNzY3NzcyNjA0LCJleHAiOjIzOTg0OTI2MDQsImVtYWlsIjoic2x1bmF3YXRmaW5Ac3VyZXBhc3MuaW8iLCJ0ZW5hbnRfaWQiOiJtYWluIiwidXNlcl9jbGFpbXMiOnsic2NvcGVzIjpbInVzZXIiXX19.4PUIOM6lMXFUKqUxsNi1ZYIW5BLJ3A63LxZqiYB9a3c';
+
+            function validateBankAccount() {
+                const accountNumber = accountNumberInput.value.trim();
+                const ifscCode = ifscCodeInput.value.trim().toUpperCase();
+
+                // Hide message and reset if either field is empty
+                if (!accountNumber || !ifscCode) {
+                    validationMessageDiv.style.display = 'none';
+                    return;
+                }
+
+                // Show loading state
+                validationMessageDiv.className = 'alert alert-info alert-dismissible fade show';
+                validationMessageDiv.style.display = 'block';
+                validationText.innerHTML =
+                    '<strong>Validating...</strong> Please wait while we verify your bank account details.';
+
+                // Prepare request body
+                const requestBody = {
+                    id_number: accountNumber,
+                    ifsc: ifscCode,
+                    ifsc_details: true
+                };
+
+                // Make AJAX request
+                fetch(API_ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + API_TOKEN
+                        },
+                        body: JSON.stringify(requestBody)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.data.account_exists) {
+                            // Success - populate fields
+                            const responseData = data.data;
+                            const ifscDetails = responseData.ifsc_details;
+
+                            // Populate fields
+                            document.querySelector('input[name="account_holder_name"]').value = responseData
+                                .full_name || '';
+                            document.querySelector('input[name="branch_name"]').value = ifscDetails.branch ||
+                                '';
+                            document.querySelector('textarea[name="bank_address"]').value = ifscDetails
+                                .address || '';
+
+                            // Show success message
+                            validationMessageDiv.className = 'alert alert-success alert-dismissible fade show';
+                            validationText.innerHTML =
+                                `<strong>✓ Verification Successful!</strong><br>Account Holder: ${responseData.full_name}<br>Branch: ${ifscDetails.branch}<br>Bank: ${ifscDetails.bank_name}`;
+                        } else {
+                            // Failed validation
+                            validationMessageDiv.className = 'alert alert-danger alert-dismissible fade show';
+                            validationText.innerHTML =
+                                `<strong>✗ Verification Failed!</strong><br>${data.message || 'The account details could not be verified. Please check your account number and IFSC code.'}`;
+
+                            // Clear populated fields
+                            document.querySelector('input[name="account_holder_name"]').value = '';
+                            document.querySelector('input[name="branch_name"]').value = '';
+                            document.querySelector('textarea[name="bank_address"]').value = '';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Bank validation error:', error);
+                        validationMessageDiv.className = 'alert alert-danger alert-dismissible fade show';
+                        validationText.innerHTML =
+                            `<strong>✗ Error!</strong><br>An error occurred while validating your bank account. Please try again.`;
+
+                        // Clear populated fields
+                        document.querySelector('input[name="account_holder_name"]').value = '';
+                        document.querySelector('input[name="branch_name"]').value = '';
+                        document.querySelector('textarea[name="bank_address"]').value = '';
+                    });
+            }
+
+            // Add event listeners for account number and IFSC code
+            accountNumberInput.addEventListener('blur', validateBankAccount);
+            ifscCodeInput.addEventListener('blur', validateBankAccount);
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+
+            let timer = null;
+
+            $('#account_number, #ifsc_code').on('keyup change', function() {
+
+                clearTimeout(timer);
+
+                timer = setTimeout(function() {
+
+                    let account = $('#account_number').val().trim();
+                    let ifsc = $('#ifsc_code').val().trim();
+
+                    if (account.length < 6 || ifsc.length < 6) {
+                        return;
+                    }
+
+                    $('#bank-verify-msg').html(
+                        '<span class="text-info">Verifying bank details...</span>');
+
+                    $.ajax({
+                        url: "{{ route('user.bank.verify') }}",
+                        type: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            account_number: account,
+                            ifsc_code: ifsc
+                        },
+                        success: function(res) {
+
+                            if (res.success) {
+                                $('#bank-verify-msg').html(
+                                    `<span class="text-success">✔ Bank verified successfully</span>`
+                                );
+
+                                $('#account_holder_name').val(res.full_name);
+                                $('#branch_name').val(res.branch);
+                                $('#bank_address').val(res.address);
+                            } else {
+                                $('#bank-verify-msg').html(
+                                    `<span class="text-danger">✖ ${res.message}</span>`
+                                );
+                            }
+                        },
+                        error: function() {
+                            $('#bank-verify-msg').html(
+                                `<span class="text-danger">✖ Verification failed</span>`
+                            );
+                        }
+                    });
+
+                }, 800); // debounce
+            });
+
         });
     </script>
 @endsection

@@ -193,13 +193,15 @@
                                                 value="{{ old('aadhar_card_number', $user->aadhar_card_number ?? '') }}"
                                                 required>
                                             <small class="text-danger">{{ $errors->first('aadhar_card_number') }}</small>
+                                            <div id="aadhar-validation-message" class="mt-1"></div>
                                         </div>
 
                                         <div class="form-group mb-3">
-                                            <label for="pan_card" class="form-label">Applicant's Pan Card</label>
+                                            <label for="pan_card" class="form-label">Applicant's Pan Card<span
+                                                    style="color: red;">*</span></label>
                                             <input type="text" id="pan_card" class="form-control" name="pan_card"
                                                 placeholder="Enter Applicant's Pan Card"
-                                                value="{{ old('pan_card', $user->pan_card ?? '') }}">
+                                                value="{{ old('pan_card', $user->pan_card ?? '') }}" required readonly>
                                             <small class="text-danger">{{ $errors->first('pan_card') }}</small>
                                         </div>
 
@@ -759,5 +761,73 @@
                 document.querySelector('.remove-upload').style.display = 'none';
                 URL.revokeObjectURL(document.getElementById('imagePreview').src);
             });
+
+            // Aadhaar validation
+            let aadharTimeout;
+            const aadharInput = document.getElementById('aadhar_card_number');
+            const validationMessage = document.getElementById('aadhar-validation-message');
+
+            aadharInput.addEventListener('input', function() {
+                const aadharNumber = this.value.trim();
+
+                // Clear previous timeout
+                clearTimeout(aadharTimeout);
+
+                // Hide previous message
+                validationMessage.style.display = 'none';
+                validationMessage.className = 'mt-1';
+
+                // Only validate if exactly 12 digits
+                if (aadharNumber.length === 12 && /^\d{12}$/.test(aadharNumber)) {
+                    // Debounce the validation call
+                    aadharTimeout = setTimeout(() => {
+                        validateAadhar(aadharNumber);
+                    }, 500);
+                } else if (aadharNumber.length > 0) {
+                    // Show error for invalid format
+                    showValidationMessage('Aadhaar number must be exactly 12 digits.', 'text-danger');
+                }
+            });
+
+            function validateAadhar(aadharNumber) {
+                // Show loading state
+                showValidationMessage('Validating Aadhaar number...', 'text-info');
+
+                fetch('/user/validate-aadhar', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                'content')
+                        },
+                        body: JSON.stringify({
+                            aadhar_card_number: aadharNumber
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showValidationMessage('Aadhaar number validated successfully.', 'text-success');
+                            // Store the validated Aadhaar number
+                            aadharInput.value = aadharNumber;
+                        } else {
+                            showValidationMessage(data.message || 'Aadhaar validation failed.', 'text-danger');
+                            // Clear the input on validation failure
+                            aadharInput.value = '';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error validating Aadhaar:', error);
+                        showValidationMessage('Error validating Aadhaar number. Please try again.',
+                            'text-danger');
+                        aadharInput.value = '';
+                    });
+            }
+
+            function showValidationMessage(message, className) {
+                validationMessage.textContent = message;
+                validationMessage.className = `mt-1 ${className}`;
+                validationMessage.style.display = 'block';
+            }
         });
     </script>

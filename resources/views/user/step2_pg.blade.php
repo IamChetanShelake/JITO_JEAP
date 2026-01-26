@@ -289,9 +289,9 @@
                                                 <input type="month" id="start_year" class="form-control"
                                                     name="start_year"
                                                     value="{{ old('start_year') ?: ($educationDetail && $educationDetail->start_year ? \Carbon\Carbon::parse($educationDetail->start_year)->format('Y-m') : '') }}"
-                                                    required oninput="validateStartYear()">
+                                                    min="{{ date('Y-m') }}" required oninput="validateStartYear()">
                                                 <small id="startYearError" class="text-danger d-none">
-                                                    Start month must be within next 4 months from current month
+                                                    Start month must not be more than 4 months in the future
                                                 </small>
                                             </div>
 
@@ -301,7 +301,7 @@
                                                 <input type="month" id="expected_year" class="form-control"
                                                     name="expected_year"
                                                     value="{{ old('expected_year') ?: ($educationDetail && $educationDetail->expected_year ? \Carbon\Carbon::parse($educationDetail->expected_year)->format('Y-m') : '') }}"
-                                                    required oninput="validateExpectedYear()">
+                                                    min="{{ date('Y-m') }}" required oninput="validateExpectedYear()">
                                                 <small id="expectedYearError" class="text-danger d-none">
                                                     Expected month must be after start month and within next 5 years
                                                 </small>
@@ -311,7 +311,7 @@
 
                                             <div class="form-group mb-3">
                                                 <label for="nirf_ranking">NIRF Ranking</label>
-                                                <input type="text" id="nirf_ranking" class="form-control"
+                                                <input type="number" id="nirf_ranking" class="form-control"
                                                     name="nirf_ranking" placeholder=" Enter NIRF Ranking"
                                                     value="{{ old('nirf_ranking', $educationDetail->nirf_ranking ?? '') }}">
                                                 <small class="text-danger"
@@ -675,7 +675,7 @@
                                                 <input type="month" class="form-control" id="school_completion_year"
                                                     name="school_completion_year" placeholder="Select Month and Year"
                                                     value="{{ old('school_completion_year') ?: ($educationDetail && $educationDetail->school_completion_year ? \Carbon\Carbon::parse($educationDetail->school_completion_year)->format('Y-m') : '') }}"
-                                                    required>
+                                                    max="{{ date('Y') - 1 }}-12" required>
                                                 <small
                                                     class="text-danger">{{ $errors->first('school_completion_year') }}</small>
                                             </div>
@@ -808,7 +808,7 @@
                                                 <input type="month" class="form-control" id="jc_completion_year"
                                                     name="jc_completion_year" placeholder="Select Month and Year"
                                                     value="{{ old('jc_completion_year') ?: ($educationDetail && $educationDetail->jc_completion_year ? \Carbon\Carbon::parse($educationDetail->jc_completion_year)->format('Y-m') : '') }}"
-                                                    required>
+                                                    max="{{ date('Y') }}-12" required>
                                                 <small
                                                     class="text-danger">{{ $errors->first('jc_completion_year') }}</small>
                                             </div>
@@ -967,7 +967,8 @@
                                                     <input type="month" class="form-control"
                                                         id="qualification_start_year" name="qualification_start_year"
                                                         placeholder="Start Year "
-                                                        value="{{ old('qualification_start_year') ?: ($educationDetail && $educationDetail->qualification_start_year ? \Carbon\Carbon::parse($educationDetail->qualification_start_year)->format('Y-m') : '') }}">
+                                                        value="{{ old('qualification_start_year') ?: ($educationDetail && $educationDetail->qualification_start_year ? \Carbon\Carbon::parse($educationDetail->qualification_start_year)->format('Y-m') : '') }}"
+                                                        max="{{ date('Y') - 1 }}-12">
                                                     <small
                                                         class="text-danger">{{ $errors->first('qualification_start_year') }}</small>
                                                 </div>
@@ -978,7 +979,8 @@
                                                     <input type="month" class="form-control"
                                                         id="qualification_end_year" name="qualification_end_year"
                                                         placeholder="End Year "
-                                                        value="{{ old('qualification_end_year') ?: ($educationDetail && $educationDetail->qualification_end_year ? \Carbon\Carbon::parse($educationDetail->qualification_end_year)->format('Y-m') : '') }}">
+                                                        value="{{ old('qualification_end_year') ?: ($educationDetail && $educationDetail->qualification_end_year ? \Carbon\Carbon::parse($educationDetail->qualification_end_year)->format('Y-m') : '') }}"
+                                                        max="{{ date('Y') - 1 }}-12">
                                                     <small
                                                         class="text-danger">{{ $errors->first('qualification_end_year') }}</small>
                                                 </div>
@@ -1590,7 +1592,7 @@
 
             const selected = parseMonth(input.value);
 
-            if (selected < currentMonth || selected > maxStartMonth) {
+            if (selected > maxStartMonth) {
                 e.preventDefault();
                 input.classList.add('is-invalid');
                 error.classList.remove('d-none');

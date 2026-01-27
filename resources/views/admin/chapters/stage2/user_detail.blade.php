@@ -690,6 +690,20 @@
             align-self: flex-end;
         }
 
+        .user-info-footer {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .user-info-footer p {
+            margin: 0.25rem 0;
+            font-size: 0.9rem;
+        }
+
         @media (max-width: 768px) {
             .action-form-row {
                 flex-direction: column;
@@ -732,6 +746,11 @@
                 <p>{{ $user->email }}</p>
                 <p>{{ $user->mobile }}</p>
             </div>
+        </div>
+        <div class="user-info-footer">
+            <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}</p>
+            <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type ?? 'N/A' }}</p>
+            <p><strong>Financial Assistance For:</strong> {{ $user->financial_asset_for ?? 'N/A' }}</p>
         </div>
     </div>
 

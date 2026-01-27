@@ -415,12 +415,7 @@
                             <a href="{{ route('admin.chapter.user.detail', $user) }}" class="action-btn view-btn" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <button class="action-btn approve-btn" title="Approve">
-                                <i class="fas fa-check"></i>
-                            </button>
-                            <button class="action-btn hold-btn" title="Hold">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </button>
+
                         </td>
                     </tr>
                     @empty

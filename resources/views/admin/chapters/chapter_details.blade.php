@@ -1,6 +1,6 @@
 @extends('admin.layouts.master')
 
-@section('title', '{{ $chapter->chapter_name }} Details - JitoJeap')
+@section('title', 'Chapter Details - JitoJeap')
 
 @section('styles')
 <style>

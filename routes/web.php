@@ -85,6 +85,9 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // Generate Application PDF
     Route::get('/user/{user}/generate-pdf', [AdminController::class, 'generateApplicationPDF'])->name('user.generate.pdf');
 
+    // Generate Summary PDF
+    Route::get('/user/{user}/generate-summary-pdf', [AdminController::class, 'generateSummaryPDF'])->name('user.generate.summary.pdf');
+
     // Chapter Routes
     Route::resource('chapters', ChapterController::class);
 

@@ -720,7 +720,7 @@ class UserController extends Controller
     public function step2PGstore(Request $request)
     {
         // Validation for education details
-        //  dd($request->all());
+        dd($request->all());
 
         // Add workflow update here for simplicity
         $rules = [
@@ -790,8 +790,8 @@ class UserController extends Controller
             'have_work_experience' => 'required|in:yes,no',
             'organization_name' => 'nullable|string|max:255',
             'work_profile' => 'nullable|string|max:255',
-            'duration_start_year' => 'nullable|string|max:50',
-            'duration_end_year' => 'nullable|string|max:50',
+            'duration_start_year' => 'nullable|date',
+            'duration_end_year' => 'nullable|date',
             'work_location_city' => 'nullable|string|max:100',
             'work_country' => 'nullable|string|max:100',
             'work_type' => 'nullable|in:full-time,internship,freelance,volunteer',
@@ -888,8 +888,8 @@ class UserController extends Controller
             'qualifications' => $request->qualifications,
             'qualification_institution' => $request->qualification_institution,
             'qualification_university' => $request->qualification_university,
-            'qualification_start_year' => $request->qualification_start_year ? Carbon::createFromFormat('Y-m', $request->qualification_start_year)->firstOfMonth()->format('Y-m-d') : null,
-            'qualification_end_year' => $request->qualification_end_year ? Carbon::createFromFormat('Y-m', $request->qualification_end_year)->firstOfMonth()->format('Y-m-d') : null,
+            'qualification_start_year' => $request->qualification_start_year,
+            'qualification_end_year' => $request->qualification_end_year,
             'marksheet_type' => json_encode($request->marksheet_type),
             'marks_obtained' => json_encode($request->marks_obtained),
             'out_of' => json_encode($request->out_of),

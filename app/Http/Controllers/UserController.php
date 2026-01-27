@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 
+use App\Models\Bank;
 use App\Models\User;
+use App\Models\Subcast;
 use App\Models\Document;
 use App\Models\Familydetail;
 use App\Models\ReviewSubmit;
-use App\Models\ApplicationWorkflowStatus;
 use Illuminate\Http\Request;
 use App\Models\FundingDetail;
 use App\Models\Loan_category;
@@ -16,8 +17,8 @@ use App\Models\EducationDetail;
 use App\Models\GuarantorDetail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Subcast;
-use App\Models\Bank;
+use Illuminate\Support\Facades\Http;
+use App\Models\ApplicationWorkflowStatus;
 
 
 class UserController extends Controller
@@ -444,7 +445,7 @@ class UserController extends Controller
     {
         //  dd($request->all());
         // Validation for education details
-        $request->validate([
+        $rules = [
             // Financial Need Overview
             'course_name' => 'required|string|max:255',
             'university_name' => 'required|string|max:255',
@@ -482,11 +483,6 @@ class UserController extends Controller
             'school_board' => 'required|string|max:100',
             'school_completion_year' => 'required|string|max:50',
             'school_grade_system' => 'required',
-            '10th_mark_obtained' => 'nullable|integer|min:0',
-            '10th_mark_out_of' => 'nullable|integer|min:0',
-            'school_percentage' => 'nullable|string|max:50',
-            'school_CGPA' => 'nullable|string|max:50',
-            'school_sgpa' => 'nullable|string|max:50',
 
             // Junior College (12th Grade)
             'jc_college_name' => 'required|string|max:255',
@@ -494,12 +490,29 @@ class UserController extends Controller
             'jc_board' => 'required|string|max:100',
             'jc_completion_year' => 'required|string|max:50',
             'jc_grade_system' => 'required',
-            '12th_mark_obtained' => 'nullable|integer|min:0',
-            '12th_mark_out_of' => 'nullable|integer|min:0',
-            'jc_percentage' => 'nullable|string|max:50',
-            'jc_CGPA' => 'nullable|string|max:50',
-            'jc_sgpa' => 'nullable|string|max:50',
-        ]);
+        ];
+
+        // Conditional validation based on school_grade_system
+        if ($request->school_grade_system == 'percentage') {
+            $rules['10th_mark_obtained'] = 'required|integer|min:0';
+            $rules['10th_mark_out_of'] = 'required|integer|min:0';
+            $rules['school_percentage'] = 'required|string|max:50';
+        } elseif ($request->school_grade_system == 'cgpa') {
+            $rules['school_CGPA'] = 'required|string|max:50';
+            $rules['school_sgpa'] = 'required|string|max:50';
+        }
+
+        // Conditional validation based on jc_grade_system
+        if ($request->jc_grade_system == 'percentage') {
+            $rules['12th_mark_obtained'] = 'required|integer|min:0';
+            $rules['12th_mark_out_of'] = 'required|integer|min:0';
+            $rules['jc_percentage'] = 'required|string|max:50';
+        } elseif ($request->jc_grade_system == 'cgpa') {
+            $rules['jc_CGPA'] = 'required|string|max:50';
+            $rules['jc_sgpa'] = 'required|string|max:50';
+        }
+
+        $request->validate($rules);
 
         $user_id = Auth::id();
 
@@ -707,10 +720,10 @@ class UserController extends Controller
     public function step2PGstore(Request $request)
     {
         // Validation for education details
-        //  dd($request->all());
+        dd($request->all());
 
         // Add workflow update here for simplicity
-        $request->validate([
+        $rules = [
             // Financial Need Overview
             'course_name' => 'required|string|max:255',
             'university_name' => 'required|string|max:255',
@@ -747,11 +760,11 @@ class UserController extends Controller
             'school_board' => 'required|string|max:100',
             'school_completion_year' => 'required|string|max:50',
             'school_grade_system' => 'required',
-            '10th_mark_obtained' => 'nullable|integer|min:0',
-            '10th_mark_out_of' => 'nullable|integer|min:0',
-            'school_percentage' => 'nullable|string|max:50',
-            'school_CGPA' => 'nullable|string|max:50',
-            'school_sgpa' => 'nullable|string|max:50',
+            // '10th_mark_obtained' => 'nullable|integer|min:0',
+            // '10th_mark_out_of' => 'nullable|integer|min:0',
+            // 'school_percentage' => 'nullable|string|max:50',
+            // 'school_CGPA' => 'nullable|string|max:50',
+            // 'school_sgpa' => 'nullable|string|max:50',
 
             // Junior College (12th Grade)
             'jc_college_name' => 'required|string|max:255',
@@ -759,17 +772,12 @@ class UserController extends Controller
             'jc_board' => 'required|string|max:100',
             'jc_completion_year' => 'required|string|max:50',
             'jc_grade_system' => 'required',
-            '12th_mark_obtained' => 'nullable|integer|min:0',
-            '12th_mark_out_of' => 'nullable|integer|min:0',
-            'jc_percentage' => 'nullable|string|max:50',
-            'jc_CGPA' => 'nullable|string|max:50',
-            'jc_sgpa' => 'nullable|string|max:50',
 
 
             // Completed Qualifications
             'qualifications' => 'required|string',
             'qualification_institution' => 'required|string|max:255',
-            'qualification_university' => 'required|string|max:255',
+            'qualification_university' => 'nullable|string|max:255',
             'qualification_start_year' => 'required|date',
             'qualification_end_year' => 'required|date',
             'marksheet_type' => 'required|array',
@@ -777,22 +785,42 @@ class UserController extends Controller
             'out_of' => 'nullable|array',
             'percentage' => 'nullable|array',
             'cgpa' => 'nullable|array',
-            'sgpa' => 'nullable|array',
 
             // Work Experience
             'have_work_experience' => 'required|in:yes,no',
             'organization_name' => 'nullable|string|max:255',
             'work_profile' => 'nullable|string|max:255',
-            'duration_start_year' => 'nullable|string|max:50',
-            'duration_end_year' => 'nullable|string|max:50',
+            'duration_start_year' => 'nullable|date',
+            'duration_end_year' => 'nullable|date',
             'work_location_city' => 'nullable|string|max:100',
             'work_country' => 'nullable|string|max:100',
             'work_type' => 'nullable|in:full-time,internship,freelance,volunteer',
             'mention_your_salary' => 'nullable|in:monthly,yearly,ctc',
             'salary_amount' => 'nullable|numeric|min:0',
 
+        ];
 
-        ]);
+        // Conditional validation based on school_grade_system
+        if ($request->school_grade_system == 'percentage') {
+            $rules['10th_mark_obtained'] = 'required|integer|min:0';
+            $rules['10th_mark_out_of'] = 'required|integer|min:0';
+            $rules['school_percentage'] = 'required|string|max:50';
+        } elseif ($request->school_grade_system == 'cgpa') {
+            $rules['school_CGPA'] = 'required|string|max:50';
+            $rules['school_sgpa'] = 'nullable|string|max:50';
+        }
+
+        // Conditional validation based on jc_grade_system
+        if ($request->jc_grade_system == 'percentage') {
+            $rules['12th_mark_obtained'] = 'required|integer|min:0';
+            $rules['12th_mark_out_of'] = 'required|integer|min:0';
+            $rules['jc_percentage'] = 'required|string|max:50';
+        } elseif ($request->jc_grade_system == 'cgpa') {
+            $rules['jc_CGPA'] = 'required|string|max:50';
+            $rules['jc_sgpa'] = 'required|string|max:50';
+        }
+
+        $request->validate($rules);
 
         $user_id = Auth::id();
 
@@ -860,8 +888,8 @@ class UserController extends Controller
             'qualifications' => $request->qualifications,
             'qualification_institution' => $request->qualification_institution,
             'qualification_university' => $request->qualification_university,
-            'qualification_start_year' => $request->qualification_start_year ? Carbon::createFromFormat('Y-m', $request->qualification_start_year)->firstOfMonth()->format('Y-m-d') : null,
-            'qualification_end_year' => $request->qualification_end_year ? Carbon::createFromFormat('Y-m', $request->qualification_end_year)->firstOfMonth()->format('Y-m-d') : null,
+            'qualification_start_year' => $request->qualification_start_year,
+            'qualification_end_year' => $request->qualification_end_year,
             'marksheet_type' => json_encode($request->marksheet_type),
             'marks_obtained' => json_encode($request->marks_obtained),
             'out_of' => json_encode($request->out_of),
@@ -911,7 +939,7 @@ class UserController extends Controller
     {
         // Validation for education details
         //dd($request->all());
-        $request->validate([
+        $rules = [
             // Financial Need Overview
             'course_name' => 'required|string|max:255',
             'university_name' => 'required|string|max:255',
@@ -949,11 +977,6 @@ class UserController extends Controller
             'school_board' => 'required|string|max:100',
             'school_completion_year' => 'required|string|max:50',
             'school_grade_system' => 'required',
-            '10th_mark_obtained' => 'nullable|integer|min:0',
-            '10th_mark_out_of' => 'nullable|integer|min:0',
-            'school_percentage' => 'nullable|string|max:50',
-            'school_CGPA' => 'nullable|string|max:50',
-            'school_sgpa' => 'nullable|string|max:50',
 
             // Junior College (12th Grade)
             'jc_college_name' => 'required|string|max:255',
@@ -961,12 +984,6 @@ class UserController extends Controller
             'jc_board' => 'required|string|max:100',
             'jc_completion_year' => 'required|string|max:50',
             'jc_grade_system' => 'required',
-            '12th_mark_obtained' => 'nullable|integer|min:0',
-            '12th_mark_out_of' => 'nullable|integer|min:0',
-            'jc_percentage' => 'nullable|string|max:50',
-            'jc_CGPA' => 'nullable|string|max:50',
-            'jc_sgpa' => 'nullable|string|max:50',
-
 
             // Completed Qualifications
             'qualifications' => 'required|string',
@@ -999,7 +1016,29 @@ class UserController extends Controller
             'gre_score_year' => 'nullable|string|max:100',
             'gmat_score_year' => 'nullable|string|max:100',
             'sat_score_year' => 'nullable|string|max:100',
-        ]);
+        ];
+
+        // Conditional validation based on school_grade_system
+        if ($request->school_grade_system == 'percentage') {
+            $rules['10th_mark_obtained'] = 'required|integer|min:0';
+            $rules['10th_mark_out_of'] = 'required|integer|min:0';
+            $rules['school_percentage'] = 'required|string|max:50';
+        } elseif ($request->school_grade_system == 'cgpa') {
+            $rules['school_CGPA'] = 'required|string|max:50';
+            $rules['school_sgpa'] = 'required|string|max:50';
+        }
+
+        // Conditional validation based on jc_grade_system
+        if ($request->jc_grade_system == 'percentage') {
+            $rules['12th_mark_obtained'] = 'required|integer|min:0';
+            $rules['12th_mark_out_of'] = 'required|integer|min:0';
+            $rules['jc_percentage'] = 'required|string|max:50';
+        } elseif ($request->jc_grade_system == 'cgpa') {
+            $rules['jc_CGPA'] = 'required|string|max:50';
+            $rules['jc_sgpa'] = 'required|string|max:50';
+        }
+
+        $request->validate($rules);
 
         $user_id = Auth::id();
 
@@ -1446,6 +1485,41 @@ class UserController extends Controller
 
         return redirect()->route('user.step5')
             ->with('success', $message);
+    }
+
+
+    public function verify(Request $request)
+    {
+        $response = Http::withHeaders([
+            'Content-Type'  => 'application/json',
+            'Authorization' => 'Bearer ' . env('SUREPASS_TOKEN'),
+        ])->post('https://kyc-api.surepass.io/api/v1/bank-verification/', [
+            'id_number'    => $request->account_number,
+            'ifsc'         => $request->ifsc_code,
+            'ifsc_details' => true
+        ]);
+
+        $result = $response->json();
+
+        if (
+            isset($result['success']) &&
+            $result['success'] === true &&
+            ($result['data']['account_exists'] ?? false) === true
+        ) {
+            return response()->json([
+                'success'   => true,
+                'full_name' => $result['data']['full_name'] ?? '',
+                'branch'    => $result['data']['ifsc_details']['branch'] ?? '',
+                'address'   => $result['data']['ifsc_details']['address'] ?? '',
+                'raw'       => $result // optional: full response
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Bank verification failed',
+            'raw'     => $result
+        ], 422);
     }
 
 
@@ -2283,6 +2357,65 @@ class UserController extends Controller
                 'success' => false,
                 'message' => 'Error fetching chapter: ' . $e->getMessage(),
                 'chapter' => null
+            ], 500);
+        }
+    }
+
+    public function validateAadhar(Request $request)
+    {
+        try {
+            // Validate input
+            $request->validate([
+                'aadhar_card_number' => 'required|digits:12'
+            ]);
+
+            $enteredAadhar = $request->aadhar_card_number;
+            $userId = Auth::id();
+            $user = User::find($userId);
+
+            // Check if the last 4 digits of entered Aadhaar match the user's stored Aadhaar last 4 digits
+            if ($user && $user->aadhar_card_number) {
+                $storedLast4Digits = substr($user->aadhar_card_number, -4);
+                $enteredLast4Digits = substr($enteredAadhar, -4);
+
+                if ($storedLast4Digits !== $enteredLast4Digits) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Aadhaar validation failed. Last 4 digits do not match your registered Aadhaar number.'
+                    ], 400);
+                }
+            }
+
+            // Check if this Aadhaar number is already used by another user
+            $existingUser = User::where('aadhar_card_number', $enteredAadhar)
+                ->where('id', '!=', $userId)
+                ->first();
+
+            if ($existingUser) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This Aadhaar number is already registered with another account.'
+                ], 400);
+            }
+
+            // Extract last 4 digits as per requirement
+            $last4Digits = substr($enteredAadhar, -4);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Aadhaar validated successfully.',
+                'last_4_digits' => $last4Digits
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid Aadhaar number format. Must be exactly 12 digits.'
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Aadhaar validation error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while validating Aadhaar number. Please try again.'
             ], 500);
         }
     }

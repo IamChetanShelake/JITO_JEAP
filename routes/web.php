@@ -145,6 +145,9 @@ Route::middleware(['auth', 'user'])
             ->name('step4');
         Route::post('/Step4Store/', [UserController::class, 'step4store'])
             ->name('step4.store');
+        Route::post('/bank-verify', [UserController::class, 'verify'])
+            ->name('bank.verify');
+
 
         Route::get('/Step5', [UserController::class, 'step5'])
             ->name('step5');
@@ -172,4 +175,8 @@ Route::middleware(['auth', 'user'])
         // API route for fetching chapters by pincode
         Route::get('/get-chapters/{pincode}', [UserController::class, 'getChapters'])
             ->name('get.chapters');
+
+        // API route for Aadhaar validation
+        Route::post('/validate-aadhar', [UserController::class, 'validateAadhar'])
+            ->name('validate.aadhar');
     });

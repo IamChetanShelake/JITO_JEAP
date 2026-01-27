@@ -382,7 +382,8 @@
             background: #4C4C4C;
         }
 
-        #family-table th, #family-table td {
+        #family-table th,
+        #family-table td {
             min-width: 150px;
         }
     </style>
@@ -486,7 +487,7 @@
                                                 <thead>
                                                     <tr>
                                                         <th style="color:#4C4C4C;">Relation with student</th>
-                                                        <th style="color:#4C4C4C;">Name</th>
+                                                        <th style="color:#4C4C4C;width:120px">Name</th>
                                                         <th style="color:#4C4C4C;">Age</th>
                                                         <th style="color:#4C4C4C;">Marital Status</th>
                                                         <th style="color:#4C4C4C;">Qualification</th>
@@ -507,7 +508,7 @@
                                                             {{-- <input type="text" name="applicant_relation" value="Applicant’s Name"
                                                                 readonly class="form-control"> --}}
                                                         </td>
-                                                        <td style="color:#E31E24">{{ $user->name ?? '' }}</td>
+                                                        <td style="color:#E31E24;width:120px">{{ $user->name ?? '' }}</td>
                                                         <td style="color:#E31E24">{{ $user->age ?? '' }}
                                                         </td>
 
@@ -522,7 +523,8 @@
                                                         <td style="color:#E31E24">
                                                             {{ $user->applicant_yearly_income ?? '' }}</td>
                                                         <td style="color:#E31E24">{{ $user->pan_card ?? '' }}</td>
-                                                        <td style="color:#E31E24">{{ $user->aadhar_card_number ?? '' }}</td>
+                                                        <td style="color:#E31E24">{{ $user->aadhar_card_number ?? '' }}
+                                                        </td>
                                                     </tr>
                                                 </tbody>
                                             </table>

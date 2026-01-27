@@ -722,6 +722,23 @@ class AdminController extends Controller
         return view('admin.chapters.stage2.pending', compact('users')); // Reuse existing view
     }
 
+    public function chapterWorkingCommitteeApproved()
+    {
+        $chapter_id = request('chapter_id');
+        $query = User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('chapter_status', 'approved')
+                    ->where('working_committee_status', 'approved');
+            });
+
+        if (request('chapter_id')) {
+            $query->where('chapter_id', request('chapter_id'));
+        }
+        $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            ->get();
+        return view('admin.chapters.stage2.approved', compact('users')); // Reuse existing view
+    }
+
     public function chapterResubmit()
     {
         $chapter_id = request('chapter_id');

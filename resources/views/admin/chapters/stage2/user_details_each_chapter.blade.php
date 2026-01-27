@@ -250,6 +250,22 @@
             }}</div>
         </a>
 
+        <a href="{{ route('admin.chapter.working-committee-approved') }}?chapter_id={{ $chapter->id }}" class="status-button working-committee-pending" title="View working committee pending applications">
+            <div class="status-icon working-committee-pending">
+                <i class="fas fa-users-cog"></i>
+            </div>
+            <div class="status-label">Working Committee Approved</div>
+            <div class="status-count">{{
+                \App\Models\User::where('role', 'user')
+                    ->where('chapter_id', $chapter->id)
+                    ->whereHas('workflowStatus', function($q) {
+                        $q->where('chapter_status', 'approved')
+                          ->where('working_committee_status', 'approved');
+                    })
+                    ->count()
+            }}</div>
+        </a>
+
         <a href="{{ route('admin.chapter.resubmit') }}?chapter_id={{ $chapter->id }}" class="status-button hold" title="View resubmit applications">
             <div class="status-icon hold">
                 <i class="fas fa-redo"></i>

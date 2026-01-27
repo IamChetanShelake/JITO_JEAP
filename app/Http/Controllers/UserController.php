@@ -720,7 +720,7 @@ class UserController extends Controller
     public function step2PGstore(Request $request)
     {
         // Validation for education details
-        dd($request->all());
+        // dd($request->all());
 
         // Add workflow update here for simplicity
         $rules = [
@@ -791,7 +791,8 @@ class UserController extends Controller
             'organization_name' => 'nullable|string|max:255',
             'work_profile' => 'nullable|string|max:255',
             'duration_start_year' => 'nullable|date',
-            'duration_end_year' => 'nullable|date',
+            'duration_end_year'   => 'nullable|date|after_or_equal:duration_start_year',
+
             'work_location_city' => 'nullable|string|max:100',
             'work_country' => 'nullable|string|max:100',
             'work_type' => 'nullable|in:full-time,internship,freelance,volunteer',
@@ -888,8 +889,10 @@ class UserController extends Controller
             'qualifications' => $request->qualifications,
             'qualification_institution' => $request->qualification_institution,
             'qualification_university' => $request->qualification_university,
-            'qualification_start_year' => $request->qualification_start_year,
-            'qualification_end_year' => $request->qualification_end_year,
+            // 'qualification_start_year' => $request->qualification_start_year,
+            // 'qualification_end_year' => $request->qualification_end_year,
+            'qualification_start_year' => $request->qualification_start_year ? Carbon::createFromFormat('Y-m', $request->qualification_start_year)->firstOfMonth()->format('Y-m-d') : null,
+            'qualification_end_year' => $request->qualification_end_year ? Carbon::createFromFormat('Y-m', $request->qualification_end_year)->firstOfMonth()->format('Y-m-d') : null,
             'marksheet_type' => json_encode($request->marksheet_type),
             'marks_obtained' => json_encode($request->marks_obtained),
             'out_of' => json_encode($request->out_of),
@@ -1522,6 +1525,133 @@ class UserController extends Controller
         ], 422);
     }
 
+    // public function verifyPan(Request $request)
+    // {
+    //     $response = Http::withHeaders([
+    //         'Content-Type'  => 'application/json',
+    //         'Authorization' => 'Bearer ' . env('SUREPASS_TOKEN'),
+    //     ])->post('https://kyc-api.surepass.io/api/v1/pan/pan-comprehensive', [
+    //         'id_number' => $request->pan_number
+    //     ]);
+
+    //     $result = $response->json();
+
+    //     if (
+    //         isset($result['success']) &&
+    //         $result['success'] === true &&
+    //         isset($result['data']['full_name'])
+    //     ) {
+    //         return response()->json([
+    //             'success'   => true,
+    //             'full_name' => $result['data']['full_name'] ?? '',
+    //             'gender'    => $result['data']['gender'] ?? '',
+    //             'dob'       => $result['data']['dob'] ?? '',
+    //             'raw'       => $result // optional: full response
+    //         ]);
+    //     }
+
+    //     return response()->json([
+    //         'success' => false,
+    //         'message' => 'PAN verification failed',
+    //         'raw'     => $result
+    //     ], 422);
+    // }
+
+    // public function verifyPan(Request $request)
+    // {
+    //     $request->validate([
+    //         'pan' => 'required|string|size:10'
+    //     ]);
+
+    //     $response = Http::withHeaders([
+    //         'Content-Type'  => 'application/json',
+    //         'Authorization' => 'Bearer ' . env('SUREPASS_TOKEN'),
+    //     ])->post('https://kyc-api.surepass.io/api/v1/pan/pan-comprehensive', [
+    //         'id_number' => $request->pan
+    //     ]);
+
+    //     if ($response->successful()) {
+    //         return response()->json([
+    //             'status' => true,
+    //             'data'   => $response->json()
+    //         ]);
+    //     }
+
+    //     return response()->json([
+    //         'status' => false,
+    //         'message' => 'PAN verification failed'
+    //     ], 400);
+    // }
+
+
+    public function verifyPan(Request $request)
+    {
+        $response = Http::withHeaders([
+            'Content-Type'  => 'application/json',
+            'Authorization' => 'Bearer ' . env('SUREPASS_TOKEN'),
+        ])->post('https://kyc-api.surepass.io/api/v1/bank-verification/', [
+            'id_number'    => $request->account_number,
+            'ifsc'         => $request->ifsc_code,
+            'ifsc_details' => true
+        ]);
+        $request->validate([
+            'pan' => 'required|string|size:10'
+        ]);
+
+        try {
+            $token = env('SUREPASS_TOKEN');
+
+            $response = Http::withHeaders([
+                'Content-Type'  => 'application/json',
+                'Authorization' => 'Bearer ' . env('SUREPASS_TOKEN'),
+            ])->post('https://kyc-api.surepass.io/api/v1/pan/pan-comprehensive', [
+                'id_number' => $request->pan
+            ]);
+
+            // 1. Check if the HTTP request was successful (Status 200)
+            if ($response->successful()) {
+                $data = $response->json();
+
+                // 2. Check the Surepass API internal success flag
+                // Surepass often returns HTTP 200 even if the PAN is invalid, but sets 'success' => false
+                if (isset($data['success']) && $data['success'] === true) {
+                    return response()->json([
+                        'status' => true,
+                        'data'   => $data['data'] ?? [] // Send the specific data array
+                    ]);
+                } else {
+                    // PAN format valid but details not found or invalid logic
+                    return response()->json([
+                        'status' => false,
+                        'message' => $data['message'] ?? 'Invalid PAN details provided by API.'
+                    ]);
+                }
+            }
+
+            // 3. Handle HTTP Errors (401 Unauthorized, 500 Server Error, etc.)
+            // This is likely where your code is failing currently
+            $errorMessage = 'API Error';
+            $errorBody = $response->json();
+
+            if ($response->status() === 401) {
+                $errorMessage = 'Invalid API Token. Check SUREPASS_TOKEN in .env';
+            } elseif (isset($errorBody['message'])) {
+                $errorMessage = $errorBody['message'];
+            } else {
+                $errorMessage = $response->body(); // Return raw body if no message key
+            }
+
+            return response()->json([
+                'status' => false,
+                'message' => $errorMessage
+            ], $response->status());
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Connection failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
     // public function step4store(Request $request)
     // {
@@ -1768,6 +1898,7 @@ class UserController extends Controller
             'g_one_email' => 'required|email|max:255|unique:guarantor_details,g_one_email',
             'g_one_relation_with_student' => 'required|string|max:255',
             'g_one_aadhar_card_number' => 'required|digits:12',
+            'g_one_pan' => 'required|string|max:10',
             'g_one_d_o_b' => 'required|date',
             'g_one_srvice' => 'required|string|max:255',
             'g_one_income' => 'required|numeric|min:0',
@@ -1786,6 +1917,7 @@ class UserController extends Controller
             'g_two_email' => 'required|email|max:255|unique:guarantor_details,g_two_email',
             'g_two_relation_with_student' => 'required|string|max:255',
             'g_two_aadhar_card_number' => 'required|digits:12',
+            'g_two_pan' => 'required|string|max:10',
             'g_two_d_o_b' => 'required|date',
             'g_two_srvice' => 'required|string|max:255',
             'g_two_income' => 'required|numeric|min:0',
@@ -1810,6 +1942,7 @@ class UserController extends Controller
             'g_one_email' => $request->g_one_email,
             'g_one_relation_with_student' => $request->g_one_relation_with_student,
             'g_one_aadhar_card_number' => $request->g_one_aadhar_card_number,
+            'g_one_pan' => $request->g_one_pan,
             'g_one_d_o_b' => $request->g_one_d_o_b,
 
             'g_one_srvice' => $request->g_one_srvice,
@@ -1828,6 +1961,7 @@ class UserController extends Controller
             'g_two_email' => $request->g_two_email,
             'g_two_relation_with_student' => $request->g_two_relation_with_student,
             'g_two_aadhar_card_number' => $request->g_two_aadhar_card_number,
+            'g_two_pan' => $request->g_two_pan,
             'g_two_d_o_b' =>  $request->g_two_d_o_b,
             'g_two_srvice' => $request->g_two_srvice,
             'g_two_income' => $request->g_two_income,

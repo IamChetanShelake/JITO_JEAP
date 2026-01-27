@@ -88,6 +88,14 @@
                                     </div>
                                 </div>
 
+                                <!-- PAN Validation Message Container -->
+                                <div id="panValidationMessage" class="alert alert-dismissible fade show" role="alert"
+                                    style="display: none; margin-bottom: 20px;">
+                                    <span id="panValidationText"></span>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                                </div>
+
                                 <!-- Important Note Box -->
                                 <div
                                     style="background-color: #FEF6E0; border: 1px solid #FBBA00; border-radius: 8px; padding: 12px; margin-bottom: 20px;">
@@ -107,6 +115,15 @@
                                         <div class="col-lg-6 col-md-6 col-sm-12 col-12">
                                             <h4 class="title mb-3" style="color:#4C4C4C;font-size:18px;">First Guarantor
                                             </h4>
+                                            <div class="form-group mb-3">
+                                                <label for="g_one_pan" class="form-label">PAN Card Number <span
+                                                        style="color: red;">*</span></label>
+                                                <input type="text" id="g_one_pan" name="g_one_pan" class="form-control"
+                                                    placeholder="Enter 10-character PAN number"
+                                                    value="{{ old('g_one_pan') ?: $guarantorDetail->g_one_pan ?? '' }}"
+                                                    required>
+                                                <small class="text-danger">{{ $errors->first('g_one_pan') }}</small>
+                                            </div>
                                             <div class="form-group mb-3">
                                                 <label for="g_one_name" class="form-label">Name <span
                                                         style="color: red;">*</span></label>
@@ -251,6 +268,16 @@
                                                     class="text-danger">{{ $errors->first('g_one_aadhar_card_number') }}</small>
                                             </div>
 
+                                            {{-- <div class="form-group mb-3">
+                                                <label for="g_one_pan" class="form-label">PAN Card Number <span
+                                                        style="color: red;">*</span></label>
+                                                <input type="text" id="g_one_pan" name="g_one_pan"
+                                                    class="form-control" placeholder="Enter 10-character PAN number"
+                                                    value="{{ old('g_one_pan') ?: $guarantorDetail->g_one_pan ?? '' }}"
+                                                    required>
+                                                <small class="text-danger">{{ $errors->first('g_one_pan') }}</small>
+                                            </div> --}}
+
                                             <div class="form-group mb-3">
                                                 <label for="g_one_d_o_b" class="form-label">Date of Birth
                                                     <span style="color: red;">*</span></label>
@@ -288,6 +315,15 @@
                                         <div class="col-lg-6 col-md-6 col-sm-12 col-12">
                                             <h4 class="title mb-3" style="color:#4C4C4C;font-size:18px;">Second Guarantor
                                             </h4>
+                                            <div class="form-group mb-3">
+                                                <label for="g_two_pan" class="form-label">PAN Card Number <span
+                                                        style="color: red;">*</span></label>
+                                                <input type="text" id="g_two_pan" name="g_two_pan"
+                                                    class="form-control" placeholder="Enter 10-character PAN number"
+                                                    value="{{ old('g_two_pan') ?: $guarantorDetail->g_two_pan ?? '' }}"
+                                                    required>
+                                                <small class="text-danger">{{ $errors->first('g_two_pan') }}</small>
+                                            </div>
                                             <div class="form-group mb-3">
                                                 <label for="g_two_name" class="form-label">Name <span
                                                         style="color: red;">*</span></label>
@@ -489,24 +525,124 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Function to toggle sibling assistance fields
-            function toggleSiblingAssistanceFields() {
-                const siblingAssistanceSelect = document.querySelector('select[name="sibling_assistance"]');
-                const siblingAssistanceFields = document.getElementById('sibling-assistance-fields');
 
-                if (siblingAssistanceSelect && siblingAssistanceSelect.value === 'yes') {
-                    siblingAssistanceFields.style.display = 'block';
-                } else {
-                    siblingAssistanceFields.style.display = 'none';
+            /* ===== First Guarantor PAN Verification ===== */
+            function verifyFirstGuarantorPan() {
+                const panInput = document.getElementById('g_one_pan');
+                let pan = panInput.value.trim().toUpperCase();
+
+                if (pan.length !== 10) {
+                    console.log('First Guarantor PAN length invalid');
+                    return;
                 }
+
+                console.log('Verifying First Guarantor PAN:', pan);
+
+                fetch("{{ route('user.verify.pan') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": document
+                                .querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            pan: pan
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(resp => {
+                        console.log('First Guarantor PAN Response:', resp);
+
+                        if (resp.status === true) {
+                            let data = resp.data;
+
+                            // Populate First Guarantor fields
+                            document.getElementById('g_one_name').value = data.full_name ?? '';
+                            document.querySelector('[name="g_one_d_o_b"]').value = data.dob ?? '';
+
+                            if (data.gender === 'M') {
+                                document.getElementById('g_one_gender').value = 'male';
+                            } else if (data.gender === 'F') {
+                                document.getElementById('g_one_gender').value = 'female';
+                            }
+
+                            alert('First Guarantor PAN verified successfully!');
+                        } else {
+                            alert('Invalid First Guarantor PAN: ' + (resp.message ||
+                                'Please check and try again'));
+                        }
+                    })
+                    .catch((err) => {
+                        console.error('First Guarantor PAN verification error:', err);
+                        alert('First Guarantor PAN verification error. Please try again.');
+                    });
             }
 
-            // Event listener for sibling assistance dropdown
-            document.querySelector('select[name="sibling_assistance"]').addEventListener('change',
-                toggleSiblingAssistanceFields);
+            /* ===== Second Guarantor PAN Verification ===== */
+            function verifySecondGuarantorPan() {
+                const panInput = document.getElementById('g_two_pan');
+                let pan = panInput.value.trim().toUpperCase();
 
-            // Initialize sibling assistance fields on page load
-            toggleSiblingAssistanceFields();
+                if (pan.length !== 10) {
+                    console.log('Second Guarantor PAN length invalid');
+                    return;
+                }
+
+                console.log('Verifying Second Guarantor PAN:', pan);
+
+                fetch("{{ route('user.verify.pan') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": document
+                                .querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            pan: pan
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(resp => {
+                        console.log('Second Guarantor PAN Response:', resp);
+
+                        if (resp.status === true) {
+                            let data = resp.data;
+
+                            // Populate Second Guarantor fields
+                            document.querySelector('[name="g_two_name"]').value = data.full_name ?? '';
+                            document.querySelector('[name="g_two_d_o_b"]').value = data.dob ?? '';
+
+                            if (data.gender === 'M') {
+                                document.querySelector('[name="g_two_gender"]').value = 'male';
+                            } else if (data.gender === 'F') {
+                                document.querySelector('[name="g_two_gender"]').value = 'female';
+                            }
+
+                            alert('Second Guarantor PAN verified successfully!');
+                        } else {
+                            alert('Invalid Second Guarantor PAN: ' + (resp.message ||
+                                'Please check and try again'));
+                        }
+                    })
+                    .catch((err) => {
+                        console.error('Second Guarantor PAN verification error:', err);
+                        alert('Second Guarantor PAN verification error. Please try again.');
+                    });
+            }
+
+            /* ===== Event Listeners ===== */
+            const gOnePan = document.getElementById('g_one_pan');
+            if (gOnePan) {
+                gOnePan.addEventListener('blur', verifyFirstGuarantorPan);
+            }
+
+            const gTwoPan = document.getElementById('g_two_pan');
+            if (gTwoPan) {
+                gTwoPan.addEventListener('blur', verifySecondGuarantorPan);
+            }
+
         });
     </script>
 @endsection

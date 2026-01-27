@@ -144,6 +144,8 @@ Route::middleware(['auth', 'user'])
             ->name('step4.store');
         Route::post('/bank-verify', [UserController::class, 'verify'])
             ->name('bank.verify');
+        Route::post('/pan-verify', [UserController::class, 'verifyPan'])
+            ->name('verify.pan');
 
 
         Route::get('/Step5', [UserController::class, 'step5'])

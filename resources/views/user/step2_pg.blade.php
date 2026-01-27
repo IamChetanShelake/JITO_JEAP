@@ -1180,7 +1180,7 @@
                                                     <label for="duration_start_year">Duration Start Year</label>
                                                     <input type="date" class="form-control" id="duration_start_year"
                                                         name="duration_start_year" placeholder="Start Year"
-                                                        value="{{ old('duration_start_year') }}">
+                                                        value="{{ old('duration_start_year', $educationDetail->duration_start_year ?? '') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('duration_start_year') }}</small>
                                                 </div>
@@ -1189,7 +1189,7 @@
                                                     <label for="duration_end_year">Duration End Year</label>
                                                     <input type="date" class="form-control" id="duration_end_year"
                                                         name="duration_end_year" placeholder="End Year"
-                                                        value="{{ old('duration_end_year') }}">
+                                                        value="{{ old('duration_end_year', $educationDetail->duration_end_year ?? '') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('duration_end_year') }}</small>
                                                 </div>

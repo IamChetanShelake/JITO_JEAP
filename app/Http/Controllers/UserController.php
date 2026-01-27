@@ -1586,20 +1586,14 @@ class UserController extends Controller
 
     public function verifyPan(Request $request)
     {
-        $response = Http::withHeaders([
-            'Content-Type'  => 'application/json',
-            'Authorization' => 'Bearer ' . env('SUREPASS_TOKEN'),
-        ])->post('https://kyc-api.surepass.io/api/v1/bank-verification/', [
-            'id_number'    => $request->account_number,
-            'ifsc'         => $request->ifsc_code,
-            'ifsc_details' => true
-        ]);
+        dd($request->all());
+    
         $request->validate([
             'pan' => 'required|string|size:10'
         ]);
 
         try {
-            $token = env('SUREPASS_TOKEN');
+          //  $token = env('SUREPASS_TOKEN');
 
             $response = Http::withHeaders([
                 'Content-Type'  => 'application/json',

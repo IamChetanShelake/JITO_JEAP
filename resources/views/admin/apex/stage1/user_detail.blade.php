@@ -675,6 +675,20 @@
         align-self: flex-end;
     }
 
+    .user-info-footer {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .user-info-footer p {
+            margin: 0.25rem 0;
+            font-size: 0.9rem;
+        }
+
     @media (max-width: 768px) {
         .action-form-row {
             flex-direction: column;
@@ -698,7 +712,10 @@
     </div>
     <div style="display: flex; gap: 1rem; align-items: center;">
         <a href="{{ route('admin.user.generate.pdf', $user) }}" class="back-btn" style="background-color: var(--primary-blue);">
-            <i class="fas fa-download"></i> Download PDF
+            <i class="fas fa-download"></i> Download Application PDF
+        </a>
+        <a href="{{ route('admin.user.generate.summary.pdf', $user) }}" class="back-btn" style="background-color: var(--primary-green);">
+            <i class="fas fa-file-alt"></i> Download Summary PDF
         </a>
         <a href="{{ route('admin.home') }}" class="back-btn">
             <i class="fas fa-arrow-left"></i> Back to Dashboard
@@ -718,6 +735,11 @@
             <p>{{ $user->mobile }}</p>
         </div>
     </div>
+     <div class="user-info-footer">
+            <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}</p>
+            <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type ?? 'N/A' }}</p>
+            <p><strong>Financial Assistance For:</strong> {{ $user->financial_asset_for ?? 'N/A' }}</p>
+        </div>
 </div>
 
 {{-- <!-- Workflow Status Card -->
@@ -1946,7 +1968,7 @@
                         </div> --}}
                         @if($user->workflowStatus->apex_1_approval_remarks)
                             <div class="data-item">
-                                <div class="data-label">Admin Approval Remarks</div>
+                                <div class="data-label">Apex Approval Remarks</div>
                                 <div class="data-value">{{ $user->workflowStatus->apex_1_approval_remarks }}</div>
                             </div>
                         @endif

@@ -630,6 +630,10 @@
     @yield('styles')
 </head>
 
+@php
+    $activeGuard = request()->get('active_guard');
+@endphp
+
 <body>
     <header>
         <!-- Sidebar -->
@@ -642,13 +646,25 @@
             </div>
             <nav class="sidebar-nav ">
                 <ul class="nav flex-column" style="margin-bottom:50px;">
-                    <li class="nav-item">
-                        <a class="nav-link {{ Route::currentRouteName() == 'admin.home' ? 'active' : '' }}"
-                            href="{{ route('admin.home') }}">
-                            <i class="fas fa-tachometer-alt"></i>
-                            <span class="nav-text">Dashboard</span>
-                        </a>
-                    </li>
+                    @if ($activeGuard != 'chapter')
+                        <li class="nav-item">
+                            <a class="nav-link {{ Route::currentRouteName() == 'admin.home' ? 'active' : '' }}"
+                                href="{{ route('admin.home') }}">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span class="nav-text">Dashboard</span>
+                            </a>
+                        </li>
+                    @endif
+
+                    @if ($activeGuard === 'chapter')
+                        <li class="nav-item">
+                            <a class="nav-link {{ Route::currentRouteName() == 'admin.chapter.user.dashboard' ? 'active' : '' }}"
+                                href="{{ route('admin.chapter.user.dashboard') }}">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span class="nav-text">Dashboard</span>
+                            </a>
+                        </li>
+                    @endif
                     @if (Auth::guard('admin')->check() && Auth::guard('admin')->user()->role == 'admin')
                         <li class="nav-item">
                             <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.apex') ? 'active' : '' }}"

@@ -819,4 +819,39 @@ class AdminController extends Controller
         return $pdf->stream($filename);
     }
 
+    public function generateSummaryPDF(User $user)
+    {
+        // Load all related data
+        $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
+
+        $workflow = $user->workflowStatus;
+        $educationDetail = $user->educationDetail;
+        $familyDetail = $user->familyDetail;
+        $fundingDetail = $user->fundingDetail;
+        $guarantorDetail = $user->guarantorDetail;
+        $document = $user->document;
+
+        // Get working committee approval data
+        $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
+
+        // Generate PDF
+        $pdf = Pdf::loadView('pdf.jeap-summary', compact(
+            'user',
+            'workflow',
+            'educationDetail',
+            'familyDetail',
+            'fundingDetail',
+            'guarantorDetail',
+            'document',
+            'workingCommitteeApproval'
+        ));
+
+        // Set paper size and orientation
+        $pdf->setPaper('a4', 'portrait');
+
+        // Return PDF download
+        $filename = 'JEAP_Summary_' . $user->name . '_' . $user->id . '.pdf';
+        return $pdf->stream($filename);
+    }
+
 }

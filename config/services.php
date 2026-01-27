@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'surepass' => [
+        'token' => env('SUREPASS_TOKEN'),
+    ],
+
 ];

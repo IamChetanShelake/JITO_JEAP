@@ -1584,74 +1584,47 @@ class UserController extends Controller
     // }
 
 
-    public function verifyPan(Request $request)
-    {
+   public function verifyPan(Request $request)
+{
+    $request->validate([
+        'pan' => 'required|string|size:10'
+    ]);
+
+    try {
+        $token = config('services.surepass.token');
+
         $response = Http::withHeaders([
-            'Content-Type'  => 'application/json',
-            'Authorization' => 'Bearer ' . env('SUREPASS_TOKEN'),
-        ])->post('https://kyc-api.surepass.io/api/v1/bank-verification/', [
-            'id_number'    => $request->account_number,
-            'ifsc'         => $request->ifsc_code,
-            'ifsc_details' => true
-        ]);
-        $request->validate([
-            'pan' => 'required|string|size:10'
+            'Authorization' => 'Bearer ' . $token,
+            'Accept'        => 'application/json',
+        ])->post('https://kyc-api.surepass.io/api/v1/pan/pan-comprehensive', [
+            'id_number' => $request->pan
         ]);
 
-        try {
-            $token = env('SUREPASS_TOKEN');
+        if ($response->successful()) {
+            $data = $response->json();
 
-            $response = Http::withHeaders([
-                'Content-Type'  => 'application/json',
-                'Authorization' => 'Bearer ' . env('SUREPASS_TOKEN'),
-            ])->post('https://kyc-api.surepass.io/api/v1/pan/pan-comprehensive', [
-                'id_number' => $request->pan
+            return response()->json([
+                'status'  => $data['success'] ?? false,
+                'data'    => $data['data'] ?? null,
+                'message' => $data['message'] ?? null
             ]);
-
-            // 1. Check if the HTTP request was successful (Status 200)
-            if ($response->successful()) {
-                $data = $response->json();
-
-                // 2. Check the Surepass API internal success flag
-                // Surepass often returns HTTP 200 even if the PAN is invalid, but sets 'success' => false
-                if (isset($data['success']) && $data['success'] === true) {
-                    return response()->json([
-                        'status' => true,
-                        'data'   => $data['data'] ?? [] // Send the specific data array
-                    ]);
-                } else {
-                    // PAN format valid but details not found or invalid logic
-                    return response()->json([
-                        'status' => false,
-                        'message' => $data['message'] ?? 'Invalid PAN details provided by API.'
-                    ]);
-                }
-            }
-
-            // 3. Handle HTTP Errors (401 Unauthorized, 500 Server Error, etc.)
-            // This is likely where your code is failing currently
-            $errorMessage = 'API Error';
-            $errorBody = $response->json();
-
-            if ($response->status() === 401) {
-                $errorMessage = 'Invalid API Token. Check SUREPASS_TOKEN in .env';
-            } elseif (isset($errorBody['message'])) {
-                $errorMessage = $errorBody['message'];
-            } else {
-                $errorMessage = $response->body(); // Return raw body if no message key
-            }
-
-            return response()->json([
-                'status' => false,
-                'message' => $errorMessage
-            ], $response->status());
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Connection failed: ' . $e->getMessage()
-            ], 500);
         }
+
+        return response()->json([
+            'status' => false,
+            'message' => $response->status() === 401
+                ? 'Invalid API Token. Check SUREPASS_TOKEN'
+                : ($response->json()['message'] ?? 'API error')
+        ], $response->status());
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => $e->getMessage()
+        ], 500);
     }
+}
+
 
     // public function step4store(Request $request)
     // {

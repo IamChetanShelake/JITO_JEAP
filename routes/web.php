@@ -147,8 +147,7 @@ Route::middleware(['auth', 'user'])
             ->name('step4.store');
         Route::post('/bank-verify', [UserController::class, 'verify'])
             ->name('bank.verify');
-        Route::post('/pan-verify', [UserController::class, 'verifyPan'])
-            ->name('verify.pan');
+
 
 
         Route::get('/Step5', [UserController::class, 'step5'])
@@ -181,4 +180,8 @@ Route::middleware(['auth', 'user'])
         // API route for Aadhaar validation
         Route::post('/validate-aadhar', [UserController::class, 'validateAadhar'])
             ->name('validate.aadhar');
+
+        // PAN verification route
+        Route::post('/pan-verify', [UserController::class, 'verifyPan'])
+            ->name('verify.pan');
     });

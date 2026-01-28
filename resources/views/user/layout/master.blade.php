@@ -711,6 +711,26 @@
                         <a href="{{ route('user.step7') }}">
                             <div
                                 class="step-icon
+                                 @if (auth()->check() && in_array(auth()->user()->application_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+                                @if (auth()->check() && auth()->user()->application_status === 'resubmit') resubmit-step @endif
+                                @if (request()->routeIs('user.step1')) active-step @endif">
+
+                                @if (auth()->check() && in_array(auth()->user()->application_status, ['submited', 'submitted', 'approved']))
+                                    {{-- Tick SVG --}}
+                                    <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
+                                            fill="white" />
+                                    </svg>
+                                @elseif (auth()->check() && auth()->user()->application_status === 'resubmit')
+                                    {{-- Cross Icon --}}
+                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
+                                        title="{{ auth()->user()->admin_remark ?? 'On Hold' }}"></i>
+                                @else
+                                    {{-- Default Icon --}}
+                                    <i class="bi bi-eye"></i>
+                                @endif
+                                {{-- 
 @if ($reviewSubmit && in_array($reviewSubmit->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
 @if ($reviewSubmit && $reviewSubmit->submit_status === 'resubmit') resubmit-step @endif
 @if (request()->routeIs('user.step7')) active-step @endif">
@@ -726,7 +746,7 @@
                                         title="{{ $reviewSubmit->admin_remark ?? 'On Hold' }}"></i>
                                 @else
                                     <i class="bi bi-eye"></i>
-                                @endif
+                                @endif --}}
 
                             </div>
                             <div class="step-content">

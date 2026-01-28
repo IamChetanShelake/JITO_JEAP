@@ -29,7 +29,47 @@ class UserController extends Controller
 
         $existingLoan = Loan_category::where('user_id', $user_id)->latest()->first();
         if ($existingLoan) {
-            return redirect()->route('user.step1');
+            // Load all user details
+            $user = User::find($user_id);
+            $educationDetail = EducationDetail::where('user_id', $user_id)->first();
+            $familyDetail = Familydetail::where('user_id', $user_id)->first();
+            $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
+            $guarantorDetail = GuarantorDetail::where('user_id', $user_id)->first();
+            $document = Document::where('user_id', $user_id)->first();
+
+            // Check progression and redirect to next incomplete step
+            // Step 1 - Personal Details
+            if (!$user || $user->submit_status !== 'submited') {
+                return redirect()->route('user.step1');
+            }
+
+            // Step 2 - Education Details (for Postgrad) or Family Details (for others)
+            if (!$educationDetail || $educationDetail->submit_status !== 'submited') {
+                return redirect()->route('user.step2');
+            }
+
+            // Step 3 - Family Details
+            if (!$familyDetail || $familyDetail->submit_status !== 'submited') {
+                return redirect()->route('user.step3');
+            }
+
+            // Step 4 - Funding Details
+            if (!$fundingDetail || $fundingDetail->submit_status !== 'submited') {
+                return redirect()->route('user.step4');
+            }
+
+            // Step 5 - Guarantor Details
+            if (!$guarantorDetail || $guarantorDetail->submit_status !== 'submited') {
+                return redirect()->route('user.step5');
+            }
+
+            // Step 6 - Document Upload
+            if (!$document || $document->submit_status !== 'submited') {
+                return redirect()->route('user.step6');
+            }
+
+            // All steps completed - redirect to Step 7 (Review & Submit)
+            return redirect()->route('user.step7');
         }
         $user = Auth::user()->load(['familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
         return view('user.home', compact('user'));
@@ -935,13 +975,12 @@ class UserController extends Controller
     }
 
 
-
-
-
     public function step2_foreign_pg_store(Request $request)
     {
         // Validation for education details
-        //dd($request->all());
+        // dd($request->all());
+
+        // Add workflow update here for simplicity
         $rules = [
             // Financial Need Overview
             'course_name' => 'required|string|max:255',
@@ -974,12 +1013,16 @@ class UserController extends Controller
             'group_4_year3' => 'nullable|numeric|min:0',
             'group_4_year4' => 'nullable|numeric|min:0',
             'group_4_year5' => 'nullable|numeric|min:0',
-
             // School / 10th Grade Information
             'school_name' => 'required|string|max:255',
             'school_board' => 'required|string|max:100',
             'school_completion_year' => 'required|string|max:50',
             'school_grade_system' => 'required',
+            // '10th_mark_obtained' => 'nullable|integer|min:0',
+            // '10th_mark_out_of' => 'nullable|integer|min:0',
+            // 'school_percentage' => 'nullable|string|max:50',
+            // 'school_CGPA' => 'nullable|string|max:50',
+            // 'school_sgpa' => 'nullable|string|max:50',
 
             // Junior College (12th Grade)
             'jc_college_name' => 'required|string|max:255',
@@ -987,6 +1030,7 @@ class UserController extends Controller
             'jc_board' => 'required|string|max:100',
             'jc_completion_year' => 'required|string|max:50',
             'jc_grade_system' => 'required',
+
 
             // Completed Qualifications
             'qualifications' => 'required|string',
@@ -1004,8 +1048,9 @@ class UserController extends Controller
             'have_work_experience' => 'required|in:yes,no',
             'organization_name' => 'nullable|string|max:255',
             'work_profile' => 'nullable|string|max:255',
-            'duration_start_year' => 'nullable|string|max:50',
-            'duration_end_year' => 'nullable|string|max:50',
+            'duration_start_year' => 'nullable|date',
+            'duration_end_year'   => 'nullable|date|after_or_equal:duration_start_year',
+
             'work_location_city' => 'nullable|string|max:100',
             'work_country' => 'nullable|string|max:100',
             'work_type' => 'nullable|in:full-time,internship,freelance,volunteer',
@@ -1019,6 +1064,7 @@ class UserController extends Controller
             'gre_score_year' => 'nullable|string|max:100',
             'gmat_score_year' => 'nullable|string|max:100',
             'sat_score_year' => 'nullable|string|max:100',
+
         ];
 
         // Conditional validation based on school_grade_system
@@ -1028,7 +1074,7 @@ class UserController extends Controller
             $rules['school_percentage'] = 'required|string|max:50';
         } elseif ($request->school_grade_system == 'cgpa') {
             $rules['school_CGPA'] = 'required|string|max:50';
-            $rules['school_sgpa'] = 'required|string|max:50';
+            $rules['school_sgpa'] = 'nullable|string|max:50';
         }
 
         // Conditional validation based on jc_grade_system
@@ -1109,6 +1155,8 @@ class UserController extends Controller
             'qualifications' => $request->qualifications,
             'qualification_institution' => $request->qualification_institution,
             'qualification_university' => $request->qualification_university,
+            // 'qualification_start_year' => $request->qualification_start_year,
+            // 'qualification_end_year' => $request->qualification_end_year,
             'qualification_start_year' => $request->qualification_start_year ? Carbon::createFromFormat('Y-m', $request->qualification_start_year)->firstOfMonth()->format('Y-m-d') : null,
             'qualification_end_year' => $request->qualification_end_year ? Carbon::createFromFormat('Y-m', $request->qualification_end_year)->firstOfMonth()->format('Y-m-d') : null,
             'marksheet_type' => json_encode($request->marksheet_type),
@@ -1159,6 +1207,231 @@ class UserController extends Controller
 
         return redirect()->route('user.step3')->with('success', $message);
     }
+
+
+
+
+    // public function step2_foreign_pg_store(Request $request)
+    // {
+    //     // Validation for education details
+    //     //dd($request->all());
+    //     $rules = [
+    //         // Financial Need Overview
+    //         'course_name' => 'required|string|max:255',
+    //         'university_name' => 'required|string|max:255',
+    //         'college_name' => 'required|string|max:255',
+    //         'country' => 'required|string|max:100',
+    //         'city_name' => 'required|string|max:100',
+    //         'start_year' => 'required|string',
+    //         'expected_year' => 'required|string',
+    //         'nirf_ranking' => 'nullable|string|max:50',
+
+    //         // Financial Summary Table
+    //         'group_1_year1' => 'nullable|numeric|min:0',
+    //         'group_1_year2' => 'nullable|numeric|min:0',
+    //         'group_1_year3' => 'nullable|numeric|min:0',
+    //         'group_1_year4' => 'nullable|numeric|min:0',
+    //         'group_1_year5' => 'nullable|numeric|min:0',
+    //         'group_2_year1' => 'nullable|numeric|min:0',
+    //         'group_2_year2' => 'nullable|numeric|min:0',
+    //         'group_2_year3' => 'nullable|numeric|min:0',
+    //         'group_2_year4' => 'nullable|numeric|min:0',
+    //         'group_2_year5' => 'nullable|numeric|min:0',
+    //         'group_3_year1' => 'nullable|numeric|min:0',
+    //         'group_3_year2' => 'nullable|numeric|min:0',
+    //         'group_3_year3' => 'nullable|numeric|min:0',
+    //         'group_3_year4' => 'nullable|numeric|min:0',
+    //         'group_3_year5' => 'nullable|numeric|min:0',
+    //         'group_4_year1' => 'nullable|numeric|min:0',
+    //         'group_4_year2' => 'nullable|numeric|min:0',
+    //         'group_4_year3' => 'nullable|numeric|min:0',
+    //         'group_4_year4' => 'nullable|numeric|min:0',
+    //         'group_4_year5' => 'nullable|numeric|min:0',
+
+    //         // School / 10th Grade Information
+    //         'school_name' => 'required|string|max:255',
+    //         'school_board' => 'required|string|max:100',
+    //         'school_completion_year' => 'required|string|max:50',
+    //         'school_grade_system' => 'required',
+
+    //         // Junior College (12th Grade)
+    //         'jc_college_name' => 'required|string|max:255',
+    //         'jc_stream' => 'required|string|max:100',
+    //         'jc_board' => 'required|string|max:100',
+    //         'jc_completion_year' => 'required|string|max:50',
+    //         'jc_grade_system' => 'required',
+
+    //         // Completed Qualifications
+    //         'qualifications' => 'required|string',
+    //         'qualification_institution' => 'required|string|max:255',
+    //         'qualification_university' => 'nullable|string|max:255',
+    //         'qualification_start_year' => 'required|date',
+    //         'qualification_end_year' => 'required|date',
+    //         'marksheet_type' => 'required|array',
+    //         'marks_obtained' => 'nullable|array',
+    //         'out_of' => 'nullable|array',
+    //         'percentage' => 'nullable|array',
+    //         'cgpa' => 'nullable|array',
+
+    //         // Work Experience
+    //         'have_work_experience' => 'required|in:yes,no',
+    //         'organization_name' => 'nullable|string|max:255',
+    //         'work_profile' => 'nullable|string|max:255',
+    //         'duration_start_year' => 'nullable|string|max:50',
+    //         'duration_end_year' => 'nullable|string|max:50',
+    //         'work_location_city' => 'nullable|string|max:100',
+    //         'work_country' => 'nullable|string|max:100',
+    //         'work_type' => 'nullable|in:full-time,internship,freelance,volunteer',
+    //         'mention_your_salary' => 'nullable|in:monthly,yearly,ctc',
+    //         'salary_amount' => 'nullable|numeric|min:0',
+
+    //         // Additional Curriculum
+    //         'ielts_overall_band_year' => 'nullable|string|max:100',
+    //         'toefl_score_year' => 'nullable|string|max:100',
+    //         'duolingo_det_score_year' => 'nullable|string|max:100',
+    //         'gre_score_year' => 'nullable|string|max:100',
+    //         'gmat_score_year' => 'nullable|string|max:100',
+    //         'sat_score_year' => 'nullable|string|max:100',
+    //     ];
+
+    //     // Conditional validation based on school_grade_system
+    //     if ($request->school_grade_system == 'percentage') {
+    //         $rules['10th_mark_obtained'] = 'required|integer|min:0';
+    //         $rules['10th_mark_out_of'] = 'required|integer|min:0';
+    //         $rules['school_percentage'] = 'required|string|max:50';
+    //     } elseif ($request->school_grade_system == 'cgpa') {
+    //         $rules['school_CGPA'] = 'required|string|max:50';
+    //         $rules['school_sgpa'] = 'required|string|max:50';
+    //     }
+
+    //     // Conditional validation based on jc_grade_system
+    //     if ($request->jc_grade_system == 'percentage') {
+    //         $rules['12th_mark_obtained'] = 'required|integer|min:0';
+    //         $rules['12th_mark_out_of'] = 'required|integer|min:0';
+    //         $rules['jc_percentage'] = 'required|string|max:50';
+    //     } elseif ($request->jc_grade_system == 'cgpa') {
+    //         $rules['jc_CGPA'] = 'required|string|max:50';
+    //         $rules['jc_sgpa'] = 'required|string|max:50';
+    //     }
+
+    //     $request->validate($rules);
+
+    //     $user_id = Auth::id();
+
+    //     $data = [
+    //         'user_id' => $user_id,
+
+    //         // Financial Need Overview
+    //         'course_name' => $request->course_name,
+    //         'university_name' => $request->university_name,
+    //         'college_name' => $request->college_name,
+    //         'country' => $request->country,
+    //         'city_name' => $request->city_name,
+    //         'start_year' => $request->start_year ? $request->start_year . '-01' : null, // Convert month to full date
+    //         'expected_year' => $request->expected_year ? $request->expected_year . '-01' : null, // Convert month to full date
+    //         'nirf_ranking' => $request->nirf_ranking,
+
+    //         // Financial Summary Table
+    //         'group_1_year1' => $request->group_1_year1,
+    //         'group_1_year2' => $request->group_1_year2,
+    //         'group_1_year3' => $request->group_1_year3,
+    //         'group_1_year4' => $request->group_1_year4,
+    //         'group_1_year5' => $request->group_1_year5,
+    //         'group_2_year1' => $request->group_2_year1,
+    //         'group_2_year2' => $request->group_2_year2,
+    //         'group_2_year3' => $request->group_2_year3,
+    //         'group_2_year4' => $request->group_2_year4,
+    //         'group_2_year5' => $request->group_2_year5,
+    //         'group_3_year1' => $request->group_3_year1,
+    //         'group_3_year2' => $request->group_3_year2,
+    //         'group_3_year3' => $request->group_3_year3,
+    //         'group_3_year4' => $request->group_3_year4,
+    //         'group_3_year5' => $request->group_3_year5,
+    //         'group_4_year1' => $request->group_4_year1,
+    //         'group_4_year2' => $request->group_4_year2,
+    //         'group_4_year3' => $request->group_4_year3,
+    //         'group_4_year4' => $request->group_4_year4,
+    //         'group_4_year5' => $request->group_4_year5,
+
+    //         // Calculate totals
+    //         'group_1_total' => ($request->group_1_year1 ?: 0) + ($request->group_1_year2 ?: 0) + ($request->group_1_year3 ?: 0) + ($request->group_1_year4 ?: 0) + ($request->group_1_year5 ?: 0),
+    //         'group_2_total' => ($request->group_2_year1 ?: 0) + ($request->group_2_year2 ?: 0) + ($request->group_2_year3 ?: 0) + ($request->group_2_year4 ?: 0) + ($request->group_2_year5 ?: 0),
+    //         'group_3_total' => ($request->group_3_year1 ?: 0) + ($request->group_3_year2 ?: 0) + ($request->group_3_year3 ?: 0) + ($request->group_3_year4 ?: 0) + ($request->group_3_year5 ?: 0),
+    //         'group_4_total' => ($request->group_4_year1 ?: 0) + ($request->group_4_year2 ?: 0) + ($request->group_4_year3 ?: 0) + ($request->group_4_year4 ?: 0) + ($request->group_4_year5 ?: 0),
+
+    //         // School / 10th Grade Information
+    //         'school_name' => $request->school_name,
+    //         'school_board' => $request->school_board,
+    //         'school_completion_year' => $request->school_completion_year ? $request->school_completion_year . '-01' : null,
+    //         '10th_mark_obtained' => $request->input('10th_mark_obtained'),
+    //         '10th_mark_out_of' => $request->input('10th_mark_out_of'),
+    //         'school_percentage' => $request->school_percentage,
+    //         'school_CGPA' => $request->school_CGPA,
+
+    //         // Junior College (12th Grade)
+    //         'jc_college_name' => $request->jc_college_name,
+    //         'jc_stream' => $request->jc_stream,
+    //         'jc_board' => $request->jc_board,
+    //         'jc_completion_year' => $request->jc_completion_year,
+    //         '12th_mark_obtained' => $request->input('12th_mark_obtained'),
+    //         '12th_mark_out_of' => $request->input('12th_mark_out_of'),
+    //         'jc_percentage' => $request->jc_percentage,
+    //         'jc_CGPA' => $request->jc_CGPA,
+
+    //         // Completed Qualifications
+    //         'qualifications' => $request->qualifications,
+    //         'qualification_institution' => $request->qualification_institution,
+    //         'qualification_university' => $request->qualification_university,
+    //         'qualification_start_year' => $request->qualification_start_year ? Carbon::createFromFormat('Y-m', $request->qualification_start_year)->firstOfMonth()->format('Y-m-d') : null,
+    //         'qualification_end_year' => $request->qualification_end_year ? Carbon::createFromFormat('Y-m', $request->qualification_end_year)->firstOfMonth()->format('Y-m-d') : null,
+    //         'marksheet_type' => json_encode($request->marksheet_type),
+    //         'marks_obtained' => json_encode($request->marks_obtained),
+    //         'out_of' => json_encode($request->out_of),
+    //         'percentage' => json_encode($request->percentage),
+    //         'cgpa' => json_encode($request->cgpa),
+
+    //         // Work Experience
+    //         'have_work_experience' => $request->have_work_experience,
+    //         'organization_name' => $request->organization_name,
+    //         'work_profile' => $request->work_profile,
+    //         'duration_start_year' => $request->duration_start_year,
+    //         'duration_end_year' => $request->duration_end_year,
+    //         'work_location_city' => $request->work_location_city,
+    //         'work_country' => $request->work_country,
+    //         'work_type' => $request->work_type,
+    //         'mention_your_salary' => $request->mention_your_salary,
+    //         'salary_amount' => $request->salary_amount,
+
+    //         // Additional Curriculum
+    //         'ielts_overall_band_year' => $request->ielts_overall_band_year,
+    //         'toefl_score_year' => $request->toefl_score_year,
+    //         'duolingo_det_score_year' => $request->duolingo_det_score_year,
+    //         'gre_score_year' => $request->gre_score_year,
+    //         'gmat_score_year' => $request->gmat_score_year,
+    //         'sat_score_year' => $request->sat_score_year,
+
+    //         'status' => 'step2_completed',
+    //         'submit_status' => 'submited',
+    //     ];
+
+    //     // Check if education details already exist for this user
+    //     $educationDetail = EducationDetail::where('user_id', $user_id)->first();
+
+    //     if ($educationDetail) {
+    //         // Update existing record
+    //         $educationDetail->update($data);
+    //         $message = 'Education details updated successfully!';
+    //     } else {
+    //         // Create new record
+    //         EducationDetail::create($data);
+    //         $message = 'Education details saved successfully!';
+    //     }
+
+    //     // Check if all steps are submitted (no resubmit remaining)
+    //     $this->checkAndUpdateWorkflowStatus();
+
+    //     return redirect()->route('user.step3')->with('success', $message);
+    // }
 
 
 

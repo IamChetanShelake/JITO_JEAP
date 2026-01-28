@@ -707,12 +707,44 @@
                     siblingAssistanceFields.forEach(field => {
                         field.style.display = 'none';
                     });
+
+                    // Clear sibling fields when "No" is selected to avoid validation errors
+                    const siblingInputs = document.querySelectorAll(
+                        'input[name*="sibling_"], input[name="ngo_number"], select[name="sibling_loan_status"]');
+                    siblingInputs.forEach(input => {
+                        if (input.name !== 'sibling_assistance') {
+                            input.value = '';
+                        }
+                    });
                 }
             }
 
             // Event listener for sibling assistance dropdown
-            document.querySelector('select[name="sibling_assistance"]').addEventListener('change',
-                toggleSiblingAssistanceFields);
+            const siblingSelect = document.querySelector('select[name="sibling_assistance"]');
+            if (siblingSelect) {
+                siblingSelect.addEventListener('change', toggleSiblingAssistanceFields);
+            }
+
+            // Form submission handler - ensure sibling fields are cleared before submission
+            const form = document.querySelector('form[action="{{ route('user.step4.store') }}"]');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const siblingAssistanceSelect = document.querySelector(
+                        'select[name="sibling_assistance"]');
+
+                    // If "No" is selected, clear all sibling fields
+                    if (siblingAssistanceSelect && siblingAssistanceSelect.value === 'no') {
+                        const siblingInputs = document.querySelectorAll(
+                            'input[name*="sibling_"], input[name="ngo_number"], select[name="sibling_loan_status"]'
+                            );
+                        siblingInputs.forEach(input => {
+                            if (input.name !== 'sibling_assistance') {
+                                input.value = '';
+                            }
+                        });
+                    }
+                });
+            }
 
             // Initialize sibling assistance fields on page load
             toggleSiblingAssistanceFields();

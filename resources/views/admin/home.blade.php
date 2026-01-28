@@ -951,7 +951,7 @@
         <!-- Row 3: Accounts Department, Disbursement -->
         <div class="row g-3">
             <div class="col-lg-6">
-               @if ($activeGuard === 'admin')
+               @if (in_array($activeGuard, ['admin', 'apex']))
                     <!-- Accounts Department -->
                     <div class="approval-section">
                         <div class="approval-header">

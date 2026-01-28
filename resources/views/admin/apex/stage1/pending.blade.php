@@ -332,12 +332,21 @@
                                 <td>{{ $user->email }}</td>
                                 <td>{{ $user->phone }}</td>
                                 <td>{{ $user->created_at->format('d M Y') }}</td>
+                                @if($user->workflowStatus->apex_1_reject_remarks == null)
                                 <td>
                                     <span class="status-badge status-pending">
                                         <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
                                         Pending
                                     </span>
                                 </td>
+                                @else
+                                <td>
+                                    <span class="status-badge status-pending">
+                                        <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
+                                        Pending (resubmitted)
+                                    </span>
+                                </td>
+                                @endif
                                 <td class="actions-cell">
                                     <a href="{{ route('admin.apex.stage1.user.detail', $user) }}"
                                         class="action-btn view-btn" title="View Details">

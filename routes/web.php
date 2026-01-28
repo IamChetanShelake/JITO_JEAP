@@ -77,6 +77,9 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/chapters/draft', [AdminController::class, 'chapterDraft'])->name('chapter.draft');
     Route::get('/chapters/apex-pending', [AdminController::class, 'chapterApexPending'])->name('chapter.apex-pending');
     Route::get('/chapters/working-committee-pending', [AdminController::class, 'chapterWorkingCommitteePending'])->name('chapter.working-committee-pending');
+    Route::get('/chapters/working-committee-approved', [AdminController::class, 'chapterWorkingCommitteeApproved'])->name('chapter.working-committee-approved');
+
+
     Route::get('/chapters/resubmit', [AdminController::class, 'chapterResubmit'])->name('chapter.resubmit');
 
     // Chapter User Dashboard

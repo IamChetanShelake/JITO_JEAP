@@ -70,6 +70,7 @@
 <body>
     <!-- Header -->
     <div class="header">
+        <img src="{{ public_path('jitojeaplogo.png') }}" alt="JITO JEAP Logo" style="height: 60px; margin-bottom: 10px;">
         <h1>JITO EDUCATION ASSISTANCE PROGRAM</h1>
         <h2>SUMMARY</h2>
         <p><strong>Application no.: JITO-JEAP/2025/{{ str_pad($user->id, 4, '0', STR_PAD_LEFT) }}</strong></p>
@@ -176,13 +177,13 @@
             <tr>
                 <th width="30%">Approve Financial Assistance Amount</th>
                 <td width="70%" class="amount-highlight">
-                    ₹ {{ number_format($workingCommitteeApproval->approval_financial_assistance_amount ?? 0, 2) }}
+                    Rs. {{ number_format($workingCommitteeApproval->approval_financial_assistance_amount ?? 0, 2) }}
                 </td>
             </tr>
             <tr>
                 <th>First Disbursed Amount</th>
                 <td class="amount-highlight">
-                    ₹ {{ number_format($workingCommitteeApproval->approval_financial_assistance_amount ?? 0, 2) }}
+                    Rs. {{ number_format($workingCommitteeApproval->approval_financial_assistance_amount ?? 0, 2) }}
                 </td>
             </tr>
         </table>
@@ -453,7 +454,7 @@
     </div>
 
     <!-- PART [9]: Gaurantor Details -->
-    <div class="section">
+    {{-- <div class="section">
         <h2>PART [9]:Gaurantor Details</h2>
         <table>
             <tr>
@@ -475,11 +476,11 @@
                 <td>{{ number_format($guarantorDetail->g_two_income ?? 0, 2) }}</td>
             </tr>
         </table>
-    </div>
+    </div> --}}
 
-    <!-- PART [10]:Recommendation Details -->
+    <!-- PART [9]:Recommendation Details -->
     <div class="section">
-        <h2>PART [10]:Recommendation Details</h2>
+        <h2>PART [9]:Recommendation Details</h2>
         <table>
             <tr>
                 <th width="25%">Name Of Jito Member</th>
@@ -496,18 +497,18 @@
         </table>
     </div>
 
-    <!-- PART [11]:Chapter Remarks -->
+    <!-- PART [10]:Chapter Remarks -->
     <div class="section">
-        <h2>PART [11]:Chapter Remarks</h2>
+        <h2>PART [10]:Chapter Remarks</h2>
         <div class="remarks-section">
             <p><strong>Chapter Remarks:</strong></p>
             <p>{{ $workflow->chapter_approval_remarks ?? 'No chapter remarks available.' }}</p>
         </div>
     </div>
 
-    <!-- PART [12]:Apex Working Scrutiny team Remarks -->
+    <!-- PART [11]:Apex Working Scrutiny team Remarks -->
     <div class="section">
-        <h2>PART [12]:Apex Working Scrutiny team Remarks</h2>
+        <h2>PART [11]:Apex Working Scrutiny team Remarks</h2>
         <div class="remarks-section">
             <p><strong>Apex Working Comittee Remarks:</strong></p>
             <p>{{ $workflow->working_committee_approval_remarks ?? 'No apex remarks available.' }}</p>
@@ -515,9 +516,9 @@
         </div>
     </div>
 
-    <!-- PART [13]:Working Commitee Details -->
+    <!-- PART [12]:Working Commitee Details -->
     <div class="section">
-        <h2>PART [13]:Working Commitee Details</h2>
+        <h2>PART [12]:Working Commitee Details</h2>
         <table>
             <tr>
                 <th width="30%">Working Commitee Approval Date</th>
@@ -525,7 +526,7 @@
             </tr>
             <tr>
                 <th>Approve Financial Assistance</th>
-                <td>₹ {{ number_format($workingCommitteeApproval->approval_financial_assistance_amount ?? 0, 2) }}</td>
+                <td>Rs. {{ number_format($workingCommitteeApproval->approval_financial_assistance_amount ?? 0, 2) }}</td>
             </tr>
             <tr>
                 <th>Meeting No.</th>
@@ -534,9 +535,9 @@
         </table>
     </div>
 
-    <!-- PART [14]:Disbursement Details -->
+    <!-- PART [13]:Disbursement Details -->
     <div class="section">
-        <h2>PART [14]:Disbursement Details</h2>
+        <h2>PART [13]:Disbursement Details</h2>
         <table>
             <tr>
                 <th width="30%">Disbursement System</th>
@@ -555,7 +556,7 @@
                     @foreach($yearlyDates as $index => $date)
                         <tr>
                             <th>Disbursement Date {{ $index + 1 }}</th>
-                            <td>{{ \Carbon\Carbon::parse($date)->format('d/m/Y') }} - ₹ {{ number_format($yearlyAmounts[$index] ?? 0, 2) }}</td>
+                            <td>{{ \Carbon\Carbon::parse($date)->format('d/m/Y') }} - Rs. {{ number_format($yearlyAmounts[$index] ?? 0, 2) }}</td>
                         </tr>
                     @endforeach
                 @endif
@@ -572,7 +573,7 @@
                     @foreach($halfYearlyDates as $index => $date)
                         <tr>
                             <th>Disbursement Date {{ $index + 1 }}</th>
-                            <td>{{ \Carbon\Carbon::parse($date)->format('d/m/Y') }} - ₹ {{ number_format($halfYearlyAmounts[$index] ?? 0, 2) }}</td>
+                            <td>{{ \Carbon\Carbon::parse($date)->format('d/m/Y') }} - Rs. {{ number_format($halfYearlyAmounts[$index] ?? 0, 2) }}</td>
                         </tr>
                     @endforeach
                 @endif

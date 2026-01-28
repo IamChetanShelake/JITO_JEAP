@@ -524,6 +524,21 @@
     </div>
 
     <script>
+        function showMessage(type, text) {
+            const box = document.getElementById('panValidationMessage');
+            const msg = document.getElementById('panValidationText');
+
+            box.classList.remove('alert-success', 'alert-danger');
+            box.classList.add(type === 'success' ? 'alert-success' : 'alert-danger');
+
+            msg.innerText = text;
+            box.style.display = 'block';
+
+            setTimeout(() => {
+                box.style.display = 'none';
+            }, 5000);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
 
             /* ===== First Guarantor PAN Verification ===== */
@@ -547,7 +562,8 @@
                                 .getAttribute('content')
                         },
                         body: JSON.stringify({
-                            pan: pan
+                            pan: pan,
+                            type: 'first'
                         })
                     })
                     .then(res => res.json())
@@ -600,7 +616,8 @@
                                 .getAttribute('content')
                         },
                         body: JSON.stringify({
-                            pan: pan
+                            pan: pan,
+                            type: 'second'
                         })
                     })
                     .then(res => res.json())
@@ -644,5 +661,97 @@
             }
 
         });
+
+        let gOneAadhaarVerifying = false;
+
+        document.getElementById('g_one_aadhar_card_number')
+            .addEventListener('blur', function() {
+
+                if (gOneAadhaarVerifying) return;
+
+                let aadhaar = this.value.trim();
+
+                if (aadhaar.length !== 12) {
+                    alert('Aadhaar number must be 12 digits');
+                    return;
+                }
+
+                gOneAadhaarVerifying = true;
+
+                fetch("{{ route('user.verify.aadhaar.last4') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": document
+                                .querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            aadhaar: aadhaar,
+                            type: 'first'
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(resp => {
+                        if (resp.status) {
+                            alert(resp.message + ' ✅');
+                        } else {
+                            alert(resp.message + ' ❌');
+                            this.value = '';
+                        }
+                    })
+                    .catch(() => {
+                        alert('Aadhaar verification failed');
+                    })
+                    .finally(() => {
+                        gOneAadhaarVerifying = false;
+                    });
+            });
+
+        let gTwoAadhaarVerifying = false;
+
+        document.querySelector('[name="g_two_aadhar_card_number"]')
+            .addEventListener('blur', function() {
+
+                if (gTwoAadhaarVerifying) return;
+
+                let aadhaar = this.value.trim();
+
+                if (aadhaar.length !== 12) {
+                    alert('Aadhaar number must be 12 digits');
+                    return;
+                }
+
+                gTwoAadhaarVerifying = true;
+
+                fetch("{{ route('user.verify.aadhaar.last4') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": document
+                                .querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            aadhaar: aadhaar,
+                            type: 'second'
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(resp => {
+                        if (resp.status) {
+                            alert(resp.message + ' ✅');
+                        } else {
+                            alert(resp.message + ' ❌');
+                            this.value = '';
+                        }
+                    })
+                    .catch(() => {
+                        alert('Aadhaar verification failed');
+                    })
+                    .finally(() => {
+                        gTwoAadhaarVerifying = false;
+                    });
+            });
     </script>
 @endsection

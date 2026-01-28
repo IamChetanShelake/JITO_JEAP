@@ -1525,127 +1525,143 @@ class UserController extends Controller
         ], 422);
     }
 
-    // public function verifyPan(Request $request)
-    // {
-    //     $response = Http::withHeaders([
-    //         'Content-Type'  => 'application/json',
-    //         'Authorization' => 'Bearer ' . env('SUREPASS_TOKEN'),
-    //     ])->post('https://kyc-api.surepass.io/api/v1/pan/pan-comprehensive', [
-    //         'id_number' => $request->pan_number
-    //     ]);
+    public function verifyPan(Request $request)
+    {
+        $request->validate([
+            'pan'  => 'required|string|size:10',
+            'type' => 'required|in:first,second' // 👈 important
+        ]);
 
-    //     $result = $response->json();
+        try {
+            $token = config('services.surepass.token');
 
-    //     if (
-    //         isset($result['success']) &&
-    //         $result['success'] === true &&
-    //         isset($result['data']['full_name'])
-    //     ) {
-    //         return response()->json([
-    //             'success'   => true,
-    //             'full_name' => $result['data']['full_name'] ?? '',
-    //             'gender'    => $result['data']['gender'] ?? '',
-    //             'dob'       => $result['data']['dob'] ?? '',
-    //             'raw'       => $result // optional: full response
-    //         ]);
-    //     }
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $token,
+                'Accept'        => 'application/json',
+            ])->post('https://kyc-api.surepass.io/api/v1/pan/pan-comprehensive', [
+                'id_number' => $request->pan
+            ]);
 
-    //     return response()->json([
-    //         'success' => false,
-    //         'message' => 'PAN verification failed',
-    //         'raw'     => $result
-    //     ], 422);
-    // }
+            if ($response->successful()) {
+                $data = $response->json();
 
-    // public function verifyPan(Request $request)
+                // 🔐 masked_aadhaar session मध्ये store
+                if (!empty($data['data']['masked_aadhaar'])) {
+
+                    if ($request->type === 'first') {
+                        session([
+                            'g_one_masked_aadhaar' => $data['data']['masked_aadhaar']
+                        ]);
+                    } else {
+                        session([
+                            'g_two_masked_aadhaar' => $data['data']['masked_aadhaar']
+                        ]);
+                    }
+                }
+
+                return response()->json([
+                    'status'  => $data['success'] ?? false,
+                    'data'    => $data['data'] ?? null,
+                    'message' => $data['message'] ?? null
+                ]);
+            }
+
+            return response()->json([
+                'status' => false,
+                'message' => $response->status() === 401
+                    ? 'Invalid API Token. Check SUREPASS_TOKEN'
+                    : ($response->json()['message'] ?? 'API error')
+            ], $response->status());
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    //     public function verifyPan(Request $request)
     // {
     //     $request->validate([
     //         'pan' => 'required|string|size:10'
     //     ]);
 
-    //     $response = Http::withHeaders([
-    //         'Content-Type'  => 'application/json',
-    //         'Authorization' => 'Bearer ' . env('SUREPASS_TOKEN'),
-    //     ])->post('https://kyc-api.surepass.io/api/v1/pan/pan-comprehensive', [
-    //         'id_number' => $request->pan
-    //     ]);
+    //     try {
+    //         $token = config('services.surepass.token');
 
-    //     if ($response->successful()) {
-    //         return response()->json([
-    //             'status' => true,
-    //             'data'   => $response->json()
+    //         $response = Http::withHeaders([
+    //             'Authorization' => 'Bearer ' . $token,
+    //             'Accept'        => 'application/json',
+    //         ])->post('https://kyc-api.surepass.io/api/v1/pan/pan-comprehensive', [
+    //             'id_number' => $request->pan
     //         ]);
-    //     }
 
-    //     return response()->json([
-    //         'status' => false,
-    //         'message' => 'PAN verification failed'
-    //     ], 400);
+    //         if ($response->successful()) {
+    //             $data = $response->json();
+
+    //             return response()->json([
+    //                 'status'  => $data['success'] ?? false,
+    //                 'data'    => $data['data'] ?? null,
+    //                 'message' => $data['message'] ?? null
+    //             ]);
+    //         }
+
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => $response->status() === 401
+    //                 ? 'Invalid API Token. Check SUREPASS_TOKEN'
+    //                 : ($response->json()['message'] ?? 'API error')
+    //         ], $response->status());
+
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
     // }
 
 
-    public function verifyPan(Request $request)
+
+
+    public function verifyAadhaarLast4(Request $request)
     {
-        dd($request->all());
-    
         $request->validate([
-            'pan' => 'required|string|size:10'
+            'aadhaar' => 'required|digits:12',
+            'type' => 'required|in:first,second'
         ]);
 
-        try {
-          //  $token = env('SUREPASS_TOKEN');
+        $enteredLast4 = substr($request->aadhaar, -4);
 
-            $response = Http::withHeaders([
-                'Content-Type'  => 'application/json',
-                'Authorization' => 'Bearer ' . env('SUREPASS_TOKEN'),
-            ])->post('https://kyc-api.surepass.io/api/v1/pan/pan-comprehensive', [
-                'id_number' => $request->pan
+        $masked = $request->type === 'first'
+            ? session('g_one_masked_aadhaar')
+            : session('g_two_masked_aadhaar');
+
+        if (!$masked) {
+            return response()->json([
+                'status' => false,
+                'message' => 'PAN not verified yet'
             ]);
-
-            // 1. Check if the HTTP request was successful (Status 200)
-            if ($response->successful()) {
-                $data = $response->json();
-
-                // 2. Check the Surepass API internal success flag
-                // Surepass often returns HTTP 200 even if the PAN is invalid, but sets 'success' => false
-                if (isset($data['success']) && $data['success'] === true) {
-                    return response()->json([
-                        'status' => true,
-                        'data'   => $data['data'] ?? [] // Send the specific data array
-                    ]);
-                } else {
-                    // PAN format valid but details not found or invalid logic
-                    return response()->json([
-                        'status' => false,
-                        'message' => $data['message'] ?? 'Invalid PAN details provided by API.'
-                    ]);
-                }
-            }
-
-            // 3. Handle HTTP Errors (401 Unauthorized, 500 Server Error, etc.)
-            // This is likely where your code is failing currently
-            $errorMessage = 'API Error';
-            $errorBody = $response->json();
-
-            if ($response->status() === 401) {
-                $errorMessage = 'Invalid API Token. Check SUREPASS_TOKEN in .env';
-            } elseif (isset($errorBody['message'])) {
-                $errorMessage = $errorBody['message'];
-            } else {
-                $errorMessage = $response->body(); // Return raw body if no message key
-            }
-
-            return response()->json([
-                'status' => false,
-                'message' => $errorMessage
-            ], $response->status());
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Connection failed: ' . $e->getMessage()
-            ], 500);
         }
+
+        // masked_aadhaar example: XXXXXXXX1234
+        $maskedLast4 = substr($masked, -4);
+
+        if ($enteredLast4 === $maskedLast4) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Aadhaar validated successfully'
+            ]);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Aadhaar number does not match PAN records'
+        ]);
     }
+
+
 
     // public function step4store(Request $request)
     // {

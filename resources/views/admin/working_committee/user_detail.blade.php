@@ -2232,7 +2232,7 @@
                                             <div class="form-field">
                                                 <label class="form-label">Installment Amount</label>
                                                 <input type="number" name="installment_amount" id="installment-amount"
-                                                    class="form-input" step="0.01" readonly>
+                                                    class="form-input" step="0.01" >
                                             </div>
                                         </div>
 

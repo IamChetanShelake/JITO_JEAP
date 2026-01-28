@@ -88,7 +88,7 @@ class AdminController extends Controller
         if ($stage === 'chapter') {
             $interviewCount = \App\Models\ChapterInterviewAnswer::where('user_id', $user->id)->where('workflow_id', $workflow->id)->count();
             Log::info("Chapter approval attempt - User: {$user->id}, Workflow: {$workflow->id}, Interview count: {$interviewCount}");
-            if ($interviewCount < 15) {
+            if ($interviewCount < 14) {
                 Log::info("Chapter approval blocked - insufficient interviews for user {$user->id}");
                 return back()->with('error', 'Please submit interview answers first.');
             }

@@ -1009,7 +1009,7 @@
                                     ->count();
                             @endphp
                             <span style="font-weight: 600; color: {{ $interviewCount > 0 ? '#4CAF50' : '#FF9800' }};">
-                                {{ $interviewCount }}/15 Questions Answered
+                                {{ $interviewCount }}/14 Questions Answered
                             </span>
                             @if ($interviewCount > 0)
                                 <br><small style="color: #666;">Last updated:
@@ -2580,7 +2580,7 @@
                                                 ->where('workflow_id', $user->workflowStatus->id ?? 0)
                                                 ->count();
                                         @endphp
-                                        {{ $interviewCount }}/15
+                                        {{ $interviewCount }}/14
                                     </div>
                                     <div style="font-size: 0.8rem; color: #666;">Interview Q&A</div>
                                 </div>

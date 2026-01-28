@@ -811,7 +811,7 @@
                             // Store the validated Aadhaar number
                             aadharInput.value = aadharNumber;
                         } else {
-                            showValidationMessage(data.message || 'Aadhaar validation failed.', 'text-danger');
+                            showValidationMessage('Aadhaar validation failed.', 'text-danger');
                             // Clear the input on validation failure
                             aadharInput.value = '';
                         }

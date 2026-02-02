@@ -699,6 +699,15 @@
             font-size: 0.9rem;
         }
 
+    /* Dropdown Styles */
+    .dropdown-item:hover {
+        background-color: var(--bg-light);
+    }
+
+    .dropdown-item:last-child {
+        border-bottom: none;
+    }
+
     @media (max-width: 768px) {
         .action-form-row {
             flex-direction: column;
@@ -746,6 +755,17 @@
             border-bottom-color: var(--primary-red);
             border-right-color: transparent;
         }
+
+        .document-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px 24px;
+        }
+
+        .document-grid .form-row {
+            margin: 0;
+        }
+
     }
 </style>
 @endsection
@@ -760,12 +780,24 @@
         <p class="page-subtitle">Review and approve individual form steps</p>
     </div>
     <div style="display: flex; gap: 1rem; align-items: center;">
-        <a href="{{ route('admin.user.generate.pdf', $user) }}" class="back-btn" style="background-color: var(--primary-blue);">
-            <i class="fas fa-download"></i> Download Application PDF
-        </a>
-        <a href="{{ route('admin.user.generate.summary.pdf', $user) }}" class="back-btn" style="background-color: var(--primary-green);">
-            <i class="fas fa-file-alt"></i> Download Summary PDF
-        </a>
+        <!-- Print Options Dropdown -->
+        <div class="dropdown" style="position: relative;">
+            <button class="back-btn" style="background-color: var(--primary-yellow); color: #333;" onclick="toggleDropdown()">
+                <i class="fas fa-print"></i> Print Options <i class="fas fa-chevron-down" style="margin-left: 0.5rem;"></i>
+            </button>
+            <div id="printDropdown" class="dropdown-content" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 200px;">
+                <a href="{{ route('admin.user.generate.pdf', $user) }}" class="dropdown-item" style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
+                    <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Application PDF
+                </a>
+                <a href="{{ route('admin.user.generate.summary.pdf', $user) }}" class="dropdown-item" style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
+                    <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Summary PDF
+                </a>
+                <a href="{{ route('admin.user.sanction.letter', $user) }}" target="_blank" class="dropdown-item" style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
+                    <i class="fas fa-file-contract" style="margin-right: 0.5rem;"></i> Sanction Letter
+                </a>
+            </div>
+        </div>
+
         <a href="{{ route('admin.home') }}" class="back-btn">
             <i class="fas fa-arrow-left"></i> Back to Dashboard
         </a>
@@ -1854,7 +1886,7 @@
         <div class="form-data">
             <div class="data-group">
                 <h4>All Documents</h4>
-                <div class="form-section">
+                <div class="form-section" style="display: grid;grid-template-columns: repeat(2, 1fr);gap: 12px 24px;">
                     @php
                         $doc = $user->document;
                         $fields = [
@@ -1890,9 +1922,6 @@
                     @foreach($fields as $key => $label)
                         <div class="form-row" style="align-items:center;">
                             <div class="form-field" style="min-width:250px;">
-                                <label class="form-label">{{ $label }}</label>
-                            </div>
-                            <div class="form-field form-field-full" style="flex:1;text-align:left;">
                                 @if(!empty($doc->$key))
                                     @php
                                         $p = $doc->$key;
@@ -1911,11 +1940,18 @@
                                             }
                                         }
                                     @endphp
-                                    <a href="#" onclick="openModal('{{ $href }}')">View Document</a>
+                                    <a href="#" onclick="openModal('{{ $href }}')" class="form-label">{{ $label }}</a>
+                                @else
+                                    <label class="form-label">{{ $label }}</label>
+                                @endif
+                            </div>
+                            {{-- <div class="form-field form-field-full" style="flex:1;text-align:left;">
+                                @if(!empty($doc->$key))
+                                    <span style="color:#6c757d;">Uploaded</span>
                                 @else
                                     <input type="text" class="form-input" value="Not uploaded" readonly>
                                 @endif
-                            </div>
+                            </div> --}}
                         </div>
                     @endforeach
                 </div>
@@ -2244,6 +2280,21 @@ function closeModal() {
     document.getElementById('documentModal').style.display = 'none';
     document.getElementById('documentFrame').src = '';
 }
+
+// Dropdown toggle function
+function toggleDropdown() {
+    const dropdown = document.getElementById('printDropdown');
+    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('printDropdown');
+    const button = event.target.closest('.dropdown button');
+    if (!button && dropdown.style.display === 'block') {
+        dropdown.style.display = 'none';
+    }
+});
 </script>
 
 <!-- Document Modal -->

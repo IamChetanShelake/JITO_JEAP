@@ -36,7 +36,7 @@ class AdminController extends Controller
         $users = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($query) {
                 $query->where('current_stage', 'apex_1')
-                    ->where('apex_1_status', 'pending');
+                    ->where('apex_1_status', 'pending')->whereNull('apex_1_reject_remarks');
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
@@ -55,6 +55,19 @@ class AdminController extends Controller
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
         return view('admin.apex.stage1.hold', compact('users'));
+    }
+
+    public function apexStage1Resubmitted(){
+        // Get users where apex_1_status = 'pending' but have admin remarks indicating resubmission
+        $users = User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($query) {
+                $query->where('apex_1_status', 'pending')
+                      ->whereNotNull('apex_1_reject_remarks');
+            })
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            ->get();
+
+        return view('admin.apex.stage1.pending', compact('users'));
     }
 
     public function apexStage1UserDetail(User $user)
@@ -381,6 +394,131 @@ class AdminController extends Controller
         }
     }
 
+
+    public function holdStage(Request $request, User $user, $stage)
+{
+    $request->validate([
+        'admin_remark'   => 'required|string|max:2000',
+        'resubmit_steps' => 'nullable|array',
+        'resubmit_steps.*' => 'in:personal,education,family,funding,guarantor,documents,final',
+    ]);
+
+    $workflow = $user->workflowStatus;
+    if (!$workflow) {
+        return back()->with('error', 'Workflow not found');
+    }
+
+    if ($workflow->current_stage !== $stage) {
+        return back()->with('error', 'Invalid stage');
+    }
+
+    $resubmitSteps = $request->input('resubmit_steps', []);
+
+    if (!empty($resubmitSteps)) {
+        // Handle selective hold (resubmission required)
+        $holdCount = 0;
+
+        foreach ($resubmitSteps as $step) {
+            if ($step === 'personal') {
+                $user->update([
+                    'submit_status' => 'hold',
+                    'admin_remark'  => $request->admin_remark,
+                    'updated_at'    => now(),
+                ]);
+                $holdCount++;
+
+                Log::info("Personal details marked on hold for user {$user->id}");
+            } else {
+                $stepTableMap = [
+                    'education'  => 'educationDetail',
+                    'family'     => 'familyDetail',
+                    'funding'    => 'fundingDetail',
+                    'guarantor'  => 'guarantorDetail',
+                    'documents'  => 'document',
+                    'final'      => 'document',
+                ];
+
+                if (isset($stepTableMap[$step])) {
+                    $relation = $stepTableMap[$step];
+
+                    if ($user->$relation) {
+                        $user->$relation->update([
+                            'submit_status' => 'hold',
+                            'admin_remark'  => $request->admin_remark,
+                            'updated_at'    => now(),
+                        ]);
+                        $holdCount++;
+
+                        Log::info("Step {$step} marked on hold for user {$user->id}");
+                    }
+                }
+            }
+        }
+
+        // Update workflow stage status → hold (keep final_status in_progress)
+        $statusField        = $stage . '_status';
+        $holdRemarksField   = $stage . '_hold_remarks';
+        $updatedAtField     = $stage . '_updated_at';
+
+        $workflow->update([
+            $statusField      => 'hold',
+            $holdRemarksField => $request->admin_remark,
+            $updatedAtField   => now(),
+            // final_status remains in_progress
+        ]);
+
+        return back()->with('success', "{$holdCount} step(s) marked on hold");
+    } else {
+        // Full hold (entire stage)
+        $statusField      = $stage . '_status';
+        $holdRemarksField = $stage . '_hold_remarks';
+        $updatedAtField   = $stage . '_updated_at';
+
+        $workflow->update([
+            $statusField      => 'hold',
+            $holdRemarksField => $request->admin_remark,
+            $updatedAtField   => now(),
+            'final_status'    => 'hold',
+        ]);
+
+        return back()->with(
+            'success',
+            ucfirst(str_replace('_', ' ', $stage)) . ' put on hold'
+        );
+    }
+}
+
+
+
+
+    public function unholdWorkingCommittee(Request $request, User $user)
+    {
+
+
+        $workflow = $user->workflowStatus;
+        if (!$workflow) {
+            return back()->with('error', 'Workflow not found');
+        }
+
+        if ($workflow->working_committee_status !== 'hold') {
+            return back()->with('error', 'Application is not on hold');
+        }
+
+        // Update workflow status to unhold - reset to pending and in_progress
+        $workflow->update([
+            'working_committee_status' => 'pending',
+            'working_committee_updated_at' => now(),
+            'final_status' => 'in_progress',
+        ]);
+
+        Log::info('Working Committee application unheld', [
+            'user_id' => $user->id,
+            'unheld_by' => Auth::user()->name,
+        ]);
+
+        return back()->with('success', 'Application unheld successfully. Status reset to pending.');
+    }
+
     public function chapterPending()
     {
         $query = User::where('role', 'user')
@@ -461,7 +599,18 @@ class AdminController extends Controller
     {
         $users = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
-                $q->where('working_committee_status', 'rejected');
+                $q->where('working_committee_status', 'hold');
+            })
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            ->get();
+        return view('admin.working_committee.hold', compact('users'));
+    }
+
+    public function workingCommitteeReject()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('working_committee_status', 'reject');
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
@@ -828,6 +977,8 @@ class AdminController extends Controller
             'document'
         ));
 
+
+
         // Set paper size and orientation
         $pdf->setPaper('a4', 'portrait');
 
@@ -868,6 +1019,30 @@ class AdminController extends Controller
 
         // Return PDF download
         $filename = 'JEAP_Summary_' . $user->name . '_' . $user->id . '.pdf';
+        return $pdf->stream($filename);
+    }
+
+    public function viewSanctionLetter(User $user)
+    {
+        // Load all related data
+        $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
+
+        $educationDetail = $user->educationDetail;
+        $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
+
+        // Check if user is approved at working committee level
+        if (!$workingCommitteeApproval || $workingCommitteeApproval->approval_status !== 'approved') {
+            return redirect()->back()->with('error', 'Sanction letter is only available for approved applications.');
+        }
+
+        // Generate PDF
+        $pdf = Pdf::loadView('pdf.jeap-sanction-letter', compact('user', 'educationDetail', 'workingCommitteeApproval'));
+
+        // Set paper size and orientation
+        $pdf->setPaper('a4', 'portrait');
+
+        // Return PDF download/stream
+        $filename = 'JEAP_Sanction_Letter_' . $user->name . '_' . $user->id . '.pdf';
         return $pdf->stream($filename);
     }
 

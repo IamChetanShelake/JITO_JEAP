@@ -818,6 +818,7 @@ class UserController extends Controller
             'qualifications' => 'required|string',
             'qualification_institution' => 'required|string|max:255',
             'qualification_university' => 'nullable|string|max:255',
+            'qualification_course_name' => 'required|string|max:255',
             'qualification_start_year' => 'required|date',
             'qualification_end_year' => 'required|date',
             'marksheet_type' => 'required|array',
@@ -835,7 +836,7 @@ class UserController extends Controller
 
             'work_location_city' => 'nullable|string|max:100',
             'work_country' => 'nullable|string|max:100',
-            'work_type' => 'nullable|in:full-time,internship,freelance,volunteer',
+            'work_type' => 'nullable|in:full-time,internship,freelance,volunteer,stipend-based',
             'mention_your_salary' => 'nullable|in:monthly,yearly,ctc',
             'salary_amount' => 'nullable|numeric|min:0',
 
@@ -929,6 +930,7 @@ class UserController extends Controller
             'qualifications' => $request->qualifications,
             'qualification_institution' => $request->qualification_institution,
             'qualification_university' => $request->qualification_university,
+            'qualification_course_name' => $request->qualification_course_name,
             // 'qualification_start_year' => $request->qualification_start_year,
             // 'qualification_end_year' => $request->qualification_end_year,
             'qualification_start_year' => $request->qualification_start_year ? Carbon::createFromFormat('Y-m', $request->qualification_start_year)->firstOfMonth()->format('Y-m-d') : null,
@@ -1036,6 +1038,7 @@ class UserController extends Controller
             'qualifications' => 'required|string',
             'qualification_institution' => 'required|string|max:255',
             'qualification_university' => 'nullable|string|max:255',
+            'qualification_course_name' => 'required|string|max:255',
             'qualification_start_year' => 'required|date',
             'qualification_end_year' => 'required|date',
             'marksheet_type' => 'required|array',
@@ -1053,7 +1056,7 @@ class UserController extends Controller
 
             'work_location_city' => 'nullable|string|max:100',
             'work_country' => 'nullable|string|max:100',
-            'work_type' => 'nullable|in:full-time,internship,freelance,volunteer',
+            'work_type' => 'nullable|in:full-time,internship,freelance,volunteer,stipend-based',
             'mention_your_salary' => 'nullable|in:monthly,yearly,ctc',
             'salary_amount' => 'nullable|numeric|min:0',
 
@@ -1155,6 +1158,7 @@ class UserController extends Controller
             'qualifications' => $request->qualifications,
             'qualification_institution' => $request->qualification_institution,
             'qualification_university' => $request->qualification_university,
+            'qualification_course_name' => $request->qualification_course_name,
             // 'qualification_start_year' => $request->qualification_start_year,
             // 'qualification_end_year' => $request->qualification_end_year,
             'qualification_start_year' => $request->qualification_start_year ? Carbon::createFromFormat('Y-m', $request->qualification_start_year)->firstOfMonth()->format('Y-m-d') : null,

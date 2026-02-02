@@ -330,4 +330,47 @@
              </div>
          </div>
      </div>
+
+     <!-- Success Modal -->
+     <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+         <div class="modal-dialog modal-dialog-centered" role="document">
+             <div class="modal-content" style="border:2px solid #009846;">
+
+                 <div class="modal-header" style="border-bottom:1px solid #009846;">
+                     <h5 class="modal-title" id="successModalLabel" style="color:#009846;">
+                         Application Submitted Successfully
+                     </h5>
+                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                         <span aria-hidden="true">&times;</span>
+                     </button>
+                 </div>
+
+                 <div class="modal-body">
+                     <div class="text-center">
+                         <i class="bi bi-check-circle" style="font-size: 48px; color: #009846; margin-bottom: 16px;"></i>
+                         <h4>Thank you for submitting your application!</h4>
+                         <p>Your application has been successfully submitted.</p>
+                         <p>You will receive a confirmation email with your application reference number shortly.</p>
+                         <p>Our team will review your application and contact you within 7-10 business days.</p>
+                     </div>
+                 </div>
+
+                 <div class="modal-footer" style="border-top:1px solid #009846;">
+                     {{-- <button type="button" class="btn btn-success" data-dismiss="modal" onclick="window.location.href='{{ route('user.dashboard') }}'">
+                         Go to Dashboard
+                     </button> --}}
+                 </div>
+
+             </div>
+         </div>
+     </div>
+
+     <script>
+         // Show success modal when form is submitted successfully
+         @if(session('success'))
+             $(document).ready(function() {
+                 $('#successModal').modal('show');
+             });
+         @endif
+     </script>
  @endsection

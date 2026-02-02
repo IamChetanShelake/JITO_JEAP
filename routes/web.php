@@ -31,6 +31,7 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/apex-stage1/pending', [AdminController::class, 'apexStage1Pending'])->name('apex.stage1.pending');
     Route::get('/apex-stage1/hold', [AdminController::class, 'apexStage1Hold'])->name('apex.stage1.hold');
     Route::get('/apex-stage1/user/{user}', [AdminController::class, 'apexStage1UserDetail'])->name('apex.stage1.user.detail');
+    Route::get('/apex-stage1/resubmitted', [AdminController::class, 'apexStage1Resubmitted'])->name('apex.stage1.resubmitted');
 
     // Chapter Forms
     Route::get('/chapter/approved', [AdminController::class, 'chapterApproved'])->name('chapter.approved');
@@ -42,12 +43,16 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/working-committee/approved', [AdminController::class, 'workingCommitteeApproved'])->name('working_committee.approved');
     Route::get('/working-committee/pending', [AdminController::class, 'workingCommitteePending'])->name('working_committee.pending');
     Route::get('/working-committee/hold', [AdminController::class, 'workingCommitteeHold'])->name('working_committee.hold');
+    Route::get('/working-committee/reject', [AdminController::class, 'workingCommitteeReject'])->name('working_committee.reject');
+
     Route::get('/working-committee/user/{user}', [AdminController::class, 'workingCommitteeUserDetail'])->name('working_committee.user.detail');
     Route::post('/working-committee/user/{user}/approve/{stage}', [AdminController::class, 'approveWorkingCommittee'])->name('working_committee.user.approve');
+    Route::post('/working-committee/user/{user}/unhold', [AdminController::class, 'unholdWorkingCommittee'])->name('working_committee.user.unhold');
 
     // Approval workflow endpoints
     Route::post('/user/{user}/approve/{stage}', [AdminController::class, 'approveStage'])->name('user.approve');
     Route::post('/user/{user}/reject/{stage}', [AdminController::class, 'rejectStage'])->name('user.reject');
+    Route::post('/user/{user}/hold/{stage}', [AdminController::class, 'holdStage'])->name('user.hold');
 
     // Chapter Interview endpoints
     Route::post('/chapter/interview/save', [AdminController::class, 'saveChapterInterview'])->name('chapter.interview.save');
@@ -90,6 +95,9 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
 
     // Generate Summary PDF
     Route::get('/user/{user}/generate-summary-pdf', [AdminController::class, 'generateSummaryPDF'])->name('user.generate.summary.pdf');
+
+    // View Sanction Letter
+    Route::get('/user/{user}/sanction-letter', [AdminController::class, 'viewSanctionLetter'])->name('user.sanction.letter');
 
     // Chapter Routes
     Route::resource('chapters', ChapterController::class);

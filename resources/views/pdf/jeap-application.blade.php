@@ -202,20 +202,17 @@
             <th>Recommended Educational Assistance Amount</th>
             <th>Approved Educational Assistance Amount</th>
             <th>Disbursed Educational Assistance Amount</th>
-            <th>Approved By</th>
+
         </tr>
     </thead>
     <tbody>
         <tr>
-            <td>0.00</td>
+            <td>Rs.{{ $workflow->chapter_assistance_amount ?? 'N/A' }}</td>
             <td>
-                Rs.{{ number_format($workflow->final_status == 'approved' ? 1500000 : 0, 2) }}
+                Rs.{{ $workflow->working_committee_assistance_amount ?? 'N/A'}}
             </td>
             <td>
                 Rs.{{ number_format($workflow->final_status == 'approved' ? 1500000 : 0, 2) }}
-            </td>
-            <td>
-                {{ $workflow->final_status == 'approved' ? 'JITO JEAP Committee' : 'Pending' }}
             </td>
         </tr>
     </tbody>

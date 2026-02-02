@@ -2208,7 +2208,7 @@
             <div class="form-data">
                 <div class="data-group">
                     <h4>All Documents</h4>
-                    <div class="form-section">
+                    <div class="form-section" style="display: grid;grid-template-columns: repeat(2, 1fr);gap: 12px 24px;">
                         @php
                             $doc = $user->document;
                             $fields = [
@@ -2243,9 +2243,9 @@
 
                         @foreach ($fields as $key => $label)
                             <div class="form-row" style="align-items:center;">
-                                <div class="form-field" style="min-width:250px;">
+                                {{-- <div class="form-field" style="min-width:250px;">
                                     <label class="form-label">{{ $label }}</label>
-                                </div>
+                                </div> --}}
                                 <div class="form-field form-field-full" style="flex:1;text-align:left;">
                                     @if (!empty($doc->$key))
                                         @php
@@ -2267,9 +2267,10 @@
                                                 }
                                             }
                                         @endphp
-                                        <a href="#" onclick="openModal('{{ $href }}')">View Document</a>
+                                       <a href="#" onclick="openModal('{{ $href }}')" class="form-label">{{ $label }}</a>
                                     @else
-                                        <input type="text" class="form-input" value="Not uploaded" readonly>
+                                         <label class="form-label">{{ $label }}</label>
+
                                     @endif
                                 </div>
                             </div>
@@ -2479,7 +2480,7 @@
 
                                 <button type="submit" class="btn btn-approve" style="width: 100%;">
                                     <i class="fas fa-check"></i>
-                                    Approve & Move to Working Committee
+                                    Approve & Moving to Working Committee
                                 </button>
                             </form>
                         </div>

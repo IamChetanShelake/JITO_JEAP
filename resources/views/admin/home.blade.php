@@ -715,14 +715,14 @@
                             <div class="progress-bar-custom"
                                 style="width: 80%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
                         </div>
-                        <div class="status-badges">
+                        <div class="status-badges" style="grid-template-columns: repeat(4, 1fr);">
                             <a href="{{ route('admin.apex.stage1.approved') }}" class="status-badge approved"
                                 style="text-decoration: none; color: inherit;">
                                 <div class="status-icon approved">
                                     <i class="fas fa-check"></i>
                                 </div>
                                 <div>
-                                    <div class="status-label">Approved</div>
+                                    <div class="status-label">Appex Staff Approved</div>
                                     <div class="status-value">
                                         {{ \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
                                                 $q->where('apex_1_status', 'approved');
@@ -736,10 +736,10 @@
                                     <i class="fas fa-clock"></i>
                                 </div>
                                 <div>
-                                    <div class="status-label">Pending</div>
+                                    <div class="status-label">Draft</div>
                                     <div class="status-value">
                                         {{ \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
-                                                $q->where('apex_1_status', 'pending')->where('final_status', 'in_progress');
+                                                $q->where('apex_1_status', 'pending')->where('final_status', 'in_progress')->whereNull('apex_1_reject_remarks');
                                             })->count() }}
                                     </div>
                                 </div>
@@ -750,7 +750,7 @@
                                     <i class="fas fa-exclamation"></i>
                                 </div>
                                 <div>
-                                    <div class="status-label">Hold</div>
+                                    <div class="status-label">Send back for Correction</div>
                                     <div class="status-value">
                                         {{ \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
                                                 $q->where('apex_1_status', 'rejected');
@@ -758,6 +758,23 @@
                                     </div>
                                 </div>
                             </a>
+
+
+                            <a href="{{ route('admin.apex.stage1.resubmitted') }}" class="status-badge hold"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon hold">
+                                    <i class="fas fa-exclamation"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Resubmitted Applicants</div>
+                                    <div class="status-value">
+                                        {{ \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
+                                                $q->where('apex_1_status', 'pending')->where('apex_1_reject_remarks', '!=','null');
+                                            })->count() }}
+                                    </div>
+                                </div>
+                            </a>
+
                         </div>
                     </div>
                 @endif
@@ -814,11 +831,11 @@
             <div class="col-lg-6">
                 @if (in_array($activeGuard, ['admin', 'apex', 'committee']))
                     @php
-                        $working_committee_total = \App\Models\User::where('role', 'user')
-                            ->whereHas('workflowStatus', function ($q) {
-                                $q->where('current_stage', 'working_committee');
-                            })
-                            ->count();
+                        // $working_committee_total = \App\Models\User::where('role', 'user')
+                        //     ->whereHas('workflowStatus', function ($q) {
+                        //         $q->where('current_stage', 'working_committee');
+                        //     })
+                        //     ->count();
                         $working_committee_approved = \App\Models\User::where('role', 'user')
                             ->whereHas('workflowStatus', function ($q) {
                                 $q->where('working_committee_status', 'approved');
@@ -831,9 +848,17 @@
                             ->count();
                         $working_committee_hold = \App\Models\User::where('role', 'user')
                             ->whereHas('workflowStatus', function ($q) {
-                                $q->where('working_committee_status', 'rejected');
+                                $q->where('working_committee_status', 'hold');
                             })
                             ->count();
+
+                        $working_committee_reject = \App\Models\User::where('role', 'user')
+                            ->whereHas('workflowStatus', function ($q) {
+                                $q->where('working_committee_status', 'reject');
+                            })
+                            ->count();
+                        $working_committee_total = $working_committee_approved + $working_committee_pending + $working_committee_hold + $working_committee_reject;
+
                         $working_committee_progress = $working_committee_total > 0 ? ($working_committee_approved / $working_committee_total) * 100 : 0;
                     @endphp
                     <!-- working committee -->
@@ -853,7 +878,7 @@
                             <div class="progress-bar-custom"
                                 style="width: {{ $working_committee_progress }}%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
                         </div>
-                        <div class="status-badges">
+                        <div class="status-badges" style="grid-template-columns: repeat(4, 1fr);">
                             <a href="{{ route('admin.working_committee.approved') }}" class="status-badge approved"
                                 style="text-decoration: none; color: inherit;">
                                 <div class="status-icon approved">
@@ -887,6 +912,18 @@
                                     <div class="status-label">Hold</div>
                                     <div class="status-value">
                                         {{ $working_committee_hold }}
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="{{ route('admin.working_committee.reject') }}" class="status-badge hold"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon hold">
+                                    <i class="fas fa-exclamation"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Reject</div>
+                                    <div class="status-value">
+                                        {{ $working_committee_reject }}
                                     </div>
                                 </div>
                             </a>

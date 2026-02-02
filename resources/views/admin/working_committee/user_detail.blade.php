@@ -1803,7 +1803,7 @@
                 <div class="form-data">
                     <div class="data-group">
                         <h4>All Documents</h4>
-                        <div class="form-section">
+                        <div class="form-section" style="display: grid;grid-template-columns: repeat(2, 1fr);gap: 12px 24px;">
                             @php
                                 $doc = $user->document;
                                 $fields = [
@@ -1838,9 +1838,7 @@
 
                             @foreach ($fields as $key => $label)
                                 <div class="form-row" style="align-items:center;">
-                                    <div class="form-field" style="min-width:250px;">
-                                        <label class="form-label">{{ $label }}</label>
-                                    </div>
+
                                     <div class="form-field form-field-full" style="flex:1;text-align:left;">
                                         @if (!empty($doc->$key))
                                             @php
@@ -1862,9 +1860,9 @@
                                                     }
                                                 }
                                             @endphp
-                                            <a href="#" onclick="openModal('{{ $href }}')">View Document</a>
+                                            <a href="#" onclick="openModal('{{ $href }}')" class="form-label">{{ $label }}</a>
                                         @else
-                                            <input type="text" class="form-input" value="Not uploaded" readonly>
+                                            <label class="form-label">{{ $label }}</label>
                                         @endif
                                     </div>
                                 </div>
@@ -2097,6 +2095,50 @@
                 </div>
             @endif
 
+            @if($user->workflowStatus && $user->workflowStatus->working_committee_status === 'hold')
+                <!-- Display Working Committee Hold Remarks -->
+                <div class="form-data">
+                    <div class="data-group" style="background: #fff8e1; border-color: #ffc107;">
+                        <h4 style="color: #f57c00;">Working Committee Hold Status</h4>
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-field form-field-full">
+                                    <label class="form-label" style="color: #f57c00;">Hold Remarks</label>
+                                    <textarea class="form-textarea" readonly style="border-color: #ffc107; background: rgba(255, 193, 7, 0.05);">{{ $user->workflowStatus->working_committee_reject_remarks }}</textarea>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Hold Date</label>
+                                    <input type="text" class="form-input" value="{{ $user->workflowStatus->working_committee_updated_at ? \Carbon\Carbon::parse($user->workflowStatus->working_committee_updated_at)->format('d M Y H:i') : 'N/A' }}" readonly style="border-color: #ffc107;">
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Held By</label>
+                                    <input type="text" class="form-input" value="{{ Auth::user()->name ?? 'N/A' }}" readonly style="border-color: #ffc107;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unhold Button -->
+                <div class="form-data" style="margin-top: 1.5rem;">
+                    <div class="data-group" style="background: #e8f5e9; border-color: #4CAF50;">
+                        <h4 style="color: #2E7D32;">Unhold Application</h4>
+                        <div class="form-section">
+                            <form action="{{ route('admin.working_committee.user.unhold', ['user' => $user]) }}" method="POST">
+                                @csrf
+
+                                <button type="submit" class="btn btn-approve" style="margin-top: 1rem;">
+                                    <i class="fas fa-unlock"></i>
+                                    Unhold Application
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Workflow Status Card -->
             <div class="user-info-card">
                 <div class="workflow-status-header">
@@ -2209,35 +2251,20 @@
                                             </div>
                                         </div>
 
-                                        <!-- Disbursement System Card -->
+                                        <!-- Disbursement Planning Card - Yearly Only -->
                                         <div
                                             style="background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%); border-radius: 12px; padding: 2rem; margin: 1.5rem 0; border: 1px solid rgba(57, 49, 133, 0.1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);">
                                             <h6
                                                 style="color: #2E7D32; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
                                                 <i class="fas fa-money-check-alt"></i>
-                                                Disbursement Planning
+                                                Disbursement Planning (Yearly Only)
                                             </h6>
 
-                                            <div class="form-row">
-                                                <div class="form-field form-field-full">
-                                                    <label class="form-label">Disbursement System</label>
-                                                    <div style="display: flex; gap: 1rem; padding: 0.75rem;">
-                                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                                            <input type="radio" name="disbursement_system" value="yearly"
-                                                                required>
-                                                            Yearly
-                                                        </label>
-                                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                                            <input type="radio" name="disbursement_system" value="half_yearly"
-                                                                required>
-                                                            Half Yearly
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <!-- Hidden field for disbursement system -->
+                                            <input type="hidden" name="disbursement_system" value="yearly">
 
                                             <!-- Dynamic Disbursement Fields -->
-                                            <div id="yearly-fields" style="display: none;">
+                                            <div id="yearly-fields">
                                                 <div class="form-row">
                                                     <div class="form-field">
                                                         <label class="form-label">Disbursement in Year</label>
@@ -2252,24 +2279,6 @@
                                                 </div>
                                                 <div id="yearly-disbursements" style="display: none;">
                                                     <!-- Dynamic yearly fields will be added here -->
-                                                </div>
-                                            </div>
-
-                                            <div id="half-yearly-fields" style="display: none;">
-                                                <div class="form-row">
-                                                    <div class="form-field">
-                                                        <label class="form-label">Disbursement in Half Year</label>
-                                                        <select name="disbursement_in_half_year" class="form-input"
-                                                            id="disbursement-half-year-select">
-                                                            <option value="">Select number of half years</option>
-                                                            @for ($i = 1; $i <= 12; $i++)
-                                                                <option value="{{ $i }}">{{ $i }}</option>
-                                                            @endfor
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div id="half-yearly-disbursements" style="display: none;">
-                                                    <!-- Dynamic half yearly fields will be added here -->
                                                 </div>
                                             </div>
                                         </div>
@@ -2342,6 +2351,35 @@
 
                                 <div class="divider"></div>
 
+                                <!-- Hold Form -->
+                                <div
+                                    style="flex: 1; min-width: 300px; padding: 2rem; border-radius: 12px; border: 2px solid #FFC107;">
+                                    <h6
+                                        style="color: #f57c00; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                                        <i class="fas fa-pause-circle"></i>
+                                        Put Application on Hold
+                                    </h6>
+                                    <form
+                                        action="{{ route('admin.user.hold', ['user' => $user, 'stage' => 'working_committee']) }}"
+                                        method="POST">
+                                        @csrf
+                                        <div class="form-row" style="margin-bottom: 1rem;">
+                                            <div class="form-field form-field-full">
+                                                <label class="form-label" style="color: #f57c00;">Hold Remarks *</label>
+                                                <textarea name="admin_remark" placeholder="Provide detailed hold remarks (required)" rows="4"
+                                                    class="remark-input" style="border: 2px solid #FFC107; background: rgba(255, 193, 7, 0.05);" required></textarea>
+                                            </div>
+                                        </div>
+
+                                        <button type="submit" class="btn" style="width: 100%; background: linear-gradient(135deg, #FFC107, #ff9800); color: #212121;">
+                                            <i class="fas fa-pause"></i>
+                                            Put on Hold
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <div class="divider"></div>
+
                                 <!-- Reject Form -->
                                 <div
                                     style="flex: 1; min-width: 300px; padding: 2rem; border-radius: 12px; border: 2px solid #f44336;">
@@ -2362,37 +2400,7 @@
                                             </div>
                                         </div>
 
-                                        {{-- <!-- Rejection Checkboxes -->
-                            <div style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(244, 67, 54, 0.1); border-radius: 8px; border: 1px solid rgba(244, 67, 54, 0.3);">
-                                <h6 style="color: #c62828; margin: 0 0 0.5rem 0; font-size: 0.9rem;">Select steps to resubmit:</h6>
-                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
-                                        <input type="checkbox" name="resubmit_steps[]" value="personal" style="width: 16px; height: 16px;">
-                                        Personal Details
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
-                                        <input type="checkbox" name="resubmit_steps[]" value="education" style="width: 16px; height: 16px;">
-                                        Education Details
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
-                                        <input type="checkbox" name="resubmit_steps[]" value="family" style="width: 16px; height: 16px;">
-                                        Family Details
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
-                                        <input type="checkbox" name="resubmit_steps[]" value="funding" style="width: 16px; height: 16px;">
-                                        Funding Details
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
-                                        <input type="checkbox" name="resubmit_steps[]" value="guarantor" style="width: 16px; height: 16px;">
-                                        Guarantor Details
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
-                                        <input type="checkbox" name="resubmit_steps[]" value="documents" style="width: 16px; height: 16px;">
-                                        Documents
-                                    </label>
-                                </div>
-                                <p style="font-size: 0.75rem; color: #c62828; margin: 0.5rem 0 0 0; font-style: italic;">Leave unchecked to reject permanently</p>
-                            </div> --}}
+
 
                                         <button type="submit" class="btn btn-reject" style="width: 100%;">
                                             <i class="fas fa-times"></i>
@@ -2430,52 +2438,30 @@
             }
         }
 
-        // Disbursement System Radio Handlers
+        // Disbursement System - Yearly only
         document.addEventListener('DOMContentLoaded', function() {
-            const yearlyRadio = document.querySelector('input[name="disbursement_system"][value="yearly"]');
-            const halfYearlyRadio = document.querySelector(
-                'input[name="disbursement_system"][value="half_yearly"]');
+            // Show yearly fields by default
             const yearlyFields = document.getElementById('yearly-fields');
-            const halfYearlyFields = document.getElementById('half-yearly-fields');
-
-            yearlyRadio.addEventListener('change', function() {
-                if (this.checked) {
-                    yearlyFields.style.display = 'block';
-                    halfYearlyFields.style.display = 'none';
-                    clearHalfYearlyFields();
-                }
-            });
-
-            halfYearlyRadio.addEventListener('change', function() {
-                if (this.checked) {
-                    halfYearlyFields.style.display = 'block';
-                    yearlyFields.style.display = 'none';
-                    clearYearlyFields();
-                }
-            });
+            if (yearlyFields) {
+                yearlyFields.style.display = 'block';
+            }
 
             // Yearly select handler
-            document.getElementById('disbursement-year-select').addEventListener('change', function() {
-                generateYearlyFields(this.value);
-            });
-
-            // Half yearly select handler
-            document.getElementById('disbursement-half-year-select').addEventListener('change', function() {
-                generateHalfYearlyFields(this.value);
-            });
+            const yearSelect = document.getElementById('disbursement-year-select');
+            if (yearSelect) {
+                yearSelect.addEventListener('change', function() {
+                    generateYearlyFields(this.value);
+                });
+            }
         });
 
         function clearYearlyFields() {
             document.getElementById('yearly-disbursements').innerHTML = '';
             document.getElementById('yearly-disbursements').style.display = 'none';
-            document.getElementById('disbursement-year-select').value = '';
-            calculateTotal();
-        }
-
-        function clearHalfYearlyFields() {
-            document.getElementById('half-yearly-disbursements').innerHTML = '';
-            document.getElementById('half-yearly-disbursements').style.display = 'none';
-            document.getElementById('disbursement-half-year-select').value = '';
+            const yearSelect = document.getElementById('disbursement-year-select');
+            if (yearSelect) {
+                yearSelect.value = '';
+            }
             calculateTotal();
         }
 
@@ -2513,41 +2499,6 @@
             });
         }
 
-        function generateHalfYearlyFields(count) {
-            const container = document.getElementById('half-yearly-disbursements');
-            container.innerHTML = '';
-
-            if (!count || count < 1) {
-                container.style.display = 'none';
-                calculateTotal();
-                return;
-            }
-
-            container.style.display = 'block';
-
-            for (let i = 1; i <= count; i++) {
-                const halfYearLabel = i % 2 === 1 ? '1st Half' : '2nd Half';
-                const fieldGroup = document.createElement('div');
-                fieldGroup.className = 'form-row';
-                fieldGroup.innerHTML = `
-                    <div class="form-field">
-                        <label class="form-label">Half Year ${i} (${halfYearLabel}) Disbursement Date</label>
-                        <input type="date" name="half_yearly_dates[]" class="form-input half-yearly-date" required>
-                    </div>
-                    <div class="form-field">
-                        <label class="form-label">Half Year ${i} (${halfYearLabel}) Amount</label>
-                        <input type="number" name="half_yearly_amounts[]" class="form-input half-yearly-amount" step="0.01" min="0" required>
-                    </div>
-                `;
-                container.appendChild(fieldGroup);
-            }
-
-            // Add event listeners to calculate total
-            container.querySelectorAll('.half-yearly-amount').forEach(input => {
-                input.addEventListener('input', calculateTotal);
-            });
-        }
-
         function calculateTotal() {
             let total = 0;
 
@@ -2557,22 +2508,14 @@
                 total += value;
             });
 
-            // Sum half yearly amounts
-            document.querySelectorAll('.half-yearly-amount').forEach(input => {
-                const value = parseFloat(input.value) || 0;
-                total += value;
-            });
-
             // Set total amount
             document.getElementById('total-amount').value = total.toFixed(2);
 
             // Calculate installment amount (total / number of installments)
             const yearlyCount = document.querySelectorAll('.yearly-amount').length;
-            const halfYearlyCount = document.querySelectorAll('.half-yearly-amount').length;
-            const installmentCount = yearlyCount + halfYearlyCount;
 
-            if (installmentCount > 0) {
-                const installmentAmount = total / installmentCount;
+            if (yearlyCount > 0) {
+                const installmentAmount = total / yearlyCount;
                 document.getElementById('installment-amount').value = installmentAmount.toFixed(2);
             } else {
                 document.getElementById('installment-amount').value = '0.00';

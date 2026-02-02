@@ -22,7 +22,7 @@
                         <i class="bi bi-exclamation-triangle" style="font-size: 3rem; color: #E31E24;"></i>
                     </div>
                     <p style="color: #495057; font-size: 16px; margin-bottom: 0;">
-                        At least one complete relative set (name, mobile, and email) must be filled.
+                        Kindly fill minimum 1 Paternal / Maternal Uncle/Aunty details.
                     </p>
                 </div>
             </div>
@@ -137,6 +137,9 @@
                     <option value="Uncle" ${oldData && oldData.relation === 'Uncle' ? 'selected' : ''}>Uncle</option>
                     <option value="Aunt" ${oldData && oldData.relation === 'Aunt' ? 'selected' : ''}>Aunt</option>
                     <option value="Brother" ${oldData && oldData.relation === 'Brother' ? 'selected' : ''}>Brother</option>
+                    <option value="Sister" ${oldData && oldData.relation === 'Sister' ? 'selected' : ''}>Sister</option>
+                    <option value="Other" ${oldData && oldData.relation === 'Other' ? 'selected' : ''}>Other</option>
+
                 </select>
             </td>
             <td><input type="text" name="family_${i}_name" class="form-control" value="${oldData ? oldData.name || '' : ''}"></td>
@@ -163,8 +166,6 @@
             <td><input type="tel" name="family_${i}_mobile" class="form-control" value="${oldData ? oldData.mobile || '' : ''}"></td>
             <td><input type="email" name="family_${i}_email" class="form-control" value="${oldData ? oldData.email || '' : ''}"></td>
             <td><input type="number" name="family_${i}_yearly_income" class="form-control" value="${oldData ? oldData.yearly_income || '' : ''}"></td>
-            <td><input type="text" name="family_${i}_pan_card" class="form-control" value="${oldData ? oldData.pan_card || '' : ''}"></td>
-            <td><input type="text" name="family_${i}_aadhar_no" class="form-control" value="${oldData ? oldData.aadhar_no || '' : ''}"></td>
         `;
 
                 tbody.appendChild(row);
@@ -495,8 +496,7 @@
                                                         <th style="color:#4C4C4C;">Mobile Number</th>
                                                         <th style="color:#4C4C4C;">Email ID</th>
                                                         <th style="color:#4C4C4C;">Yearly Gross Income</th>
-                                                        <th style="color:#4C4C4C;">PAN Card No.</th>
-                                                        <th style="color:#4C4C4C;">Aadhar No.</th>
+
                                                     </tr>
                                                 </thead>
                                                 <tbody id="family-tbody">
@@ -522,8 +522,7 @@
                                                         <td style="color:#E31E24">{{ $user->email ?? '' }}</td>
                                                         <td style="color:#E31E24">
                                                             {{ $user->applicant_yearly_income ?? '' }}</td>
-                                                        <td style="color:#E31E24">{{ $user->pan_card ?? '' }}</td>
-                                                        <td style="color:#E31E24">{{ $user->aadhar_card_number ?? '' }}
+
                                                         </td>
                                                     </tr>
                                                 </tbody>
@@ -581,8 +580,8 @@
                                         </div>
                                         <div class="diksha-fields" style="display:none;">
                                             <div class="form-group mb-3">
-                                                <label for="diksha_member_name" class="form-label">Name of Family
-                                                    Member<span style="color: red;">*</span>
+                                                <label for="diksha_member_name" class="form-label">Name of Sadhu/Sadhvi Ji
+                                                    <span style="color: red;">*</span>
                                                 </label>
                                                 <input type="text" class="form-control" name="diksha_member_name"
                                                     placeholder="Name of Family Member"
@@ -622,6 +621,9 @@
                                                     <option value="sister"
                                                         {{ old('diksha_member_relation') == 'sister' ? 'selected' : '' }}>
                                                         Sister</option>
+                                                    <option value="other"
+                                                        {{ old('diksha_member_relation') == 'other' ? 'selected' : '' }}>
+                                                        Other</option>
                                                 </select>
                                                 <small
                                                     class="text-danger">{{ $errors->first('diksha_member_relation') }}</small>

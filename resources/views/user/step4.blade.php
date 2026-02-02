@@ -529,18 +529,18 @@
                                                     </div>
 
                                                     <div class="form-group mb-3">
-                                                        <label for="sibling_applied_year">Applied for year <span
+                                                        <label for="sibling_applied_year">Sanction for year <span
                                                                 style="color: red">*</span></label>
                                                         <input type="text" class="form-control"
-                                                            name="sibling_applied_year" placeholder="Applied for year "
+                                                            name="sibling_applied_year" placeholder="Sanction for year "
                                                             value="{{ old('sibling_applied_year', $fundingDetail->sibling_applied_year ?? '') }}">
                                                     </div>
 
                                                     <div class="form-group mb-3">
-                                                        <label for="sibling_applied_amount">Applied amount <span
+                                                        <label for="sibling_applied_amount">Sanction amount <span
                                                                 style="color: red">*</span></label>
                                                         <input type="number" class="form-control"
-                                                            name="sibling_applied_amount" placeholder="Applied amount "
+                                                            name="sibling_applied_amount" placeholder="Sanction amount "
                                                             min="0"
                                                             value="{{ old('sibling_applied_amount', $fundingDetail->sibling_applied_amount ?? '') }}">
                                                     </div>

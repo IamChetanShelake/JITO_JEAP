@@ -343,7 +343,7 @@
                                 <td>
                                     <span class="status-badge status-pending">
                                         <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
-                                        Pending (resubmitted)
+                                        resubmitted
                                     </span>
                                 </td>
                                 @endif

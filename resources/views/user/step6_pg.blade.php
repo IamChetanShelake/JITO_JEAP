@@ -238,7 +238,7 @@
                                                             <span class="photo-label">Graduate/Post Graduate Marksheet
                                                                 *<br>
                                                             </span>
-                                                            <span class="photo-label" style="font-size:12px;color:red;">
+                                                            <span class="photo-label" style="color:gray;font-size:12px;">
                                                                 Upload all semester Marksheet
                                                             </span>
 
@@ -429,7 +429,7 @@
                                                             <span class="photo-label">Admission Letter or Fees Structure
                                                                 *<br></span>
                                                             <span class="photo-label"
-                                                                style="color:red;font-size:12px;">The document must include
+                                                                style="color:gray;font-size:12px;">The document must include
                                                                 the college/university name.
                                                             </span>
                                                             <input type="file" id="admission_letter_fees_structure"
@@ -583,7 +583,7 @@
                                                             <span class="photo-label">Student Bank Details & Statement
                                                                 (Last 6 months / 1 year) *<br></span>
                                                             <span class="photo-label"
-                                                                style="color:red;font-size:12px;">Kindly upload last 6
+                                                                style="color:gray;font-size:12px;">Kindly upload last 6
                                                                 months bank statement.
                                                             </span>
                                                             <input type="file" id="student_bank_details_statement"
@@ -706,7 +706,7 @@
                                                                         d="M9.5 19C12.0196 19 14.4359 17.9991 16.2175 16.2175C17.9991 14.4359 19 12.0196 19 9.5C19 6.98044 17.9991 4.56408 16.2175 2.78249C14.4359 1.00089 12.0196 0 9.5 0C6.98044 0 4.56408 1.00089 2.78249 2.78249C1.00089 4.56408 0 6.98044 0 9.5C0 12.0196 1.00089 14.4359 2.78249 16.2175C4.56408 17.9991 6.98044 19 9.5 19ZM13.7696 11.2779L9.97907 15.0684C9.85182 15.1956 9.67925 15.267 9.49932 15.267C9.31939 15.267 9.14682 15.1956 9.01957 15.0684L5.23043 11.2779C5.13583 11.183 5.07144 11.0622 5.04538 10.9308C5.01933 10.7993 5.03276 10.6631 5.084 10.5393C5.13523 10.4155 5.22198 10.3096 5.33329 10.2351C5.44461 10.1605 5.57551 10.1205 5.7095 10.1202H8.14286V5.08929C8.14286 4.72935 8.28584 4.38415 8.54035 4.12964C8.79487 3.87513 9.14006 3.73214 9.5 3.73214C9.85994 3.73214 10.2051 3.87513 10.4596 4.12964C10.7142 4.38415 10.8571 4.72935 10.8571 5.08929V10.1202H13.2905C13.4245 10.1205 13.5554 10.1605 13.6667 10.2351C13.778 10.3096 13.8648 10.4155 13.916 10.5393C13.9672 10.6631 13.9807 10.7993 13.9546 10.9308C13.9286 11.0622 13.8642 11.183 13.7696 11.2779Z"
                                                                         fill="#009846" />
                                                                 </svg> <br></span>
-                                                            <span class="photo-label" style="color:red;font-size:12px;">
+                                                            <span class="photo-label" style="color:gray;font-size:12px;">
                                                                 We accept only last 1 year Jain sang Certificate
                                                             </span>
 
@@ -764,7 +764,7 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">Electricity Bill - latest
                                                                 *<br></span>
-                                                            <span class="photo-label" style="color:red;font-size:12px;">
+                                                            <span class="photo-label" style="color:gray;font-size:12px;">
                                                                 We accept only latest month Electricity Bill
                                                             </span>
                                                             <input type="file" id="electricity_bill"
@@ -820,7 +820,7 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">ITR Acknowledgement of Father
                                                                 *<br></span>
-                                                            <span class="photo-label" style="color:red;font-size:12px;">
+                                                            <span class="photo-label" style="color:gray;font-size:12px;">
                                                                 Father’s ITR acknowledgement for the latest 2 years.
                                                             </span>
                                                             <input type="file" id="itr_acknowledgement_father"
@@ -874,7 +874,7 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">ITR Computation of Father
                                                                 *<br></span>
-                                                            <span class="photo-label" style="color:red;font-size:12px;">
+                                                            <span class="photo-label" style="color:gray;font-size:12px;">
                                                                 We accept ITR Computation of Father of latest 2 years
                                                             </span>
                                                             <input type="file" id="itr_computation_father"
@@ -929,7 +929,7 @@
                                                             <span class="photo-label">Form No.16 for Salary Income of
                                                                 Father *<br></span>
                                                             <span class="photo-label mb-2"
-                                                                style="color:red;font-size:12px;">
+                                                                style="color:gray;font-size:12px;">
                                                                 If your do not get Form 16 then we also accept letter head
                                                                 format of your company in which your name, salary is
                                                                 mentioned
@@ -998,7 +998,7 @@
                                                             <span class="photo-label">Bank Statement of Father (Last 12
                                                                 Months) *<br></span>
                                                             <span class="photo-label mb-2"
-                                                                style="color:red;font-size:12px;">
+                                                                style="color:gray;font-size:12px;">
                                                                 Only Saving account, No Current or Business account is
                                                                 accepted
                                                             </span>
@@ -1055,7 +1055,7 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">Bank Statement of Mother (Last 12
                                                                 Months) *<br></span>
-                                                            <span class="photo-label " style="color:red;font-size:12px;">
+                                                            <span class="photo-label " style="color:gray;font-size:12px;">
                                                                 Only Saving account, No Current or Business account is
                                                                 accepted
                                                             </span>

@@ -143,49 +143,57 @@
             border-radius: 10px;
             box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
             overflow: hidden;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0; /* Allow shrinking */
         }
 
         .step-nav {
             background: var(--bg-light);
-            border-bottom: 1px solid var(--border-color);
             display: flex;
-            overflow-x: auto;
+            flex-direction: column;
+            width: 250px;
+            overflow-y: auto;
             scrollbar-width: thin;
         }
 
         .step-nav-item {
-            flex: 1;
-            min-width: 120px;
             text-align: center;
             padding: 1rem 0.5rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            border-bottom: 3px solid transparent;
+            border-bottom: 1px solid var(--border-color);
+            border-right: 3px solid transparent;
             position: relative;
         }
 
         .step-nav-item.active {
             background: white;
-            border-bottom-color: var(--primary-purple);
+            border-right-color: var(--primary-purple);
             color: var(--primary-purple);
             font-weight: 600;
         }
 
         .step-nav-item.completed {
             background: #e8f5e9;
-            border-bottom-color: var(--primary-green);
+            border-right-color: var(--primary-green);
             color: var(--primary-green);
         }
 
         .step-nav-item.pending {
             background: #fff8e1;
-            border-bottom-color: var(--primary-yellow);
+            border-right-color: var(--primary-yellow);
             color: var(--primary-yellow);
         }
 
         .step-nav-item.hold {
             background: #ffebee;
-            border-bottom-color: var(--primary-red);
+            border-right-color: var(--primary-red);
             color: var(--primary-red);
         }
 
@@ -205,10 +213,12 @@
         .step-content {
             padding: 2rem;
             display: none;
+            min-height: 500px;
         }
 
         .step-content.active {
             display: block;
+            width: 1085px;
         }
 
         .step-header {
@@ -712,6 +722,45 @@
             .action-form-row .btn {
                 align-self: stretch;
             }
+
+            .steps-container {
+                flex-direction: column;
+            }
+
+            .step-nav {
+                width: auto;
+                flex-direction: row;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                overflow-x: auto;
+            }
+
+            .step-nav-item {
+                border-right: none;
+                border-bottom: 3px solid transparent;
+                flex: 1;
+                min-width: 120px;
+            }
+
+            .step-nav-item.active {
+                border-bottom-color: var(--primary-purple);
+                border-right-color: transparent;
+            }
+
+            .step-nav-item.completed {
+                border-bottom-color: var(--primary-green);
+                border-right-color: transparent;
+            }
+
+            .step-nav-item.pending {
+                border-bottom-color: var(--primary-yellow);
+                border-right-color: transparent;
+            }
+
+            .step-nav-item.hold {
+                border-bottom-color: var(--primary-red);
+                border-right-color: transparent;
+            }
         }
     </style>
 @endsection
@@ -947,6 +996,8 @@
                 <span class="step-title">Decision</span>
             </div>
         </div>
+
+        <div class="content-area">
 
         <!-- Interview Step -->
         <div class="step-content" id="step-interview">
@@ -2021,8 +2072,7 @@
                                 <label class="form-label">PAN Upload</label>
                                 <div class="form-input" style="padding:0.5rem; background:transparent; border:none;">
                                     @if (!empty($user->guarantorDetail->g_one_pan_card_upload))
-                                        <a href="{{ asset($user->guarantorDetail->g_one_pan_card_upload) }}"
-                                            target="_blank">View PAN</a>
+                                        <a href="#" onclick="openModal('{{ asset($user->guarantorDetail->g_one_pan_card_upload) }}')">View PAN</a>
                                     @else
                                         <span style="color:#6c757d;">N/A</span>
                                     @endif
@@ -2104,8 +2154,7 @@
                                 <label class="form-label">PAN Upload</label>
                                 <div class="form-input" style="padding:0.5rem; background:transparent; border:none;">
                                     @if (!empty($user->guarantorDetail->g_two_pan_card_upload))
-                                        <a href="{{ asset($user->guarantorDetail->g_two_pan_card_upload) }}"
-                                            target="_blank">View PAN</a>
+                                        <a href="#" onclick="openModal('{{ asset($user->guarantorDetail->g_two_pan_card_upload) }}')">View PAN</a>
                                     @else
                                         <span style="color:#6c757d;">N/A</span>
                                     @endif
@@ -2159,7 +2208,7 @@
             <div class="form-data">
                 <div class="data-group">
                     <h4>All Documents</h4>
-                    <div class="form-section">
+                    <div class="form-section" style="display: grid;grid-template-columns: repeat(2, 1fr);gap: 12px 24px;">
                         @php
                             $doc = $user->document;
                             $fields = [
@@ -2194,9 +2243,9 @@
 
                         @foreach ($fields as $key => $label)
                             <div class="form-row" style="align-items:center;">
-                                <div class="form-field" style="min-width:250px;">
+                                {{-- <div class="form-field" style="min-width:250px;">
                                     <label class="form-label">{{ $label }}</label>
-                                </div>
+                                </div> --}}
                                 <div class="form-field form-field-full" style="flex:1;text-align:left;">
                                     @if (!empty($doc->$key))
                                         @php
@@ -2218,9 +2267,10 @@
                                                 }
                                             }
                                         @endphp
-                                        <a href="{{ $href }}" target="_blank">View Document</a>
+                                       <a href="#" onclick="openModal('{{ $href }}')" class="form-label">{{ $label }}</a>
                                     @else
-                                        <input type="text" class="form-input" value="Not uploaded" readonly>
+                                         <label class="form-label">{{ $label }}</label>
+
                                     @endif
                                 </div>
                             </div>
@@ -2430,7 +2480,7 @@
 
                                 <button type="submit" class="btn btn-approve" style="width: 100%;">
                                     <i class="fas fa-check"></i>
-                                    Approve & Move to Working Committee
+                                    Approve & Moving to Working Committee
                                 </button>
                             </form>
                         </div>
@@ -2648,10 +2698,39 @@
             </div>
         </div>
     </div>
+
+    </div> <!-- content-area -->
+</div>
+
+<!-- Document Modal -->
+<div id="documentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+    <div style="position:relative; width:90%; height:90%; background:white; border-radius:8px; overflow:hidden;">
+        <button onclick="closeModal()" style="position:absolute; top:10px; right:10px; background:red; color:white; border:none; border-radius:50%; width:30px; height:30px; cursor:pointer; z-index:1001;">&times;</button>
+        <iframe id="documentFrame" src="" style="width:100%; height:100%; border:none;"></iframe>
     </div>
+</div>
+
 @endsection
 
 <script>
+    function openModal(url) {
+        document.getElementById('documentFrame').src = url;
+        document.getElementById('documentModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('documentModal').style.display = 'none';
+        document.getElementById('documentFrame').src = '';
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('documentModal');
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+
     function showStep(stepNumber) {
         document.querySelectorAll('.step-content').forEach(content => {
             content.classList.remove('active');

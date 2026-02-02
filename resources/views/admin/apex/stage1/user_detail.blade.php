@@ -142,49 +142,57 @@
         border-radius: 10px;
         box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
         overflow: hidden;
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .content-area {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0; /* Allow shrinking */
     }
 
     .step-nav {
         background: var(--bg-light);
-        border-bottom: 1px solid var(--border-color);
         display: flex;
-        overflow-x: auto;
+        flex-direction: column;
+        width: 250px;
+        overflow-y: auto;
         scrollbar-width: thin;
     }
 
     .step-nav-item {
-        flex: 1;
-        min-width: 120px;
         text-align: center;
         padding: 1rem 0.5rem;
         cursor: pointer;
         transition: all 0.3s ease;
-        border-bottom: 3px solid transparent;
+        border-bottom: 1px solid var(--border-color);
+        border-right: 3px solid transparent;
         position: relative;
     }
 
     .step-nav-item.active {
         background: white;
-        border-bottom-color: var(--primary-purple);
+        border-right-color: var(--primary-purple);
         color: var(--primary-purple);
         font-weight: 600;
     }
 
     .step-nav-item.completed {
         background: #e8f5e9;
-        border-bottom-color: var(--primary-green);
+        border-right-color: var(--primary-green);
         color: var(--primary-green);
     }
 
     .step-nav-item.pending {
         background: #fff8e1;
-        border-bottom-color: var(--primary-yellow);
+        border-right-color: var(--primary-yellow);
         color: var(--primary-yellow);
     }
 
     .step-nav-item.hold {
         background: #ffebee;
-        border-bottom-color: var(--primary-red);
+        border-right-color: var(--primary-red);
         color: var(--primary-red);
     }
 
@@ -204,10 +212,12 @@
     .step-content {
         padding: 2rem;
         display: none;
+        min-height: 500px;
     }
 
     .step-content.active {
         display: block;
+        width: 1130px;
     }
 
     .step-header {
@@ -689,6 +699,15 @@
             font-size: 0.9rem;
         }
 
+    /* Dropdown Styles */
+    .dropdown-item:hover {
+        background-color: var(--bg-light);
+    }
+
+    .dropdown-item:last-child {
+        border-bottom: none;
+    }
+
     @media (max-width: 768px) {
         .action-form-row {
             flex-direction: column;
@@ -697,6 +716,56 @@
         .action-form-row .btn {
             align-self: stretch;
         }
+
+        .steps-container {
+            flex-direction: column;
+        }
+
+        .step-nav {
+            width: auto;
+            flex-direction: row;
+            border-right: none;
+            border-bottom: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        .step-nav-item {
+            border-right: none;
+            border-bottom: 3px solid transparent;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .step-nav-item.active {
+            border-bottom-color: var(--primary-purple);
+            border-right-color: transparent;
+        }
+
+        .step-nav-item.completed {
+            border-bottom-color: var(--primary-green);
+            border-right-color: transparent;
+        }
+
+        .step-nav-item.pending {
+            border-bottom-color: var(--primary-yellow);
+            border-right-color: transparent;
+        }
+
+        .step-nav-item.hold {
+            border-bottom-color: var(--primary-red);
+            border-right-color: transparent;
+        }
+
+        .document-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px 24px;
+        }
+
+        .document-grid .form-row {
+            margin: 0;
+        }
+
     }
 </style>
 @endsection
@@ -711,12 +780,24 @@
         <p class="page-subtitle">Review and approve individual form steps</p>
     </div>
     <div style="display: flex; gap: 1rem; align-items: center;">
-        <a href="{{ route('admin.user.generate.pdf', $user) }}" class="back-btn" style="background-color: var(--primary-blue);">
-            <i class="fas fa-download"></i> Download Application PDF
-        </a>
-        <a href="{{ route('admin.user.generate.summary.pdf', $user) }}" class="back-btn" style="background-color: var(--primary-green);">
-            <i class="fas fa-file-alt"></i> Download Summary PDF
-        </a>
+        <!-- Print Options Dropdown -->
+        <div class="dropdown" style="position: relative;">
+            <button class="back-btn" style="background-color: var(--primary-yellow); color: #333;" onclick="toggleDropdown()">
+                <i class="fas fa-print"></i> Print Options <i class="fas fa-chevron-down" style="margin-left: 0.5rem;"></i>
+            </button>
+            <div id="printDropdown" class="dropdown-content" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 200px;">
+                <a href="{{ route('admin.user.generate.pdf', $user) }}" class="dropdown-item" style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
+                    <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Application PDF
+                </a>
+                <a href="{{ route('admin.user.generate.summary.pdf', $user) }}" class="dropdown-item" style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
+                    <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Summary PDF
+                </a>
+                <a href="{{ route('admin.user.sanction.letter', $user) }}" target="_blank" class="dropdown-item" style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
+                    <i class="fas fa-file-contract" style="margin-right: 0.5rem;"></i> Sanction Letter
+                </a>
+            </div>
+        </div>
+
         <a href="{{ route('admin.home') }}" class="back-btn">
             <i class="fas fa-arrow-left"></i> Back to Dashboard
         </a>
@@ -820,7 +901,9 @@
         </div>
     </div>
 
-    <!-- Step 1: Family Details -->
+    <div class="content-area">
+
+    <!-- Step 1: Personal Details -->
 
     <div class="step-content active" id="step-1">
         <div class="step-header">
@@ -1680,7 +1763,7 @@
                             <label class="form-label">PAN Upload</label>
                             <div class="form-input" style="padding:0.5rem; background:transparent; border:none;">
                                 @if(!empty($user->guarantorDetail->g_one_pan_card_upload))
-                                    <a href="{{ asset($user->guarantorDetail->g_one_pan_card_upload) }}" target="_blank">View PAN</a>
+                                    <a href="#" onclick="openModal('{{ asset($user->guarantorDetail->g_one_pan_card_upload) }}')">View PAN</a>
                                 @else
                                     <span style="color:#6c757d;">N/A</span>
                                 @endif
@@ -1750,7 +1833,7 @@
                             <label class="form-label">PAN Upload</label>
                             <div class="form-input" style="padding:0.5rem; background:transparent; border:none;">
                                 @if(!empty($user->guarantorDetail->g_two_pan_card_upload))
-                                    <a href="{{ asset($user->guarantorDetail->g_two_pan_card_upload) }}" target="_blank">View PAN</a>
+                                    <a href="#" onclick="openModal('{{ asset($user->guarantorDetail->g_two_pan_card_upload) }}')">View PAN</a>
                                 @else
                                     <span style="color:#6c757d;">N/A</span>
                                 @endif
@@ -1803,7 +1886,7 @@
         <div class="form-data">
             <div class="data-group">
                 <h4>All Documents</h4>
-                <div class="form-section">
+                <div class="form-section" style="display: grid;grid-template-columns: repeat(2, 1fr);gap: 12px 24px;">
                     @php
                         $doc = $user->document;
                         $fields = [
@@ -1839,9 +1922,6 @@
                     @foreach($fields as $key => $label)
                         <div class="form-row" style="align-items:center;">
                             <div class="form-field" style="min-width:250px;">
-                                <label class="form-label">{{ $label }}</label>
-                            </div>
-                            <div class="form-field form-field-full" style="flex:1;text-align:left;">
                                 @if(!empty($doc->$key))
                                     @php
                                         $p = $doc->$key;
@@ -1860,11 +1940,18 @@
                                             }
                                         }
                                     @endphp
-                                    <a href="{{ $href }}" target="_blank">View Document</a>
+                                    <a href="#" onclick="openModal('{{ $href }}')" class="form-label">{{ $label }}</a>
+                                @else
+                                    <label class="form-label">{{ $label }}</label>
+                                @endif
+                            </div>
+                            {{-- <div class="form-field form-field-full" style="flex:1;text-align:left;">
+                                @if(!empty($doc->$key))
+                                    <span style="color:#6c757d;">Uploaded</span>
                                 @else
                                     <input type="text" class="form-input" value="Not uploaded" readonly>
                                 @endif
-                            </div>
+                            </div> --}}
                         </div>
                     @endforeach
                 </div>
@@ -2124,6 +2211,7 @@
         @endif
     </div>
 
+    </div> <!-- content-area -->
 
 </div>
 @endsection
@@ -2181,6 +2269,40 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Modal functions for document viewing
+function openModal(url) {
+    document.getElementById('documentFrame').src = url;
+    document.getElementById('documentModal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('documentModal').style.display = 'none';
+    document.getElementById('documentFrame').src = '';
+}
+
+// Dropdown toggle function
+function toggleDropdown() {
+    const dropdown = document.getElementById('printDropdown');
+    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('printDropdown');
+    const button = event.target.closest('.dropdown button');
+    if (!button && dropdown.style.display === 'block') {
+        dropdown.style.display = 'none';
+    }
+});
 </script>
+
+<!-- Document Modal -->
+<div id="documentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+    <div style="position:relative; width:90%; height:90%; background:white; border-radius:8px; overflow:hidden;">
+        <button onclick="closeModal()" style="position:absolute; top:10px; right:10px; background:red; color:white; border:none; border-radius:50%; width:30px; height:30px; cursor:pointer; z-index:1001;">&times;</button>
+        <iframe id="documentFrame" src="" style="width:100%; height:100%; border:none;"></iframe>
+    </div>
+</div>
 
 

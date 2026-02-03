@@ -27,13 +27,13 @@ body {
 }
 
 .header-left {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.4;
   color: #333;
 }
 
 .header-left h1 {
-  font-size: 14px;
+  font-size: 15px;
   color: #8B0000;
   margin-bottom: 3px;
   font-weight: bold;
@@ -47,7 +47,7 @@ body {
 }
 
 .header-right img {
-  height: 35px;
+  height: 50px;
   opacity: 0.9;
 }
 
@@ -55,7 +55,7 @@ body {
 .center-title {
   text-align: start;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 18px;
   margin: 25px 0 18px;
   color: #1a1a1a;
   letter-spacing: 1px;
@@ -66,14 +66,14 @@ body {
 .info-row {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
+  font-size: 16px;
   margin-bottom: 12px;
   color: #444;
 }
 
 /* CONTENT */
 .content p {
-  font-size: 16px;
+  font-size: 18px;
   margin: 5px 0;
   line-height: 1.4;
   color: #333;
@@ -93,7 +93,7 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin: 12px 0;
-  font-size: 12px;
+  font-size: 14px;
   table-layout: auto;
   border: 1px solid #666;
 }
@@ -109,7 +109,7 @@ th {
   text-align: left;
   font-weight: bold;
   color: #333;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 /* Document table specific */
@@ -117,7 +117,7 @@ th {
 
 /* PDC Table - horizontal scroll if needed */
 .pdc-table {
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .pdc-table th,
@@ -127,7 +127,7 @@ th {
 
 /* HIGHLIGHT */
 .note {
-  font-size: 12px;
+  font-size: 14px;
   color: #2563eb;
   font-weight: bold;
   font-style: italic;
@@ -136,7 +136,7 @@ th {
 /* LIST */
 ul {
   padding-left: 15px;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.4;
 }
 
@@ -173,7 +173,7 @@ ul li {
     margin: 20mm 15mm 25mm 15mm; /* Top, Right, Bottom, Left */
     @bottom-center {
       content: "Page " counter(page) " / " counter(pages);
-      font-size: 10px;
+      font-size: 12px;
       font-family: 'Times New Roman', Times, serif;
       color: #666;
       text-align: start;
@@ -504,12 +504,12 @@ $currentPage = 1;
   </table>
 
   <!-- WARNING -->
-  <p style="color:red;font-weight:bold;font-size:15px;">
+  <p style="color:red;font-weight:bold;font-size:17px;">
     9) WARNING: IF WE FOUND THE PDC CHEQUE DETAILS UNDER POST DATED CHEQUES DETAILS
     TAB IS EMPTY THEN DISBURSEMENT WILL BE DELAYED BY 15–20 WORKING DAYS, STRICTLY.
   </p>
 
-  
+
 
 </div>
 
@@ -520,7 +520,7 @@ $currentPage++;
 <div class="page">
 
   <!-- INTRO NOTES -->
-  <ol style="font-size:14px;">
+  <ol style="font-size:16px;">
     <li>
       Please note that <strong>'FORM A'</strong> has to be printed on
       <strong>Rs. 500 stamp paper</strong> for Maharashtra Applicants and
@@ -543,7 +543,7 @@ $currentPage++;
     IMPORTANT POINTS TO KEEP IN MIND WHILE PREPARING CHEQUES:
   </p>
 
-  <ol style="color:red;font-size:15px;">
+  <ol style="color:red;font-size:17px;">
     <li>
       Cheques must be submitted only from the <strong>Student bank account</strong>.
       It should be a Major account (Age 18+), Single or Joint account with parent.
@@ -581,7 +581,7 @@ $currentPage++;
   </ol>
 
   <!-- NOTE -->
-  <p style="font-size:14px;">
+  <p style="font-size:16px;">
     <strong>NOTE:</strong> Please fill the cheque neatly using a blue ball pen only.
     Cheques filled with any other color will be strictly returned.
     Ensure the signature matches the bank verification letter.
@@ -598,7 +598,7 @@ $currentPage++;
   </div>
 
   <!-- PRINT NOTE -->
-  <p style="font-size:14px;text-align:center;">
+  <p style="font-size:16px;text-align:center;">
     <strong>NOTE:</strong> If you are printing the cheque, ensure that all
     details are formatted and aligned exactly as shown in the example above.
     This cheque image is for reference only.
@@ -621,7 +621,7 @@ $currentPage++;
   <!-- PAYMENT LETTER -->
   <p class="bold" style="color:red;">WHAT IS PAYMENT LETTER?</p>
 
-  <ol style="color:red;font-size:15px;">
+  <ol style="color:red;font-size:17px;">
     <li>
       Payment letter is the proof that you have submitted the cheques
       with complete information as per your sanctioned amount.
@@ -639,7 +639,7 @@ $currentPage++;
   </ol>
 
   <!-- DOCUMENT FORMS -->
-  <ol style="font-size:15px;">
+  <ol style="font-size:17px;">
     <li>
       Affidavit cum Undertaking (Form A)
       <br>
@@ -676,7 +676,7 @@ $currentPage++;
   <!-- FOREIGN APPLICANTS -->
   <p class="bold" style="color:red;">ONLY FOR FOREIGN APPLICANTS:</p>
 
-  <ol style="color:red;font-size:15px;">
+  <ol style="color:red;font-size:17px;">
     <li>
       If you do not have VISA or Flight ticket now, you can submit later.
       Email VISA and Flight ticket to
@@ -696,7 +696,7 @@ $currentPage++;
     'THIRD STAGE DOCUMENT TAB'?
   </p>
 
-  <ol style="font-size:15px;">
+  <ol style="font-size:17px;">
     <li>Go to JITO JEAP website</li>
     <li>Login to your application</li>
     <li>Click Application Number or Applicant Name</li>
@@ -714,18 +714,18 @@ $currentPage++;
   </ol>
 
   <!-- DISCLAIMER -->
-  <p style="font-size:14px;">
+  <p style="font-size:16px;">
     <strong>Disclaimer:</strong>
     JEAP reserves the right to hold, cancel or modify the sanctioned
     amount in case of policy or management changes.
     This sanction letter is valid for <strong>30 days only</strong>.
   </p>
 
-  <p style="font-size:15px;">
+  <p style="font-size:17px;">
     Dear Students / Parents,
   </p>
 
-  
+
 
 </div>
 
@@ -1099,7 +1099,7 @@ $currentPage++;
     IMPORTANT NOTE:
   </p>
 
-  <ol style="color:red;font-size:15px;padding-left:18px;">
+  <ol style="color:red;font-size:17px;padding-left:18px;">
     <li>
       Request you to submit the documents in above given sequence only,
       along with numbering or bookmark with pen/pencil.

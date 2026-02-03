@@ -145,7 +145,7 @@ class AdminController extends Controller
                 break;
 
             case 'apex_2':
-                $updateData['final_status'] = 'approved';
+                $updateData['current_stage'] = 'apex_2';
                 break;
 
             default:
@@ -322,6 +322,25 @@ class AdminController extends Controller
         if ($workflow->current_stage !== $stage) {
             return back()->with('error', 'Invalid stage');
         }
+
+        /* ================= APEX 2 REJECT (CORRECTION FLOW) ================= */
+        if ($stage === 'apex_2') {
+            $workflow->update([
+                'apex_2_status'          => 'rejected',
+                'apex_2_reject_remarks' => $request->admin_remark,
+                'apex_2_updated_at'     => now(),
+
+                // stay on same stage
+                'current_stage'         => 'apex_2',
+                'final_status'          => 'in_progress',
+            ]);
+
+            return back()->with(
+                'success',
+                'Apex Stage 2 rejected and sent for correction'
+            );
+        }
+
 
         $resubmitSteps = $request->input('resubmit_steps', []);
 
@@ -1044,6 +1063,74 @@ class AdminController extends Controller
         // Return PDF download/stream
         $filename = 'JEAP_Sanction_Letter_' . $user->name . '_' . $user->id . '.pdf';
         return $pdf->stream($filename);
+    }
+
+
+
+
+
+
+
+
+
+    public function apexStage2Approved()
+    {
+        // Get users where final_status = 'approved'
+        $users = User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('apex_2_status', 'approved')
+                ->where('current_stage', 'apex_2');
+            })
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            ->get();
+        return view('admin.apex.stage2.approved', compact('users'));
+    }
+
+    public function apexStage2Pending()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($query) {
+                $query->where('current_stage', 'apex_2')
+                    ->where('apex_2_status', 'pending')->whereNull('apex_2_reject_remarks');
+            })
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            ->get();
+
+        return view('admin.apex.stage2.pending', compact('users'));
+    }
+
+
+    public function apexStage2Hold()
+    {
+        // Get users where final_status = 'rejected'
+        $users = User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('apex_2_status', 'rejected')
+                ->where('current_stage', 'apex_2');;
+            })
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            ->get();
+        return view('admin.apex.stage2.hold', compact('users'));
+    }
+
+    public function apexStage2Resubmitted(){
+        // Get users where apex_1_status = 'pending' but have admin remarks indicating resubmission
+        $users = User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($query) {
+                $query->where('apex_2_status', 'pending')
+                      ->whereNotNull('apex_2_reject_remarks')
+                      ->where('current_stage', 'apex_2');
+            })
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            ->get();
+
+        return view('admin.apex.stage2.pending', compact('users'));
+    }
+
+    public function apexStage2UserDetail(User $user)
+    {
+        $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
+        return view('admin.apex.stage2.user_detail', compact('user'));
     }
 
 }

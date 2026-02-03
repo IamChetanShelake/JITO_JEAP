@@ -84,6 +84,13 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/chapters/working-committee-pending', [AdminController::class, 'chapterWorkingCommitteePending'])->name('chapter.working-committee-pending');
     Route::get('/chapters/working-committee-approved', [AdminController::class, 'chapterWorkingCommitteeApproved'])->name('chapter.working-committee-approved');
 
+    // Apex Stage 2 Forms
+    Route::get('/apex-stage2/approved', [AdminController::class, 'apexStage2Approved'])->name('apex.stage2.approved');
+    Route::get('/apex-stage2/pending', [AdminController::class, 'apexStage2Pending'])->name('apex.stage2.pending');
+    Route::get('/apex-stage2/hold', [AdminController::class, 'apexStage2Hold'])->name('apex.stage2.hold');
+    Route::get('/apex-stage2/user/{user}', [AdminController::class, 'apexStage2UserDetail'])->name('apex.stage2.user.detail');
+    Route::get('/apex-stage2/resubmitted', [AdminController::class, 'apexStage2Resubmitted'])->name('apex.stage2.resubmitted');
+
 
     Route::get('/chapters/resubmit', [AdminController::class, 'chapterResubmit'])->name('chapter.resubmit');
 

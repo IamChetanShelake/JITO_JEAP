@@ -962,6 +962,17 @@
                                         <div class="col-md-6">
                                             <div id="qualification-fields-right" style="display: none;">
                                                 <div class="form-group mb-3">
+                                                    <label for="qualification_course_name">Current Course Name <span
+                                                            style="color: red;">*</span></label>
+                                                    <input type="text" id="qualification_course_name" class="form-control"
+                                                        name="qualification_course_name" placeholder="Enter Course Name "
+                                                        value="{{ old('qualification_course_name', $educationDetail->qualification_course_name ?? '') }}"
+                                                        required>
+                                                    <small class="text-danger"
+                                                        id="qualification_course_name_error">{{ $errors->first('qualification_course_name') }}</small>
+                                                </div>
+
+                                                <div class="form-group mb-3">
                                                     <label for="qualification_start_year">Start Year <span
                                                             style="color:red">*</span></label>
                                                     <input type="month" class="form-control"

@@ -171,7 +171,8 @@
         .content-area {
             flex: 1;
             overflow-y: auto;
-            min-height: 0; /* Allow shrinking */
+            min-height: 0;
+            /* Allow shrinking */
         }
 
         .step-nav {
@@ -816,483 +817,494 @@
 
         <div class="content-area">
 
-        <!-- Step 1: Personal Details -->
-        <div class="step-content active" id="step-1">
-            <div class="step-header">
-                <h2 class="step-title-large">Step 1: Personal Details</h2>
-                <div class="step-status">
-                    <span
-                        class="status-badge status-{{ $user->submit_status == 'approved' ? 'approved' : ($user->submit_status == 'resubmit' ? 'hold' : 'pending') }}">
-                        <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
-                        {{ ucfirst($user->submit_status ?? 'Pending') }}
-                    </span>
-                </div>
-            </div>
-            <div class="form-data">
-                <div class="data-group">
-                    <h4>Personal Information</h4>
-                    <div class="form-section">
-                        <div class="form-row">
-                            <div class="form-field">
-                                <label class="form-label">Full Name</label>
-                                <input type="text" class="form-input" value="{{ $user->name }}" readonly>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Photo</label>
-                                <div class="form-input" style="padding:0.5rem;">
-                                    @if ($user->image)
-                                        <img src="{{ asset($user->image) }}" alt="Photo" class="form-image">
-                                    @else
-                                        <span style="color:#6c757d;">N/A</span>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Aadhar Card Number</label>
-                                <input type="text" class="form-input"
-                                    value="{{ $user->aadhar_card_number ?? 'N/A' }}" readonly>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-field">
-                                <label class="form-label">PAN Card</label>
-                                <input type="text" class="form-input" value="{{ $user->pan_card ?? 'N/A' }}"
-                                    readonly>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Mobile</label>
-                                <input type="tel" class="form-input" value="{{ $user->phone ?? $user->mobile }}"
-                                    readonly>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Alternate Phone</label>
-                                <input type="tel" class="form-input" value="{{ $user->alternate_phone ?? 'N/A' }}"
-                                    readonly>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-field">
-                                <label class="form-label">Email</label>
-                                <input type="email" class="form-input" value="{{ $user->email }}" readonly>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Alternate Email</label>
-                                <input type="email" class="form-input" value="{{ $user->alternate_email ?? 'N/A' }}"
-                                    readonly>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Marital Status</label>
-                                <input type="text" class="form-input" value="{{ $user->marital_status ?? 'N/A' }}"
-                                    readonly>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-field">
-                                <label class="form-label">Religion</label>
-                                <input type="text" class="form-input" value="{{ $user->religion ?? 'N/A' }}"
-                                    readonly>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Sub Caste</label>
-                                <input type="text" class="form-input" value="{{ $user->sub_cast ?? 'N/A' }}"
-                                    readonly>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Blood Group</label>
-                                <input type="text" class="form-input" value="{{ $user->blood_group ?? 'N/A' }}"
-                                    readonly>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-field">
-                                <label class="form-label">Date of Birth</label>
-                                <input type="text" class="form-input" value="{{ $user->d_o_b ?? 'N/A' }}" readonly>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Birth Place</label>
-                                <input type="text" class="form-input" value="{{ $user->birth_place ?? 'N/A' }}"
-                                    readonly>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Gender</label>
-                                <input type="text" class="form-input" value="{{ $user->gender ?? 'N/A' }}" readonly>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-field">
-                                <label class="form-label">Age</label>
-                                <input type="text" class="form-input" value="{{ $user->age ?? 'N/A' }}" readonly>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Nationality</label>
-                                <input type="text" class="form-input" value="{{ $user->nationality ?? 'N/A' }}"
-                                    readonly>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Specially Abled</label>
-                                <input type="text" class="form-input" value="{{ $user->specially_abled ?? 'N/A' }}"
-                                    readonly>
-                            </div>
-                        </div>
+            <!-- Step 1: Personal Details -->
+            <div class="step-content active" id="step-1">
+                <div class="step-header">
+                    <h2 class="step-title-large">Step 1: Personal Details</h2>
+                    <div class="step-status">
+                        <span
+                            class="status-badge status-{{ $user->submit_status == 'approved' ? 'approved' : ($user->submit_status == 'resubmit' ? 'hold' : 'pending') }}">
+                            <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                            {{ ucfirst($user->submit_status ?? 'Pending') }}
+                        </span>
                     </div>
                 </div>
-                <div class="data-group">
-                    <h4>Address Information</h4>
-                    <div class="form-section">
-                        <div class="form-row">
-                            <div class="form-field">
-                                <label class="form-label">Flat No</label>
-                                <input type="text" class="form-input" value="{{ $user->flat_no ?? 'N/A' }}" readonly>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Building No</label>
-                                <input type="text" class="form-input" value="{{ $user->building_no ?? 'N/A' }}"
-                                    readonly>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Street Name</label>
-                                <input type="text" class="form-input" value="{{ $user->street_name ?? 'N/A' }}"
-                                    readonly>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-field">
-                                <label class="form-label">Area</label>
-                                <input type="text" class="form-input" value="{{ $user->area ?? 'N/A' }}" readonly>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Landmark</label>
-                                <input type="text" class="form-input" value="{{ $user->landmark ?? 'N/A' }}"
-                                    readonly>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Pin Code</label>
-                                <input type="text" class="form-input" value="{{ $user->pin_code ?? 'N/A' }}"
-                                    readonly>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-field">
-                                <label class="form-label">City</label>
-                                <input type="text" class="form-input" value="{{ $user->city ?? 'N/A' }}" readonly>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">District</label>
-                                <input type="text" class="form-input" value="{{ $user->district ?? 'N/A' }}"
-                                    readonly>
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">State</label>
-                                <input type="text" class="form-input" value="{{ $user->state ?? 'N/A' }}" readonly>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-field">
-                                <label class="form-label">Chapter</label>
-                                <input type="text" class="form-input" value="{{ $user->chapter ?? 'N/A' }}" readonly>
-                            </div>
-                            <div class="form-field form-field-full">
-                                <label class="form-label">Aadhar/Pan Address</label>
-                                <textarea class="form-textarea" readonly>{{ $user->aadhar_address ?? 'N/A' }}</textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Step 2: Education Details -->
-        <div class="step-content" id="step-2">
-            <div class="step-header">
-                <h2 class="step-title-large">Step 2: Education Details</h2>
-                <div class="step-status">
-                    <span
-                        class="status-badge status-{{ $user->educationDetail ? ($user->educationDetail->submit_status == 'approved' ? 'approved' : ($user->educationDetail->submit_status == 'resubmit' ? 'hold' : 'pending')) : 'pending' }}">
-                        <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
-                        {{ $user->educationDetail ? ucfirst($user->educationDetail->submit_status) : 'Pending' }}
-                    </span>
-                </div>
-            </div>
-
-            @if ($user->educationDetail)
                 <div class="form-data">
-                    <!-- Financial Need Overview -->
                     <div class="data-group">
-                        <h4>Your Financial Need Overview</h4>
+                        <h4>Personal Information</h4>
                         <div class="form-section">
                             <div class="form-row">
                                 <div class="form-field">
-                                    <label class="form-label">Course Name</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->course_name ?? 'N/A' }}" readonly>
+                                    <label class="form-label">Full Name</label>
+                                    <input type="text" class="form-input" value="{{ $user->name }}" readonly>
                                 </div>
                                 <div class="form-field">
-                                    <label class="form-label">University Name</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->university_name ?? 'N/A' }}" readonly>
+                                    <label class="form-label">Photo</label>
+                                    <div class="form-input" style="padding:0.5rem;">
+                                        @if ($user->image)
+                                            <img src="{{ asset($user->image) }}" alt="Photo" class="form-image">
+                                        @else
+                                            <span style="color:#6c757d;">N/A</span>
+                                        @endif
+                                    </div>
                                 </div>
                                 <div class="form-field">
-                                    <label class="form-label">College Name</label>
+                                    <label class="form-label">Aadhar Card Number</label>
                                     <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->college_name ?? 'N/A' }}" readonly>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Country</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->country ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">City</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->city_name ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">NIRF Ranking</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->nirf_ranking ?? 'N/A' }}" readonly>
+                                        value="{{ $user->aadhar_card_number ?? 'N/A' }}" readonly>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-field">
-                                    <label class="form-label">Start Year</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->start_year ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Expected Completion Year</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->expected_year ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Qualifications</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ ucfirst($user->educationDetail->qualifications ?? 'N/A') }}" readonly>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Financial Summary Table -->
-                    <div class="data-group">
-                        <h4>Financial Summary Table</h4>
-                        <div class="table-container">
-                            <table class="custom-table">
-                                <thead>
-                                    <tr>
-                                        <th>Sr No</th>
-                                        <th>Group Name</th>
-                                        <th>1 Year</th>
-                                        <th>2 Year</th>
-                                        <th>3 Year</th>
-                                        <th>4 Year</th>
-                                        <th>5 Year</th>
-                                        <th>Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>Tuition Fees</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_1_year1 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_1_year2 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_1_year3 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_1_year4 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_1_year5 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_1_total ?? 0) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>Living Expenses</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_2_year1 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_2_year2 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_2_year3 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_2_year4 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_2_year5 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_2_total ?? 0) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>3</td>
-                                        <td>Other Expenses</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_3_year1 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_3_year2 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_3_year3 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_3_year4 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_3_year5 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_3_total ?? 0) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>4</td>
-                                        <td>Total Expenses</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_4_year1 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_4_year2 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_4_year3 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_4_year4 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_4_year5 ?? 0) }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->educationDetail->group_4_total ?? 0) }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- School Information -->
-                    <div class="data-group">
-                        <h4>School / 10th Grade Information</h4>
-                        <div class="form-section">
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">School Name</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->school_name ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Board</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->school_board ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Completion Year</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->school_completion_year ?? 'N/A' }}" readonly>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Marks Obtained</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->{'10th_mark_obtained'} ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Out Of</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->{'10th_mark_out_of'} ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Percentage</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->school_percentage ?? 'N/A' }}%" readonly>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">CGPA</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->school_CGPA ?? 'N/A' }}" readonly>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Junior College Information -->
-                    <div class="data-group">
-                        <h4>Junior College (12th Grade)</h4>
-                        <div class="form-section">
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">College Name</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->jc_college_name ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Stream</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->jc_stream ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Board</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->jc_board ?? 'N/A' }}" readonly>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Completion Year</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->jc_completion_year ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Marks Obtained</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->{'12th_mark_obtained'} ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Out Of</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->{'12th_mark_out_of'} ?? 'N/A' }}" readonly>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Percentage</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->jc_percentage ?? 'N/A' }}%" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">CGPA</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->jc_CGPA ?? 'N/A' }}" readonly>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Additional Information -->
-                    <div class="data-group">
-                        <h4>Additional Information</h4>
-                        <div class="form-section">
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Work Experience</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ ucfirst($user->educationDetail->have_work_experience ?? 'no') }}"
+                                    <label class="form-label">PAN Card</label>
+                                    <input type="text" class="form-input" value="{{ $user->pan_card ?? 'N/A' }}"
                                         readonly>
                                 </div>
                                 <div class="form-field">
-                                    <label class="form-label">Organization Name</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->organization_name ?? 'N/A' }}" readonly>
+                                    <label class="form-label">Mobile</label>
+                                    <input type="tel" class="form-input" value="{{ $user->phone ?? $user->mobile }}"
+                                        readonly>
                                 </div>
                                 <div class="form-field">
-                                    <label class="form-label">Work Profile</label>
+                                    <label class="form-label">Alternate Phone</label>
+                                    <input type="tel" class="form-input" value="{{ $user->alternate_phone ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-input" value="{{ $user->email }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Alternate Email</label>
+                                    <input type="email" class="form-input"
+                                        value="{{ $user->alternate_email ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Marital Status</label>
                                     <input type="text" class="form-input"
-                                        value="{{ $user->educationDetail->work_profile ?? 'N/A' }}" readonly>
+                                        value="{{ $user->marital_status ?? 'N/A' }}" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Religion</label>
+                                    <input type="text" class="form-input" value="{{ $user->religion ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Sub Caste</label>
+                                    <input type="text" class="form-input" value="{{ $user->sub_cast ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Blood Group</label>
+                                    <input type="text" class="form-input" value="{{ $user->blood_group ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Date of Birth</label>
+                                    <input type="text" class="form-input" value="{{ $user->d_o_b ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Birth Place</label>
+                                    <input type="text" class="form-input" value="{{ $user->birth_place ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Gender</label>
+                                    <input type="text" class="form-input" value="{{ $user->gender ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Age</label>
+                                    <input type="text" class="form-input" value="{{ $user->age ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Nationality</label>
+                                    <input type="text" class="form-input" value="{{ $user->nationality ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Specially Abled</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->specially_abled ?? 'N/A' }}" readonly>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div class="data-group">
+                        <h4>Address Information</h4>
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Flat No</label>
+                                    <input type="text" class="form-input" value="{{ $user->flat_no ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Building No</label>
+                                    <input type="text" class="form-input" value="{{ $user->building_no ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Street Name</label>
+                                    <input type="text" class="form-input" value="{{ $user->street_name ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Area</label>
+                                    <input type="text" class="form-input" value="{{ $user->area ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Landmark</label>
+                                    <input type="text" class="form-input" value="{{ $user->landmark ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Pin Code</label>
+                                    <input type="text" class="form-input" value="{{ $user->pin_code ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">City</label>
+                                    <input type="text" class="form-input" value="{{ $user->city ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">District</label>
+                                    <input type="text" class="form-input" value="{{ $user->district ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">State</label>
+                                    <input type="text" class="form-input" value="{{ $user->state ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Chapter</label>
+                                    <input type="text" class="form-input" value="{{ $user->chapter ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field form-field-full">
+                                    <label class="form-label">Aadhar/Pan Address</label>
+                                    <textarea class="form-textarea" readonly>{{ $user->aadhar_address ?? 'N/A' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Education Details -->
+            <div class="step-content" id="step-2">
+                <div class="step-header">
+                    <h2 class="step-title-large">Step 2: Education Details</h2>
+                    <div class="step-status">
+                        <span
+                            class="status-badge status-{{ $user->educationDetail ? ($user->educationDetail->submit_status == 'approved' ? 'approved' : ($user->educationDetail->submit_status == 'resubmit' ? 'hold' : 'pending')) : 'pending' }}">
+                            <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                            {{ $user->educationDetail ? ucfirst($user->educationDetail->submit_status) : 'Pending' }}
+                        </span>
+                    </div>
+                </div>
+
+                @if ($user->educationDetail)
+                    <div class="form-data">
+                        <!-- Financial Need Overview -->
+                        <div class="data-group">
+                            <h4>Your Financial Need Overview</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Course Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->course_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">University Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->university_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">College Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->college_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Country</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->country ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">City</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->city_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">NIRF Ranking</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->nirf_ranking ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Start Year</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->start_year ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Expected Completion Year</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->expected_year ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Qualifications</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ ucfirst($user->educationDetail->qualifications ?? 'N/A') }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Financial Summary Table -->
+                        <div class="data-group">
+                            <h4>Financial Summary Table</h4>
+                            <div class="table-container">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Sr No</th>
+                                            <th>Group Name</th>
+                                            <th>1 Year</th>
+                                            <th>2 Year</th>
+                                            <th>3 Year</th>
+                                            <th>4 Year</th>
+                                            <th>5 Year</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>Tuition Fees</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_1_year1 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_1_year2 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_1_year3 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_1_year4 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_1_year5 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_1_total ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>Living Expenses</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_2_year1 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_2_year2 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_2_year3 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_2_year4 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_2_year5 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_2_total ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>3</td>
+                                            <td>Other Expenses</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_3_year1 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_3_year2 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_3_year3 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_3_year4 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_3_year5 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_3_total ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>4</td>
+                                            <td>Total Expenses</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_4_year1 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_4_year2 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_4_year3 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_4_year4 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_4_year5 ?? 0) }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_4_total ?? 0) }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- School Information -->
+                        <div class="data-group">
+                            <h4>School / 10th Grade Information</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">School Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->school_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Board</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->school_board ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Completion Year</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->school_completion_year ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Marks Obtained</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->{'10th_mark_obtained'} ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Out Of</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->{'10th_mark_out_of'} ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Percentage</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->school_percentage ?? 'N/A' }}%" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">CGPA</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->school_CGPA ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Junior College Information -->
+                        <div class="data-group">
+                            <h4>Junior College (12th Grade)</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">College Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->jc_college_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Stream</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->jc_stream ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Board</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->jc_board ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Completion Year</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->jc_completion_year ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Marks Obtained</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->{'12th_mark_obtained'} ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Out Of</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->{'12th_mark_out_of'} ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Percentage</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->jc_percentage ?? 'N/A' }}%" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">CGPA</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->jc_CGPA ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Information -->
+                        <div class="data-group">
+                            <h4>Additional Information</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Work Experience</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ ucfirst($user->educationDetail->have_work_experience ?? 'no') }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Organization Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->organization_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Work Profile</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->work_profile ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                     </div> <!-- content-area -->
-                </div>
-            @else
-                <div class="no-data">
-                    <p>Education details not submitted yet.</p>
-                </div>
+            </div>
+        @else
+            <div class="no-data">
+                <p>Education details not submitted yet.</p>
+            </div>
             @endif
         </div>
 
@@ -1686,7 +1698,9 @@
                                     <label class="form-label">PAN Upload</label>
                                     <div class="form-input" style="padding:0.5rem; background:transparent; border:none;">
                                         @if (!empty($user->guarantorDetail->g_one_pan_card_upload))
-                                            <a href="#" onclick="openModal('{{ asset($user->guarantorDetail->g_one_pan_card_upload) }}')">View PAN</a>
+                                            <a href="#"
+                                                onclick="openModal('{{ asset($user->guarantorDetail->g_one_pan_card_upload) }}')">View
+                                                PAN</a>
                                         @else
                                             <span style="color:#6c757d;">N/A</span>
                                         @endif
@@ -1769,7 +1783,9 @@
                                     <label class="form-label">PAN Upload</label>
                                     <div class="form-input" style="padding:0.5rem; background:transparent; border:none;">
                                         @if (!empty($user->guarantorDetail->g_two_pan_card_upload))
-                                            <a href="#" onclick="openModal('{{ asset($user->guarantorDetail->g_two_pan_card_upload) }}')">View PAN</a>
+                                            <a href="#"
+                                                onclick="openModal('{{ asset($user->guarantorDetail->g_two_pan_card_upload) }}')">View
+                                                PAN</a>
                                         @else
                                             <span style="color:#6c757d;">N/A</span>
                                         @endif
@@ -1796,85 +1812,118 @@
                         <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
                         {{ $user->document ? ucfirst($user->document->submit_status) : 'Pending' }}
                     </span>
+                    {{-- <div class="action-buttons">
+                    <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" class="btn-approve">Approve</button>
+                    </form>
+                    <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
+                        @csrf
+                        <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
+                        <button type="submit" class="btn-hold">Hold</button>
+                    </form>
+                </div> --}}
                 </div>
             </div>
 
-            @if ($user->document)
-                <div class="form-data">
-                    <div class="data-group">
-                        <h4>All Documents</h4>
-                        <div class="form-section" style="display: grid;grid-template-columns: repeat(2, 1fr);gap: 12px 24px;">
-                            @php
-                                $doc = $user->document;
-                                $fields = [
-                                    'ssc_cbse_icse_ib_igcse' => 'SSC/CBSE/ICSE/IB/IGCSE',
-                                    'hsc_diploma_marksheet' => 'HSC/Diploma Marksheet',
-                                    'graduate_post_graduate_marksheet' => 'Graduate/Post Graduate Marksheet',
-                                    'admission_letter_fees_structure' => 'Admission Letter / Fees Structure',
-                                    'aadhaar_applicant' => 'Applicant Aadhaar',
-                                    'pan_applicant' => 'Applicant PAN',
-                                    'passport' => 'Passport',
-                                    'student_bank_details_statement' => 'Student Bank Statement',
-                                    'jito_group_recommendation' => 'JITO Group Recommendation',
-                                    'jain_sangh_certificate' => 'Jain Sangh Certificate',
-                                    'electricity_bill' => 'Electricity Bill',
-                                    'itr_acknowledgement_father' => 'Father ITR Acknowledgement',
-                                    'itr_computation_father' => 'Father ITR Computation',
-                                    'form16_salary_income_father' => 'Form16 / Salary Slip (Father)',
-                                    'bank_statement_father_12months' => 'Father Bank Statement (12 months)',
-                                    'bank_statement_mother_12months' => 'Mother Bank Statement (12 months)',
-                                    'aadhaar_father_mother' => 'Father/Mother Aadhaar',
-                                    'pan_father_mother' => 'Father/Mother PAN',
-                                    'guarantor1_aadhaar' => 'Guarantor1 Aadhaar',
-                                    'guarantor1_pan' => 'Guarantor1 PAN',
-                                    'guarantor2_aadhaar' => 'Guarantor2 Aadhaar',
-                                    'guarantor2_pan' => 'Guarantor2 PAN',
-                                    'student_handwritten_statement' => 'Student Handwritten Statement',
-                                    'proof_funds_arranged' => 'Proof of Funds Arranged',
-                                    'other_documents' => 'Other Documents',
-                                    'extra_curricular' => 'Extra Curricular',
-                                ];
-                            @endphp
+            @if($user->document)
+        <div class="form-data">
+            <div class="data-group">
+                <h4>All Documents</h4>
+                <div class="form-section" style="display: grid; grid-template-columns: 0.3fr 1fr; gap: 2rem; min-height: 500px;">
+                    <!-- Document List -->
+                    <div style="border-right: 1px solid var(--border-color); padding-right: 1rem; overflow-y: auto; max-height: 500px;">
+                        <h5 style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1rem;">Document List</h5>
+                        @php
+                            $doc = $user->document;
+                            $fields = [
+                                'ssc_cbse_icse_ib_igcse' => 'SSC/CBSE/ICSE/IB/IGCSE',
+                                'hsc_diploma_marksheet' => 'HSC/Diploma Marksheet',
+                                'graduate_post_graduate_marksheet' => 'Graduate/Post Graduate Marksheet',
+                                'admission_letter_fees_structure' => 'Admission Letter / Fees Structure',
+                                'aadhaar_applicant' => 'Applicant Aadhaar',
+                                'pan_applicant' => 'Applicant PAN',
+                                'passport' => 'Passport',
+                                'student_bank_details_statement' => 'Student Bank Statement',
+                                'jito_group_recommendation' => 'JITO Group Recommendation',
+                                'jain_sangh_certificate' => 'Jain Sangh Certificate',
+                                'electricity_bill' => 'Electricity Bill',
+                                'itr_acknowledgement_father' => 'Father ITR Acknowledgement',
+                                'itr_computation_father' => 'Father ITR Computation',
+                                'form16_salary_income_father' => 'Form16 / Salary Slip (Father)',
+                                'bank_statement_father_12months' => 'Father Bank Statement (12 months)',
+                                'bank_statement_mother_12months' => 'Mother Bank Statement (12 months)',
+                                'aadhaar_father_mother' => 'Father/Mother Aadhaar',
+                                'pan_father_mother' => 'Father/Mother PAN',
+                                'guarantor1_aadhaar' => 'Guarantor1 Aadhaar',
+                                'guarantor1_pan' => 'Guarantor1 PAN',
+                                'guarantor2_aadhaar' => 'Guarantor2 Aadhaar',
+                                'guarantor2_pan' => 'Guarantor2 PAN',
+                                'student_handwritten_statement' => 'Student Handwritten Statement',
+                                'proof_funds_arranged' => 'Proof of Funds Arranged',
+                                'other_documents' => 'Other Documents',
+                                'extra_curricular' => 'Extra Curricular',
+                            ];
+                        @endphp
 
-                            @foreach ($fields as $key => $label)
-                                <div class="form-row" style="align-items:center;">
-
-                                    <div class="form-field form-field-full" style="flex:1;text-align:left;">
-                                        @if (!empty($doc->$key))
-                                            @php
-                                                $p = $doc->$key;
-                                                if (strpos($p, 'http') === 0) {
-                                                    $href = $p;
-                                                } else {
-                                                    $trimmed = ltrim($p, '/');
-                                                    if (file_exists(public_path($trimmed))) {
-                                                        $href = asset($trimmed);
-                                                    } elseif (file_exists(public_path('storage/' . $trimmed))) {
-                                                        $href = asset('storage/' . $trimmed);
-                                                    } elseif (
-                                                        file_exists(public_path('user_document_images/' . $trimmed))
-                                                    ) {
-                                                        $href = asset('user_document_images/' . $trimmed);
-                                                    } else {
-                                                        $href = asset($trimmed);
-                                                    }
-                                                }
-                                            @endphp
-                                            <a href="#" onclick="openModal('{{ $href }}')" class="form-label">{{ $label }}</a>
-                                        @else
-                                            <label class="form-label">{{ $label }}</label>
-                                        @endif
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            @foreach($fields as $key => $label)
+                                @if(!empty($doc->$key))
+                                    @php
+                                        $p = $doc->$key;
+                                        if (strpos($p, 'http') === 0) {
+                                            $href = $p;
+                                        } else {
+                                            $trimmed = ltrim($p, '/');
+                                            if (file_exists(public_path($trimmed))) {
+                                                $href = asset($trimmed);
+                                            } elseif (file_exists(public_path('storage/' . $trimmed))) {
+                                                $href = asset('storage/' . $trimmed);
+                                            } elseif (file_exists(public_path('user_document_images/' . $trimmed))) {
+                                                $href = asset('user_document_images/' . $trimmed);
+                                            } else {
+                                                $href = asset($trimmed);
+                                            }
+                                        }
+                                    @endphp
+                                    <button 
+                                        onclick="openModal('{{ $href }}', '{{ $label }}')"
+                                        style="text-align: left; padding: 0.75rem 1rem; background: {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'white' }}; color: {{ request()->session()->get('selected_document') == $href ? 'white' : 'var(--text-dark)' }}; border: 1px solid {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--border-color)' }}; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: {{ request()->session()->get('selected_document') == $href ? '600' : '400' }};"
+                                        onmouseover="this.style.background = '{{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--bg-light)' }}'"
+                                        onmouseout="this.style.background = '{{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'white' }}'"
+                                    >
+                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <i class="fas fa-file-alt" style="font-size: 0.8rem;"></i>
+                                            {{ $label }}
+                                        </div>
+                                    </button>
+                                @else
+                                    <div style="padding: 0.75rem 1rem; color: var(--text-light); font-size: 0.9rem; opacity: 0.6;">
+                                        <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i>
+                                        {{ $label }} (Not uploaded)
                                     </div>
-                                </div>
+                                @endif
                             @endforeach
                         </div>
                     </div>
+
+                    <!-- Document Preview -->
+                    <div style="padding-left: 1rem; display: flex; flex-direction: column;">
+                        <h5 style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1rem;">Document Preview</h5>
+                        <div id="documentPreview" style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--bg-light); border-radius: 8px; border: 1px solid var(--border-color); padding: 2rem;">
+                            <i class="fas fa-file-image" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+                            <p style="color: var(--text-light); font-size: 1rem;">Select a document from the left to preview</p>
+                            <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Click on any document name to view its content</p>
+                        </div>
+                    </div>
                 </div>
-            @else
-                <div class="no-data">
-                    <p>Documents not submitted yet.</p>
-                </div>
-            @endif
+            </div>
+        </div>
+        @else
+        <div class="no-data">
+            <p>Documents not submitted yet.</p>
+        </div>
+        @endif
         </div>
 
         <!-- Step 7: Final Submission -->
@@ -1935,7 +1984,7 @@
                 </div>
             </div>
 
-            @if($workingCommitteeApproval && $workingCommitteeApproval->approval_status === 'approved')
+            @if ($workingCommitteeApproval && $workingCommitteeApproval->approval_status === 'approved')
                 <!-- Display Submitted Working Committee Data -->
                 <div class="form-data">
                     <div class="data-group">
@@ -1948,56 +1997,76 @@
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Approval Date</label>
-                                    <input type="text" class="form-input" value="{{ $workingCommitteeApproval->w_c_approval_date ? $workingCommitteeApproval->w_c_approval_date->format('d M Y') : 'N/A' }}" readonly>
+                                    <input type="text" class="form-input"
+                                        value="{{ $workingCommitteeApproval->w_c_approval_date ? $workingCommitteeApproval->w_c_approval_date->format('d M Y') : 'N/A' }}"
+                                        readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Meeting Number</label>
-                                    <input type="text" class="form-input" value="{{ $workingCommitteeApproval->meeting_no }}" readonly>
+                                    <input type="text" class="form-input"
+                                        value="{{ $workingCommitteeApproval->meeting_no }}" readonly>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-field">
                                     <label class="form-label">Disbursement System</label>
-                                    <input type="text" class="form-input" value="{{ ucfirst($workingCommitteeApproval->disbursement_system) }}" readonly>
+                                    <input type="text" class="form-input"
+                                        value="{{ ucfirst($workingCommitteeApproval->disbursement_system) }}" readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Approved Financial Assistance Amount</label>
-                                    <input type="text" class="form-input" value="₹{{ number_format($workingCommitteeApproval->approval_financial_assistance_amount, 2) }}" readonly>
+                                    <input type="text" class="form-input"
+                                        value="₹{{ number_format($workingCommitteeApproval->approval_financial_assistance_amount, 2) }}"
+                                        readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Installment Amount</label>
-                                    <input type="text" class="form-input" value="₹{{ number_format($workingCommitteeApproval->installment_amount, 2) }}" readonly>
+                                    <input type="text" class="form-input"
+                                        value="₹{{ number_format($workingCommitteeApproval->installment_amount, 2) }}"
+                                        readonly>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-field">
                                     <label class="form-label">Additional Installment Amount</label>
-                                    <input type="text" class="form-input" value="₹{{ number_format($workingCommitteeApproval->additional_installment_amount, 2) }}" readonly>
+                                    <input type="text" class="form-input"
+                                        value="₹{{ number_format($workingCommitteeApproval->additional_installment_amount, 2) }}"
+                                        readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Repayment Type</label>
-                                    <input type="text" class="form-input" value="{{ ucfirst($workingCommitteeApproval->repayment_type) }}" readonly>
+                                    <input type="text" class="form-input"
+                                        value="{{ ucfirst($workingCommitteeApproval->repayment_type) }}" readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">No. of Cheques to be Collected</label>
-                                    <input type="text" class="form-input" value="{{ $workingCommitteeApproval->no_of_cheques_to_be_collected ?: 'N/A' }}" readonly>
+                                    <input type="text" class="form-input"
+                                        value="{{ $workingCommitteeApproval->no_of_cheques_to_be_collected ?: 'N/A' }}"
+                                        readonly>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-field">
                                     <label class="form-label">Repayment Starting From</label>
-                                    <input type="text" class="form-input" value="{{ $workingCommitteeApproval->repayment_starting_from ? $workingCommitteeApproval->repayment_starting_from->format('d M Y') : 'N/A' }}" readonly>
+                                    <input type="text" class="form-input"
+                                        value="{{ $workingCommitteeApproval->repayment_starting_from ? $workingCommitteeApproval->repayment_starting_from->format('d M Y') : 'N/A' }}"
+                                        readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Processed By</label>
-                                    <input type="text" class="form-input" value="{{ $workingCommitteeApproval->processed_by }}" readonly>
+                                    <input type="text" class="form-input"
+                                        value="{{ $workingCommitteeApproval->processed_by }}" readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Approval Status</label>
-                                    <input type="text" class="form-input" value="{{ ucfirst($workingCommitteeApproval->approval_status) }}" readonly>
+                                    <input type="text" class="form-input"
+                                        value="{{ ucfirst($workingCommitteeApproval->approval_status) }}" readonly>
                                 </div>
                             </div>
-                            @if($workingCommitteeApproval->disbursement_system === 'yearly' && $workingCommitteeApproval->yearly_dates && is_array($workingCommitteeApproval->yearly_dates))
+                            @if (
+                                $workingCommitteeApproval->disbursement_system === 'yearly' &&
+                                    $workingCommitteeApproval->yearly_dates &&
+                                    is_array($workingCommitteeApproval->yearly_dates))
                                 <div class="form-row">
                                     <div class="form-field form-field-full">
                                         <label class="form-label">Yearly Disbursement Schedule</label>
@@ -2011,12 +2080,15 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @if($workingCommitteeApproval->yearly_amounts && is_array($workingCommitteeApproval->yearly_amounts))
-                                                        @foreach($workingCommitteeApproval->yearly_dates as $index => $date)
+                                                    @if ($workingCommitteeApproval->yearly_amounts && is_array($workingCommitteeApproval->yearly_amounts))
+                                                        @foreach ($workingCommitteeApproval->yearly_dates as $index => $date)
                                                             <tr>
                                                                 <td>{{ $index + 1 }}</td>
-                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}</td>
-                                                                <td class="amount-cell">₹{{ number_format($workingCommitteeApproval->yearly_amounts[$index] ?? 0, 2) }}</td>
+                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}
+                                                                </td>
+                                                                <td class="amount-cell">
+                                                                    ₹{{ number_format($workingCommitteeApproval->yearly_amounts[$index] ?? 0, 2) }}
+                                                                </td>
                                                             </tr>
                                                         @endforeach
                                                     @endif
@@ -2026,7 +2098,10 @@
                                     </div>
                                 </div>
                             @endif
-                            @if($workingCommitteeApproval->disbursement_system === 'half_yearly' && $workingCommitteeApproval->half_yearly_dates && is_array($workingCommitteeApproval->half_yearly_dates))
+                            @if (
+                                $workingCommitteeApproval->disbursement_system === 'half_yearly' &&
+                                    $workingCommitteeApproval->half_yearly_dates &&
+                                    is_array($workingCommitteeApproval->half_yearly_dates))
                                 <div class="form-row">
                                     <div class="form-field form-field-full">
                                         <label class="form-label">Half-Yearly Disbursement Schedule</label>
@@ -2040,12 +2115,17 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @if($workingCommitteeApproval->half_yearly_amounts && is_array($workingCommitteeApproval->half_yearly_amounts))
-                                                        @foreach($workingCommitteeApproval->half_yearly_dates as $index => $date)
+                                                    @if ($workingCommitteeApproval->half_yearly_amounts && is_array($workingCommitteeApproval->half_yearly_amounts))
+                                                        @foreach ($workingCommitteeApproval->half_yearly_dates as $index => $date)
                                                             <tr>
-                                                                <td>{{ $index + 1 }} ({{ ($index % 2 === 0) ? '1st Half' : '2nd Half' }})</td>
-                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}</td>
-                                                                <td class="amount-cell">₹{{ number_format($workingCommitteeApproval->half_yearly_amounts[$index] ?? 0, 2) }}</td>
+                                                                <td>{{ $index + 1 }}
+                                                                    ({{ $index % 2 === 0 ? '1st Half' : '2nd Half' }})
+                                                                </td>
+                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}
+                                                                </td>
+                                                                <td class="amount-cell">
+                                                                    ₹{{ number_format($workingCommitteeApproval->half_yearly_amounts[$index] ?? 0, 2) }}
+                                                                </td>
                                                             </tr>
                                                         @endforeach
                                                     @endif
@@ -2055,7 +2135,7 @@
                                     </div>
                                 </div>
                             @endif
-                            @if($workingCommitteeApproval->remarks_for_approval)
+                            @if ($workingCommitteeApproval->remarks_for_approval)
                                 <div class="form-row">
                                     <div class="form-field form-field-full">
                                         <label class="form-label">Remarks for Approval</label>
@@ -2068,7 +2148,7 @@
                 </div>
             @endif
 
-            @if($user->workflowStatus && $user->workflowStatus->working_committee_status === 'rejected')
+            @if ($user->workflowStatus && $user->workflowStatus->working_committee_status === 'rejected')
                 <!-- Display Working Committee Rejection Remarks -->
                 <div class="form-data">
                     <div class="data-group" style="background: #ffebee; border-color: #f44336;">
@@ -2083,11 +2163,14 @@
                             <div class="form-row">
                                 <div class="form-field">
                                     <label class="form-label">Rejection Date</label>
-                                    <input type="text" class="form-input" value="{{ $user->workflowStatus->working_committee_updated_at ? \Carbon\Carbon::parse($user->workflowStatus->working_committee_updated_at)->format('d M Y H:i') : 'N/A' }}" readonly style="border-color: #f44336;">
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->workflowStatus->working_committee_updated_at ? \Carbon\Carbon::parse($user->workflowStatus->working_committee_updated_at)->format('d M Y H:i') : 'N/A' }}"
+                                        readonly style="border-color: #f44336;">
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Rejected By</label>
-                                    <input type="text" class="form-input" value="{{ Auth::user()->name ?? 'N/A' }}" readonly style="border-color: #f44336;">
+                                    <input type="text" class="form-input" value="{{ Auth::user()->name ?? 'N/A' }}"
+                                        readonly style="border-color: #f44336;">
                                 </div>
                             </div>
                         </div>
@@ -2095,7 +2178,7 @@
                 </div>
             @endif
 
-            @if($user->workflowStatus && $user->workflowStatus->working_committee_status === 'hold')
+            @if ($user->workflowStatus && $user->workflowStatus->working_committee_status === 'hold')
                 <!-- Display Working Committee Hold Remarks -->
                 <div class="form-data">
                     <div class="data-group" style="background: #fff8e1; border-color: #ffc107;">
@@ -2110,11 +2193,14 @@
                             <div class="form-row">
                                 <div class="form-field">
                                     <label class="form-label">Hold Date</label>
-                                    <input type="text" class="form-input" value="{{ $user->workflowStatus->working_committee_updated_at ? \Carbon\Carbon::parse($user->workflowStatus->working_committee_updated_at)->format('d M Y H:i') : 'N/A' }}" readonly style="border-color: #ffc107;">
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->workflowStatus->working_committee_updated_at ? \Carbon\Carbon::parse($user->workflowStatus->working_committee_updated_at)->format('d M Y H:i') : 'N/A' }}"
+                                        readonly style="border-color: #ffc107;">
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Held By</label>
-                                    <input type="text" class="form-input" value="{{ Auth::user()->name ?? 'N/A' }}" readonly style="border-color: #ffc107;">
+                                    <input type="text" class="form-input" value="{{ Auth::user()->name ?? 'N/A' }}"
+                                        readonly style="border-color: #ffc107;">
                                 </div>
                             </div>
                         </div>
@@ -2126,7 +2212,8 @@
                     <div class="data-group" style="background: #e8f5e9; border-color: #4CAF50;">
                         <h4 style="color: #2E7D32;">Unhold Application</h4>
                         <div class="form-section">
-                            <form action="{{ route('admin.working_committee.user.unhold', ['user' => $user]) }}" method="POST">
+                            <form action="{{ route('admin.working_committee.user.unhold', ['user' => $user]) }}"
+                                method="POST">
                                 @csrf
 
                                 <button type="submit" class="btn btn-approve" style="margin-top: 1rem;">
@@ -2223,7 +2310,8 @@
                                             </div>
                                             <div class="form-row">
                                                 <div class="form-field form-field-full">
-                                                    <label class="form-label">Recommended Financial Amount by Chapter</label>
+                                                    <label class="form-label">Recommended Financial Amount by
+                                                        Chapter</label>
                                                     <input type="text" class="form-input"
                                                         value="₹{{ number_format($user->workflowStatus->chapter_assistance_amount ?? 0) }}"
                                                         readonly>
@@ -2242,7 +2330,8 @@
                                         <div class="form-row">
                                             <div class="form-field">
                                                 <label class="form-label">Working Committee Approval Date</label>
-                                                <input type="date" name="w_c_approval_date" class="form-input" required>
+                                                <input type="date" name="w_c_approval_date" class="form-input"
+                                                    required>
                                             </div>
                                             <div class="form-field">
                                                 <label class="form-label">Meeting Number</label>
@@ -2272,7 +2361,8 @@
                                                             id="disbursement-year-select">
                                                             <option value="">Select number of years</option>
                                                             @for ($i = 1; $i <= 6; $i++)
-                                                                <option value="{{ $i }}">{{ $i }}</option>
+                                                                <option value="{{ $i }}">
+                                                                    {{ $i }}</option>
                                                             @endfor
                                                         </select>
                                                     </div>
@@ -2291,16 +2381,16 @@
                                             </div>
                                             <div class="form-field">
                                                 <label class="form-label">Installment Amount</label>
-                                                <input type="number" name="installment_amount" id="installment-amount"
-                                                    class="form-input" step="0.01" >
+                                                <input type="number" name="installment_amount"
+                                                    id="installment-amount" class="form-input" step="0.01">
                                             </div>
                                         </div>
 
                                         <div class="form-row">
                                             <div class="form-field">
                                                 <label class="form-label">Additional Installment Amount</label>
-                                                <input type="number" name="additional_installment_amount" class="form-input"
-                                                    step="0.01">
+                                                <input type="number" name="additional_installment_amount"
+                                                    class="form-input" step="0.01">
                                             </div>
                                             <div class="form-field">
                                                 <label class="form-label">Repayment Type</label>
@@ -2317,12 +2407,13 @@
                                         <div class="form-row">
                                             <div class="form-field">
                                                 <label class="form-label">No of Cheques to be Collected</label>
-                                                <input type="number" name="no_of_cheques_to_be_collected" class="form-input"
-                                                    min="1">
+                                                <input type="number" name="no_of_cheques_to_be_collected"
+                                                    class="form-input" min="1">
                                             </div>
                                             <div class="form-field">
                                                 <label class="form-label">Repayment Starting From</label>
-                                                <input type="date" name="repayment_starting_from" class="form-input">
+                                                <input type="date" name="repayment_starting_from"
+                                                    class="form-input">
                                             </div>
                                         </div>
 
@@ -2342,7 +2433,8 @@
                                             </div>
                                         </div>
 
-                                        <button type="submit" class="btn btn-approve" style="width: 100%; margin-top: 1rem;">
+                                        <button type="submit" class="btn btn-approve"
+                                            style="width: 100%; margin-top: 1rem;">
                                             <i class="fas fa-check"></i>
                                             Approve & Move to Apex 2
                                         </button>
@@ -2371,7 +2463,8 @@
                                             </div>
                                         </div>
 
-                                        <button type="submit" class="btn" style="width: 100%; background: linear-gradient(135deg, #FFC107, #ff9800); color: #212121;">
+                                        <button type="submit" class="btn"
+                                            style="width: 100%; background: linear-gradient(135deg, #FFC107, #ff9800); color: #212121;">
                                             <i class="fas fa-pause"></i>
                                             Put on Hold
                                         </button>
@@ -2394,7 +2487,8 @@
                                         @csrf
                                         <div class="form-row" style="margin-bottom: 1rem;">
                                             <div class="form-field form-field-full">
-                                                <label class="form-label" style="color: #c62828;">Rejection Remarks *</label>
+                                                <label class="form-label" style="color: #c62828;">Rejection Remarks
+                                                    *</label>
                                                 <textarea name="admin_remark" placeholder="Provide detailed rejection remarks (required)" rows="4"
                                                     class="remark-input" style="border: 2px solid #f44336; background: rgba(244, 67, 54, 0.05);" required></textarea>
                                             </div>
@@ -2523,14 +2617,60 @@
         }
 
         // Modal functions for document viewing
-        function openModal(url) {
-            document.getElementById('documentFrame').src = url;
-            document.getElementById('documentModal').style.display = 'block';
-        }
-
-        function closeModal() {
-            document.getElementById('documentModal').style.display = 'none';
-            document.getElementById('documentFrame').src = '';
+        function openModal(url, title = 'Document Preview') {
+            const previewContainer = document.getElementById('documentPreview');
+            const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|ico)$/i.test(url);
+            
+            // Clear existing preview content
+            previewContainer.innerHTML = '';
+            
+            // Create preview title
+            const previewTitle = document.createElement('div');
+            previewTitle.style.cssText = 'margin-bottom: 1rem; padding: 0.5rem; background: var(--primary-purple); color: white; border-radius: 6px; font-weight: 600; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center;';
+            previewTitle.textContent = title;
+            
+            // Add close button to preview
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            closeBtn.style.cssText = 'background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;';
+            closeBtn.onclick = function() {
+                previewContainer.innerHTML = `
+                    <i class="fas fa-file-image" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+                    <p style="color: var(--text-light); font-size: 1rem;">Select a document from the left to preview</p>
+                    <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Click on any document name to view its content</p>
+                `;
+            };
+            previewTitle.appendChild(closeBtn);
+            previewContainer.appendChild(previewTitle);
+            
+            // Create preview content
+            if (isImage) {
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = title;
+                img.style.cssText = 'max-width: 100%; max-height: 400px; object-fit: contain; border-radius: 6px;';
+                previewContainer.appendChild(img);
+            } else {
+                const iframe = document.createElement('iframe');
+                iframe.src = url;
+                iframe.style.cssText = 'width: 100%; height: 400px; border: none; border-radius: 6px;';
+                previewContainer.appendChild(iframe);
+            }
+            
+            // Add download button
+            const downloadBtn = document.createElement('button');
+            downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';
+            downloadBtn.style.cssText = 'margin-top: 1rem; padding: 0.5rem 1rem; background: var(--primary-purple); color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;';
+            downloadBtn.onclick = function() {
+                window.open(url, '_blank');
+            };
+            downloadBtn.onmouseover = function() {
+                this.style.background = '#4a40a8';
+            };
+            downloadBtn.onmouseout = function() {
+                this.style.background = 'var(--primary-purple)';
+            };
+            previewContainer.appendChild(downloadBtn);
         }
 
         // Close modal when clicking outside
@@ -2543,10 +2683,16 @@
     </script>
 
     <!-- Document Modal -->
-<div id="documentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
-    <div style="position:relative; width:90%; height:90%; background:white; border-radius:8px; overflow:hidden;">
-        <button onclick="closeModal()" style="position:absolute; top:10px; right:10px; background:red; color:white; border:none; border-radius:50%; width:30px; height:30px; cursor:pointer; z-index:1001;">&times;</button>
-        <iframe id="documentFrame" src="" style="width:100%; height:100%; border:none;"></iframe>
+    <div id="documentModal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+        <div
+            style="position:relative; max-width:90%; max-height:90%; background:white; border-radius:8px; overflow:hidden;">
+            <button onclick="closeModal()"
+                style="position:absolute; top:10px; right:10px; background:red; color:white; border:none; border-radius:50%; width:30px; height:30px; cursor:pointer; z-index:1001;">&times;</button>
+            <iframe id="documentFrame" src=""
+                style="width:100%; height:600px; border:none; display:block;"></iframe>
+            <img id="documentImage" src=""
+                style="max-width:100%; max-height:600px; display:none; object-fit:contain;" alt="Document Image">
+        </div>
     </div>
-</div>
 @endsection

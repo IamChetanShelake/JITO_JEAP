@@ -1886,42 +1886,44 @@
         <div class="form-data">
             <div class="data-group">
                 <h4>All Documents</h4>
-                <div class="form-section" style="display: grid;grid-template-columns: repeat(2, 1fr);gap: 12px 24px;">
-                    @php
-                        $doc = $user->document;
-                        $fields = [
-                            'ssc_cbse_icse_ib_igcse' => 'SSC/CBSE/ICSE/IB/IGCSE',
-                            'hsc_diploma_marksheet' => 'HSC/Diploma Marksheet',
-                            'graduate_post_graduate_marksheet' => 'Graduate/Post Graduate Marksheet',
-                            'admission_letter_fees_structure' => 'Admission Letter / Fees Structure',
-                            'aadhaar_applicant' => 'Applicant Aadhaar',
-                            'pan_applicant' => 'Applicant PAN',
-                            'passport' => 'Passport',
-                            'student_bank_details_statement' => 'Student Bank Statement',
-                            'jito_group_recommendation' => 'JITO Group Recommendation',
-                            'jain_sangh_certificate' => 'Jain Sangh Certificate',
-                            'electricity_bill' => 'Electricity Bill',
-                            'itr_acknowledgement_father' => 'Father ITR Acknowledgement',
-                            'itr_computation_father' => 'Father ITR Computation',
-                            'form16_salary_income_father' => 'Form16 / Salary Slip (Father)',
-                            'bank_statement_father_12months' => 'Father Bank Statement (12 months)',
-                            'bank_statement_mother_12months' => 'Mother Bank Statement (12 months)',
-                            'aadhaar_father_mother' => 'Father/Mother Aadhaar',
-                            'pan_father_mother' => 'Father/Mother PAN',
-                            'guarantor1_aadhaar' => 'Guarantor1 Aadhaar',
-                            'guarantor1_pan' => 'Guarantor1 PAN',
-                            'guarantor2_aadhaar' => 'Guarantor2 Aadhaar',
-                            'guarantor2_pan' => 'Guarantor2 PAN',
-                            'student_handwritten_statement' => 'Student Handwritten Statement',
-                            'proof_funds_arranged' => 'Proof of Funds Arranged',
-                            'other_documents' => 'Other Documents',
-                            'extra_curricular' => 'Extra Curricular',
-                        ];
-                    @endphp
+                <div class="form-section" style="display: grid; grid-template-columns: 0.3fr 1fr; gap: 2rem; min-height: 500px;">
+                    <!-- Document List -->
+                    <div style="border-right: 1px solid var(--border-color); padding-right: 1rem; overflow-y: auto; max-height: 500px;">
+                        <h5 style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1rem;">Document List</h5>
+                        @php
+                            $doc = $user->document;
+                            $fields = [
+                                'ssc_cbse_icse_ib_igcse' => 'SSC/CBSE/ICSE/IB/IGCSE',
+                                'hsc_diploma_marksheet' => 'HSC/Diploma Marksheet',
+                                'graduate_post_graduate_marksheet' => 'Graduate/Post Graduate Marksheet',
+                                'admission_letter_fees_structure' => 'Admission Letter / Fees Structure',
+                                'aadhaar_applicant' => 'Applicant Aadhaar',
+                                'pan_applicant' => 'Applicant PAN',
+                                'passport' => 'Passport',
+                                'student_bank_details_statement' => 'Student Bank Statement',
+                                'jito_group_recommendation' => 'JITO Group Recommendation',
+                                'jain_sangh_certificate' => 'Jain Sangh Certificate',
+                                'electricity_bill' => 'Electricity Bill',
+                                'itr_acknowledgement_father' => 'Father ITR Acknowledgement',
+                                'itr_computation_father' => 'Father ITR Computation',
+                                'form16_salary_income_father' => 'Form16 / Salary Slip (Father)',
+                                'bank_statement_father_12months' => 'Father Bank Statement (12 months)',
+                                'bank_statement_mother_12months' => 'Mother Bank Statement (12 months)',
+                                'aadhaar_father_mother' => 'Father/Mother Aadhaar',
+                                'pan_father_mother' => 'Father/Mother PAN',
+                                'guarantor1_aadhaar' => 'Guarantor1 Aadhaar',
+                                'guarantor1_pan' => 'Guarantor1 PAN',
+                                'guarantor2_aadhaar' => 'Guarantor2 Aadhaar',
+                                'guarantor2_pan' => 'Guarantor2 PAN',
+                                'student_handwritten_statement' => 'Student Handwritten Statement',
+                                'proof_funds_arranged' => 'Proof of Funds Arranged',
+                                'other_documents' => 'Other Documents',
+                                'extra_curricular' => 'Extra Curricular',
+                            ];
+                        @endphp
 
-                    @foreach($fields as $key => $label)
-                        <div class="form-row" style="align-items:center;">
-                            <div class="form-field" style="min-width:250px;">
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            @foreach($fields as $key => $label)
                                 @if(!empty($doc->$key))
                                     @php
                                         $p = $doc->$key;
@@ -1940,20 +1942,36 @@
                                             }
                                         }
                                     @endphp
-                                    <a href="#" onclick="openModal('{{ $href }}')" class="form-label">{{ $label }}</a>
+                                    <button 
+                                        onclick="openModal('{{ $href }}', '{{ $label }}')"
+                                        style="text-align: left; padding: 0.75rem 1rem; background: {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'white' }}; color: {{ request()->session()->get('selected_document') == $href ? 'white' : 'var(--text-dark)' }}; border: 1px solid {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--border-color)' }}; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: {{ request()->session()->get('selected_document') == $href ? '600' : '400' }};"
+                                        onmouseover="this.style.background = '{{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--bg-light)' }}'"
+                                        onmouseout="this.style.background = '{{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'white' }}'"
+                                    >
+                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <i class="fas fa-file-alt" style="font-size: 0.8rem;"></i>
+                                            {{ $label }}
+                                        </div>
+                                    </button>
                                 @else
-                                    <label class="form-label">{{ $label }}</label>
+                                    <div style="padding: 0.75rem 1rem; color: var(--text-light); font-size: 0.9rem; opacity: 0.6;">
+                                        <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i>
+                                        {{ $label }} (Not uploaded)
+                                    </div>
                                 @endif
-                            </div>
-                            {{-- <div class="form-field form-field-full" style="flex:1;text-align:left;">
-                                @if(!empty($doc->$key))
-                                    <span style="color:#6c757d;">Uploaded</span>
-                                @else
-                                    <input type="text" class="form-input" value="Not uploaded" readonly>
-                                @endif
-                            </div> --}}
+                            @endforeach
                         </div>
-                    @endforeach
+                    </div>
+
+                    <!-- Document Preview -->
+                    <div style="padding-left: 1rem; display: flex; flex-direction: column;">
+                        <h5 style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1rem;">Document Preview</h5>
+                        <div id="documentPreview" style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--bg-light); border-radius: 8px; border: 1px solid var(--border-color); padding: 2rem;">
+                            <i class="fas fa-file-image" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+                            <p style="color: var(--text-light); font-size: 1rem;">Select a document from the left to preview</p>
+                            <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Click on any document name to view its content</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2270,15 +2288,61 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Modal functions for document viewing
-function openModal(url) {
-    document.getElementById('documentFrame').src = url;
-    document.getElementById('documentModal').style.display = 'block';
-}
-
-function closeModal() {
-    document.getElementById('documentModal').style.display = 'none';
-    document.getElementById('documentFrame').src = '';
+// Document preview function for right-side display
+function openModal(url, title = 'Document Preview') {
+    const previewContainer = document.getElementById('documentPreview');
+    const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|ico)$/i.test(url);
+    
+    // Clear existing preview content
+    previewContainer.innerHTML = '';
+    
+    // Create preview title
+    const previewTitle = document.createElement('div');
+    previewTitle.style.cssText = 'margin-bottom: 1rem; padding: 0.5rem; background: var(--primary-purple); color: white; border-radius: 6px; font-weight: 600; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center;';
+    previewTitle.textContent = title;
+    
+    // Add close button to preview
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+    closeBtn.style.cssText = 'background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;';
+    closeBtn.onclick = function() {
+        previewContainer.innerHTML = `
+            <i class="fas fa-file-image" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+            <p style="color: var(--text-light); font-size: 1rem;">Select a document from the left to preview</p>
+            <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Click on any document name to view its content</p>
+        `;
+    };
+    previewTitle.appendChild(closeBtn);
+    previewContainer.appendChild(previewTitle);
+    
+    // Create preview content
+    if (isImage) {
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = title;
+        img.style.cssText = 'max-width: 100%; max-height: 400px; object-fit: contain; border-radius: 6px;';
+        previewContainer.appendChild(img);
+    } else {
+        const iframe = document.createElement('iframe');
+        iframe.src = url;
+        iframe.style.cssText = 'width: 100%; height: 400px; border: none; border-radius: 6px;';
+        previewContainer.appendChild(iframe);
+    }
+    
+    // Add download button
+    const downloadBtn = document.createElement('button');
+    downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';
+    downloadBtn.style.cssText = 'margin-top: 1rem; padding: 0.5rem 1rem; background: var(--primary-purple); color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;';
+    downloadBtn.onclick = function() {
+        window.open(url, '_blank');
+    };
+    downloadBtn.onmouseover = function() {
+        this.style.background = '#4a40a8';
+    };
+    downloadBtn.onmouseout = function() {
+        this.style.background = 'var(--primary-purple)';
+    };
+    previewContainer.appendChild(downloadBtn);
 }
 
 // Dropdown toggle function
@@ -2297,11 +2361,19 @@ document.addEventListener('click', function(event) {
 });
 </script>
 
-<!-- Document Modal -->
+<!-- Document Modal (Backward compatibility) -->
 <div id="documentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
-    <div style="position:relative; width:90%; height:90%; background:white; border-radius:8px; overflow:hidden;">
-        <button onclick="closeModal()" style="position:absolute; top:10px; right:10px; background:red; color:white; border:none; border-radius:50%; width:30px; height:30px; cursor:pointer; z-index:1001;">&times;</button>
-        <iframe id="documentFrame" src="" style="width:100%; height:100%; border:none;"></iframe>
+    <div style="position:relative; max-width:90%; max-height:90%; background:white; border-radius:8px; overflow:hidden; display: flex; flex-direction: column;">
+        <div style="padding: 1rem; background: var(--primary-purple); color: white; display: flex; justify-content: space-between; align-items: center;">
+            <h4 id="modalTitle" style="margin: 0; font-size: 1.1rem; font-weight: 600;">Document Preview</h4>
+            <button onclick="closeModal()" style="background: rgba(255,255,255,0.2); color:white; border:none; border-radius:50%; width:30px; height:30px; cursor:pointer; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div style="flex: 1; overflow: hidden;">
+            <iframe id="documentFrame" src="" style="width:100%; height:100%; border:none; display:block;"></iframe>
+            <img id="documentImage" src="" style="max-width:100%; max-height:100%; display:none; object-fit:contain;" alt="Document Image">
+        </div>
     </div>
 </div>
 

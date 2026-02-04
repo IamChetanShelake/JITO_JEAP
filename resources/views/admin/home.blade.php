@@ -1044,7 +1044,7 @@
                                     <i class="fas fa-check"></i>
                                 </div>
                                 <div>
-                                    <div class="status-label">Approved</div>
+                                    <div class="status-label">Disbursement Completed</div>
                                     <div class="status-value">10</div>
                                 </div>
                             </div>
@@ -1053,7 +1053,7 @@
                                     <i class="fas fa-clock"></i>
                                 </div>
                                 <div>
-                                    <div class="status-label">Pending</div>
+                                    <div class="status-label">Ready for Disbursement</div>
                                     <div class="status-value">3</div>
                                 </div>
                             </div>
@@ -1062,7 +1062,7 @@
                                     <i class="fas fa-exclamation"></i>
                                 </div>
                                 <div>
-                                    <div class="status-label">Hold</div>
+                                    <div class="status-label">Disbursement On Hold</div>
                                     <div class="status-value">1</div>
                                 </div>
                             </div>

@@ -9,6 +9,7 @@ use App\Models\Subcast;
 use App\Models\Document;
 use App\Models\Familydetail;
 use App\Models\ReviewSubmit;
+use App\Models\PdcDetail;
 use Illuminate\Http\Request;
 use App\Models\FundingDetail;
 use App\Models\Loan_category;
@@ -2716,6 +2717,102 @@ class UserController extends Controller
         $user->update(['application_status' => 'submitted']);
 
         return redirect()->route('user.step7')->with('success', $message);
+    }
+
+    /**
+     * Step 8 - PDC/Cheque Details
+     */
+    public function step8(Request $request)
+    {
+        $user_id = Auth::id();
+        $user = User::find($user_id);
+        $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
+
+        // Get existing PDC details
+        $pdcDetail = PdcDetail::where('user_id', $user_id)->first();
+
+        // Get number of cheques from working committee approval
+        $noOfCheques = 11; // Default to 11 cheques
+        $workflowApproval = \Illuminate\Support\Facades\DB::connection('admin_panel')
+            ->table('working_committee_approvals')
+            ->where('user_id', $user_id)
+            ->first();
+
+        if ($workflowApproval && $workflowApproval->no_of_cheques_to_be_collected) {
+            $noOfCheques = $workflowApproval->no_of_cheques_to_be_collected;
+        }
+
+        return view('user.step8', compact('type', 'user', 'pdcDetail', 'noOfCheques'));
+    }
+
+    /**
+     * Store Step 8 - PDC/Cheque Details
+     */
+    public function step8store(Request $request)
+    {
+        $user_id = Auth::id();
+
+        $request->validate([
+            'first_cheque_image' => 'required|mimes:jpeg,png,jpg,pdf|max:2048',
+            'cheque_details' => 'required|array|min:1',
+            'cheque_details.*.cheque_date' => 'required|date',
+            'cheque_details.*.amount' => 'required|numeric|min:0',
+            'cheque_details.*.bank_name' => 'required|string|max:255',
+            'cheque_details.*.ifsc' => 'required|string|max:20',
+            'cheque_details.*.account_number' => 'required|string|max:50',
+            'cheque_details.*.cheque_number' => 'required|string|max:50',
+        ]);
+
+        // Handle first cheque image upload
+        $firstChequeImage = null;
+        if ($request->hasFile('first_cheque_image')) {
+            $fileName = time() . '_first_cheque.' . $request->first_cheque_image->extension();
+            $request->first_cheque_image->move('pdc_cheques', $fileName);
+            $firstChequeImage = 'pdc_cheques/' . $fileName;
+        }
+
+        // Process cheque details
+        $chequeDetails = [];
+        foreach ($request->cheque_details as $index => $cheque) {
+            $chequeDetails[] = [
+                'row_number' => $index + 1,
+                'cheque_date' => $cheque['cheque_date'],
+                'amount' => $cheque['amount'],
+                'bank_name' => $cheque['bank_name'],
+                'ifsc' => $cheque['ifsc'],
+                'account_number' => $cheque['account_number'],
+                'cheque_number' => $cheque['cheque_number'],
+            ];
+        }
+
+        $data = [
+            'user_id' => $user_id,
+            'first_cheque_image' => $firstChequeImage,
+            'cheque_details' => json_encode($chequeDetails),
+            'status' => 'submitted',
+        ];
+
+        $workflow = ApplicationWorkflowStatus::where('user_id', $user_id)->first();
+        if ($workflow) {
+            $workflow->update([
+                'apex_2_status' => 'pending'
+            ]);
+        }
+
+        // Check if PDC details already exist for this user
+        $pdcDetail = PdcDetail::where('user_id', $user_id)->first();
+
+        if ($pdcDetail) {
+            // Update existing record
+            $pdcDetail->update($data);
+            $message = 'PDC details updated successfully!';
+        } else {
+            // Create new record
+            PdcDetail::create($data);
+            $message = 'PDC details saved successfully!';
+        }
+
+        return redirect()->route('user.step8')->with('success', $message);
     }
 
     public function getChapters(Request $request, $pincode)

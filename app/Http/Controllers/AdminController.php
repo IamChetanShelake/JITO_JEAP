@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use App\Models\ApplicationWorkflowStatus;
 use App\Models\Chapter;
-use App\Models\ChapterInterviewAnswer;
+use App\Models\PdcDetail;
+use Illuminate\Http\Request;
 use App\Models\EducationDetail;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use App\Models\ChapterInterviewAnswer;
+use App\Models\ApplicationWorkflowStatus;
 
 class AdminController extends Controller
 {
@@ -146,6 +147,16 @@ class AdminController extends Controller
 
             case 'apex_2':
                 $updateData['current_stage'] = 'apex_2';
+                // Apex 2 approval also updates PDC status
+                $pdcDetail = \App\Models\PdcDetail::where('user_id', $user->id)->first();
+                if ($pdcDetail) {
+                    $pdcDetail->update([
+                        'status' => 'approved',
+                        'admin_approve_remark' => $request->admin_remark,
+                        'processed_by' => Auth::id(),
+                    ]);
+                }
+                $updateData['current_stage'] = 'account';
                 break;
 
             default:
@@ -334,6 +345,15 @@ class AdminController extends Controller
                 'current_stage'         => 'apex_2',
                 'final_status'          => 'in_progress',
             ]);
+
+            $pdcdetails = PdcDetail::where('user_id',$user->id)->first();
+            if ($pdcdetails) {
+                $pdcdetails->update([
+                    'status'        => 'rejected',
+                    'admin_reject_remark'  => $request->admin_remark,
+                    'processed_by'  => Auth::id(),
+                ]);
+            }
 
             return back()->with(
                 'success',
@@ -1078,8 +1098,7 @@ class AdminController extends Controller
         // Get users where final_status = 'approved'
         $users = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
-                $q->where('apex_2_status', 'approved')
-                ->where('current_stage', 'apex_2');
+                $q->where('apex_2_status', 'approved');
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
@@ -1130,7 +1149,105 @@ class AdminController extends Controller
     public function apexStage2UserDetail(User $user)
     {
         $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
-        return view('admin.apex.stage2.user_detail', compact('user'));
+
+        // Load PDC details
+        $pdcDetail = \App\Models\PdcDetail::where('user_id', $user->id)->first();
+
+        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail'));
+    }
+
+    // =====================================================
+    // PDC (Cheque) Stage Methods
+    // =====================================================
+
+    public function pdcPending()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('pdcDetail', function ($q) {
+                $q->where('status', 'submitted');
+            })
+            ->with(['pdcDetail', 'workflowStatus'])
+            ->get();
+        return view('admin.pdc.pending', compact('users'));
+    }
+
+    public function pdcApproved()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('pdcDetail', function ($q) {
+                $q->where('status', 'approved');
+            })
+            ->with(['pdcDetail', 'workflowStatus'])
+            ->get();
+        return view('admin.pdc.approved', compact('users'));
+    }
+
+    public function pdcHold()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('pdcDetail', function ($q) {
+                $q->whereIn('status', ['correction_required', 'rejected']);
+            })
+            ->with(['pdcDetail', 'workflowStatus'])
+            ->get();
+        return view('admin.pdc.hold', compact('users'));
+    }
+
+    public function pdcUserDetail(User $user)
+    {
+        $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document', 'pdcDetail']);
+        return view('admin.pdc.user_detail', compact('user'));
+    }
+
+    public function approvePdc(Request $request, User $user)
+    {
+        $request->validate([
+            'admin_remark' => 'nullable|string|max:2000',
+        ]);
+
+        $pdcDetail = \App\Models\PdcDetail::where('user_id', $user->id)->first();
+
+        if (!$pdcDetail) {
+            return back()->with('error', 'PDC details not found');
+        }
+
+        $pdcDetail->update([
+            'status' => 'approved',
+            'admin_remark' => $request->admin_remark,
+            'processed_by' => Auth::id(),
+        ]);
+
+        // Update workflow status
+        $workflow = $user->workflowStatus;
+        if ($workflow) {
+            $workflow->update([
+                'current_stage' => 'pdc',
+                'final_status' => 'approved',
+            ]);
+        }
+
+        return back()->with('success', 'PDC approved successfully');
+    }
+
+    public function sendBackPdc(Request $request, User $user)
+    {
+        $request->validate([
+            'admin_remark' => 'required|string|max:2000',
+        ]);
+
+        $pdcDetail = \App\Models\PdcDetail::where('user_id', $user->id)->first();
+
+        if (!$pdcDetail) {
+            return back()->with('error', 'PDC details not found');
+        }
+
+        $pdcDetail->update([
+            'status' => 'correction_required',
+            'admin_remark' => $request->admin_remark,
+            'processed_by' => Auth::id(),
+        ]);
+
+        return back()->with('success', 'PDC sent back for correction');
     }
 
 }

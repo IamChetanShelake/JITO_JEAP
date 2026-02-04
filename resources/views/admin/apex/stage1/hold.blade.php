@@ -332,9 +332,9 @@
                         <td>
                             <span class="status-badge status-hold">
                                 <i class="fas fa-exclamation-triangle" style="font-size: 0.6rem;"></i>
-                                On Hold
+                                Send back for correction
                             </span>
-                            <div class="hold-reason">Reason: Missing documents</div>
+                            
                         </td>
                         <td class="actions-cell">
                             <a href="{{ route('admin.apex.stage1.user.detail', $user) }}" class="action-btn view-btn" title="View Details">

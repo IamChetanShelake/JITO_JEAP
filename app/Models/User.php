@@ -71,4 +71,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(ApplicationWorkflowStatus::class);
     }
+
+    public function pdcDetail()
+    {
+        return $this->hasOne(PdcDetail::class);
+    }
 }

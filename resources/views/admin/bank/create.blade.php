@@ -167,6 +167,15 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                    <div class="form-group">
+                        <label for="ifsc_code" class="form-label">
+                            <i class="fas fa-code"></i> IFSC Code
+                        </label>
+                        <input type="text" class="form-control @error('ifsc_code') is-invalid @enderror"
+                               id="ifsc_code" name="ifsc_code" value="{{ old('ifsc_code') }}">
+                        @error('ifsc_code')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                 </div>
             </div>
 

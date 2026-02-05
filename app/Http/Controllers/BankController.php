@@ -31,9 +31,10 @@ class BankController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'ifsc_code' => 'required|string|max:11',
         ]);
 
-        Bank::create($request->only('name'));
+        Bank::create($request->only('name', 'ifsc_code'));
 
         return redirect()->route('admin.banks.index')->with('success', 'Bank created successfully');
     }
@@ -62,11 +63,11 @@ class BankController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'ifsc_code' => 'required|string|max:11',
         ]);
 
         $bank = Bank::findOrFail($id);
-        $bank->update($request->only('name'));
-
+        $bank->update($request->only('name', 'ifsc_code'));
         return redirect()->route('admin.banks.index')->with('success', 'Bank updated successfully');
     }
 

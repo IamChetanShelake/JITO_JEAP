@@ -172,6 +172,7 @@ class UserController extends Controller
             'nationality' => 'required|in:indian,foreigner',
 
             'aadhar_address' => 'required|string',
+            'postal_address' => 'required|string',
 
             'd_o_b' => 'required|date',
             'birth_place' => 'required|string|max:100',
@@ -217,6 +218,7 @@ class UserController extends Controller
             'chapter_contact' => $request->chapter_contact,
             'nationality' => $request->nationality,
             'aadhar_address' => $request->aadhar_address,
+            'postal_address' => $request->postal_address,
             'alternate_email' => $request->alternate_email,
             // 'd_o_b' => Carbon::createFromFormat('d-m-Y', $request->d_o_b)->format('Y-m-d'),
             'd_o_b' => $request->d_o_b,
@@ -288,202 +290,11 @@ class UserController extends Controller
 
 
 
-    // public function step2store(Request $request)
-    // {
-    //     //  dd($request->all());
-    //     $request->validate([
-    //         // Current Education
-    //         'current_pursuing' => 'required|in:yes,no',
-    //         'current_course_name' => 'nullable|string|max:255',
-    //         'current_institution' => 'nullable|string|max:255',
-    //         'current_university' => 'nullable|string|max:255',
-    //         'current_start_year' => 'nullable|integer|min:1900|max:' . (date('Y') + 10),
-    //         'current_expected_year' => 'nullable|integer|min:1900|max:' . (date('Y') + 10),
-    //         'current_mode_of_study' => 'nullable|in:full-time,part-time,distance,online',
-
-    //         // Completed Qualifications
-    //         'qualifications' => 'nullable|string',
-    //         'qualification_course_name' => 'nullable|string|max:255',
-    //         'qualification_institution' => 'nullable|string|max:255',
-    //         'qualification_university' => 'nullable|string|max:255',
-    //         'qualification_specialization' => 'nullable|string|max:255',
-    //         'qualification_years' => 'nullable|string|max:50',
-    //         'qualification_percentage' => 'nullable|string|max:50',
-    //         'qualification_mode_of_study' => 'nullable|in:full-time,part-time,distance,online',
-
-    //         // Junior College (12th Grade)
-    //         'jc_college_name' => 'nullable|string|max:255',
-    //         'jc_stream' => 'nullable|string|max:100',
-    //         'jc_board' => 'nullable|string|max:100',
-    //         'jc_completion_year' => 'nullable|integer|min:1900|max:' . date('Y'),
-    //         'jc_percentage' => 'nullable|string|max:50',
-
-    //         // School / 10th Grade Information
-    //         'school_name' => 'nullable|string|max:255',
-    //         'school_board' => 'nullable|string|max:100',
-    //         'school_completion_year' => 'nullable|integer|min:1900|max:' . date('Y'),
-    //         'school_percentage' => 'nullable|string|max:50',
-
-    //         // Additional Curriculum
-    //         'ielts_overall_band_year' => 'nullable|string|max:100',
-    //         'toefl_score_year' => 'nullable|string|max:100',
-    //         'duolingo_det_score_year' => 'nullable|string|max:100',
-    //         'gre_score_year' => 'nullable|string|max:100',
-    //         'gmat_score_year' => 'nullable|string|max:100',
-    //         'sat_score_year' => 'nullable|string|max:100',
-
-    //         // Work Experience
-    //         'have_work_experience' => 'nullable|in:yes,no',
-    //         'organization_name' => 'nullable|string|max:255',
-    //         'work_profile' => 'nullable|string|max:255',
-    //         'work_duration' => 'nullable|string|max:100',
-    //         'work_location_city' => 'nullable|string|max:100',
-    //         'work_country' => 'nullable|string|max:100',
-    //         'work_type' => 'nullable|in:full-time,internship,freelance,volunteer',
-
-    //         // Additional Achievements
-    //         'awards_recognition' => 'nullable|string|max:500',
-    //         'volunteer_work' => 'nullable|string|max:500',
-    //         'leadership_roles' => 'nullable|string|max:500',
-    //         'sports_cultural' => 'nullable|string|max:500',
-
-    //         // Financial Need Overview
-    //         'institute_name' => 'nullable|string|max:255',
-    //         'course_name' => 'nullable|string|max:255',
-    //         'city_name' => 'nullable|string|max:100',
-    //         'country' => 'nullable|string|max:100',
-    //         'duration' => 'nullable|integer|min:1|max:10',
-
-    //         // Financial Summary Table
-    //         'tuition_fee_year1' => 'nullable|numeric|min:0',
-    //         'tuition_fee_year2' => 'nullable|numeric|min:0',
-    //         'tuition_fee_year3' => 'nullable|numeric|min:0',
-    //         'tuition_fee_year4' => 'nullable|numeric|min:0',
-    //         'group_2_year1' => 'nullable|numeric|min:0',
-    //         'group_2_year2' => 'nullable|numeric|min:0',
-    //         'group_2_year3' => 'nullable|numeric|min:0',
-    //         'group_2_year4' => 'nullable|numeric|min:0',
-    //         'group_3_year1' => 'nullable|numeric|min:0',
-    //         'group_3_year2' => 'nullable|numeric|min:0',
-    //         'group_3_year3' => 'nullable|numeric|min:0',
-    //         'group_3_year4' => 'nullable|numeric|min:0',
-    //         'group_4_year1' => 'nullable|numeric|min:0',
-    //         'group_4_year2' => 'nullable|numeric|min:0',
-    //         'group_4_year3' => 'nullable|numeric|min:0',
-    //         'group_4_year4' => 'nullable|numeric|min:0',
-    //     ]);
-
-    //     $user_id = Auth::id();
-
-    //     $data = [
-    //         'user_id' => $user_id,
-
-    //         // Current Education
-    //         'current_pursuing' => $request->current_pursuing,
-    //         'current_course_name' => $request->current_course_name,
-    //         'current_institution' => $request->current_institution,
-    //         'current_university' => $request->current_university,
-    //         'current_start_year' => $request->current_start_year,
-    //         'current_expected_year' => $request->current_expected_year,
-    //         'current_mode_of_study' => $request->current_mode_of_study,
-
-    //         // Completed Qualifications
-    //         'qualifications' => $request->qualifications,
-    //         'qualification_course_name' => $request->qualification_course_name,
-    //         'qualification_institution' => $request->qualification_institution,
-    //         'qualification_university' => $request->qualification_university,
-    //         'qualification_specialization' => $request->qualification_specialization,
-    //         'qualification_years' => $request->qualification_years,
-    //         'qualification_percentage' => $request->qualification_percentage,
-    //         'qualification_mode_of_study' => $request->qualification_mode_of_study,
-
-    //         // Junior College (12th Grade)
-    //         'jc_college_name' => $request->jc_college_name,
-    //         'jc_stream' => $request->jc_stream,
-    //         'jc_board' => $request->jc_board,
-    //         'jc_completion_year' => $request->jc_completion_year,
-    //         'jc_percentage' => $request->jc_percentage,
-
-    //         // School / 10th Grade Information
-    //         'school_name' => $request->school_name,
-    //         'school_board' => $request->school_board,
-    //         'school_completion_year' => $request->school_completion_year,
-    //         'school_percentage' => $request->school_percentage,
-
-    //         // Additional Curriculum
-    //         'ielts_overall_band_year' => $request->ielts_overall_band_year,
-    //         'toefl_score_year' => $request->toefl_score_year,
-    //         'duolingo_det_score_year' => $request->duolingo_det_score_year,
-    //         'gre_score_year' => $request->gre_score_year,
-    //         'gmat_score_year' => $request->gmat_score_year,
-    //         'sat_score_year' => $request->sat_score_year,
-
-    //         // Work Experience
-    //         'have_work_experience' => $request->have_work_experience,
-    //         'organization_name' => $request->organization_name,
-    //         'work_profile' => $request->work_profile,
-    //         'work_duration' => $request->work_duration,
-    //         'work_location_city' => $request->work_location_city,
-    //         'work_country' => $request->work_country,
-    //         'work_type' => $request->work_type,
-
-    //         // Additional Achievements
-    //         'awards_recognition' => $request->awards_recognition,
-    //         'volunteer_work' => $request->volunteer_work,
-    //         'leadership_roles' => $request->leadership_roles,
-    //         'sports_cultural' => $request->sports_cultural,
-
-    //         // Financial Need Overview
-    //         'institute_name' => $request->institute_name,
-    //         'course_name' => $request->course_name,
-    //         'city_name' => $request->city_name,
-    //         'country' => $request->country,
-    //         'duration' => $request->duration,
-
-    //         // Financial Summary Table
-    //         'tuition_fee_year1' => $request->tuition_fee_year1,
-    //         'tuition_fee_year2' => $request->tuition_fee_year2,
-    //         'tuition_fee_year3' => $request->tuition_fee_year3,
-    //         'tuition_fee_year4' => $request->tuition_fee_year4,
-    //         'group_2_year1' => $request->group_2_year1,
-    //         'group_2_year2' => $request->group_2_year2,
-    //         'group_2_year3' => $request->group_2_year3,
-    //         'group_2_year4' => $request->group_2_year4,
-    //         'group_3_year1' => $request->group_3_year1,
-    //         'group_3_year2' => $request->group_3_year2,
-    //         'group_3_year3' => $request->group_3_year3,
-    //         'group_3_year4' => $request->group_3_year4,
-    //         'group_4_year1' => $request->group_4_year1,
-    //         'group_4_year2' => $request->group_4_year2,
-    //         'group_4_year3' => $request->group_4_year3,
-    //         'group_4_year4' => $request->group_4_year4,
-
-    //         'status' => 'step3_completed',
-    //     ];
-
-    //     // Check if education details already exist for this user
-    //     $educationDetail = EducationDetail::where('user_id', $user_id)->first();
-
-    //     if ($educationDetail) {
-    //         // Update existing record
-    //         $educationDetail->update($data);
-    //         $message = 'Education details updated successfully!';
-    //     } else {
-    //         // Create new record
-    //         EducationDetail::create($data);
-    //         $message = 'Education details saved successfully!';
-    //     }
-
-    //     return redirect()->route('user.home')->with('success', $message);
-    // }
-
-
 
 
 
     public function step2UGstore(Request $request)
     {
-        //  dd($request->all());
         // Validation for education details
         $rules = [
             // Financial Need Overview
@@ -538,8 +349,8 @@ class UserController extends Controller
             $rules['10th_mark_out_of'] = 'required|integer|min:0';
             $rules['school_percentage'] = 'required|string|max:50';
         } elseif ($request->school_grade_system == 'cgpa') {
+            $rules['school_cgpa_out_of'] = 'required';
             $rules['school_CGPA'] = 'required|string|max:50';
-            $rules['school_sgpa'] = 'required|string|max:50';
         }
 
         // Conditional validation based on jc_grade_system
@@ -548,8 +359,8 @@ class UserController extends Controller
             $rules['12th_mark_out_of'] = 'required|integer|min:0';
             $rules['jc_percentage'] = 'required|string|max:50';
         } elseif ($request->jc_grade_system == 'cgpa') {
+            $rules['jc_cgpa_out_of'] = 'required';
             $rules['jc_CGPA'] = 'required|string|max:50';
-            $rules['jc_sgpa'] = 'required|string|max:50';
         }
 
         $request->validate($rules);
@@ -600,23 +411,25 @@ class UserController extends Controller
             // School / 10th Grade Information
             'school_name' => $request->school_name,
             'school_board' => $request->school_board,
+            'school_grade_system' => $request->school_grade_system,
             'school_completion_year' => $request->school_completion_year ? $request->school_completion_year . '-01' : null,
             '10th_mark_obtained' => $request->input('10th_mark_obtained'),
             '10th_mark_out_of' => $request->input('10th_mark_out_of'),
             'school_percentage' => $request->school_percentage,
+            'school_cgpa_out_of' => $request->school_cgpa_out_of,
             'school_CGPA' => $request->school_CGPA,
-            'school_sgpa' => $request->school_sgpa,
 
             // Junior College (12th Grade)
             'jc_college_name' => $request->jc_college_name,
             'jc_stream' => $request->jc_stream,
             'jc_board' => $request->jc_board,
+            'jc_grade_system' => $request->jc_grade_system,
             'jc_completion_year' => $request->jc_completion_year,
             '12th_mark_obtained' => $request->input('12th_mark_obtained'),
             '12th_mark_out_of' => $request->input('12th_mark_out_of'),
             'jc_percentage' => $request->jc_percentage,
+            'jc_cgpa_out_of' => $request->jc_cgpa_out_of,
             'jc_CGPA' => $request->jc_CGPA,
-            'jc_sgpa' => $request->jc_sgpa,
 
             'status' => 'step2_completed',
             'submit_status' => 'submited',
@@ -643,119 +456,6 @@ class UserController extends Controller
 
 
 
-    // public function step2PGstore(Request $request)
-    // {
-    //     //dd($request->all());
-    //     $request->validate([
-    //         'number_family_members' => 'required|integer|min:1',
-    //         'total_family_income' => 'required|integer|min:0',
-    //         'total_students' => 'required|integer|min:0',
-    //         'family_member_diksha' => 'nullable|in:yes,no',
-    //         'total_insurance_coverage' => 'required|integer|min:0',
-    //         'total_premium_paid' => 'required|integer|min:0',
-    //         'recent_electricity_amount' => 'required|integer|min:0',
-    //         'total_monthly_emi' => 'required|integer|min:0',
-    //         'mediclaim_insurance_amount' => 'required|integer|min:0',
-    //         // Relatives
-
-    //         'paternal_uncle_name' => 'nullable|string|max:255',
-    //         'paternal_uncle_mobile' => 'nullable|string|max:15',
-    //         'paternal_uncle_email' => 'nullable|email|max:255',
-    //         'paternal_aunt_name' => 'nullable|string|max:255',
-    //         'paternal_aunt_mobile' => 'nullable|string|max:15',
-    //         'paternal_aunt_email' => 'nullable|email|max:255',
-    //         'maternal_uncle_name' => 'nullable|string|max:255',
-    //         'maternal_uncle_mobile' => 'nullable|string|max:15',
-    //         'maternal_uncle_email' => 'nullable|email|max:255',
-    //         'maternal_aunt_name' => 'nullable|string|max:255',
-    //         'maternal_aunt_mobile' => 'nullable|string|max:15',
-    //         'maternal_aunt_email' => 'nullable|email|max:255',
-    //     ]);
-
-    //     // Custom validation: At least one complete relative set must be filled
-    //     $paternalUncleComplete = !empty($request->paternal_uncle_name) &&
-    //         !empty($request->paternal_uncle_mobile) &&
-    //         !empty($request->paternal_uncle_email);
-
-    //     $paternalAuntComplete = !empty($request->paternal_aunt_name) &&
-    //         !empty($request->paternal_aunt_mobile) &&
-    //         !empty($request->paternal_aunt_email);
-
-    //     $maternalUncleComplete = !empty($request->maternal_uncle_name) &&
-    //         !empty($request->maternal_uncle_mobile) &&
-    //         !empty($request->maternal_uncle_email);
-
-    //     $maternalAuntComplete = !empty($request->maternal_aunt_name) &&
-    //         !empty($request->maternal_aunt_mobile) &&
-    //         !empty($request->maternal_aunt_email);
-
-    //     if (!$paternalUncleComplete && !$paternalAuntComplete && !$maternalUncleComplete && !$maternalAuntComplete) {
-    //         return back()->withErrors(['relatives' => 'At least one complete relative set (name, mobile, and email) must be filled.'])->withInput();
-    //     }
-
-    //     $user_id = Auth::id();
-
-    //     // Collect additional family members from dynamic table
-    //     $additional_family_members = [];
-    //     $i = 1;
-    //     while ($request->has('family_' . $i . '_name')) {
-    //         $additional_family_members[] = [
-    //             'relation' => $request->input('family_' . $i . '_relation'),
-    //             'name' => $request->input('family_' . $i . '_name'),
-    //             'age' => $request->input('family_' . $i . '_age'),
-    //             'marital_status' => $request->input('family_' . $i . '_marital_status'),
-    //             'qualification' => $request->input('family_' . $i . '_qualification'),
-    //             'occupation' => $request->input('family_' . $i . '_occupation'),
-    //             'mobile' => $request->input('family_' . $i . '_mobile'),
-    //             'email' => $request->input('family_' . $i . '_email'),
-    //             'yearly_income' => $request->input('family_' . $i . '_yearly_income'),
-    //         ];
-    //         $i++;
-    //     }
-
-    //     $data = [
-    //         'user_id' => $user_id,
-    //         'number_family_members' => $request->number_family_members,
-    //         'total_family_income' => $request->total_family_income,
-    //         'total_students' => $request->total_students,
-    //         'family_member_diksha' => $request->family_member_diksha,
-    //         'total_insurance_coverage' => $request->total_insurance_coverage,
-    //         'total_premium_paid' => $request->total_premium_paid,
-    //         'recent_electricity_amount' => $request->recent_electricity_amount,
-    //         'total_monthly_emi' => $request->total_monthly_emi,
-    //         'mediclaim_insurance_amount' => $request->mediclaim_insurance_amount,
-    //         'additional_family_members' => json_encode($additional_family_members),
-    //         // Relatives
-    //         'paternal_uncle_name' => $request->paternal_uncle_name,
-    //         'paternal_uncle_mobile' => $request->paternal_uncle_mobile,
-    //         'paternal_uncle_email' => $request->paternal_uncle_email,
-    //         'paternal_aunt_name' => $request->paternal_aunt_name,
-    //         'paternal_aunt_mobile' => $request->paternal_aunt_mobile,
-    //         'paternal_aunt_email' => $request->paternal_aunt_email,
-    //         'maternal_uncle_name' => $request->maternal_uncle_name,
-    //         'maternal_uncle_mobile' => $request->maternal_uncle_mobile,
-    //         'maternal_uncle_email' => $request->maternal_uncle_email,
-    //         'maternal_aunt_name' => $request->maternal_aunt_name,
-    //         'maternal_aunt_mobile' => $request->maternal_aunt_mobile,
-    //         'maternal_aunt_email' => $request->maternal_aunt_email,
-    //         'submit_status' => 'submited',
-    //     ];
-
-    //     // Check if family details already exist for this user
-    //     $familyDetail = Familydetail::where('user_id', $user_id)->first();
-
-    //     if ($familyDetail) {
-    //         // Update existing record
-    //         $familyDetail->update($data);
-    //         $message = 'Family details updated successfully!';
-    //     } else {
-    //         // Create new record
-    //         Familydetail::create($data);
-    //         $message = 'Family details saved successfully!';
-    //     }
-
-    //     return redirect()->route('user.step3')->with('success', $message);
-    // }
 
     public function step2PGstore(Request $request)
     {
@@ -839,6 +539,7 @@ class UserController extends Controller
             'work_type' => 'nullable|in:full-time,internship,freelance,volunteer,stipend-based',
             'mention_your_salary' => 'nullable|in:monthly,yearly,ctc',
             'salary_amount' => 'nullable|numeric|min:0',
+            'yearly_gross_income' => 'nullable|numeric|min:0',
 
         ];
 
@@ -849,7 +550,7 @@ class UserController extends Controller
             $rules['school_percentage'] = 'required|string|max:50';
         } elseif ($request->school_grade_system == 'cgpa') {
             $rules['school_CGPA'] = 'required|string|max:50';
-            $rules['school_sgpa'] = 'nullable|string|max:50';
+            $rules['school_cgpa_out_of'] = 'required|string|max:50';
         }
 
         // Conditional validation based on jc_grade_system
@@ -859,7 +560,7 @@ class UserController extends Controller
             $rules['jc_percentage'] = 'required|string|max:50';
         } elseif ($request->jc_grade_system == 'cgpa') {
             $rules['jc_CGPA'] = 'required|string|max:50';
-            $rules['jc_sgpa'] = 'required|string|max:50';
+            $rules['jc_cgpa_out_of'] = 'required|string|max:50';
         }
 
         $request->validate($rules);
@@ -875,8 +576,8 @@ class UserController extends Controller
             'college_name' => $request->college_name,
             'country' => $request->country,
             'city_name' => $request->city_name,
-            'start_year' => $request->start_year ? $request->start_year . '-01' : null, // Convert month to full date
-            'expected_year' => $request->expected_year ? $request->expected_year . '-01' : null, // Convert month to full date
+            'start_year' => $request->start_year ? $request->start_year  : null, // Convert month to full date
+            'expected_year' => $request->expected_year ? $request->expected_year  : null, // Convert month to full date
             'nirf_ranking' => $request->nirf_ranking,
 
             // Financial Summary Table
@@ -910,21 +611,27 @@ class UserController extends Controller
             // School / 10th Grade Information
             'school_name' => $request->school_name,
             'school_board' => $request->school_board,
+            'school_grade_system' => $request->school_grade_system,
             'school_completion_year' => $request->school_completion_year ? $request->school_completion_year . '-01' : null,
+
             '10th_mark_obtained' => $request->input('10th_mark_obtained'),
             '10th_mark_out_of' => $request->input('10th_mark_out_of'),
             'school_percentage' => $request->school_percentage,
             'school_CGPA' => $request->school_CGPA,
+            'school_cgpa_out_of' => $request->school_cgpa_out_of,
 
             // Junior College (12th Grade)
             'jc_college_name' => $request->jc_college_name,
             'jc_stream' => $request->jc_stream,
             'jc_board' => $request->jc_board,
+            'jc_grade_system' => $request->jc_grade_system,
             'jc_completion_year' => $request->jc_completion_year,
+
             '12th_mark_obtained' => $request->input('12th_mark_obtained'),
             '12th_mark_out_of' => $request->input('12th_mark_out_of'),
             'jc_percentage' => $request->jc_percentage,
             'jc_CGPA' => $request->jc_CGPA,
+            'jc_cgpa_out_of' => $request->jc_cgpa_out_of,
 
             // Completed Qualifications
             'qualifications' => $request->qualifications,
@@ -952,6 +659,7 @@ class UserController extends Controller
             'work_type' => $request->work_type,
             'mention_your_salary' => $request->mention_your_salary,
             'salary_amount' => $request->salary_amount,
+            'yearly_gross_income' => $request->yearly_gross_income,
 
             'status' => 'step2_completed',
             'submit_status' => 'submited',
@@ -1059,6 +767,7 @@ class UserController extends Controller
             'work_type' => 'nullable|in:full-time,internship,freelance,volunteer,stipend-based',
             'mention_your_salary' => 'nullable|in:monthly,yearly,ctc',
             'salary_amount' => 'nullable|numeric|min:0',
+            'yearly_gross_income' => 'nullable|numeric|min:0',
 
             // Additional Curriculum
             'ielts_overall_band_year' => 'nullable|string|max:100',
@@ -1076,8 +785,8 @@ class UserController extends Controller
             $rules['10th_mark_out_of'] = 'required|integer|min:0';
             $rules['school_percentage'] = 'required|string|max:50';
         } elseif ($request->school_grade_system == 'cgpa') {
+            $rules['school_cgpa_out_of'] = 'required|string|max:50';
             $rules['school_CGPA'] = 'required|string|max:50';
-            $rules['school_sgpa'] = 'nullable|string|max:50';
         }
 
         // Conditional validation based on jc_grade_system
@@ -1086,8 +795,8 @@ class UserController extends Controller
             $rules['12th_mark_out_of'] = 'required|integer|min:0';
             $rules['jc_percentage'] = 'required|string|max:50';
         } elseif ($request->jc_grade_system == 'cgpa') {
+            $rules['jc_cgpa_out_of'] = 'required|string|max:50';
             $rules['jc_CGPA'] = 'required|string|max:50';
-            $rules['jc_sgpa'] = 'required|string|max:50';
         }
 
         $request->validate($rules);
@@ -1103,8 +812,8 @@ class UserController extends Controller
             'college_name' => $request->college_name,
             'country' => $request->country,
             'city_name' => $request->city_name,
-            'start_year' => $request->start_year ? $request->start_year . '-01' : null, // Convert month to full date
-            'expected_year' => $request->expected_year ? $request->expected_year . '-01' : null, // Convert month to full date
+            'start_year' => $request->start_year ? $request->start_year  : null, // Convert month to full date
+            'expected_year' => $request->expected_year ? $request->expected_year  : null, // Convert month to full date
             'nirf_ranking' => $request->nirf_ranking,
 
             // Financial Summary Table
@@ -1138,6 +847,7 @@ class UserController extends Controller
             // School / 10th Grade Information
             'school_name' => $request->school_name,
             'school_board' => $request->school_board,
+            'school_grade_system' => $request->school_grade_system,
             'school_completion_year' => $request->school_completion_year ? $request->school_completion_year . '-01' : null,
             '10th_mark_obtained' => $request->input('10th_mark_obtained'),
             '10th_mark_out_of' => $request->input('10th_mark_out_of'),
@@ -1148,6 +858,7 @@ class UserController extends Controller
             'jc_college_name' => $request->jc_college_name,
             'jc_stream' => $request->jc_stream,
             'jc_board' => $request->jc_board,
+            'jc_grade_system' => $request->jc_grade_system,
             'jc_completion_year' => $request->jc_completion_year,
             '12th_mark_obtained' => $request->input('12th_mark_obtained'),
             '12th_mark_out_of' => $request->input('12th_mark_out_of'),
@@ -1180,6 +891,7 @@ class UserController extends Controller
             'work_type' => $request->work_type,
             'mention_your_salary' => $request->mention_your_salary,
             'salary_amount' => $request->salary_amount,
+            'yearly_gross_income' => $request->yearly_gross_income,
 
             // Additional Curriculum
             'ielts_overall_band_year' => $request->ielts_overall_band_year,
@@ -1215,227 +927,6 @@ class UserController extends Controller
 
 
 
-    // public function step2_foreign_pg_store(Request $request)
-    // {
-    //     // Validation for education details
-    //     //dd($request->all());
-    //     $rules = [
-    //         // Financial Need Overview
-    //         'course_name' => 'required|string|max:255',
-    //         'university_name' => 'required|string|max:255',
-    //         'college_name' => 'required|string|max:255',
-    //         'country' => 'required|string|max:100',
-    //         'city_name' => 'required|string|max:100',
-    //         'start_year' => 'required|string',
-    //         'expected_year' => 'required|string',
-    //         'nirf_ranking' => 'nullable|string|max:50',
-
-    //         // Financial Summary Table
-    //         'group_1_year1' => 'nullable|numeric|min:0',
-    //         'group_1_year2' => 'nullable|numeric|min:0',
-    //         'group_1_year3' => 'nullable|numeric|min:0',
-    //         'group_1_year4' => 'nullable|numeric|min:0',
-    //         'group_1_year5' => 'nullable|numeric|min:0',
-    //         'group_2_year1' => 'nullable|numeric|min:0',
-    //         'group_2_year2' => 'nullable|numeric|min:0',
-    //         'group_2_year3' => 'nullable|numeric|min:0',
-    //         'group_2_year4' => 'nullable|numeric|min:0',
-    //         'group_2_year5' => 'nullable|numeric|min:0',
-    //         'group_3_year1' => 'nullable|numeric|min:0',
-    //         'group_3_year2' => 'nullable|numeric|min:0',
-    //         'group_3_year3' => 'nullable|numeric|min:0',
-    //         'group_3_year4' => 'nullable|numeric|min:0',
-    //         'group_3_year5' => 'nullable|numeric|min:0',
-    //         'group_4_year1' => 'nullable|numeric|min:0',
-    //         'group_4_year2' => 'nullable|numeric|min:0',
-    //         'group_4_year3' => 'nullable|numeric|min:0',
-    //         'group_4_year4' => 'nullable|numeric|min:0',
-    //         'group_4_year5' => 'nullable|numeric|min:0',
-
-    //         // School / 10th Grade Information
-    //         'school_name' => 'required|string|max:255',
-    //         'school_board' => 'required|string|max:100',
-    //         'school_completion_year' => 'required|string|max:50',
-    //         'school_grade_system' => 'required',
-
-    //         // Junior College (12th Grade)
-    //         'jc_college_name' => 'required|string|max:255',
-    //         'jc_stream' => 'required|string|max:100',
-    //         'jc_board' => 'required|string|max:100',
-    //         'jc_completion_year' => 'required|string|max:50',
-    //         'jc_grade_system' => 'required',
-
-    //         // Completed Qualifications
-    //         'qualifications' => 'required|string',
-    //         'qualification_institution' => 'required|string|max:255',
-    //         'qualification_university' => 'nullable|string|max:255',
-    //         'qualification_start_year' => 'required|date',
-    //         'qualification_end_year' => 'required|date',
-    //         'marksheet_type' => 'required|array',
-    //         'marks_obtained' => 'nullable|array',
-    //         'out_of' => 'nullable|array',
-    //         'percentage' => 'nullable|array',
-    //         'cgpa' => 'nullable|array',
-
-    //         // Work Experience
-    //         'have_work_experience' => 'required|in:yes,no',
-    //         'organization_name' => 'nullable|string|max:255',
-    //         'work_profile' => 'nullable|string|max:255',
-    //         'duration_start_year' => 'nullable|string|max:50',
-    //         'duration_end_year' => 'nullable|string|max:50',
-    //         'work_location_city' => 'nullable|string|max:100',
-    //         'work_country' => 'nullable|string|max:100',
-    //         'work_type' => 'nullable|in:full-time,internship,freelance,volunteer',
-    //         'mention_your_salary' => 'nullable|in:monthly,yearly,ctc',
-    //         'salary_amount' => 'nullable|numeric|min:0',
-
-    //         // Additional Curriculum
-    //         'ielts_overall_band_year' => 'nullable|string|max:100',
-    //         'toefl_score_year' => 'nullable|string|max:100',
-    //         'duolingo_det_score_year' => 'nullable|string|max:100',
-    //         'gre_score_year' => 'nullable|string|max:100',
-    //         'gmat_score_year' => 'nullable|string|max:100',
-    //         'sat_score_year' => 'nullable|string|max:100',
-    //     ];
-
-    //     // Conditional validation based on school_grade_system
-    //     if ($request->school_grade_system == 'percentage') {
-    //         $rules['10th_mark_obtained'] = 'required|integer|min:0';
-    //         $rules['10th_mark_out_of'] = 'required|integer|min:0';
-    //         $rules['school_percentage'] = 'required|string|max:50';
-    //     } elseif ($request->school_grade_system == 'cgpa') {
-    //         $rules['school_CGPA'] = 'required|string|max:50';
-    //         $rules['school_sgpa'] = 'required|string|max:50';
-    //     }
-
-    //     // Conditional validation based on jc_grade_system
-    //     if ($request->jc_grade_system == 'percentage') {
-    //         $rules['12th_mark_obtained'] = 'required|integer|min:0';
-    //         $rules['12th_mark_out_of'] = 'required|integer|min:0';
-    //         $rules['jc_percentage'] = 'required|string|max:50';
-    //     } elseif ($request->jc_grade_system == 'cgpa') {
-    //         $rules['jc_CGPA'] = 'required|string|max:50';
-    //         $rules['jc_sgpa'] = 'required|string|max:50';
-    //     }
-
-    //     $request->validate($rules);
-
-    //     $user_id = Auth::id();
-
-    //     $data = [
-    //         'user_id' => $user_id,
-
-    //         // Financial Need Overview
-    //         'course_name' => $request->course_name,
-    //         'university_name' => $request->university_name,
-    //         'college_name' => $request->college_name,
-    //         'country' => $request->country,
-    //         'city_name' => $request->city_name,
-    //         'start_year' => $request->start_year ? $request->start_year . '-01' : null, // Convert month to full date
-    //         'expected_year' => $request->expected_year ? $request->expected_year . '-01' : null, // Convert month to full date
-    //         'nirf_ranking' => $request->nirf_ranking,
-
-    //         // Financial Summary Table
-    //         'group_1_year1' => $request->group_1_year1,
-    //         'group_1_year2' => $request->group_1_year2,
-    //         'group_1_year3' => $request->group_1_year3,
-    //         'group_1_year4' => $request->group_1_year4,
-    //         'group_1_year5' => $request->group_1_year5,
-    //         'group_2_year1' => $request->group_2_year1,
-    //         'group_2_year2' => $request->group_2_year2,
-    //         'group_2_year3' => $request->group_2_year3,
-    //         'group_2_year4' => $request->group_2_year4,
-    //         'group_2_year5' => $request->group_2_year5,
-    //         'group_3_year1' => $request->group_3_year1,
-    //         'group_3_year2' => $request->group_3_year2,
-    //         'group_3_year3' => $request->group_3_year3,
-    //         'group_3_year4' => $request->group_3_year4,
-    //         'group_3_year5' => $request->group_3_year5,
-    //         'group_4_year1' => $request->group_4_year1,
-    //         'group_4_year2' => $request->group_4_year2,
-    //         'group_4_year3' => $request->group_4_year3,
-    //         'group_4_year4' => $request->group_4_year4,
-    //         'group_4_year5' => $request->group_4_year5,
-
-    //         // Calculate totals
-    //         'group_1_total' => ($request->group_1_year1 ?: 0) + ($request->group_1_year2 ?: 0) + ($request->group_1_year3 ?: 0) + ($request->group_1_year4 ?: 0) + ($request->group_1_year5 ?: 0),
-    //         'group_2_total' => ($request->group_2_year1 ?: 0) + ($request->group_2_year2 ?: 0) + ($request->group_2_year3 ?: 0) + ($request->group_2_year4 ?: 0) + ($request->group_2_year5 ?: 0),
-    //         'group_3_total' => ($request->group_3_year1 ?: 0) + ($request->group_3_year2 ?: 0) + ($request->group_3_year3 ?: 0) + ($request->group_3_year4 ?: 0) + ($request->group_3_year5 ?: 0),
-    //         'group_4_total' => ($request->group_4_year1 ?: 0) + ($request->group_4_year2 ?: 0) + ($request->group_4_year3 ?: 0) + ($request->group_4_year4 ?: 0) + ($request->group_4_year5 ?: 0),
-
-    //         // School / 10th Grade Information
-    //         'school_name' => $request->school_name,
-    //         'school_board' => $request->school_board,
-    //         'school_completion_year' => $request->school_completion_year ? $request->school_completion_year . '-01' : null,
-    //         '10th_mark_obtained' => $request->input('10th_mark_obtained'),
-    //         '10th_mark_out_of' => $request->input('10th_mark_out_of'),
-    //         'school_percentage' => $request->school_percentage,
-    //         'school_CGPA' => $request->school_CGPA,
-
-    //         // Junior College (12th Grade)
-    //         'jc_college_name' => $request->jc_college_name,
-    //         'jc_stream' => $request->jc_stream,
-    //         'jc_board' => $request->jc_board,
-    //         'jc_completion_year' => $request->jc_completion_year,
-    //         '12th_mark_obtained' => $request->input('12th_mark_obtained'),
-    //         '12th_mark_out_of' => $request->input('12th_mark_out_of'),
-    //         'jc_percentage' => $request->jc_percentage,
-    //         'jc_CGPA' => $request->jc_CGPA,
-
-    //         // Completed Qualifications
-    //         'qualifications' => $request->qualifications,
-    //         'qualification_institution' => $request->qualification_institution,
-    //         'qualification_university' => $request->qualification_university,
-    //         'qualification_start_year' => $request->qualification_start_year ? Carbon::createFromFormat('Y-m', $request->qualification_start_year)->firstOfMonth()->format('Y-m-d') : null,
-    //         'qualification_end_year' => $request->qualification_end_year ? Carbon::createFromFormat('Y-m', $request->qualification_end_year)->firstOfMonth()->format('Y-m-d') : null,
-    //         'marksheet_type' => json_encode($request->marksheet_type),
-    //         'marks_obtained' => json_encode($request->marks_obtained),
-    //         'out_of' => json_encode($request->out_of),
-    //         'percentage' => json_encode($request->percentage),
-    //         'cgpa' => json_encode($request->cgpa),
-
-    //         // Work Experience
-    //         'have_work_experience' => $request->have_work_experience,
-    //         'organization_name' => $request->organization_name,
-    //         'work_profile' => $request->work_profile,
-    //         'duration_start_year' => $request->duration_start_year,
-    //         'duration_end_year' => $request->duration_end_year,
-    //         'work_location_city' => $request->work_location_city,
-    //         'work_country' => $request->work_country,
-    //         'work_type' => $request->work_type,
-    //         'mention_your_salary' => $request->mention_your_salary,
-    //         'salary_amount' => $request->salary_amount,
-
-    //         // Additional Curriculum
-    //         'ielts_overall_band_year' => $request->ielts_overall_band_year,
-    //         'toefl_score_year' => $request->toefl_score_year,
-    //         'duolingo_det_score_year' => $request->duolingo_det_score_year,
-    //         'gre_score_year' => $request->gre_score_year,
-    //         'gmat_score_year' => $request->gmat_score_year,
-    //         'sat_score_year' => $request->sat_score_year,
-
-    //         'status' => 'step2_completed',
-    //         'submit_status' => 'submited',
-    //     ];
-
-    //     // Check if education details already exist for this user
-    //     $educationDetail = EducationDetail::where('user_id', $user_id)->first();
-
-    //     if ($educationDetail) {
-    //         // Update existing record
-    //         $educationDetail->update($data);
-    //         $message = 'Education details updated successfully!';
-    //     } else {
-    //         // Create new record
-    //         EducationDetail::create($data);
-    //         $message = 'Education details saved successfully!';
-    //     }
-
-    //     // Check if all steps are submitted (no resubmit remaining)
-    //     $this->checkAndUpdateWorkflowStatus();
-
-    //     return redirect()->route('user.step3')->with('success', $message);
-    // }
 
 
 
@@ -1659,13 +1150,22 @@ class UserController extends Controller
             // Sibling Assistance
             'sibling_assistance' => 'required|in:yes,no',
 
-            'sibling_name' => 'required_if:sibling_assistance,yes|string|max:255',
-            'sibling_number' => 'required_if:sibling_assistance,yes|string|max:255',
-            'sibling_ngo_name' => 'required_if:sibling_assistance,yes|string|max:255',
-            'ngo_number' => 'required_if:sibling_assistance,yes|string|max:15',
-            'sibling_loan_status' => 'required_if:sibling_assistance,yes|string|max:255',
-            'sibling_applied_year' => 'required_if:sibling_assistance,yes|string|max:255',
-            'sibling_applied_amount' => 'required_if:sibling_assistance,yes|numeric|min:0',
+            // 'sibling_name' => 'required_if:sibling_assistance,yes|string|max:255',
+            // 'sibling_number' => 'required_if:sibling_assistance,yes|string|max:255',
+            // 'sibling_ngo_name' => 'required_if:sibling_assistance,yes|string|max:255',
+            // 'ngo_number' => 'required_if:sibling_assistance,yes|string|max:15',
+            // 'sibling_loan_status' => 'required_if:sibling_assistance,yes|string|max:255',
+            // 'sibling_applied_year' => 'required_if:sibling_assistance,yes|string|max:255',
+            // 'sibling_applied_amount' => 'required_if:sibling_assistance,yes|numeric|min:0',
+
+            'sibling_name' => 'nullable|required_if:sibling_assistance,yes|string|max:255',
+            'sibling_number' => 'nullable|required_if:sibling_assistance,yes|string|max:255',
+            'sibling_ngo_name' => 'nullable|required_if:sibling_assistance,yes|string|max:255',
+            'ngo_number' => 'nullable|required_if:sibling_assistance,yes|string|max:15',
+            'sibling_loan_status' => 'nullable|required_if:sibling_assistance,yes|string|max:255',
+            'sibling_applied_year' => 'nullable|required_if:sibling_assistance,yes|string|max:255',
+            'sibling_applied_amount' => 'nullable|required_if:sibling_assistance,yes|numeric|min:0',
+
 
             // Bank Details
             'bank_name' => 'required|string|max:255',

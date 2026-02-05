@@ -592,7 +592,7 @@
 
                                         <div class="form-group mb-3">
                                             <label for="bank_name">Bank Name <span style="color: red">*</span></label>
-                                            <select class="form-control" name="bank_name" required>
+                                            {{-- <select class="form-control" name="bank_name" required>
                                                 <option value=""
                                                     {{ !old('bank_name') && !$fundingDetail ? 'selected' : '' }} disabled
                                                     hidden>Select Bank </option>
@@ -601,8 +601,23 @@
                                                         {{ old('bank_name') == $bank->name || ($fundingDetail && $fundingDetail->bank_name === $bank->name) ? 'selected' : '' }}>
                                                         {{ $bank->name }}
                                                     </option>
+                                                   
                                                 @endforeach
+                                            </select> --}}
+                                            <select class="form-control" name="bank_name" id="bank_name" required>
+                                                <option value="" hidden>Select Bank</option>
+
+                                                @foreach ($banks as $bank)
+                                                    <option value="{{ $bank->name }}"
+                                                        data-ifsc="{{ strtoupper(substr($bank->ifsc_code, 0, 4)) }}"
+                                                        {{ old('bank_name') == $bank->name || ($fundingDetail && $fundingDetail->bank_name === $bank->name) ? 'selected' : '' }}>
+                                                        {{ $bank->name }}
+                                                    </option>
+                                                @endforeach
+
+                                                <option value="OTHER">Other</option>
                                             </select>
+
                                             <small class="text-danger">{{ $errors->first('bank_name') }}</small>
                                         </div>
                                         {{-- <div class="form-group mb-3">
@@ -670,6 +685,45 @@
                             </div>
                         </div>
                 </div>
+
+
+                <div class="modal fade" id="otherBankModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <h5 class="modal-title">Important Information</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+                            </div>
+
+                            <div class="modal-body">
+                                <p class="text-danger fw-bold">
+                                    Currently, we will accept the bank details you have provided.
+                                    However, <b>before the loan is sanctioned</b>, you will be required
+                                    to open a bank account with one of our registered banks listed below.
+                                </p>
+
+                                <hr>
+
+                                <h6>Our Registered Banks:</h6>
+                                <ul>
+                                    @foreach ($banks as $bank)
+                                        <li>{{ $bank->name }}</li>
+                                    @endforeach
+                                </ul>
+
+                                <p class="mt-3 text-muted">
+                                    Note: If you select <b>Other Bank</b>, bank verification and auto-fill
+                                    will not be available. All bank details must be entered manually.
+                                </p>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
                 <div class="d-flex justify-content-between mt-4 mb-4">
                     <button type="button" class="btn " style="background:#988DFF1F;color:gray;"><svg
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
@@ -736,7 +790,7 @@
                     if (siblingAssistanceSelect && siblingAssistanceSelect.value === 'no') {
                         const siblingInputs = document.querySelectorAll(
                             'input[name*="sibling_"], input[name="ngo_number"], select[name="sibling_loan_status"]'
-                            );
+                        );
                         siblingInputs.forEach(input => {
                             if (input.name !== 'sibling_assistance') {
                                 input.value = '';
@@ -920,4 +974,91 @@
 
         });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const bankSelect = document.getElementById('bank_name');
+            const ifscInput = document.getElementById('ifsc_code');
+            const accountInput = document.getElementById('account_number');
+
+            let isOtherBank = false;
+
+            bankSelect.addEventListener('change', function() {
+
+                const selectedValue = this.value;
+
+                if (selectedValue === 'OTHER') {
+                    isOtherBank = true;
+
+                    // Open modal
+                    const modal = new bootstrap.Modal(document.getElementById('otherBankModal'));
+                    modal.show();
+
+                    // Clear auto-filled fields
+                    document.getElementById('account_holder_name').value = '';
+                    document.getElementById('branch_name').value = '';
+                    document.getElementById('bank_address').value = '';
+
+                } else {
+                    isOtherBank = false;
+                }
+            });
+
+            function validateIFSCWithSelectedBank() {
+
+                if (isOtherBank) {
+                    // ❌ Other bank असल्यास API call नाही
+                    return false;
+                }
+
+                const selectedOption = bankSelect.options[bankSelect.selectedIndex];
+                const bankIfscPrefix = selectedOption.getAttribute('data-ifsc');
+                const userIfsc = ifscInput.value.trim().toUpperCase().substring(0, 4);
+
+                if (!bankIfscPrefix || userIfsc.length < 4) {
+                    return false;
+                }
+
+                if (bankIfscPrefix !== userIfsc) {
+
+                    showBankError(
+                        'The IFSC code you entered does not match the selected registered bank. Please check and enter a valid IFSC code.'
+                    );
+
+
+                    return false;
+                }
+
+                return true;
+            }
+
+            function showBankError(message) {
+                const msgDiv = document.getElementById('bankValidationMessage');
+                const msgText = document.getElementById('bankValidationText');
+
+                msgDiv.className = 'alert alert-danger alert-dismissible fade show';
+                msgDiv.style.display = 'block';
+                msgText.innerHTML = `<strong>Error:</strong> ${message}`;
+            }
+
+            // IFSC blur event
+            ifscInput.addEventListener('blur', function() {
+
+                if (!validateIFSCWithSelectedBank()) {
+                    return;
+                }
+
+                // ✅ IFSC match झाला तरच API hit होईल
+                validateBankAccount(); // तुझा existing function
+            });
+
+            accountInput.addEventListener('blur', function() {
+                if (!isOtherBank) {
+                    validateBankAccount();
+                }
+            });
+
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 @endsection

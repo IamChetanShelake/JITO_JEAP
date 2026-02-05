@@ -11,5 +11,5 @@ class Bank extends Model
 
     protected $connection = 'admin_panel';
 
-    protected $fillable = ['name'];
+    protected $guarded = [];
 }

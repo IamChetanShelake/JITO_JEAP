@@ -323,7 +323,7 @@
                                             </select>
                                             <small class="text-danger">{{ $errors->first('blood_group') }}</small>
                                         </div>
-                                        {{-- <div class="form-group mb-3">
+                                        <div class="form-group mb-3">
                                             <label for="d_o_b" class="form-label">Date of Birth <span
                                                     style="color: red;">*</span></label>
                                             <input type="text" id="d_o_b" name="d_o_b" class="form-control"
@@ -331,30 +331,7 @@
                                                 pattern="\d{4}-\d{2}-\d{2}" title="Format: yyyy-mm-dd" readonly required>
 
                                             <small class="text-danger">{{ $errors->first('d_o_b') }}</small>
-                                        </div> --}}
-
-                                        @php
-                                            $dobDb = $user->d_o_b ?? '';
-                                            $dobDisplay = $dobDb ? \Carbon\Carbon::parse($dobDb)->format('d-m-Y') : '';
-                                        @endphp
-
-                                        <div class="form-group mb-3">
-                                            <label class="form-label">
-                                                Date of Birth <span style="color:red">*</span>
-                                            </label>
-
-                                            <!-- Only for display -->
-                                            <input type="text" class="form-control"
-                                                value="{{ old('d_o_b_display', $dobDisplay) }}" placeholder="dd-mm-yyyy"
-                                                readonly>
-
-                                            <!-- Actual value sent to controller -->
-                                            <input type="hidden" name="d_o_b" value="{{ old('d_o_b', $dobDb) }}">
-
-                                            <small class="text-danger">{{ $errors->first('d_o_b') }}</small>
                                         </div>
-
-
 
 
 
@@ -546,17 +523,9 @@
                                         <div class="form-group mb-3">
                                             <label for="aadhar_address" class="form-label">Aadhar/Pan Address <span
                                                     style="color: red;">*</span></label>
-                                            <textarea class="form-control" id="aadhar_address" name="aadhar_address" rows="5"
+                                            <textarea class="form-control" id="aadhar_address" name="aadhar_address" rows="3"
                                                 placeholder="Enter Aadhar/Pan Address" required>{{ old('aadhar_address', $user->aadhar_address ?? '') }}</textarea>
                                             <small class="text-danger">{{ $errors->first('aadhar_address') }}</small>
-                                        </div>
-
-                                        <div class="form-group mb-3">
-                                            <label for="postal_address" class="form-label">Postal Address <span
-                                                    style="color: red;">*</span></label>
-                                            <textarea class="form-control" id="postal_address" name="postal_address" rows="5"
-                                                placeholder="Enter Postal Address" required>{{ old('postal_address', $user->postal_address ?? '') }}</textarea>
-                                            <small class="text-danger">{{ $errors->first('postal_address') }}</small>
                                         </div>
 
 
@@ -828,32 +797,25 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document
-                                .querySelector('meta[name="csrf-token"]')
-                                .getAttribute('content')
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                'content')
                         },
                         body: JSON.stringify({
                             aadhar_card_number: aadharNumber
                         })
                     })
-                    .then(async response => {
-                        const data = await response.json();
-                        if (!response.ok) {
-                            throw data;
-                        }
-                        return data;
-                    })
+                    .then(response => response.json())
                     .then(data => {
-                        showValidationMessage(data.message, 'text-success');
+                        if (data.success) {
+                            showValidationMessage('Aadhaar number validated successfully.', 'text-success');
+                            // Store the validated Aadhaar number
+                            aadharInput.value = aadharNumber;
+                        } else {
+                            showValidationMessage('Aadhaar validation failed.', 'text-danger');
+                            // Clear the input on validation failure
+                            aadharInput.value = '';
+                        }
                     })
-                    .catch(error => {
-                        showValidationMessage(
-                            error.message || 'Aadhaar validation failed.',
-                            'text-danger'
-                        );
-                        aadharInput.value = '';
-                    })
-
                     .catch(error => {
                         console.error('Error validating Aadhaar:', error);
                         showValidationMessage('Error validating Aadhaar number. Please try again.',

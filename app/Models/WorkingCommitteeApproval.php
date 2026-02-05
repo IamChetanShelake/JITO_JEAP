@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Database\Eloquent\Model;
 
 class WorkingCommitteeApproval extends Model
@@ -42,4 +43,16 @@ class WorkingCommitteeApproval extends Model
         'installment_amount' => 'decimal:2',
         'additional_installment_amount' => 'decimal:2',
     ];
+
+    // public function workingcommittee()
+    // {
+    //     return $this->hasOne(WorkingCommittee::class);
+    // }
+    public function committeeMember()
+    {
+        return $this->hasOneThrough(
+            AdminUser::class,
+            WorkingCommittee::class
+        );
+    }
 }

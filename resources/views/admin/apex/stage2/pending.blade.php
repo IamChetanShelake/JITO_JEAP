@@ -332,31 +332,23 @@
                                 <td>{{ $user->email }}</td>
                                 <td>{{ $user->phone }}</td>
                                 <td>{{ $user->created_at->format('d M Y') }}</td>
-                                @if($user->workflowStatus->apex_1_reject_remarks != null)
+                                @if($user->workflowStatus->apex_2_reject_remarks == null)
                                 <td>
-                                    <span class="status-badge btn btn-warning">
+                                    <span class="status-badge status-pending">
+                                        <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
+                                        Pending
+                                    </span>
+                                </td>
+                                @else
+                                <td>
+                                    <span class="status-badge status-pending">
                                         <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
                                         resubmitted
                                     </span>
                                 </td>
-                                @elseif($user->application_status == 'submitted')
-                                <td>
-                                    <span class="status-badge btn btn-info">
-                                        <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
-                                        Submitted
-                                    </span>
-                                </td>
-                                @elseif($user->application_status == 'draft')
-                                <td>
-                                    <span class="status-badge btn btn-secondary">
-                                        <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
-                                        Draft
-                                    </span>
-                                </td>
-                                
                                 @endif
                                 <td class="actions-cell">
-                                    <a href="{{ route('admin.apex.stage1.user.detail', $user) }}"
+                                    <a href="{{ route('admin.apex.stage2.user.detail', $user) }}"
                                         class="action-btn view-btn" title="View Details">
                                         <i class="fas fa-eye"></i>
                                     </a>

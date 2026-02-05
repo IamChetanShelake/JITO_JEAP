@@ -897,8 +897,9 @@
         </div>
         <div class="step-nav-item step-8" onclick="showStep(8)">
             <span class="step-number">8</span>
-            <span class="step-title">Apex Decision</span>
+            <span class="step-title">PDC/Cheque Details</span>
         </div>
+       
     </div>
 
     <div class="content-area">
@@ -2036,18 +2037,126 @@
         </div>
     </div>
 
-
-    <!-- Step 8: Apex Decision -->
+    <!-- Step 8: PDC/Cheque Details -->
     <div class="step-content" id="step-8">
         <div class="step-header">
-            <h2 class="step-title-large">Step 8: Apex Decision</h2>
+            <h2 class="step-title-large">Step 8: PDC/Cheque Details</h2>
             <div class="step-status">
-                @if($user->workflowStatus && $user->workflowStatus->apex_1_status === 'approved')
+                @if(isset($pdcDetail) && $pdcDetail->status === 'approved')
                     <span class="status-badge status-approved">
                         <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
                         Approved
                     </span>
-                @elseif($user->workflowStatus && $user->workflowStatus->apex_1_status === 'rejected')
+                @elseif(isset($pdcDetail) && $pdcDetail->status === 'rejected')
+                    <span class="status-badge status-hold">
+                        <i class="fas fa-times-circle" style="font-size: 0.6rem;"></i>
+                        Rejected
+                    </span>
+                @else
+                    <span class="status-badge status-pending">
+                        <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                        {{ isset($pdcDetail) ? 'Submitted' : 'Pending' }}
+                    </span>
+                @endif
+            </div>
+        </div>
+
+        @if(isset($pdcDetail) && $pdcDetail)
+        <div class="form-data">
+            <!-- First Cheque Image -->
+            <div class="data-group">
+                <h4>First Cheque Image</h4>
+                <div class="form-section">
+                    @if($pdcDetail->first_cheque_image)
+                        @php
+                            $chequeImagePath = $pdcDetail->first_cheque_image;
+                            if (strpos($chequeImagePath, 'http') === 0) {
+                                $chequeImageUrl = $chequeImagePath;
+                            } else {
+                                $chequeImageUrl = asset($chequeImagePath);
+                            }
+                            $fileExtension = strtolower(pathinfo($chequeImagePath, PATHINFO_EXTENSION));
+                        @endphp
+                        <div style="margin-top: 1rem;">
+                            @if(in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif', 'webp']))
+                                <a href="{{ $chequeImageUrl }}" target="_blank" class="form-label" style="font-size: 1rem; color: var(--primary-blue); cursor: pointer; text-decoration: none;">
+                                    <i class="fas fa-image" style="margin-right: 0.5rem;"></i> View First Cheque Image
+                                </a>
+                            @elseif($fileExtension == 'pdf')
+                                <a href="{{ $chequeImageUrl }}" target="_blank" class="form-label" style="font-size: 1rem; color: var(--primary-blue); cursor: pointer; text-decoration: none;">
+                                    <i class="fas fa-file-pdf" style="margin-right: 0.5rem;"></i> View First Cheque PDF
+                                </a>
+                            @else
+                                <span style="color: var(--text-light);">Unsupported file format</span>
+                            @endif
+                        </div>
+                    @else
+                        <p style="color: var(--text-light);">No cheque image uploaded</p>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Cheque Details Table -->
+            <div class="data-group">
+                <h4>Cheque Details</h4>
+                <div class="table-container">
+                    @php
+                        $chequeDetails = json_decode($pdcDetail->cheque_details, true);
+                    @endphp
+                    @if($chequeDetails && count($chequeDetails) > 0)
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Sr No</th>
+                                    <th>Cheque Date</th>
+                                    <th>Amount (₹)</th>
+                                    <th>Bank Name</th>
+                                    <th>IFSC Code</th>
+                                    <th>Account Number</th>
+                                    <th>Cheque Number</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($chequeDetails as $index => $cheque)
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ isset($cheque['cheque_date']) ? date('d M Y', strtotime($cheque['cheque_date'])) : 'N/A' }}</td>
+                                        <td class="amount-cell">₹{{ number_format($cheque['amount'] ?? 0) }}</td>
+                                        <td>{{ $cheque['bank_name'] ?? 'N/A' }}</td>
+                                        <td>{{ $cheque['ifsc'] ?? 'N/A' }}</td>
+                                        <td>{{ $cheque['account_number'] ?? 'N/A' }}</td>
+                                        <td>{{ $cheque['cheque_number'] ?? 'N/A' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @else
+                        <div class="no-data">
+                            <p>No cheque details available.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+
+
+        </div>
+        @else
+        <div class="no-data">
+            <p>PDC/Cheque Details not submitted yet.</p>
+        </div>
+        @endif
+
+
+        <div class="step-header">
+            {{-- <h2 class="step-title-large">Step 9: Apex Decision</h2> --}}
+            <div class="step-status">
+                @if($user->workflowStatus && $user->workflowStatus->apex_2_status === 'approved')
+                    <span class="status-badge status-approved">
+                        <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
+                        Approved
+                    </span>
+                @elseif($user->workflowStatus && $user->workflowStatus->apex_2_status === 'rejected')
                     <span class="status-badge status-hold">
                         <i class="fas fa-times-circle" style="font-size: 0.6rem;"></i>
                         Send Back For Correction
@@ -2061,7 +2170,7 @@
             </div>
         </div>
 
-        @if($user->workflowStatus && $user->workflowStatus->apex_1_status === 'approved')
+        @if($user->workflowStatus && $user->workflowStatus->apex_2_status === 'approved')
             <!-- Approved Decision Display -->
             <div class="form-data">
                 <div class="data-group">
@@ -2071,10 +2180,10 @@
                             <div class="data-label">Approval Date</div>
                             <div class="data-value">{{ $user->workflowStatus->apex_1_updated_at ? $user->workflowStatus->apex_1_updated_at->format('d M Y H:i') : 'N/A' }}</div>
                         </div> --}}
-                        @if($user->workflowStatus->apex_1_approval_remarks)
+                        @if($user->workflowStatus->apex_2_approval_remarks)
                             <div class="data-item">
                                 <div class="data-label">Apex Approval Remarks</div>
-                                <div class="data-value">{{ $user->workflowStatus->apex_1_approval_remarks }}</div>
+                                <div class="data-value">{{ $user->workflowStatus->apex_2_approval_remarks }}</div>
                             </div>
                         @endif
                         @if($user->workflowStatus->apex_staff_remark)
@@ -2087,17 +2196,17 @@
                 </div>
             </div>
 
-        @elseif($user->workflowStatus && $user->workflowStatus->apex_1_status === 'rejected')
+        @elseif($user->workflowStatus && $user->workflowStatus->apex_2_status === 'rejected')
             <!-- Rejected Decision Display -->
             <div class="form-data">
                 <div class="data-group">
                     <h4>❌ Application Send Back For Correction</h4>
                     <div class="form-section">
 
-                        @if($user->workflowStatus->apex_1_reject_remarks)
+                        @if($user->workflowStatus->apex_2_reject_remarks)
                             <div class="data-item">
                                 <div class="data-label">Send Back For Correction Remarks</div>
-                                <div class="data-value">{{ $user->workflowStatus->apex_1_reject_remarks }}</div>
+                                <div class="data-value">{{ $user->workflowStatus->apex_2_reject_remarks }}</div>
                             </div>
                         @endif
                     </div>
@@ -2105,7 +2214,7 @@
             </div>
 
         @elseif($user->workflowStatus
-            && $user->workflowStatus->current_stage === 'apex_1'
+            && $user->workflowStatus->current_stage === 'apex_2'
             && $user->workflowStatus->final_status === 'in_progress')
 
             <!-- Validation Errors Display -->
@@ -2134,10 +2243,10 @@
             @endif
 
             <div class="workflow-action-card">
-                <h4 class="action-title">Apex 1 Decision</h4>
+                <h4 class="action-title">Apex 2 Decision</h4>
 
                 <!-- Approve Form -->
-                <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}"
+                <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_2']) }}"
                       method="POST">
                     @csrf
                     <div class="action-form-row">
@@ -2147,13 +2256,13 @@
                                       rows="3"
                                       class="remark-input"></textarea>
 
-                            <div style="margin-top: 1rem;">
+                            {{-- <div style="margin-top: 1rem;">
                                 <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Apex Staff Remark</label>
                                 <textarea name="apex_staff_remark"
                                           placeholder="Optional apex staff remark"
                                           rows="3"
                                           class="remark-input"></textarea>
-                            </div>
+                            </div> --}}
 
 
                         </div>
@@ -2167,53 +2276,16 @@
                 <div class="divider"></div>
 
                 <!-- Reject Form -->
-                <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}"
+                <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_2']) }}"
                       method="POST">
                     @csrf
                     <div class="action-form-row">
                         <div style="flex: 2;">
                             <textarea name="admin_remark"
-                                      placeholder="Rejection remark (required)"
+                                      placeholder="Send back for correction remark (required)"
                                       rows="3"
                                       class="remark-input"
                                       required></textarea>
-
-                            <div style="margin-top: 1rem; padding: 1rem; background: rgba(244, 67, 54, 0.05); border-radius: 8px; border: 1px solid rgba(244, 67, 54, 0.1);">
-                                <h5 style="color: var(--primary-red); margin: 0 0 0.5rem 0; font-size: 0.9rem;">Select steps to resubmit:</h5>
-                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                        <input type="checkbox" name="resubmit_steps[]" value="personal" style="width: 16px; height: 16px;">
-                                        Step 1: Personal Details
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                        <input type="checkbox" name="resubmit_steps[]" value="education" style="width: 16px; height: 16px;">
-                                        Step 2: Education Details
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                        <input type="checkbox" name="resubmit_steps[]" value="family" style="width: 16px; height: 16px;">
-                                        Step 3: Family Details
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                        <input type="checkbox" name="resubmit_steps[]" value="funding" style="width: 16px; height: 16px;">
-                                        Step 4: Funding Details
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                        <input type="checkbox" name="resubmit_steps[]" value="guarantor" style="width: 16px; height: 16px;">
-                                        Step 5: Guarantor Details
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                        <input type="checkbox" name="resubmit_steps[]" value="documents" style="width: 16px; height: 16px;">
-                                        Step 6: Documents
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                        <input type="checkbox" name="resubmit_steps[]" value="final" style="width: 16px; height: 16px;">
-                                        Step 7: Final Submission
-                                    </label>
-                                </div>
-                                <p style="font-size: 0.75rem; color: var(--text-light); margin: 0.5rem 0 0 0;">
-                                    Leave unchecked to reject the entire application permanently.
-                                </p>
-                            </div>
                         </div>
                         <button type="submit" class="btn btn-reject">
                             <i class="fas fa-times"></i>
@@ -2228,6 +2300,10 @@
             </div>
         @endif
     </div>
+
+
+
+
 
     </div> <!-- content-area -->
 
@@ -2361,7 +2437,7 @@ document.addEventListener('click', function(event) {
 });
 </script>
 
-<!-- Document Modal (Backward compatibility) -->
+<!-- Document Modal -->
 <div id="documentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
     <div style="position:relative; max-width:90%; max-height:90%; background:white; border-radius:8px; overflow:hidden; display: flex; flex-direction: column;">
         <div style="padding: 1rem; background: var(--primary-purple); color: white; display: flex; justify-content: space-between; align-items: center;">

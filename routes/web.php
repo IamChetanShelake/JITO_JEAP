@@ -84,6 +84,21 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/chapters/working-committee-pending', [AdminController::class, 'chapterWorkingCommitteePending'])->name('chapter.working-committee-pending');
     Route::get('/chapters/working-committee-approved', [AdminController::class, 'chapterWorkingCommitteeApproved'])->name('chapter.working-committee-approved');
 
+    // Apex Stage 2 Forms
+    Route::get('/apex-stage2/approved', [AdminController::class, 'apexStage2Approved'])->name('apex.stage2.approved');
+    Route::get('/apex-stage2/pending', [AdminController::class, 'apexStage2Pending'])->name('apex.stage2.pending');
+    Route::get('/apex-stage2/hold', [AdminController::class, 'apexStage2Hold'])->name('apex.stage2.hold');
+    Route::get('/apex-stage2/user/{user}', [AdminController::class, 'apexStage2UserDetail'])->name('apex.stage2.user.detail');
+    Route::get('/apex-stage2/resubmitted', [AdminController::class, 'apexStage2Resubmitted'])->name('apex.stage2.resubmitted');
+
+    // PDC/Cheque Details Forms
+    Route::get('/pdc/pending', [AdminController::class, 'pdcPending'])->name('pdc.pending');
+    Route::get('/pdc/approved', [AdminController::class, 'pdcApproved'])->name('pdc.approved');
+    Route::get('/pdc/hold', [AdminController::class, 'pdcHold'])->name('pdc.hold');
+    Route::get('/pdc/user/{user}', [AdminController::class, 'pdcUserDetail'])->name('pdc.user.detail');
+    Route::post('/pdc/user/{user}/approve', [AdminController::class, 'approvePdc'])->name('pdc.approve');
+    Route::post('/pdc/user/{user}/send-back', [AdminController::class, 'sendBackPdc'])->name('pdc.send-back');
+
 
     Route::get('/chapters/resubmit', [AdminController::class, 'chapterResubmit'])->name('chapter.resubmit');
 
@@ -183,6 +198,12 @@ Route::middleware(['auth', 'user'])
             ->name('step7');
         Route::post('/Step7Store/', [UserController::class, 'step7store'])
             ->name('step7.store');
+
+        // Step 8 - PDC/Cheque Details
+        Route::get('/Step8', [UserController::class, 'step8'])
+            ->name('step8');
+        Route::post('/Step8Store/', [UserController::class, 'step8store'])
+            ->name('step8.store');
 
         // API route for fetching chapters by pincode
         Route::get('/get-chapters/{pincode}', [UserController::class, 'getChapters'])

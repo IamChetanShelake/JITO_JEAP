@@ -2302,7 +2302,8 @@
                 'qualification_institution', 'qualification_start_year', 'qualification_end_year',
                 'have_work_experience', 'organization_name', 'work_profile', 'duration_start_year',
                 'duration_end_year', 'work_location_city', 'work_country', 'work_type',
-                'mention_your_salary', 'salary_amount','yearly_gross_income', '10th_mark_obtained', '10th_mark_out_of',
+                'mention_your_salary', 'salary_amount', 'yearly_gross_income', '10th_mark_obtained',
+                '10th_mark_out_of',
                 '12th_mark_obtained', '12th_mark_out_of', 'ielts_overall_band_year', 'toefl_score_year', '
                 pte_score_year ','
                 duolingo_score_year ','

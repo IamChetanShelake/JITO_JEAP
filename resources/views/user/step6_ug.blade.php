@@ -43,7 +43,7 @@
                     <form method="POST" action="{{ route('user.step6.storeug') }}" enctype="multipart/form-data"
                         novalidate>
                         @csrf
-                         @if (session('success'))
+                        @if (session('success'))
                             <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
                                 id="successAlert">
 
@@ -376,7 +376,8 @@
                                                             <span class="photo-label">Admission Letter or Fees Structure
                                                                 *<br></span>
                                                             <span class="photo-label"
-                                                                style="color:gray;font-size:12px;">The document must include
+                                                                style="color:gray;font-size:12px;">The document must
+                                                                include
                                                                 the college/university name.
                                                             </span>
                                                             <input type="file" id="admission_letter_fees_structure"

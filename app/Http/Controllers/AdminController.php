@@ -652,7 +652,7 @@ class AdminController extends Controller
     {
         $users = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
-                $q->where('working_committee_status', 'reject');
+                $q->where('working_committee_status', 'rejected');
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();

@@ -854,7 +854,7 @@
 
                         $working_committee_reject = \App\Models\User::where('role', 'user')
                             ->whereHas('workflowStatus', function ($q) {
-                                $q->where('working_committee_status', 'reject');
+                                $q->where('working_committee_status', 'rejected');
                             })
                             ->count();
                         $working_committee_total = $working_committee_approved + $working_committee_pending + $working_committee_hold + $working_committee_reject;

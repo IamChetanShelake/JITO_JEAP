@@ -279,6 +279,10 @@
             background: #ffebee;
             border-color: #ffcdd2;
         }
+        .status-badge.ready {
+            background: #e3f2fd;
+            border-color: #90caf9;
+        }
 
         .status-icon {
             width: 30px;
@@ -1028,98 +1032,97 @@
                                 <i class="fas fa-lightbulb"></i>
                                 Accounts Department
                             </div>
-                            <div class="approval-total">Total - 14</div>
+                            <div class="approval-total">Total - {{ $disbursementTotal ?? 0 }}</div>
                         </div>
                         <div class="approval-rate">
-                            <span>Approval Rate</span>
-                            <span>80%</span>
+                            <span>Disbursement Progress</span>
+                            <span>{{ $disbursementTotal > 0 ? round(($disbursementCompleted / $disbursementTotal) * 100) : 0 }}%</span>
                         </div>
                         <div class="progress-custom">
                             <div class="progress-bar-custom"
-                                style="width: 70%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
+                                style="width: {{ $disbursementTotal > 0 ? ($disbursementCompleted / $disbursementTotal) * 100 : 0 }}%; background: linear-gradient(90deg, #009846, #00b359);"></div>
                         </div>
                         <div class="status-badges">
-                            <div class="status-badge approved">
+                            <a href="{{ route('admin.disbursement.completed') }}" class="status-badge approved" style="text-decoration: none; color: inherit;">
                                 <div class="status-icon approved">
                                     <i class="fas fa-check"></i>
                                 </div>
                                 <div>
                                     <div class="status-label">Disbursement Completed</div>
-                                    <div class="status-value">10</div>
+                                    <div class="status-value">{{ $disbursementCompleted ?? 0 }}</div>
                                 </div>
-                            </div>
-                            <div class="status-badge pending">
+                            </a>
+                            <a href="{{ route('admin.disbursement.in_progress') }}" class="status-badge pending" style="text-decoration: none; color: inherit;">
                                 <div class="status-icon pending">
                                     <i class="fas fa-clock"></i>
                                 </div>
                                 <div>
-                                    <div class="status-label">Ready for Disbursement</div>
-                                    <div class="status-value">3</div>
+                                    <div class="status-label">In Progress</div>
+                                    <div class="status-value">{{ $disbursementInProgress ?? 0 }}</div>
                                 </div>
-                            </div>
-                            <div class="status-badge hold">
+                            </a>
+                            <a href="{{ route('admin.disbursement.pending') }}" class="status-badge hold" style="text-decoration: none; color: inherit;">
                                 <div class="status-icon hold">
                                     <i class="fas fa-exclamation"></i>
                                 </div>
                                 <div>
-                                    <div class="status-label">Disbursement On Hold</div>
-                                    <div class="status-value">1</div>
+                                    <div class="status-label">Ready for Disbursement</div>
+                                    <div class="status-value">{{ $disbursementPending ?? 0 }}</div>
                                 </div>
-                            </div>
+                            </a>
                         </div>
                     </div>
                 @endif
             </div>
             <div class="col-lg-6">
                 @if (in_array($activeGuard, ['admin', 'apex']))
-                    <!-- Disbursement -->
+                    <!-- Disbursement Summary -->
                     <div class="approval-section">
                         <div class="approval-header">
                             <div class="approval-title chapter-title">
-                                <!-- use pocet money icon  -->
                                 <i class="fas fa-money-bill-wave" style="color: #4caf50;"></i>
-                                <!-- use green color for the Disbursement text color and for to icon as well  -->
-                                <span style="color: #4caf50;">Disbursement</span>
+                                <a href="{{ route('admin.disbursement.index') }}" style="color: #4caf50; text-decoration: none;">
+                                    <span>Disbursement Summary</span>
+                                </a>
                             </div>
-                            <div class="approval-total">Total - 10</div>
+                            <div class="approval-total">Total - {{ $disbursementTotal ?? 0 }}</div>
                         </div>
                         <div class="approval-rate">
-                            <span>Approval Rate</span>
-                            <span>75%</span>
+                            <span>Completion Rate</span>
+                            <span>{{ $disbursementTotal > 0 ? round(($disbursementCompleted / $disbursementTotal) * 100) : 0 }}%</span>
                         </div>
                         <div class="progress-custom">
                             <div class="progress-bar-custom"
-                                style="width: 75%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
+                                style="width: {{ $disbursementTotal > 0 ? ($disbursementCompleted / $disbursementTotal) * 100 : 0 }}%; background: linear-gradient(90deg, #009846, #00b359);"></div>
                         </div>
                         <div class="status-badges">
-                            <div class="status-badge approved">
+                            <a href="{{ route('admin.disbursement.completed') }}" class="status-badge approved" style="text-decoration: none; color: inherit;">
                                 <div class="status-icon approved">
                                     <i class="fas fa-check"></i>
                                 </div>
                                 <div>
-                                    <div class="status-label">Approved</div>
-                                    <div class="status-value">{{ \App\Models\Chapter::where('status', true)->count() }}
-                                    </div>
+                                    <div class="status-label">Completed</div>
+                                    <div class="status-value">{{ $disbursementCompleted ?? 0 }}</div>
                                 </div>
-                            </div>
-                            <div class="status-badge pending">
+                            </a>
+                            <a href="{{ route('admin.disbursement.in_progress') }}" class="status-badge pending" style="text-decoration: none; color: inherit;">
                                 <div class="status-icon pending">
                                     <i class="fas fa-clock"></i>
                                 </div>
                                 <div>
-                                    <div class="status-label">Pending</div>
-                                    <div class="status-value">2</div>
+                                    <div class="status-label">In Progress</div>
+                                    <div class="status-value">{{ $disbursementInProgress ?? 0 }}</div>
                                 </div>
-                            </div>
-                            <div class="status-badge hold">
-                                <div class="status-icon hold">
-                                    <i class="fas fa-exclamation"></i>
+                            </a>
+                            <a href="{{ route('admin.disbursement.pending') }}" class="status-badge ready" style="text-decoration: none; color: inherit;">
+                                <div class="status-icon ready">
+                                    <i class="fas fa-clipboard-check"></i>
                                 </div>
                                 <div>
-                                    <div class="status-label">Hold</div>
-                                    <div class="status-value">2</div>
+                                    <div class="status-label">Ready</div>
+                                    <div class="status-value">{{ $disbursementPending ?? 0 }}</div>
                                 </div>
-                            </div>
+                            </a>
                         </div>
                     </div>
                 @endif

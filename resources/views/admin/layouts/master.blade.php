@@ -709,6 +709,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.disbursement') ? 'active' : '' }}"
+                                href="{{ route('admin.disbursement.index') }}">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span class="nav-text">Disbursement</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.banks') ? 'active' : '' }}"
                                 href="{{ route('admin.banks.index') }}">
                                 <i class="fas fa-bank"></i>
@@ -816,21 +823,27 @@
                 const sidebar = document.getElementById('sidebar');
                 const mainContent = document.querySelector('.main-content');
                 const toggleBtn = document.getElementById('sidebarToggle');
-                const toggleIcon = toggleBtn.querySelector('i');
-                const toggleText = toggleBtn.querySelector('.toggle-text');
 
-                // Set initial collapsed state
-                if (sidebar.classList.contains('collapsed')) {
-                    toggleIcon.classList.remove('fa-chevron-left');
-                    toggleIcon.classList.add('fa-chevron-right');
-                    if (toggleText) toggleText.textContent = 'Expand';
-                    if (mainContent) {
-                        mainContent.style.marginLeft = '70px';
+                // Check if toggleBtn exists (hidden on mobile)
+                if (toggleBtn) {
+                    const toggleIcon = toggleBtn.querySelector('i');
+                    const toggleText = toggleBtn.querySelector('.toggle-text');
+
+                    // Set initial collapsed state
+                    if (sidebar.classList.contains('collapsed')) {
+                        if (toggleIcon) {
+                            toggleIcon.classList.remove('fa-chevron-left');
+                            toggleIcon.classList.add('fa-chevron-right');
+                        }
+                        if (toggleText) toggleText.textContent = 'Expand';
+                        if (mainContent) {
+                            mainContent.style.marginLeft = '70px';
+                        }
                     }
-                }
 
-                // Add event listener to sidebar toggle button
-                toggleBtn.addEventListener('click', toggleSidebar);
+                    // Add event listener to sidebar toggle button
+                    toggleBtn.addEventListener('click', toggleSidebar);
+                }
 
                 // Add hover event listeners for content adjustment
                 sidebar.addEventListener('mouseenter', function() {

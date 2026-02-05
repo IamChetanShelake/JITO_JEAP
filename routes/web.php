@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DisbursementController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BankController;
@@ -129,6 +130,16 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
 
     // Jito Jeap Bank Routes
     Route::resource('jito-jeap-banks', JitoJeapBankController::class);
+
+    // Disbursement Routes
+    Route::get('/disbursement', [DisbursementController::class, 'index'])->name('disbursement.index');
+    Route::get('/disbursement/user/{user}', [DisbursementController::class, 'show'])->name('disbursement.show');
+    Route::post('/disbursement/store', [DisbursementController::class, 'store'])->name('disbursement.store');
+
+    // Disbursement Filtered Routes
+    Route::get('/disbursement/completed', [DisbursementController::class, 'completed'])->name('disbursement.completed');
+    Route::get('/disbursement/in-progress', [DisbursementController::class, 'inProgress'])->name('disbursement.in_progress');
+    Route::get('/disbursement/pending', [DisbursementController::class, 'pending'])->name('disbursement.pending');
 
     // Subcast Routes
     Route::resource('subcasts', SubcastController::class);

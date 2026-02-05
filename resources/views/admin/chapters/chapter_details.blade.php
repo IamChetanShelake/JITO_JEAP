@@ -207,13 +207,14 @@
             <div class="status-icon pending">
                 <i class="fas fa-clock"></i>
             </div>
-            <div class="status-label">Pending</div>
+            <div class="status-label">Chapter Pending</div>
             <div class="status-count">{{
                \App\Models\User::where('role', 'user')
             ->where('chapter_id', $chapter->id)
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('current_stage', 'chapter')
-                  ->where('final_status', 'in_progress');
+                  ->where('final_status', 'in_progress')
+                  ->where('chapter_status', 'pending');
             })
             ->count()
             }}</div>
@@ -273,7 +274,7 @@
             <div class="status-icon hold">
                 <i class="fas fa-redo"></i>
             </div>
-            <div class="status-label">Hold (Resubmit)</div>
+            <div class="status-label">Apex Send Back for Correction</div>
             <div class="status-count">{{
                 \App\Models\User::where('role', 'user')
                     ->where('chapter_id', $chapter->id)

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BankController;
+use App\Http\Controllers\JitoJeapBankController;
 use App\Http\Controllers\SubcastController;
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\ChapterController;
@@ -125,6 +126,9 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
 
     // Bank Routes
     Route::resource('banks', BankController::class);
+
+    // Jito Jeap Bank Routes
+    Route::resource('jito-jeap-banks', JitoJeapBankController::class);
 
     // Subcast Routes
     Route::resource('subcasts', SubcastController::class);

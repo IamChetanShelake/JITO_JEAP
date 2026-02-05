@@ -717,6 +717,14 @@
                         </li>
 
                         <li class="nav-item">
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.jito-jeap-banks') ? 'active' : '' }}"
+                                href="{{ route('admin.jito-jeap-banks.index') }}">
+                                <i class="fas fa-bank"></i>
+                                <span class="nav-text">Jito Jeap Banks</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
                             <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.subcasts') ? 'active' : '' }}"
                                 href="{{ route('admin.subcasts.index') }}">
                                 <i class="fas fa-users"></i>

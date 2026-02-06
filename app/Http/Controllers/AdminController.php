@@ -8,6 +8,7 @@ use App\Models\PdcDetail;
 use Illuminate\Http\Request;
 use App\Models\EducationDetail;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ChapterInterviewAnswer;
@@ -17,7 +18,100 @@ class AdminController extends Controller
 {
     public function index(Request $request)
     {
-        return view('admin.home', ['activeGuard' => $request->active_guard]);
+        // Calculate disbursement counts for dashboard
+        $disbursementCounts = $this->getDisbursementCounts();
+
+        return view('admin.home', [
+            'activeGuard' => $request->active_guard,
+            'disbursementCompleted' => $disbursementCounts['completed'],
+            'disbursementInProgress' => $disbursementCounts['in_progress'],
+            'disbursementPending' => $disbursementCounts['pending'],
+            'disbursementTotal' => $disbursementCounts['total']
+        ]);
+    }
+
+    /**
+     * Calculate disbursement counts for dashboard
+     */
+    private function getDisbursementCounts()
+    {
+        try {
+            // Get all schedule data
+            $scheduleData = DB::connection('admin_panel')
+                ->table('disbursement_schedules')
+                ->select(
+                    'user_id',
+                    DB::raw('COUNT(*) as total_count'),
+                    DB::raw('SUM(planned_amount) as total_planned_amount')
+                )
+                ->groupBy('user_id')
+                ->get();
+
+            // Get disbursed amounts
+            $disbursedData = DB::connection('admin_panel')
+                ->table('disbursements')
+                ->select('user_id', DB::raw('SUM(amount) as total_disbursed_amount'))
+                ->groupBy('user_id')
+                ->get()
+                ->keyBy('user_id');
+
+            // Get status data
+            $statusData = DB::connection('admin_panel')
+                ->table('disbursement_schedules')
+                ->select(
+                    'user_id',
+                    DB::raw('COUNT(*) as total_count'),
+                    DB::raw('SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as completed_count')
+                )
+                ->groupBy('user_id')
+                ->get()
+                ->keyBy('user_id');
+
+            // Get disbursement counts
+            $disbursementCounts = DB::connection('admin_panel')
+                ->table('disbursements')
+                ->select('user_id', DB::raw('COUNT(*) as disbursement_count'))
+                ->groupBy('user_id')
+                ->get()
+                ->keyBy('user_id');
+
+            $completed = 0;
+            $inProgress = 0;
+            $pending = 0;
+
+            foreach ($scheduleData as $item) {
+                $disbursed = $disbursedData->get($item->user_id);
+                $statusInfo = $statusData->get($item->user_id);
+                $disbursementCount = $disbursementCounts->get($item->user_id)->disbursement_count ?? 0;
+
+                $totalDisbursedAmount = $disbursed->total_disbursed_amount ?? 0;
+                $totalCount = $statusInfo->total_count ?? 0;
+                $amountFullyDisbursed = ($totalDisbursedAmount >= $item->total_planned_amount);
+
+                // Determine status
+                if ($totalCount > 0 && $disbursementCount === $totalCount && $amountFullyDisbursed) {
+                    $completed++;
+                } elseif ($disbursementCount > 0 || $totalDisbursedAmount > 0) {
+                    $inProgress++;
+                } else {
+                    $pending++;
+                }
+            }
+
+            return [
+                'completed' => $completed,
+                'in_progress' => $inProgress,
+                'pending' => $pending,
+                'total' => $completed + $inProgress + $pending
+            ];
+        } catch (\Exception $e) {
+            return [
+                'completed' => 0,
+                'in_progress' => 0,
+                'pending' => 0,
+                'total' => 0
+            ];
+        }
     }
 
     public function apexStage1Approved()
@@ -566,7 +660,8 @@ class AdminController extends Controller
         $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($query) {
                 $query->where('current_stage', 'chapter')
-                    ->where('final_status', 'in_progress');
+                    ->where('final_status', 'in_progress')
+                    ->where('chapter_status', 'pending');
             });
         if (request('chapter_id')) {
             $query->where('chapter_id', request('chapter_id'));

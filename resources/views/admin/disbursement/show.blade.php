@@ -247,9 +247,14 @@
             </h1>
             <p class="dashboard-subtitle">Accounts Department</p>
         </div>
-        <a href="{{ route('admin.disbursement.index') }}" class="change-country-btn">
-            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('admin.disbursement.index') }}" class="change-country-btn">
+                <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+            </a>
+            <a href="{{ route('admin.repayments.show', ['user' => $user->id]) }}" class="change-country-btn">
+                <i class="fas fa-receipt me-1"></i> Repayments
+            </a>
+        </div>
     </div>
 
     <!-- Student Info Header -->

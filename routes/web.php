@@ -185,6 +185,10 @@ Route::middleware(['auth', 'user'])
         Route::post('/Step5Store/', [UserController::class, 'step5store'])
             ->name('step5.store');
 
+        Route::post('/check-guarantor-duplicate', [UserController::class, 'checkDuplicate'])
+            ->name('check.guarantor.duplicate');
+
+
 
         Route::get('/Step6', [UserController::class, 'step6'])
             ->name('step6');

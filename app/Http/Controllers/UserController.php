@@ -1574,6 +1574,66 @@ class UserController extends Controller
         return view('user.step5', compact('type', 'familyDetail', 'fundingDetail', 'user', 'guarantorDetail'));
     }
 
+
+    public function checkDuplicate(Request $request)
+    {
+        $user = Auth::user();
+        $value = trim($request->value);
+        $field = $request->field; // mobile, email, pan, aadhar, name
+
+        // ===== USERS TABLE FIELD MAP =====
+        $userFieldMap = [
+            'name'   => 'name',
+            'email'  => 'email',
+            'mobile' => 'phone',          // 👈 mapping
+            'pan'    => 'pan_card',
+            'aadhar' => 'aadhar_card_number',
+        ];
+
+        if (isset($userFieldMap[$field])) {
+            $userColumn = $userFieldMap[$field];
+
+            if (!empty($user->$userColumn) && $user->$userColumn === $value) {
+                return response()->json([
+                    'exists' => true,
+                    'source' => 'user'
+                ]);
+            }
+        }
+
+        // ===== FAMILY JSON FIELD MAP =====
+        $familyFieldMap = [
+            'name'   => 'name',
+            'email'  => 'email',
+            'mobile' => 'mobile',         // 👈 JSON key
+            'pan'    => 'pan_card',
+            'aadhar' => 'aadhar_no',
+        ];
+
+        if (isset($familyFieldMap[$field])) {
+            $family = Familydetail::where('user_id', $user->id)->first();
+
+            if ($family && is_array($family->additional_family_members)) {
+                foreach ($family->additional_family_members as $member) {
+                    $jsonKey = $familyFieldMap[$field];
+
+                    if (
+                        isset($member[$jsonKey]) &&
+                        trim($member[$jsonKey]) === $value
+                    ) {
+                        return response()->json([
+                            'exists' => true,
+                            'source' => 'family'
+                        ]);
+                    }
+                }
+            }
+        }
+
+        return response()->json(['exists' => false]);
+    }
+
+
     // public function step5store(Request $request)
     // {
     //     $request->validate([

@@ -20,13 +20,18 @@ class AdminController extends Controller
     {
         // Calculate disbursement counts for dashboard
         $disbursementCounts = $this->getDisbursementCounts();
+        $repaymentCounts = $this->getRepaymentCounts();
 
         return view('admin.home', [
             'activeGuard' => $request->active_guard,
             'disbursementCompleted' => $disbursementCounts['completed'],
             'disbursementInProgress' => $disbursementCounts['in_progress'],
             'disbursementPending' => $disbursementCounts['pending'],
-            'disbursementTotal' => $disbursementCounts['total']
+            'disbursementTotal' => $disbursementCounts['total'],
+            'repaymentCompleted' => $repaymentCounts['completed'],
+            'repaymentInProgress' => $repaymentCounts['in_progress'],
+            'repaymentReady' => $repaymentCounts['ready'],
+            'repaymentTotal' => $repaymentCounts['total'],
         ]);
     }
 
@@ -110,6 +115,77 @@ class AdminController extends Controller
                 'in_progress' => 0,
                 'pending' => 0,
                 'total' => 0
+            ];
+        }
+    }
+
+    /**
+     * Calculate repayment counts for dashboard
+     */
+    private function getRepaymentCounts()
+    {
+        try {
+            $scheduleData = DB::connection('admin_panel')
+                ->table('disbursement_schedules')
+                ->select(
+                    'user_id',
+                    DB::raw('SUM(planned_amount) as total_planned_amount')
+                )
+                ->groupBy('user_id')
+                ->get();
+
+            $disbursedData = DB::connection('admin_panel')
+                ->table('disbursements')
+                ->select('user_id', DB::raw('SUM(amount) as total_disbursed_amount'))
+                ->groupBy('user_id')
+                ->get()
+                ->keyBy('user_id');
+
+            $repaymentData = DB::connection('admin_panel')
+                ->table('repayments')
+                ->select('user_id', DB::raw('SUM(amount) as total_repaid_amount'))
+                ->where('status', '!=', 'bounced')
+                ->groupBy('user_id')
+                ->get()
+                ->keyBy('user_id');
+
+            $completed = 0;
+            $inProgress = 0;
+            $ready = 0;
+
+            foreach ($scheduleData as $item) {
+                $disbursed = $disbursedData->get($item->user_id);
+                $totalDisbursedAmount = $disbursed->total_disbursed_amount ?? 0;
+
+                if ($totalDisbursedAmount <= 0) {
+                    continue;
+                }
+
+                $repaid = $repaymentData->get($item->user_id);
+                $totalRepaidAmount = $repaid->total_repaid_amount ?? 0;
+                $outstandingAmount = max($totalDisbursedAmount - $totalRepaidAmount, 0);
+
+                if ($outstandingAmount == 0) {
+                    $completed++;
+                } elseif ($totalRepaidAmount > 0) {
+                    $inProgress++;
+                } else {
+                    $ready++;
+                }
+            }
+
+            return [
+                'completed' => $completed,
+                'in_progress' => $inProgress,
+                'ready' => $ready,
+                'total' => $completed + $inProgress + $ready,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'completed' => 0,
+                'in_progress' => 0,
+                'ready' => 0,
+                'total' => 0,
             ];
         }
     }

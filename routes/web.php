@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DisbursementController;
+use App\Http\Controllers\RepaymentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BankController;
@@ -135,6 +136,14 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/disbursement', [DisbursementController::class, 'index'])->name('disbursement.index');
     Route::get('/disbursement/user/{user}', [DisbursementController::class, 'show'])->name('disbursement.show');
     Route::post('/disbursement/store', [DisbursementController::class, 'store'])->name('disbursement.store');
+
+    // Repayment Routes
+    Route::get('/repayments', [RepaymentController::class, 'index'])->name('repayments.index');
+    Route::get('/repayments/completed', [RepaymentController::class, 'completed'])->name('repayments.completed');
+    Route::get('/repayments/in-progress', [RepaymentController::class, 'inProgress'])->name('repayments.in_progress');
+    Route::get('/repayments/ready', [RepaymentController::class, 'ready'])->name('repayments.ready');
+    Route::get('/repayments/user/{user}', [RepaymentController::class, 'show'])->name('repayments.show');
+    Route::post('/repayments/user/{user}', [RepaymentController::class, 'store'])->name('repayments.store');
 
     // Disbursement Filtered Routes
     Route::get('/disbursement/completed', [DisbursementController::class, 'completed'])->name('disbursement.completed');

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DisbursementController;
 use App\Http\Controllers\RepaymentController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DonorController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\JitoJeapBankController;
@@ -246,4 +247,34 @@ Route::middleware(['auth', 'user'])
             ->name('verify.pan');
         Route::post('/verify-aadhaar-last4', [UserController::class, 'verifyAadhaarLast4'])
             ->name('verify.aadhaar.last4');
+        
+        
+        
     });
+
+    Route::prefix('donor')->group(function () {
+
+    Route::get('/step1', [DonorController::class, 'step1'])->name('donor.step1');
+    Route::post('/step1', [DonorController::class, 'storestep1'])->name('donor.step1.store');
+
+    Route::get('/step2', [DonorController::class, 'step2'])->name('donor.step2');
+    Route::post('/step2', [DonorController::class, 'storestep2'])->name('donor.step2.store');
+
+    Route::get('/step3', [DonorController::class, 'step3'])->name('donor.step3');
+    Route::post('/step3', [DonorController::class, 'storestep3'])->name('donor.step3.store');
+
+    Route::get('/step4', [DonorController::class, 'step4'])->name('donor.step4');
+    Route::post('/step4', [DonorController::class, 'storestep4'])->name('donor.step4.store');
+
+    Route::get('/step5', [DonorController::class, 'step5'])->name('donor.step5');
+    Route::post('/step5', [DonorController::class, 'storestep5'])->name('donor.step5.store');
+
+    Route::get('/step6', [DonorController::class, 'step6'])->name('donor.step6');
+    Route::post('/step6', [DonorController::class, 'storestep6'])->name('donor.step6.store');
+
+    Route::get('/step7', [DonorController::class, 'step7'])->name('donor.step7');
+    Route::post('/step7', [DonorController::class, 'storestep7'])->name('donor.step7.store');
+
+    Route::get('/step8', [DonorController::class, 'step8'])->name('donor.step8');
+    Route::post('/step8', [DonorController::class, 'storestep8'])->name('donor.step8.store');
+});

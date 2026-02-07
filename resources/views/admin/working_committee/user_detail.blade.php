@@ -1826,104 +1826,113 @@
                 </div>
             </div>
 
-            @if($user->document)
-        <div class="form-data">
-            <div class="data-group">
-                <h4>All Documents</h4>
-                <div class="form-section" style="display: grid; grid-template-columns: 0.3fr 1fr; gap: 2rem; min-height: 500px;">
-                    <!-- Document List -->
-                    <div style="border-right: 1px solid var(--border-color); padding-right: 1rem; overflow-y: auto; max-height: 500px;">
-                        <h5 style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1rem;">Document List</h5>
-                        @php
-                            $doc = $user->document;
-                            $fields = [
-                                'ssc_cbse_icse_ib_igcse' => 'SSC/CBSE/ICSE/IB/IGCSE',
-                                'hsc_diploma_marksheet' => 'HSC/Diploma Marksheet',
-                                'graduate_post_graduate_marksheet' => 'Graduate/Post Graduate Marksheet',
-                                'admission_letter_fees_structure' => 'Admission Letter / Fees Structure',
-                                'aadhaar_applicant' => 'Applicant Aadhaar',
-                                'pan_applicant' => 'Applicant PAN',
-                                'passport' => 'Passport',
-                                'student_bank_details_statement' => 'Student Bank Statement',
-                                'jito_group_recommendation' => 'JITO Group Recommendation',
-                                'jain_sangh_certificate' => 'Jain Sangh Certificate',
-                                'electricity_bill' => 'Electricity Bill',
-                                'itr_acknowledgement_father' => 'Father ITR Acknowledgement',
-                                'itr_computation_father' => 'Father ITR Computation',
-                                'form16_salary_income_father' => 'Form16 / Salary Slip (Father)',
-                                'bank_statement_father_12months' => 'Father Bank Statement (12 months)',
-                                'bank_statement_mother_12months' => 'Mother Bank Statement (12 months)',
-                                'aadhaar_father_mother' => 'Father/Mother Aadhaar',
-                                'pan_father_mother' => 'Father/Mother PAN',
-                                'guarantor1_aadhaar' => 'Guarantor1 Aadhaar',
-                                'guarantor1_pan' => 'Guarantor1 PAN',
-                                'guarantor2_aadhaar' => 'Guarantor2 Aadhaar',
-                                'guarantor2_pan' => 'Guarantor2 PAN',
-                                'student_handwritten_statement' => 'Student Handwritten Statement',
-                                'proof_funds_arranged' => 'Proof of Funds Arranged',
-                                'other_documents' => 'Other Documents',
-                                'extra_curricular' => 'Extra Curricular',
-                            ];
-                        @endphp
+            @if ($user->document)
+                <div class="form-data">
+                    <div class="data-group">
+                        <h4>All Documents</h4>
+                        <div class="form-section"
+                            style="display: grid; grid-template-columns: 0.3fr 1fr; gap: 2rem; min-height: 500px;">
+                            <!-- Document List -->
+                            <div
+                                style="border-right: 1px solid var(--border-color); padding-right: 1rem; overflow-y: auto; max-height: 500px;">
+                                <h5 style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1rem;">Document List
+                                </h5>
+                                @php
+                                    $doc = $user->document;
+                                    $fields = [
+                                        'ssc_cbse_icse_ib_igcse' => 'SSC/CBSE/ICSE/IB/IGCSE',
+                                        'hsc_diploma_marksheet' => 'HSC/Diploma Marksheet',
+                                        'graduate_post_graduate_marksheet' => 'Graduate/Post Graduate Marksheet',
+                                        'admission_letter_fees_structure' => 'Admission Letter / Fees Structure',
+                                        'aadhaar_applicant' => 'Applicant Aadhaar',
+                                        'pan_applicant' => 'Applicant PAN',
+                                        'passport' => 'Passport',
+                                        'student_bank_details_statement' => 'Student Bank Statement',
+                                        'jito_group_recommendation' => 'JITO Group Recommendation',
+                                        'jain_sangh_certificate' => 'Jain Sangh Certificate',
+                                        'electricity_bill' => 'Electricity Bill',
+                                        'itr_acknowledgement_father' => 'Father ITR Acknowledgement',
+                                        'itr_computation_father' => 'Father ITR Computation',
+                                        'form16_salary_income_father' => 'Form16 / Salary Slip (Father)',
+                                        'bank_statement_father_12months' => 'Father Bank Statement (12 months)',
+                                        'bank_statement_mother_12months' => 'Mother Bank Statement (12 months)',
+                                        'aadhaar_father_mother' => 'Father/Mother Aadhaar',
+                                        'pan_father_mother' => 'Father/Mother PAN',
+                                        'guarantor1_aadhaar' => 'Guarantor1 Aadhaar',
+                                        'guarantor1_pan' => 'Guarantor1 PAN',
+                                        'guarantor2_aadhaar' => 'Guarantor2 Aadhaar',
+                                        'guarantor2_pan' => 'Guarantor2 PAN',
+                                        'student_handwritten_statement' => 'Student Handwritten Statement',
+                                        'proof_funds_arranged' => 'Proof of Funds Arranged',
+                                        'other_documents' => 'Other Documents',
+                                        'extra_curricular' => 'Extra Curricular',
+                                    ];
+                                @endphp
 
-                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                            @foreach($fields as $key => $label)
-                                @if(!empty($doc->$key))
-                                    @php
-                                        $p = $doc->$key;
-                                        if (strpos($p, 'http') === 0) {
-                                            $href = $p;
-                                        } else {
-                                            $trimmed = ltrim($p, '/');
-                                            if (file_exists(public_path($trimmed))) {
-                                                $href = asset($trimmed);
-                                            } elseif (file_exists(public_path('storage/' . $trimmed))) {
-                                                $href = asset('storage/' . $trimmed);
-                                            } elseif (file_exists(public_path('user_document_images/' . $trimmed))) {
-                                                $href = asset('user_document_images/' . $trimmed);
-                                            } else {
-                                                $href = asset($trimmed);
-                                            }
-                                        }
-                                    @endphp
-                                    <button 
-                                        onclick="openModal('{{ $href }}', '{{ $label }}')"
-                                        style="text-align: left; padding: 0.75rem 1rem; background: {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'white' }}; color: {{ request()->session()->get('selected_document') == $href ? 'white' : 'var(--text-dark)' }}; border: 1px solid {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--border-color)' }}; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: {{ request()->session()->get('selected_document') == $href ? '600' : '400' }};"
-                                        onmouseover="this.style.background = '{{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--bg-light)' }}'"
-                                        onmouseout="this.style.background = '{{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'white' }}'"
-                                    >
-                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                            <i class="fas fa-file-alt" style="font-size: 0.8rem;"></i>
-                                            {{ $label }}
-                                        </div>
-                                    </button>
-                                @else
-                                    <div style="padding: 0.75rem 1rem; color: var(--text-light); font-size: 0.9rem; opacity: 0.6;">
-                                        <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i>
-                                        {{ $label }} (Not uploaded)
-                                    </div>
-                                @endif
-                            @endforeach
-                        </div>
-                    </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    @foreach ($fields as $key => $label)
+                                        @if (!empty($doc->$key))
+                                            @php
+                                                $p = $doc->$key;
+                                                if (strpos($p, 'http') === 0) {
+                                                    $href = $p;
+                                                } else {
+                                                    $trimmed = ltrim($p, '/');
+                                                    if (file_exists(public_path($trimmed))) {
+                                                        $href = asset($trimmed);
+                                                    } elseif (file_exists(public_path('storage/' . $trimmed))) {
+                                                        $href = asset('storage/' . $trimmed);
+                                                    } elseif (
+                                                        file_exists(public_path('user_document_images/' . $trimmed))
+                                                    ) {
+                                                        $href = asset('user_document_images/' . $trimmed);
+                                                    } else {
+                                                        $href = asset($trimmed);
+                                                    }
+                                                }
+                                            @endphp
+                                            <button onclick="openModal('{{ $href }}', '{{ $label }}')"
+                                                style="text-align: left; padding: 0.75rem 1rem; background: {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'white' }}; color: {{ request()->session()->get('selected_document') == $href ? 'white' : 'var(--text-dark)' }}; border: 1px solid {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--border-color)' }}; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: {{ request()->session()->get('selected_document') == $href ? '600' : '400' }};"
+                                                onmouseover="this.style.background = '{{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--bg-light)' }}'"
+                                                onmouseout="this.style.background = '{{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'white' }}'">
+                                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                                    <i class="fas fa-file-alt" style="font-size: 0.8rem;"></i>
+                                                    {{ $label }}
+                                                </div>
+                                            </button>
+                                        @else
+                                            <div
+                                                style="padding: 0.75rem 1rem; color: var(--text-light); font-size: 0.9rem; opacity: 0.6;">
+                                                <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i>
+                                                {{ $label }} (Not uploaded)
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
 
-                    <!-- Document Preview -->
-                    <div style="padding-left: 1rem; display: flex; flex-direction: column;">
-                        <h5 style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1rem;">Document Preview</h5>
-                        <div id="documentPreview" style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--bg-light); border-radius: 8px; border: 1px solid var(--border-color); padding: 2rem;">
-                            <i class="fas fa-file-image" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
-                            <p style="color: var(--text-light); font-size: 1rem;">Select a document from the left to preview</p>
-                            <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Click on any document name to view its content</p>
+                            <!-- Document Preview -->
+                            <div style="padding-left: 1rem; display: flex; flex-direction: column;">
+                                <h5 style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1rem;">Document Preview
+                                </h5>
+                                <div id="documentPreview"
+                                    style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--bg-light); border-radius: 8px; border: 1px solid var(--border-color); padding: 2rem;">
+                                    <i class="fas fa-file-image"
+                                        style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+                                    <p style="color: var(--text-light); font-size: 1rem;">Select a document from the left
+                                        to preview</p>
+                                    <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Click on
+                                        any document name to view its content</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        @else
-        <div class="no-data">
-            <p>Documents not submitted yet.</p>
-        </div>
-        @endif
+            @else
+                <div class="no-data">
+                    <p>Documents not submitted yet.</p>
+                </div>
+            @endif
         </div>
 
         <!-- Step 7: Final Submission -->
@@ -2055,7 +2064,7 @@
                                 <div class="form-field">
                                     <label class="form-label">Processed By</label>
                                     <input type="text" class="form-input"
-                                        value="{{ $workingCommitteeApproval->processed_by }}" readonly>
+                                        value="{{ $workingCommitteeApproval->processed_by_name }}" readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Approval Status</label>
@@ -2301,15 +2310,13 @@
                                                         value="₹{{ number_format($user->educationDetail->group_4_total ?? 0) }}"
                                                         readonly>
                                                 </div>
-                                                <div class="form-field">
+                                                {{-- <div class="form-field">
                                                     <label class="form-label">Amount Requested for Year</label>
                                                     <input type="text" class="form-input"
                                                         value="₹{{ number_format($user->fundingDetail->total_funding_amount ?? 0) }}"
                                                         readonly>
-                                                </div>
-                                            </div>
-                                            <div class="form-row">
-                                                <div class="form-field form-field-full">
+                                                </div> --}}
+                                                <div class="form-field ">
                                                     <label class="form-label">Recommended Financial Amount by
                                                         Chapter</label>
                                                     <input type="text" class="form-input"
@@ -2317,6 +2324,15 @@
                                                         readonly>
                                                 </div>
                                             </div>
+                                            {{-- <div class="form-row">
+                                                <div class="form-field ">
+                                                    <label class="form-label">Recommended Financial Amount by
+                                                        Chapter</label>
+                                                    <input type="text" class="form-input"
+                                                        value="₹{{ number_format($user->workflowStatus->chapter_assistance_amount ?? 0) }}"
+                                                        readonly>
+                                                </div>
+                                            </div> --}}
                                         </div>
 
                                         <div class="form-row">
@@ -2379,18 +2395,32 @@
                                                 <input type="number" name="approval_financial_assistance_amount"
                                                     id="total-amount" class="form-input" step="0.01" readonly>
                                             </div>
+                                            {{-- <div class="form-field">
+                                                <label class="form-label">Installment Amount</label>
+                                                <input type="number" name="installment_amount"
+                                                    id="installment-amount" class="form-input" step="0.01">
+                                            </div> --}}
+                                        </div>
+
+                                        <div class="form-row">
                                             <div class="form-field">
                                                 <label class="form-label">Installment Amount</label>
                                                 <input type="number" name="installment_amount"
                                                     id="installment-amount" class="form-input" step="0.01">
                                             </div>
-                                        </div>
-
-                                        <div class="form-row">
                                             <div class="form-field">
                                                 <label class="form-label">Additional Installment Amount</label>
                                                 <input type="number" name="additional_installment_amount"
                                                     class="form-input" step="0.01">
+                                            </div>
+
+                                        </div>
+
+                                        <div class="form-row">
+                                            <div class="form-field">
+                                                <label class="form-label">No of Cheques to be Collected</label>
+                                                <input type="number" name="no_of_cheques_to_be_collected"
+                                                    class="form-input" min="1">
                                             </div>
                                             <div class="form-field">
                                                 <label class="form-label">Repayment Type</label>
@@ -2402,29 +2432,26 @@
                                                     <option value="monthly">Monthly</option>
                                                 </select>
                                             </div>
-                                        </div>
-
-                                        <div class="form-row">
-                                            <div class="form-field">
-                                                <label class="form-label">No of Cheques to be Collected</label>
-                                                <input type="number" name="no_of_cheques_to_be_collected"
-                                                    class="form-input" min="1">
-                                            </div>
                                             <div class="form-field">
                                                 <label class="form-label">Repayment Starting From</label>
                                                 <input type="date" name="repayment_starting_from"
                                                     class="form-input">
                                             </div>
+                                            <div class="form-field">
+                                                <label class="form-label">Processed By</label>
+                                                <input type="text" name="processed_by_name" class="form-input"
+                                                    value="{{ Auth::user()->name ?? 'N/A' }}" readonly>
+                                            </div>
                                         </div>
 
 
 
                                         <div class="form-row">
-                                            <div class="form-field">
+                                            {{-- <div class="form-field">
                                                 <label class="form-label">Processed By</label>
                                                 <input type="text" name="processed_by" class="form-input"
                                                     value="{{ Auth::user()->name ?? 'N/A' }}" readonly>
-                                            </div>
+                                            </div> --}}
                                             <div class="form-field">
 
                                                 <label class="form-label">Remarks for Approval</label>
@@ -2608,31 +2635,33 @@
             // Calculate installment amount (total / number of installments)
             const yearlyCount = document.querySelectorAll('.yearly-amount').length;
 
-            if (yearlyCount > 0) {
-                const installmentAmount = total / yearlyCount;
-                document.getElementById('installment-amount').value = installmentAmount.toFixed(2);
-            } else {
-                document.getElementById('installment-amount').value = '0.00';
-            }
+            // if (yearlyCount > 0) {
+            //  const installmentAmount = total / yearlyCount;
+            //  document.getElementById('installment-amount').value = installmentAmount.toFixed(2);
+            // } else {
+            // document.getElementById('installment-amount').value = '0.00';
+            // }
         }
 
         // Modal functions for document viewing
         function openModal(url, title = 'Document Preview') {
             const previewContainer = document.getElementById('documentPreview');
             const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|ico)$/i.test(url);
-            
+
             // Clear existing preview content
             previewContainer.innerHTML = '';
-            
+
             // Create preview title
             const previewTitle = document.createElement('div');
-            previewTitle.style.cssText = 'margin-bottom: 1rem; padding: 0.5rem; background: var(--primary-purple); color: white; border-radius: 6px; font-weight: 600; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center;';
+            previewTitle.style.cssText =
+                'margin-bottom: 1rem; padding: 0.5rem; background: var(--primary-purple); color: white; border-radius: 6px; font-weight: 600; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center;';
             previewTitle.textContent = title;
-            
+
             // Add close button to preview
             const closeBtn = document.createElement('button');
             closeBtn.innerHTML = '<i class="fas fa-times"></i>';
-            closeBtn.style.cssText = 'background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;';
+            closeBtn.style.cssText =
+                'background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;';
             closeBtn.onclick = function() {
                 previewContainer.innerHTML = `
                     <i class="fas fa-file-image" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
@@ -2642,7 +2671,7 @@
             };
             previewTitle.appendChild(closeBtn);
             previewContainer.appendChild(previewTitle);
-            
+
             // Create preview content
             if (isImage) {
                 const img = document.createElement('img');
@@ -2656,11 +2685,12 @@
                 iframe.style.cssText = 'width: 100%; height: 400px; border: none; border-radius: 6px;';
                 previewContainer.appendChild(iframe);
             }
-            
+
             // Add download button
             const downloadBtn = document.createElement('button');
             downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';
-            downloadBtn.style.cssText = 'margin-top: 1rem; padding: 0.5rem 1rem; background: var(--primary-purple); color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;';
+            downloadBtn.style.cssText =
+                'margin-top: 1rem; padding: 0.5rem 1rem; background: var(--primary-purple); color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;';
             downloadBtn.onclick = function() {
                 window.open(url, '_blank');
             };
@@ -2681,6 +2711,41 @@
             }
         }
     </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const totalAmountInput = document.getElementById('total-amount');
+            const installmentInput = document.getElementById('installment-amount');
+            const additionalInput = document.querySelector('input[name="additional_installment_amount"]');
+            const chequesInput = document.querySelector('input[name="no_of_cheques_to_be_collected"]');
+
+            installmentInput.addEventListener('input', function() {
+
+                const totalAmount = parseFloat(totalAmountInput.value) || 0;
+                const installmentAmount = parseFloat(this.value) || 0;
+
+                if (totalAmount > 0 && installmentAmount > 0) {
+
+                    const baseCheques = Math.floor(totalAmount / installmentAmount);
+                    const remainder = totalAmount % installmentAmount;
+
+                    // If additional installment exists, add 1 cheque
+                    const totalCheques = remainder > 0 ? baseCheques + 1 : baseCheques;
+
+                    chequesInput.value = totalCheques;
+                    additionalInput.value = remainder.toFixed(2);
+
+                } else {
+                    chequesInput.value = '';
+                    additionalInput.value = '';
+                }
+            });
+
+        });
+    </script>
+
+
 
     <!-- Document Modal -->
     <div id="documentModal"

@@ -265,37 +265,23 @@
                                                     id="city_name_error">{{ $errors->first('city_name') }}</small>
                                             </div>
 
-                                            {{-- <div class="form-group mb-3">
-                                                <label for="start_year">Start Year <span
-                                                        style="color: red;">*</span></label>
-                                                <input type="number" id="start_year" class="form-control" name="start_year"
-                                                    placeholder="Enter Start Year " value="{{ old('start_year') }}"
-                                                    min="2000" max="2199" required>
+                                            <div class="form-group mb-3">
+                                                <label for="start_year">
+                                                    Start Date <span style="color:red">*</span>
+                                                </label>
+
+                                                <input type="date" id="start_year" class="form-control"
+                                                    name="start_year"
+                                                    value="{{ old('start_year') ?: ($educationDetail && $educationDetail->start_year ? \Carbon\Carbon::parse($educationDetail->start_year)->format('Y-m-d') : '') }}"
+                                                    min="1900-01-01"
+                                                    max="{{ \Carbon\Carbon::now()->addYear()->format('Y-m-d') }}"
+                                                    required>
+
                                                 <small class="text-danger">{{ $errors->first('start_year') }}</small>
                                             </div>
 
-                                            <div class="form-group mb-3">
-                                                <label for="expected_year">Expected Year of Completion <span
-                                                        style="color: red;">*</span></label>
-                                                <input type="text" id="expected_year" class="form-control"
-                                                    name="expected_year" placeholder="Enter Expected Year of Completion  "
-                                                    value="{{ old('expected_year') }}" pattern="^(20|21)\d{2}$"
-                                                    title="Please enter a valid year (e.g. 2024)" required>
-                                                <small class="text-danger">{{ $errors->first('expected_year') }}</small>
-                                            </div> --}}
-                                            <div class="form-group mb-3">
-                                                <label for="start_year">Start Year <span
-                                                        style="color:red">*</span></label>
-                                                <input type="month" id="start_year" class="form-control"
-                                                    name="start_year"
-                                                    value="{{ old('start_year') ?: ($educationDetail && $educationDetail->start_year ? \Carbon\Carbon::parse($educationDetail->start_year)->format('Y-m') : '') }}"
-                                                    min="{{ date('Y-m') }}" required oninput="validateStartYear()">
-                                                <small id="startYearError" class="text-danger d-none">
-                                                    Start month must not be more than 4 months in the future
-                                                </small>
-                                            </div>
 
-                                            <div class="form-group mb-3">
+                                            {{-- <div class="form-group mb-3">
                                                 <label for="expected_year">Expected Year of Completion <span
                                                         style="color:red">*</span></label>
                                                 <input type="month" id="expected_year" class="form-control"
@@ -305,7 +291,21 @@
                                                 <small id="expectedYearError" class="text-danger d-none">
                                                     Expected month must be after start month and within next 5 years
                                                 </small>
+                                            </div> --}}
+
+                                            <div class="form-group mb-3">
+                                                <label for="expected_year">
+                                                    Expected Date of Completion <span style="color:red">*</span>
+                                                </label>
+
+                                                <input type="date" id="expected_year" class="form-control"
+                                                    name="expected_year"
+                                                    value="{{ old('expected_year') ?: ($educationDetail && $educationDetail->expected_year ? \Carbon\Carbon::parse($educationDetail->expected_year)->format('Y-m-d') : '') }}"
+                                                    required>
+
+                                                <small class="text-danger">{{ $errors->first('expected_year') }}</small>
                                             </div>
+
 
 
 
@@ -317,34 +317,7 @@
                                                 <small class="text-danger"
                                                     id="nirf_ranking_error">{{ $errors->first('nirf_ranking') }}</small>
                                             </div>
-                                            {{--
-                                            <div class="form-group mb-3">
-                                                <select class="form-control" name="duration">
-                                                    <option value="" {{ !old('duration') ? 'selected' : '' }}
-                                                        disabled hidden>Duration *</option>
-                                                    <option value="1" {{ old('duration') == '1' ? 'selected' : '' }}>1
-                                                        Year</option>
-                                                    <option value="2" {{ old('duration') == '2' ? 'selected' : '' }}>2
-                                                        Years</option>
-                                                    <option value="3" {{ old('duration') == '3' ? 'selected' : '' }}>3
-                                                        Years</option>
-                                                    <option value="4" {{ old('duration') == '4' ? 'selected' : '' }}>4
-                                                        Years</option>
-                                                    <option value="5" {{ old('duration') == '5' ? 'selected' : '' }}>5
-                                                        Years</option>
-                                                    <option value="6" {{ old('duration') == '6' ? 'selected' : '' }}>6
-                                                        Years</option>
-                                                    <option value="7" {{ old('duration') == '7' ? 'selected' : '' }}>7
-                                                        Years</option>
-                                                    <option value="8" {{ old('duration') == '8' ? 'selected' : '' }}>8
-                                                        Years</option>
-                                                    <option value="9" {{ old('duration') == '9' ? 'selected' : '' }}>9
-                                                        Years</option>
-                                                    <option value="10" {{ old('duration') == '10' ? 'selected' : '' }}>
-                                                        10 Years</option>
-                                                </select>
-                                                <small class="text-danger">{{ $errors->first('duration') }}</small>
-                                            </div> --}}
+
                                         </div>
                                     </div>
                                 </div>
@@ -533,103 +506,6 @@
                                     </div>
                                 </div>
 
-                                {{-- <!-- Section Divider -->
-                                <div class="section-divider"></div>
-                                <!-- Section 1: Current Education -->
-                                <div class="education-section">
-                                    <h4 class="title" style="color:#4C4C4C;font-size:18px;">Current Education</h4>
-
-                                    <div class="row">
-                                        <!-- Left Column -->
-                                        <div class="col-md-6">
-                                            <div class="form-group mb-3">
-                                                <select class="form-control" name="current_pursuing">
-                                                    <option value=""
-                                                        {{ !old('current_pursuing') ? 'selected' : '' }} disabled hidden>
-                                                        Are you currently pursuing any course or degree? *
-                                                    </option>
-                                                    <option value="yes"
-                                                        {{ old('current_pursuing') == 'yes' ? 'selected' : '' }}>Yes
-                                                    </option>
-                                                    <option value="no"
-                                                        {{ old('current_pursuing') == 'no' ? 'selected' : '' }}>No</option>
-                                                </select>
-                                                <small
-                                                    class="text-danger">{{ $errors->first('current_pursuing') }}</small>
-                                            </div>
-
-                                            <div id="current-education-fields" style="display: none;">
-                                                <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="current_course_name"
-                                                        placeholder="Current Course Name *"
-                                                        value="{{ old('current_course_name') }}">
-                                                    <small
-                                                        class="text-danger">{{ $errors->first('current_course_name') }}</small>
-                                                </div>
-
-                                                <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="current_institution"
-                                                        placeholder="Institution / College Name *"
-                                                        value="{{ old('current_institution') }}">
-                                                    <small
-                                                        class="text-danger">{{ $errors->first('current_institution') }}</small>
-                                                </div>
-
-                                                <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="current_university"
-                                                        placeholder="University Name"
-                                                        value="{{ old('current_university') }}">
-                                                    <small
-                                                        class="text-danger">{{ $errors->first('current_university') }}</small>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Right Column -->
-                                        <div class="col-md-6">
-                                            <div id="current-education-fields-right" style="display: none;">
-                                                <div class="form-group mb-3">
-                                                    <input type="text" class="form-control" name="current_start_year"
-                                                        placeholder="Start Year *"
-                                                        value="{{ old('current_start_year') }}">
-                                                    <small
-                                                        class="text-danger">{{ $errors->first('current_start_year') }}</small>
-                                                </div>
-
-                                                <div class="form-group mb-3">
-                                                    <input type="text" class="form-control"
-                                                        name="current_expected_year"
-                                                        placeholder="Expected Completion Year *"
-                                                        value="{{ old('current_expected_year') }}">
-                                                    <small
-                                                        class="text-danger">{{ $errors->first('current_expected_year') }}</small>
-                                                </div>
-
-                                                <div class="form-group mb-3">
-                                                    <select class="form-control" name="current_mode_of_study">
-                                                        <option value="">Mode of Study *</option>
-                                                        <option value="full-time"
-                                                            {{ old('current_mode_of_study') == 'full-time' ? 'selected' : '' }}>
-                                                            Full-time</option>
-                                                        <option value="part-time"
-                                                            {{ old('current_mode_of_study') == 'part-time' ? 'selected' : '' }}>
-                                                            Part-time</option>
-                                                        <option value="distance"
-                                                            {{ old('current_mode_of_study') == 'distance' ? 'selected' : '' }}>
-                                                            Distance</option>
-                                                        <option value="online"
-                                                            {{ old('current_mode_of_study') == 'online' ? 'selected' : '' }}>
-                                                            Online</option>
-                                                    </select>
-                                                    <small
-                                                        class="text-danger">{{ $errors->first('current_mode_of_study') }}</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div> --}}
-
-
 
 
                                 <!-- Section Divider -->
@@ -687,15 +563,24 @@
                                                 <label for="school_grade_system">Grade System <span
                                                         style="color: red;">*</span></label>
                                                 <div>
+                                                    {{-- <input type="radio" id="grade_percentage"
+                                                        name="school_grade_system" value="percentage"
+                                                        {{ old('school_grade_system', 'percentage') == 'percentage' ? 'checked' : '' }}> --}}
                                                     <input type="radio" id="grade_percentage"
                                                         name="school_grade_system" value="percentage"
-                                                        {{ old('school_grade_system', 'percentage') == 'percentage' ? 'checked' : '' }}>
+                                                        {{ old('school_grade_system', $educationDetail->school_grade_system ?? '') == 'percentage' ? 'checked' : '' }}>
+
+
+
                                                     <label
                                                         for="grade_percentage">Percentage</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                                                    {{-- <input type="radio" id="grade_cgpa" name="school_grade_system"
+                                                        value="cgpa"
+                                                        {{ old('school_grade_system') == 'cgpa' ? 'checked' : '' }}> --}}
                                                     <input type="radio" id="grade_cgpa" name="school_grade_system"
                                                         value="cgpa"
-                                                        {{ old('school_grade_system') == 'cgpa' ? 'checked' : '' }}>
-                                                    <label for="grade_cgpa">CGPA or SGPA</label>
+                                                        {{ old('school_grade_system', $educationDetail->school_grade_system ?? '') == 'cgpa' ? 'checked' : '' }}>
+                                                    <label for="grade_cgpa">CGPA </label>
                                                 </div>
                                             </div>
 
@@ -736,7 +621,7 @@
                                                 </div>
                                             </div>
 
-                                            <div id="cgpa_fields"
+                                            {{-- <div id="cgpa_fields"
                                                 style="display: {{ old('school_grade_system') == 'cgpa' ? 'block' : 'none' }};">
                                                 <div class="form-group mb-3">
                                                     <label for="school_CGPA">CGPA</label>
@@ -752,7 +637,37 @@
                                                         value="{{ old('school_SGPA') ?: $educationDetail->school_SGPA ?? '' }}">
                                                     <small class="text-danger">{{ $errors->first('school_SGPA') }}</small>
                                                 </div>
+                                            </div> --}}
+                                            <div id="cgpa_fields"
+                                                style="display: {{ old('school_grade_system') == 'cgpa' ? 'block' : 'none' }};">
+
+                                                <!-- CGPA OUT OF -->
+                                                <div class="form-group mb-3">
+                                                    <label for="school_cgpa_out_of">CGPA Out Of</label>
+                                                    <select class="form-control" id="school_cgpa_out_of"
+                                                        name="school_cgpa_out_of">
+                                                        <option value="">Select</option>
+                                                        <option value="10"
+                                                            {{ old('school_cgpa_out_of', $educationDetail->school_cgpa_out_of ?? '') == 10 ? 'selected' : '' }}>
+                                                            10</option>
+                                                        <option value="5"
+                                                            {{ old('school_cgpa_out_of', $educationDetail->school_cgpa_out_of ?? '') == 5 ? 'selected' : '' }}>
+                                                            5</option>
+                                                    </select>
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('school_cgpa_out_of') }}</small>
+                                                </div>
+
+                                                <!-- CGPA -->
+                                                <div class="form-group mb-3">
+                                                    <label for="school_CGPA">CGPA</label>
+                                                    <input type="text" class="form-control" id="school_CGPA"
+                                                        name="school_CGPA" placeholder="Enter CGPA"
+                                                        value="{{ old('school_CGPA') ?: $educationDetail->school_CGPA ?? '' }}">
+                                                    <small class="text-danger">{{ $errors->first('school_CGPA') }}</small>
+                                                </div>
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -820,7 +735,7 @@
                                                 <label for="jc_grade_system">Grade System<span
                                                         style="color: red;">*</span></label>
                                                 <div>
-                                                    <input type="radio" id="jc_grade_percentage" name="jc_grade_system"
+                                                    {{-- <input type="radio" id="jc_grade_percentage" name="jc_grade_system"
                                                         value="percentage"
                                                         {{ old('jc_grade_system', 'percentage') == 'percentage' ? 'checked' : '' }}>
                                                     <label
@@ -828,7 +743,20 @@
                                                     <input type="radio" id="jc_grade_cgpa" name="jc_grade_system"
                                                         value="cgpa"
                                                         {{ old('jc_grade_system') == 'cgpa' ? 'checked' : '' }}>
-                                                    <label for="jc_grade_cgpa">CGPA or SGPA</label>
+                                                    <label for="jc_grade_cgpa">CGPA or SGPA</label> --}}
+                                                    <input type="radio" id="jc_grade_percentage" name="jc_grade_system"
+                                                        value="percentage"
+                                                        {{ old('jc_grade_system', $educationDetail->jc_grade_system ?? 'percentage') == 'percentage' ? 'checked' : '' }}>
+
+                                                    <label
+                                                        for="jc_grade_percentage">Percentage</label>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                                                    <input type="radio" id="jc_grade_cgpa" name="jc_grade_system"
+                                                        value="cgpa"
+                                                        {{ old('jc_grade_system', $educationDetail->jc_grade_system ?? '') == 'cgpa' ? 'checked' : '' }}>
+
+                                                    <label for="jc_grade_cgpa">CGPA</label>
+
                                                 </div>
                                             </div>
 
@@ -871,7 +799,7 @@
                                                 </div>
                                             </div>
 
-                                            <div id="jc_cgpa_fields"
+                                            {{-- <div id="jc_cgpa_fields"
                                                 style="display: {{ old('jc_grade_system') == 'cgpa' ? 'block' : 'none' }};">
                                                 <div class="form-group mb-3">
                                                     <label for="jc_CGPA">CGPA</label>
@@ -887,7 +815,39 @@
                                                         value="{{ old('jc_SGPA') ?: $educationDetail->jc_SGPA ?? '' }}">
                                                     <small class="text-danger">{{ $errors->first('jc_SGPA') }}</small>
                                                 </div>
+                                            </div> --}}
+
+
+                                            <div id="jc_cgpa_fields"
+                                                style="display: {{ old('jc_grade_system') == 'cgpa' ? 'block' : 'none' }};">
+
+                                                <!-- CGPA OUT OF -->
+                                                <div class="form-group mb-3">
+                                                    <label for="jc_cgpa_out_of">CGPA Out Of</label>
+                                                    <select class="form-control" id="jc_cgpa_out_of"
+                                                        name="jc_cgpa_out_of">
+                                                        <option value="">Select</option>
+                                                        <option value="10"
+                                                            {{ old('jc_cgpa_out_of', $educationDetail->jc_cgpa_out_of ?? '') == 10 ? 'selected' : '' }}>
+                                                            10</option>
+                                                        <option value="5"
+                                                            {{ old('jc_cgpa_out_of', $educationDetail->jc_cgpa_out_of ?? '') == 5 ? 'selected' : '' }}>
+                                                            5</option>
+                                                    </select>
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('jc_cgpa_out_of') }}</small>
+                                                </div>
+
+                                                <!-- CGPA -->
+                                                <div class="form-group mb-3">
+                                                    <label for="jc_CGPA">CGPA</label>
+                                                    <input type="text" class="form-control" id="jc_CGPA"
+                                                        name="jc_CGPA" placeholder="Enter CGPA"
+                                                        value="{{ old('jc_CGPA') ?: $educationDetail->jc_CGPA ?? '' }}">
+                                                    <small class="text-danger">{{ $errors->first('jc_CGPA') }}</small>
+                                                </div>
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -964,8 +924,9 @@
                                                 <div class="form-group mb-3">
                                                     <label for="qualification_course_name">Current Course Name <span
                                                             style="color: red;">*</span></label>
-                                                    <input type="text" id="qualification_course_name" class="form-control"
-                                                        name="qualification_course_name" placeholder="Enter Course Name "
+                                                    <input type="text" id="qualification_course_name"
+                                                        class="form-control" name="qualification_course_name"
+                                                        placeholder="Enter Course Name "
                                                         value="{{ old('qualification_course_name', $educationDetail->qualification_course_name ?? '') }}"
                                                         required>
                                                     <small class="text-danger"
@@ -1204,12 +1165,6 @@
                                                     <small
                                                         class="text-danger">{{ $errors->first('duration_end_year') }}</small>
                                                 </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Right Column -->
-                                        <div class="col-md-6">
-                                            <div id="work-experience-fields-right" style="display: none;">
                                                 <div class="form-group mb-3">
                                                     <label for="work_location_city">Location – City</label>
                                                     <input type="text" class="form-control" id="work_location_city"
@@ -1218,6 +1173,20 @@
                                                     <small
                                                         class="text-danger">{{ $errors->first('work_location_city') }}</small>
                                                 </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Column -->
+                                        <div class="col-md-6">
+                                            <div id="work-experience-fields-right" style="display: none;">
+                                                {{-- <div class="form-group mb-3">
+                                                    <label for="work_location_city">Location – City</label>
+                                                    <input type="text" class="form-control" id="work_location_city"
+                                                        name="work_location_city" placeholder="Location – City"
+                                                        value="{{ old('work_location_city') ?: $educationDetail->work_location_city ?? '' }}">
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('work_location_city') }}</small>
+                                                </div> --}}
 
                                                 <div class="form-group mb-3">
                                                     <label for="work_country">Country</label>
@@ -1243,6 +1212,9 @@
                                                         <option value="volunteer"
                                                             {{ (old('work_type') ?: $educationDetail->work_type ?? '') == 'volunteer' ? 'selected' : '' }}>
                                                             Volunteer</option>
+                                                        <option value="stipend-based"
+                                                            {{ (old('work_type') ?: $educationDetail->work_type ?? '') == 'stipend-based' ? 'selected' : '' }}>
+                                                            Stipend-based</option>
                                                     </select>
                                                     <small class="text-danger">{{ $errors->first('work_type') }}</small>
                                                 </div>
@@ -1275,6 +1247,15 @@
                                                     <small
                                                         class="text-danger">{{ $errors->first('salary_amount') }}</small>
                                                 </div>
+                                                <div class="form-group mb-3">
+                                                    <label for="yearly_gross_income">Yearly Gross Income</label>
+                                                    <input type="number" class="form-control" id="yearly_gross_income"
+                                                        name="yearly_gross_income" placeholder="Enter Yearly Gross Income"
+                                                        value="{{ old('yearly_gross_income') ?: $educationDetail->yearly_gross_income ?? '' }}">
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('yearly_gross_income') }}</small>
+                                                </div>
+
 
 
                                             </div>
@@ -1492,38 +1473,42 @@
             function toggleSchoolGradeFields() {
                 const percentageRadio = document.getElementById('grade_percentage');
                 const cgpaRadio = document.getElementById('grade_cgpa');
+
                 const percentageFields = document.getElementById('percentage_fields');
                 const cgpaFields = document.getElementById('cgpa_fields');
 
-                // Get field elements
                 const markObtained = document.getElementById('10th_mark_obtained');
                 const outOf = document.getElementById('10th_mark_out_of');
                 const percentage = document.getElementById('school_percentage');
+
                 const cgpa = document.getElementById('school_CGPA');
-                const sgpa = document.getElementById('school_SGPA');
+                const cgpaOutOf = document.getElementById('school_cgpa_out_of');
 
                 if (percentageRadio.checked) {
                     percentageFields.style.display = 'block';
                     cgpaFields.style.display = 'none';
-                    // Set required
-                    markObtained.setAttribute('required', 'required');
-                    outOf.setAttribute('required', 'required');
-                    percentage.setAttribute('required', 'required');
-                    // Remove required
-                    cgpa.removeAttribute('required');
-                    sgpa.removeAttribute('required');
-                } else if (cgpaRadio.checked) {
+
+                    markObtained.required = true;
+                    outOf.required = true;
+                    percentage.required = true;
+
+                    cgpa.required = false;
+                    cgpaOutOf.required = false;
+                }
+
+                if (cgpaRadio.checked) {
                     percentageFields.style.display = 'none';
                     cgpaFields.style.display = 'block';
-                    // Set required
-                    cgpa.setAttribute('required', 'required');
-                    sgpa.setAttribute('required', 'required');
-                    // Remove required
-                    markObtained.removeAttribute('required');
-                    outOf.removeAttribute('required');
-                    percentage.removeAttribute('required');
+
+                    cgpa.required = true;
+                    cgpaOutOf.required = true;
+
+                    markObtained.required = false;
+                    outOf.required = false;
+                    percentage.required = false;
                 }
             }
+
 
             // Event listeners for grade system radios
             document.getElementById('grade_percentage').addEventListener('change', toggleSchoolGradeFields);
@@ -1533,38 +1518,41 @@
             function toggleJcGradeFields() {
                 const percentageRadio = document.getElementById('jc_grade_percentage');
                 const cgpaRadio = document.getElementById('jc_grade_cgpa');
+
                 const percentageFields = document.getElementById('jc_percentage_fields');
                 const cgpaFields = document.getElementById('jc_cgpa_fields');
 
-                // Get field elements
                 const markObtained = document.getElementById('12th_mark_obtained');
                 const outOf = document.getElementById('12th_mark_out_of');
                 const percentage = document.getElementById('jc_percentage');
                 const cgpa = document.getElementById('jc_CGPA');
-                const sgpa = document.getElementById('jc_SGPA');
+                const cgpaOutOf = document.getElementById('jc_cgpa_out_of');
 
-                if (percentageRadio.checked) {
+                if (percentageRadio && percentageRadio.checked) {
                     percentageFields.style.display = 'block';
                     cgpaFields.style.display = 'none';
-                    // Set required
-                    markObtained.setAttribute('required', 'required');
-                    outOf.setAttribute('required', 'required');
-                    percentage.setAttribute('required', 'required');
-                    // Remove required
-                    cgpa.removeAttribute('required');
-                    sgpa.removeAttribute('required');
-                } else if (cgpaRadio.checked) {
+
+                    markObtained.required = true;
+                    outOf.required = true;
+                    percentage.required = true;
+
+                    cgpa.required = false;
+                    cgpaOutOf.required = false;
+                }
+
+                if (cgpaRadio && cgpaRadio.checked) {
                     percentageFields.style.display = 'none';
                     cgpaFields.style.display = 'block';
-                    // Set required
-                    cgpa.setAttribute('required', 'required');
-                    sgpa.setAttribute('required', 'required');
-                    // Remove required
-                    markObtained.removeAttribute('required');
-                    outOf.removeAttribute('required');
-                    percentage.removeAttribute('required');
+
+                    cgpa.required = true;
+                    cgpaOutOf.required = true;
+
+                    markObtained.required = false;
+                    outOf.required = false;
+                    percentage.required = false;
                 }
             }
+
 
             // Event listeners for jc grade system radios
             document.getElementById('jc_grade_percentage').addEventListener('change', toggleJcGradeFields);
@@ -1835,7 +1823,7 @@
                     tbody += `
                 <td>
                     <input type="number" class="form-control form-control-sm"
-                        name="group_${group.id}_year${y}" placeholder="0" required>
+                        name="group_${group.id}_year${y}" placeholder="0">
                 </td>
             `;
                 }
@@ -2233,122 +2221,95 @@
                 return isValid;
             }
 
-            // Form submit validation
             form.addEventListener('submit', function(e) {
                 let isValid = true;
 
                 // Basic fields
-                isValid &= validateSelect('financial_asset_type', 'Financial Asset Type is required');
-                isValid &= validateSelect('financial_asset_for', 'Financial Asset For is required');
-                isValid &= validateRequired('course_name', 'Course Name is required');
-                isValid &= validateRequired('university_name', 'University Name is required');
-                isValid &= validateRequired('college_name', 'College Name is required');
-                isValid &= validateRequired('country', 'Country is required');
-                isValid &= validateRequired('city_name', 'City Name is required');
-                isValid &= validateRequired('start_year', 'Start Year is required');
-                isValid &= validateRequired('expected_year', 'Expected Year of Completion is required');
+                isValid = isValid && validateSelect('financial_asset_type',
+                    'Financial Asset Type is required');
+                isValid = isValid && validateSelect('financial_asset_for',
+                    'Financial Asset For is required');
+                isValid = isValid && validateRequired('course_name', 'Course Name is required');
+                isValid = isValid && validateRequired('university_name', 'University Name is required');
+                isValid = isValid && validateRequired('college_name', 'College Name is required');
+                isValid = isValid && validateRequired('country', 'Country is required');
+                isValid = isValid && validateRequired('city_name', 'City Name is required');
+                isValid = isValid && validateRequired('start_year', 'Start Year is required');
+                isValid = isValid && validateRequired('expected_year',
+                    'Expected Year of Completion is required');
 
                 // School fields
-                isValid &= validateRequired('school_name', 'School Name is required');
-                isValid &= validateRequired('school_board', 'Board is required');
-                isValid &= validateRequired('school_completion_year', 'Year of Completion is required');
-                isValid &= validateRadioGroup('school_grade_system', 'Grade System is required');
+                isValid = isValid && validateRequired('school_name', 'School Name is required');
+                isValid = isValid && validateRequired('school_board', 'Board is required');
+                isValid = isValid && validateRequired('school_completion_year',
+                    'Year of Completion is required');
+                isValid = isValid && validateRadioGroup('school_grade_system', 'Grade System is required');
 
-                // Check grade system and validate accordingly
+                // School grade system
                 const percentageRadio = document.getElementById('grade_percentage');
                 const cgpaRadio = document.getElementById('grade_cgpa');
+
                 if (percentageRadio && percentageRadio.checked) {
-                    isValid &= validateRequired('10th_mark_obtained', 'Marks obtained is required');
-                    isValid &= validateRequired('10th_mark_out_of', 'Marks out of is required');
-                    isValid &= validateRequired('school_percentage', 'Percentage is required');
+                    isValid = isValid && validateRequired('10th_mark_obtained',
+                        'Marks obtained is required');
+                    isValid = isValid && validateRequired('10th_mark_out_of', 'Marks out of is required');
+                    isValid = isValid && validateRequired('school_percentage', 'Percentage is required');
                 } else if (cgpaRadio && cgpaRadio.checked) {
-                    isValid &= validateRequired('school_CGPA', 'CGPA is required');
-                    isValid &= validateRequired('school_SGPA', 'SGPA is required');
+                    isValid = isValid && validateRequired('school_CGPA', 'CGPA is required');
+                    isValid = isValid && validateRequired('school_cgpa_out_of', 'CGPA out of is required');
                 }
 
                 // JC fields
-                isValid &= validateRequired('jc_college_name', 'College Name is required');
-                isValid &= validateRequired('jc_stream', 'Stream is required');
-                isValid &= validateRequired('jc_board', 'Board is required');
-                isValid &= validateRequired('jc_completion_year', 'Year of Completion is required');
-                isValid &= validateRadioGroup('jc_grade_system', 'Grade System is required');
+                isValid = isValid && validateRequired('jc_college_name', 'College Name is required');
+                isValid = isValid && validateRequired('jc_stream', 'Stream is required');
+                isValid = isValid && validateRequired('jc_board', 'Board is required');
+                isValid = isValid && validateRequired('jc_completion_year',
+                    'Year of Completion is required');
+                isValid = isValid && validateRadioGroup('jc_grade_system', 'Grade System is required');
 
-                // Check JC grade system
+
+                // JC grade system
                 const jcPercentageRadio = document.getElementById('jc_grade_percentage');
                 const jcCgpaRadio = document.getElementById('jc_grade_cgpa');
+
                 if (jcPercentageRadio && jcPercentageRadio.checked) {
-                    isValid &= validateRequired('12th_mark_obtained', 'Marks obtained is required');
-                    isValid &= validateRequired('12th_mark_out_of', 'Marks out of is required');
-                    isValid &= validateRequired('jc_percentage', 'Percentage is required');
+                    isValid = isValid && validateRequired('12th_mark_obtained',
+                        'Marks obtained is required');
+                    isValid = isValid && validateRequired('12th_mark_out_of', 'Marks out of is required');
+                    isValid = isValid && validateRequired('jc_percentage', 'Percentage is required');
                 } else if (jcCgpaRadio && jcCgpaRadio.checked) {
-                    isValid &= validateRequired('jc_CGPA', 'CGPA is required');
-                    isValid &= validateRequired('jc_SGPA', 'SGPA is required');
+                    isValid = isValid && validateRequired('jc_CGPA', 'CGPA is required');
+                    isValid = isValid && validateRequired('jc_cgpa_out_of', 'CGPA out of is required');
                 }
 
-                // Qualifications
-                isValid &= validateSelect('qualifications', 'Qualifications is required');
-
-                // If qualification is selected and not 'none', validate additional fields
-                const qualification = document.getElementById('qualifications');
-                if (qualification && qualification.value && qualification.value !== 'none') {
-                    isValid &= validateRequired('qualification_institution',
-                        'Institution Name is required');
-                    isValid &= validateRequired('qualification_start_year', 'Start Year is required');
-                    isValid &= validateRequired('qualification_end_year', 'End Year is required');
-                }
-
-                // Work experience
-                isValid &= validateSelect('have_work_experience', 'Work experience selection is required');
-
-                // If work experience is yes, validate additional fields
-                const workExp = document.getElementById('have_work_experience');
-                if (workExp && workExp.value === 'yes') {
-                    isValid &= validateRequired('organization_name', 'Organization Name is required');
-                    isValid &= validateRequired('work_profile', 'Work Profile is required');
-                    isValid &= validateRequired('duration_start_year', 'Start Year is required');
-                    isValid &= validateRequired('duration_end_year', 'End Year is required');
-                    isValid &= validateRequired('work_location_city', 'Location City is required');
-                    isValid &= validateRequired('work_country', 'Country is required');
-                    isValid &= validateSelect('work_type', 'Work Type is required');
-                    isValid &= validateSelect('mention_your_salary', 'Salary Type is required');
-
-                    // If salary type is selected, validate amount
-                    const salaryType = document.getElementById('mention_your_salary');
-                    if (salaryType && salaryType.value) {
-                        isValid &= validateRequired('salary_amount', 'Salary Amount is required');
-                    }
-                }
-
-                // Validate table
-                isValid &= validateTableFields();
-
+                // Final check
                 if (!isValid) {
                     e.preventDefault();
-                    // Scroll to first error
-                    const firstError = document.querySelector(
-                        '.text-danger[style*="display: block"], .is-invalid');
-                    if (firstError) {
-                        firstError.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'center'
-                        });
-                    }
                     return false;
                 }
             });
+
 
             // Real-time validation on blur
             const requiredFields = [
                 'financial_asset_type', 'financial_asset_for', 'course_name', 'university_name',
                 'college_name', 'country', 'city_name', 'start_year', 'expected_year',
-                'school_name', 'school_board', 'school_completion_year', 'school_percentage',
-                'school_CGPA', 'school_SGPA', 'jc_college_name', 'jc_stream', 'jc_board',
-                'jc_completion_year', 'jc_percentage', 'jc_CGPA', 'jc_SGPA', 'qualifications',
+                'school_name', 'school_board', 'school_completion_year', 'school_grade_system',
+                'school_percentage',
+                'school_CGPA', 'school_cgpa_out_of', 'jc_college_name', 'jc_stream', 'jc_board',
+                'jc_completion_year', 'jc_grade_system', 'jc_percentage', 'jc_CGPA', 'jc_cgpa_out_of',
+                'qualifications',
                 'qualification_institution', 'qualification_start_year', 'qualification_end_year',
                 'have_work_experience', 'organization_name', 'work_profile', 'duration_start_year',
                 'duration_end_year', 'work_location_city', 'work_country', 'work_type',
-                'mention_your_salary', 'salary_amount', '10th_mark_obtained', '10th_mark_out_of',
-                '12th_mark_obtained', '12th_mark_out_of'
+                'mention_your_salary', 'salary_amount', 'yearly_gross_income', '10th_mark_obtained',
+                '10th_mark_out_of',
+                '12th_mark_obtained', '12th_mark_out_of', 'ielts_overall_band_year', 'toefl_score_year', '
+                pte_score_year ','
+                duolingo_score_year ','
+                other_exam_name ','
+                other_exam_score ','
+                other_exam_year '
             ];
 
             requiredFields.forEach(fieldId => {
@@ -2377,6 +2338,12 @@
                     }
                 });
             }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleSchoolGradeFields();
+            toggleJcGradeFields();
         });
     </script>
 @endsection

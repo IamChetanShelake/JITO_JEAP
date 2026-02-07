@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('first_cheque_image')->nullable();
             $table->json('cheque_details')->nullable();
             $table->enum('status', ['pending', 'submitted', 'approved', 'rejected', 'correction_required'])->default('pending');
-            $table->text('admin_remark')->nullable();
+            $table->text('admin_approve_remark')->nullable();
+            $table->text('admin_reject_remark')->nullable();
             $table->unsignedBigInteger('processed_by')->nullable();
             $table->timestamps();
 

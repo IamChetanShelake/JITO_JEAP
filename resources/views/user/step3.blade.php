@@ -142,7 +142,7 @@
 
                 </select>
             </td>
-            <td><input type="text" name="family_${i}_name" class="form-control" value="${oldData ? oldData.name || '' : ''}"></td>
+            <td ><input type="text" name="family_${i}_name" class="form-control" value="${oldData ? oldData.name || '' : ''}" style="width:300px;"></td>
             <td><input type="number" name="family_${i}_age" class="form-control" value="${oldData ? oldData.age || '' : ''}"></td>
             <td>
                 <select name="family_${i}_marital_status" class="form-control">
@@ -164,7 +164,7 @@
                 </select>
             </td>
             <td><input type="tel" name="family_${i}_mobile" class="form-control" value="${oldData ? oldData.mobile || '' : ''}"></td>
-            <td><input type="email" name="family_${i}_email" class="form-control" value="${oldData ? oldData.email || '' : ''}"></td>
+            <td><input type="email" name="family_${i}_email" class="form-control" value="${oldData ? oldData.email || '' : ''}" style="width:250px;"></td>
             <td><input type="number" name="family_${i}_yearly_income" class="form-control" value="${oldData ? oldData.yearly_income || '' : ''}"></td>
         `;
 
@@ -181,9 +181,10 @@
         }
 
         // Function to calculate total family income
-        function calculateTotalFamilyIncome() {
+function calculateTotalFamilyIncome() {
             const applicantIncome = parseFloat(@json($user->applicant_yearly_income ?? 0)) || 0;
-            let total = applicantIncome;
+            const yearlyGrossIncome = parseFloat(@json($user->educationDetail->yearly_gross_income ?? 0)) || 0;
+            let total = applicantIncome + yearlyGrossIncome;
 
             // Sum incomes from other family members
             const incomeInputs = document.querySelectorAll('input[name^="family_"][name$="_yearly_income"]');
@@ -488,7 +489,7 @@
                                                 <thead>
                                                     <tr>
                                                         <th style="color:#4C4C4C;">Relation with student</th>
-                                                        <th style="color:#4C4C4C;width:120px">Name</th>
+                                                        <th style="color:#4C4C4C;">Name</th>
                                                         <th style="color:#4C4C4C;">Age</th>
                                                         <th style="color:#4C4C4C;">Marital Status</th>
                                                         <th style="color:#4C4C4C;">Qualification</th>
@@ -508,20 +509,22 @@
                                                             {{-- <input type="text" name="applicant_relation" value="Applicant’s Name"
                                                                 readonly class="form-control"> --}}
                                                         </td>
-                                                        <td style="color:#E31E24;width:120px">{{ $user->name ?? '' }}</td>
+                                                        <td style="color:#E31E24;">
+                                                            {{ $user->name ?? '' }}</td>
                                                         <td style="color:#E31E24">{{ $user->age ?? '' }}
                                                         </td>
 
                                                         <td style="color:#E31E24">
                                                             {{ $user->marital_status ?? '' }}</td>
                                                         <td style="color:#E31E24">
-                                                            {{ $user->qualification ?? '' }}</td>
+                                                            {{ $user->educationDetail->qualification_course_name ?? '' }}
+                                                        </td>
                                                         <td style="color:#E31E24">{{ $user->occupation ?? '' }}
                                                         </td>
                                                         <td style="color:#E31E24">{{ $user->phone ?? '' }}</td>
                                                         <td style="color:#E31E24">{{ $user->email ?? '' }}</td>
                                                         <td style="color:#E31E24">
-                                                            {{ $user->applicant_yearly_income ?? '' }}</td>
+                                                            {{ $user->educationDetail->yearly_gross_income ?? '' }}</td>
 
                                                         </td>
                                                     </tr>

@@ -107,7 +107,7 @@
                                 <div
                                     style="background-color: #FEF6E0; border: 1px solid #FBBA00; border-radius: 8px; padding: 12px; margin-bottom: 20px;">
                                     <p class="mb-0" style="color: #E31E24; font-size:16px;font-weight: 500;">
-                                        <strong>Note:</strong> Please ensure all documents are clear, legible, and in PDF or
+                                        <strong>Note:</strong> Please ensure all documents are clear and in PDF or
                                         image format (JPG, PNG). Maximum file size: 5MB per document.
                                     </p>
                                 </div>

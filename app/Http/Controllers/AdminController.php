@@ -228,12 +228,13 @@ class AdminController extends Controller
         return view('admin.apex.stage1.hold', compact('users'));
     }
 
-    public function apexStage1Resubmitted(){
+    public function apexStage1Resubmitted()
+    {
         // Get users where apex_1_status = 'pending' but have admin remarks indicating resubmission
         $users = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($query) {
                 $query->where('apex_1_status', 'pending')
-                      ->whereNotNull('apex_1_reject_remarks');
+                    ->whereNotNull('apex_1_reject_remarks');
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
@@ -355,8 +356,9 @@ class AdminController extends Controller
             'additional_installment_amount' => 'nullable|numeric|min:0',
             'repayment_type' => 'required|in:yearly,half_yearly,quarterly,monthly',
             'no_of_cheques_to_be_collected' => 'nullable|integer|min:1',
-            'repayment_starting_from' => 'nullable|date',
-            'remarks_for_approval' => 'nullable|string|max:2000',
+            'repayment_starting_from' => 'required|date',
+            'remarks_for_approval' => 'required|string|max:2000',
+            'disbursement_in_year' => 'nullable|integer|min:1|max:6',
         ];
 
         // Conditional validation based on disbursement system
@@ -410,7 +412,7 @@ class AdminController extends Controller
             'no_of_cheques_to_be_collected' => $request->no_of_cheques_to_be_collected,
             'repayment_starting_from' => $request->repayment_starting_from,
             'remarks_for_approval' => $request->remarks_for_approval,
-            'processed_by' => Auth::user()->name,
+            'processed_by_name' => Auth::user()->name,
         ];
 
         // Handle disbursement arrays
@@ -448,7 +450,8 @@ class AdminController extends Controller
                 'no_of_cheques_to_be_collected' => $request->no_of_cheques_to_be_collected,
                 'repayment_starting_from' => $request->repayment_starting_from,
                 'remarks_for_approval' => $request->remarks_for_approval,
-                'processed_by' => Auth::user()->id, // Save user ID instead of name
+                'processed_by_name' => Auth::user()->name,
+                'processed_by_id' => Auth::user()->id,
                 'approval_status' => 'approved',
             ]);
 
@@ -516,7 +519,7 @@ class AdminController extends Controller
                 'final_status'          => 'in_progress',
             ]);
 
-            $pdcdetails = PdcDetail::where('user_id',$user->id)->first();
+            $pdcdetails = PdcDetail::where('user_id', $user->id)->first();
             if ($pdcdetails) {
                 $pdcdetails->update([
                     'status'        => 'rejected',
@@ -605,97 +608,97 @@ class AdminController extends Controller
 
 
     public function holdStage(Request $request, User $user, $stage)
-{
-    $request->validate([
-        'admin_remark'   => 'required|string|max:2000',
-        'resubmit_steps' => 'nullable|array',
-        'resubmit_steps.*' => 'in:personal,education,family,funding,guarantor,documents,final',
-    ]);
+    {
+        $request->validate([
+            'admin_remark'   => 'required|string|max:2000',
+            'resubmit_steps' => 'nullable|array',
+            'resubmit_steps.*' => 'in:personal,education,family,funding,guarantor,documents,final',
+        ]);
 
-    $workflow = $user->workflowStatus;
-    if (!$workflow) {
-        return back()->with('error', 'Workflow not found');
-    }
+        $workflow = $user->workflowStatus;
+        if (!$workflow) {
+            return back()->with('error', 'Workflow not found');
+        }
 
-    if ($workflow->current_stage !== $stage) {
-        return back()->with('error', 'Invalid stage');
-    }
+        if ($workflow->current_stage !== $stage) {
+            return back()->with('error', 'Invalid stage');
+        }
 
-    $resubmitSteps = $request->input('resubmit_steps', []);
+        $resubmitSteps = $request->input('resubmit_steps', []);
 
-    if (!empty($resubmitSteps)) {
-        // Handle selective hold (resubmission required)
-        $holdCount = 0;
+        if (!empty($resubmitSteps)) {
+            // Handle selective hold (resubmission required)
+            $holdCount = 0;
 
-        foreach ($resubmitSteps as $step) {
-            if ($step === 'personal') {
-                $user->update([
-                    'submit_status' => 'hold',
-                    'admin_remark'  => $request->admin_remark,
-                    'updated_at'    => now(),
-                ]);
-                $holdCount++;
+            foreach ($resubmitSteps as $step) {
+                if ($step === 'personal') {
+                    $user->update([
+                        'submit_status' => 'hold',
+                        'admin_remark'  => $request->admin_remark,
+                        'updated_at'    => now(),
+                    ]);
+                    $holdCount++;
 
-                Log::info("Personal details marked on hold for user {$user->id}");
-            } else {
-                $stepTableMap = [
-                    'education'  => 'educationDetail',
-                    'family'     => 'familyDetail',
-                    'funding'    => 'fundingDetail',
-                    'guarantor'  => 'guarantorDetail',
-                    'documents'  => 'document',
-                    'final'      => 'document',
-                ];
+                    Log::info("Personal details marked on hold for user {$user->id}");
+                } else {
+                    $stepTableMap = [
+                        'education'  => 'educationDetail',
+                        'family'     => 'familyDetail',
+                        'funding'    => 'fundingDetail',
+                        'guarantor'  => 'guarantorDetail',
+                        'documents'  => 'document',
+                        'final'      => 'document',
+                    ];
 
-                if (isset($stepTableMap[$step])) {
-                    $relation = $stepTableMap[$step];
+                    if (isset($stepTableMap[$step])) {
+                        $relation = $stepTableMap[$step];
 
-                    if ($user->$relation) {
-                        $user->$relation->update([
-                            'submit_status' => 'hold',
-                            'admin_remark'  => $request->admin_remark,
-                            'updated_at'    => now(),
-                        ]);
-                        $holdCount++;
+                        if ($user->$relation) {
+                            $user->$relation->update([
+                                'submit_status' => 'hold',
+                                'admin_remark'  => $request->admin_remark,
+                                'updated_at'    => now(),
+                            ]);
+                            $holdCount++;
 
-                        Log::info("Step {$step} marked on hold for user {$user->id}");
+                            Log::info("Step {$step} marked on hold for user {$user->id}");
+                        }
                     }
                 }
             }
+
+            // Update workflow stage status → hold (keep final_status in_progress)
+            $statusField        = $stage . '_status';
+            $holdRemarksField   = $stage . '_hold_remarks';
+            $updatedAtField     = $stage . '_updated_at';
+
+            $workflow->update([
+                $statusField      => 'hold',
+                $holdRemarksField => $request->admin_remark,
+                $updatedAtField   => now(),
+                // final_status remains in_progress
+            ]);
+
+            return back()->with('success', "{$holdCount} step(s) marked on hold");
+        } else {
+            // Full hold (entire stage)
+            $statusField      = $stage . '_status';
+            $holdRemarksField = $stage . '_hold_remarks';
+            $updatedAtField   = $stage . '_updated_at';
+
+            $workflow->update([
+                $statusField      => 'hold',
+                $holdRemarksField => $request->admin_remark,
+                $updatedAtField   => now(),
+                'final_status'    => 'hold',
+            ]);
+
+            return back()->with(
+                'success',
+                ucfirst(str_replace('_', ' ', $stage)) . ' put on hold'
+            );
         }
-
-        // Update workflow stage status → hold (keep final_status in_progress)
-        $statusField        = $stage . '_status';
-        $holdRemarksField   = $stage . '_hold_remarks';
-        $updatedAtField     = $stage . '_updated_at';
-
-        $workflow->update([
-            $statusField      => 'hold',
-            $holdRemarksField => $request->admin_remark,
-            $updatedAtField   => now(),
-            // final_status remains in_progress
-        ]);
-
-        return back()->with('success', "{$holdCount} step(s) marked on hold");
-    } else {
-        // Full hold (entire stage)
-        $statusField      = $stage . '_status';
-        $holdRemarksField = $stage . '_hold_remarks';
-        $updatedAtField   = $stage . '_updated_at';
-
-        $workflow->update([
-            $statusField      => 'hold',
-            $holdRemarksField => $request->admin_remark,
-            $updatedAtField   => now(),
-            'final_status'    => 'hold',
-        ]);
-
-        return back()->with(
-            'success',
-            ucfirst(str_replace('_', ' ', $stage)) . ' put on hold'
-        );
     }
-}
 
 
 
@@ -1296,20 +1299,21 @@ class AdminController extends Controller
         $users = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('apex_2_status', 'rejected')
-                ->where('current_stage', 'apex_2');;
+                    ->where('current_stage', 'apex_2');;
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
         return view('admin.apex.stage2.hold', compact('users'));
     }
 
-    public function apexStage2Resubmitted(){
+    public function apexStage2Resubmitted()
+    {
         // Get users where apex_1_status = 'pending' but have admin remarks indicating resubmission
         $users = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($query) {
                 $query->where('apex_2_status', 'pending')
-                      ->whereNotNull('apex_2_reject_remarks')
-                      ->where('current_stage', 'apex_2');
+                    ->whereNotNull('apex_2_reject_remarks')
+                    ->where('current_stage', 'apex_2');
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
@@ -1420,5 +1424,4 @@ class AdminController extends Controller
 
         return back()->with('success', 'PDC sent back for correction');
     }
-
 }

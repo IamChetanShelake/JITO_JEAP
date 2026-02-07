@@ -754,4 +754,31 @@
                     });
             });
     </script>
+
+    <script>
+        function checkDuplicate(field, value, errorElementId) {
+            if (!value) return;
+
+            fetch("{{ route('user.check.guarantor.duplicate') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        field: field,
+                        value: value
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const errorEl = document.getElementById(errorElementId);
+                    if (data.exists) {
+                        errorEl.innerText = "This value cannot be same as applicant or family member.";
+                    } else {
+                        errorEl.innerText = "";
+                    }
+                });
+        }
+    </script>
 @endsection

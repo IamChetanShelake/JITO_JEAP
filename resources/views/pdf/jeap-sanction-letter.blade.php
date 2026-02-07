@@ -284,20 +284,38 @@ $currentPage = 1;
         </tr>
       </thead>
       <tbody>
+        @php
+          $disbursementSchedules = \Illuminate\Support\Facades\DB::connection('admin_panel')
+              ->table('disbursement_schedules')
+              ->where('user_id', $user->id)
+              ->select('installment_no', 'status')
+              ->get()
+              ->keyBy('installment_no');
+        @endphp
         @if($workingCommitteeApproval->disbursement_system === 'yearly' && $workingCommitteeApproval->yearly_dates && $workingCommitteeApproval->yearly_amounts)
           @foreach($workingCommitteeApproval->yearly_dates as $index => $date)
+            @php
+              $installmentNo = $index + 1;
+              $scheduleStatus = $disbursementSchedules->get($installmentNo)->status ?? 'pending';
+              $paymentLabel = $scheduleStatus === 'completed' ? 'Paid' : 'Unpaid';
+            @endphp
             <tr>
               <td>{{ $index + 1 }}{{ $index == 0 ? 'st' : ($index == 1 ? 'nd' : ($index == 2 ? 'rd' : 'th')) }} Disbursement</td>
-              <td>₹ {{ number_format($workingCommitteeApproval->yearly_amounts[$index] ?? 0, 0) }} (Paid)</td>
+              <td>Rs. {{ number_format($workingCommitteeApproval->yearly_amounts[$index] ?? 0, 0) }} ({{ $paymentLabel }})</td>
               <td>{{ $index + 1 }}{{ $index == 0 ? 'st' : ($index == 1 ? 'nd' : ($index == 2 ? 'rd' : 'th')) }} Disbursement Date</td>
               <td>{{ $date ? \Carbon\Carbon::parse($date)->format('d/m/Y') : '-' }}</td>
             </tr>
           @endforeach
         @elseif($workingCommitteeApproval->disbursement_system === 'half_yearly' && $workingCommitteeApproval->half_yearly_dates && $workingCommitteeApproval->half_yearly_amounts)
           @foreach($workingCommitteeApproval->half_yearly_dates as $index => $date)
+            @php
+              $installmentNo = $index + 1;
+              $scheduleStatus = $disbursementSchedules->get($installmentNo)->status ?? 'pending';
+              $paymentLabel = $scheduleStatus === 'completed' ? 'Paid' : 'Unpaid';
+            @endphp
             <tr>
               <td>{{ $index + 1 }}{{ $index == 0 ? 'st' : ($index == 1 ? 'nd' : ($index == 2 ? 'rd' : 'th')) }} Disbursement</td>
-              <td>₹ {{ number_format($workingCommitteeApproval->half_yearly_amounts[$index] ?? 0, 0) }} (Paid)</td>
+              <td>Rs. {{ number_format($workingCommitteeApproval->half_yearly_amounts[$index] ?? 0, 0) }} ({{ $paymentLabel }})</td>
               <td>{{ $index + 1 }}{{ $index == 0 ? 'st' : ($index == 1 ? 'nd' : ($index == 2 ? 'rd' : 'th')) }} Disbursement Date</td>
               <td>{{ $date ? \Carbon\Carbon::parse($date)->format('d/m/Y') : '-' }}</td>
             </tr>
@@ -345,8 +363,11 @@ $currentPage = 1;
 
     <p class="content">
       The repayment of Financial Assistance is in
-      <strong>15 equal monthly installments of Rs. 1,00,000</strong>
-      commencing from <strong>11/06/2027</strong>.
+      <strong>{{$workingCommitteeApproval->no_of_cheques_to_be_collected}} equal {{$workingCommitteeApproval->repayment_type}} installments of Rs. {{number_format($workingCommitteeApproval->installment_amount,0)}}</strong>
+      commencing from <strong>{{$workingCommitteeApproval->repayment_starting_from ? \Carbon\Carbon::parse($date)->format('d/m/Y') : '-'}}</strong>.
+        @if($workingCommitteeApproval->additional_installment_amount != 0 || $workingCommitteeApproval->additional_installment_amount != null)
+            After the completion of the above installments, there will be an additional installment of Rs. {{ number_format($workingCommitteeApproval->additional_installment_amount, 0) }} to be paid in the last month of repayment.
+        @endif
     </p>
 
     <p class="note">

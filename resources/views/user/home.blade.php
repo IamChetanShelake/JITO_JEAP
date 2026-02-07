@@ -363,7 +363,7 @@
                                     </div>
                                 </div> --}}
                                 <div class="feature-title">Comprehensive Documentation</div>
-                                <div class="feature-sub">You can view the list of documents here.</div>
+                                <div class="feature-sub">Gather this List of Documents</div>
                             </div>
                             <svg width="30" height="30" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">

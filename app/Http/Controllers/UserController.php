@@ -1575,37 +1575,183 @@ class UserController extends Controller
     }
 
 
+    // public function checkDuplicate(Request $request)
+    // {
+    //     $user = Auth::user();
+    //     $value = trim($request->value);
+    //     $field = $request->field; // mobile, email, pan, aadhar, name
+
+    //     // ===== USERS TABLE FIELD MAP =====
+    //     $userFieldMap = [
+    //         'name'   => 'name',
+    //         'email'  => 'email',
+    //         'mobile' => 'phone',          // 👈 mapping
+    //         'pan'    => 'pan_card',
+    //         'aadhar' => 'aadhar_card_number',
+    //     ];
+
+    //     if (isset($userFieldMap[$field])) {
+    //         $userColumn = $userFieldMap[$field];
+
+    //         if (!empty($user->$userColumn) && $user->$userColumn === $value) {
+    //             return response()->json([
+    //                 'exists' => true,
+    //                 'source' => 'user'
+    //             ]);
+    //         }
+    //     }
+
+    //     // ===== FAMILY JSON FIELD MAP =====
+    //     $familyFieldMap = [
+    //         'name'   => 'name',
+    //         'email'  => 'email',
+    //         'mobile' => 'mobile',         // 👈 JSON key
+    //         'pan'    => 'pan_card',
+    //         'aadhar' => 'aadhar_no',
+    //     ];
+
+    //     // if (isset($familyFieldMap[$field])) {
+    //     //     $family = Familydetail::where('user_id', $user->id)->first();
+
+    //     //     if ($family && is_array($family->additional_family_members)) {
+    //     //         foreach ($family->additional_family_members as $member) {
+    //     //             $jsonKey = $familyFieldMap[$field];
+
+    //     //             if (
+    //     //                 isset($member[$jsonKey]) &&
+    //     //                 trim($member[$jsonKey]) === $value
+    //     //             ) {
+    //     //                 return response()->json([
+    //     //                     'exists' => true,
+    //     //                     'source' => 'family'
+    //     //                 ]);
+    //     //             }
+    //     //         }
+    //     //     }
+    //     // }
+
+    //     if ($family) {
+    //         $members = is_array($family->additional_family_members)
+    //             ? $family->additional_family_members
+    //             : json_decode($family->additional_family_members, true);
+
+    //         if (is_array($members)) {
+    //             foreach ($members as $member) {
+    //                 $jsonKey = $familyFieldMap[$field];
+
+    //                 if (
+    //                     isset($member[$jsonKey]) &&
+    //                     trim($member[$jsonKey]) === $value
+    //                 ) {
+    //                     return response()->json([
+    //                         'exists' => true,
+    //                         'source' => 'family'
+    //                     ]);
+    //                 }
+    //             }
+    //         }
+    //     }
+
+
+    //     return response()->json(['exists' => false]);
+    // }
+
+
+    // public function checkDuplicate(Request $request)
+    // {
+    //     $user = Auth::user();
+    //     $value = trim($request->value);
+    //     $field = $request->field;
+
+    //     // ===== USERS TABLE FIELD MAP =====
+    //     $userFieldMap = [
+    //         'name'   => 'name',
+    //         'email'  => 'email',
+    //         'mobile' => 'phone',
+    //         'pan'    => 'pan_card',
+    //         'aadhar' => 'aadhar_card_number',
+    //     ];
+
+    //     if (isset($userFieldMap[$field])) {
+    //         $userColumn = $userFieldMap[$field];
+
+    //         if (!empty($user->$userColumn) && trim($user->$userColumn) === $value) {
+    //             return response()->json([
+    //                 'exists' => true,
+    //                 'source' => 'user'
+    //             ]);
+    //         }
+    //     }
+
+    //     // ===== FAMILY JSON FIELD MAP =====
+    //     $familyFieldMap = [
+    //         'name'   => 'name',
+    //         'email'  => 'email',
+    //         'mobile' => 'mobile',
+    //         'pan'    => 'pan_card',
+    //         'aadhar' => 'aadhar_no',
+    //     ];
+
+    //     if (isset($familyFieldMap[$field])) {
+
+    //         // 🔑 MISSING LINE (IMPORTANT)
+    //         $family = Familydetail::where('user_id', $user->id)->first();
+
+    //         if ($family) {
+    //             $members = is_array($family->additional_family_members)
+    //                 ? $family->additional_family_members
+    //                 : json_decode($family->additional_family_members, true);
+
+    //             if (is_array($members)) {
+    //                 foreach ($members as $member) {
+    //                     $jsonKey = $familyFieldMap[$field];
+
+    //                     if (
+    //                         isset($member[$jsonKey]) &&
+    //                         trim($member[$jsonKey]) === $value
+    //                     ) {
+    //                         return response()->json([
+    //                             'exists' => true,
+    //                             'source' => 'family'
+    //                         ]);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     return response()->json(['exists' => false]);
+    // }
+
     public function checkDuplicate(Request $request)
     {
         $user = Auth::user();
         $value = trim($request->value);
-        $field = $request->field; // mobile, email, pan, aadhar, name
+        $field = $request->field;
+        $guarantorId = $request->guarantor_id; // 👈 current guarantor
 
-        // ===== USERS TABLE FIELD MAP =====
+        // ===== USERS TABLE =====
         $userFieldMap = [
             'name'   => 'name',
             'email'  => 'email',
-            'mobile' => 'phone',          // 👈 mapping
+            'mobile' => 'phone',
             'pan'    => 'pan_card',
             'aadhar' => 'aadhar_card_number',
         ];
 
         if (isset($userFieldMap[$field])) {
-            $userColumn = $userFieldMap[$field];
+            $col = $userFieldMap[$field];
 
-            if (!empty($user->$userColumn) && $user->$userColumn === $value) {
-                return response()->json([
-                    'exists' => true,
-                    'source' => 'user'
-                ]);
+            if (!empty($user->$col) && trim($user->$col) === $value) {
+                return response()->json(['exists' => true, 'source' => 'user']);
             }
         }
 
-        // ===== FAMILY JSON FIELD MAP =====
+        // ===== FAMILY JSON =====
         $familyFieldMap = [
             'name'   => 'name',
             'email'  => 'email',
-            'mobile' => 'mobile',         // 👈 JSON key
+            'mobile' => 'mobile',
             'pan'    => 'pan_card',
             'aadhar' => 'aadhar_no',
         ];
@@ -1613,25 +1759,55 @@ class UserController extends Controller
         if (isset($familyFieldMap[$field])) {
             $family = Familydetail::where('user_id', $user->id)->first();
 
-            if ($family && is_array($family->additional_family_members)) {
-                foreach ($family->additional_family_members as $member) {
-                    $jsonKey = $familyFieldMap[$field];
+            if ($family) {
+                $members = is_array($family->additional_family_members)
+                    ? $family->additional_family_members
+                    : json_decode($family->additional_family_members, true);
 
+                foreach ($members ?? [] as $member) {
                     if (
-                        isset($member[$jsonKey]) &&
-                        trim($member[$jsonKey]) === $value
+                        isset($member[$familyFieldMap[$field]]) &&
+                        trim($member[$familyFieldMap[$field]]) === $value
                     ) {
-                        return response()->json([
-                            'exists' => true,
-                            'source' => 'family'
-                        ]);
+                        return response()->json(['exists' => true, 'source' => 'family']);
                     }
                 }
             }
         }
 
+        // ===== GUARANTOR DETAILS (OVERALL SYSTEM CHECK) =====
+        $guarantorFieldMap = [
+            'name'   => 'name',
+            'email'  => 'email',
+            'mobile' => 'mobile',
+            'pan'    => 'pan_card',
+            'aadhar' => 'aadhar_no',
+        ];
+
+        if (isset($guarantorFieldMap[$field])) {
+
+            $query = GuarantorDetail::where(
+                $guarantorFieldMap[$field],
+                $value
+            );
+
+            // ❗ self guarantor exclude
+            if ($guarantorId) {
+                $query->where('id', '!=', $guarantorId);
+            }
+
+            if ($query->exists()) {
+                return response()->json([
+                    'exists' => true,
+                    'source' => 'guarantor'
+                ]);
+            }
+        }
+
         return response()->json(['exists' => false]);
     }
+
+
 
 
     // public function step5store(Request $request)
@@ -1963,7 +2139,7 @@ class UserController extends Controller
 
             Log::info('Step6Store: Document created successfully', ['user_id' => $user_id, 'document_id' => Document::latest()->first()->id]);
 
-            return redirect()->route('user.step7')->with('success', $message);
+            return redirect()->route('user.step7')->with('upload_success', $message);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Step6Store: Validation failed', [
                 'user_id' => Auth::id(),
@@ -2092,7 +2268,7 @@ class UserController extends Controller
             // Check if all steps are submitted (no resubmit remaining)
             $this->checkAndUpdateWorkflowStatus();
 
-            return redirect()->route('user.step7')->with('success', $message);
+            return redirect()->route('user.step7')->with('upload_success', $message);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Step6Store: Validation failed', [
                 'user_id' => Auth::id(),
@@ -2262,21 +2438,20 @@ class UserController extends Controller
                 'current_stage' => 'apex_1',
                 'final_status' => 'in_progress',
             ]);
-            $message = 'Application submitted successfully!';
         } else {
             // Update if exists
             $workflow->update([
                 'current_stage' => 'apex_1',
                 'final_status' => 'in_progress',
             ]);
-            $message = 'Application resubmitted successfully!';
         }
 
         // Update user's application_status to 'submitted' or similar
         $user = User::find($user_id);
         $user->update(['application_status' => 'submitted']);
 
-        return redirect()->route('user.step7')->with('success', $message);
+        // Set both success message for SweetAlert2 and step7_submitted flag
+        return redirect()->route('user.step7')->with('success', 'Application submitted successfully!')->with('step7_submitted', true);
     }
 
     /**

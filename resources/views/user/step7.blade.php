@@ -11,17 +11,29 @@
                  <div class="col-12">
                      <form method="POST" action="{{ route('user.step7.store') }}" enctype="multipart/form-data">
                          @csrf
-                         @if (session('success'))
-                             <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
-                                 id="successAlert">
+                        @if (session('success'))
+                            <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
+                                id="successAlert">
 
-                                 {{ session('success') }}
+                                {{ session('success') }}
 
-                                 <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
-                                     <span aria-hidden="true">&times;</span>
-                                 </button>
-                             </div>
-                         @endif
+                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
+                        
+                        @if (session('upload_success'))
+                            <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
+                                id="uploadSuccessAlert">
+
+                                {{ session('upload_success') }}
+
+                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
                          <div class="row mb-3">
                              <div class="col-md-5 offset-md-1">
 
@@ -331,46 +343,148 @@
          </div>
      </div>
 
-     <!-- Success Modal -->
-     <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
-         <div class="modal-dialog modal-dialog-centered" role="document">
-             <div class="modal-content" style="border:2px solid #009846;">
-
-                 <div class="modal-header" style="border-bottom:1px solid #009846;">
-                     <h5 class="modal-title" id="successModalLabel" style="color:#009846;">
-                         Application Submitted Successfully
-                     </h5>
-                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                         <span aria-hidden="true">&times;</span>
-                     </button>
-                 </div>
-
-                 <div class="modal-body">
-                     <div class="text-center">
-                         <i class="bi bi-check-circle" style="font-size: 48px; color: #009846; margin-bottom: 16px;"></i>
-                         <h4>Thank you for submitting your application!</h4>
-                         <p>Your application has been successfully submitted.</p>
-                         <p>You will receive a confirmation email with your application reference number shortly.</p>
-                         <p>Our team will review your application and contact you within 7-10 business days.</p>
-                     </div>
-                 </div>
-
-                 <div class="modal-footer" style="border-top:1px solid #009846;">
-                     {{-- <button type="button" class="btn btn-success" data-dismiss="modal" onclick="window.location.href='{{ route('user.dashboard') }}'">
-                         Go to Dashboard
-                     </button> --}}
-                 </div>
-
-             </div>
-         </div>
-     </div>
+     <!-- SweetAlert2 Library -->
+     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
      <script>
-         // Show success modal when form is submitted successfully
-         @if(session('success'))
-             $(document).ready(function() {
-                 $('#successModal').modal('show');
+         // Show SweetAlert2 success message only when Step 7 form is submitted
+         // This ensures it only shows after form submission, not when navigating to Step 7
+         @if(session('success') && session('step7_submitted'))
+             document.addEventListener('DOMContentLoaded', function() {
+                 Swal.fire({
+                     title: 'Application Submitted Successfully!',
+                     html: `
+                         <div style="text-align: left; margin-top: 15px;">
+                             <p style="margin-bottom: 10px; font-size: 16px;">Thank you for submitting your application!</p>
+                             <p style="margin-bottom: 10px; font-size: 14px;">Your application has been successfully submitted.</p>
+                             <p style="margin-bottom: 10px; font-size: 14px;">You will receive a confirmation email with your application reference number shortly.</p>
+                             <p style="margin-bottom: 0; font-size: 14px;">Our team will review your application and contact you within 7-10 business days.</p>
+                         </div>
+                     `,
+                     icon: 'success',
+                     iconColor: '#009846',
+                     background: '#ffffff',
+                     color: '#333333',
+                     confirmButtonText: 'Go to Dashboard',
+                     confirmButtonColor: '#009846',
+                     showCloseButton: true,
+                     customClass: {
+                         popup: 'animated fadeIn',
+                         confirmButton: 'swal2-confirm-btn'
+                     },
+                     buttonsStyling: false,
+                     customButtons: {
+                         confirm: {
+                             text: 'Go to Dashboard',
+                             className: 'swal2-confirm-btn'
+                         }
+                     }
+                 }).then((result) => {
+                     if (result.isConfirmed) {
+                         window.location.href = '{{ route('user.home') }}';
+                     }
+                 });
              });
          @endif
      </script>
+
+     <style>
+         /* Custom SweetAlert2 styling to match your brand */
+         .swal2-popup {
+             border-radius: 12px !important;
+             padding: 20px !important;
+             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+         }
+
+         .swal2-title {
+             color: #009846 !important;
+             font-size: 24px !important;
+             font-weight: 700 !important;
+             margin-bottom: 10px !important;
+         }
+
+         .swal2-html-container {
+             text-align: left !important;
+             font-size: 16px !important;
+             line-height: 1.5 !important;
+             color: #333333 !important;
+         }
+
+         .swal2-icon.swal2-success {
+             border-color: #009846 !important;
+             color: #009846 !important;
+         }
+
+         .swal2-icon.swal2-success::after {
+             background-color: #009846 !important;
+         }
+
+         .swal2-icon.swal2-success .swal2-success-ring {
+             border-color: rgba(0, 152, 70, 0.3) !important;
+         }
+
+         .swal2-confirm {
+             background-color: #009846 !important;
+             border-color: #009846 !important;
+             color: white !important;
+             border-radius: 8px !important;
+             padding: 12px 30px !important;
+             font-size: 16px !important;
+             font-weight: 600 !important;
+             box-shadow: 0 4px 6px rgba(0, 152, 70, 0.3) !important;
+             transition: all 0.3s ease !important;
+         }
+
+         .swal2-confirm:hover {
+             background-color: #007a38 !important;
+             border-color: #007a38 !important;
+             transform: translateY(-2px) !important;
+             box-shadow: 0 6px 12px rgba(0, 152, 70, 0.4) !important;
+         }
+
+         .swal2-confirm:active {
+             transform: translateY(0) !important;
+             box-shadow: 0 2px 4px rgba(0, 152, 70, 0.3) !important;
+         }
+
+         .swal2-close {
+             color: #009846 !important;
+             font-size: 28px !important;
+             font-weight: 300 !important;
+             opacity: 1 !important;
+         }
+
+         .swal2-close:hover {
+             color: #007a38 !important;
+             background-color: transparent !important;
+         }
+
+         /* Animation for the success icon */
+         @keyframes pulse {
+             0% { transform: scale(1); }
+             50% { transform: scale(1.1); }
+             100% { transform: scale(1); }
+         }
+
+         .swal2-icon.swal2-success {
+             animation: pulse 1s ease-in-out infinite;
+         }
+
+         /* Responsive design */
+         @media (max-width: 768px) {
+             .swal2-popup {
+                 width: 90% !important;
+                 margin: 10px !important;
+             }
+             
+             .swal2-title {
+                 font-size: 20px !important;
+             }
+             
+             .swal2-html-container {
+                 font-size: 14px !important;
+             }
+         }
+     </style>
  @endsection

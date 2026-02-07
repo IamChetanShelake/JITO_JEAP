@@ -10,6 +10,89 @@
             background: #e9ecef;
             margin: 30px 0;
         }
+
+        /* Real-time validation styling */
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+
+        .form-control.is-invalid:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+
+        .form-control.is-valid {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        }
+
+        .form-control.is-valid:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        }
+
+        .text-danger {
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        /* Error message styling */
+        .invalid-feedback {
+            display: block;
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Success message styling */
+        .valid-feedback {
+            display: block;
+            color: #28a745;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Form group spacing */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Label styling */
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Input field styling */
+        .form-control {
+            border-radius: 0.375rem;
+            border: 1px solid #ced4da;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .form-control:focus {
+            outline: 0;
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        /* Alert styling for validation messages */
+        .alert-dismissible {
+            position: relative;
+        }
+
+        .custom-close {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 0.75rem 1.25rem;
+            color: inherit;
+        }
     </style>
     <!-- Main Content -->
     <div class="col-lg-9 main-content">
@@ -121,8 +204,18 @@
                                                 <input type="text" id="g_one_pan" name="g_one_pan" class="form-control"
                                                     placeholder="Enter 10-character PAN number"
                                                     value="{{ old('g_one_pan') ?: $guarantorDetail->g_one_pan ?? '' }}"
+                                                    onblur="
+                                                        checkDuplicate('pan', this.value, 'g_one_pan_error');
+                                                        checkGuarantorSame(
+                                                            'g_one_pan',
+                                                            'g_two_pan',
+                                                            'g_one_pan_error',
+                                                            'PAN cannot be same for both guarantors'
+                                                        );
+                                                    "
                                                     required>
-                                                <small class="text-danger">{{ $errors->first('g_one_pan') }}</small>
+                                                <small id="g_one_pan_error" class="text-danger"></small>
+
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="g_one_name" class="form-label">Name <span
@@ -130,8 +223,18 @@
                                                 <input type="text" id="g_one_name" class="form-control" name="g_one_name"
                                                     placeholder="Enter guarantor's name"
                                                     value="{{ old('g_one_name') ?: $guarantorDetail->g_one_name ?? '' }}"
+                                                    onblur="
+                                                    checkDuplicate('name', this.value, 'g_one_name_error');
+                                                    checkGuarantorSame(
+                                                        'g_one_name',
+                                                        'g_two_name',
+                                                        'g_one_name_error',
+                                                        'Name cannot be same for both guarantors'
+                                                    );
+                                                "
                                                     required>
-                                                <small class="text-danger">{{ $errors->first('g_one_name') }}</small>
+                                                <small id="g_one_name_error" class="text-danger"></small>
+
                                             </div>
 
                                             <div class="form-group mb-3">
@@ -229,8 +332,19 @@
                                                 <input type="tel" id="g_one_phone" name="g_one_phone"
                                                     class="form-control" placeholder="Enter mobile number"
                                                     value="{{ old('g_one_phone') ?: $guarantorDetail->g_one_phone ?? '' }}"
-                                                    maxlength="10" required>
-                                                <small class="text-danger">{{ $errors->first('g_one_phone') }}</small>
+                                                    maxlength="10"
+                                                    onblur="
+                                                    checkDuplicate('mobile', this.value, 'g_one_phone_error');
+                                                    checkGuarantorSame(
+                                                        'g_one_phone',
+                                                        'g_two_phone',
+                                                        'g_one_phone_error',
+                                                        'Mobile number cannot be same for both guarantors'
+                                                    );
+                                                "
+                                                    required>
+                                                <small id="g_one_phone_error" class="text-danger"></small>
+
                                             </div>
 
                                             <div class="form-group mb-3">
@@ -239,8 +353,18 @@
                                                 <input type="email" id="g_one_email" name="g_one_email"
                                                     class="form-control" placeholder="Enter email address"
                                                     value="{{ old('g_one_email') ?: $guarantorDetail->g_one_email ?? '' }}"
+                                                    onblur="
+                                                    checkDuplicate('email', this.value, 'g_one_email_error');
+                                                    checkGuarantorSame(
+                                                        'g_one_email',
+                                                        'g_two_email',
+                                                        'g_one_email_error',
+                                                        'Email cannot be same for both guarantors'
+                                                    );
+                                                "
                                                     required>
-                                                <small class="text-danger">{{ $errors->first('g_one_email') }}</small>
+                                                <small id="g_one_email_error" class="text-danger"></small>
+
                                             </div>
 
                                             <div class="form-group mb-3">
@@ -263,9 +387,18 @@
                                                     placeholder="Enter 12-digit Aadhar number" minlength="12"
                                                     maxlength="12"
                                                     value="{{ old('g_one_aadhar_card_number') ?: $guarantorDetail->g_one_aadhar_card_number ?? '' }}"
+                                                    onblur="
+                                                    checkDuplicate('aadhar', this.value, 'g_one_aadhar_error');
+                                                    checkGuarantorSame(
+                                                        'g_one_aadhar_card_number',
+                                                        'g_two_aadhar_card_number',
+                                                        'g_one_aadhar_error',
+                                                        'Aadhar cannot be same for both guarantors'
+                                                    );
+                                                "
                                                     required>
-                                                <small
-                                                    class="text-danger">{{ $errors->first('g_one_aadhar_card_number') }}</small>
+                                                <small id="g_one_aadhar_error" class="text-danger"></small>
+
                                             </div>
 
                                             {{-- <div class="form-group mb-3">
@@ -318,20 +451,51 @@
                                             <div class="form-group mb-3">
                                                 <label for="g_two_pan" class="form-label">PAN Card Number <span
                                                         style="color: red;">*</span></label>
-                                                <input type="text" id="g_two_pan" name="g_two_pan"
+                                                {{-- <input type="text" id="g_two_pan" name="g_two_pan"
                                                     class="form-control" placeholder="Enter 10-character PAN number"
                                                     value="{{ old('g_two_pan') ?: $guarantorDetail->g_two_pan ?? '' }}"
-                                                    required>
-                                                <small class="text-danger">{{ $errors->first('g_two_pan') }}</small>
+                                                    onblur="checkDuplicate('pan', this.value, 'g_two_pan_error')" required>
+                                                <small id="g_two_pan_error" class="text-danger"></small> --}}
+
+                                                <input type="text" id="g_two_pan" name="g_two_pan"
+                                                    class="form-control"
+                                                    onblur="
+                                                        checkDuplicate('pan', this.value, 'g_two_pan_error');
+                                                        checkGuarantorSame(
+                                                            'g_one_pan',
+                                                            'g_two_pan',
+                                                            'g_two_pan_error',
+                                                            'PAN cannot be same for both guarantors'
+                                                        );
+                                                    ">
+                                                <small id="g_two_pan_error" class="text-danger"></small>
+
+
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="g_two_name" class="form-label">Name <span
                                                         style="color: red;">*</span></label>
-                                                <input type="text" class="form-control" name="g_two_name"
+                                                {{-- <input type="text" class="form-control" name="g_two_name"
                                                     placeholder="Name "
                                                     value="{{ old('g_two_name') ?: $guarantorDetail->g_two_name ?? '' }}"
+                                                    onblur="checkDuplicate('name', this.value, 'g_two_name_error')"
                                                     required>
-                                                <small class="text-danger">{{ $errors->first('g_two_name') }}</small>
+                                                <small id="g_two_name_error" class="text-danger"></small> --}}
+
+                                                <input type="text" id="g_two_name" name="g_two_name"
+                                                    class="form-control"
+                                                    onblur="
+                                                        checkDuplicate('name', this.value, 'g_two_name_error');
+                                                        checkGuarantorSame(
+                                                            'g_one_name',
+                                                            'g_two_name',
+                                                            'g_two_name_error',
+                                                            'Name cannot be same for both guarantors'
+                                                        );
+                                                    ">
+                                                <small id="g_two_name_error" class="text-danger"></small>
+
+
                                             </div>
 
                                             <div class="form-group mb-3">
@@ -411,21 +575,54 @@
                                             <div class="form-group mb-3">
                                                 <label for="g_two_phone" class="form-label">Mobile Number <span
                                                         style="color: red;">*</span></label>
-                                                <input type="tel" name="g_two_phone" class="form-control"
+                                                {{-- <input type="tel" name="g_two_phone" class="form-control"
                                                     placeholder="Mobile Number "
                                                     value="{{ old('g_two_phone') ?: $guarantorDetail->g_two_phone ?? '' }}"
-                                                    maxlength="10" required>
-                                                <small class="text-danger">{{ $errors->first('g_two_phone') }}</small>
+                                                    maxlength="10"
+                                                    onblur="checkDuplicate('mobile', this.value, 'g_two_phone_error')"
+                                                    required>
+                                                <small id="g_two_phone_error" class="text-danger"></small> --}}
+
+                                                <input type="tel" id="g_two_phone" name="g_two_phone"
+                                                    class="form-control"
+                                                    onblur="
+                                                        checkDuplicate('mobile', this.value, 'g_two_phone_error');
+                                                        checkGuarantorSame(
+                                                            'g_one_phone',
+                                                            'g_two_phone',
+                                                            'g_two_phone_error',
+                                                            'Mobile number cannot be same for both guarantors'
+                                                        );
+                                                    ">
+                                                <small id="g_two_phone_error" class="text-danger"></small>
+
+
                                             </div>
 
                                             <div class="form-group mb-3">
                                                 <label for="g_two_email" class="form-label">Email ID <span
                                                         style="color: red;">*</span></label>
-                                                <input type="email" name="g_two_email" class="form-control"
+                                                {{-- <input type="email" name="g_two_email" class="form-control"
                                                     placeholder="Email ID "
                                                     value="{{ old('g_two_email') ?: $guarantorDetail->g_two_email ?? '' }}"
+                                                    onblur="checkDuplicate('email', this.value, 'g_two_email_error')"
                                                     required>
-                                                <small class="text-danger">{{ $errors->first('g_two_email') }}</small>
+                                                <small id="g_two_email_error" class="text-danger"></small> --}}
+
+                                                <input type="email" id="g_two_email" name="g_two_email"
+                                                    class="form-control"
+                                                    onblur="
+                                                    checkDuplicate('email', this.value, 'g_two_email_error');
+                                                    checkGuarantorSame(
+                                                        'g_one_email',
+                                                        'g_two_email',
+                                                        'g_two_email_error',
+                                                        'Email cannot be same for both guarantors'
+                                                    );
+                                                ">
+                                                <small id="g_two_email_error" class="text-danger"></small>
+
+
                                             </div>
 
                                             <div class="form-group mb-3">
@@ -443,13 +640,27 @@
                                             <div class="form-group mb-3">
                                                 <label for="g_two_aadhar_card_number" class="form-label">Aadhar Card
                                                     Number <span style="color: red;">*</span></label>
-                                                <input type="number" name="g_two_aadhar_card_number"
+                                                {{-- <input type="number" name="g_two_aadhar_card_number"
                                                     class="form-control" placeholder="Aadhar Card Number " minlength="12"
                                                     maxlength="12"
                                                     value="{{ old('g_two_aadhar_card_number') ?: $guarantorDetail->g_two_aadhar_card_number ?? '' }}"
+                                                    onblur="checkDuplicate('aadhar', this.value, 'g_two_aadhar_error')"
                                                     required>
-                                                <small
-                                                    class="text-danger">{{ $errors->first('g_two_aadhar_card_number') }}</small>
+                                                <small id="g_two_aadhar_error" class="text-danger"></small> --}}
+                                                <input type="number" id="g_two_aadhar_card_number"
+                                                    name="g_two_aadhar_card_number" class="form-control"
+                                                    onblur="
+                                                    checkDuplicate('aadhar', this.value, 'g_two_aadhar_error');
+                                                    checkGuarantorSame(
+                                                        'g_one_aadhar_card_number',
+                                                        'g_two_aadhar_card_number',
+                                                        'g_two_aadhar_error',
+                                                        'Aadhaar cannot be same for both guarantors'
+                                                    );
+                                                ">
+                                                <small id="g_two_aadhar_error" class="text-danger"></small>
+
+
                                             </div>
 
 
@@ -755,7 +966,7 @@
             });
     </script>
 
-    <script>
+    {{-- <script>
         function checkDuplicate(field, value, errorElementId) {
             if (!value) return;
 
@@ -774,11 +985,191 @@
                 .then(data => {
                     const errorEl = document.getElementById(errorElementId);
                     if (data.exists) {
-                        errorEl.innerText = "This value cannot be same as applicant or family member.";
+                        errorEl.innerText =
+                            "This value cannot be the same as the applicant or a family member.";
                     } else {
                         errorEl.innerText = "";
                     }
                 });
+        }
+    </script> --}}
+    <script>
+        function checkDuplicate(field, value, errorElementId) {
+            const errorEl = document.getElementById(errorElementId);
+
+            if (!value) {
+                errorEl.innerText = '';
+                return;
+            }
+
+            fetch("{{ route('user.check.guarantor.duplicate') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        field,
+                        value
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    errorEl.innerText = data.exists ?
+                        "This value cannot be the same as the applicant or a family member." :
+                        "";
+                });
+        }
+
+        // Real-time validation function for guarantor comparison
+        function checkGuarantorSame(field1Id, field2Id, errorElementId, errorMessage) {
+            const field1 = document.getElementById(field1Id);
+            const field2 = document.getElementById(field2Id);
+            const errorEl = document.getElementById(errorElementId);
+
+            if (!field1 || !field2) {
+                console.error('Field elements not found:', field1Id, field2Id);
+                return false;
+            }
+
+            const value1 = field1.value.trim();
+            const value2 = field2.value.trim();
+
+            // Clear previous error
+            errorEl.innerText = '';
+            field1.classList.remove('is-invalid', 'is-valid');
+            field2.classList.remove('is-invalid', 'is-valid');
+
+            // Only validate if both fields have values
+            if (value1 && value2) {
+                if (value1.toLowerCase() === value2.toLowerCase()) {
+                    // Values are the same - show error
+                    errorEl.innerText = errorMessage;
+                    field1.classList.add('is-invalid');
+                    field2.classList.add('is-invalid');
+                    return false;
+                } else {
+                    // Values are different - show success
+                    field1.classList.add('is-valid');
+                    field2.classList.add('is-valid');
+                    return true;
+                }
+            } else if (value1 || value2) {
+                // One field has value, other doesn't - no validation needed yet
+                return true;
+            }
+
+            return true;
+        }
+
+        // Enhanced form submission validation
+        function validateGuarantorForm() {
+            const fields = [{
+                    field1: 'g_one_name',
+                    field2: 'g_two_name',
+                    error: 'g_one_name_error',
+                    message: 'Name cannot be same for both guarantors'
+                },
+                {
+                    field1: 'g_one_email',
+                    field2: 'g_two_email',
+                    error: 'g_one_email_error',
+                    message: 'Email cannot be same for both guarantors'
+                },
+                {
+                    field1: 'g_one_phone',
+                    field2: 'g_two_phone',
+                    error: 'g_one_phone_error',
+                    message: 'Mobile number cannot be same for both guarantors'
+                },
+                {
+                    field1: 'g_one_pan',
+                    field2: 'g_two_pan',
+                    error: 'g_one_pan_error',
+                    message: 'PAN cannot be same for both guarantors'
+                },
+                {
+                    field1: 'g_one_aadhar_card_number',
+                    field2: 'g_two_aadhar_card_number',
+                    error: 'g_one_aadhar_error',
+                    message: 'Aadhaar cannot be same for both guarantors'
+                }
+            ];
+
+            let isValid = true;
+
+            fields.forEach(field => {
+                const result = checkGuarantorSame(
+                    field.field1,
+                    field.field2,
+                    field.error,
+                    field.message
+                );
+                if (!result) {
+                    isValid = false;
+                }
+            });
+
+            return isValid;
+        }
+
+        // Add form submission validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    if (!validateGuarantorForm()) {
+                        e.preventDefault();
+                        alert('Please fix the validation errors before submitting the form.');
+                        return false;
+                    }
+                });
+            }
+        });
+    </script>
+    <script>
+        function checkGuarantorOneTwoSame() {
+
+            const fields = [{
+                    one: 'g_one_pan',
+                    two: 'g_two_pan',
+                    msg: 'PAN cannot be same for both guarantors'
+                },
+                {
+                    one: 'g_one_phone',
+                    two: 'g_two_phone',
+                    msg: 'Mobile number cannot be same for both guarantors'
+                },
+                {
+                    one: 'g_one_email',
+                    two: 'g_two_email',
+                    msg: 'Email cannot be same for both guarantors'
+                },
+                {
+                    one: 'g_one_aadhar_card_number',
+                    two: 'g_two_aadhar_card_number',
+                    msg: 'Aadhaar cannot be same for both guarantors'
+                },
+                {
+                    one: 'g_one_name',
+                    two: 'g_two_name',
+                    msg: 'Name cannot be same for both guarantors'
+                },
+            ];
+
+            let isValid = true;
+
+            fields.forEach(f => {
+                const oneVal = document.getElementById(f.one)?.value?.trim();
+                const twoVal = document.getElementById(f.two)?.value?.trim();
+
+                if (oneVal && twoVal && oneVal === twoVal) {
+                    alert(f.msg);
+                    isValid = false;
+                }
+            });
+
+            return isValid;
         }
     </script>
 @endsection

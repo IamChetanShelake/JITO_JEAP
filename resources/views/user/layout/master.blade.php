@@ -756,6 +756,48 @@
                         </a>
                     </li>
 
+                    {{-- Debug: Check if step 8 should be displayed --}}
+                    @php
+                        $debug_user = auth()->user();
+                        $debug_workflow = $debug_user ? $debug_user->workflowStatus : null;
+                        $debug_status = $debug_workflow ? $debug_workflow->working_committee_status : null;
+                        $should_show_step8 = $debug_user && $debug_workflow && $debug_status === 'approved';
+                    @endphp
+                    
+                    {{-- Uncomment the line below to see debug info --}}
+                    {{-- <div style="position: fixed; top: 160px; left: 25%; background: red; color: white; padding: 10px; z-index: 9999;">Debug: User: {{ $debug_user ? 'Yes' : 'No' }}, Workflow: {{ $debug_workflow ? 'Yes' : 'No' }}, Status: {{ $debug_status }}, Show: {{ $should_show_step8 ? 'Yes' : 'No' }}</div> --}}
+
+                    @if ($should_show_step8)
+                        <li class="{{ request()->routeIs('user.step8') ? 'active' : '' }}">
+                            <a href="{{ route('user.step8') }}">
+                                <div
+                                    class="step-icon
+                                    @if (auth()->check() && auth()->user()->pdcDetail && in_array(auth()->user()->pdcDetail->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+                                    @if (auth()->check() && auth()->user()->pdcDetail && auth()->user()->pdcDetail->submit_status === 'resubmit') resubmit-step @endif
+                                    @if (request()->routeIs('user.step8')) active-step @endif">
+
+                                    @if (auth()->check() && auth()->user()->pdcDetail && in_array(auth()->user()->pdcDetail->submit_status, ['submited', 'submitted', 'approved']))
+                                        <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
+                                                fill="white" />
+                                        </svg>
+                                    @elseif (auth()->check() && auth()->user()->pdcDetail && auth()->user()->pdcDetail->submit_status === 'resubmit')
+                                        <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
+                                            title="{{ auth()->user()->pdcDetail->admin_remark ?? 'On Hold' }}"></i>
+                                    @else
+                                        <i class="bi bi-credit-card"></i>
+                                    @endif
+
+                                </div>
+                                <div class="step-content">
+                                    <div class="step-number">Step 8</div>
+                                    <div class="step-title">PDC Details</div>
+                                </div>
+                            </a>
+                        </li>
+                    @endif
+
                 </ul>
             </div>
 

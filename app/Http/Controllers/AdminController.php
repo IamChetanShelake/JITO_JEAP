@@ -352,13 +352,13 @@ class AdminController extends Controller
             'meeting_no' => 'required|string|max:255',
             'disbursement_system' => 'required|in:yearly,half_yearly',
             'approval_financial_assistance_amount' => 'required|numeric|min:0',
-            'installment_amount' => 'nullable|numeric|min:0',
-            'additional_installment_amount' => 'nullable|numeric|min:0',
+            'installment_amount' => 'required|numeric|min:0',
+            'additional_installment_amount' => 'required|numeric|min:0',
             'repayment_type' => 'required|in:yearly,half_yearly,quarterly,monthly',
-            'no_of_cheques_to_be_collected' => 'nullable|integer|min:1',
+            'no_of_cheques_to_be_collected' => 'required|integer|min:1',
             'repayment_starting_from' => 'required|date',
             'remarks_for_approval' => 'required|string|max:2000',
-            'disbursement_in_year' => 'nullable|integer|min:1|max:6',
+            'disbursement_in_year' => 'required|integer|min:1|max:6',
         ];
 
         // Conditional validation based on disbursement system
@@ -451,7 +451,7 @@ class AdminController extends Controller
                 'repayment_starting_from' => $request->repayment_starting_from,
                 'remarks_for_approval' => $request->remarks_for_approval,
                 'processed_by_name' => Auth::user()->name,
-                'processed_by_id' => Auth::user()->id,
+                'processed_by' => Auth::user()->id,
                 'approval_status' => 'approved',
             ]);
 

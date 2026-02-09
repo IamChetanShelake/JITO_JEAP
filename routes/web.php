@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DisbursementController;
 use App\Http\Controllers\RepaymentController;
+use App\Http\Controllers\DonorController;
+use App\Http\Controllers\DonorAuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BankController;
@@ -18,6 +20,19 @@ use App\Http\Controllers\InitiativeController;
 
 Route::get('/', function () {
     return view('auth.login');
+});
+
+// Donor Auth Routes
+Route::prefix('donor')->name('donor.')->group(function () {
+    Route::get('/login', [DonorAuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [DonorAuthController::class, 'login'])->name('login.submit');
+    Route::get('/register', [DonorAuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [DonorAuthController::class, 'register'])->name('register.submit');
+    Route::post('/logout', [DonorAuthController::class, 'logout'])->name('logout');
+
+    Route::middleware('auth:donor')->group(function () {
+        Route::get('/dashboard', [DonorAuthController::class, 'dashboard'])->name('dashboard');
+    });
 });
 
 Auth::routes();
@@ -144,6 +159,9 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/repayments/ready', [RepaymentController::class, 'ready'])->name('repayments.ready');
     Route::get('/repayments/user/{user}', [RepaymentController::class, 'show'])->name('repayments.show');
     Route::post('/repayments/user/{user}', [RepaymentController::class, 'store'])->name('repayments.store');
+
+    // Donor Routes
+    Route::resource('donors', DonorController::class);
 
     // Disbursement Filtered Routes
     Route::get('/disbursement/completed', [DisbursementController::class, 'completed'])->name('disbursement.completed');

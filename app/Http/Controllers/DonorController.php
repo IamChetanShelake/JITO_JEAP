@@ -80,3 +80,4 @@ class DonorController extends Controller
         return redirect()->route('admin.donors.index')->with('success', 'Donor deleted successfully.');
     }
 }
+

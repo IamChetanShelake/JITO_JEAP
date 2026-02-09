@@ -23,7 +23,7 @@ class DonorAuthController extends Controller
 
         if (Auth::guard('donor')->attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->route('donor.dashboard');
+            return redirect()->route('donor.step1');
         }
 
         return back()->withErrors([

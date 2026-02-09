@@ -834,6 +834,7 @@ class AdminController extends Controller
     {
         $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
         $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
+       // dd($workingCommitteeApproval);
         return view('admin.working_committee.user_detail', compact('user', 'workingCommitteeApproval'));
     }
 

@@ -76,4 +76,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(PdcDetail::class);
     }
+
+    public function workingCommitteeApproval()
+    {
+        return $this->hasOne(WorkingCommitteeApproval::class);
+    }
 }

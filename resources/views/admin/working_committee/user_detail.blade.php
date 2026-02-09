@@ -2014,7 +2014,7 @@
                                 <div class="form-field">
                                     <label class="form-label">Meeting Number</label>
                                     <input type="text" class="form-input"
-                                        value="{{ $user->workflowStatus->meeting_no ?? 'N/A' }}" readonly>
+                                        value="{{ $user->workingCommitteeApproval->meeting_no ?? 'N/A' }}" readonly>
                                 </div>
                             </div>
 
@@ -2023,7 +2023,8 @@
                                 <div class="form-field">
                                     <label class="form-label">Disbursement System</label>
                                     <input type="text" class="form-input"
-                                        value="{{ ucfirst($user->workflowStatus->disbursement_system ?? 'N/A') }}" readonly>
+                                        value="{{ ucfirst($user->workingCommitteeApproval->disbursement_system ?? 'N/A') }}"
+                                        readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Approved Financial Assistance Amount</label>
@@ -2165,7 +2166,8 @@
                             <div class="form-row">
                                 <div class="form-field form-field-full">
                                     <label class="form-label">Previous Approvals Information</label>
-                                    <div style="background: rgba(76, 175, 80, 0.05); padding: 1rem; border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.2);">
+                                    <div
+                                        style="background: rgba(76, 175, 80, 0.05); padding: 1rem; border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.2);">
                                         <div class="form-row">
                                             <div class="form-field">
                                                 <label class="form-label">Apex 1 Approval Remark</label>

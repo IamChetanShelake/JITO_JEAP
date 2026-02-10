@@ -84,7 +84,7 @@
             <div class="row mb-3">
                 <div class="col-md-4">
                     <label>Birth Date *</label>
-                    <input type="date" name="spouse_birth_date" class="form-control" value="{{ old('spouse_birth_date', $familyDetail->spouse_birth_date ?? '') }}">
+                    <input type="date" name="spouse_birth_date" class="form-control" max="{{ now()->subYears(18)->format('Y-m-d') }}" value="{{ old('spouse_birth_date', $familyDetail->spouse_birth_date ?? '') }}">
                 </div>
 
                 <div class="col-md-4">

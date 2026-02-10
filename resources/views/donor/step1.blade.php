@@ -81,7 +81,7 @@
             </div>
             <div class="col-md-4">
                 <label>Pin Code *</label>
-                <input type="text" name="pin_code" class="form-control" value="{{ old('pin_code', $personalDetail->pin_code ?? '') }}">
+                <input type="number" name="pin_code" class="form-control" value="{{ old('pin_code', $personalDetail->pin_code ?? '') }}">
             </div>
         </div>
 
@@ -92,16 +92,32 @@
         </div>
 
         <!-- CONTACT -->
-        <div class="row mb-3">
+       <div class="row mb-3">
             <div class="col-md-6">
                 <label>Mobile No *</label>
-                <input type="text" name="mobile_no" class="form-control" value="{{ old('mobile_no', $personalDetail->mobile_no ?? '') }}">
+                <input 
+                    type="tel"
+                    name="mobile_no"
+                    class="form-control"
+                    maxlength="10"
+                    pattern="[0-9]{10}"
+                    value="{{ old('mobile_no', $personalDetail->mobile_no ?? '') }}"
+                >
             </div>
+
             <div class="col-md-6">
                 <label>WhatsApp No *</label>
-                <input type="text" name="whatsapp_no" class="form-control" value="{{ old('whatsapp_no', $personalDetail->whatsapp_no ?? '') }}">
+                <input 
+                    type="tel"
+                    name="whatsapp_no"
+                    class="form-control"
+                    maxlength="10"
+                    pattern="[0-9]{10}"
+                    value="{{ old('whatsapp_no', $personalDetail->whatsapp_no ?? '') }}"
+                >
             </div>
         </div>
+
 
         <!-- EMAIL -->
         <div class="mb-3">
@@ -142,8 +158,15 @@
         <div class="row mb-3">
             <div class="col-md-6">
                 <label>Date of Birth *</label>
-                <input type="date" name="date_of_birth" class="form-control" value="{{ old('date_of_birth', $personalDetail->date_of_birth ?? '') }}">
+                <input
+                    type="date"
+                    name="date_of_birth"
+                    class="form-control"
+                    max="{{ now()->subYears(18)->format('Y-m-d') }}"
+                    value="{{ old('date_of_birth', $personalDetail->date_of_birth ?? '') }}"
+                >
             </div>
+
             <div class="col-md-6">
                 <label>Anniversary Date</label>
                 <input type="date" name="anniversary_date" class="form-control" value="{{ old('anniversary_date', $personalDetail->anniversary_date ?? '') }}">

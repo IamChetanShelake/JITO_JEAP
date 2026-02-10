@@ -716,6 +716,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.repayments') ? 'active' : '' }}"
+                                href="{{ route('admin.repayments.index') }}">
+                                <i class="fas fa-receipt"></i>
+                                <span class="nav-text">Repayments</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.banks') ? 'active' : '' }}"
                                 href="{{ route('admin.banks.index') }}">
                                 <i class="fas fa-bank"></i>
@@ -736,6 +743,13 @@
                                 href="{{ route('admin.subcasts.index') }}">
                                 <i class="fas fa-users"></i>
                                 <span class="nav-text">Subcast</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.donors') ? 'active' : '' }}"
+                                href="{{ route('admin.donors.index') }}">
+                                <i class="fas fa-hand-holding-heart"></i>
+                                <span class="nav-text">Donors</span>
                             </a>
                         </li>
                     @endif

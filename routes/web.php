@@ -4,7 +4,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DisbursementController;
 use App\Http\Controllers\RepaymentController;
+use App\Http\Controllers\DonorController;
+use App\Http\Controllers\DonorAuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DonorWebController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\JitoJeapBankController;
@@ -18,6 +21,42 @@ use App\Http\Controllers\InitiativeController;
 
 Route::get('/', function () {
     return view('auth.login');
+});
+
+// Donor Auth Routes
+Route::prefix('donor')->name('donor.')->group(function () {
+    Route::get('/login', [DonorAuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [DonorAuthController::class, 'login'])->name('login.submit');
+    Route::get('/register', [DonorAuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [DonorAuthController::class, 'register'])->name('register.submit');
+    Route::post('/logout', [DonorAuthController::class, 'logout'])->name('logout');
+
+    Route::middleware('auth:donor')->group(function () {
+    Route::get('/dashboard', [DonorAuthController::class, 'dashboard'])->name('dashboard');
+    Route::get('/step1', [DonorWebController::class, 'step1'])->name('step1');
+    Route::post('/step1', [DonorWebController::class, 'storestep1'])->name('step1.store');
+
+    Route::get('/step2', [DonorWebController::class, 'step2'])->name('step2');
+    Route::post('/step2', [DonorWebController::class, 'storestep2'])->name('step2.store');
+
+    Route::get('/step3', [DonorWebController::class, 'step3'])->name('step3');
+    Route::post('/step3', [DonorWebController::class, 'storestep3'])->name('step3.store');
+
+    Route::get('/step4', [DonorWebController::class, 'step4'])->name('step4');
+    Route::post('/step4', [DonorWebController::class, 'storestep4'])->name('step4.store');
+
+    Route::get('/step5', [DonorWebController::class, 'step5'])->name('step5');
+    Route::post('/step5', [DonorWebController::class, 'storestep5'])->name('step5.store');
+
+    Route::get('/step6', [DonorWebController::class, 'step6'])->name('step6');
+    Route::post('/step6', [DonorWebController::class, 'storestep6'])->name('step6.store');
+
+    Route::get('/step7', [DonorWebController::class, 'step7'])->name('step7');
+    Route::post('/step7', [DonorWebController::class, 'storestep7'])->name('step7.store');
+
+    Route::get('/step8', [DonorWebController::class, 'step8'])->name('step8');
+    Route::post('/step8', [DonorWebController::class, 'storestep8'])->name('step8.store');
+    });
 });
 
 Auth::routes();
@@ -149,6 +188,9 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/repayments/user/{user}', [RepaymentController::class, 'show'])->name('repayments.show');
     Route::post('/repayments/user/{user}', [RepaymentController::class, 'store'])->name('repayments.store');
 
+    // Donor Routes
+    Route::resource('donors', DonorController::class);
+
     // Disbursement Filtered Routes
     Route::get('/disbursement/completed', [DisbursementController::class, 'completed'])->name('disbursement.completed');
     Route::get('/disbursement/in-progress', [DisbursementController::class, 'inProgress'])->name('disbursement.in_progress');
@@ -250,4 +292,11 @@ Route::middleware(['auth', 'user'])
             ->name('verify.pan');
         Route::post('/verify-aadhaar-last4', [UserController::class, 'verifyAadhaarLast4'])
             ->name('verify.aadhaar.last4');
+
+
+
     });
+
+
+
+

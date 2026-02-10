@@ -2486,9 +2486,13 @@ class UserController extends Controller
     public function step8store(Request $request)
     {
         $user_id = Auth::id();
+        // dd($request->all());
 
-        $request->validate([
-            'first_cheque_image' => 'required|mimes:jpeg,png,jpg,pdf|max:2048',
+        // Check if PDC details already exist for this user
+        $pdcDetail = PdcDetail::where('user_id', $user_id)->first();
+
+        // Conditional validation for first_cheque_image
+        $validationRules = [
             'cheque_details' => 'required|array|min:1',
             'cheque_details.*.cheque_date' => 'required|date',
             'cheque_details.*.amount' => 'required|numeric|min:0',
@@ -2496,7 +2500,16 @@ class UserController extends Controller
             'cheque_details.*.ifsc' => 'required|string|max:20',
             'cheque_details.*.account_number' => 'required|string|max:50',
             'cheque_details.*.cheque_number' => 'required|string|max:50',
-        ]);
+        ];
+
+        // Only require first_cheque_image if no existing image exists
+        if (!$pdcDetail || !$pdcDetail->first_cheque_image) {
+            $validationRules['first_cheque_image'] = 'required|mimes:jpeg,png,jpg,pdf|max:2048';
+        } else {
+            $validationRules['first_cheque_image'] = 'nullable|mimes:jpeg,png,jpg,pdf|max:2048';
+        }
+
+        $request->validate($validationRules);
 
         // Handle first cheque image upload
         $firstChequeImage = null;
@@ -2504,6 +2517,9 @@ class UserController extends Controller
             $fileName = time() . '_first_cheque.' . $request->first_cheque_image->extension();
             $request->first_cheque_image->move('pdc_cheques', $fileName);
             $firstChequeImage = 'pdc_cheques/' . $fileName;
+        } elseif ($pdcDetail && $pdcDetail->first_cheque_image) {
+            // Keep existing image if no new image uploaded
+            $firstChequeImage = $pdcDetail->first_cheque_image;
         }
 
         // Process cheque details
@@ -2511,6 +2527,7 @@ class UserController extends Controller
         foreach ($request->cheque_details as $index => $cheque) {
             $chequeDetails[] = [
                 'row_number' => $index + 1,
+                'parents_jnt_ac_name' => $cheque['parents_jnt_ac_name'] ?? null,
                 'cheque_date' => $cheque['cheque_date'],
                 'amount' => $cheque['amount'],
                 'bank_name' => $cheque['bank_name'],

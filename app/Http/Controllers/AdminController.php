@@ -834,7 +834,7 @@ class AdminController extends Controller
     {
         $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
         $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
-       // dd($workingCommitteeApproval);
+        // dd($workingCommitteeApproval);
         return view('admin.working_committee.user_detail', compact('user', 'workingCommitteeApproval'));
     }
 
@@ -1424,5 +1424,70 @@ class AdminController extends Controller
         ]);
 
         return back()->with('success', 'PDC sent back for correction');
+    }
+
+    /**
+     * Show the edit form for PDC details
+     */
+    public function editPdc(User $user)
+    {
+        $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document', 'pdcDetail']);
+
+        if (!$user->pdcDetail) {
+            return back()->with('error', 'PDC details not found');
+        }
+
+        return view('admin.pdc.edit', compact('user'));
+    }
+
+    /**
+     * Update PDC details
+     */
+    public function updatePdc(Request $request, User $user)
+    {
+        $request->validate([
+            'first_cheque_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'cheque_details' => 'required|array',
+            'cheque_details.*.parents_jnt_ac_name' => 'required|string|max:255',
+            'cheque_details.*.cheque_date' => 'required|date',
+            'cheque_details.*.amount' => 'required|numeric|min:0',
+            'cheque_details.*.bank_name' => 'required|string|max:255',
+            'cheque_details.*.ifsc' => 'required|string|max:11',
+            'cheque_details.*.account_number' => 'required|string|max:20',
+            'cheque_details.*.cheque_number' => 'required|string|max:20',
+        ]);
+
+        $pdcDetail = \App\Models\PdcDetail::where('user_id', $user->id)->first();
+
+        if (!$pdcDetail) {
+            return back()->with('error', 'PDC details not found');
+        }
+
+        // Handle file upload if new image is provided
+        $chequeImagePath = $pdcDetail->first_cheque_image;
+
+        if ($request->hasFile('first_cheque_image')) {
+            // Delete old image if exists
+            if ($pdcDetail->first_cheque_image && file_exists(public_path($pdcDetail->first_cheque_image))) {
+                unlink(public_path($pdcDetail->first_cheque_image));
+            }
+
+            // Upload new image
+            $file = $request->file('first_cheque_image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('pdc_cheques'), $filename);
+            $chequeImagePath = 'pdc_cheques/' . $filename;
+        }
+
+        // Update PDC details
+        $pdcDetail->update([
+            'first_cheque_image' => $chequeImagePath,
+            'cheque_details' => json_encode($request->cheque_details),
+            'status' => 'submitted', // Reset status to submitted for review
+            'processed_by' => Auth::id(),
+        ]);
+
+        return redirect()->route('admin.apex.stage2.user.detail', $user)
+            ->with('success', 'PDC details updated successfully');
     }
 }

@@ -101,6 +101,10 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/pdc/user/{user}', [AdminController::class, 'pdcUserDetail'])->name('pdc.user.detail');
     Route::post('/pdc/user/{user}/approve', [AdminController::class, 'approvePdc'])->name('pdc.approve');
     Route::post('/pdc/user/{user}/send-back', [AdminController::class, 'sendBackPdc'])->name('pdc.send-back');
+    
+    // PDC Edit functionality
+    Route::get('/pdc/edit/{user}', [AdminController::class, 'editPdc'])->name('pdc.edit');
+    Route::put('/pdc/update/{user}', [AdminController::class, 'updatePdc'])->name('pdc.update');
 
 
     Route::get('/chapters/resubmit', [AdminController::class, 'chapterResubmit'])->name('chapter.resubmit');

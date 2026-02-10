@@ -2029,13 +2029,13 @@
                                 <div class="form-field">
                                     <label class="form-label">Approved Financial Assistance Amount</label>
                                     <input type="text" class="form-input"
-                                        value="₹{{ number_format($user->workflowStatus->working_committee_assistance_amount ?? 0, 2) }}"
+                                        value="₹{{ number_format($user->workingCommitteeApproval->approval_financial_assistance_amount ?? 0, 2) }}"
                                         readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Installment Amount</label>
                                     <input type="text" class="form-input"
-                                        value="₹{{ number_format($user->workflowStatus->installment_amount ?? 0, 2) }}"
+                                        value="₹{{ number_format($user->workingCommitteeApproval->installment_amount ?? 0, 2) }}"
                                         readonly>
                                 </div>
                             </div>
@@ -2043,18 +2043,19 @@
                                 <div class="form-field">
                                     <label class="form-label">Additional Installment Amount</label>
                                     <input type="text" class="form-input"
-                                        value="₹{{ number_format($user->workflowStatus->additional_installment_amount ?? 0, 2) }}"
+                                        value="₹{{ number_format($user->workingCommitteeApproval->additional_installment_amount ?? 0, 2) }}"
                                         readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Repayment Type</label>
                                     <input type="text" class="form-input"
-                                        value="{{ ucfirst($user->workflowStatus->repayment_type ?? 'N/A') }}" readonly>
+                                        value="{{ ucfirst($user->workingCommitteeApproval->repayment_type ?? 'N/A') }}"
+                                        readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">No. of Cheques to be Collected</label>
                                     <input type="text" class="form-input"
-                                        value="{{ $user->workflowStatus->no_of_cheques_to_be_collected ?? 'N/A' }}"
+                                        value="{{ $user->workingCommitteeApproval->no_of_cheques_to_be_collected ?? 'N/A' }}"
                                         readonly>
                                 </div>
                             </div>
@@ -2062,104 +2063,112 @@
                                 <div class="form-field">
                                     <label class="form-label">Repayment Starting From</label>
                                     <input type="text" class="form-input"
-                                        value="{{ $user->workflowStatus->repayment_starting_from ? \Carbon\Carbon::parse($user->workflowStatus->repayment_starting_from)->format('d M Y') : 'N/A' }}"
+                                        value="{{ $user->workingCommitteeApproval->repayment_starting_from ? \Carbon\Carbon::parse($user->workingCommitteeApproval->repayment_starting_from)->format('d M Y') : 'N/A' }}"
                                         readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Processed By</label>
                                     <input type="text" class="form-input"
-                                        value="{{ $user->workflowStatus->processed_by_name ?? 'N/A' }}" readonly>
+                                        value="{{ $user->workingCommitteeApproval->processed_by_name ?? 'N/A' }}"
+                                        readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Approval Status</label>
                                     <input type="text" class="form-input"
-                                        value="{{ ucfirst($user->workflowStatus->working_committee_status) }}" readonly>
+                                        value="{{ ucfirst($user->workingCommitteeApproval->working_committee_status ?? 'N/A') }}"
+                                        readonly>
                                 </div>
                             </div>
 
                             <!-- Remarks for Approval -->
-                            @if ($user->workflowStatus->remarks_for_approval)
+                            @if ($user->workingCommitteeApproval->remarks_for_approval)
                                 <div class="form-row">
                                     <div class="form-field form-field-full">
                                         <label class="form-label">Remarks for Approval</label>
-                                        <textarea class="form-textarea" readonly>{{ $user->workflowStatus->remarks_for_approval }}</textarea>
+                                        <textarea class="form-textarea" readonly>{{ $user->workingCommitteeApproval->remarks_for_approval }}</textarea>
                                     </div>
                                 </div>
                             @endif
 
                             <!-- Disbursement Schedules -->
                             @if (
-                                $user->workflowStatus->disbursement_system === 'yearly' &&
-                                    $user->workflowStatus->yearly_dates &&
-                                    is_array($user->workflowStatus->yearly_dates))
-                                <div class="form-row">
-                                    <div class="form-field form-field-full">
-                                        <label class="form-label">Yearly Disbursement Schedule</label>
-                                        <div class="table-container">
-                                            <table class="custom-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Year</th>
-                                                        <th>Disbursement Date</th>
-                                                        <th>Amount</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @if ($user->workflowStatus->yearly_amounts && is_array($user->workflowStatus->yearly_amounts))
-                                                        @foreach ($user->workflowStatus->yearly_dates as $index => $date)
+                                $user->workingCommitteeApproval->disbursement_system === 'yearly' &&
+                                    $user->workingCommitteeApproval->yearly_dates &&
+                                    is_array($user->workingCommitteeApproval->yearly_dates))
+                                @php
+                                    $yearlyDates = $user->workingCommitteeApproval->yearly_dates;
+                                    $yearlyAmounts = $user->workingCommitteeApproval->yearly_amounts;
+                                @endphp
+                                @if ($yearlyDates && $yearlyAmounts && is_array($yearlyDates) && is_array($yearlyAmounts))
+                                    <div class="form-row">
+                                        <div class="form-field form-field-full">
+                                            <label class="form-label">Yearly Disbursement Schedule</label>
+                                            <div class="table-container">
+                                                <table class="custom-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Year</th>
+                                                            <th>Disbursement Date</th>
+                                                            <th>Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($yearlyDates as $index => $date)
                                                             <tr>
                                                                 <td>{{ $index + 1 }}</td>
-                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}
-                                                                </td>
+                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}</td>
                                                                 <td class="amount-cell">
-                                                                    ₹{{ number_format($user->workflowStatus->yearly_amounts[$index] ?? 0, 2) }}
+                                                                    ₹{{ number_format($yearlyAmounts[$index] ?? 0, 2) }}
                                                                 </td>
                                                             </tr>
                                                         @endforeach
-                                                    @endif
-                                                </tbody>
-                                            </table>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                @endif
                             @endif
 
                             @if (
-                                $user->workflowStatus->disbursement_system === 'half_yearly' &&
-                                    $user->workflowStatus->half_yearly_dates &&
-                                    is_array($user->workflowStatus->half_yearly_dates))
-                                <div class="form-row">
-                                    <div class="form-field form-field-full">
-                                        <label class="form-label">Half-Yearly Disbursement Schedule</label>
-                                        <div class="table-container">
-                                            <table class="custom-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Half Year</th>
-                                                        <th>Disbursement Date</th>
-                                                        <th>Amount</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @if ($user->workflowStatus->half_yearly_amounts && is_array($user->workflowStatus->half_yearly_amounts))
-                                                        @foreach ($user->workflowStatus->half_yearly_dates as $index => $date)
+                                $user->workingCommitteeApproval->disbursement_system === 'half_yearly' &&
+                                    $user->workingCommitteeApproval->half_yearly_dates &&
+                                    is_array($user->workingCommitteeApproval->half_yearly_dates))
+                                @php
+                                    $halfYearlyDates = $user->workingCommitteeApproval->half_yearly_dates;
+                                    $halfYearlyAmounts = $user->workingCommitteeApproval->half_yearly_amounts;
+                                @endphp
+                                @if ($halfYearlyDates && $halfYearlyAmounts && is_array($halfYearlyDates) && is_array($halfYearlyAmounts))
+                                    <div class="form-row">
+                                        <div class="form-field form-field-full">
+                                            <label class="form-label">Half-Yearly Disbursement Schedule</label>
+                                            <div class="table-container">
+                                                <table class="custom-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Half Year</th>
+                                                            <th>Disbursement Date</th>
+                                                            <th>Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($halfYearlyDates as $index => $date)
                                                             <tr>
                                                                 <td>{{ $index + 1 }}
                                                                     ({{ $index % 2 === 0 ? '1st Half' : '2nd Half' }})
                                                                 </td>
-                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}
-                                                                </td>
+                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}</td>
                                                                 <td class="amount-cell">
-                                                                    ₹{{ number_format($user->workflowStatus->half_yearly_amounts[$index] ?? 0, 2) }}
+                                                                    ₹{{ number_format($halfYearlyAmounts[$index] ?? 0, 2) }}
                                                                 </td>
                                                             </tr>
                                                         @endforeach
-                                                    @endif
-                                                </tbody>
-                                            </table>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                @endif
                             @endif
 
                             <!-- Previous Approvals Info -->

@@ -746,6 +746,14 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.donors.dashboard') ? 'active' : '' }}"
+                                href="{{ route('admin.donors.dashboard') }}">
+                                <i class="fas fa-hand-holding-heart"></i>
+                                <span class="nav-text">Donor Dashboard</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
                             <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.donors') ? 'active' : '' }}"
                                 href="{{ route('admin.donors.index') }}">
                                 <i class="fas fa-hand-holding-heart"></i>

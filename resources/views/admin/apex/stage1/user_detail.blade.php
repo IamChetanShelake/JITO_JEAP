@@ -816,10 +816,15 @@
             <p>{{ $user->mobile }}</p>
         </div>
     </div>
-     <div class="user-info-footer">
+        <div class="user-info-footer">
             <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}</p>
             <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type ?? 'N/A' }}</p>
             <p><strong>Financial Assistance For:</strong> {{ $user->financial_asset_for ?? 'N/A' }}</p>
+            <div style="margin-top: 1rem; display: flex; gap: 1rem; align-items: center;">
+                <a href="{{ route('admin.logs') }}" class="back-btn" style="background-color: var(--primary-blue); color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                    <i class="fas fa-history"></i> View All Activity Logs
+                </a>
+            </div>
         </div>
 </div>
 
@@ -858,8 +863,6 @@
             <p><strong>Final Status:</strong> <span class="status-highlight">{{ $user->workflowStatus ? ucfirst($user->workflowStatus->final_status) : 'N/A' }}</span></p>
         </div>
     </div>
-
-
 </div>
 
 
@@ -902,9 +905,7 @@
     </div>
 
     <div class="content-area">
-
     <!-- Step 1: Personal Details -->
-
     <div class="step-content active" id="step-1">
         <div class="step-header">
             <h2 class="step-title-large">Step 1: Personal Details</h2>
@@ -913,7 +914,6 @@
                     <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
                     {{ ucfirst($user->submit_status ?? 'Pending') }}
                 </span>
-
             </div>
         </div>
         <div class="form-data">

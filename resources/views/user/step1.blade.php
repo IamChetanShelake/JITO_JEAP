@@ -147,7 +147,7 @@
                                                     <div class="col-9">
                                                         <span class="photo-label">Upload Photo</span>
                                                         <input type="file" id="uploadInput" name="image" hidden
-                                                            accept=".jpg,.jpeg,.png" required>
+                                                            accept=".jpg,.jpeg,.png" {{ $user->image ? '' : 'required' }}>
                                                         <small class="text-danger">{{ $errors->first('image') }}</small>
                                                     </div>
                                                     <div class="col-3">

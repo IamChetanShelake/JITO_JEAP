@@ -407,7 +407,7 @@
                 <span class="text-wrap text-start mt-1" style="color:#4C4C4C;font-size:18px;">Supporting Jain Students
                     Educational
                     Journey &nbsp;&nbsp;<b>
-                        @if ($type == 'above')
+                        @if (isset($type) && $type == 'above')
                             <i class="bi bi-record-fill" style="font-size:10px; color:#3E3E3E;"></i>
                             Above ₹1.00 Lacs
                         @else
@@ -417,7 +417,7 @@
                     </b></span>
             </a>
             <div class="ms-auto d-flex align-items-center">
-                <button class="btn btn-purple me-2" style="background-color: green; color: white;">Logs</button>
+                <a href="{{ route('user.logs') }}" class="btn btn-purple me-2" style="background-color: green; color: white;">Logs</a>
                 @yield('step')
                 <button class="btn btn-danger" href="{{ route('logout') }}"
                     onclick="event.preventDefault();

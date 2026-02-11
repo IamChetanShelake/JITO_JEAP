@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ChapterInterviewAnswer;
 use App\Models\ApplicationWorkflowStatus;
+use App\Models\Logs;
+use App\Traits\LogsUserActivity;
 
 class AdminController extends Controller
 {
@@ -336,6 +338,22 @@ class AdminController extends Controller
 
         $workflow->update($updateData);
 
+        // Log admin action
+        $this->logAdminAction(
+            Auth::user(),
+            'approve_stage',
+            "Approved {$stage} stage for user {$user->name} (ID: {$user->id})",
+            [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'stage' => $stage,
+                'admin_remark' => $request->admin_remark,
+                'apex_staff_remark' => $request->apex_staff_remark,
+                'previous_stage' => $workflow->current_stage,
+                'new_stage' => $updateData['current_stage'] ?? $workflow->current_stage
+            ]
+        );
+
         return back()->with(
             'success',
             ucfirst(str_replace('_', ' ', $stage)) . ' stage approved successfully'
@@ -528,6 +546,22 @@ class AdminController extends Controller
                 ]);
             }
 
+            // Log admin action
+            $this->logAdminAction(
+                Auth::user(),
+                'reject_stage_apex_2',
+                "Rejected Apex Stage 2 for user {$user->name} (ID: {$user->id}) - sent for correction",
+                [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'stage' => $stage,
+                    'admin_remark' => $request->admin_remark,
+                    'previous_stage' => $workflow->current_stage,
+                    'new_stage' => 'apex_2',
+                    'final_status' => 'in_progress'
+                ]
+            );
+
             return back()->with(
                 'success',
                 'Apex Stage 2 rejected and sent for correction'
@@ -588,6 +622,23 @@ class AdminController extends Controller
                 // Keep final_status as 'in_progress' for resubmission
             ]);
 
+            // Log admin action
+            $this->logAdminAction(
+                Auth::user(),
+                'reject_stage_selective',
+                "Rejected {$stage} stage for user {$user->name} (ID: {$user->id}) - selective resubmission",
+                [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'stage' => $stage,
+                    'admin_remark' => $request->admin_remark,
+                    'resubmit_steps' => $resubmitSteps,
+                    'resubmission_count' => $resubmissionCount,
+                    'previous_stage' => $workflow->current_stage,
+                    'final_status' => 'in_progress'
+                ]
+            );
+
             return back()->with('success', "{$resubmissionCount} step(s) marked for resubmission");
         } else {
             // Complete rejection (original behavior)
@@ -601,6 +652,21 @@ class AdminController extends Controller
                 $updatedAtField => now(),
                 'final_status' => 'rejected',
             ]);
+
+            // Log admin action
+            $this->logAdminAction(
+                Auth::user(),
+                'reject_stage_complete',
+                "Completely rejected {$stage} stage for user {$user->name} (ID: {$user->id})",
+                [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'stage' => $stage,
+                    'admin_remark' => $request->admin_remark,
+                    'previous_stage' => $workflow->current_stage,
+                    'final_status' => 'rejected'
+                ]
+            );
 
             return back()->with('success', ucfirst(str_replace('_', ' ', $stage)) . " rejected");
         }
@@ -679,6 +745,23 @@ class AdminController extends Controller
                 // final_status remains in_progress
             ]);
 
+            // Log admin action
+            $this->logAdminAction(
+                Auth::user(),
+                'hold_stage_selective',
+                "Put {$stage} stage on hold for user {$user->name} (ID: {$user->id}) - selective hold",
+                [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'stage' => $stage,
+                    'admin_remark' => $request->admin_remark,
+                    'resubmit_steps' => $resubmitSteps,
+                    'hold_count' => $holdCount,
+                    'previous_stage' => $workflow->current_stage,
+                    'final_status' => 'in_progress'
+                ]
+            );
+
             return back()->with('success', "{$holdCount} step(s) marked on hold");
         } else {
             // Full hold (entire stage)
@@ -692,6 +775,21 @@ class AdminController extends Controller
                 $updatedAtField   => now(),
                 'final_status'    => 'hold',
             ]);
+
+            // Log admin action
+            $this->logAdminAction(
+                Auth::user(),
+                'hold_stage_complete',
+                "Completely put {$stage} stage on hold for user {$user->name} (ID: {$user->id})",
+                [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'stage' => $stage,
+                    'admin_remark' => $request->admin_remark,
+                    'previous_stage' => $workflow->current_stage,
+                    'final_status' => 'hold'
+                ]
+            );
 
             return back()->with(
                 'success',
@@ -1490,4 +1588,19 @@ class AdminController extends Controller
         return redirect()->route('admin.apex.stage2.user.detail', $user)
             ->with('success', 'PDC details updated successfully');
     }
+
+    /**
+     * Show logs for the current user
+     */
+    public function showLogs()
+    {
+        $user = Auth::user();
+        $logs = Logs::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('admin.logs', compact('logs'));
+    }
+
+   
 }

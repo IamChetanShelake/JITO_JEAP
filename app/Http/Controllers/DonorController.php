@@ -8,6 +8,62 @@ use Illuminate\Support\Facades\Hash;
 
 class DonorController extends Controller
 {
+    public function dashboard()
+    {
+        $donors = Donor::with([
+            'personalDetail',
+            'familyDetail',
+            'nomineeDetail',
+            'membershipDetail',
+            'professionalDetail',
+            'document',
+            'paymentDetail',
+        ])->orderByDesc('id')->get();
+
+        $donors = $donors->filter(function ($donor) {
+            return $donor->personalDetail
+                || $donor->familyDetail
+                || $donor->nomineeDetail
+                || $donor->membershipDetail
+                || $donor->professionalDetail
+                || $donor->document
+                || $donor->paymentDetail
+                || $donor->submit_status === 'completed';
+        });
+
+        return view('admin.donors.dashboard', compact('donors'));
+    }
+
+    public function dashboardShow(Donor $donor)
+    {
+        $donor->load([
+            'personalDetail',
+            'familyDetail',
+            'nomineeDetail',
+            'membershipDetail',
+            'professionalDetail',
+            'document',
+            'paymentDetail',
+        ]);
+
+        $children = [];
+        if (!empty($donor->familyDetail?->children_details)) {
+            $children = json_decode($donor->familyDetail->children_details, true) ?: [];
+        }
+
+        $paymentOptions = [];
+        if (!empty($donor->membershipDetail?->payment_options)) {
+            $paymentOptions = json_decode($donor->membershipDetail->payment_options, true) ?: [];
+        }
+
+        $paymentEntries = [];
+        if (!empty($donor->paymentDetail?->payment_entries)) {
+            $paymentEntries = json_decode($donor->paymentDetail->payment_entries, true) ?: [];
+        }
+
+        return view('admin.donors.dashboard_show', compact('donor', 'children', 'paymentOptions', 'paymentEntries'));
+    }
+
     public function index()
     {
         $donors = Donor::orderBy('name')->get();
@@ -80,4 +136,3 @@ class DonorController extends Controller
         return redirect()->route('admin.donors.index')->with('success', 'Donor deleted successfully.');
     }
 }
-

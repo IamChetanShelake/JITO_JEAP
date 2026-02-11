@@ -190,6 +190,8 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
 
     // Donor Routes
     Route::resource('donors', DonorController::class);
+    Route::get('/donor-dashboard', [DonorController::class, 'dashboard'])->name('donors.dashboard');
+    Route::get('/donor-dashboard/{donor}', [DonorController::class, 'dashboardShow'])->name('donors.dashboard.show');
 
     // Disbursement Filtered Routes
     Route::get('/disbursement/completed', [DisbursementController::class, 'completed'])->name('disbursement.completed');
@@ -300,3 +302,6 @@ Route::middleware(['auth', 'user'])
         Route::get('/logs', [UserController::class, 'showUserLogs'])
             ->name('logs');
     });
+
+
+

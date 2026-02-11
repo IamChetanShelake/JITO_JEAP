@@ -24,6 +24,17 @@
 
                     <form method="POST" action="{{ route('donor.step6.store') }}" enctype="multipart/form-data">
                         @csrf
+                        @if (session('success'))
+                            <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
+                                id="successAlert">
+
+                                {{ session('success') }}
+
+                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
 
                         <h4 class="mb-3 text-center">Step 6 : Document Upload</h4>
 
@@ -36,6 +47,9 @@
                                     <div class="col-md-6 mb-3">
                                         <label>PAN Card Copy of Member *</label>
                                         <input type="file" class="form-control" name="pan_member_file">
+                                        @error('pan_member_file')
+                                            <small class="text-danger">{{ $message }}</small>
+                                        @enderror
                                         @if (!empty($document?->pan_member_file))
                                             <small class="text-muted">Uploaded: <a
                                                     href="{{ asset($document->pan_member_file) }}"
@@ -46,6 +60,9 @@
                                     <div class="col-md-6 mb-3">
                                         <label>PAN Card Copy of Donor (If Different) *</label>
                                         <input type="file" class="form-control" name="pan_donor_file">
+                                        @error('pan_donor_file')
+                                            <small class="text-danger">{{ $message }}</small>
+                                        @enderror
                                         @if (!empty($document?->pan_donor_file))
                                             <small class="text-muted">Uploaded: <a
                                                     href="{{ asset($document->pan_donor_file) }}"
@@ -56,6 +73,9 @@
                                     <div class="col-md-6 mb-3">
                                         <label>Passport Size Photograph *</label>
                                         <input type="file" class="form-control" name="photo_file">
+                                        @error('photo_file')
+                                            <small class="text-danger">{{ $message }}</small>
+                                        @enderror
                                         @if (!empty($document?->photo_file))
                                             <small class="text-muted">Uploaded: <a href="{{ asset($document->photo_file) }}"
                                                     target="_blank">View</a></small>
@@ -65,6 +85,9 @@
                                     <div class="col-md-6 mb-3">
                                         <label>Address Proof *</label>
                                         <input type="file" class="form-control" name="address_proof_file">
+                                        @error('address_proof_file')
+                                            <small class="text-danger">{{ $message }}</small>
+                                        @enderror
                                         @if (!empty($document?->address_proof_file))
                                             <small class="text-muted">Uploaded: <a
                                                     href="{{ asset($document->address_proof_file) }}"
@@ -75,6 +98,9 @@
                                     <div class="col-md-6 mb-3">
                                         <label>Company Authorization Letter *</label>
                                         <input type="file" class="form-control" name="authorization_letter_file">
+                                        @error('authorization_letter_file')
+                                            <small class="text-danger">{{ $message }}</small>
+                                        @enderror
                                         @if (!empty($document?->authorization_letter_file))
                                             <small class="text-muted">Uploaded: <a
                                                     href="{{ asset($document->authorization_letter_file) }}"

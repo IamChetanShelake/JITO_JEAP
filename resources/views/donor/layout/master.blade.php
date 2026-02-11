@@ -406,6 +406,16 @@
                 <img src="{{ asset('jitojeaplogo.png') }}" alt="JITO Logo" width="130px" height="auto">
 
             </a>
+                    @php
+                        $personal = \App\Models\DonorPersonalDetail::where('donor_id', auth()->guard()->id())->first();
+                        $family = \App\Models\DonorFamilyDetail::where('donor_id', auth()->guard()->id())->first();
+                        $nominee = \App\Models\DonorNomineeDetail::where('donor_id', auth()->guard()->id())->first();
+                        $membership = \App\Models\DonorMembershipDetail::where('donor_id', auth()->guard()->id())->first();
+                        $companyDetail = \App\Models\DonorProfessionalDetail::where('donor_id', auth()->guard()->id())->first();
+                        $document = \App\Models\DonorDocument::where('donor_id', auth()->guard()->id())->first();
+                        $bankDetail = \App\Models\DonorPaymentDetail::where('donor_id', auth()->guard()->id())->first();
+                        $reviewSubmit = \App\Models\Donor::find(auth()->guard()->id());
+                    @endphp
             <div class="ms-auto d-flex align-items-center">
                 {{-- <button class="btn btn-purple me-2" style="background-color: #393185; color: white;">Step 1 of
                     7</button> --}}
@@ -442,18 +452,18 @@
                         <a href="{{ route('donor.step1') }}">
                             <div
                                 class="step-icon
-                                @if (auth()->check() && in_array(auth()->user()->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
-                                @if (auth()->check() && auth()->user()->submit_status === 'resubmit') resubmit-step @endif
-                                @if (request()->routeIs('user.step1')) active-step @endif">
+                                @if (auth()->check() && in_array($personal->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+                                @if (auth()->check() && $personal->submit_status === 'resubmit') resubmit-step @endif
+                                @if (request()->routeIs('donor.step1')) active-step @endif">
 
-                                @if (auth()->check() && in_array(auth()->user()->submit_status, ['submited', 'submitted', 'approved']))
+                                @if (auth()->check() && in_array($personal->submit_status, ['submited', 'submitted', 'approved']))
                                     {{-- Tick SVG --}}
                                     <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
                                             fill="white" />
                                     </svg>
-                                @elseif (auth()->check() && auth()->user()->submit_status === 'resubmit')
+                                @elseif (auth()->check() && $personal->submit_status === 'resubmit')
                                     {{-- Cross Icon --}}
                                     <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
                                         title="{{ auth()->user()->admin_remark ?? 'On Hold' }}"></i>
@@ -472,14 +482,7 @@
                     </li>
 
 
-                    @php
-                        $educationDetail = \App\Models\EducationDetail::where('user_id', auth()->id())->first();
-                        $family = \App\Models\FamilyDetail::where('user_id', auth()->id())->first();
-                        $fundingDetail = \App\Models\FundingDetail::where('user_id', auth()->id())->first();
-                        $guarantorDetail = \App\Models\GuarantorDetail::where('user_id', auth()->id())->first();
-                        $document = \App\Models\Document::where('user_id', auth()->id())->first();
-                        $reviewSubmit = \App\Models\ReviewSubmit::where('user_id', auth()->id())->first();
-                    @endphp
+
                     {{--
                     <li class="{{ request()->routeIs('user.step2') ? 'active' : '' }}">
                         <a href="{{ route('user.step2') }}">
@@ -533,19 +536,19 @@
 
                             <div
                                 class="step-icon
-                                    @if ($educationDetail && in_array($educationDetail->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
-                                    @if ($educationDetail && $educationDetail->submit_status === 'resubmit') resubmit-step @endif
+                                    @if ($family && in_array($family->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+                                    @if ($family && $family->submit_status === 'resubmit') resubmit-step @endif
                                     @if (request()->routeIs('donor.step2')) active-step @endif">
 
-                                @if ($educationDetail && in_array($educationDetail->submit_status, ['submited', 'submitted', 'approved']))
+                                @if ($family && in_array($family->submit_status, ['submited', 'submitted', 'approved']))
                                     <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
                                             fill="white" />
                                     </svg>
-                                @elseif ($educationDetail && $educationDetail->submit_status === 'resubmit')
+                                @elseif ($family && $family->submit_status === 'resubmit')
                                     <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
-                                        title="{{ $educationDetail->admin_remark ?? 'On Hold' }}"></i>
+                                        title="{{ $family->admin_remark ?? 'On Hold' }}"></i>
                                 @else
                                     <i class="bi bi-people"></i>
                                 @endif
@@ -568,19 +571,19 @@
                         <a href="{{ route('donor.step3') }}">
                             <div
                                 class="step-icon
-@if ($family && in_array($family->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
-@if ($family && $family->submit_status === 'resubmit') resubmit-step @endif
+@if ($nominee && in_array($nominee->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+@if ($nominee && $nominee->submit_status === 'resubmit') resubmit-step @endif
 @if (request()->routeIs('donor.step3')) active-step @endif">
 
-                                @if ($family && in_array($family->submit_status, ['submited', 'submitted', 'approved']))
+                                @if ($nominee && in_array($nominee->submit_status, ['submited', 'submitted', 'approved']))
                                     <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
                                             fill="white" />
                                     </svg>
-                                @elseif ($family && $family->submit_status === 'resubmit')
+                                @elseif ($nominee && $nominee->submit_status === 'resubmit')
                                     <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
-                                        title="{{ $family->admin_remark ?? 'On Hold' }}"></i>
+                                        title="{{ $nominee->admin_remark ?? 'On Hold' }}"></i>
                                 @else
                                     <i class="bi bi-mortarboard"></i>
                                 @endif
@@ -596,19 +599,19 @@
                     <li class="{{ request()->routeIs('donor.step4') ? 'active' : '' }}">
                         <a href="{{ route('donor.step4') }}">
                             <div
-                                class="step-icon  @if ($fundingDetail && in_array($fundingDetail->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
-                               @if ($fundingDetail && $fundingDetail->submit_status === 'resubmit') resubmit-step @endif
+                                class="step-icon  @if ($membership && in_array($membership->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+                               @if ($membership && $membership->submit_status === 'resubmit') resubmit-step @endif
                                @if (request()->routeIs('donor.step4')) active-step @endif">
 
-                                @if ($fundingDetail && in_array($fundingDetail->submit_status, ['submited', 'submitted', 'approved']))
+                                @if ($membership && in_array($membership->submit_status, ['submited', 'submitted', 'approved']))
                                     <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
                                             fill="white" />
                                     </svg>
-                                @elseif ($fundingDetail && $fundingDetail->submit_status === 'resubmit')
+                                @elseif ($membership && $membership->submit_status === 'resubmit')
                                     <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
-                                        title="{{ $fundingDetail->admin_remark ?? 'On Hold' }}"></i>
+                                        title="{{ $membership->admin_remark ?? 'On Hold' }}"></i>
                                 @else
                                     <i class="bi bi-currency-rupee"></i>
                                 @endif
@@ -625,19 +628,19 @@
                         <a href="{{ route('donor.step5') }}">
                             <div
                                 class="step-icon
-@if ($guarantorDetail && in_array($guarantorDetail->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
-@if ($guarantorDetail && $guarantorDetail->submit_status === 'resubmit') resubmit-step @endif
+@if ($companyDetail && in_array($companyDetail->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+@if ($companyDetail && $companyDetail->submit_status === 'resubmit') resubmit-step @endif
 @if (request()->routeIs('donor.step5')) active-step @endif">
 
-                                @if ($guarantorDetail && in_array($guarantorDetail->submit_status, ['submited', 'submitted', 'approved']))
+                                @if ($companyDetail && in_array($companyDetail->submit_status, ['submited', 'submitted', 'approved']))
                                     <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
                                             fill="white" />
                                     </svg>
-                                @elseif ($guarantorDetail && $guarantorDetail->submit_status === 'resubmit')
+                                @elseif ($companyDetail && $companyDetail->submit_status === 'resubmit')
                                     <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
-                                        title="{{ $guarantorDetail->admin_remark ?? 'On Hold' }}"></i>
+                                        title="{{ $companyDetail->admin_remark ?? 'On Hold' }}"></i>
                                 @else
                                     <i class="bi bi-check2-square"></i>
                                 @endif
@@ -683,18 +686,18 @@
                         <a href="{{ route('donor.step7') }}">
                             <div
                                 class="step-icon
-                                 @if (auth()->check() && in_array(auth()->user()->application_status, ['submited', 'submitted', 'approved'])) completed-step @endif
-                                @if (auth()->check() && auth()->user()->application_status === 'resubmit') resubmit-step @endif
+                                 @if (auth()->check() && in_array($bankDetail->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+                                @if (auth()->check() && $bankDetail->submit_status === 'resubmit') resubmit-step @endif
                                 @if (request()->routeIs('donor.step7')) active-step @endif">
 
-                                @if (auth()->check() && in_array(auth()->user()->application_status, ['submited', 'submitted', 'approved']))
+                                @if (auth()->check() && in_array($bankDetail->submit_status, ['submited', 'submitted', 'approved']))
                                     {{-- Tick SVG --}}
                                     <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
                                             fill="white" />
                                     </svg>
-                                @elseif (auth()->check() && auth()->user()->application_status === 'resubmit')
+                                @elseif (auth()->check() && $bankDetail->submit_status === 'resubmit')
                                     {{-- Cross Icon --}}
                                     <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
                                         title="{{ auth()->user()->admin_remark ?? 'On Hold' }}"></i>
@@ -730,11 +733,11 @@
                     <li class="{{ request()->routeIs('donor.step8') ? 'active' : '' }}">
     <a href="{{ route('donor.step8') }}">
         <div class="step-icon
-            @if ($reviewSubmit && in_array($reviewSubmit->submit_status, ['submited','submitted','approved'])) completed-step @endif
+            @if ($reviewSubmit && in_array($reviewSubmit->submit_status, ['submited','submitted','approved','completed'])) completed-step @endif
             @if ($reviewSubmit && $reviewSubmit->submit_status === 'resubmit') resubmit-step @endif
             @if (request()->routeIs('donor.step8')) active-step @endif">
 
-            @if ($reviewSubmit && in_array($reviewSubmit->submit_status, ['submited','submitted','approved']))
+            @if ($reviewSubmit && in_array($reviewSubmit->submit_status, ['submited','submitted','approved','completed']))
                 <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
                     <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"

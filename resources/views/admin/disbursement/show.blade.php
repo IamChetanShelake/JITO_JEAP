@@ -601,6 +601,27 @@
 <!-- AJAX handling for form submission -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+
+    // Check for session success messages and show SweetAlert
+    @if (session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: '{{ session('success') }}',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false
+        });
+    @endif
+
+    @if (session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: '{{ session('error') }}',
+            confirmButtonColor: '#393185'
+        });
+    @endif
     // Handle disbursement form submissions using event delegation
     document.addEventListener('submit', function(e) {
         if (e.target.id && e.target.id.startsWith('disburseForm')) {

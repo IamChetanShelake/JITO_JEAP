@@ -3,6 +3,7 @@
 @section('title', 'Repayment Details - ' . $user->name . ' - JITO JEAP')
 
 @section('styles')
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 <style>
     .detail-container {
         background: white;
@@ -160,23 +161,6 @@
             </button>
         </div>
     </div>
-
-    @if(session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if($errors->any())
-        <div class="alert alert-danger">
-            <strong>Validation Errors:</strong>
-            <ul class="mb-0">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
 
     <div class="detail-container">
         <div class="detail-header">
@@ -336,8 +320,31 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
+    // Check for session success messages and show SweetAlert
+    @if (session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: '{{ session('success') }}',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false
+        });
+    @endif
+
+    @if (session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: '{{ session('error') }}',
+            confirmButtonColor: '#393185'
+        });
+    @endif
+
     const modeSelect = document.getElementById('paymentMode');
     const referenceField = document.getElementById('referenceField');
     const referenceLabel = document.getElementById('referenceLabel');

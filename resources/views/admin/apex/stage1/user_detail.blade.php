@@ -1942,7 +1942,7 @@
                                             }
                                         }
                                     @endphp
-                                    <button 
+                                    <button
                                         onclick="openModal('{{ $href }}', '{{ $label }}')"
                                         style="text-align: left; padding: 0.75rem 1rem; background: {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'white' }}; color: {{ request()->session()->get('selected_document') == $href ? 'white' : 'var(--text-dark)' }}; border: 1px solid {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--border-color)' }}; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: {{ request()->session()->get('selected_document') == $href ? '600' : '400' }};"
                                         onmouseover="this.style.background = '{{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--bg-light)' }}'"
@@ -2120,19 +2120,6 @@
                 </div>
             @endif
 
-            <!-- Success/Error Messages Display -->
-            @if(session('success'))
-                <div style="background: rgba(76, 175, 80, 0.1); border: 1px solid rgba(76, 175, 80, 0.2); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
-                    <p style="color: var(--primary-green); margin: 0; font-size: 0.9rem;">✅ {{ session('success') }}</p>
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div style="background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.2); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
-                    <p style="color: var(--primary-red); margin: 0; font-size: 0.9rem;">❌ {{ session('error') }}</p>
-                </div>
-            @endif
-
             <div class="workflow-action-card">
                 <h4 class="action-title">Apex 1 Decision</h4>
 
@@ -2235,7 +2222,35 @@
 @endsection
 
 
+<!-- SweetAlert CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
+    // SweetAlert for session messages
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: '{{ session('success') }}',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: true,
+            confirmButtonColor: '#4CAF50'
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: '{{ session('error') }}',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: true,
+            confirmButtonColor: '#f44336'
+        });
+    @endif
+
 function showStep(stepNumber) {
     // Hide all step contents
     document.querySelectorAll('.step-content').forEach(content => {
@@ -2292,15 +2307,15 @@ document.addEventListener('DOMContentLoaded', function() {
 function openModal(url, title = 'Document Preview') {
     const previewContainer = document.getElementById('documentPreview');
     const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|ico)$/i.test(url);
-    
+
     // Clear existing preview content
     previewContainer.innerHTML = '';
-    
+
     // Create preview title
     const previewTitle = document.createElement('div');
     previewTitle.style.cssText = 'margin-bottom: 1rem; padding: 0.5rem; background: var(--primary-purple); color: white; border-radius: 6px; font-weight: 600; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center;';
     previewTitle.textContent = title;
-    
+
     // Add close button to preview
     const closeBtn = document.createElement('button');
     closeBtn.innerHTML = '<i class="fas fa-times"></i>';
@@ -2314,7 +2329,7 @@ function openModal(url, title = 'Document Preview') {
     };
     previewTitle.appendChild(closeBtn);
     previewContainer.appendChild(previewTitle);
-    
+
     // Create preview content
     if (isImage) {
         const img = document.createElement('img');
@@ -2328,7 +2343,7 @@ function openModal(url, title = 'Document Preview') {
         iframe.style.cssText = 'width: 100%; height: 400px; border: none; border-radius: 6px;';
         previewContainer.appendChild(iframe);
     }
-    
+
     // Add download button
     const downloadBtn = document.createElement('button');
     downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';

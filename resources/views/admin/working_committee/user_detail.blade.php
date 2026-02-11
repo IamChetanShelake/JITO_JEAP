@@ -3,6 +3,7 @@
 @section('title', 'Working Committee User Details - JitoJeap Admin')
 
 @section('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
         :root {
             --primary-green: #4CAF50;
@@ -2712,8 +2713,30 @@
         }
     </script>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
+            // Check for session success messages and show SweetAlert
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: '{{ session('success') }}',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                });
+            @endif
+
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: '{{ session('error') }}',
+                    confirmButtonColor: '#393185'
+                });
+            @endif
 
             const totalAmountInput = document.getElementById('total-amount');
             const installmentInput = document.getElementById('installment-amount');

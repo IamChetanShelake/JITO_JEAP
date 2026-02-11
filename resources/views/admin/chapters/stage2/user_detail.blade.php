@@ -764,6 +764,8 @@
             }
         }
     </style>
+    <!-- SweetAlert CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endsection
 
 @section('content')
@@ -2284,7 +2286,7 @@
                                             }
                                         }
                                     @endphp
-                                    <button 
+                                    <button
                                         onclick="openModal('{{ $href }}', '{{ $label }}')"
                                         style="text-align: left; padding: 0.75rem 1rem; background: {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'white' }}; color: {{ request()->session()->get('selected_document') == $href ? 'white' : 'var(--text-dark)' }}; border: 1px solid {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--border-color)' }}; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: {{ request()->session()->get('selected_document') == $href ? '600' : '400' }};"
                                         onmouseover="this.style.background = '{{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--bg-light)' }}'"
@@ -2778,15 +2780,15 @@
     function openModal(url, title = 'Document Preview') {
         const previewContainer = document.getElementById('documentPreview');
         const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|ico)$/i.test(url);
-        
+
         // Clear existing preview content
         previewContainer.innerHTML = '';
-        
+
         // Create preview title
         const previewTitle = document.createElement('div');
         previewTitle.style.cssText = 'margin-bottom: 1rem; padding: 0.5rem; background: var(--primary-purple); color: white; border-radius: 6px; font-weight: 600; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center;';
         previewTitle.textContent = title;
-        
+
         // Add close button to preview
         const closeBtn = document.createElement('button');
         closeBtn.innerHTML = '<i class="fas fa-times"></i>';
@@ -2800,7 +2802,7 @@
         };
         previewTitle.appendChild(closeBtn);
         previewContainer.appendChild(previewTitle);
-        
+
         // Create preview content
         if (isImage) {
             const img = document.createElement('img');
@@ -2814,7 +2816,7 @@
             iframe.style.cssText = 'width: 100%; height: 400px; border: none; border-radius: 6px;';
             previewContainer.appendChild(iframe);
         }
-        
+
         // Add download button
         const downloadBtn = document.createElement('button');
         downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';
@@ -3009,15 +3011,13 @@
 
         try {
             const saveButton = document.querySelector('button[onclick="saveInterviewAnswers()"]');
-            const originalText = saveButton.innerHTML;
             saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             saveButton.disabled = true;
 
             const response = await fetch('/admin/chapter/interview/save', {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                        'content'),
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
@@ -3025,20 +3025,43 @@
                     user_id: userId,
                     workflow_id: workflowId,
                     answers: answers,
-                    answered_by: 'chapter' // or 'admin' based on user role
+                    answered_by: 'chapter'
                 })
             });
 
             if (response.ok) {
-                const result = await response.json();
-                alert('Interview answers saved successfully!');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Saved!',
+                    text: 'Interview answers saved successfully!',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: true,
+                    confirmButtonColor: '#4CAF50'
+                });
             } else {
                 const error = await response.json();
-                alert('Error saving answers: ' + (error.message || 'Unknown error'));
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Error saving answers: ' + (error.message || 'Unknown error'),
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: true,
+                    confirmButtonColor: '#f44336'
+                });
             }
         } catch (error) {
             console.error('Error saving interview answers:', error);
-            alert('Error saving answers. Please try again.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Error saving answers. Please try again.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: true,
+                confirmButtonColor: '#f44336'
+            });
         } finally {
             const saveButton = document.querySelector('button[onclick="saveInterviewAnswers()"]');
             saveButton.innerHTML = '<i class="fas fa-save"></i> Save Interview Answers';

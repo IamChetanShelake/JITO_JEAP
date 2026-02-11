@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Donor;
-use App\Models\DonorPersonalDetail;
+use App\Models\Chapter;
+use Illuminate\Http\Request;
+use App\Models\DonorDocument;
 use App\Models\DonorFamilyDetail;
 use App\Models\DonorNomineeDetail;
+use App\Models\DonorPaymentDetail;
+use App\Models\DonorPersonalDetail;
+use Illuminate\Support\Facades\Auth;
 use App\Models\DonorMembershipDetail;
 use App\Models\DonorProfessionalDetail;
-use App\Models\DonorDocument;
-use App\Models\DonorPaymentDetail;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class DonorWebController extends Controller
 {
@@ -43,8 +44,9 @@ class DonorWebController extends Controller
     {
         $donor = Auth::guard("donor")->user();
         $personalDetail = DonorPersonalDetail::where("donor_id", $donor->id)->first();
+        $chapters = Chapter::get();
 
-        return view("donor.step1", compact("donor", "personalDetail"));
+        return view("donor.step1", compact("donor", "personalDetail", "chapters"));
     }
 
     public function step2()
@@ -121,7 +123,7 @@ class DonorWebController extends Controller
             "preferred_residence_address" => "nullable|string",
             "preferred_office_address" => "nullable|string",
             "pan_no" => "required|string|size:10",
-            "chapter_name" => "required|string|max:255",
+            "chapter_name" => "required|max:255",
             "date_of_birth" => "required|date",
             "anniversary_date" => "nullable|date",
             "blood_group" => "required|in:A+,A-,B+,B-,AB+,AB-,O+,O-",
@@ -426,7 +428,7 @@ class DonorWebController extends Controller
             DonorPaymentDetail::create($data);
         }
 
-        return redirect()->route("donor.step8")->with("success", "Payment details saved successfully!");
+        return redirect()->route("donor.step8")->with("successs", "Payment details saved successfully!");
     }
 
     public function storestep8(Request $request)

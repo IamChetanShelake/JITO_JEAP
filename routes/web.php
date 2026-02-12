@@ -202,7 +202,8 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::resource('subcasts', SubcastController::class);
 
     // Logs Routes
-    Route::get('/logs', [AdminController::class, 'showLogs'])->name('logs');
+    Route::get('/logs/', [AdminController::class, 'showUserLogs'])->name('logs');
+    Route::get('/logs/user/{user}', [AdminController::class, 'showUserLogs'])->name('user.logs');
 });
 
 // User Routes - Protected by auth and user middleware
@@ -302,6 +303,3 @@ Route::middleware(['auth', 'user'])
         Route::get('/logs', [UserController::class, 'showUserLogs'])
             ->name('logs');
     });
-
-
-

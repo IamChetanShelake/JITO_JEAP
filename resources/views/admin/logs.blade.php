@@ -1,6 +1,8 @@
-@extends('user.layout.master')
+@extends('admin.layouts.master')
 
-@section('content')
+@section('title', isset($user) ? 'User Activity Logs - JitoJeap Admin' : 'Activity Logs - JitoJeap Admin')
+
+@section('styles')
     <style>
         .activity-timeline {
             position: relative;
@@ -46,7 +48,6 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
             position: relative;
-            left: -35px;
         }
 
         .activity-card:hover {
@@ -191,7 +192,6 @@
             }
 
             .activity-card {
-                left: -30px;
                 padding: 15px;
             }
 
@@ -216,126 +216,139 @@
             }
         }
     </style>
+@endsection
 
-    <div class="col-lg-9 main-content">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="form-card">
-                        <div class="step-card">
-                            <div class="card-icon">
-                                <i class="bi bi-clock-history"></i>
-                            </div>
-                            <div>
-                                <h5 class="card-title">Admin Activity Log</h5>
-                                <p class="card-subtitle">Track all administrative activities and system events</p>
-                            </div>
+@section('content')
+    {{-- <div class="col-lg-9 main-content"> --}}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="form-card">
+                    <div class="step-card">
+                        <div class="card-icon">
+                            <i class="bi bi-clock-history"></i>
                         </div>
+                        <div>
+                            <h5 class="card-title">Application Activity Log</h5>
+                            <p class="card-subtitle">Track all activities related to your application</p>
+                        </div>
+                    </div>
 
-                        @if (session('success'))
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                {{ session('success') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                    aria-label="Close"></button>
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if ($logs->isEmpty())
+                        <div class="no-logs-container">
+                            <div class="no-logs-icon">
+                                <i class="bi bi-info-circle"></i>
                             </div>
-                        @endif
+                            <div class="no-logs-title">No Activity Found</div>
+                            <p>Your application activity will appear here as you progress through the application
+                                process.</p>
+                        </div>
+                    @else
+                        <div class="activity-timeline">
+                            @php
+                                $groupedLogs = $logs->groupBy(function ($log) {
+                                    return $log->process_date->format('Y-m-d');
+                                });
+                            @endphp
 
-                        @if ($logs->isEmpty())
-                            <div class="no-logs-container">
-                                <div class="no-logs-icon">
-                                    <i class="bi bi-journal-text"></i>
-                                </div>
-                                <div class="no-logs-title">No Activity Found</div>
-                                <p>No administrative activities have been logged yet.</p>
-                            </div>
-                        @else
-                            <div class="activity-timeline">
-                                @php
-                                    $groupedLogs = $logs->groupBy(function($log) {
-                                        return $log->created_at->format('Y-m-d');
-                                    });
-                                @endphp
+                            @foreach ($groupedLogs as $date => $dateLogs)
+                                <div class="activity-date-group">
+                                    <div class="activity-date-header">
+                                        <div class="activity-date-title">
+                                            {{ \Carbon\Carbon::parse($date)->format('l, F j, Y') }}
+                                        </div>
+                                    </div>
 
-                                @foreach ($groupedLogs as $date => $dateLogs)
-                                    <div class="activity-date-group">
-                                        <div class="activity-date-header">
-                                            <div class="activity-date-title">
-                                                {{ \Carbon\Carbon::parse($date)->format('l, F j, Y') }}
+                                    @foreach ($dateLogs as $log)
+                                        <div class="activity-card">
+                                            <div class="activity-header">
+                                                <div class="user-avatar">
+                                                    @if ($log->process_by_name)
+                                                        {{ strtoupper(substr($log->process_by_name, 0, 1)) }}
+                                                    @else
+                                                        S
+                                                    @endif
+                                                </div>
+                                                <div class="activity-meta">
+                                                    <div class="user-name">
+                                                        @if ($log->process_by_name)
+                                                            {{ $log->process_by_name }}
+                                                        @else
+                                                            System
+                                                        @endif
+                                                    </div>
+                                                    {{-- @if ($log->process_by_role)
+                                                            <div class="user-role">{{ ucfirst(str_replace('_', ' ', $log->process_by_role)) }}</div>
+                                                        @endif --}}
+                                                    @if ($log->process_by_role)
+                                                        <div class="user-role">
+                                                            {{ $log->process_by_role === 'user' ? 'Student' : ucfirst(str_replace('_', ' ', $log->process_by_role)) }}
+                                                        </div>
+                                                    @endif
+
+                                                </div>
+                                                <div class="activity-time">
+                                                    {{ $log->process_date->format('h:i A') }}
+                                                    <span style="color: #6c757d; font-weight: normal;">•</span>
+                                                    {{ $log->process_date->diffForHumans() }}
+                                                </div>
+                                            </div>
+
+                                            <div class="activity-content">
+                                                <span
+                                                    class="activity-type-badge 
+                                                        @if (str_contains(strtolower($log->process_type), 'step')) activity-type-step
+                                                        @elseif(str_contains(strtolower($log->process_type), 'document')) activity-type-document
+                                                        @else activity-type-system @endif">
+                                                    {{ ucfirst(str_replace('_', ' ', $log->process_type)) }}
+                                                </span>
+
+                                                <div class="activity-title">
+                                                    {{ ucfirst(str_replace('_', ' ', $log->process_action)) }}
+                                                </div>
+
+                                                <div class="activity-description">
+                                                    {{ $log->process_description }}
+                                                </div>
+
+                                                <div class="activity-details">
+                                                    <strong>Details:</strong>
+                                                    <ul>
+                                                        <li><strong>Process:</strong>
+                                                            {{ ucfirst(str_replace('_', ' ', $log->process_type)) }}
+                                                        </li>
+                                                        <li><strong>Action:</strong>
+                                                            {{ ucfirst(str_replace('_', ' ', $log->process_action)) }}
+                                                        </li>
+                                                        <li><strong>Timestamp:</strong>
+                                                            {{ $log->process_date->format('F j, Y \a\t h:i A') }}</li>
+                                                        @if ($log->process_by_name)
+                                                            <li><strong>Performed by:</strong>
+                                                                {{ $log->process_by_name }}
+                                                                ({{ ucfirst(str_replace('_', ' ', $log->process_by_role)) }})
+                                                            </li>
+                                                        @else
+                                                            <li><strong>Performed by:</strong> System</li>
+                                                        @endif
+                                                    </ul>
+                                                </div>
                                             </div>
                                         </div>
-
-                                        @foreach ($dateLogs as $log)
-                                            <div class="activity-card">
-                                                <div class="activity-header">
-                                                    <div class="user-avatar">
-                                                        @if ($log->user_name)
-                                                            {{ strtoupper(substr($log->user_name, 0, 1)) }}
-                                                        @else
-                                                            S
-                                                        @endif
-                                                    </div>
-                                                    <div class="activity-meta">
-                                                        <div class="user-name">
-                                                            @if ($log->user_name)
-                                                                {{ $log->user_name }}
-                                                            @else
-                                                                System
-                                                            @endif
-                                                        </div>
-                                                        @if ($log->user_role)
-                                                            <div class="user-role">{{ ucfirst(str_replace('_', ' ', $log->user_role)) }}</div>
-                                                        @endif
-                                                    </div>
-                                                    <div class="activity-time">
-                                                        {{ $log->created_at->format('h:i A') }}
-                                                        <span style="color: #6c757d; font-weight: normal;">•</span>
-                                                        {{ $log->created_at->diffForHumans() }}
-                                                    </div>
-                                                </div>
-
-                                                <div class="activity-content">
-                                                    <span class="activity-type-badge 
-                                                        @if(str_contains(strtolower($log->activity_type), 'admin')) activity-type-step
-                                                        @elseif(str_contains(strtolower($log->activity_type), 'system')) activity-type-system
-                                                        @else activity-type-document
-                                                        @endif">
-                                                        {{ ucfirst(str_replace('_', ' ', $log->activity_type)) }}
-                                                    </span>
-
-                                                    <div class="activity-title">
-                                                        {{ ucfirst(str_replace('_', ' ', $log->activity_type)) }}
-                                                    </div>
-
-                                                    <div class="activity-description">
-                                                        {{ $log->description }}
-                                                    </div>
-
-                                                    <div class="activity-details">
-                                                        <strong>Activity Details:</strong>
-                                                        <ul>
-                                                            <li><strong>Activity Type:</strong> {{ ucfirst(str_replace('_', ' ', $log->activity_type)) }}</li>
-                                                            <li><strong>Description:</strong> {{ $log->description }}</li>
-                                                            <li><strong>Timestamp:</strong> {{ $log->created_at->format('F j, Y \a\t h:i A') }}</li>
-                                                            @if ($log->user_name)
-                                                                <li><strong>Performed by:</strong> {{ $log->user_name }} ({{ ucfirst(str_replace('_', ' ', $log->user_role)) }})</li>
-                                                            @else
-                                                                <li><strong>Performed by:</strong> System</li>
-                                                            @endif
-                                                            @if ($log->details)
-                                                                <li><strong>Additional Info:</strong> {{ $log->details }}</li>
-                                                            @endif
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                @endforeach
-                            </div>
-                        @endif
-                    </div>
+                                    @endforeach
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
+    </div>
     </div>
 @endsection

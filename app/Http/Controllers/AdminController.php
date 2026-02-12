@@ -1592,7 +1592,7 @@ class AdminController extends Controller
     /**
      * Show logs for the current user
      */
-    public function showLogs()
+    public function showLogs($user)
     {
         $user = Auth::user();
         $logs = Logs::where('user_id', $user->id)
@@ -1602,5 +1602,33 @@ class AdminController extends Controller
         return view('admin.logs', compact('logs'));
     }
 
-   
+    /**
+     * Show logs for a specific user (admin view)
+     */
+    public function showUserLogs(User $user)
+    {
+       // dd($user);
+        $logs = Logs::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('admin.logs', compact('logs', 'user'));
+    }
+
+    /**
+     * Log admin actions for audit trail
+     */
+    private function logAdminAction($adminUser, $action, $description, $metadata = [])
+    {
+        Logs::create([
+            'user_id' => $adminUser->id,
+            'user_name' => $adminUser->name,
+            'user_role' => $adminUser->role,
+            'activity_type' => 'admin_action',
+            'description' => $description,
+            'metadata' => json_encode($metadata),
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+    }
 }

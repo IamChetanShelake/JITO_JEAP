@@ -939,6 +939,21 @@
                     </div>
                 @endif
             </div>
+            @php
+                $apex2approved = \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
+                                                $q->where('apex_2_status', 'approved');
+                                            })->count();
+                $apex2pending = \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
+                                                $q->where('apex_2_status', 'pending')->where('final_status', 'in_progress')->where('current_stage','apex_2')->whereNull('apex_2_reject_remarks');
+                                            })->count();
+                $apex2sendback =  \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
+                                                $q->where('apex_2_status', 'rejected');
+                                            })->count();
+                $apex2resubmitted = \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
+                                                $q->where('apex_2_status', 'pending')->where('apex_2_reject_remarks', '!=','null');
+                                            })->count();
+                $totalapex2 = $apex2approved + $apex2pending + $apex2sendback + $apex2resubmitted;  
+            @endphp
             <div class="col-lg-6">
                 @if (in_array($activeGuard, ['admin', 'apex']))
                     <!-- Apex stage 1 -->
@@ -949,7 +964,7 @@
                                 Apex Stage 2 (Post Dated Cheques Details)
                             </div>
                             <div class="approval-total">Total -
-                                {{ \App\Models\User::where('role', 'user')->whereHas('workflowStatus')->count() }}</div>
+                                {{ $totalapex2}}</div>
                         </div>
                         <div class="approval-rate">
                             <span>Approval Rate</span>

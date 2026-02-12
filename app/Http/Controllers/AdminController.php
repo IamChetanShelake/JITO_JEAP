@@ -15,6 +15,9 @@ use App\Models\ChapterInterviewAnswer;
 use App\Models\ApplicationWorkflowStatus;
 use App\Models\Logs;
 use App\Traits\LogsUserActivity;
+use App\Mail\SendBackForCorrectionMail;
+use App\Mail\WorkingCommitteeApprovedMail;
+use Illuminate\Support\Facades\Mail;
 
 class AdminController extends Controller
 {
@@ -479,7 +482,15 @@ class AdminController extends Controller
                 'connection' => $workingCommitteeApproval->getConnectionName(),
             ]);
 
-            return back()->with('success', 'Working Committee approval completed successfully');
+            // Send approval email with sanction letter attachment to the user
+            try {
+                Mail::to($user->email)->send(new WorkingCommitteeApprovedMail($user));
+                Log::info("Working Committee Approved email sent to user {$user->id} ({$user->email}) with sanction letter attachment");
+            } catch (\Exception $e) {
+                Log::error("Failed to send Working Committee Approved email to user {$user->id}: " . $e->getMessage());
+            }
+
+            return back()->with('success', 'Working Committee approval completed successfully. Email with sanction letter sent to student.');
         } catch (\Exception $e) {
             Log::error('Working Committee Approval Creation Failed', [
                 'user_id' => $user->id,
@@ -621,6 +632,16 @@ class AdminController extends Controller
                 $updatedAtField => now(),
                 // Keep final_status as 'in_progress' for resubmission
             ]);
+
+            // Send email notification to user only for apex_1 stage
+            if ($stage === 'apex_1') {
+                try {
+                    Mail::to($user->email)->send(new SendBackForCorrectionMail($user, $request->admin_remark));
+                    Log::info("Send Back For Correction email sent to user {$user->id} ({$user->email}) for apex_1 stage");
+                } catch (\Exception $e) {
+                    Log::error("Failed to send Send Back For Correction email to user {$user->id} for apex_1 stage: " . $e->getMessage());
+                }
+            }
 
             // Log admin action
             $this->logAdminAction(

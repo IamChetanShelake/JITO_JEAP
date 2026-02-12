@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
+use App\Traits\LogsUserActivity;
 
 class RegisterController extends Controller
 {
@@ -23,7 +24,7 @@ class RegisterController extends Controller
     |
     */
 
-    use RegistersUsers;
+    use RegistersUsers, LogsUserActivity;
 
     /**
      * Where to redirect users after registration.
@@ -107,6 +108,29 @@ class RegisterController extends Controller
         $user = $this->create($userData);
 
         $this->guard()->login($user);
+
+        // Log user registration
+        $this->logUserActivity(
+            'user_registration',
+            'created',
+            'User registered for JEAP application',
+            'user',
+            null,
+            null,
+            [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'user_email' => $user->email,
+                'pan_card' => $user->pan_card,
+                'age' => $user->age,
+                'gender' => $user->gender,
+                'aadhar_card_number' => $user->aadhar_card_number,
+                'registration_method' => 'online'
+            ],
+            $user->id,
+            'User',
+            'applicant'
+        );
 
         return $this->registered($request, $user)
             ?: redirect($this->redirectPath());

@@ -121,6 +121,21 @@
                                 </button>
                             </div>
                         @endif
+
+                        <!-- Validation Errors Summary -->
+                        @if ($errors->any())
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <h6 class="alert-heading mb-2">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> Please fix the following errors:
+                                </h6>
+                                <ul class="mb-0 ps-4">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        @endif
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
 
@@ -459,6 +474,7 @@
 
                                                 <input type="text" id="g_two_pan" name="g_two_pan"
                                                     class="form-control"
+                                                    value="{{ old('g_two_pan') ?: $guarantorDetail->g_two_pan ?? '' }}"
                                                     onblur="
                                                         checkDuplicate('pan', this.value, 'g_two_pan_error');
                                                         checkGuarantorSame(
@@ -484,6 +500,7 @@
 
                                                 <input type="text" id="g_two_name" name="g_two_name"
                                                     class="form-control"
+                                                    value="{{ old('g_two_name') ?: $guarantorDetail->g_two_name ?? '' }}"
                                                     onblur="
                                                         checkDuplicate('name', this.value, 'g_two_name_error');
                                                         checkGuarantorSame(
@@ -584,6 +601,7 @@
                                                 <small id="g_two_phone_error" class="text-danger"></small> --}}
 
                                                 <input type="tel" id="g_two_phone" name="g_two_phone"
+                                                    value="{{ old('g_two_phone') ?: $guarantorDetail->g_two_phone ?? '' }}"
                                                     class="form-control"
                                                     onblur="
                                                         checkDuplicate('mobile', this.value, 'g_two_phone_error');
@@ -611,6 +629,7 @@
 
                                                 <input type="email" id="g_two_email" name="g_two_email"
                                                     class="form-control"
+                                                    value="{{ old('g_two_email') ?: $guarantorDetail->g_two_email ?? '' }}"
                                                     onblur="
                                                     checkDuplicate('email', this.value, 'g_two_email_error');
                                                     checkGuarantorSame(
@@ -649,6 +668,7 @@
                                                 <small id="g_two_aadhar_error" class="text-danger"></small> --}}
                                                 <input type="number" id="g_two_aadhar_card_number"
                                                     name="g_two_aadhar_card_number" class="form-control"
+                                                    value="{{ old('g_two_aadhar_card_number') ?: $guarantorDetail->g_two_aadhar_card_number ?? '' }}"
                                                     onblur="
                                                     checkDuplicate('aadhar', this.value, 'g_two_aadhar_error');
                                                     checkGuarantorSame(
@@ -966,33 +986,7 @@
             });
     </script>
 
-    {{-- <script>
-        function checkDuplicate(field, value, errorElementId) {
-            if (!value) return;
-
-            fetch("{{ route('user.check.guarantor.duplicate') }}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                    },
-                    body: JSON.stringify({
-                        field: field,
-                        value: value
-                    })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    const errorEl = document.getElementById(errorElementId);
-                    if (data.exists) {
-                        errorEl.innerText =
-                            "This value cannot be the same as the applicant or a family member.";
-                    } else {
-                        errorEl.innerText = "";
-                    }
-                });
-        }
-    </script> --}}
+   
     <script>
         function checkDuplicate(field, value, errorElementId) {
             const errorEl = document.getElementById(errorElementId);
@@ -1061,6 +1055,9 @@
 
             return true;
         }
+
+
+
 
         // Enhanced form submission validation
         function validateGuarantorForm() {

@@ -4,18 +4,21 @@ namespace App\Http\Controllers;
 
 
 use App\Models\Bank;
+use App\Models\Logs;
 use App\Models\User;
 use App\Models\Subcast;
 use App\Models\Document;
+use App\Models\PdcDetail;
 use App\Models\Familydetail;
 use App\Models\ReviewSubmit;
-use App\Models\PdcDetail;
 use Illuminate\Http\Request;
 use App\Models\FundingDetail;
 use App\Models\Loan_category;
 use Illuminate\Support\Carbon;
 use App\Models\EducationDetail;
 use App\Models\GuarantorDetail;
+use Illuminate\Validation\Rule;
+use App\Traits\LogsUserActivity;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -24,6 +27,7 @@ use App\Models\ApplicationWorkflowStatus;
 
 class UserController extends Controller
 {
+    use LogsUserActivity;
     public function index()
     {
         $user_id = Auth::id();
@@ -72,7 +76,7 @@ class UserController extends Controller
             // All steps completed - redirect to Step 7 (Review & Submit)
             return redirect()->route('user.step7');
         }
-        $user = Auth::user()->load(['familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
+        $user = Auth::user();
         return view('user.home', compact('user'));
     }
 
@@ -84,6 +88,25 @@ class UserController extends Controller
         $loancategory->user_id = $user_id;
         $loancategory->type = $type;
         $loancategory->save();
+
+        // Log application submission
+        $user = User::find($user_id);
+        if ($user) {
+            $this->logUserActivity(
+                'application_submission',
+                'submitted',
+                'User submitted loan application',
+                'application',
+                null,
+                null,
+                [
+                    'user_id' => $user_id,
+                    'loan_type' => $type
+                ],
+                $user_id
+            );
+        }
+
         return redirect()->route('user.step1', ['type' => $type]);
     }
 
@@ -138,9 +161,13 @@ class UserController extends Controller
 
         // dd($request->all());
 
+        $user = User::find(Auth::user()->id);
         $request->validate([
             'name' => 'required|string|max:255',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            // 'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => $user->image
+                ? 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+                : 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
 
             'financial_asset_type' => 'required|in:domestic,foreign_finance_assistant',
             'financial_asset_for' => 'required|in:graduation,post_graduation',
@@ -189,7 +216,6 @@ class UserController extends Controller
         ]);
 
 
-        $user = User::find(Auth::user()->id);
 
         $data = [
             'name' => $request->name,
@@ -233,6 +259,34 @@ class UserController extends Controller
             'specially_abled' => $request->specially_abled,
             'submit_status' => 'submited',
         ];
+
+        // Log step completion
+        if ($user) {
+            $this->logUserActivity(
+                'step1_completion',
+                'completed',
+                'User submitted Personal Details step1',
+                'application',
+                null,
+                null,
+                [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'user_email' => $user->email,
+                    'step' => 'step1',
+                    'step_name' => 'Personal Details',
+                    'financial_asset_type' => $request->financial_asset_type,
+                    'financial_asset_for' => $request->financial_asset_for,
+                    'aadhar_card_number' => $request->aadhar_card_number,
+                    'pan_card' => $request->pan_card,
+                    'phone' => $request->phone,
+                    'email' => $request->email,
+                    'chapter' => $request->chapter,
+                    'nationality' => $request->nationality
+                ],
+                $user->id
+            );
+        }
 
         // Handle image upload (only once)
         if ($request->hasFile('image')) {
@@ -448,6 +502,39 @@ class UserController extends Controller
             EducationDetail::create($data);
             $message = 'Education details saved successfully!';
         }
+
+        // Get user for logging
+        $user = User::find($user_id);
+
+        // Log step completion
+        $this->logUserActivity(
+            'step_completion',
+            'completed',
+            'User submitted Education Details step',
+            'application',
+            null,
+            null,
+            [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'user_email' => $user->email,
+                'step' => 'step2',
+                'step_name' => 'Education Details',
+                'course_name' => $request->course_name,
+                'university_name' => $request->university_name,
+                'college_name' => $request->college_name,
+                'country' => $request->country,
+                'city_name' => $request->city_name,
+                'start_year' => $request->start_year,
+                'expected_year' => $request->expected_year,
+                'school_name' => $request->school_name,
+                'school_board' => $request->school_board,
+                'jc_college_name' => $request->jc_college_name,
+                'jc_stream' => $request->jc_stream,
+                'jc_board' => $request->jc_board
+            ],
+            $user->id
+        );
 
         return redirect()->route('user.step3')->with('success', $message);
     }
@@ -1065,6 +1152,36 @@ class UserController extends Controller
             $message = 'Family details saved successfully!';
         }
 
+        // Get user for logging
+        $user = User::find($user_id);
+
+        // Log step completion
+        $this->logUserActivity(
+            'step_completion',
+            'completed',
+            'User submitted Family Details step',
+            'application',
+            null,
+            null,
+            [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'user_email' => $user->email,
+                'step' => 'step3',
+                'step_name' => 'Family Details',
+                'number_family_members' => $request->number_family_members,
+                'total_family_income' => $request->total_family_income,
+                'total_students' => $request->total_students,
+                'family_member_diksha' => $request->family_member_diksha,
+                'total_insurance_coverage' => $request->total_insurance_coverage,
+                'total_premium_paid' => $request->total_premium_paid,
+                'recent_electricity_amount' => $request->recent_electricity_amount,
+                'total_monthly_emi' => $request->total_monthly_emi,
+                'mediclaim_insurance_amount' => $request->mediclaim_insurance_amount
+            ],
+            $user->id
+        );
+
         // If application was rejected, move back to pending
         $workflow = ApplicationWorkflowStatus::where('user_id', $user_id)->first();
         if ($workflow && $workflow->apex_1_status == 'rejected') {
@@ -1257,6 +1374,38 @@ class UserController extends Controller
             FundingDetail::create($data);
             $message = 'Funding details saved successfully!';
         }
+
+        // Get user for logging
+        $user = User::find(Auth::id());
+
+        // Log step completion
+        $this->logUserActivity(
+            'step_completion',
+            'completed',
+            'User submitted Funding Details step',
+            'application',
+            null,
+            null,
+            [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'user_email' => $user->email,
+                'step' => 'step4',
+                'step_name' => 'Funding Details',
+                'total_funding_amount' => $total_funding_amount,
+                'sibling_assistance' => $request->sibling_assistance,
+                'sibling_name' => $request->sibling_name,
+                'sibling_ngo_name' => $request->sibling_ngo_name,
+                'sibling_loan_status' => $request->sibling_loan_status,
+                'sibling_applied_year' => $request->sibling_applied_year,
+                'sibling_applied_amount' => $request->sibling_applied_amount,
+                'bank_name' => $request->bank_name,
+                'account_holder_name' => $request->account_holder_name,
+                'account_number' => $request->account_number,
+                'ifsc_code' => $request->ifsc_code
+            ],
+            $user->id
+        );
 
         // If application was rejected, move back to pending
         $workflow = ApplicationWorkflowStatus::where('user_id', Auth::id())->first();
@@ -1905,11 +2054,192 @@ class UserController extends Controller
     // }
 
 
+
+    // public function step5store(Request $request)
+    // {
+    //     // dd($request->all());
+    //     $request->validate([
+    //         // First Guarantor
+    //         'g_one_name' => 'required|string|max:255',
+    //         'g_one_gender' => 'required|in:male,female',
+    //         'g_one_permanent_flat_no' => 'required|string',
+    //         'g_one_permanent_address' => 'required|string',
+    //         'g_one_city' => 'required|string|max:100',
+    //         'g_one_district' => 'required|string|max:100',
+    //         'g_one_state' => 'required|string|max:100',
+    //         'g_one_pincode' => 'required|digits:6',
+    //         'g_one_phone' => 'required|string|max:15|unique:guarantor_details,g_one_phone',
+    //         'g_one_email' => 'required|email|max:255|unique:guarantor_details,g_one_email',
+    //         'g_one_relation_with_student' => 'required|string|max:255',
+    //         'g_one_aadhar_card_number' => 'required|digits:12',
+    //         'g_one_pan' => 'required|string|max:10',
+    //         'g_one_d_o_b' => 'required|date',
+    //         'g_one_srvice' => 'required|string|max:255',
+    //         'g_one_income' => 'required|numeric|min:0',
+
+
+    //         // Second Guarantor
+    //         'g_two_name' => 'required|string|max:255',
+    //         'g_two_gender' => 'required|in:male,female',
+    //         'g_two_permanent_flat_no' => 'required|string',
+    //         'g_two_permanent_address' => 'required|string',
+    //         'g_two_city' => 'required|string|max:100',
+    //         'g_two_district' => 'required|string|max:100',
+    //         'g_two_state' => 'required|string|max:100',
+    //         'g_two_pincode' => 'required|digits:6',
+    //         'g_two_phone' => 'required|string|max:15|unique:guarantor_details,g_two_phone',
+    //         'g_two_email' => 'required|email|max:255|unique:guarantor_details,g_two_email',
+    //         'g_two_relation_with_student' => 'required|string|max:255',
+    //         'g_two_aadhar_card_number' => 'required|digits:12',
+    //         'g_two_pan' => 'required|string|max:10',
+    //         'g_two_d_o_b' => 'required|date',
+    //         'g_two_srvice' => 'required|string|max:255',
+    //         'g_two_income' => 'required|numeric|min:0',
+
+    //     ]);
+
+    //     $user_id = Auth::id();
+    //     $guarantorDetail = GuarantorDetail::where('user_id', $user_id)->first();
+
+    //     $data = [
+    //         'user_id' => $user_id,
+
+    //         // First Guarantor
+    //         'g_one_name' => $request->g_one_name,
+    //         'g_one_gender' => $request->g_one_gender,
+    //         'g_one_permanent_flat_no' => $request->g_one_permanent_flat_no,
+    //         'g_one_permanent_address' => $request->g_one_permanent_address,
+    //         'g_one_permanent_city' => $request->g_one_city,
+    //         'g_one_permanent_district' => $request->g_one_district,
+    //         'g_one_permanent_state' => $request->g_one_state,
+    //         'g_one_permanent_pincode' => $request->g_one_pincode,
+    //         // 'g_one_phone' => $request->g_one_phone,
+    //         // 'g_one_email' => $request->g_one_email,
+    //         'g_one_phone' => [
+    //             'required',
+    //             'string',
+    //             'max:15',
+    //             Rule::unique('guarantor_details', 'g_one_phone')->ignore(optional($guarantorDetail)->id),
+    //         ],
+
+    //         'g_one_email' => [
+    //             'required',
+    //             'email',
+    //             'max:255',
+    //             Rule::unique('guarantor_details', 'g_one_email')->ignore(optional($guarantorDetail)->id),
+    //         ],
+
+    //         'g_one_relation_with_student' => $request->g_one_relation_with_student,
+    //         'g_one_aadhar_card_number' => $request->g_one_aadhar_card_number,
+    //         'g_one_pan' => $request->g_one_pan,
+    //         'g_one_d_o_b' => $request->g_one_d_o_b,
+
+    //         'g_one_srvice' => $request->g_one_srvice,
+    //         'g_one_income' => $request->g_one_income,
+
+    //         // Second Guarantor
+    //         'g_two_name' => $request->g_two_name,
+    //         'g_two_gender' => $request->g_two_gender,
+    //         'g_two_permanent_flat_no' => $request->g_two_permanent_flat_no,
+    //         'g_two_permanent_address' => $request->g_two_permanent_address,
+    //         'g_two_permanent_city' => $request->g_two_city,
+    //         'g_two_permanent_district' => $request->g_two_district,
+    //         'g_two_permanent_state' => $request->g_two_state,
+    //         'g_two_permanent_pincode' => $request->g_two_pincode,
+    //         // 'g_two_phone' => $request->g_two_phone,
+    //         // 'g_two_email' => $request->g_two_email,
+    //         'g_two_phone' => [
+    //             'required',
+    //             'string',
+    //             'max:15',
+    //             Rule::unique('guarantor_details', 'g_two_phone')->ignore(optional($guarantorDetail)->id),
+    //         ],
+
+    //         'g_two_email' => [
+    //             'required',
+    //             'email',
+    //             'max:255',
+    //             Rule::unique('guarantor_details', 'g_two_email')->ignore(optional($guarantorDetail)->id),
+    //         ],
+    //         'g_two_relation_with_student' => $request->g_two_relation_with_student,
+    //         'g_two_aadhar_card_number' => $request->g_two_aadhar_card_number,
+    //         'g_two_pan' => $request->g_two_pan,
+    //         'g_two_d_o_b' =>  $request->g_two_d_o_b,
+    //         'g_two_srvice' => $request->g_two_srvice,
+    //         'g_two_income' => $request->g_two_income,
+
+    //         'status' => 'step5_completed',
+    //         'submit_status' => 'submited',
+    //     ];
+
+    //     // Check if guarantor details already exist for this user
+    //     $guarantorDetail = GuarantorDetail::where('user_id', $user_id)->first();
+
+    //     if ($guarantorDetail) {
+    //         // Update existing record
+    //         $guarantorDetail->update($data);
+    //         $message = 'Guarantor details updated successfully!';
+    //     } else {
+    //         // Create new record
+    //         GuarantorDetail::create($data);
+    //         $message = 'Guarantor details saved successfully!';
+    //     }
+
+    //     // Get user for logging
+    //     $user = User::find($user_id);
+
+    //     // Log step completion
+    //     $this->logUserActivity(
+    //         'step_completion',
+    //         'completed',
+    //         'User submitted Guarantor Details step',
+    //         'application',
+    //         null,
+    //         null,
+    //         [
+    //             'user_id' => $user->id,
+    //             'user_name' => $user->name,
+    //             'user_email' => $user->email,
+    //             'step' => 'step5',
+    //             'step_name' => 'Guarantor Details',
+    //             'g_one_name' => $request->g_one_name,
+    //             'g_one_gender' => $request->g_one_gender,
+    //             'g_one_phone' => $request->g_one_phone,
+    //             'g_one_email' => $request->g_one_email,
+    //             'g_one_relation_with_student' => $request->g_one_relation_with_student,
+    //             'g_one_aadhar_card_number' => $request->g_one_aadhar_card_number,
+    //             'g_one_pan' => $request->g_one_pan,
+    //             'g_one_income' => $request->g_one_income,
+    //             'g_two_name' => $request->g_two_name,
+    //             'g_two_gender' => $request->g_two_gender,
+    //             'g_two_phone' => $request->g_two_phone,
+    //             'g_two_email' => $request->g_two_email,
+    //             'g_two_relation_with_student' => $request->g_two_relation_with_student,
+    //             'g_two_aadhar_card_number' => $request->g_two_aadhar_card_number,
+    //             'g_two_pan' => $request->g_two_pan,
+    //             'g_two_income' => $request->g_two_income
+    //         ],
+    //         $user->id
+    //     );
+
+    //     // Check if all steps are submitted (no resubmit remaining)
+    //     $this->checkAndUpdateWorkflowStatus();
+
+    //     return redirect()->route('user.step6')->with('success', $message);
+    // }
+
+
     public function step5store(Request $request)
     {
-        // dd($request->all());
+        $user_id = Auth::id();
+
+        // Fetch existing guarantor detail (for update case)
+        $guarantorDetail = GuarantorDetail::where('user_id', $user_id)->first();
+
+        // ================= VALIDATION =================
         $request->validate([
-            // First Guarantor
+
+            // ---------- First Guarantor ----------
             'g_one_name' => 'required|string|max:255',
             'g_one_gender' => 'required|in:male,female',
             'g_one_permanent_flat_no' => 'required|string',
@@ -1918,8 +2248,23 @@ class UserController extends Controller
             'g_one_district' => 'required|string|max:100',
             'g_one_state' => 'required|string|max:100',
             'g_one_pincode' => 'required|digits:6',
-            'g_one_phone' => 'required|string|max:15|unique:guarantor_details,g_one_phone',
-            'g_one_email' => 'required|email|max:255|unique:guarantor_details,g_one_email',
+
+            'g_one_phone' => [
+                'required',
+                'string',
+                'max:15',
+                Rule::unique('guarantor_details', 'g_one_phone')
+                    ->ignore(optional($guarantorDetail)->id),
+            ],
+
+            'g_one_email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('guarantor_details', 'g_one_email')
+                    ->ignore(optional($guarantorDetail)->id),
+            ],
+
             'g_one_relation_with_student' => 'required|string|max:255',
             'g_one_aadhar_card_number' => 'required|digits:12',
             'g_one_pan' => 'required|string|max:10',
@@ -1927,8 +2272,7 @@ class UserController extends Controller
             'g_one_srvice' => 'required|string|max:255',
             'g_one_income' => 'required|numeric|min:0',
 
-
-            // Second Guarantor
+            // ---------- Second Guarantor ----------
             'g_two_name' => 'required|string|max:255',
             'g_two_gender' => 'required|in:male,female',
             'g_two_permanent_flat_no' => 'required|string',
@@ -1937,19 +2281,32 @@ class UserController extends Controller
             'g_two_district' => 'required|string|max:100',
             'g_two_state' => 'required|string|max:100',
             'g_two_pincode' => 'required|digits:6',
-            'g_two_phone' => 'required|string|max:15|unique:guarantor_details,g_two_phone',
-            'g_two_email' => 'required|email|max:255|unique:guarantor_details,g_two_email',
+
+            'g_two_phone' => [
+                'required',
+                'string',
+                'max:15',
+                Rule::unique('guarantor_details', 'g_two_phone')
+                    ->ignore(optional($guarantorDetail)->id),
+            ],
+
+            'g_two_email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('guarantor_details', 'g_two_email')
+                    ->ignore(optional($guarantorDetail)->id),
+            ],
+
             'g_two_relation_with_student' => 'required|string|max:255',
             'g_two_aadhar_card_number' => 'required|digits:12',
             'g_two_pan' => 'required|string|max:10',
             'g_two_d_o_b' => 'required|date',
             'g_two_srvice' => 'required|string|max:255',
             'g_two_income' => 'required|numeric|min:0',
-
         ]);
 
-        $user_id = Auth::id();
-
+        // ================= DATA ARRAY =================
         $data = [
             'user_id' => $user_id,
 
@@ -1968,7 +2325,6 @@ class UserController extends Controller
             'g_one_aadhar_card_number' => $request->g_one_aadhar_card_number,
             'g_one_pan' => $request->g_one_pan,
             'g_one_d_o_b' => $request->g_one_d_o_b,
-
             'g_one_srvice' => $request->g_one_srvice,
             'g_one_income' => $request->g_one_income,
 
@@ -1986,7 +2342,7 @@ class UserController extends Controller
             'g_two_relation_with_student' => $request->g_two_relation_with_student,
             'g_two_aadhar_card_number' => $request->g_two_aadhar_card_number,
             'g_two_pan' => $request->g_two_pan,
-            'g_two_d_o_b' =>  $request->g_two_d_o_b,
+            'g_two_d_o_b' => $request->g_two_d_o_b,
             'g_two_srvice' => $request->g_two_srvice,
             'g_two_income' => $request->g_two_income,
 
@@ -1994,24 +2350,45 @@ class UserController extends Controller
             'submit_status' => 'submited',
         ];
 
-        // Check if guarantor details already exist for this user
-        $guarantorDetail = GuarantorDetail::where('user_id', $user_id)->first();
-
+        // ================= SAVE / UPDATE =================
         if ($guarantorDetail) {
-            // Update existing record
             $guarantorDetail->update($data);
             $message = 'Guarantor details updated successfully!';
         } else {
-            // Create new record
             GuarantorDetail::create($data);
             $message = 'Guarantor details saved successfully!';
         }
 
-        // Check if all steps are submitted (no resubmit remaining)
+        // ================= LOG ACTIVITY =================
+        $user = User::find($user_id);
+
+        $this->logUserActivity(
+            'step_completion',
+            'completed',
+            'User submitted Guarantor Details step',
+            'application',
+            null,
+            null,
+            [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'user_email' => $user->email,
+                'step' => 'step5',
+                'step_name' => 'Guarantor Details',
+                'g_one_phone' => $request->g_one_phone,
+                'g_one_email' => $request->g_one_email,
+                'g_two_phone' => $request->g_two_phone,
+                'g_two_email' => $request->g_two_email,
+            ],
+            $user->id
+        );
+
+        // ================= WORKFLOW STATUS =================
         $this->checkAndUpdateWorkflowStatus();
 
         return redirect()->route('user.step6')->with('success', $message);
     }
+
 
     public function step6(Request $request)
     {
@@ -2136,6 +2513,33 @@ class UserController extends Controller
                 Document::create($data);
                 $message = 'Documents uploaded successfully!';
             }
+
+            // Get user for logging
+            $user = User::find($user_id);
+
+            // Log step completion
+            $this->logUserActivity(
+                'step_completion',
+                'completed',
+                'User submitted Document Upload step',
+                'application',
+                null,
+                null,
+                [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'user_email' => $user->email,
+                    'step' => 'step6',
+                    'step_name' => 'Document Upload',
+                    'documents_uploaded' => array_keys(array_filter($data, function ($key) {
+                        return strpos($key, '_') !== false && !in_array($key, ['user_id', 'status', 'submit_status']);
+                    }, ARRAY_FILTER_USE_KEY)),
+                    'total_documents' => count(array_filter($data, function ($key) {
+                        return strpos($key, '_') !== false && !in_array($key, ['user_id', 'status', 'submit_status']);
+                    }, ARRAY_FILTER_USE_KEY))
+                ],
+                $user->id
+            );
 
             Log::info('Step6Store: Document created successfully', ['user_id' => $user_id, 'document_id' => Document::latest()->first()->id]);
 
@@ -2450,6 +2854,30 @@ class UserController extends Controller
         $user = User::find($user_id);
         $user->update(['application_status' => 'submitted']);
 
+        // Get user for logging
+        $user = User::find($user_id);
+
+        // Log step completion
+        $this->logUserActivity(
+            'step_completion',
+            'completed',
+            'User submitted Review & Submit step',
+            'application',
+            null,
+            null,
+            [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'user_email' => $user->email,
+                'step' => 'step7',
+                'step_name' => 'Review & Submit',
+                'application_status' => 'submitted',
+                'workflow_stage' => 'apex_1',
+                'final_status' => 'in_progress'
+            ],
+            $user->id
+        );
+
         // Set both success message for SweetAlert2 and step7_submitted flag
         return redirect()->route('user.step7')->with('success', 'Application submitted successfully!')->with('step7_submitted', true);
     }
@@ -2486,9 +2914,13 @@ class UserController extends Controller
     public function step8store(Request $request)
     {
         $user_id = Auth::id();
+        // dd($request->all());
 
-        $request->validate([
-            'first_cheque_image' => 'required|mimes:jpeg,png,jpg,pdf|max:2048',
+        // Check if PDC details already exist for this user
+        $pdcDetail = PdcDetail::where('user_id', $user_id)->first();
+
+        // Conditional validation for first_cheque_image
+        $validationRules = [
             'cheque_details' => 'required|array|min:1',
             'cheque_details.*.cheque_date' => 'required|date',
             'cheque_details.*.amount' => 'required|numeric|min:0',
@@ -2496,7 +2928,16 @@ class UserController extends Controller
             'cheque_details.*.ifsc' => 'required|string|max:20',
             'cheque_details.*.account_number' => 'required|string|max:50',
             'cheque_details.*.cheque_number' => 'required|string|max:50',
-        ]);
+        ];
+
+        // Only require first_cheque_image if no existing image exists
+        if (!$pdcDetail || !$pdcDetail->first_cheque_image) {
+            $validationRules['first_cheque_image'] = 'required|mimes:jpeg,png,jpg,pdf|max:2048';
+        } else {
+            $validationRules['first_cheque_image'] = 'nullable|mimes:jpeg,png,jpg,pdf|max:2048';
+        }
+
+        $request->validate($validationRules);
 
         // Handle first cheque image upload
         $firstChequeImage = null;
@@ -2504,6 +2945,9 @@ class UserController extends Controller
             $fileName = time() . '_first_cheque.' . $request->first_cheque_image->extension();
             $request->first_cheque_image->move('pdc_cheques', $fileName);
             $firstChequeImage = 'pdc_cheques/' . $fileName;
+        } elseif ($pdcDetail && $pdcDetail->first_cheque_image) {
+            // Keep existing image if no new image uploaded
+            $firstChequeImage = $pdcDetail->first_cheque_image;
         }
 
         // Process cheque details
@@ -2511,6 +2955,7 @@ class UserController extends Controller
         foreach ($request->cheque_details as $index => $cheque) {
             $chequeDetails[] = [
                 'row_number' => $index + 1,
+                'parents_jnt_ac_name' => $cheque['parents_jnt_ac_name'] ?? null,
                 'cheque_date' => $cheque['cheque_date'],
                 'amount' => $cheque['amount'],
                 'bank_name' => $cheque['bank_name'],
@@ -2695,5 +3140,15 @@ class UserController extends Controller
                 $workflow->update(['apex_1_status' => 'pending']);
             }
         }
+    }
+
+    public function showUserLogs()
+    {
+        $user = Auth::user();
+        $logs = Logs::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('user.logs', compact('logs'));
     }
 }

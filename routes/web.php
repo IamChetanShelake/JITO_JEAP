@@ -32,30 +32,30 @@ Route::prefix('donor')->name('donor.')->group(function () {
     Route::post('/logout', [DonorAuthController::class, 'logout'])->name('logout');
 
     Route::middleware('auth:donor')->group(function () {
-    Route::get('/dashboard', [DonorAuthController::class, 'dashboard'])->name('dashboard');
-    Route::get('/step1', [DonorWebController::class, 'step1'])->name('step1');
-    Route::post('/step1', [DonorWebController::class, 'storestep1'])->name('step1.store');
+        Route::get('/dashboard', [DonorAuthController::class, 'dashboard'])->name('dashboard');
+        Route::get('/step1', [DonorWebController::class, 'step1'])->name('step1');
+        Route::post('/step1', [DonorWebController::class, 'storestep1'])->name('step1.store');
 
-    Route::get('/step2', [DonorWebController::class, 'step2'])->name('step2');
-    Route::post('/step2', [DonorWebController::class, 'storestep2'])->name('step2.store');
+        Route::get('/step2', [DonorWebController::class, 'step2'])->name('step2');
+        Route::post('/step2', [DonorWebController::class, 'storestep2'])->name('step2.store');
 
-    Route::get('/step3', [DonorWebController::class, 'step3'])->name('step3');
-    Route::post('/step3', [DonorWebController::class, 'storestep3'])->name('step3.store');
+        Route::get('/step3', [DonorWebController::class, 'step3'])->name('step3');
+        Route::post('/step3', [DonorWebController::class, 'storestep3'])->name('step3.store');
 
-    Route::get('/step4', [DonorWebController::class, 'step4'])->name('step4');
-    Route::post('/step4', [DonorWebController::class, 'storestep4'])->name('step4.store');
+        Route::get('/step4', [DonorWebController::class, 'step4'])->name('step4');
+        Route::post('/step4', [DonorWebController::class, 'storestep4'])->name('step4.store');
 
-    Route::get('/step5', [DonorWebController::class, 'step5'])->name('step5');
-    Route::post('/step5', [DonorWebController::class, 'storestep5'])->name('step5.store');
+        Route::get('/step5', [DonorWebController::class, 'step5'])->name('step5');
+        Route::post('/step5', [DonorWebController::class, 'storestep5'])->name('step5.store');
 
-    Route::get('/step6', [DonorWebController::class, 'step6'])->name('step6');
-    Route::post('/step6', [DonorWebController::class, 'storestep6'])->name('step6.store');
+        Route::get('/step6', [DonorWebController::class, 'step6'])->name('step6');
+        Route::post('/step6', [DonorWebController::class, 'storestep6'])->name('step6.store');
 
-    Route::get('/step7', [DonorWebController::class, 'step7'])->name('step7');
-    Route::post('/step7', [DonorWebController::class, 'storestep7'])->name('step7.store');
+        Route::get('/step7', [DonorWebController::class, 'step7'])->name('step7');
+        Route::post('/step7', [DonorWebController::class, 'storestep7'])->name('step7.store');
 
-    Route::get('/step8', [DonorWebController::class, 'step8'])->name('step8');
-    Route::post('/step8', [DonorWebController::class, 'storestep8'])->name('step8.store');
+        Route::get('/step8', [DonorWebController::class, 'step8'])->name('step8');
+        Route::post('/step8', [DonorWebController::class, 'storestep8'])->name('step8.store');
     });
 });
 
@@ -141,6 +141,10 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::post('/pdc/user/{user}/approve', [AdminController::class, 'approvePdc'])->name('pdc.approve');
     Route::post('/pdc/user/{user}/send-back', [AdminController::class, 'sendBackPdc'])->name('pdc.send-back');
 
+    // PDC Edit functionality
+    Route::get('/pdc/edit/{user}', [AdminController::class, 'editPdc'])->name('pdc.edit');
+    Route::put('/pdc/update/{user}', [AdminController::class, 'updatePdc'])->name('pdc.update');
+
 
     Route::get('/chapters/resubmit', [AdminController::class, 'chapterResubmit'])->name('chapter.resubmit');
 
@@ -196,6 +200,10 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
 
     // Subcast Routes
     Route::resource('subcasts', SubcastController::class);
+
+    // Logs Routes
+    Route::get('/logs/', [AdminController::class, 'showUserLogs'])->name('logs');
+    Route::get('/logs/user/{user}', [AdminController::class, 'showUserLogs'])->name('user.logs');
 });
 
 // User Routes - Protected by auth and user middleware
@@ -291,9 +299,7 @@ Route::middleware(['auth', 'user'])
         Route::post('/verify-aadhaar-last4', [UserController::class, 'verifyAadhaarLast4'])
             ->name('verify.aadhaar.last4');
 
-
-
+        // User logs route
+        Route::get('/logs', [UserController::class, 'showUserLogs'])
+            ->name('logs');
     });
-
-
-

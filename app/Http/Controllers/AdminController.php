@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ChapterInterviewAnswer;
 use App\Models\ApplicationWorkflowStatus;
+use App\Models\Logs;
+use App\Traits\LogsUserActivity;
 
 class AdminController extends Controller
 {
@@ -336,6 +338,22 @@ class AdminController extends Controller
 
         $workflow->update($updateData);
 
+        // Log admin action
+        $this->logAdminAction(
+            Auth::user(),
+            'approve_stage',
+            "Approved {$stage} stage for user {$user->name} (ID: {$user->id})",
+            [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'stage' => $stage,
+                'admin_remark' => $request->admin_remark,
+                'apex_staff_remark' => $request->apex_staff_remark,
+                'previous_stage' => $workflow->current_stage,
+                'new_stage' => $updateData['current_stage'] ?? $workflow->current_stage
+            ]
+        );
+
         return back()->with(
             'success',
             ucfirst(str_replace('_', ' ', $stage)) . ' stage approved successfully'
@@ -352,13 +370,13 @@ class AdminController extends Controller
             'meeting_no' => 'required|string|max:255',
             'disbursement_system' => 'required|in:yearly,half_yearly',
             'approval_financial_assistance_amount' => 'required|numeric|min:0',
-            'installment_amount' => 'nullable|numeric|min:0',
-            'additional_installment_amount' => 'nullable|numeric|min:0',
+            'installment_amount' => 'required|numeric|min:0',
+            'additional_installment_amount' => 'required|numeric|min:0',
             'repayment_type' => 'required|in:yearly,half_yearly,quarterly,monthly',
-            'no_of_cheques_to_be_collected' => 'nullable|integer|min:1',
+            'no_of_cheques_to_be_collected' => 'required|integer|min:1',
             'repayment_starting_from' => 'required|date',
             'remarks_for_approval' => 'required|string|max:2000',
-            'disbursement_in_year' => 'nullable|integer|min:1|max:6',
+            'disbursement_in_year' => 'required|integer|min:1|max:6',
         ];
 
         // Conditional validation based on disbursement system
@@ -451,7 +469,7 @@ class AdminController extends Controller
                 'repayment_starting_from' => $request->repayment_starting_from,
                 'remarks_for_approval' => $request->remarks_for_approval,
                 'processed_by_name' => Auth::user()->name,
-                'processed_by_id' => Auth::user()->id,
+                'processed_by' => Auth::user()->id,
                 'approval_status' => 'approved',
             ]);
 
@@ -528,6 +546,22 @@ class AdminController extends Controller
                 ]);
             }
 
+            // Log admin action
+            $this->logAdminAction(
+                Auth::user(),
+                'reject_stage_apex_2',
+                "Rejected Apex Stage 2 for user {$user->name} (ID: {$user->id}) - sent for correction",
+                [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'stage' => $stage,
+                    'admin_remark' => $request->admin_remark,
+                    'previous_stage' => $workflow->current_stage,
+                    'new_stage' => 'apex_2',
+                    'final_status' => 'in_progress'
+                ]
+            );
+
             return back()->with(
                 'success',
                 'Apex Stage 2 rejected and sent for correction'
@@ -588,6 +622,23 @@ class AdminController extends Controller
                 // Keep final_status as 'in_progress' for resubmission
             ]);
 
+            // Log admin action
+            $this->logAdminAction(
+                Auth::user(),
+                'reject_stage_selective',
+                "Rejected {$stage} stage for user {$user->name} (ID: {$user->id}) - selective resubmission",
+                [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'stage' => $stage,
+                    'admin_remark' => $request->admin_remark,
+                    'resubmit_steps' => $resubmitSteps,
+                    'resubmission_count' => $resubmissionCount,
+                    'previous_stage' => $workflow->current_stage,
+                    'final_status' => 'in_progress'
+                ]
+            );
+
             return back()->with('success', "{$resubmissionCount} step(s) marked for resubmission");
         } else {
             // Complete rejection (original behavior)
@@ -601,6 +652,21 @@ class AdminController extends Controller
                 $updatedAtField => now(),
                 'final_status' => 'rejected',
             ]);
+
+            // Log admin action
+            $this->logAdminAction(
+                Auth::user(),
+                'reject_stage_complete',
+                "Completely rejected {$stage} stage for user {$user->name} (ID: {$user->id})",
+                [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'stage' => $stage,
+                    'admin_remark' => $request->admin_remark,
+                    'previous_stage' => $workflow->current_stage,
+                    'final_status' => 'rejected'
+                ]
+            );
 
             return back()->with('success', ucfirst(str_replace('_', ' ', $stage)) . " rejected");
         }
@@ -679,6 +745,23 @@ class AdminController extends Controller
                 // final_status remains in_progress
             ]);
 
+            // Log admin action
+            $this->logAdminAction(
+                Auth::user(),
+                'hold_stage_selective',
+                "Put {$stage} stage on hold for user {$user->name} (ID: {$user->id}) - selective hold",
+                [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'stage' => $stage,
+                    'admin_remark' => $request->admin_remark,
+                    'resubmit_steps' => $resubmitSteps,
+                    'hold_count' => $holdCount,
+                    'previous_stage' => $workflow->current_stage,
+                    'final_status' => 'in_progress'
+                ]
+            );
+
             return back()->with('success', "{$holdCount} step(s) marked on hold");
         } else {
             // Full hold (entire stage)
@@ -692,6 +775,21 @@ class AdminController extends Controller
                 $updatedAtField   => now(),
                 'final_status'    => 'hold',
             ]);
+
+            // Log admin action
+            $this->logAdminAction(
+                Auth::user(),
+                'hold_stage_complete',
+                "Completely put {$stage} stage on hold for user {$user->name} (ID: {$user->id})",
+                [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'stage' => $stage,
+                    'admin_remark' => $request->admin_remark,
+                    'previous_stage' => $workflow->current_stage,
+                    'final_status' => 'hold'
+                ]
+            );
 
             return back()->with(
                 'success',
@@ -834,6 +932,7 @@ class AdminController extends Controller
     {
         $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
         $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
+        // dd($workingCommitteeApproval);
         return view('admin.working_committee.user_detail', compact('user', 'workingCommitteeApproval'));
     }
 
@@ -1423,5 +1522,113 @@ class AdminController extends Controller
         ]);
 
         return back()->with('success', 'PDC sent back for correction');
+    }
+
+    /**
+     * Show the edit form for PDC details
+     */
+    public function editPdc(User $user)
+    {
+        $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document', 'pdcDetail']);
+
+        if (!$user->pdcDetail) {
+            return back()->with('error', 'PDC details not found');
+        }
+
+        return view('admin.pdc.edit', compact('user'));
+    }
+
+    /**
+     * Update PDC details
+     */
+    public function updatePdc(Request $request, User $user)
+    {
+        $request->validate([
+            'first_cheque_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'cheque_details' => 'required|array',
+            'cheque_details.*.parents_jnt_ac_name' => 'required|string|max:255',
+            'cheque_details.*.cheque_date' => 'required|date',
+            'cheque_details.*.amount' => 'required|numeric|min:0',
+            'cheque_details.*.bank_name' => 'required|string|max:255',
+            'cheque_details.*.ifsc' => 'required|string|max:11',
+            'cheque_details.*.account_number' => 'required|string|max:20',
+            'cheque_details.*.cheque_number' => 'required|string|max:20',
+        ]);
+
+        $pdcDetail = \App\Models\PdcDetail::where('user_id', $user->id)->first();
+
+        if (!$pdcDetail) {
+            return back()->with('error', 'PDC details not found');
+        }
+
+        // Handle file upload if new image is provided
+        $chequeImagePath = $pdcDetail->first_cheque_image;
+
+        if ($request->hasFile('first_cheque_image')) {
+            // Delete old image if exists
+            if ($pdcDetail->first_cheque_image && file_exists(public_path($pdcDetail->first_cheque_image))) {
+                unlink(public_path($pdcDetail->first_cheque_image));
+            }
+
+            // Upload new image
+            $file = $request->file('first_cheque_image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('pdc_cheques'), $filename);
+            $chequeImagePath = 'pdc_cheques/' . $filename;
+        }
+
+        // Update PDC details
+        $pdcDetail->update([
+            'first_cheque_image' => $chequeImagePath,
+            'cheque_details' => json_encode($request->cheque_details),
+            'status' => 'submitted', // Reset status to submitted for review
+            'processed_by' => Auth::id(),
+        ]);
+
+        return redirect()->route('admin.apex.stage2.user.detail', $user)
+            ->with('success', 'PDC details updated successfully');
+    }
+
+    /**
+     * Show logs for the current user
+     */
+    public function showLogs($user)
+    {
+        $user = Auth::user();
+        $logs = Logs::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('admin.logs', compact('logs'));
+    }
+
+    /**
+     * Show logs for a specific user (admin view)
+     */
+    public function showUserLogs(User $user)
+    {
+       // dd($user);
+        $logs = Logs::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('admin.logs', compact('logs', 'user'));
+    }
+
+    /**
+     * Log admin actions for audit trail
+     */
+    private function logAdminAction($adminUser, $action, $description, $metadata = [])
+    {
+        Logs::create([
+            'user_id' => $adminUser->id,
+            'user_name' => $adminUser->name,
+            'user_role' => $adminUser->role,
+            'activity_type' => 'admin_action',
+            'description' => $description,
+            'metadata' => json_encode($metadata),
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
     }
 }

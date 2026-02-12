@@ -1994,45 +1994,49 @@
                 </div>
             </div>
 
-            @if ($workingCommitteeApproval && $workingCommitteeApproval->approval_status === 'approved')
+            @if ($user->workflowStatus && $user->workflowStatus->working_committee_status === 'approved')
                 <!-- Display Submitted Working Committee Data -->
                 <div class="form-data">
                     <div class="data-group">
                         <h4>Submitted Working Committee Decision</h4>
                         <div class="form-section">
+                            <!-- Working Committee Approval Details -->
                             <div class="form-row">
                                 <div class="form-field">
                                     <label class="form-label">Working Committee Approval Remark</label>
-                                    <textarea class="form-textarea" readonly>{{ $workingCommitteeApproval->w_c_approval_remark }}</textarea>
+                                    <textarea class="form-textarea" readonly>{{ $user->workflowStatus->working_committee_approval_remarks }}</textarea>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Approval Date</label>
                                     <input type="text" class="form-input"
-                                        value="{{ $workingCommitteeApproval->w_c_approval_date ? $workingCommitteeApproval->w_c_approval_date->format('d M Y') : 'N/A' }}"
+                                        value="{{ $user->workflowStatus->working_committee_updated_at ? \Carbon\Carbon::parse($user->workflowStatus->working_committee_updated_at)->format('d M Y') : 'N/A' }}"
                                         readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Meeting Number</label>
                                     <input type="text" class="form-input"
-                                        value="{{ $workingCommitteeApproval->meeting_no }}" readonly>
+                                        value="{{ $user->workingCommitteeApproval->meeting_no ?? 'N/A' }}" readonly>
                                 </div>
                             </div>
+
+                            <!-- Disbursement System and Financial Details -->
                             <div class="form-row">
                                 <div class="form-field">
                                     <label class="form-label">Disbursement System</label>
                                     <input type="text" class="form-input"
-                                        value="{{ ucfirst($workingCommitteeApproval->disbursement_system) }}" readonly>
+                                        value="{{ ucfirst($user->workingCommitteeApproval->disbursement_system ?? 'N/A') }}"
+                                        readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Approved Financial Assistance Amount</label>
                                     <input type="text" class="form-input"
-                                        value="₹{{ number_format($workingCommitteeApproval->approval_financial_assistance_amount, 2) }}"
+                                        value="₹{{ number_format($user->workingCommitteeApproval->approval_financial_assistance_amount ?? 0, 2) }}"
                                         readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Installment Amount</label>
                                     <input type="text" class="form-input"
-                                        value="₹{{ number_format($workingCommitteeApproval->installment_amount, 2) }}"
+                                        value="₹{{ number_format($user->workingCommitteeApproval->installment_amount ?? 0, 2) }}"
                                         readonly>
                                 </div>
                             </div>
@@ -2040,18 +2044,19 @@
                                 <div class="form-field">
                                     <label class="form-label">Additional Installment Amount</label>
                                     <input type="text" class="form-input"
-                                        value="₹{{ number_format($workingCommitteeApproval->additional_installment_amount, 2) }}"
+                                        value="₹{{ number_format($user->workingCommitteeApproval->additional_installment_amount ?? 0, 2) }}"
                                         readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Repayment Type</label>
                                     <input type="text" class="form-input"
-                                        value="{{ ucfirst($workingCommitteeApproval->repayment_type) }}" readonly>
+                                        value="{{ ucfirst($user->workingCommitteeApproval->repayment_type ?? 'N/A') }}"
+                                        readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">No. of Cheques to be Collected</label>
                                     <input type="text" class="form-input"
-                                        value="{{ $workingCommitteeApproval->no_of_cheques_to_be_collected ?: 'N/A' }}"
+                                        value="{{ $user->workingCommitteeApproval->no_of_cheques_to_be_collected ?? 'N/A' }}"
                                         readonly>
                                 </div>
                             </div>
@@ -2059,100 +2064,161 @@
                                 <div class="form-field">
                                     <label class="form-label">Repayment Starting From</label>
                                     <input type="text" class="form-input"
-                                        value="{{ $workingCommitteeApproval->repayment_starting_from ? $workingCommitteeApproval->repayment_starting_from->format('d M Y') : 'N/A' }}"
+                                        value="{{ $user->workingCommitteeApproval->repayment_starting_from ? \Carbon\Carbon::parse($user->workingCommitteeApproval->repayment_starting_from)->format('d M Y') : 'N/A' }}"
                                         readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Processed By</label>
                                     <input type="text" class="form-input"
-                                        value="{{ $workingCommitteeApproval->processed_by_name }}" readonly>
+                                        value="{{ $user->workingCommitteeApproval->processed_by_name ?? 'N/A' }}"
+                                        readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Approval Status</label>
                                     <input type="text" class="form-input"
-                                        value="{{ ucfirst($workingCommitteeApproval->approval_status) }}" readonly>
+                                        value="{{ ucfirst($user->workingCommitteeApproval->working_committee_status ?? 'N/A') }}"
+                                        readonly>
                                 </div>
                             </div>
-                            @if (
-                                $workingCommitteeApproval->disbursement_system === 'yearly' &&
-                                    $workingCommitteeApproval->yearly_dates &&
-                                    is_array($workingCommitteeApproval->yearly_dates))
+
+                            <!-- Remarks for Approval -->
+                            @if ($user->workingCommitteeApproval->remarks_for_approval)
                                 <div class="form-row">
                                     <div class="form-field form-field-full">
-                                        <label class="form-label">Yearly Disbursement Schedule</label>
-                                        <div class="table-container">
-                                            <table class="custom-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Year</th>
-                                                        <th>Disbursement Date</th>
-                                                        <th>Amount</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @if ($workingCommitteeApproval->yearly_amounts && is_array($workingCommitteeApproval->yearly_amounts))
-                                                        @foreach ($workingCommitteeApproval->yearly_dates as $index => $date)
-                                                            <tr>
-                                                                <td>{{ $index + 1 }}</td>
-                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}
-                                                                </td>
-                                                                <td class="amount-cell">
-                                                                    ₹{{ number_format($workingCommitteeApproval->yearly_amounts[$index] ?? 0, 2) }}
-                                                                </td>
-                                                            </tr>
-                                                        @endforeach
-                                                    @endif
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                        <label class="form-label">Remarks for Approval</label>
+                                        <textarea class="form-textarea" readonly>{{ $user->workingCommitteeApproval->remarks_for_approval }}</textarea>
                                     </div>
                                 </div>
                             @endif
+
+                            <!-- Disbursement Schedules -->
                             @if (
-                                $workingCommitteeApproval->disbursement_system === 'half_yearly' &&
-                                    $workingCommitteeApproval->half_yearly_dates &&
-                                    is_array($workingCommitteeApproval->half_yearly_dates))
-                                <div class="form-row">
-                                    <div class="form-field form-field-full">
-                                        <label class="form-label">Half-Yearly Disbursement Schedule</label>
-                                        <div class="table-container">
-                                            <table class="custom-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Half Year</th>
-                                                        <th>Disbursement Date</th>
-                                                        <th>Amount</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @if ($workingCommitteeApproval->half_yearly_amounts && is_array($workingCommitteeApproval->half_yearly_amounts))
-                                                        @foreach ($workingCommitteeApproval->half_yearly_dates as $index => $date)
+                                $user->workingCommitteeApproval->disbursement_system === 'yearly' &&
+                                    $user->workingCommitteeApproval->yearly_dates &&
+                                    is_array($user->workingCommitteeApproval->yearly_dates))
+                                @php
+                                    $yearlyDates = $user->workingCommitteeApproval->yearly_dates;
+                                    $yearlyAmounts = $user->workingCommitteeApproval->yearly_amounts;
+                                @endphp
+                                @if ($yearlyDates && $yearlyAmounts && is_array($yearlyDates) && is_array($yearlyAmounts))
+                                    <div class="form-row">
+                                        <div class="form-field form-field-full">
+                                            <label class="form-label">Yearly Disbursement Schedule</label>
+                                            <div class="table-container">
+                                                <table class="custom-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Year</th>
+                                                            <th>Disbursement Date</th>
+                                                            <th>Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($yearlyDates as $index => $date)
+                                                            <tr>
+                                                                <td>{{ $index + 1 }}</td>
+                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}</td>
+                                                                <td class="amount-cell">
+                                                                    ₹{{ number_format($yearlyAmounts[$index] ?? 0, 2) }}
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endif
+
+                            @if (
+                                $user->workingCommitteeApproval->disbursement_system === 'half_yearly' &&
+                                    $user->workingCommitteeApproval->half_yearly_dates &&
+                                    is_array($user->workingCommitteeApproval->half_yearly_dates))
+                                @php
+                                    $halfYearlyDates = $user->workingCommitteeApproval->half_yearly_dates;
+                                    $halfYearlyAmounts = $user->workingCommitteeApproval->half_yearly_amounts;
+                                @endphp
+                                @if ($halfYearlyDates && $halfYearlyAmounts && is_array($halfYearlyDates) && is_array($halfYearlyAmounts))
+                                    <div class="form-row">
+                                        <div class="form-field form-field-full">
+                                            <label class="form-label">Half-Yearly Disbursement Schedule</label>
+                                            <div class="table-container">
+                                                <table class="custom-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Half Year</th>
+                                                            <th>Disbursement Date</th>
+                                                            <th>Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($halfYearlyDates as $index => $date)
                                                             <tr>
                                                                 <td>{{ $index + 1 }}
                                                                     ({{ $index % 2 === 0 ? '1st Half' : '2nd Half' }})
                                                                 </td>
-                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}
-                                                                </td>
+                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}</td>
                                                                 <td class="amount-cell">
-                                                                    ₹{{ number_format($workingCommitteeApproval->half_yearly_amounts[$index] ?? 0, 2) }}
+                                                                    ₹{{ number_format($halfYearlyAmounts[$index] ?? 0, 2) }}
                                                                 </td>
                                                             </tr>
                                                         @endforeach
-                                                    @endif
-                                                </tbody>
-                                            </table>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endif
+
+                            <!-- Previous Approvals Info -->
+                            <div class="form-row">
+                                <div class="form-field form-field-full">
+                                    <label class="form-label">Previous Approvals Information</label>
+                                    <div
+                                        style="background: rgba(76, 175, 80, 0.05); padding: 1rem; border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.2);">
+                                        <div class="form-row">
+                                            <div class="form-field">
+                                                <label class="form-label">Apex 1 Approval Remark</label>
+                                                <textarea class="form-input" readonly>{{ $user->workflowStatus->apex_1_approval_remarks ?? 'N/A' }}</textarea>
+                                            </div>
+                                            <div class="form-field">
+                                                <label class="form-label">Apex 1 Approval Date</label>
+                                                <input type="text" class="form-input"
+                                                    value="{{ $user->workflowStatus->apex_1_updated_at ? \Carbon\Carbon::parse($user->workflowStatus->apex_1_updated_at)->format('d M Y') : 'N/A' }}"
+                                                    readonly>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-field">
+                                                <label class="form-label">Chapter Approval Remark</label>
+                                                <textarea class="form-input" readonly>{{ $user->workflowStatus->chapter_approval_remarks ?? 'N/A' }}</textarea>
+                                            </div>
+                                            <div class="form-field">
+                                                <label class="form-label">Chapter Approval Date</label>
+                                                <input type="text" class="form-input"
+                                                    value="{{ $user->workflowStatus->chapter_updated_at ? \Carbon\Carbon::parse($user->workflowStatus->chapter_updated_at)->format('d M Y') : 'N/A' }}"
+                                                    readonly>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-field">
+                                                <label class="form-label">Total Expenses of Student</label>
+                                                <input type="text" class="form-input"
+                                                    value="₹{{ number_format($user->educationDetail->group_4_total ?? 0) }}"
+                                                    readonly>
+                                            </div>
+                                            <div class="form-field">
+                                                <label class="form-label">Recommended Financial Amount by Chapter</label>
+                                                <input type="text" class="form-input"
+                                                    value="₹{{ number_format($user->workflowStatus->chapter_assistance_amount ?? 0) }}"
+                                                    readonly>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            @endif
-                            @if ($workingCommitteeApproval->remarks_for_approval)
-                                <div class="form-row">
-                                    <div class="form-field form-field-full">
-                                        <label class="form-label">Remarks for Approval</label>
-                                        <textarea class="form-textarea" readonly>{{ $workingCommitteeApproval->remarks_for_approval }}</textarea>
-                                    </div>
-                                </div>
-                            @endif
+                            </div>
                         </div>
                     </div>
                 </div>

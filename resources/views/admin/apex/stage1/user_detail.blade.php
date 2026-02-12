@@ -816,6 +816,12 @@
             <p>{{ $user->mobile }}</p>
         </div>
     </div>
+    <div style="margin-left: auto;">
+                <a href="{{ route('admin.user.logs', ['user' => $user->id]) }}" class="back-btn"
+                    style="background-color: var(--primary-blue); color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                    <i class="fas fa-history"></i> Logs
+                </a>
+            </div>
      <div class="user-info-footer">
             <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}</p>
             <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type ?? 'N/A' }}</p>

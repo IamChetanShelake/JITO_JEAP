@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\UserRegisteredSuccessfullyMail;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use App\Traits\LogsUserActivity;
 
@@ -106,6 +108,12 @@ class RegisterController extends Controller
 
         $userData = array_merge($request->all(), $additionalData);
         $user = $this->create($userData);
+
+        try {
+            Mail::to($user->email)->send(new UserRegisteredSuccessfullyMail($user));
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         $this->guard()->login($user);
 

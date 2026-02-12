@@ -14,6 +14,7 @@ use App\Models\ReviewSubmit;
 use Illuminate\Http\Request;
 use App\Models\FundingDetail;
 use App\Models\Loan_category;
+use App\Mail\ApplicationSubmittedSuccessfullyMail;
 use Illuminate\Support\Carbon;
 use App\Models\EducationDetail;
 use App\Models\GuarantorDetail;
@@ -22,6 +23,7 @@ use App\Traits\LogsUserActivity;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use App\Models\ApplicationWorkflowStatus;
 
 
@@ -2856,6 +2858,12 @@ class UserController extends Controller
 
         // Get user for logging
         $user = User::find($user_id);
+
+        try {
+            Mail::to($user->email)->send(new ApplicationSubmittedSuccessfullyMail($user));
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         // Log step completion
         $this->logUserActivity(

@@ -60,6 +60,10 @@ return [
             'driver' => 'session',
             'provider' => 'chapter',
         ],
+        'accountant' => [
+            'driver' => 'session',
+            'provider' => 'accountant',
+        ],
     ],
 
     /*
@@ -107,6 +111,11 @@ return [
         'chapter' => [
             'driver' => 'eloquent',
             'model' => App\Models\Chapter::class,
+        ],
+
+        'accountant' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Accountant::class,
         ],
 
         // 'users' => [

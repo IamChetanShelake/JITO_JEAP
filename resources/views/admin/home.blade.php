@@ -952,7 +952,7 @@
                 $apex2resubmitted = \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
                                                 $q->where('apex_2_status', 'pending')->where('apex_2_reject_remarks', '!=','null');
                                             })->count();
-                $totalapex2 = $apex2approved + $apex2pending + $apex2sendback + $apex2resubmitted;  
+                $totalapex2 = $apex2approved + $apex2pending + $apex2sendback + $apex2resubmitted;
             @endphp
             <div class="col-lg-6">
                 @if (in_array($activeGuard, ['admin', 'apex']))
@@ -1043,7 +1043,7 @@
         <!-- Row 3: Accounts Department, Disbursement -->
         <div class="row g-3">
             <div class="col-lg-6">
-               @if (in_array($activeGuard, ['admin', 'apex']))
+               @if (in_array($activeGuard, ['admin','accountant']))
                     <!-- Accounts Department -->
                     <div class="approval-section">
                         <div class="approval-header">
@@ -1094,7 +1094,7 @@
                 @endif
             </div>
             <div class="col-lg-6">
-                @if (in_array($activeGuard, ['admin', 'apex']))
+                @if (in_array($activeGuard, ['admin','accountant']))
                     <!-- Repayment Summary -->
                     <div class="approval-section">
                         <div class="approval-header">

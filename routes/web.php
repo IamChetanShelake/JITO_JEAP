@@ -18,6 +18,7 @@ use App\Http\Controllers\PincodeController;
 use App\Http\Controllers\ApexLeadershipController;
 use App\Http\Controllers\WorkingCommitteeController;
 use App\Http\Controllers\InitiativeController;
+use App\Http\Controllers\AccountantController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -188,6 +189,9 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/repayments/user/{user}', [RepaymentController::class, 'show'])->name('repayments.show');
     Route::post('/repayments/user/{user}', [RepaymentController::class, 'store'])->name('repayments.store');
 
+    // Accountant Routes
+    Route::resource('accountants', AccountantController::class);
+
     // Donor Routes
     Route::resource('donors', DonorController::class);
     Route::get('/donor-dashboard', [DonorController::class, 'dashboard'])->name('donors.dashboard');
@@ -303,3 +307,4 @@ Route::middleware(['auth', 'user'])
         Route::get('/logs', [UserController::class, 'showUserLogs'])
             ->name('logs');
     });
+

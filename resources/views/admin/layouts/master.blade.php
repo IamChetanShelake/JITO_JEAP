@@ -683,6 +683,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.accountants') ? 'active' : '' }}"
+                                href="{{ route('admin.accountants.index') }}">
+                                <i class="fas fa-calculator"></i>
+                                <span class="nav-text">Accountants</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.zones') ? 'active' : '' }}"
                                 href="{{ route('admin.zones.index') }}">
                                 <i class="fas fa-globe"></i>
@@ -920,3 +927,4 @@
 </body>
 
 </html>
+

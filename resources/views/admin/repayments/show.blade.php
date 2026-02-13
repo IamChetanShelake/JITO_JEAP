@@ -233,13 +233,14 @@
                             <td>{{ strtoupper($repayment->payment_mode) }}</td>
                             <td>{{ $repayment->reference_number ?? '-' }}</td>
                             <td>
-                                @if($repayment->status === 'cleared')
+                                {{-- @if($repayment->status === 'cleared')
                                     <span class="status-badge status-cleared">Cleared</span>
                                 @elseif($repayment->status === 'bounced')
                                     <span class="status-badge status-bounced">Bounced</span>
                                 @else
                                     <span class="status-badge status-pending">Pending</span>
-                                @endif
+                                @endif --}}
+                                <span class="status-badge status-cleared">Paid</span>
                             </td>
                             <td>{{ $repayment->remarks ?? '-' }}</td>
                         </tr>

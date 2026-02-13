@@ -14,6 +14,7 @@ use App\Models\ReviewSubmit;
 use Illuminate\Http\Request;
 use App\Models\FundingDetail;
 use App\Models\Loan_category;
+use App\Mail\ApplicationSubmittedSuccessfullyMail;
 use Illuminate\Support\Carbon;
 use App\Models\EducationDetail;
 use App\Models\GuarantorDetail;
@@ -22,6 +23,7 @@ use App\Traits\LogsUserActivity;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use App\Models\ApplicationWorkflowStatus;
 
 
@@ -1315,12 +1317,6 @@ class UserController extends Controller
         // Check if all steps are submitted (no resubmit remaining)
         $this->checkAndUpdateWorkflowStatus();
 
-        // If application was rejected, move back to pending
-        $workflow = ApplicationWorkflowStatus::where('user_id', $user_id)->first();
-        if ($workflow && $workflow->apex_1_status == 'rejected') {
-            $workflow->update(['apex_1_status' => 'pending']);
-        }
-
         return redirect()->route('user.step4')->with('success', $message);
     }
 
@@ -1489,6 +1485,8 @@ class UserController extends Controller
             'submit_status' => 'submited',
         ];
 
+        $isResubmission = $this->isStepResubmission('step4');
+
         // Check if funding details already exist for this user
         $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
 
@@ -1504,8 +1502,6 @@ class UserController extends Controller
 
         // Get user for logging
         $user = User::find($user_id);
-        $isResubmission = $this->isStepResubmission('step4');
-
         // Log step completion
         $this->logUserActivity(
             processType: $isResubmission
@@ -1552,12 +1548,6 @@ class UserController extends Controller
 
         // Check if all steps are submitted (no resubmit remaining)
         $this->checkAndUpdateWorkflowStatus();
-        // If application was rejected, move back to pending
-        $workflow = ApplicationWorkflowStatus::where('user_id', $user_id)->first();
-        if ($workflow && $workflow->apex_1_status == 'rejected') {
-            $workflow->update(['apex_1_status' => 'pending']);
-        }
-
         return redirect()->route('user.step5')
             ->with('success', $message);
     }
@@ -2451,6 +2441,8 @@ class UserController extends Controller
             'g_two_income' => 'required|numeric|min:0',
         ]);
 
+        $isResubmission = $this->isStepResubmission('step5');
+
         // ================= DATA ARRAY =================
         $data = [
             'user_id' => $user_id,
@@ -2509,7 +2501,6 @@ class UserController extends Controller
         $user = User::find($user_id);
 
 
-        $isResubmission = $this->isStepResubmission('step5');
         $this->logUserActivity(
             processType: $isResubmission
                 ? 'step5_resubmission'
@@ -2623,6 +2614,7 @@ class UserController extends Controller
             $request->validate($rules);
 
             $user_id = Auth::id();
+            $isResubmission = $this->isStepResubmission('step6');
 
             $data = [
                 'user_id' => $user_id,
@@ -2679,8 +2671,6 @@ class UserController extends Controller
 
             // Get user for logging
             $user = User::find($user_id);
-
-            $isResubmission = $this->isStepResubmission('step6');
 
             // Log step completion
             $this->logUserActivity(
@@ -2796,6 +2786,7 @@ class UserController extends Controller
             $request->validate($rules);
 
             $user_id = Auth::id();
+            $isResubmission = $this->isStepResubmission('step6');
 
             $data = [
                 'user_id' => $user_id,
@@ -2854,9 +2845,6 @@ class UserController extends Controller
 
             // Get user for logging
             $user = User::find($user_id);
-
-            // Log step completion
-            $isResubmission = $this->isStepResubmission('step6');
 
             // Log step completion
             $this->logUserActivity(
@@ -2976,6 +2964,7 @@ class UserController extends Controller
             $request->validate($rules);
 
             $user_id = Auth::id();
+            $isResubmission = $this->isStepResubmission('step6');
 
             $data = [
                 'user_id' => $user_id,
@@ -3035,9 +3024,6 @@ class UserController extends Controller
 
             // Get user for logging
             $user = User::find($user_id);
-
-            // Log step completion
-            $isResubmission = $this->isStepResubmission('step6');
 
             // Log step completion
             $this->logUserActivity(
@@ -3136,6 +3122,11 @@ class UserController extends Controller
         // Get user for logging
         $user = User::find($user_id);
 
+        try {
+            Mail::to($user->email)->send(new ApplicationSubmittedSuccessfullyMail($user));
+        } catch (\Throwable $e) {
+            report($e);
+        }
         $isResubmission = $this->isStepResubmission('step7');
 
         // Log step completion

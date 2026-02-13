@@ -93,17 +93,24 @@ class UserController extends Controller
         $user = User::find($user_id);
         if ($user) {
             $this->logUserActivity(
-                'application_submission',
-                'submitted',
-                'User submitted loan application',
-                'application',
-                null,
-                null,
-                [
+                processType: 'Loan Category ' . $type . ' 1 lakh submitted',
+                processAction: 'Loan Category submitted',
+                processDescription: 'User submitted loan category selection for ' . $type . '1 lakh.',
+                module: 'loan Ctegory selection',
+                oldValues: null,
+                newValues: null,
+                additionalData: [
                     'user_id' => $user_id,
                     'loan_type' => $type
                 ],
-                $user_id
+
+                // 🎯 TARGET → Shivam
+                targetUserId: $user->id,
+
+                // 👮 ACTOR → Ramesh
+                actorId: $user->id,
+                actorName: $user->name,
+                actorRole: $user->role
             );
         }
 
@@ -127,41 +134,7 @@ class UserController extends Controller
 
     public function step1store(Request $request)
     {
-        // dd($request->all());
-        // $request->validate([
-        //     'name' => 'required|string|max:255',
-        //     'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        //     'financial_asset_type' => 'required|in:domestic,foreign_finance_assistant',
-        //     'financial_asset_for' => 'required|in:graduation,post_graduation',
-        //     'aadhar_card_number' => 'required|string|max:12',
-        //     'pan_card' => 'nullable|string|max:10',
-        //     'phone' => 'required|string|max:15',
-        //     'email' => 'required|email|max:255',
-        //     'alternate_phone' => 'nullable|string|max:15',
-        //     'address' => 'required|string',
-        //     'address1' => 'required|string',
-        //     'city' => 'required|string|max:100',
-        //     'district' => 'required|string|max:100',
-        //     'state' => 'required|string|max:100',
-        //     'pin_code' => 'required|digits:6',
-        //     'chapter' => 'required|string|max:100',
-        //     'nationality' => 'required|in:indian,foreigner',
-        //     'aadhar_address' => 'required|string',
-        //     'alternate_email' => 'nullable|email|max:255',
-        //     'd_o_b' => 'required|date_format:Y-m-d',
-        //     'birth_place' => 'required|string|max:100',
-        //     'gender' => 'required',
-        //     'age' => 'required|integer|min:18',
-        //     'marital_status' => 'required|in:married,unmarried',
-        //     'religion' => 'required|string|max:50',
-        //     'sub_cast' => 'required|string|max:50',
-        //     'blood_group' => 'required|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
-        //     'specially_abled' => 'required|in:yes,no',
-        // ]);
-
-        // dd($request->all());
-
-        $user = User::find(Auth::user()->id);
+        $user = Auth::user();
         $request->validate([
             'name' => 'required|string|max:255',
             // 'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -215,7 +188,7 @@ class UserController extends Controller
             'specially_abled' => 'required|in:yes,no',
         ]);
 
-
+        $isResubmission = $this->isStepResubmission('step1');
 
         $data = [
             'name' => $request->name,
@@ -263,13 +236,21 @@ class UserController extends Controller
         // Log step completion
         if ($user) {
             $this->logUserActivity(
-                'step1_completion',
-                'completed',
-                'User submitted Personal Details step1',
-                'application',
-                null,
-                null,
-                [
+                processType: $isResubmission
+                    ? 'step1_resubmission'
+                    : 'step1_completion',
+
+                processAction: $isResubmission
+                    ? 'resubmitted'
+                    : 'completed',
+
+                processDescription: $isResubmission
+                    ? 'User resubmitted Personal Details after correction'
+                    : 'User submitted Personal Details step1',
+                module: 'application',
+                oldValues: null,
+                newValues: null,
+                additionalData: [
                     'user_id' => $user->id,
                     'user_name' => $user->name,
                     'user_email' => $user->email,
@@ -284,7 +265,14 @@ class UserController extends Controller
                     'chapter' => $request->chapter,
                     'nationality' => $request->nationality
                 ],
-                $user->id
+
+                // 🎯 TARGET → Shivam
+                targetUserId: $user->id,
+
+                // 👮 ACTOR → Ramesh
+                actorId: $user->id,
+                actorName: $user->name,
+                actorRole: $user->role
             );
         }
 
@@ -366,61 +354,63 @@ class UserController extends Controller
             'group_1_year1' => 'nullable|numeric|min:0',
             'group_1_year2' => 'nullable|numeric|min:0',
             'group_1_year3' => 'nullable|numeric|min:0',
-            'group_1_year4' => 'nullable|numeric|min:0',
-            'group_1_year5' => 'nullable|numeric|min:0',
-            'group_2_year1' => 'nullable|numeric|min:0',
-            'group_2_year2' => 'nullable|numeric|min:0',
-            'group_2_year3' => 'nullable|numeric|min:0',
-            'group_2_year4' => 'nullable|numeric|min:0',
-            'group_2_year5' => 'nullable|numeric|min:0',
-            'group_3_year1' => 'nullable|numeric|min:0',
-            'group_3_year2' => 'nullable|numeric|min:0',
-            'group_3_year3' => 'nullable|numeric|min:0',
-            'group_3_year4' => 'nullable|numeric|min:0',
-            'group_3_year5' => 'nullable|numeric|min:0',
-            'group_4_year1' => 'nullable|numeric|min:0',
-            'group_4_year2' => 'nullable|numeric|min:0',
-            'group_4_year3' => 'nullable|numeric|min:0',
-            'group_4_year4' => 'nullable|numeric|min:0',
-            'group_4_year5' => 'nullable|numeric|min:0',
+            'group_1_year4' => 'nullable|numeric/min:0',
+            'group_1_year5' => 'nullable|numeric/min:0',
+            'group_2_year1' => 'nullable|numeric/min:0',
+            'group_2_year2' => 'nullable|numeric/min:0',
+            'group_2_year3' => 'nullable|numeric/min:0',
+            'group_2_year4' => 'nullable|numeric/min:0',
+            'group_2_year5' => 'nullable|numeric/min:0',
+            'group_3_year1' => 'nullable|numeric/min:0',
+            'group_3_year2' => 'nullable|numeric/min:0',
+            'group_3_year3' => 'nullable|numeric/min:0',
+            'group_3_year4' => 'nullable|numeric/min:0',
+            'group_3_year5' => 'nullable|numeric/min:0',
+            'group_4_year1' => 'nullable|numeric/min:0',
+            'group_4_year2' => 'nullable|numeric/min:0',
+            'group_4_year3' => 'nullable|numeric/min:0',
+            'group_4_year4' => 'nullable|numeric/min:0',
+            'group_4_year5' => 'nullable|numeric/min:0',
 
             // School / 10th Grade Information
-            'school_name' => 'required|string|max:255',
-            'school_board' => 'required|string|max:100',
-            'school_completion_year' => 'required|string|max:50',
+            'school_name' => 'required|string/max:255',
+            'school_board' => 'required|string/max:100',
+            'school_completion_year' => 'required|string/max:50',
             'school_grade_system' => 'required',
 
             // Junior College (12th Grade)
-            'jc_college_name' => 'required|string|max:255',
-            'jc_stream' => 'required|string|max:100',
-            'jc_board' => 'required|string|max:100',
-            'jc_completion_year' => 'required|string|max:50',
+            'jc_college_name' => 'required|string/max:255',
+            'jc_stream' => 'required|string/max:100',
+            'jc_board' => 'required|string/max:100',
+            'jc_completion_year' => 'required|string/max:50',
             'jc_grade_system' => 'required',
         ];
 
         // Conditional validation based on school_grade_system
         if ($request->school_grade_system == 'percentage') {
-            $rules['10th_mark_obtained'] = 'required|integer|min:0';
-            $rules['10th_mark_out_of'] = 'required|integer|min:0';
-            $rules['school_percentage'] = 'required|string|max:50';
+            $rules['10th_mark_obtained'] = 'required|integer/min:0';
+            $rules['10th_mark_out_of'] = 'required|integer/min:0';
+            $rules['school_percentage'] = 'required|string/max:50';
         } elseif ($request->school_grade_system == 'cgpa') {
             $rules['school_cgpa_out_of'] = 'required';
-            $rules['school_CGPA'] = 'required|string|max:50';
+            $rules['school_CGPA'] = 'required|string/max:50';
         }
 
         // Conditional validation based on jc_grade_system
         if ($request->jc_grade_system == 'percentage') {
-            $rules['12th_mark_obtained'] = 'required|integer|min:0';
-            $rules['12th_mark_out_of'] = 'required|integer|min:0';
-            $rules['jc_percentage'] = 'required|string|max:50';
+            $rules['12th_mark_obtained'] = 'required|integer/min:0';
+            $rules['12th_mark_out_of'] = 'required|integer/min:0';
+            $rules['jc_percentage'] = 'required|string/max:50';
         } elseif ($request->jc_grade_system == 'cgpa') {
             $rules['jc_cgpa_out_of'] = 'required';
-            $rules['jc_CGPA'] = 'required|string|max:50';
+            $rules['jc_CGPA'] = 'required|string/max:50';
         }
 
         $request->validate($rules);
 
         $user_id = Auth::id();
+
+        $isResubmission = $this->isStepResubmission('step2');
 
         $data = [
             'user_id' => $user_id,
@@ -508,13 +498,21 @@ class UserController extends Controller
 
         // Log step completion
         $this->logUserActivity(
-            'step_completion',
-            'completed',
-            'User submitted Education Details step',
-            'application',
-            null,
-            null,
-            [
+            processType: $isResubmission
+                ? 'step2_resubmission'
+                : 'step2_completion',
+
+            processAction: $isResubmission
+                ? 'resubmitted'
+                : 'completed',
+
+            processDescription: $isResubmission
+                ? 'User resubmitted Education Details after correction'
+                : 'User submitted Education Details step2',
+            module: 'application',
+            oldValues: null,
+            newValues: null,
+            additionalData: [
                 'user_id' => $user->id,
                 'user_name' => $user->name,
                 'user_email' => $user->email,
@@ -533,8 +531,17 @@ class UserController extends Controller
                 'jc_stream' => $request->jc_stream,
                 'jc_board' => $request->jc_board
             ],
-            $user->id
+
+            // 🎯 TARGET → Shivam
+            targetUserId: $user->id,
+
+            // 👮 ACTOR → Ramesh
+            actorId: $user->id,
+            actorName: $user->name,
+            actorRole: $user->role
         );
+        // Check if all steps are submitted (no resubmit remaining)
+        $this->checkAndUpdateWorkflowStatus();
 
         return redirect()->route('user.step3')->with('success', $message);
     }
@@ -654,6 +661,7 @@ class UserController extends Controller
         $request->validate($rules);
 
         $user_id = Auth::id();
+        $isResubmission = $this->isStepResubmission('step2');
 
         $data = [
             'user_id' => $user_id,
@@ -736,6 +744,7 @@ class UserController extends Controller
             'percentage' => json_encode($request->percentage),
             'cgpa' => json_encode($request->cgpa),
 
+
             // Work Experience
             'have_work_experience' => $request->have_work_experience,
             'organization_name' => $request->organization_name,
@@ -766,9 +775,58 @@ class UserController extends Controller
             $message = 'Education details saved successfully!';
         }
 
+
+
+
+        // Get user for logging
+        $user = User::find($user_id);
+
+        $this->logUserActivity(
+            processType: $isResubmission
+                ? 'step2_resubmission'
+                : 'step2_completion',
+
+            processAction: $isResubmission
+                ? 'resubmitted'
+                : 'completed',
+
+            processDescription: $isResubmission
+                ? 'User resubmitted Education Details after correction'
+                : 'User submitted Education Details step2',
+            module: 'application',
+            oldValues: null,
+            newValues: null,
+            additionalData: [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'user_email' => $user->email,
+                'step' => 'step2',
+                'step_name' => 'Education Details',
+                'course_name' => $request->course_name,
+                'university_name' => $request->university_name,
+                'college_name' => $request->college_name,
+                'country' => $request->country,
+                'city_name' => $request->city_name,
+                'start_year' => $request->start_year,
+                'expected_year' => $request->expected_year,
+                'school_name' => $request->school_name,
+                'school_board' => $request->school_board,
+                'jc_college_name' => $request->jc_college_name,
+                'jc_stream' => $request->jc_stream,
+                'jc_board' => $request->jc_board
+            ],
+
+            // 🎯 TARGET → Shivam
+            targetUserId: $user->id,
+
+            // 👮 ACTOR → Ramesh
+            actorId: $user->id,
+            actorName: $user->name,
+            actorRole: $user->role
+        );
+
         // Check if all steps are submitted (no resubmit remaining)
         $this->checkAndUpdateWorkflowStatus();
-
         return redirect()->route('user.step3')->with('success', $message);
     }
 
@@ -891,6 +949,8 @@ class UserController extends Controller
 
         $user_id = Auth::id();
 
+        $isResubmission = $this->isStepResubmission('step2');
+
         $data = [
             'user_id' => $user_id,
 
@@ -941,6 +1001,7 @@ class UserController extends Controller
             '10th_mark_out_of' => $request->input('10th_mark_out_of'),
             'school_percentage' => $request->school_percentage,
             'school_CGPA' => $request->school_CGPA,
+            'school_cgpa_out_of' => $request->school_cgpa_out_of,
 
             // Junior College (12th Grade)
             'jc_college_name' => $request->jc_college_name,
@@ -952,6 +1013,7 @@ class UserController extends Controller
             '12th_mark_out_of' => $request->input('12th_mark_out_of'),
             'jc_percentage' => $request->jc_percentage,
             'jc_CGPA' => $request->jc_CGPA,
+            'jc_cgpa_out_of' => $request->jc_cgpa_out_of,
 
             // Completed Qualifications
             'qualifications' => $request->qualifications,
@@ -1006,8 +1068,59 @@ class UserController extends Controller
             $message = 'Education details saved successfully!';
         }
 
+
+
+        // Get user for logging
+        $user = User::find($user_id);
+
+        // Log step completion
+        $this->logUserActivity(
+            processType: $isResubmission
+                ? 'step2_resubmission'
+                : 'step2_completion',
+
+            processAction: $isResubmission
+                ? 'resubmitted'
+                : 'completed',
+
+            processDescription: $isResubmission
+                ? 'User resubmitted Education Details after correction'
+                : 'User submitted Education Details step2',
+            module: 'application',
+            oldValues: null,
+            newValues: null,
+            additionalData: [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'user_email' => $user->email,
+                'step' => 'step2',
+                'step_name' => 'Education Details',
+                'course_name' => $request->course_name,
+                'university_name' => $request->university_name,
+                'college_name' => $request->college_name,
+                'country' => $request->country,
+                'city_name' => $request->city_name,
+                'start_year' => $request->start_year,
+                'expected_year' => $request->expected_year,
+                'school_name' => $request->school_name,
+                'school_board' => $request->school_board,
+                'jc_college_name' => $request->jc_college_name,
+                'jc_stream' => $request->jc_stream,
+                'jc_board' => $request->jc_board
+            ],
+
+            // 🎯 TARGET → Shivam
+            targetUserId: $user->id,
+
+            // 👮 ACTOR → Ramesh
+            actorId: $user->id,
+            actorName: $user->name,
+            actorRole: $user->role
+        );
+
         // Check if all steps are submitted (no resubmit remaining)
         $this->checkAndUpdateWorkflowStatus();
+
 
         return redirect()->route('user.step3')->with('success', $message);
     }
@@ -1089,6 +1202,8 @@ class UserController extends Controller
 
         $user_id = Auth::id();
 
+        $isResubmission = $this->isStepResubmission('step3');
+
         // Collect additional family members from dynamic table
         $additional_family_members = [];
         $i = 1;
@@ -1157,13 +1272,21 @@ class UserController extends Controller
 
         // Log step completion
         $this->logUserActivity(
-            'step_completion',
-            'completed',
-            'User submitted Family Details step',
-            'application',
-            null,
-            null,
-            [
+            processType: $isResubmission
+                ? 'step3_resubmission'
+                : 'step3_completion',
+
+            processAction: $isResubmission
+                ? 'resubmitted'
+                : 'completed',
+
+            processDescription: $isResubmission
+                ? 'User resubmitted Family Details after correction'
+                : 'User submitted Family Details step3',
+            module: 'application',
+            oldValues: null,
+            newValues: null,
+            additionalData: [
                 'user_id' => $user->id,
                 'user_name' => $user->name,
                 'user_email' => $user->email,
@@ -1179,8 +1302,18 @@ class UserController extends Controller
                 'total_monthly_emi' => $request->total_monthly_emi,
                 'mediclaim_insurance_amount' => $request->mediclaim_insurance_amount
             ],
-            $user->id
+
+            // 🎯 TARGET → Shivam
+            targetUserId: $user->id,
+
+            // 👮 ACTOR → Ramesh
+            actorId: $user->id,
+            actorName: $user->name,
+            actorRole: $user->role
         );
+
+        // Check if all steps are submitted (no resubmit remaining)
+        $this->checkAndUpdateWorkflowStatus();
 
         // If application was rejected, move back to pending
         $workflow = ApplicationWorkflowStatus::where('user_id', $user_id)->first();
@@ -1268,14 +1401,6 @@ class UserController extends Controller
             // Sibling Assistance
             'sibling_assistance' => 'required|in:yes,no',
 
-            // 'sibling_name' => 'required_if:sibling_assistance,yes|string|max:255',
-            // 'sibling_number' => 'required_if:sibling_assistance,yes|string|max:255',
-            // 'sibling_ngo_name' => 'required_if:sibling_assistance,yes|string|max:255',
-            // 'ngo_number' => 'required_if:sibling_assistance,yes|string|max:15',
-            // 'sibling_loan_status' => 'required_if:sibling_assistance,yes|string|max:255',
-            // 'sibling_applied_year' => 'required_if:sibling_assistance,yes|string|max:255',
-            // 'sibling_applied_amount' => 'required_if:sibling_assistance,yes|numeric|min:0',
-
             'sibling_name' => 'nullable|required_if:sibling_assistance,yes|string|max:255',
             'sibling_number' => 'nullable|required_if:sibling_assistance,yes|string|max:255',
             'sibling_ngo_name' => 'nullable|required_if:sibling_assistance,yes|string|max:255',
@@ -1283,7 +1408,6 @@ class UserController extends Controller
             'sibling_loan_status' => 'nullable|required_if:sibling_assistance,yes|string|max:255',
             'sibling_applied_year' => 'nullable|required_if:sibling_assistance,yes|string|max:255',
             'sibling_applied_amount' => 'nullable|required_if:sibling_assistance,yes|numeric|min:0',
-
 
             // Bank Details
             'bank_name' => 'required|string|max:255',
@@ -1300,8 +1424,11 @@ class UserController extends Controller
             return $row['amount'] ?? 0;
         });
 
+        $user_id = Auth::id();
+
+
         $data = [
-            'user_id' => Auth::id(),
+            'user_id' => $user_id,
 
             // Own Family Funding (Row 0)
             'family_funding_status'  => $funding[0]['status'] ?? null,
@@ -1363,7 +1490,7 @@ class UserController extends Controller
         ];
 
         // Check if funding details already exist for this user
-        $fundingDetail = FundingDetail::where('user_id', Auth::id())->first();
+        $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
 
         if ($fundingDetail) {
             // Update existing record
@@ -1376,17 +1503,26 @@ class UserController extends Controller
         }
 
         // Get user for logging
-        $user = User::find(Auth::id());
+        $user = User::find($user_id);
+        $isResubmission = $this->isStepResubmission('step4');
 
         // Log step completion
         $this->logUserActivity(
-            'step_completion',
-            'completed',
-            'User submitted Funding Details step',
-            'application',
-            null,
-            null,
-            [
+            processType: $isResubmission
+                ? 'step4_resubmission'
+                : 'step4_completion',
+
+            processAction: $isResubmission
+                ? 'resubmitted'
+                : 'completed',
+
+            processDescription: $isResubmission
+                ? 'User resubmitted Funding Details after correction'
+                : 'User submitted Funding Details step4',
+            module: 'application',
+            oldValues: null,
+            newValues: null,
+            additionalData: [
                 'user_id' => $user->id,
                 'user_name' => $user->name,
                 'user_email' => $user->email,
@@ -1404,11 +1540,20 @@ class UserController extends Controller
                 'account_number' => $request->account_number,
                 'ifsc_code' => $request->ifsc_code
             ],
-            $user->id
+
+            // 🎯 TARGET → Shivam
+            targetUserId: $user->id,
+
+            // 👮 ACTOR → Ramesh
+            actorId: $user->id,
+            actorName: $user->name,
+            actorRole: $user->role
         );
 
+        // Check if all steps are submitted (no resubmit remaining)
+        $this->checkAndUpdateWorkflowStatus();
         // If application was rejected, move back to pending
-        $workflow = ApplicationWorkflowStatus::where('user_id', Auth::id())->first();
+        $workflow = ApplicationWorkflowStatus::where('user_id', $user_id)->first();
         if ($workflow && $workflow->apex_1_status == 'rejected') {
             $workflow->update(['apex_1_status' => 'pending']);
         }
@@ -2350,6 +2495,7 @@ class UserController extends Controller
             'submit_status' => 'submited',
         ];
 
+
         // ================= SAVE / UPDATE =================
         if ($guarantorDetail) {
             $guarantorDetail->update($data);
@@ -2362,14 +2508,24 @@ class UserController extends Controller
         // ================= LOG ACTIVITY =================
         $user = User::find($user_id);
 
+
+        $isResubmission = $this->isStepResubmission('step5');
         $this->logUserActivity(
-            'step_completion',
-            'completed',
-            'User submitted Guarantor Details step',
-            'application',
-            null,
-            null,
-            [
+            processType: $isResubmission
+                ? 'step5_resubmission'
+                : 'step5_completion',
+
+            processAction: $isResubmission
+                ? 'resubmitted'
+                : 'completed',
+
+            processDescription: $isResubmission
+                ? 'User resubmitted Guarantor Details after correction'
+                : 'User submitted Guarantor Details step5',
+            module: 'application',
+            oldValues: null,
+            newValues: null,
+            additionalData: [
                 'user_id' => $user->id,
                 'user_name' => $user->name,
                 'user_email' => $user->email,
@@ -2380,7 +2536,14 @@ class UserController extends Controller
                 'g_two_phone' => $request->g_two_phone,
                 'g_two_email' => $request->g_two_email,
             ],
-            $user->id
+
+            // 🎯 TARGET → Shivam
+            targetUserId: $user->id,
+
+            // 👮 ACTOR → Ramesh
+            actorId: $user->id,
+            actorName: $user->name,
+            actorRole: $user->role
         );
 
         // ================= WORKFLOW STATUS =================
@@ -2517,15 +2680,25 @@ class UserController extends Controller
             // Get user for logging
             $user = User::find($user_id);
 
+            $isResubmission = $this->isStepResubmission('step6');
+
             // Log step completion
             $this->logUserActivity(
-                'step_completion',
-                'completed',
-                'User submitted Document Upload step',
-                'application',
-                null,
-                null,
-                [
+                processType: $isResubmission
+                    ? 'step6_resubmission'
+                    : 'step6_completion',
+
+                processAction: $isResubmission
+                    ? 'resubmitted'
+                    : 'completed',
+
+                processDescription: $isResubmission
+                    ? 'User resubmitted Document Upload after correction'
+                    : 'User submitted Document Upload step6',
+                module: 'application',
+                oldValues: null,
+                newValues: null,
+                additionalData: [
                     'user_id' => $user->id,
                     'user_name' => $user->name,
                     'user_email' => $user->email,
@@ -2538,8 +2711,18 @@ class UserController extends Controller
                         return strpos($key, '_') !== false && !in_array($key, ['user_id', 'status', 'submit_status']);
                     }, ARRAY_FILTER_USE_KEY))
                 ],
-                $user->id
+
+                // 🎯 TARGET → Shivam
+                targetUserId: $user->id,
+
+                // 👮 ACTOR → Ramesh
+                actorId: $user->id,
+                actorName: $user->name,
+                actorRole: $user->role
             );
+
+            // Check if all steps are submitted (no resubmit remaining)
+            $this->checkAndUpdateWorkflowStatus();
 
             Log::info('Step6Store: Document created successfully', ['user_id' => $user_id, 'document_id' => Document::latest()->first()->id]);
 
@@ -2666,6 +2849,54 @@ class UserController extends Controller
                 Document::create($data);
                 $message = 'Documents uploaded successfully!';
             }
+
+
+
+            // Get user for logging
+            $user = User::find($user_id);
+
+            // Log step completion
+            $isResubmission = $this->isStepResubmission('step6');
+
+            // Log step completion
+            $this->logUserActivity(
+                processType: $isResubmission
+                    ? 'step6_resubmission'
+                    : 'step6_completion',
+
+                processAction: $isResubmission
+                    ? 'resubmitted'
+                    : 'completed',
+
+                processDescription: $isResubmission
+                    ? 'User resubmitted Document Upload after correction'
+                    : 'User submitted Document Upload step6',
+                module: 'application',
+                oldValues: null,
+                newValues: null,
+                additionalData: [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'user_email' => $user->email,
+                    'step' => 'step6',
+                    'step_name' => 'Document Upload',
+                    'documents_uploaded' => array_keys(array_filter($data, function ($key) {
+                        return strpos($key, '_') !== false && !in_array($key, ['user_id', 'status', 'submit_status']);
+                    }, ARRAY_FILTER_USE_KEY)),
+                    'total_documents' => count(array_filter($data, function ($key) {
+                        return strpos($key, '_') !== false && !in_array($key, ['user_id', 'status', 'submit_status']);
+                    }, ARRAY_FILTER_USE_KEY))
+                ],
+
+                // 🎯 TARGET → Shivam
+                targetUserId: $user->id,
+
+                // 👮 ACTOR → Ramesh
+                actorId: $user->id,
+                actorName: $user->name,
+                actorRole: $user->role
+            );
+
 
             Log::info('Step6Store: Document created successfully', ['user_id' => $user_id, 'document_id' => Document::latest()->first()->id]);
 
@@ -2801,6 +3032,54 @@ class UserController extends Controller
                 $message = 'Documents uploaded successfully!';
             }
 
+
+            // Get user for logging
+            $user = User::find($user_id);
+
+            // Log step completion
+            $isResubmission = $this->isStepResubmission('step6');
+
+            // Log step completion
+            $this->logUserActivity(
+                processType: $isResubmission
+                    ? 'step6_resubmission'
+                    : 'step6_completion',
+
+                processAction: $isResubmission
+                    ? 'resubmitted'
+                    : 'completed',
+
+                processDescription: $isResubmission
+                    ? 'User resubmitted Document Upload after correction'
+                    : 'User submitted Document Upload step6',
+                module: 'application',
+                oldValues: null,
+                newValues: null,
+                additionalData: [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'user_email' => $user->email,
+                    'step' => 'step6',
+                    'step_name' => 'Document Upload',
+                    'documents_uploaded' => array_keys(array_filter($data, function ($key) {
+                        return strpos($key, '_') !== false && !in_array($key, ['user_id', 'status', 'submit_status']);
+                    }, ARRAY_FILTER_USE_KEY)),
+                    'total_documents' => count(array_filter($data, function ($key) {
+                        return strpos($key, '_') !== false && !in_array($key, ['user_id', 'status', 'submit_status']);
+                    }, ARRAY_FILTER_USE_KEY))
+                ],
+
+                // 🎯 TARGET → Shivam
+                targetUserId: $user->id,
+
+                // 👮 ACTOR → Ramesh
+                actorId: $user->id,
+                actorName: $user->name,
+                actorRole: $user->role
+            );
+            // Check if all steps are submitted (no resubmit remaining)
+            $this->checkAndUpdateWorkflowStatus();
+
             Log::info('Step6Store: Document created successfully', ['user_id' => $user_id, 'document_id' => Document::latest()->first()->id]);
 
             return redirect()->route('user.step7')->with('success', $message);
@@ -2857,15 +3136,25 @@ class UserController extends Controller
         // Get user for logging
         $user = User::find($user_id);
 
+        $isResubmission = $this->isStepResubmission('step7');
+
         // Log step completion
         $this->logUserActivity(
-            'step_completion',
-            'completed',
-            'User submitted Review & Submit step',
-            'application',
-            null,
-            null,
-            [
+            processType: $isResubmission
+                ? 'Application_resubmission'
+                : 'Application_submission',
+
+            processAction: $isResubmission
+                ? 'resubmitted'
+                : 'completed',
+
+            processDescription: $isResubmission
+                ? 'User resubmitted Application after correction'
+                : 'User submitted the Application',
+            module: 'application',
+            oldValues: null,
+            newValues: null,
+            additionalData: [
                 'user_id' => $user->id,
                 'user_name' => $user->name,
                 'user_email' => $user->email,
@@ -2875,7 +3164,14 @@ class UserController extends Controller
                 'workflow_stage' => 'apex_1',
                 'final_status' => 'in_progress'
             ],
-            $user->id
+
+            // 🎯 TARGET → Shivam
+            targetUserId: $user->id,
+
+            // 👮 ACTOR → Ramesh
+            actorId: $user->id,
+            actorName: $user->name,
+            actorRole: $user->role
         );
 
         // Set both success message for SweetAlert2 and step7_submitted flag
@@ -3137,6 +3433,36 @@ class UserController extends Controller
         if (!$hasResubmit) {
             $workflow = ApplicationWorkflowStatus::where('user_id', $userId)->first();
             if ($workflow && $workflow->apex_1_status == 'rejected') {
+                // Log the workflow status update
+                $user = User::find($userId);
+                if ($user) {
+                    $this->logUserActivity(
+                        processType: 'Workflow Status Update',
+                        processAction: 'Updated',
+                        processDescription: 'User resubmitted all steps, workflow status changed from rejected to pending',
+                        module: 'application',
+                        oldValues: ['apex_1_status' => 'rejected'],
+                        newValues: ['apex_1_status' => 'pending'],
+                        additionalData: [
+                            'user_id' => $user->id,
+                            'user_name' => $user->name,
+                            'user_email' => $user->email,
+                            'workflow_id' => $workflow->id,
+                            'previous_status' => 'rejected',
+                            'new_status' => 'pending',
+                            'reason' => 'All steps resubmitted successfully'
+                        ],
+
+                        // 🎯 TARGET → Shivam
+                        targetUserId: $user->id,
+
+                        // 👮 ACTOR → Ramesh
+                        actorId: $user->id,
+                        actorName: $user->name,
+                        actorRole: $user->role
+                    );
+                }
+
                 $workflow->update(['apex_1_status' => 'pending']);
             }
         }
@@ -3150,5 +3476,29 @@ class UserController extends Controller
             ->paginate(20);
 
         return view('user.logs', compact('logs'));
+    }
+
+
+
+    private function isStepResubmission(string $step): bool
+    {
+        $userId = Auth::id();
+
+        // Step-wise submit_status mapping
+        $stepStatusMap = [
+            'step1' => Auth::user()->submit_status,
+            'step2' => EducationDetail::where('user_id', $userId)->first()?->submit_status,
+            'step3' => Familydetail::where('user_id', $userId)->first()?->submit_status,
+            'step4' => FundingDetail::where('user_id', $userId)->first()?->submit_status,
+            'step5' => GuarantorDetail::where('user_id', $userId)->first()?->submit_status,
+            'step6' => Document::where('user_id', $userId)->first()?->submit_status,
+        ];
+
+        $workflow = ApplicationWorkflowStatus::where('user_id', $userId)->first();
+
+        return ($stepStatusMap[$step] ?? null) === 'resubmit'
+            && $workflow
+            && $workflow->apex_1_status === 'rejected'
+            && !empty($workflow->apex_1_reject_remarks);
     }
 }

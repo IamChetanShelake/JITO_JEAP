@@ -2,22 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Http\Controllers\Controller;
+use App\Models\ApplicationWorkflowStatus;
 use App\Models\Chapter;
-use App\Models\PdcDetail;
-use Illuminate\Http\Request;
+use App\Models\ChapterInterviewAnswer;
 use App\Models\EducationDetail;
+use App\Models\Logs;
+use App\Models\PdcDetail;
+use App\Models\User;
+use App\Traits\LogsUserActivity;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
-use App\Models\ChapterInterviewAnswer;
-use App\Models\ApplicationWorkflowStatus;
-use App\Models\Logs;
-use App\Traits\LogsUserActivity;
+
 
 class AdminController extends Controller
 {
+    use LogsUserActivity;
     public function index(Request $request)
     {
         // Calculate disbursement counts for dashboard
@@ -339,11 +342,14 @@ class AdminController extends Controller
         $workflow->update($updateData);
 
         // Log admin action
-        $this->logAdminAction(
-            Auth::user(),
-            'approve_stage',
-            "Approved {$stage} stage for user {$user->name} (ID: {$user->id})",
-            [
+        $this->logUserActivity(
+            processType: "{$stage}_approval",
+            processAction: 'approved',
+            processDescription: $request->admin_remark ?? 'No remarks',
+            module: "{$stage}_action",
+            oldValues: null,
+            newValues: null,
+            additionalData: [
                 'user_id' => $user->id,
                 'user_name' => $user->name,
                 'stage' => $stage,
@@ -351,8 +357,17 @@ class AdminController extends Controller
                 'apex_staff_remark' => $request->apex_staff_remark,
                 'previous_stage' => $workflow->current_stage,
                 'new_stage' => $updateData['current_stage'] ?? $workflow->current_stage
-            ]
+            ],
+
+            // 🎯 TARGET → Shivam
+            targetUserId: $user->id,
+
+            // 👮 ACTOR → Ramesh
+            actorId: Auth::id(),
+            actorName: Auth::user()->name,
+            actorRole: Auth::user()->role
         );
+
 
         return back()->with(
             'success',
@@ -362,6 +377,30 @@ class AdminController extends Controller
 
     public function approveWorkingCommittee(Request $request, User $user, $stage)
     {
+
+        // // Log the approval attempt
+        // $this->logUserActivity(
+        //     'Working_Committee_Approval',
+        //     'started',
+        //     'Admin started working committee approval process',
+        //     'admin_action',
+        //     null,
+        //     null,
+        //     [
+        //         'user_id' => $user->id,
+        //         'user_name' => $user->name,
+        //         'user_email' => $user->email,
+        //         'stage' => $stage,
+        //         'admin_id' => Auth::id(),
+        //         'admin_name' => Auth::user()->name,
+        //         'admin_email' => Auth::user()->email,
+        //         'request_data' => $request->except(['_token']), // Exclude sensitive data
+        //         'ip_address' => $request->ip(),
+        //         'user_agent' => $request->userAgent(),
+        //     ],
+        //     Auth::id()
+        // );
+
         // Validation for working committee specific fields
         //  dd($request->all());
         $rules = [
@@ -473,19 +512,63 @@ class AdminController extends Controller
                 'approval_status' => 'approved',
             ]);
 
-            Log::info('Working Committee Approval Created Successfully', [
-                'user_id' => $user->id,
-                'approval_id' => $workingCommitteeApproval->id,
-                'connection' => $workingCommitteeApproval->getConnectionName(),
-            ]);
+            $this->logUserActivity(
+                processType: 'Working_Committee_Approval',
+                processAction: 'approved',
+                processDescription: $request->w_c_approval_remark ?? 'No remarks',
+                module: 'working_committee_approval',
+                oldValues: null,
+                newValues: null,
+                additionalData: [
+                    'approval_id' => $workingCommitteeApproval->id,
+                    'stage' => $stage,
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'admin_remark' => $request->w_c_approval_remark,
+                    'previous_stage' => $workflow->current_stage,
+                    'new_stage' => 'apex_2'
+                ],
+
+                // 🎯 TARGET → Shivam
+                targetUserId: $user->id,
+
+                // 👮 ACTOR → Ramesh
+                actorId: Auth::id(),
+                actorName: Auth::user()->name,
+                actorRole: Auth::user()->role
+            );
+
+
+
 
             return back()->with('success', 'Working Committee approval completed successfully');
         } catch (\Exception $e) {
-            Log::error('Working Committee Approval Creation Failed', [
-                'user_id' => $user->id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
+            // Log approval creation failure
+            $this->logUserActivity(
+                processType: 'Working_Committee_Approval_Failed',
+                processAction: 'failed',
+                processDescription: 'Working Committee approval creation failed',
+                module: 'admin_action',
+                oldValues: null,
+                newValues: null,
+                additionalData: [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'stage' => $stage,
+                    'admin_id' => Auth::id(),
+                    'admin_name' => Auth::user()->name,
+                    'error' => $e->getMessage(),
+                    'request_data' => $request->except(['_token']),
+                ],
+
+                // 🎯 TARGET → Shivam
+                targetUserId: $user->id,
+
+                // 👮 ACTOR → Ramesh
+                actorId: Auth::id(),
+                actorName: Auth::user()->name,
+                actorRole: Auth::user()->role
+            );
 
             return back()->with('error', 'Failed to save working committee approval data: ' . $e->getMessage());
         }
@@ -547,11 +630,14 @@ class AdminController extends Controller
             }
 
             // Log admin action
-            $this->logAdminAction(
-                Auth::user(),
-                'reject_stage_apex_2',
-                "Rejected Apex Stage 2 for user {$user->name} (ID: {$user->id}) - sent for correction",
-                [
+            $this->logUserActivity(
+                processType: ucfirst(str_replace('_', ' ', $stage)) . ' Send Back for Correction',
+                processAction: 'Send Back For Correction',
+                processDescription: $request->admin_remark ?? 'No remarks',
+                module: $stage . '_action',
+                oldValues: null,
+                newValues: null,
+                additionalData: [
                     'user_id' => $user->id,
                     'user_name' => $user->name,
                     'stage' => $stage,
@@ -559,7 +645,15 @@ class AdminController extends Controller
                     'previous_stage' => $workflow->current_stage,
                     'new_stage' => 'apex_2',
                     'final_status' => 'in_progress'
-                ]
+                ],
+
+                // 🎯 TARGET → Shivam
+                targetUserId: $user->id,
+
+                // 👮 ACTOR → Ramesh
+                actorId: Auth::id(),
+                actorName: Auth::user()->name,
+                actorRole: Auth::user()->role
             );
 
             return back()->with(
@@ -622,21 +716,60 @@ class AdminController extends Controller
                 // Keep final_status as 'in_progress' for resubmission
             ]);
 
+            // // Log admin action
+            // $this->logUserActivity(
+            //     processType: 'admin_rejection',
+            //     processAction: 'rejected',
+            //     processDescription: "Rejected {$stage} stage for user {$user->name} (ID: {$user->id}) - selective resubmission",
+            //     module: 'admin_action',
+            //     oldValues: null,
+            //     newValues: null,
+            //     additionalData: [
+            //         'user_id' => $user->id,
+            //         'user_name' => $user->name,
+            //         'stage' => $stage,
+            //         'admin_remark' => $request->admin_remark,
+            //         'resubmit_steps' => $resubmitSteps,
+            //         'resubmission_count' => $resubmissionCount,
+            //         'previous_stage' => $workflow->current_stage,
+            //         'final_status' => 'in_progress'
+            //     ],
+
+            //     // 🎯 TARGET → Shivam
+            //     targetUserId: $user->id,
+
+            //     // 👮 ACTOR → Ramesh
+            //     actorId: Auth::id(),
+            //     actorName: Auth::user()->name,
+            //     actorRole: Auth::user()->role
+            // );
+
+
             // Log admin action
-            $this->logAdminAction(
-                Auth::user(),
-                'reject_stage_selective',
-                "Rejected {$stage} stage for user {$user->name} (ID: {$user->id}) - selective resubmission",
-                [
+            $this->logUserActivity(
+                processType: ucfirst(str_replace('_', ' ', $stage)) . ' Send Back for Correction',
+                processAction: 'Send Back For Correction',
+                processDescription: $request->admin_remark ?? 'No remarks',
+                module: $stage . '_action',
+                oldValues: null,
+                newValues: null,
+                additionalData: [
                     'user_id' => $user->id,
                     'user_name' => $user->name,
                     'stage' => $stage,
                     'admin_remark' => $request->admin_remark,
-                    'resubmit_steps' => $resubmitSteps,
-                    'resubmission_count' => $resubmissionCount,
                     'previous_stage' => $workflow->current_stage,
+                    'new_stage' => 'apex_2',
                     'final_status' => 'in_progress'
-                ]
+                ],
+
+                // 🎯 TARGET → Shivam
+                targetUserId: $user->id,
+
+                // 👮 ACTOR → Ramesh
+                actorId: Auth::id(),
+                actorName: Auth::user()->name,
+                actorRole: Auth::user()->role
             );
 
             return back()->with('success', "{$resubmissionCount} step(s) marked for resubmission");
@@ -654,18 +787,31 @@ class AdminController extends Controller
             ]);
 
             // Log admin action
-            $this->logAdminAction(
-                Auth::user(),
-                'reject_stage_complete',
-                "Completely rejected {$stage} stage for user {$user->name} (ID: {$user->id})",
-                [
+            // Log admin action
+            $this->logUserActivity(
+                processType: ucfirst(str_replace('_', ' ', $stage)) . ' Send Back for Correction',
+                processAction: 'Send back for correction',
+                processDescription: $request->admin_remark ?? 'No remarks',
+                module: $stage . '_action',
+                oldValues: null,
+                newValues: null,
+                additionalData: [
                     'user_id' => $user->id,
                     'user_name' => $user->name,
                     'stage' => $stage,
                     'admin_remark' => $request->admin_remark,
                     'previous_stage' => $workflow->current_stage,
-                    'final_status' => 'rejected'
-                ]
+                    'new_stage' => 'apex_2',
+                    'final_status' => 'in_progress'
+                ],
+
+                // 🎯 TARGET → Shivam
+                targetUserId: $user->id,
+
+                // 👮 ACTOR → Ramesh
+                actorId: Auth::id(),
+                actorName: Auth::user()->name,
+                actorRole: Auth::user()->role
             );
 
             return back()->with('success', ucfirst(str_replace('_', ' ', $stage)) . " rejected");
@@ -746,11 +892,14 @@ class AdminController extends Controller
             ]);
 
             // Log admin action
-            $this->logAdminAction(
-                Auth::user(),
-                'hold_stage_selective',
-                "Put {$stage} stage on hold for user {$user->name} (ID: {$user->id}) - selective hold",
-                [
+            $this->logUserActivity(
+                processType: 'admin_hold',
+                processAction: 'held',
+                processDescription: "Put {$stage} stage on hold for user {$user->name} (ID: {$user->id}) - selective hold",
+                module: 'admin_action',
+                oldValues: null,
+                newValues: null,
+                additionalData: [
                     'user_id' => $user->id,
                     'user_name' => $user->name,
                     'stage' => $stage,
@@ -759,7 +908,15 @@ class AdminController extends Controller
                     'hold_count' => $holdCount,
                     'previous_stage' => $workflow->current_stage,
                     'final_status' => 'in_progress'
-                ]
+                ],
+
+                // 🎯 TARGET → Shivam
+                targetUserId: $user->id,
+
+                // 👮 ACTOR → Ramesh
+                actorId: Auth::id(),
+                actorName: Auth::user()->name,
+                actorRole: Auth::user()->role
             );
 
             return back()->with('success', "{$holdCount} step(s) marked on hold");
@@ -777,18 +934,29 @@ class AdminController extends Controller
             ]);
 
             // Log admin action
-            $this->logAdminAction(
-                Auth::user(),
-                'hold_stage_complete',
-                "Completely put {$stage} stage on hold for user {$user->name} (ID: {$user->id})",
-                [
+            $this->logUserActivity(
+                processType: 'admin_hold',
+                processAction: 'held',
+                processDescription: "Completely put {$stage} stage on hold for user {$user->name} (ID: {$user->id})",
+                module: 'admin_action',
+                oldValues: null,
+                newValues: null,
+                additionalData: [
                     'user_id' => $user->id,
                     'user_name' => $user->name,
                     'stage' => $stage,
                     'admin_remark' => $request->admin_remark,
                     'previous_stage' => $workflow->current_stage,
                     'final_status' => 'hold'
-                ]
+                ],
+
+                // 🎯 TARGET → Shivam
+                targetUserId: $user->id,
+
+                // 👮 ACTOR → Ramesh
+                actorId: Auth::id(),
+                actorName: Auth::user()->name,
+                actorRole: Auth::user()->role
             );
 
             return back()->with(
@@ -1607,7 +1775,7 @@ class AdminController extends Controller
      */
     public function showUserLogs(User $user)
     {
-       // dd($user);
+        // dd($user);
         $logs = Logs::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->paginate(20);

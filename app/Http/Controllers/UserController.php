@@ -482,19 +482,6 @@ class UserController extends Controller
             'submit_status' => 'submited',
         ];
 
-        // Check if education details already exist for this user
-        $educationDetail = EducationDetail::where('user_id', $user_id)->first();
-
-        if ($educationDetail) {
-            // Update existing record
-            $educationDetail->update($data);
-            $message = 'Education details updated successfully!';
-        } else {
-            // Create new record
-            EducationDetail::create($data);
-            $message = 'Education details saved successfully!';
-        }
-
         // Get user for logging
         $user = User::find($user_id);
 
@@ -542,6 +529,20 @@ class UserController extends Controller
             actorName: $user->name,
             actorRole: $user->role
         );
+
+        // Check if education details already exist for this user
+        $educationDetail = EducationDetail::where('user_id', $user_id)->first();
+
+        if ($educationDetail) {
+            // Update existing record
+            $educationDetail->update($data);
+            $message = 'Education details updated successfully!';
+        } else {
+            // Create new record
+            EducationDetail::create($data);
+            $message = 'Education details saved successfully!';
+        }
+
         // Check if all steps are submitted (no resubmit remaining)
         $this->checkAndUpdateWorkflowStatus();
 
@@ -1256,19 +1257,6 @@ class UserController extends Controller
             'submit_status' => 'submited',
         ];
 
-        // Check if family details already exist for this user
-        $familyDetail = Familydetail::where('user_id', $user_id)->first();
-
-        if ($familyDetail) {
-            // Update existing record
-            $familyDetail->update($data);
-            $message = 'Family details updated successfully!';
-        } else {
-            // Create new record
-            Familydetail::create($data);
-            $message = 'Family details saved successfully!';
-        }
-
         // Get user for logging
         $user = User::find($user_id);
 
@@ -1313,6 +1301,19 @@ class UserController extends Controller
             actorName: $user->name,
             actorRole: $user->role
         );
+
+        // Check if family details already exist for this user
+        $familyDetail = Familydetail::where('user_id', $user_id)->first();
+
+        if ($familyDetail) {
+            // Update existing record
+            $familyDetail->update($data);
+            $message = 'Family details updated successfully!';
+        } else {
+            // Create new record
+            Familydetail::create($data);
+            $message = 'Family details saved successfully!';
+        }
 
         // Check if all steps are submitted (no resubmit remaining)
         $this->checkAndUpdateWorkflowStatus();
@@ -1487,19 +1488,6 @@ class UserController extends Controller
 
         $isResubmission = $this->isStepResubmission('step4');
 
-        // Check if funding details already exist for this user
-        $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
-
-        if ($fundingDetail) {
-            // Update existing record
-            $fundingDetail->update($data);
-            $message = 'Funding details updated successfully!';
-        } else {
-            // Create new record
-            FundingDetail::create($data);
-            $message = 'Funding details saved successfully!';
-        }
-
         // Get user for logging
         $user = User::find($user_id);
         // Log step completion
@@ -1545,6 +1533,19 @@ class UserController extends Controller
             actorName: $user->name,
             actorRole: $user->role
         );
+
+        // Check if funding details already exist for this user
+        $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
+
+        if ($fundingDetail) {
+            // Update existing record
+            $fundingDetail->update($data);
+            $message = 'Funding details updated successfully!';
+        } else {
+            // Create new record
+            FundingDetail::create($data);
+            $message = 'Funding details saved successfully!';
+        }
 
         // Check if all steps are submitted (no resubmit remaining)
         $this->checkAndUpdateWorkflowStatus();

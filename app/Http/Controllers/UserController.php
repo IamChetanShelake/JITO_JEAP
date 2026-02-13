@@ -3421,11 +3421,11 @@ class UserController extends Controller
         // Check all steps for resubmit status
         $steps = [
             Auth::user()->submit_status,
-            EducationDetail::where('user_id', $userId)->first()?->submit_status,
-            Familydetail::where('user_id', $userId)->first()?->submit_status,
-            FundingDetail::where('user_id', $userId)->first()?->submit_status,
-            GuarantorDetail::where('user_id', $userId)->first()?->submit_status,
-            Document::where('user_id', $userId)->first()?->submit_status,
+            EducationDetail::where('user_id', $userId)->first()->submit_status,
+            Familydetail::where('user_id', $userId)->first()->submit_status,
+            FundingDetail::where('user_id', $userId)->first()->submit_status,
+            GuarantorDetail::where('user_id', $userId)->first()->submit_status,
+            Document::where('user_id', $userId)->first()->submit_status,
         ];
 
         $hasResubmit = in_array('resubmit', $steps);
@@ -3437,9 +3437,9 @@ class UserController extends Controller
                 $user = User::find($userId);
                 if ($user) {
                     $this->logUserActivity(
-                        processType: 'Workflow Status Update',
-                        processAction: 'Updated',
-                        processDescription: 'User resubmitted all steps, workflow status changed from rejected to pending',
+                        processType: 'Application Resubmission after Send back for Correction',
+                        processAction: 'Application Resubmission',
+                        processDescription: 'User resubmitted all steps, application resubmitted after being sent back for correction',
                         module: 'application',
                         oldValues: ['apex_1_status' => 'rejected'],
                         newValues: ['apex_1_status' => 'pending'],

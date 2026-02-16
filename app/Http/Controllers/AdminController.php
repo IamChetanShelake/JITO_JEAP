@@ -266,8 +266,8 @@ class AdminController extends Controller
         // Validation
         //   dd($request->all());
         $rules = [
-            'admin_remark' => 'nullable|string|max:2000',
-            'apex_staff_remark' => 'nullable|string|max:2000',
+            'admin_remark' => 'nullable|string',
+            'apex_staff_remark' => 'nullable|string',
         ];
 
         if ($stage === 'chapter') {
@@ -412,7 +412,7 @@ class AdminController extends Controller
         // Validation for working committee specific fields
         //  dd($request->all());
         $rules = [
-            'w_c_approval_remark' => 'required|string|max:2000',
+            'w_c_approval_remark' => 'required|string',
             'w_c_approval_date' => 'required|date',
             'meeting_no' => 'required|string|max:255',
             'disbursement_system' => 'required|in:yearly,half_yearly',
@@ -612,7 +612,7 @@ class AdminController extends Controller
         // Load all required relationships
         $user->load(['educationDetail', 'familyDetail', 'fundingDetail', 'guarantorDetail', 'document']);
         $request->validate([
-            'admin_remark' => 'required|string|max:2000',
+            'admin_remark' => 'required|string',
             'resubmit_steps' => 'nullable|array',
             'resubmit_steps.*' => 'in:personal,education,family,funding,guarantor,documents,final',
         ]);

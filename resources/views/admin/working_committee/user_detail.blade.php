@@ -4,6 +4,7 @@
 
 @section('styles')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="{{ asset('summernotes/summernote-lite.min.css') }}">
     <style>
         :root {
             --primary-green: #4CAF50;
@@ -2037,7 +2038,7 @@
                             <div class="form-row">
                                 <div class="form-field">
                                     <label class="form-label">Working Committee Approval Remark</label>
-                                    <textarea class="form-textarea" readonly>{{ $user->workflowStatus->working_committee_approval_remarks }}</textarea>
+                                    <textarea class="form-textarea" readonly>{!! $user->workflowStatus->working_committee_approval_remarks !!}</textarea>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Approval Date</label>
@@ -2268,7 +2269,7 @@
                             <div class="form-row">
                                 <div class="form-field form-field-full">
                                     <label class="form-label" style="color: #c62828;">Rejection Remarks</label>
-                                    <textarea class="form-textarea" readonly style="border-color: #f44336; background: rgba(244, 67, 54, 0.05);">{{ $user->workflowStatus->working_committee_reject_remarks }}</textarea>
+                                    <textarea class="form-textarea" readonly style="border-color: #f44336; background: rgba(244, 67, 54, 0.05);">{!! $user->workflowStatus->working_committee_reject_remarks !!}</textarea>
                                 </div>
                             </div>
                             <div class="form-row">
@@ -2298,7 +2299,7 @@
                             <div class="form-row">
                                 <div class="form-field form-field-full">
                                     <label class="form-label" style="color: #f57c00;">Hold Remarks</label>
-                                    <textarea class="form-textarea" readonly style="border-color: #ffc107; background: rgba(255, 193, 7, 0.05);">{{ $user->workflowStatus->working_committee_reject_remarks }}</textarea>
+                                    <textarea class="form-textarea" readonly style="border-color: #ffc107; background: rgba(255, 193, 7, 0.05);">{!! $user->workflowStatus->working_committee_hold_remarks !!}</textarea>
                                 </div>
                             </div>
                             <div class="form-row">
@@ -2834,6 +2835,8 @@
         }
     </script>
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="{{ asset('summernotes/summernote-lite.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -2886,6 +2889,28 @@
                 }
             });
 
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('textarea:not([readonly]):not([disabled]):not(.swal2-textarea)').each(function() {
+                const $textarea = $(this);
+                if ($textarea.next('.note-editor').length) {
+                    return;
+                }
+
+                $textarea.summernote({
+                    height: 140,
+                    toolbar: [
+                        ['style', ['bold', 'italic', 'underline']],
+                        ['fontsize', ['fontsize']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['insert', ['link']],
+                        ['view', ['codeview']]
+                    ]
+                });
+            });
         });
     </script>
 

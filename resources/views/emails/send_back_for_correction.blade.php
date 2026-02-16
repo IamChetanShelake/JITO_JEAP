@@ -76,7 +76,7 @@
                                             <span style="margin-right: 8px;">⚠️</span>Correction Required:
                                         </p>
                                         <p style="margin: 0; color: #856404; font-size: 14px; line-height: 1.6;">
-                                            {{ $rejectRemark }}
+                                            {!! $rejectRemark !!}
                                         </p>
                                     </td>
                                 </tr>

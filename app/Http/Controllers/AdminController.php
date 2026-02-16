@@ -609,8 +609,8 @@ class AdminController extends Controller
 
     public function rejectStage(Request $request, User $user, $stage)
     {
-         // Load all required relationships
-    $user->load(['educationDetail', 'familyDetail', 'fundingDetail', 'guarantorDetail', 'document']);
+        // Load all required relationships
+        $user->load(['educationDetail', 'familyDetail', 'fundingDetail', 'guarantorDetail', 'document']);
         $request->validate([
             'admin_remark' => 'required|string|max:2000',
             'resubmit_steps' => 'nullable|array',
@@ -648,11 +648,38 @@ class AdminController extends Controller
             }
 
             // Log admin action
+            // $this->logUserActivity(
+            //     processType: ucfirst(str_replace('_', ' ', $stage)) . ' Send Back for Correction',
+            //     processAction: 'Send Back For Correction',
+            //     processDescription: $request->admin_remark ?? 'No remarks',
+            //     module: $stage . '_action',
+            //     oldValues: null,
+            //     newValues: null,
+            //     additionalData: [
+            //         'user_id' => $user->id,
+            //         'user_name' => $user->name,
+            //         'stage' => $stage,
+            //         'admin_remark' => $request->admin_remark,
+            //         'previous_stage' => $workflow->current_stage,
+            //         'new_stage' => 'apex_2',
+            //         'final_status' => 'in_progress'
+            //     ],
+
+            //     // 🎯 TARGET → Shivam
+            //     targetUserId: $user->id,
+
+            //     // 👮 ACTOR → Ramesh
+            //     actorId: Auth::id(),
+            //     actorName: Auth::user()->name,
+            //     actorRole: Auth::user()->role
+            // );
+
+            // Log admin action
             $this->logUserActivity(
-                processType: ucfirst(str_replace('_', ' ', $stage)) . ' Send Back for Correction',
-                processAction: 'Send Back For Correction',
+                processType: "{$stage}_rejected",
+                processAction: 'rejected',
                 processDescription: $request->admin_remark ?? 'No remarks',
-                module: $stage . '_action',
+                module: "{$stage}_action",
                 oldValues: null,
                 newValues: null,
                 additionalData: [
@@ -660,9 +687,9 @@ class AdminController extends Controller
                     'user_name' => $user->name,
                     'stage' => $stage,
                     'admin_remark' => $request->admin_remark,
+                    'apex_staff_remark' => $request->apex_staff_remark,
                     'previous_stage' => $workflow->current_stage,
-                    'new_stage' => 'apex_2',
-                    'final_status' => 'in_progress'
+                    'new_stage' => $updateData['current_stage'] ?? $workflow->current_stage
                 ],
 
                 // 🎯 TARGET → Shivam
@@ -918,12 +945,40 @@ class AdminController extends Controller
                 // final_status remains in_progress
             ]);
 
+            // // Log admin action
+            // $this->logUserActivity(
+            //     processType: 'admin_hold',
+            //     processAction: 'held',
+            //     processDescription: "Put {$stage} stage on hold for user {$user->name} (ID: {$user->id}) - selective hold",
+            //     module: 'admin_action',
+            //     oldValues: null,
+            //     newValues: null,
+            //     additionalData: [
+            //         'user_id' => $user->id,
+            //         'user_name' => $user->name,
+            //         'stage' => $stage,
+            //         'admin_remark' => $request->admin_remark,
+            //         'resubmit_steps' => $resubmitSteps,
+            //         'hold_count' => $holdCount,
+            //         'previous_stage' => $workflow->current_stage,
+            //         'final_status' => 'in_progress'
+            //     ],
+
+            //     // 🎯 TARGET → Shivam
+            //     targetUserId: $user->id,
+
+            //     // 👮 ACTOR → Ramesh
+            //     actorId: Auth::id(),
+            //     actorName: Auth::user()->name,
+            //     actorRole: Auth::user()->role
+            // );
+
             // Log admin action
             $this->logUserActivity(
-                processType: 'admin_hold',
-                processAction: 'held',
-                processDescription: "Put {$stage} stage on hold for user {$user->name} (ID: {$user->id}) - selective hold",
-                module: 'admin_action',
+                processType: "{$stage}_hold",
+                processAction: 'hold',
+                processDescription: $request->admin_remark ?? 'No remarks',
+                module: "{$stage}_action",
                 oldValues: null,
                 newValues: null,
                 additionalData: [
@@ -931,10 +986,9 @@ class AdminController extends Controller
                     'user_name' => $user->name,
                     'stage' => $stage,
                     'admin_remark' => $request->admin_remark,
-                    'resubmit_steps' => $resubmitSteps,
-                    'hold_count' => $holdCount,
+                    'apex_staff_remark' => $request->apex_staff_remark,
                     'previous_stage' => $workflow->current_stage,
-                    'final_status' => 'in_progress'
+                    'new_stage' => $updateData['current_stage'] ?? $workflow->current_stage
                 ],
 
                 // 🎯 TARGET → Shivam
@@ -1020,6 +1074,32 @@ class AdminController extends Controller
             'user_id' => $user->id,
             'unheld_by' => Auth::user()->name,
         ]);
+
+        $this->logUserActivity(
+            processType: 'Working_Committee_Unhold',
+            processAction: 'Unhold',
+            processDescription: $request->w_c_approval_remark ?? 'No remarks',
+            module: 'working_committee_unhold',
+            oldValues: null,
+            newValues: null,
+            additionalData: [
+                'approval_id' => Auth::id(),
+                'stage' => 'working commitee unhold',
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'admin_remark' => $request->w_c_approval_remark,
+                'previous_stage' => $workflow->current_stage,
+                'new_stage' => 'apex_2'
+            ],
+
+            // 🎯 TARGET → Shivam
+            targetUserId: $user->id,
+
+            // 👮 ACTOR → Ramesh
+            actorId: Auth::id(),
+            actorName: Auth::user()->name,
+            actorRole: Auth::user()->role
+        );
 
         return back()->with('success', 'Application unheld successfully. Status reset to pending.');
     }

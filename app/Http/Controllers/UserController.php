@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use App\Models\ApplicationWorkflowStatus;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 class UserController extends Controller
@@ -291,12 +292,13 @@ class UserController extends Controller
         $this->checkAndUpdateWorkflowStatus();
 
         // Check if workflow status already exists for this user
-        $workflow = ApplicationWorkflowStatus::where('user_id', $user->id)->first();
+        $user_id = Auth::id();
+        $workflow = ApplicationWorkflowStatus::where('user_id', $user_id)->first();
 
         if (!$workflow) {
             // Create new workflow entry
             ApplicationWorkflowStatus::create([
-                'user_id' => $user->id,
+                'user_id' => $user_id,
                 'current_stage' => 'apex_1',
                 'final_status' => 'in_progress',
             ]);
@@ -3492,5 +3494,94 @@ class UserController extends Controller
             && $workflow
             && $workflow->apex_1_status === 'rejected'
             && !empty($workflow->apex_1_reject_remarks);
+    }
+
+    /**
+     * Generate Application PDF for user
+     */
+    public function generateApplicationPDF($user)
+    {
+        // Get the user by ID
+        $user = User::find($user);
+        if (!$user) {
+            return redirect()->back()->with('error', 'User not found');
+        }
+
+        // Get all related data for the PDF
+        $educationDetail = EducationDetail::where('user_id', $user->id)->first();
+        $familyDetail = Familydetail::where('user_id', $user->id)->first();
+        $fundingDetail = FundingDetail::where('user_id', $user->id)->first();
+        $guarantorDetail = GuarantorDetail::where('user_id', $user->id)->first();
+        $document = Document::where('user_id', $user->id)->first();
+        $loanCategory = Loan_category::where('user_id', $user->id)->latest()->first();
+
+        // Get workflow status
+        $workflow = ApplicationWorkflowStatus::where('user_id', $user->id)->first();
+
+        // Create PDF using DomPDF
+        $pdf = \PDF::loadView('user.pdf.application', compact(
+            'user', 'educationDetail', 'familyDetail', 'fundingDetail', 
+            'guarantorDetail', 'document', 'loanCategory', 'workflow'
+        ));
+
+        return $pdf->download('application_' . $user->id . '.pdf');
+    }
+
+    /**
+     * Generate Summary PDF for user
+     */
+    public function generateSummaryPDF($user)
+    {
+        // Get the user by ID
+        $user = User::find($user);
+        if (!$user) {
+            return redirect()->back()->with('error', 'User not found');
+        }
+
+        // Get all related data for the summary
+        $educationDetail = EducationDetail::where('user_id', $user->id)->first();
+        $familyDetail = Familydetail::where('user_id', $user->id)->first();
+        $fundingDetail = FundingDetail::where('user_id', $user->id)->first();
+        $guarantorDetail = GuarantorDetail::where('user_id', $user->id)->first();
+        $loanCategory = Loan_category::where('user_id', $user->id)->latest()->first();
+
+        // Create PDF using DomPDF
+        $pdf = \PDF::loadView('user.pdf.summary', compact(
+            'user', 'educationDetail', 'familyDetail', 'fundingDetail', 
+            'guarantorDetail', 'loanCategory'
+        ));
+
+        return $pdf->download('summary_' . $user->id . '.pdf');
+    }
+
+    /**
+     * View Sanction Letter for user
+     */
+    public function viewSanctionLetter($user)
+    {
+        // Get the user by ID
+        $user = User::find($user);
+        if (!$user) {
+            return redirect()->back()->with('error', 'User not found');
+        }
+
+        // Get workflow status to check if user is approved
+        $workflow = ApplicationWorkflowStatus::where('user_id', $user->id)->first();
+
+        if (!$workflow || $workflow->final_status !== 'approved') {
+            return redirect()->back()->with('error', 'Sanction letter not available. Application not yet approved.');
+        }
+
+        // Get all related data for the sanction letter
+        $educationDetail = EducationDetail::where('user_id', $user->id)->first();
+        $fundingDetail = FundingDetail::where('user_id', $user->id)->first();
+        $loanCategory = Loan_category::where('user_id', $user->id)->latest()->first();
+
+        // Create PDF using DomPDF
+        $pdf = \PDF::loadView('user.pdf.sanction_letter', compact(
+            'user', 'educationDetail', 'fundingDetail', 'loanCategory', 'workflow'
+        ));
+
+        return $pdf->stream('sanction_letter_' . $user->id . '.pdf');
     }
 }

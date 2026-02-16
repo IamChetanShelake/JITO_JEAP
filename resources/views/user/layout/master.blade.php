@@ -417,7 +417,33 @@
                     </b></span>
             </a>
             <div class="ms-auto d-flex align-items-center">
-                <a href="{{ route('user.logs') }}" class="btn btn-purple me-2" style="background-color: green; color: white;">Logs</a>
+                <!-- Print Options Dropdown -->
+                <div class="dropdown" style="position: relative;">
+                    <button class="btn btn-purple me-2" style="background-color: #efb209; color: white;"
+                        onclick="toggleDropdown()">
+                        <i class="fas fa-print"></i> Print Options <i class="fas fa-chevron-down"
+                            style="margin-left: 0.5rem;"></i>
+                    </button>
+                    <div id="printDropdown" class="dropdown-content"
+                        style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 200px;">
+                        <a href="{{ route('user.generate.pdf', auth()->user()) }}" class="dropdown-item" target="_blank"
+                            style="display: block; padding: 0.75rem 1rem; color: #4C4C4C; text-decoration: none; border-bottom: 1px solid #dee2e6;">
+                            <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Application PDF
+                        </a>
+                        <a href="{{ route('user.generate.summary.pdf', auth()->user()) }}" class="dropdown-item"
+                            target="_blank"
+                            style="display: block; padding: 0.75rem 1rem; color: #4C4C4C; text-decoration: none; border-bottom: 1px solid #dee2e6;">
+                            <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Summary PDF
+                        </a>
+                        <a href="{{ route('user.sanction.letter', auth()->user()) }}" target="_blank"
+                            class="dropdown-item"
+                            style="display: block; padding: 0.75rem 1rem; color: #4C4C4C; text-decoration: none;">
+                            <i class="fas fa-file-contract" style="margin-right: 0.5rem;"></i> Sanction Letter
+                        </a>
+                    </div>
+                </div>
+                <a href="{{ route('user.logs') }}" class="btn btn-purple me-2"
+                    style="background-color: green; color: white;">Logs</a>
                 @yield('step')
                 <button class="btn btn-danger" href="{{ route('logout') }}"
                     onclick="event.preventDefault();
@@ -823,6 +849,24 @@
                     sidebar.classList.toggle('open');
                     overlay.classList.toggle('show');
                 }
+
+                function toggleDropdown() {
+                    const dropdown = document.getElementById('printDropdown');
+                    if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+                        dropdown.style.display = 'block';
+                    } else {
+                        dropdown.style.display = 'none';
+                    }
+                }
+
+                // Close dropdown when clicking outside
+                window.addEventListener('click', function(event) {
+                    const dropdown = document.getElementById('printDropdown');
+                    const button = dropdown.previousElementSibling;
+                    if (event.target !== dropdown && event.target !== button) {
+                        dropdown.style.display = 'none';
+                    }
+                });
             </script>
 
             <!-- File Upload Functionality Script -->

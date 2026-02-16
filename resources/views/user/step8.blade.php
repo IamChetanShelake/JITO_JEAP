@@ -50,7 +50,7 @@
                                                     Send Back for Correction</h5>
                                                 <p class="mb-0" style="color: #721c24; font-size: 14px;">
                                                     <strong>Remarks:</strong>
-                                                    {{ $user->workflowStatus->apex_2_reject_remarks }}
+                                                    {!! $user->workflowStatus->apex_2_reject_remarks !!}
                                                 </p>
                                             </div>
                                         </div>
@@ -309,14 +309,14 @@
                     </td>
                     <td>
                         <input type="text" class="form-control"
-                               name="cheque_details[${index}][parents_jnt_ac_name]" value="${parentsJntAcName}" 
+                               name="cheque_details[${index}][parents_jnt_ac_name]" value="${parentsJntAcName}"
                                placeholder="${parentsJntAcName ? '' : 'Enter parents joint account name (Optional)'}"
                                style="border: 2px solid #393185; border-radius: 10px;width:220px !important;">
                     </td>
                     <td>
                         <input type="date" class="form-control"
                                name="cheque_details[${index}][cheque_date]" value="${chequeDate}" required
-                               min="{{ date('Y-m-d') }}" 
+                               min="{{ date('Y-m-d') }}"
                                style="border: 2px solid #393185; border-radius: 10px; background-color: white;width:160px !important;">
                     </td>
                     <td>

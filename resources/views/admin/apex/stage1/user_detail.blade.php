@@ -3,6 +3,7 @@
 @section('title', 'User Form Details - JitoJeap Admin')
 
 @section('styles')
+    <link rel="stylesheet" href="{{ asset('summernotes/summernote-lite.min.css') }}">
     <style>
         :root {
             --primary-green: #4CAF50;
@@ -2295,7 +2296,7 @@
                             @if ($user->workflowStatus->apex_1_approval_remarks)
                                 <div class="data-item">
                                     <div class="data-label">Apex Approval Remarks</div>
-                                    <div class="data-value">{{ $user->workflowStatus->apex_1_approval_remarks }}</div>
+                                    <div class="data-value">{!! $user->workflowStatus->apex_1_approval_remarks !!}</div>
                                 </div>
                             @endif
                             @if ($user->workflowStatus->apex_staff_remark)
@@ -2317,7 +2318,7 @@
                             @if ($user->workflowStatus->apex_1_reject_remarks)
                                 <div class="data-item">
                                     <div class="data-label">Send Back For Correction Remarks</div>
-                                    <div class="data-value">{{ $user->workflowStatus->apex_1_reject_remarks }}</div>
+                                    <div class="data-value">{!! $user->workflowStatus->apex_1_reject_remarks !!}</div>
                                 </div>
                             @endif
                         </div>
@@ -2455,6 +2456,8 @@
 
 
 <!-- SweetAlert CDN -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="{{ asset('summernotes/summernote-lite.min.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
@@ -2612,6 +2615,28 @@
         if (!button && dropdown.style.display === 'block') {
             dropdown.style.display = 'none';
         }
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('textarea[name="admin_remark"], textarea[name="apex_staff_remark"]').each(function() {
+            const $textarea = $(this);
+            if ($textarea.next('.note-editor').length) {
+                return;
+            }
+
+            $textarea.summernote({
+                height: 140,
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline']],
+                    ['fontsize', ['fontsize']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['insert', ['link']],
+                    ['view', ['codeview']]
+                ]
+            });
+        });
     });
 </script>
 

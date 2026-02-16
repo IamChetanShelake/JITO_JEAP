@@ -4,6 +4,7 @@
 
 @section('styles')
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+<link href="{{ asset('summernotes/summernote-lite.min.css') }}" rel="stylesheet">
 <style>
     .detail-container {
         background: white;
@@ -242,7 +243,7 @@
                                 @endif --}}
                                 <span class="status-badge status-cleared">Paid</span>
                             </td>
-                            <td>{{ $repayment->remarks ?? '-' }}</td>
+                            <td>{!! $repayment->remarks ?? '-' !!}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -321,9 +322,28 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="{{ asset('summernotes/summernote-lite.min.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+$(document).ready(function () {
+    $('textarea:not([readonly]):not([disabled]):not(.swal2-textarea)').each(function() {
+        const $textarea = $(this);
+        if ($textarea.next('.note-editor').length) {
+            return;
+        }
+
+        $textarea.summernote({
+            height: 140,
+            toolbar: [
+                ['style', ['bold', 'italic', 'underline']],
+                ['fontsize', ['fontsize']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['insert', ['link']],
+                ['view', ['codeview']]
+            ]
+        });
+    });
 
     // Check for session success messages and show SweetAlert
     @if (session('success'))

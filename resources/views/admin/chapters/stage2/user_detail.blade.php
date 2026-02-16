@@ -4,6 +4,7 @@
 @section('title', 'Chapter User Details - JitoJeap Admin')
 
 @section('styles')
+    <link rel="stylesheet" href="{{ asset('summernotes/summernote-lite.min.css') }}">
     <style>
         :root {
             --primary-green: #4CAF50;
@@ -2791,7 +2792,7 @@
                                     <div class="form-field form-field-full">
                                         <label class="form-label" style="color: #2E7D32;">Approval Remarks</label>
                                         <textarea readonly rows="4" class="remark-input"
-                                            style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">{{ $user->workflowStatus->chapter_approval_remarks ?? '' }}</textarea>
+                                            style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">{!! $user->workflowStatus->chapter_approval_remarks ?? '' !!}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -2819,6 +2820,8 @@
 
 @endsection
 
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="{{ asset('summernotes/summernote-lite.min.js') }}"></script>
 <script>
     function openModal(url, title = 'Document Preview') {
         const previewContainer = document.getElementById('documentPreview');
@@ -3115,4 +3118,26 @@
             saveButton.disabled = false;
         }
     }
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('textarea:not([readonly]):not([disabled]):not(.swal2-textarea)').each(function() {
+            const $textarea = $(this);
+            if ($textarea.next('.note-editor').length) {
+                return;
+            }
+
+            $textarea.summernote({
+                height: 140,
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline']],
+                    ['fontsize', ['fontsize']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['insert', ['link']],
+                    ['view', ['codeview']]
+                ]
+            });
+        });
+    });
 </script>

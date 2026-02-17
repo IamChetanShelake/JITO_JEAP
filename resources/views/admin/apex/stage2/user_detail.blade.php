@@ -2184,13 +2184,13 @@
                         @if($user->workflowStatus->apex_2_approval_remarks)
                             <div class="data-item">
                                 <div class="data-label">Apex Approval Remarks</div>
-                                <div class="data-value">{!! $user->workflowStatus->apex_2_approval_remarks !!}</div>
+                                <div class="data-value">{{ strip_tags($user->workflowStatus->apex_2_approval_remarks) }}</div>
                             </div>
                         @endif
                         @if($user->workflowStatus->apex_staff_remark)
                             <div class="data-item">
                                 <div class="data-label">Apex Staff Remarks</div>
-                                <div class="data-value">{{ $user->workflowStatus->apex_staff_remark }}</div>
+                                <div class="data-value">{{ strip_tags($user->workflowStatus->apex_staff_remark ?? 'N/A') }}</div>
                             </div>
                         @endif
                     </div>
@@ -2207,7 +2207,7 @@
                         @if($user->workflowStatus->apex_2_reject_remarks)
                             <div class="data-item">
                                 <div class="data-label">Send Back For Correction Remarks</div>
-                                <div class="data-value">{!! $user->workflowStatus->apex_2_reject_remarks !!}</div>
+                                <div class="data-value">{{ strip_tags($user->workflowStatus->apex_2_reject_remarks ?? 'N/A') }}</div>
                             </div>
                         @endif
                     </div>
@@ -2239,6 +2239,7 @@
                     @csrf
                     <div class="action-form-row">
                         <div style="flex: 2;">
+                            <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Approval Remark</label>
                             <textarea name="admin_remark"
                                       placeholder="Approval remark (optional but recommended)"
                                       rows="3"
@@ -2269,6 +2270,7 @@
                     @csrf
                     <div class="action-form-row">
                         <div style="flex: 2;">
+                            <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Send Back For Correction Remark <span style="color: var(--primary-red);">*</span></label>
                             <textarea name="admin_remark"
                                       placeholder="Send back for correction remark (required)"
                                       rows="3"

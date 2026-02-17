@@ -2316,9 +2316,9 @@
                         <div class="form-section">
 
                             @if ($user->workflowStatus->apex_1_reject_remarks)
-                                <div class="data-item">
-                                    <div class="data-label">Send Back For Correction Remarks</div>
-                                    <div class="data-value">{!! $user->workflowStatus->apex_1_reject_remarks !!}</div>
+                                <div>
+                                    <div class="data-label p-2">Send Back For Correction Remarks:-</div>
+                                    <div class="p-2">{!! $user->workflowStatus->apex_1_reject_remarks !!}</div>
                                 </div>
                             @endif
                         </div>

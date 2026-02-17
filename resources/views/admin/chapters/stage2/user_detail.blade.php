@@ -2487,7 +2487,7 @@
                                                 <label class="form-label" style="color: #2E7D32;">Chapter Remarks
                                                     (Question 14)</label>
                                                 <textarea class="remark-input" readonly
-                                                    style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05); resize: vertical; min-height: 80px;">{{ \App\Models\ChapterInterviewAnswer::where('user_id', $user->id)->where('workflow_id', $user->workflowStatus->id ?? 0)->where('question_no', 14)->first()?->answer_text ?? 'Not answered' }}</textarea>
+                                                    style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05); resize: vertical; min-height: 80px;">{{ strip_tags(\App\Models\ChapterInterviewAnswer::where('user_id', $user->id)->where('workflow_id', $user->workflowStatus->id ?? 0)->where('question_no', 14)->first()?->answer_text ?? 'Not answered') }}</textarea>
                                             </div>
                                         </div>
 
@@ -2773,7 +2773,7 @@
                                         <label class="form-label" style="color: #2E7D32;">Chapter Remarks (Question
                                             14)</label>
                                         <textarea class="remark-input" readonly
-                                            style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05); resize: vertical; min-height: 80px;">{{ \App\Models\ChapterInterviewAnswer::where('user_id', $user->id)->where('workflow_id', $user->workflowStatus->id ?? 0)->where('question_no', 14)->first()?->answer_text ?? 'Not answered' }}</textarea>
+                                            style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05); resize: vertical; min-height: 80px;">{{ strip_tags(\App\Models\ChapterInterviewAnswer::where('user_id', $user->id)->where('workflow_id', $user->workflowStatus->id ?? 0)->where('question_no', 14)->first()?->answer_text ?? 'Not answered') }}</textarea>
                                     </div>
                                 </div>
 
@@ -2792,7 +2792,7 @@
                                     <div class="form-field form-field-full">
                                         <label class="form-label" style="color: #2E7D32;">Approval Remarks</label>
                                         <textarea readonly rows="4" class="remark-input"
-                                            style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">{!! $user->workflowStatus->chapter_approval_remarks ?? '' !!}</textarea>
+                                            style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">{{ strip_tags($user->workflowStatus->chapter_approval_remarks ?? '')}}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -3019,11 +3019,14 @@
                 // Fill in the answers
                 answers.forEach(answer => {
                     const textarea = document.querySelector(
-                        `textarea[data-question-no="${answer.question_no}"]`);
+                        `textarea[data-question-no="${answer.question_no}"]`
+                    );
+
                     if (textarea) {
-                        textarea.value = answer.answer_text;
+                        $(textarea).summernote('code', answer.answer_text);
                     }
                 });
+
             }
         } catch (error) {
             console.error('Error loading interview answers:', error);

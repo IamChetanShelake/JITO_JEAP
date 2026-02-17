@@ -243,7 +243,7 @@
                                 @endif --}}
                                 <span class="status-badge status-cleared">Paid</span>
                             </td>
-                            <td>{!! $repayment->remarks ?? '-' !!}</td>
+                            <td>{{ strip_tags($repayment->remarks ?? '-') }}</td>
                         </tr>
                         @endforeach
                     </tbody>

@@ -453,7 +453,7 @@
             </a>
             <div class="ms-auto d-flex align-items-center">
                 <!-- Print Options Dropdown -->
-                <div class="dropdown" style="position: relative;">
+                <div class="dropdown p-2" style="position: relative;">
                     <button class="back-btn" style="background-color: #FFC107; color: #333;"
                         onclick="toggleDropdown()">
                         <i class="fas fa-print"></i> Print Options <i class="fas fa-chevron-down"

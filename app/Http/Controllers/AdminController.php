@@ -1619,7 +1619,7 @@ class AdminController extends Controller
 
         // Check if user is approved at working committee level
         if (!$workingCommitteeApproval || $workingCommitteeApproval->approval_status !== 'approved') {
-            return redirect()->back()->with('error', 'Sanction letter is only available for approved applications.');
+            return redirect()->back()->with('error', 'Sanction letter is only available for working committee approved applications.');
         }
 
         // Generate PDF

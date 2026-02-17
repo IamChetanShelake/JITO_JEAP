@@ -307,16 +307,13 @@ Route::middleware(['auth', 'user'])
         Route::get('/logs', [UserController::class, 'showUserLogs'])
             ->name('logs');
 
-        // Generate Application PDF for user
-        Route::get('/{user}/generate-pdf', [UserController::class, 'generateApplicationPDF'])
-            ->name('generate.pdf');
+        // Generate Application PDF
+        Route::get('/{user}/generate-pdf', [AdminController::class, 'generateApplicationPDF'])->name('generate.pdf');
 
-        // Generate Summary PDF for user
-        Route::get('/{user}/generate-summary-pdf', [UserController::class, 'generateSummaryPDF'])
-            ->name('generate.summary.pdf');
+        // Generate Summary PDF
+        Route::get('/{user}/generate-summary-pdf', [AdminController::class, 'generateSummaryPDF'])->name('generate.summary.pdf');
 
-        // View Sanction Letter for user
-        Route::get('/{user}/sanction-letter', [UserController::class, 'viewSanctionLetter'])
-            ->name('sanction.letter');
+        // View Sanction Letter
+        Route::get('/{user}/sanction-letter', [AdminController::class, 'viewSanctionLetter'])->name('sanction.letter');
     });
 

@@ -452,23 +452,23 @@
                         <a href="{{ route('donor.step1') }}">
                             <div
                                 class="step-icon
-                                @if (auth()->check() && in_array($personal->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
-                                @if (auth()->check() && $personal->submit_status === 'resubmit') resubmit-step @endif
+                                @if (auth()->check() && $personal && in_array($personal->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+                                @if (auth()->check() && $personal && $personal->submit_status === 'resubmit') resubmit-step @endif
                                 @if (request()->routeIs('donor.step1')) active-step @endif">
 
-                                @if (auth()->check() && in_array($personal->submit_status, ['submited', 'submitted', 'approved']))
-                                    {{-- Tick SVG --}}
+                                @if (auth()->check() && $personal && in_array($personal->submit_status, ['submited', 'submitted', 'approved']))
+
                                     <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
                                             fill="white" />
                                     </svg>
-                                @elseif (auth()->check() && $personal->submit_status === 'resubmit')
-                                    {{-- Cross Icon --}}
+                                @elseif (auth()->check() && $personal && $personal->submit_status === 'resubmit')
+
                                     <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
                                         title="{{ auth()->user()->admin_remark ?? 'On Hold' }}"></i>
                                 @else
-                                    {{-- Default Icon --}}
+
                                     <i class="bi bi-person"></i>
                                 @endif
 
@@ -686,18 +686,18 @@
                         <a href="{{ route('donor.step7') }}">
                             <div
                                 class="step-icon
-                                 @if (auth()->check() && in_array($bankDetail->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
-                                @if (auth()->check() && $bankDetail->submit_status === 'resubmit') resubmit-step @endif
+                                 @if (auth()->check() && $bankDetail && in_array($bankDetail->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+                                @if (auth()->check() && $bankDetail && $bankDetail->submit_status === 'resubmit') resubmit-step @endif
                                 @if (request()->routeIs('donor.step7')) active-step @endif">
 
-                                @if (auth()->check() && in_array($bankDetail->submit_status, ['submited', 'submitted', 'approved']))
+                                @if (auth()->check() && $bankDetail && in_array($bankDetail->submit_status, ['submited', 'submitted', 'approved']))
                                     {{-- Tick SVG --}}
                                     <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
                                             fill="white" />
                                     </svg>
-                                @elseif (auth()->check() && $bankDetail->submit_status === 'resubmit')
+                                @elseif (auth()->check() && $bankDetail && $bankDetail->submit_status === 'resubmit')
                                     {{-- Cross Icon --}}
                                     <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
                                         title="{{ auth()->user()->admin_remark ?? 'On Hold' }}"></i>

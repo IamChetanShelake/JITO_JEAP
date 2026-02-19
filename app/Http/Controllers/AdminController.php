@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Mail\SendBackForCorrectionMail;
+use App\Mail\WorkingCommitteeApprovedMail;
 use App\Models\ApplicationWorkflowStatus;
 use App\Models\Chapter;
 use App\Models\ChapterInterviewAnswer;
+use App\Models\DisbursementSchedule;
 use App\Models\EducationDetail;
 use App\Models\Logs;
 use App\Models\PdcDetail;
@@ -13,16 +16,14 @@ use App\Models\User;
 use App\Traits\LogsUserActivity;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+
+
+
+
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
-
-
-
-
-use App\Mail\SendBackForCorrectionMail;
-use App\Mail\WorkingCommitteeApprovedMail;
 use Illuminate\Support\Facades\Mail;
 
 
@@ -1546,6 +1547,12 @@ class AdminController extends Controller
         // Load all related data
         $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
 
+        $allDisbursements = DB::connection('admin_panel')
+            ->table('disbursements')
+            ->where('user_id', $user->id)
+            ->orderBy('disbursement_date')
+            ->get();
+
         $workflow = $user->workflowStatus;
         $educationDetail = $user->educationDetail;
         $familyDetail = $user->familyDetail;
@@ -1561,7 +1568,8 @@ class AdminController extends Controller
             'familyDetail',
             'fundingDetail',
             'guarantorDetail',
-            'document'
+            'document',
+            'allDisbursements'
         ));
 
 

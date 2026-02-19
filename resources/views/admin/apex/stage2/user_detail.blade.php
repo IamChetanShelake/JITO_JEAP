@@ -2017,7 +2017,7 @@
                 <div class="data-item">
                     <div class="data-label">Terms & Conditions Approved</div>
                     <div class="data-value">
-                        @if($user->document && $user->document->submit_status == 'approved')
+                        @if($user->document && $user->application_status == 'submitted')
                             Yes (approved)
                         @elseif($user->document && $user->document->submit_status == 'resubmit')
                             No (needs resubmission)
@@ -2109,7 +2109,7 @@
                             <thead>
                                 <tr>
                                     <th>Sr No</th>
-                                    <th>Cheque Date</th>
+                                    <th>Repayment Date</th>
                                     <th>Amount (₹)</th>
                                     <th>Bank Name</th>
                                     <th>IFSC Code</th>

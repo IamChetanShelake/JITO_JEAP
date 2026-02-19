@@ -461,11 +461,11 @@
                     </button>
                     <div id="printDropdown" class="dropdown-content"
                         style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 200px;">
-                        <a href="{{ route('user.generate.pdf', $user) }}" class="dropdown-item"
+                        <a href="{{ route('user.generate.pdf', $user) }}" target="_blank" class="dropdown-item"
                             style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
                             <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Application PDF
                         </a>
-                        <a href="{{ route('user.generate.summary.pdf', $user) }}" class="dropdown-item"
+                        <a href="{{ route('user.generate.summary.pdf', $user) }}" target="_blank" class="dropdown-item"
                             style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
                             <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Summary PDF
                         </a>

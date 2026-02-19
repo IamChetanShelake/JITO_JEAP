@@ -3469,7 +3469,7 @@ class UserController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        return view('user.logs', compact('logs'));
+        return view('user.logs', compact('logs','user'));
     }
 
 
@@ -3520,7 +3520,7 @@ class UserController extends Controller
 
         // Create PDF using DomPDF
         $pdf = \PDF::loadView('user.pdf.application', compact(
-            'user', 'educationDetail', 'familyDetail', 'fundingDetail', 
+            'user', 'educationDetail', 'familyDetail', 'fundingDetail',
             'guarantorDetail', 'document', 'loanCategory', 'workflow'
         ));
 
@@ -3547,7 +3547,7 @@ class UserController extends Controller
 
         // Create PDF using DomPDF
         $pdf = \PDF::loadView('user.pdf.summary', compact(
-            'user', 'educationDetail', 'familyDetail', 'fundingDetail', 
+            'user', 'educationDetail', 'familyDetail', 'fundingDetail',
             'guarantorDetail', 'loanCategory'
         ));
 

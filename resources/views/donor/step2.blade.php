@@ -78,7 +78,7 @@
                                 <div class="row mb-3">
                                     <div class="col-md-3">
                                         <label>Title *</label>
-                                        <select class="form-control" name="spouse_title">
+                                        <select class="form-control" name="spouse_title" required>
                                             <option value="" disabled
                                                 {{ old('spouse_title', $familyDetail->spouse_title ?? '') === '' ? 'selected' : '' }}>
                                                 Select</option>
@@ -103,6 +103,7 @@
                                     <div class="col-md-9">
                                         <label>Spouse Name *</label>
                                         <input type="text" name="spouse_name" class="form-control"
+                                            placeholder="Enter spouse name" required
                                             value="{{ old('spouse_name', $familyDetail->spouse_name ?? '') }}">
                                         @error('spouse_name')
                                             <small class="text-danger">{{ $message }}</small>
@@ -114,7 +115,7 @@
                                 <div class="row mb-3">
                                     <div class="col-md-4">
                                         <label>Birth Date *</label>
-                                        <input type="date" name="spouse_birth_date" class="form-control"
+                                        <input type="date" name="spouse_birth_date" class="form-control" required
                                             max="{{ now()->subYears(18)->format('Y-m-d') }}"
                                             value="{{ old('spouse_birth_date', $familyDetail->spouse_birth_date ?? '') }}">
                                         @error('spouse_birth_date')
@@ -126,7 +127,7 @@
                                         <label>Is he / she JITO Member? *</label>
                                         <div class="d-flex gap-4 mt-2">
                                             <label>
-                                                <input type="radio" name="jito_member" value="yes"
+                                                <input type="radio" name="jito_member" value="yes" required
                                                     onclick="toggleJitoUID(true)"
                                                     {{ old('jito_member', $familyDetail->jito_member ?? '') === 'yes' ? 'checked' : '' }}>
                                                 Yes
@@ -145,7 +146,8 @@
 
                                     <div class="col-md-4" id="jito_uid_box" style="display:none;">
                                         <label>JITO UID *</label>
-                                        <input type="text" name="jito_uid" class="form-control"
+                                        <input type="text" name="jito_uid" id="jito_uid" class="form-control"
+                                            placeholder="Enter JITO UID"
                                             value="{{ old('jito_uid', $familyDetail->jito_uid ?? '') }}">
                                         @error('jito_uid')
                                             <small class="text-danger">{{ $message }}</small>
@@ -157,7 +159,7 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label>Blood Group *</label>
-                                        <select name="spouse_blood_group" class="form-control">
+                                        <select name="spouse_blood_group" class="form-control" required>
                                             <option value="">Select Blood Group</option>
                                             <option value="A+"
                                                 {{ old('spouse_blood_group', $familyDetail->spouse_blood_group ?? '') === 'A+' ? 'selected' : '' }}>
@@ -191,8 +193,9 @@
 
                                     <div class="col-md-6">
                                         <label>Number of Kids *</label>
-                                        <input type="number" name="number_of_kids" id="number_of_kids" class="form-control"
-                                            min="0" placeholder="Enter number of kids" value="{{ $childCount }}">
+                                        <input type="number" name="number_of_kids" id="number_of_kids"
+                                            class="form-control" min="0" placeholder="Enter number of kids" required
+                                            value="{{ $childCount }}">
                                         @error('number_of_kids')
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
@@ -213,6 +216,7 @@
                                                     <div class="col-md-4">
                                                         <label>Name *</label>
                                                         <input type="text" name="child_name[]" class="form-control"
+                                                            placeholder="Enter child name" required
                                                             value="{{ $child['name'] ?? '' }}">
                                                         @error('child_name.' . $i)
                                                             <small class="text-danger">{{ $message }}</small>
@@ -221,7 +225,7 @@
 
                                                     <div class="col-md-4">
                                                         <label>Gender *</label>
-                                                        <select name="child_gender[]" class="form-control">
+                                                        <select name="child_gender[]" class="form-control" required>
                                                             <option value="">Select</option>
                                                             <option value="Male"
                                                                 {{ ($child['gender'] ?? '') === 'Male' ? 'selected' : '' }}>
@@ -240,7 +244,7 @@
 
                                                     <div class="col-md-4">
                                                         <label>DOB *</label>
-                                                        <input type="date" name="child_dob[]" class="form-control"
+                                                        <input type="date" name="child_dob[]" class="form-control" required
                                                             value="{{ $child['dob'] ?? '' }}">
                                                         @error('child_dob.' . $i)
                                                             <small class="text-danger">{{ $message }}</small>
@@ -251,7 +255,7 @@
                                                 <div class="row mt-3">
                                                     <div class="col-md-6">
                                                         <label>Blood Group *</label>
-                                                        <select name="child_blood_group[]" class="form-control">
+                                                        <select name="child_blood_group[]" class="form-control" required>
                                                             <option value="">Select</option>
                                                             <option value="A+"
                                                                 {{ ($child['blood_group'] ?? '') === 'A+' ? 'selected' : '' }}>
@@ -285,7 +289,7 @@
 
                                                     <div class="col-md-6">
                                                         <label>Marital Status *</label>
-                                                        <select name="child_marital_status[]" class="form-control">
+                                                        <select name="child_marital_status[]" class="form-control" required>
                                                             <option value="">Select</option>
                                                             <option value="Single"
                                                                 {{ ($child['marital_status'] ?? '') === 'Single' ? 'selected' : '' }}>
@@ -338,7 +342,12 @@
         document.addEventListener('DOMContentLoaded', function() {
 
             function toggleJitoUID(show) {
-                document.getElementById('jito_uid_box').style.display = show ? 'block' : 'none';
+                const jitoUidBox = document.getElementById('jito_uid_box');
+                const jitoUidInput = document.getElementById('jito_uid');
+                jitoUidBox.style.display = show ? 'block' : 'none';
+                if (jitoUidInput) {
+                    jitoUidInput.required = show;
+                }
             }
             window.toggleJitoUID = toggleJitoUID; // make it accessible
 
@@ -371,7 +380,7 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <label>Name *</label>
-                                <input type="text" name="child_name[]" class="form-control" value="${childName}">
+                                <input type="text" name="child_name[]" class="form-control" placeholder="Enter child name" required value="${childName}">
                             </div>
 
                             <div class="col-md-4">
@@ -386,7 +395,7 @@
 
                             <div class="col-md-4">
                                 <label>DOB *</label>
-                                <input type="date" name="child_dob[]" class="form-control" value="${childDob}">
+                                <input type="date" name="child_dob[]" class="form-control" required value="${childDob}">
                             </div>
                         </div>
 

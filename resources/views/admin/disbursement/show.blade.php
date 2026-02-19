@@ -283,14 +283,14 @@
             </div>
             <div class="col-md-3">
                 <div class="info-card">
-                    <div class="info-label">Course</div>
-                    <div class="info-value">{{ $user->course ?? 'N/A' }}</div>
+                    <div class="info-label">Financial Assistent Type</div>
+                    <div class="info-value">{{ $user->financial_asset_type ?? 'N/A' }}</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="info-card">
-                    <div class="info-label">Institute</div>
-                    <div class="info-value">{{ $user->institute_name ?? 'N/A' }}</div>
+                    <div class="info-label">Financial Assistent For</div>
+                    <div class="info-value">{{ $user->financial_asset_for ?? 'N/A' }}</div>
                 </div>
             </div>
         </div>
@@ -325,9 +325,9 @@
     </div>
 
     <!-- PDC/Cheque Details -->
-    @if($pdcDetails->isNotEmpty())
+    {{-- @if($pdcDetails->isNotEmpty())
     <div class="detail-container">
-        {{-- <div class="detail-header">
+        <div class="detail-header">
             <div class="detail-title">
                 <i class="fas fa-money-check me-2"></i>
                 PDC / Cheque Details
@@ -369,9 +369,9 @@
                 </div>
             </div>
             @endforeach
-        </div> --}}
+        </div>
     </div>
-    @endif
+    @endif --}}
 
     <!-- Disbursement History -->
     @if($allDisbursements->isNotEmpty())
@@ -415,7 +415,7 @@
                         </td>
                         <td class="fw-bold">{{ $disbursement->utr_number }}</td>
                         <td class="fw-bold text-success">₹{{ number_format($disbursement->amount, 2) }}</td>
-                        <td>{!! $disbursement->remarks ?? '-' !!}</td>
+                        <td>{{ strip_tags($disbursement->remarks ?? '-') }}</td>
                     </tr>
                     @endforeach
                 </tbody>

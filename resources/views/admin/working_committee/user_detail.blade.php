@@ -1993,7 +1993,7 @@
                     <div class="data-item">
                         <div class="data-label">Terms & Conditions Approved</div>
                         <div class="data-value">
-                            @if ($user->document && $user->document->submit_status == 'approved')
+                            @if ($user->document && $user->application_status == 'submitted')
                                 Yes (approved)
                             @elseif($user->document && $user->document->submit_status == 'resubmit')
                                 No (needs resubmission)
@@ -2038,7 +2038,7 @@
                             <div class="form-row">
                                 <div class="form-field">
                                     <label class="form-label">Working Committee Approval Remark</label>
-                                    <textarea class="form-textarea" readonly>{!! $user->workflowStatus->working_committee_approval_remarks !!}</textarea>
+                                    <textarea class="form-textarea" readonly>{{ strip_tags($user->workflowStatus->working_committee_approval_remarks ?? 'N/A') }}</textarea>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Approval Date</label>
@@ -2120,7 +2120,7 @@
                                 <div class="form-row">
                                     <div class="form-field form-field-full">
                                         <label class="form-label">Remarks for Approval</label>
-                                        <textarea class="form-textarea" readonly>{{ $user->workingCommitteeApproval->remarks_for_approval }}</textarea>
+                                        <textarea class="form-textarea" readonly>{{ strip_tags($user->workingCommitteeApproval->remarks_for_approval ?? 'N/A') }}</textarea>
                                     </div>
                                 </div>
                             @endif
@@ -2217,7 +2217,7 @@
                                         <div class="form-row">
                                             <div class="form-field">
                                                 <label class="form-label">Apex 1 Approval Remark</label>
-                                                <textarea class="form-input" readonly>{{ $user->workflowStatus->apex_1_approval_remarks ?? 'N/A' }}</textarea>
+                                                <textarea class="form-input" readonly>{{ strip_tags($user->workflowStatus->apex_1_approval_remarks ?? 'N/A') }}</textarea>
                                             </div>
                                             <div class="form-field">
                                                 <label class="form-label">Apex 1 Approval Date</label>
@@ -2229,7 +2229,7 @@
                                         <div class="form-row">
                                             <div class="form-field">
                                                 <label class="form-label">Chapter Approval Remark</label>
-                                                <textarea class="form-input" readonly>{{ $user->workflowStatus->chapter_approval_remarks ?? 'N/A' }}</textarea>
+                                                <textarea class="form-input" readonly>{{ strip_tags($user->workflowStatus->chapter_approval_remarks ?? 'N/A')  }}</textarea>
                                             </div>
                                             <div class="form-field">
                                                 <label class="form-label">Chapter Approval Date</label>
@@ -2397,7 +2397,7 @@
                                             <div class="form-row">
                                                 <div class="form-field">
                                                     <label class="form-label">Chapter Approval Remark</label>
-                                                    <textarea class="form-input" readonly>{{ $user->workflowStatus->chapter_approval_remarks ?? 'N/A' }}</textarea>
+                                                    <textarea class="form-input" readonly>{{ strip_tags($user->workflowStatus->chapter_approval_remarks ?? 'N/A')  }}</textarea>
                                                 </div>
                                                 <div class="form-field">
                                                     <label class="form-label">Chapter Approval Date</label>

@@ -66,6 +66,7 @@
                                     <div class="col-md-4">
                                         <label>First Name *</label>
                                         <input type="text" name="first_name" class="form-control"
+                                            placeholder="Enter first name" required
                                             value="{{ old('first_name', $personalDetail->first_name ?? '') }}">
                                         @error('first_name')
                                             <small class="text-danger">{{ $message }}</small>
@@ -73,7 +74,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label>Middle Name</label>
-                                        <input type="text" name="middle_name" class="form-control"
+                                        <input type="text" name="middle_name" class="form-control" placeholder="Enter middle name"
                                             value="{{ old('middle_name', $personalDetail->middle_name ?? '') }}">
                                         @error('middle_name')
                                             <small class="text-danger">{{ $message }}</small>
@@ -82,6 +83,7 @@
                                     <div class="col-md-4">
                                         <label>Surname *</label>
                                         <input type="text" name="surname" class="form-control"
+                                            placeholder="Enter surname" required
                                             value="{{ old('surname', $personalDetail->surname ?? '') }}">
                                         @error('surname')
                                             <small class="text-danger">{{ $message }}</small>
@@ -92,7 +94,8 @@
                                 <!-- ADDRESS -->
                                 <div class="mb-3">
                                     <label>Complete Address (Residence) *</label>
-                                    <textarea name="complete_address" class="form-control" rows="2">{{ old('complete_address', $personalDetail->complete_address ?? '') }}</textarea>
+                                    <textarea name="complete_address" class="form-control" rows="2" placeholder="Enter complete residence address"
+                                        required>{{ old('complete_address', $personalDetail->complete_address ?? '') }}</textarea>
                                     @error('complete_address')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
@@ -101,24 +104,24 @@
                                 <div class="row mb-3">
                                     <div class="col-md-4">
                                         <label>City *</label>
-                                        <input type="text" name="city" class="form-control"
-                                            value="{{ old('city', $personalDetail->city ?? '') }}">
+                                        <input type="text" name="city" class="form-control" placeholder="Enter city"
+                                            required value="{{ old('city', $personalDetail->city ?? '') }}">
                                         @error('city')
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
                                     </div>
                                     <div class="col-md-4">
                                         <label>State *</label>
-                                        <input type="text" name="state" class="form-control"
-                                            value="{{ old('state', $personalDetail->state ?? '') }}">
+                                        <input type="text" name="state" class="form-control" placeholder="Enter state"
+                                            required value="{{ old('state', $personalDetail->state ?? '') }}">
                                         @error('state')
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
                                     </div>
                                     <div class="col-md-4">
                                         <label>Pin Code *</label>
-                                        <input type="number" name="pin_code" class="form-control"
-                                            value="{{ old('pin_code', $personalDetail->pin_code ?? '') }}">
+                                        <input type="number" name="pin_code" class="form-control" placeholder="Enter 6-digit pin code"
+                                            required value="{{ old('pin_code', $personalDetail->pin_code ?? '') }}">
                                         @error('pin_code')
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
@@ -128,7 +131,7 @@
                                 <!-- RESI LANDLINE (AFTER PINCODE) -->
                                 <div class="mb-3">
                                     <label>Resi. Landline</label>
-                                    <input type="text" name="resi_landline" class="form-control"
+                                    <input type="text" name="resi_landline" class="form-control" placeholder="Enter landline number"
                                         value="{{ old('resi_landline', $personalDetail->resi_landline ?? '') }}">
                                     @error('resi_landline')
                                         <small class="text-danger">{{ $message }}</small>
@@ -140,6 +143,7 @@
                                     <div class="col-md-6">
                                         <label>Mobile No *</label>
                                         <input type="tel" name="mobile_no" class="form-control" maxlength="10"
+                                            placeholder="Enter 10-digit mobile number" required
                                             pattern="[0-9]{10}"
                                             value="{{ old('mobile_no', $personalDetail->mobile_no ?? '') }}">
                                         @error('mobile_no')
@@ -150,6 +154,7 @@
                                     <div class="col-md-6">
                                         <label>WhatsApp No *</label>
                                         <input type="tel" name="whatsapp_no" class="form-control" maxlength="10"
+                                            placeholder="Enter 10-digit WhatsApp number" required
                                             pattern="[0-9]{10}"
                                             value="{{ old('whatsapp_no', $personalDetail->whatsapp_no ?? '') }}">
                                         @error('whatsapp_no')
@@ -163,6 +168,7 @@
                                 <div class="mb-3">
                                     <label>Email ID 1 *</label>
                                     <input type="email" name="email_id_1" class="form-control"
+                                        placeholder="Enter primary email address" required
                                         value="{{ old('email_id_1', $personalDetail->email_id_1 ?? '') }}">
                                     @error('email_id_1')
                                         <small class="text-danger">{{ $message }}</small>
@@ -171,7 +177,7 @@
 
                                 <div class="mb-3">
                                     <label>Email ID 2</label>
-                                    <input type="email" name="email_id_2" class="form-control"
+                                    <input type="email" name="email_id_2" class="form-control" placeholder="Enter secondary email address"
                                         value="{{ old('email_id_2', $personalDetail->email_id_2 ?? '') }}">
                                     @error('email_id_2')
                                         <small class="text-danger">{{ $message }}</small>
@@ -184,22 +190,22 @@
                                 <div class="row mb-3">
                                     <div class="col-md-4">
                                         <label>Residence Address</label>
-                                        <textarea name="preferred_residence_address" class="form-control" rows="2">{{ old('preferred_residence_address', $personalDetail->preferred_residence_address ?? '') }}</textarea>
+                                        <textarea name="preferred_residence_address" placeholder="Enter Residence Address" class="form-control" rows="2">{{ old('preferred_residence_address', $personalDetail->preferred_residence_address ?? '') }}</textarea>
                                         @error('preferred_residence_address')
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
                                     </div>
                                     <div class="col-md-4">
                                         <label>Office Address</label>
-                                        <textarea name="preferred_office_address" class="form-control" rows="2">{{ old('preferred_office_address', $personalDetail->preferred_office_address ?? '') }}</textarea>
+                                        <textarea name="preferred_office_address" placeholder="Enter Office Address" class="form-control" rows="2">{{ old('preferred_office_address', $personalDetail->preferred_office_address ?? '') }}</textarea>
                                         @error('preferred_office_address')
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
                                     </div>
                                     <div class="col-md-4">
                                         <label>PAN No *</label>
-                                        <input type="text" name="pan_no" class="form-control"
-                                            value="{{ old('pan_no', $personalDetail->pan_no ?? '') }}">
+                                        <input type="text" name="pan_no" class="form-control" placeholder="Enter PAN number"
+                                            required value="{{ old('pan_no', $personalDetail->pan_no ?? '') }}">
                                         @error('pan_no')
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
@@ -210,7 +216,7 @@
                                 <div class="mb-3">
                                     <label>Chapter Name *</label>
 
-                                    <select name="chapter_name" class="form-control">
+                                    <select name="chapter_name" class="form-control" required>
                                         <option value="" disabled
                                             {{ old('chapter_name', $personalDetail->chapter_name ?? '') === '' ? 'selected' : '' }}>
                                             Select Chapter</option>
@@ -233,7 +239,7 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label>Date of Birth *</label>
-                                        <input type="date" name="date_of_birth" class="form-control"
+                                        <input type="date" name="date_of_birth" class="form-control" required
                                             max="{{ now()->subYears(18)->format('Y-m-d') }}"
                                             value="{{ old('date_of_birth', $personalDetail->date_of_birth ?? '') }}">
                                         @error('date_of_birth')
@@ -255,7 +261,7 @@
                                 <div class="mb-3">
                                     <label>Blood Group *</label><br>
                                     <div class="d-flex flex-wrap gap-3">
-                                        <label><input type="radio" name="blood_group" value="A+"
+                                        <label><input type="radio" name="blood_group" value="A+" required
                                                 {{ old('blood_group', $personalDetail->blood_group ?? '') === 'A+' ? 'checked' : '' }}>
                                             A+</label>
                                         <label><input type="radio" name="blood_group" value="A-"
@@ -289,8 +295,8 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label>Mother Tongue *</label>
-                                        <input type="text" name="mother_tongue" class="form-control"
-                                            value="{{ old('mother_tongue', $personalDetail->mother_tongue ?? '') }}">
+                                        <input type="text" name="mother_tongue" class="form-control" placeholder="Enter mother tongue"
+                                            required value="{{ old('mother_tongue', $personalDetail->mother_tongue ?? '') }}">
                                         @error('mother_tongue')
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
@@ -298,6 +304,7 @@
                                     <div class="col-md-6">
                                         <label>District of Native Place *</label>
                                         <input type="text" name="district_of_native_place" class="form-control"
+                                            placeholder="Enter district of native place" required
                                             value="{{ old('district_of_native_place', $personalDetail->district_of_native_place ?? '') }}">
                                         @error('district_of_native_place')
                                             <small class="text-danger">{{ $message }}</small>
@@ -308,6 +315,7 @@
                                 <div class="mb-3">
                                     <label>Father's Name *</label>
                                     <input type="text" name="fathers_name" class="form-control"
+                                        placeholder="Enter father's name" required
                                         value="{{ old('fathers_name', $personalDetail->fathers_name ?? '') }}">
                                     @error('fathers_name')
                                         <small class="text-danger">{{ $message }}</small>

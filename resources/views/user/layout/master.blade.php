@@ -395,6 +395,41 @@
             transform: translateY(-50%);
             padding: 0;
         }
+
+        .back-btn {
+            background-color: #FFC107;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 8px rgba(57, 49, 133, 0.3);
+            width: 100%;
+            font-size: 0.9rem;
+        }
+
+        @media (min-width: 768px) {
+            .back-btn {
+                width: auto;
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+
+        .back-btn:hover {
+            background-color: #4a40a8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(57, 49, 133, 0.4);
+        }
+
+        .back-btn i {
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 
@@ -418,26 +453,24 @@
             </a>
             <div class="ms-auto d-flex align-items-center">
                 <!-- Print Options Dropdown -->
-                <div class="dropdown" style="position: relative;">
-                    <button class="btn btn-purple me-2" style="background-color: #efb209; color: white;"
+                <div class="dropdown p-2" style="position: relative;">
+                    <button class="back-btn" style="background-color: #FFC107; color: #333;"
                         onclick="toggleDropdown()">
                         <i class="fas fa-print"></i> Print Options <i class="fas fa-chevron-down"
                             style="margin-left: 0.5rem;"></i>
                     </button>
                     <div id="printDropdown" class="dropdown-content"
-                        style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 200px;">
-                        <a href="{{ route('user.generate.pdf', auth()->user()) }}" class="dropdown-item" target="_blank"
-                            style="display: block; padding: 0.75rem 1rem; color: #4C4C4C; text-decoration: none; border-bottom: 1px solid #dee2e6;">
+                        style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 200px;">
+                        <a href="{{ route('user.generate.pdf', $user) }}" target="_blank" class="dropdown-item"
+                            style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
                             <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Application PDF
                         </a>
-                        <a href="{{ route('user.generate.summary.pdf', auth()->user()) }}" class="dropdown-item"
-                            target="_blank"
-                            style="display: block; padding: 0.75rem 1rem; color: #4C4C4C; text-decoration: none; border-bottom: 1px solid #dee2e6;">
+                        <a href="{{ route('user.generate.summary.pdf', $user) }}" target="_blank" class="dropdown-item"
+                            style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
                             <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Summary PDF
                         </a>
-                        <a href="{{ route('user.sanction.letter', auth()->user()) }}" target="_blank"
-                            class="dropdown-item"
-                            style="display: block; padding: 0.75rem 1rem; color: #4C4C4C; text-decoration: none;">
+                        <a href="{{ route('user.sanction.letter', $user) }}" target="_blank" class="dropdown-item"
+                            style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
                             <i class="fas fa-file-contract" style="margin-right: 0.5rem;"></i> Sanction Letter
                         </a>
                     </div>

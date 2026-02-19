@@ -2235,7 +2235,7 @@
                     <div class="data-item">
                         <div class="data-label">Terms & Conditions Approved</div>
                         <div class="data-value">
-                            @if ($user->document && $user->document->submit_status == 'approved')
+                            @if ($user->document && $user->application_status == 'submitted')
                                 Yes (approved)
                             @elseif($user->document && $user->document->submit_status == 'resubmit')
                                 No (needs resubmission)
@@ -2316,9 +2316,9 @@
                         <div class="form-section">
 
                             @if ($user->workflowStatus->apex_1_reject_remarks)
-                                <div class="data-item">
-                                    <div class="data-label">Send Back For Correction Remarks</div>
-                                    <div class="data-value">{!! $user->workflowStatus->apex_1_reject_remarks !!}</div>
+                                <div>
+                                    <div class="data-label p-2">Send Back For Correction Remarks:-</div>
+                                    <div class="p-2">{!! $user->workflowStatus->apex_1_reject_remarks !!}</div>
                                 </div>
                             @endif
                         </div>

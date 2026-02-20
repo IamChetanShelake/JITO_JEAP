@@ -135,9 +135,10 @@ class RegisterController extends Controller
                 'aadhar_card_number' => $user->aadhar_card_number,
                 'registration_method' => 'online'
             ],
-            $user->id,
-            'User',
-            'applicant'
+            $user->id,           // targetUserId
+            $user->id,           // actorId (user is registering themselves)
+            'User',              // actorName
+            'applicant'          // actorRole
         );
 
         return $this->registered($request, $user)

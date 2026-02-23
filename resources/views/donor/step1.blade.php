@@ -341,6 +341,39 @@
                                     @enderror
                                 </div>
 
+                                <!-- JITO MEMBER QUESTION -->
+                                <div class="mb-3">
+                                    <label>Are you a JITO JEAP Member? *</label><br>
+                                    <div class="d-flex gap-4 mt-2">
+                                        <label class="fw-normal">
+                                            <input type="radio" name="jito_member" value="yes" 
+                                                {{ old('jito_member', $personalDetail->jito_member ?? '') === 'yes' ? 'checked' : '' }}
+                                                onchange="toggleJitoUid(this.value)" required>
+                                            Yes
+                                        </label>
+                                        <label class="fw-normal">
+                                            <input type="radio" name="jito_member" value="no"
+                                                {{ old('jito_member', $personalDetail->jito_member ?? '') === 'no' ? 'checked' : '' }}
+                                                onchange="toggleJitoUid(this.value)" required>
+                                            No
+                                        </label>
+                                    </div>
+                                    @error('jito_member')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+
+                                <!-- JITO UID FIELD -->
+                                <div class="mb-3" id="jito_uid_container" style="display: {{ old('jito_member', $personalDetail->jito_member ?? '') === 'yes' ? 'block' : 'none' }}">
+                                    <label>JITO UID *</label>
+                                    <input type="text" name="jito_uid" id="jito_uid" class="form-control"
+                                        placeholder="Enter JITO UID"
+                                        value="{{ old('jito_uid', $personalDetail->jito_uid ?? '') }}">
+                                    @error('jito_uid')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+
                             </div>
                         </div>
                         <div class="d-flex justify-content-between mt-4 mb-4">
@@ -364,4 +397,33 @@
                 </div>
             </div>
         </div>
+
+
+    
+    <script>
+        function toggleJitoUid(value) {
+            var jitoUidContainer = document.getElementById('jito_uid_container');
+            var jitoUidInput = document.getElementById('jito_uid');
+            
+            if (value === 'yes') {
+                jitoUidContainer.style.display = 'block';
+                jitoUidInput.setAttribute('required', 'required');
+            } else {
+                jitoUidContainer.style.display = 'none';
+                jitoUidInput.removeAttribute('required');
+                jitoUidInput.value = '';
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            var jitoMemberRadios = document.getElementsByName('jito_member');
+            for (var i = 0; i < jitoMemberRadios.length; i++) {
+                if (jitoMemberRadios[i].checked) {
+                    toggleJitoUid(jitoMemberRadios[i].value);
+                    break;
+                }
+            }
+        });
+    </script>
     @endsection

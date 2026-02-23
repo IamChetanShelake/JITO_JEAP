@@ -197,6 +197,8 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/donor-dashboard', [DonorController::class, 'dashboard'])->name('donors.dashboard');
     Route::get('/donor-dashboard/{donor}', [DonorController::class, 'dashboardShow'])->name('donors.dashboard.show');
 
+    Route::put('/donor-dashboard-update/{donor}', [DonorController::class, 'updatedonor'])->name('donors.updatedonor');
+
     // Disbursement Filtered Routes
     Route::get('/disbursement/completed', [DisbursementController::class, 'completed'])->name('disbursement.completed');
     Route::get('/disbursement/in-progress', [DisbursementController::class, 'inProgress'])->name('disbursement.in_progress');
@@ -316,4 +318,3 @@ Route::middleware(['auth', 'user'])
         // View Sanction Letter
         Route::get('/{user}/sanction-letter', [AdminController::class, 'viewSanctionLetter'])->name('sanction.letter');
     });
-

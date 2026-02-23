@@ -33,7 +33,7 @@
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <label>Title *</label>
-                                <select name="nominee_title" class="form-control">
+                                <select name="nominee_title" class="form-control" required>
                                     <option value="" disabled
                                         {{ old('nominee_title', $nomineeDetail->nominee_title ?? '') === '' ? 'selected' : '' }}>
                                         Select</option>
@@ -58,6 +58,7 @@
                             <div class="col-md-9">
                                 <label>Nominee Name *</label>
                                 <input type="text" name="nominee_name" class="form-control"
+                                    placeholder="Enter nominee name" required
                                     value="{{ old('nominee_name', $nomineeDetail->nominee_name ?? '') }}">
                                 @error('nominee_name')
                                     <small class="text-danger">{{ $message }}</small>
@@ -69,6 +70,7 @@
                             <div class="col-md-6">
                                 <label>Relationship with Member *</label>
                                 <input type="text" name="nominee_relationship" class="form-control"
+                                    placeholder="Enter relationship with member" required
                                     value="{{ old('nominee_relationship', $nomineeDetail->nominee_relationship ?? '') }}">
                                 @error('nominee_relationship')
                                     <small class="text-danger">{{ $message }}</small>
@@ -78,6 +80,7 @@
                             <div class="col-md-6">
                                 <label>Mobile No *</label>
                                 <input type="text" name="nominee_mobile" class="form-control" maxlength="10"
+                                    placeholder="Enter 10-digit mobile number" required
                                     value="{{ old('nominee_mobile', $nomineeDetail->nominee_mobile ?? '') }}">
                                 @error('nominee_mobile')
                                     <small class="text-danger">{{ $message }}</small>
@@ -88,7 +91,8 @@
                         <div class="row mb-3">
                             <div class="col-md-12">
                                 <label>Address *</label>
-                                <textarea name="nominee_address" class="form-control" rows="2">{{ old('nominee_address', $nomineeDetail->nominee_address ?? '') }}</textarea>
+                                <textarea name="nominee_address" class="form-control" rows="2" placeholder="Enter nominee address"
+                                    required>{{ old('nominee_address', $nomineeDetail->nominee_address ?? '') }}</textarea>
                                 @error('nominee_address')
                                     <small class="text-danger">{{ $message }}</small>
                                 @enderror
@@ -98,7 +102,8 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label>City *</label>
-                                <input type="text" name="nominee_city" class="form-control"
+                                <input type="text" name="nominee_city" class="form-control" placeholder="Enter city"
+                                    required
                                     value="{{ old('nominee_city', $nomineeDetail->nominee_city ?? '') }}">
                                 @error('nominee_city')
                                     <small class="text-danger">{{ $message }}</small>
@@ -108,6 +113,7 @@
                             <div class="col-md-6">
                                 <label>Pin Code *</label>
                                 <input type="text" name="nominee_pincode" class="form-control" maxlength="6"
+                                    placeholder="Enter 6-digit pin code" required
                                     value="{{ old('nominee_pincode', $nomineeDetail->nominee_pincode ?? '') }}">
                                 @error('nominee_pincode')
                                     <small class="text-danger">{{ $message }}</small>

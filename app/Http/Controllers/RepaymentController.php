@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Traits\LogsUserActivity;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class RepaymentController extends Controller
 {
+    use LogsUserActivity;
+
     public function index()
     {
         $students = $this->getStudentsByRepaymentStatus();
@@ -161,10 +165,15 @@ class RepaymentController extends Controller
 
         $status = $request->payment_mode === 'pdc' ? 'pending' : 'cleared';
 
-        DB::connection('admin_panel')->transaction(function () use ($request, $userId, $status) {
-            DB::connection('admin_panel')
+        $repaymentId = null;
+        $updatedRepaidAmount = 0;
+        $updatedOutstandingAmount = $outstandingAmount;
+        $loanClosed = false;
+
+        DB::connection('admin_panel')->transaction(function () use ($request, $userId, $status, &$repaymentId, &$updatedRepaidAmount, &$updatedOutstandingAmount, &$loanClosed) {
+            $repaymentId = DB::connection('admin_panel')
                 ->table('repayments')
-                ->insert([
+                ->insertGetId([
                     'user_id' => $userId,
                     'payment_date' => $request->payment_date,
                     'amount' => $request->amount,
@@ -187,14 +196,42 @@ class RepaymentController extends Controller
                 ->where('user_id', $userId)
                 ->sum('amount');
 
-            $outstandingAmount = max($totalDisbursedAmount - $updatedRepaidAmount, 0);
+            $updatedOutstandingAmount = max($totalDisbursedAmount - $updatedRepaidAmount, 0);
 
-            if ($outstandingAmount == 0) {
+            if ($updatedOutstandingAmount == 0) {
                 DB::table('application_workflow_statuses')
                     ->where('user_id', $userId)
                     ->update(['final_status' => 'loan_closed', 'updated_at' => now()]);
+
+                $loanClosed = true;
             }
         });
+
+        $actor = Auth::user();
+        $this->logUserActivity(
+            processType: 'repayment',
+            processAction: 'created',
+            processDescription: 'Repayment of amount ' . $request->amount . ' recorded successfully',
+            module: 'repayment',
+            oldValues: null,
+            newValues: null,
+            additionalData: [
+                'repayment_id' => $repaymentId,
+                'payment_date' => $request->payment_date,
+                'amount' => (float) $request->amount,
+                'payment_mode' => $request->payment_mode,
+                'reference_number' => $request->reference_number,
+                'status' => $status,
+                'remarks' => $request->remarks,
+                'total_repaid_amount' => $updatedRepaidAmount,
+                'outstanding_amount' => $updatedOutstandingAmount,
+                'loan_closed' => $loanClosed,
+            ],
+            targetUserId: $user->id,
+            actorId: (int) ($actor?->id ?? 0),
+            actorName: $actor?->name ?? 'System',
+            actorRole: $actor?->role ?? 'system'
+        );
 
         return redirect()
             ->route('admin.repayments.show', ['user' => $userId])

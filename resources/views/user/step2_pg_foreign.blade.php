@@ -126,9 +126,35 @@
         @if ($educationDetail && $educationDetail->submit_status === 'resubmit' && $educationDetail->admin_remark)
             <div class="alert alert-warning alert-dismissible fade show" role="alert"
                 style="background-color: #fff3cd; border-color: #ffeaa7; color: #856404; border-radius: 8px; margin-bottom: 20px;">
-                <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
-                <p style="margin: 8px 0 0 0; font-size: 14px;">{{ $educationDetail->admin_remark }}</p>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                    <div style="min-width: 0;">
+                        <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
+                        <p style="margin: 8px 0 4px 0; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            {{ trim(preg_replace('/\s+/', ' ', strip_tags($educationDetail->admin_remark))) }}
+                        </p>
+                        <button type="button" class="btn btn-link p-0" data-bs-toggle="modal"
+                            data-bs-target="#holdRemarkModal">
+                            View More
+                        </button>
+                    </div>
+                    <button type="button" class="btn-close ms-2 flex-shrink-0" data-bs-dismiss="alert"
+                        aria-label="Close"></button>
+                </div>
+            </div>
+
+            <div class="modal fade" id="holdRemarkModal" tabindex="-1" aria-labelledby="holdRemarkModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="holdRemarkModalLabel">Hold Notice</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            {!! $educationDetail->admin_remark !!}
+                        </div>
+                    </div>
+                </div>
             </div>
         @endif
         <div class="container-fluid">

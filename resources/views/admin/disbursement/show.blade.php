@@ -4,6 +4,7 @@
 
 @section('styles')
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+<link href="{{ asset('summernotes/summernote-lite.min.css') }}" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
     .detail-container {
@@ -282,14 +283,14 @@
             </div>
             <div class="col-md-3">
                 <div class="info-card">
-                    <div class="info-label">Course</div>
-                    <div class="info-value">{{ $user->course ?? 'N/A' }}</div>
+                    <div class="info-label">Financial Assistent Type</div>
+                    <div class="info-value">{{ $user->financial_asset_type ?? 'N/A' }}</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="info-card">
-                    <div class="info-label">Institute</div>
-                    <div class="info-value">{{ $user->institute_name ?? 'N/A' }}</div>
+                    <div class="info-label">Financial Assistent For</div>
+                    <div class="info-value">{{ $user->financial_asset_for ?? 'N/A' }}</div>
                 </div>
             </div>
         </div>
@@ -324,9 +325,9 @@
     </div>
 
     <!-- PDC/Cheque Details -->
-    @if($pdcDetails->isNotEmpty())
+    {{-- @if($pdcDetails->isNotEmpty())
     <div class="detail-container">
-        {{-- <div class="detail-header">
+        <div class="detail-header">
             <div class="detail-title">
                 <i class="fas fa-money-check me-2"></i>
                 PDC / Cheque Details
@@ -368,9 +369,9 @@
                 </div>
             </div>
             @endforeach
-        </div> --}}
+        </div>
     </div>
-    @endif
+    @endif --}}
 
     <!-- Disbursement History -->
     @if($allDisbursements->isNotEmpty())
@@ -414,7 +415,7 @@
                         </td>
                         <td class="fw-bold">{{ $disbursement->utr_number }}</td>
                         <td class="fw-bold text-success">₹{{ number_format($disbursement->amount, 2) }}</td>
-                        <td>{{ $disbursement->remarks ?? '-' }}</td>
+                        <td>{{ strip_tags($disbursement->remarks ?? '-') }}</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -599,8 +600,27 @@
 </div>
 
 <!-- AJAX handling for form submission -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="{{ asset('summernotes/summernote-lite.min.js') }}"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+$(document).ready(function() {
+    $('textarea:not([readonly]):not([disabled]):not(.swal2-textarea)').each(function() {
+        const $textarea = $(this);
+        if ($textarea.next('.note-editor').length) {
+            return;
+        }
+
+        $textarea.summernote({
+            height: 140,
+            toolbar: [
+                ['style', ['bold', 'italic', 'underline']],
+                ['fontsize', ['fontsize']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['insert', ['link']],
+                ['view', ['codeview']]
+            ]
+        });
+    });
 
     // Check for session success messages and show SweetAlert
     @if (session('success'))

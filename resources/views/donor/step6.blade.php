@@ -46,7 +46,8 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label>PAN Card Copy of Member *</label>
-                                        <input type="file" class="form-control" name="pan_member_file">
+                                        <input type="file" class="form-control" name="pan_member_file"
+                                            {{ empty($document?->pan_member_file) ? 'required' : '' }}>
                                         @error('pan_member_file')
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
@@ -59,7 +60,8 @@
 
                                     <div class="col-md-6 mb-3">
                                         <label>PAN Card Copy of Donor (If Different) *</label>
-                                        <input type="file" class="form-control" name="pan_donor_file">
+                                        <input type="file" class="form-control" name="pan_donor_file"
+                                            {{ empty($document?->pan_donor_file) ? 'required' : '' }}>
                                         @error('pan_donor_file')
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
@@ -72,7 +74,8 @@
 
                                     <div class="col-md-6 mb-3">
                                         <label>Passport Size Photograph *</label>
-                                        <input type="file" class="form-control" name="photo_file">
+                                        <input type="file" class="form-control" name="photo_file"
+                                            {{ empty($document?->photo_file) ? 'required' : '' }}>
                                         @error('photo_file')
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
@@ -84,7 +87,8 @@
 
                                     <div class="col-md-6 mb-3">
                                         <label>Address Proof *</label>
-                                        <input type="file" class="form-control" name="address_proof_file">
+                                        <input type="file" class="form-control" name="address_proof_file"
+                                            {{ empty($document?->address_proof_file) ? 'required' : '' }}>
                                         @error('address_proof_file')
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
@@ -97,7 +101,8 @@
 
                                     <div class="col-md-6 mb-3">
                                         <label>Company Authorization Letter *</label>
-                                        <input type="file" class="form-control" name="authorization_letter_file">
+                                        <input type="file" class="form-control" name="authorization_letter_file"
+                                            {{ empty($document?->authorization_letter_file) ? 'required' : '' }}>
                                         @error('authorization_letter_file')
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror

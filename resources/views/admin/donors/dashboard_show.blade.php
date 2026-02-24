@@ -275,6 +275,7 @@
                                         {{ ($donor->personalDetail->title ?? '') == 'Ms' ? 'selected' : '' }}>Ms</option>
                                 </select>
                             </div>
+                            <!-- CHANGE 2: Added 'ucwords' class to inputs -->
                             <div class="col-md-4">
                                 <div class="info-label">First Name</div>
                                 <input type="text" name="personal_detail[first_name]" class="form-control"

@@ -549,6 +549,249 @@ class DisbursementController extends Controller
     }
 
     /**
+     * Show upcoming disbursement schedules with optional filters.
+     */
+    public function upcoming(Request $request)
+    {
+        $this->ensureDisbursementSchedulesExist();
+
+        $todayOnly = $request->boolean('today_only');
+        $schedules = $this->getDisbursementSchedulesByPeriod('upcoming', $request);
+        $todayPendingCount = $this->getTodayPendingDisbursementCount($request->get('student_type'));
+
+        return view('admin.disbursement.schedule_list', [
+            'schedules' => $schedules,
+            'period' => 'upcoming',
+            'pageTitle' => 'Upcoming Disbursement',
+            'studentType' => $request->get('student_type'),
+            'dateFrom' => $request->get('date_from'),
+            'dateTo' => $request->get('date_to'),
+            'todayOnly' => $todayOnly,
+            'todayPendingCount' => $todayPendingCount,
+        ]);
+    }
+
+    /**
+     * Show past disbursement schedules with optional filters.
+     */
+    public function past(Request $request)
+    {
+        $this->ensureDisbursementSchedulesExist();
+
+        $schedules = $this->getDisbursementSchedulesByPeriod('past', $request);
+
+        return view('admin.disbursement.schedule_list', [
+            'schedules' => $schedules,
+            'period' => 'past',
+            'pageTitle' => 'Past Disbursement',
+            'studentType' => $request->get('student_type'),
+            'dateFrom' => $request->get('date_from'),
+            'dateTo' => $request->get('date_to'),
+        ]);
+    }
+
+    /**
+     * Export upcoming/past disbursement schedules as Excel-compatible CSV.
+     */
+    public function exportSchedules(Request $request, string $period)
+    {
+        if (!in_array($period, ['upcoming', 'past'], true)) {
+            abort(404);
+        }
+
+        $this->ensureDisbursementSchedulesExist();
+        $schedules = $this->getDisbursementSchedulesByPeriod($period, $request);
+        $filename = $period . '_disbursement_' . now()->format('Ymd_His') . '.csv';
+
+        return response()->streamDownload(function () use ($schedules) {
+            $handle = fopen('php://output', 'w');
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, [
+                'Student ID',
+                'Student Name',
+                'Student Type',
+                'Installment',
+                'Paid Installments',
+                'Pending Installments',
+                'Planned Date',
+                'Planned Amount',
+                'Disbursement Date',
+                'Disbursed Amount',
+                'Status',
+            ]);
+
+            foreach ($schedules as $schedule) {
+                fputcsv($handle, [
+                    $schedule->user_id,
+                    $schedule->student_name,
+                    $schedule->student_type,
+                    $schedule->installment_no,
+                    $schedule->paid_installments ?? 0,
+                    $schedule->pending_installments ?? 0,
+                    $schedule->planned_date,
+                    $schedule->planned_amount,
+                    $schedule->disbursement_date ?? '',
+                    $schedule->disbursed_amount ?? '',
+                    $schedule->status,
+                ]);
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    /**
+     * Fetch disbursement schedules by period and filters.
+     */
+    private function getDisbursementSchedulesByPeriod(string $period, Request $request)
+    {
+        $studentType = $request->get('student_type');
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+        $todayOnly = $request->boolean('today_only');
+        $today = now()->toDateString();
+
+        $userQuery = User::query()->select('id', 'name', 'financial_asset_type', 'financial_asset_for');
+
+        if ($studentType === 'domestic_ug') {
+            $userQuery->where('financial_asset_type', 'domestic')
+                ->where('financial_asset_for', 'graduation');
+        } elseif ($studentType === 'domestic_pg') {
+            $userQuery->where('financial_asset_type', 'domestic')
+                ->where('financial_asset_for', 'post_graduation');
+        } elseif ($studentType === 'foreign_pg') {
+            $userQuery->where('financial_asset_type', 'foreign_finance_assistant')
+                ->where('financial_asset_for', 'post_graduation');
+        }
+
+        $users = $userQuery->get()->keyBy('id');
+        $userIds = $users->keys()->values()->all();
+
+        if (empty($userIds)) {
+            return collect();
+        }
+
+        $scheduleQuery = DB::connection('admin_panel')
+            ->table('disbursement_schedules as ds')
+            ->leftJoin('disbursements as d', 'ds.id', '=', 'd.disbursement_schedule_id')
+            ->select(
+                'ds.id as schedule_id',
+                'ds.user_id',
+                'ds.installment_no',
+                'ds.planned_date',
+                'ds.planned_amount',
+                'ds.status',
+                'd.disbursement_date',
+                'd.amount as disbursed_amount',
+                'd.utr_number'
+            )
+            ->whereIn('ds.user_id', $userIds);
+
+        if ($period === 'upcoming') {
+            $scheduleQuery->where('ds.status', 'pending');
+            if ($todayOnly) {
+                $scheduleQuery->whereDate('ds.planned_date', '=', $today);
+            }
+            $scheduleQuery->orderBy('ds.planned_date', 'asc');
+        } else {
+            $scheduleQuery->where('ds.status', 'completed');
+            $scheduleQuery->orderBy('ds.planned_date', 'desc');
+        }
+
+        if (!empty($dateFrom) && !$todayOnly) {
+            $scheduleQuery->whereDate('ds.planned_date', '>=', $dateFrom);
+        }
+
+        if (!empty($dateTo) && !$todayOnly) {
+            $scheduleQuery->whereDate('ds.planned_date', '<=', $dateTo);
+        }
+
+        $installmentSummary = DB::connection('admin_panel')
+            ->table('disbursement_schedules')
+            ->select(
+                'user_id',
+                DB::raw('COUNT(*) as total_installments'),
+                DB::raw('SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as paid_installments')
+            )
+            ->whereIn('user_id', $userIds)
+            ->groupBy('user_id')
+            ->get()
+            ->keyBy('user_id');
+
+        return $scheduleQuery->get()->map(function ($item) use ($users, $installmentSummary) {
+            $user = $users->get($item->user_id);
+            $summary = $installmentSummary->get($item->user_id);
+            $totalInstallments = $summary->total_installments ?? 0;
+            $paidInstallments = $summary->paid_installments ?? 0;
+
+            $item->student_name = $user ? $user->name : 'Unknown';
+            $item->student_type = $this->formatStudentType($user);
+            $item->paid_installments = $paidInstallments;
+            $item->pending_installments = max($totalInstallments - $paidInstallments, 0);
+
+            return $item;
+        });
+    }
+
+    /**
+     * Build readable student type label.
+     */
+    private function formatStudentType($user): string
+    {
+        if (!$user) {
+            return 'N/A';
+        }
+
+        if ($user->financial_asset_type === 'domestic' && $user->financial_asset_for === 'graduation') {
+            return 'Domestic - UG';
+        }
+
+        if ($user->financial_asset_type === 'domestic' && $user->financial_asset_for === 'post_graduation') {
+            return 'Domestic - PG';
+        }
+
+        if ($user->financial_asset_type === 'foreign_finance_assistant' && $user->financial_asset_for === 'post_graduation') {
+            return 'Foreign - PG';
+        }
+
+        return 'N/A';
+    }
+
+    /**
+     * Count today's pending disbursement schedules for Upcoming quick filter.
+     */
+    private function getTodayPendingDisbursementCount(?string $studentType = null): int
+    {
+        $userQuery = User::query()->select('id');
+
+        if ($studentType === 'domestic_ug') {
+            $userQuery->where('financial_asset_type', 'domestic')
+                ->where('financial_asset_for', 'graduation');
+        } elseif ($studentType === 'domestic_pg') {
+            $userQuery->where('financial_asset_type', 'domestic')
+                ->where('financial_asset_for', 'post_graduation');
+        } elseif ($studentType === 'foreign_pg') {
+            $userQuery->where('financial_asset_type', 'foreign_finance_assistant')
+                ->where('financial_asset_for', 'post_graduation');
+        }
+
+        $userIds = $userQuery->pluck('id')->all();
+        if (empty($userIds)) {
+            return 0;
+        }
+
+        return DB::connection('admin_panel')
+            ->table('disbursement_schedules')
+            ->whereIn('user_id', $userIds)
+            ->where('status', 'pending')
+            ->whereDate('planned_date', now()->toDateString())
+            ->count();
+    }
+
+    /**
      * Helper method to get students with specific status
      */
     private function getStudentsWithStatus($status)

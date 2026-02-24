@@ -186,6 +186,10 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/repayments/completed', [RepaymentController::class, 'completed'])->name('repayments.completed');
     Route::get('/repayments/in-progress', [RepaymentController::class, 'inProgress'])->name('repayments.in_progress');
     Route::get('/repayments/ready', [RepaymentController::class, 'ready'])->name('repayments.ready');
+    Route::get('/repayments/export', [RepaymentController::class, 'export'])->name('repayments.export');
+    Route::get('/repayments/upcoming', [RepaymentController::class, 'upcoming'])->name('repayments.upcoming');
+    Route::get('/repayments/past', [RepaymentController::class, 'past'])->name('repayments.past');
+    Route::get('/repayments/export/{period}', [RepaymentController::class, 'exportPeriod'])->name('repayments.export_period');
     Route::get('/repayments/user/{user}', [RepaymentController::class, 'show'])->name('repayments.show');
     Route::post('/repayments/user/{user}', [RepaymentController::class, 'store'])->name('repayments.store');
 
@@ -203,6 +207,9 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/disbursement/completed', [DisbursementController::class, 'completed'])->name('disbursement.completed');
     Route::get('/disbursement/in-progress', [DisbursementController::class, 'inProgress'])->name('disbursement.in_progress');
     Route::get('/disbursement/pending', [DisbursementController::class, 'pending'])->name('disbursement.pending');
+    Route::get('/disbursement/upcoming', [DisbursementController::class, 'upcoming'])->name('disbursement.upcoming');
+    Route::get('/disbursement/past', [DisbursementController::class, 'past'])->name('disbursement.past');
+    Route::get('/disbursement/export/{period}', [DisbursementController::class, 'exportSchedules'])->name('disbursement.export');
 
     // Subcast Routes
     Route::resource('subcasts', SubcastController::class);

@@ -41,10 +41,14 @@ class AdminController extends Controller
             'disbursementCompleted' => $disbursementCounts['completed'],
             'disbursementInProgress' => $disbursementCounts['in_progress'],
             'disbursementPending' => $disbursementCounts['pending'],
+            'disbursementUpcoming' => $disbursementCounts['upcoming'],
+            'disbursementPast' => $disbursementCounts['past'],
             'disbursementTotal' => $disbursementCounts['total'],
             'repaymentCompleted' => $repaymentCounts['completed'],
             'repaymentInProgress' => $repaymentCounts['in_progress'],
             'repaymentReady' => $repaymentCounts['ready'],
+            'repaymentUpcoming' => $repaymentCounts['upcoming'],
+            'repaymentPast' => $repaymentCounts['past'],
             'repaymentTotal' => $repaymentCounts['total'],
         ]);
     }
@@ -97,6 +101,18 @@ class AdminController extends Controller
             $completed = 0;
             $inProgress = 0;
             $pending = 0;
+            $today = now()->toDateString();
+
+            $upcoming = DB::connection('admin_panel')
+                ->table('disbursement_schedules')
+                ->where('status', 'pending')
+                ->whereDate('planned_date', '>=', $today)
+                ->count();
+
+            $past = DB::connection('admin_panel')
+                ->table('disbursement_schedules')
+                ->where('status', 'completed')
+                ->count();
 
             foreach ($scheduleData as $item) {
                 $disbursed = $disbursedData->get($item->user_id);
@@ -121,6 +137,8 @@ class AdminController extends Controller
                 'completed' => $completed,
                 'in_progress' => $inProgress,
                 'pending' => $pending,
+                'upcoming' => $upcoming,
+                'past' => $past,
                 'total' => $completed + $inProgress + $pending
             ];
         } catch (\Exception $e) {
@@ -128,6 +146,8 @@ class AdminController extends Controller
                 'completed' => 0,
                 'in_progress' => 0,
                 'pending' => 0,
+                'upcoming' => 0,
+                'past' => 0,
                 'total' => 0
             ];
         }
@@ -188,10 +208,18 @@ class AdminController extends Controller
                 }
             }
 
+            // Keep these aligned with Repayment section buttons:
+            // Upcoming => Ready + In Progress students
+            // Past => Repayment Completed students
+            $upcoming = $ready + $inProgress;
+            $past = $completed;
+
             return [
                 'completed' => $completed,
                 'in_progress' => $inProgress,
                 'ready' => $ready,
+                'upcoming' => $upcoming,
+                'past' => $past,
                 'total' => $completed + $inProgress + $ready,
             ];
         } catch (\Exception $e) {
@@ -199,6 +227,8 @@ class AdminController extends Controller
                 'completed' => 0,
                 'in_progress' => 0,
                 'ready' => 0,
+                'upcoming' => 0,
+                'past' => 0,
                 'total' => 0,
             ];
         }

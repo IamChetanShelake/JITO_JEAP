@@ -7,6 +7,13 @@
 @endsection
 
 @section('content')
+    <!-- CHANGE 1: CSS Class for Title Case Visual -->
+    <style>
+        .ucwords {
+            text-transform: capitalize;
+        }
+    </style>
+
     <div class="col-lg-9 main-content">
         <div class="container-fluid">
             <div class="row">
@@ -57,7 +64,8 @@
 
                             <div class="col-md-9">
                                 <label>Nominee Name *</label>
-                                <input type="text" name="nominee_name" class="form-control"
+                                <!-- CHANGE 2: Added ucwords class -->
+                                <input type="text" name="nominee_name" class="form-control ucwords"
                                     placeholder="Enter nominee name" required
                                     value="{{ old('nominee_name', $nomineeDetail->nominee_name ?? '') }}">
                                 @error('nominee_name')
@@ -69,7 +77,8 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label>Relationship with Member *</label>
-                                <input type="text" name="nominee_relationship" class="form-control"
+                                <!-- CHANGE 2: Added ucwords class -->
+                                <input type="text" name="nominee_relationship" class="form-control ucwords"
                                     placeholder="Enter relationship with member" required
                                     value="{{ old('nominee_relationship', $nomineeDetail->nominee_relationship ?? '') }}">
                                 @error('nominee_relationship')
@@ -91,7 +100,8 @@
                         <div class="row mb-3">
                             <div class="col-md-12">
                                 <label>Address *</label>
-                                <textarea name="nominee_address" class="form-control" rows="2" placeholder="Enter nominee address"
+                                <!-- CHANGE 2: Added ucwords class -->
+                                <textarea name="nominee_address" class="form-control ucwords" rows="2" placeholder="Enter nominee address"
                                     required>{{ old('nominee_address', $nomineeDetail->nominee_address ?? '') }}</textarea>
                                 @error('nominee_address')
                                     <small class="text-danger">{{ $message }}</small>
@@ -102,7 +112,8 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label>City *</label>
-                                <input type="text" name="nominee_city" class="form-control" placeholder="Enter city"
+                                <!-- CHANGE 2: Added ucwords class -->
+                                <input type="text" name="nominee_city" class="form-control ucwords" placeholder="Enter city"
                                     required
                                     value="{{ old('nominee_city', $nomineeDetail->nominee_city ?? '') }}">
                                 @error('nominee_city')
@@ -144,36 +155,18 @@
 @endsection
 
 <script>
-    function toggleJito(show) {
-        document.getElementById('jito_uid_box').style.display = show ? 'block' : 'none';
+    // --- CHANGE 3: Title Case Auto-Capitalization Logic ---
+    function toTitleCase(str) {
+        return str.toLowerCase().split(' ').map(function(word) {
+            return (word.charAt(0).toUpperCase() + word.slice(1));
+        }).join(' ');
     }
 
-    document.getElementById('kids_count').addEventListener('input', function() {
-        let count = parseInt(this.value) || 0;
-        let box = document.getElementById('kids_container');
-        box.innerHTML = '';
-
-        for (let i = 1; i <= count; i++) {
-            box.innerHTML += `
-        <div class="card mb-3">
-            <div class="card-body">
-                <h6>Child ${i}</h6>
-                <div class="row">
-                    <div class="col-md-4">
-                        <input name="child_name[]" class="form-control" placeholder="Name" required>
-                    </div>
-                    <div class="col-md-4">
-                        <select name="child_gender[]" class="form-control" required>
-                            <option value="">Gender</option>
-                            <option>Male</option><option>Female</option><option>Other</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <input type="date" name="child_dob[]" class="form-control" required>
-                    </div>
-                </div>
-            </div>
-        </div>`;
+    // Use event delegation to handle blur for inputs
+    document.addEventListener('blur', function(e) {
+        // Check if the blurred element has the 'ucwords' class
+        if (e.target.classList.contains('ucwords')) {
+            e.target.value = toTitleCase(e.target.value);
         }
-    });
+    }, true);
 </script>

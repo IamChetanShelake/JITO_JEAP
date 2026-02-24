@@ -395,6 +395,41 @@
             transform: translateY(-50%);
             padding: 0;
         }
+
+        .back-btn {
+            background-color: #FFC107;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 8px rgba(57, 49, 133, 0.3);
+            width: 100%;
+            font-size: 0.9rem;
+        }
+
+        @media (min-width: 768px) {
+            .back-btn {
+                width: auto;
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+
+        .back-btn:hover {
+            background-color: #4a40a8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(57, 49, 133, 0.4);
+        }
+
+        .back-btn i {
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 
@@ -417,7 +452,31 @@
                     </b></span>
             </a>
             <div class="ms-auto d-flex align-items-center">
-                <a href="{{ route('user.logs') }}" class="btn btn-purple me-2" style="background-color: green; color: white;">Logs</a>
+                <!-- Print Options Dropdown -->
+                <div class="dropdown p-2" style="position: relative;">
+                    <button class="back-btn" style="background-color: #FFC107; color: #333;"
+                        onclick="toggleDropdown()">
+                        <i class="fas fa-print"></i> Print Options <i class="fas fa-chevron-down"
+                            style="margin-left: 0.5rem;"></i>
+                    </button>
+                    <div id="printDropdown" class="dropdown-content"
+                        style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 200px;">
+                        <a href="{{ route('user.generate.pdf', $user) }}" target="_blank" class="dropdown-item"
+                            style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
+                            <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Application PDF
+                        </a>
+                        <a href="{{ route('user.generate.summary.pdf', $user) }}" target="_blank" class="dropdown-item"
+                            style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
+                            <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Summary PDF
+                        </a>
+                        <a href="{{ route('user.sanction.letter', $user) }}" target="_blank" class="dropdown-item"
+                            style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
+                            <i class="fas fa-file-contract" style="margin-right: 0.5rem;"></i> Sanction Letter
+                        </a>
+                    </div>
+                </div>
+                <a href="{{ route('user.logs') }}" class="btn btn-purple me-2"
+                    style="background-color: green; color: white;">Logs</a>
                 @yield('step')
                 <button class="btn btn-danger" href="{{ route('logout') }}"
                     onclick="event.preventDefault();
@@ -729,7 +788,7 @@
                                     {{-- Default Icon --}}
                                     <i class="bi bi-eye"></i>
                                 @endif
-                                {{-- 
+                                {{--
 @if ($reviewSubmit && in_array($reviewSubmit->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
 @if ($reviewSubmit && $reviewSubmit->submit_status === 'resubmit') resubmit-step @endif
 @if (request()->routeIs('user.step7')) active-step @endif">
@@ -773,20 +832,20 @@
                                     class="step-icon
                                     @if (auth()->check() &&
                                             auth()->user()->pdcDetail &&
-                                            in_array(auth()->user()->pdcDetail->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
-                                    @if (auth()->check() && auth()->user()->pdcDetail && auth()->user()->pdcDetail->submit_status === 'resubmit') resubmit-step @endif
+                                            in_array(auth()->user()->pdcDetail->status, ['submited', 'submitted', 'approved'])) completed-step @endif
+                                    @if (auth()->check() && auth()->user()->pdcDetail && auth()->user()->pdcDetail->status === 'resubmit') resubmit-step @endif
                                     @if (request()->routeIs('user.step8')) active-step @endif">
 
                                     @if (auth()->check() &&
                                             auth()->user()->pdcDetail &&
-                                            in_array(auth()->user()->pdcDetail->submit_status, ['submited', 'submitted', 'approved']))
+                                            in_array(auth()->user()->pdcDetail->status, ['submited', 'submitted', 'approved']))
                                         <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path
                                                 d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
                                                 fill="white" />
                                         </svg>
-                                    @elseif (auth()->check() && auth()->user()->pdcDetail && auth()->user()->pdcDetail->submit_status === 'resubmit')
+                                    @elseif (auth()->check() && auth()->user()->pdcDetail && auth()->user()->pdcDetail->status === 'resubmit')
                                         <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
                                             title="{{ auth()->user()->pdcDetail->admin_remark ?? 'On Hold' }}"></i>
                                     @else
@@ -823,6 +882,24 @@
                     sidebar.classList.toggle('open');
                     overlay.classList.toggle('show');
                 }
+
+                function toggleDropdown() {
+                    const dropdown = document.getElementById('printDropdown');
+                    if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+                        dropdown.style.display = 'block';
+                    } else {
+                        dropdown.style.display = 'none';
+                    }
+                }
+
+                // Close dropdown when clicking outside
+                window.addEventListener('click', function(event) {
+                    const dropdown = document.getElementById('printDropdown');
+                    const button = dropdown.previousElementSibling;
+                    if (event.target !== dropdown && event.target !== button) {
+                        dropdown.style.display = 'none';
+                    }
+                });
             </script>
 
             <!-- File Upload Functionality Script -->

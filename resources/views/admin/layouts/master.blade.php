@@ -8,7 +8,6 @@
     <title>@yield('title', 'JitoJeap Admin Panel')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-color: #393185;
@@ -135,10 +134,12 @@
         .sidebar-footer {
             position: absolute;
             bottom: 0;
-            left: 0;
+            left: -10px;
             right: 0;
             padding: 1rem;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: #29235f;
+            width: 92%;
         }
 
         .sidebar-toggle-btn {
@@ -682,6 +683,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.accountants') ? 'active' : '' }}"
+                                href="{{ route('admin.accountants.index') }}">
+                                <i class="fas fa-calculator"></i>
+                                <span class="nav-text">Accountants</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.zones') ? 'active' : '' }}"
                                 href="{{ route('admin.zones.index') }}">
                                 <i class="fas fa-globe"></i>
@@ -763,7 +771,7 @@
                         </li>
                     @endif
                     <li class="nav-item">
-                        <a class="nav-link" href="#"
+                        <a class="nav-link" href="#" style="margin-bottom: 20px;"
                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             <i class="fas fa-sign-out-alt"></i>
                             <span class="nav-text">Logout</span>
@@ -793,30 +801,27 @@
     <footer>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        @if (session('success'))
+            <script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: @json(session('success')),
+                    confirmButtonColor: '#393185'
+                });
+            </script>
+        @endif
+        @if (session('error'))
+            <script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: @json(session('error')),
+                    confirmButtonColor: '#E31E24'
+                });
+            </script>
+        @endif
         <script>
-            // Check for session success/error messages and show SweetAlert
-            document.addEventListener('DOMContentLoaded', function() {
-                @if (session('success'))
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: '{{ session('success') }}',
-                        timer: 3000,
-                        timerProgressBar: true,
-                        showConfirmButton: false
-                    });
-                @endif
-
-                @if (session('error'))
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: '{{ session('error') }}',
-                        confirmButtonColor: '#393185'
-                    });
-                @endif
-            });
-
             // Sidebar toggle functionality
             function toggleSidebar() {
                 const sidebar = document.getElementById('sidebar');
@@ -927,3 +932,4 @@
 </body>
 
 </html>
+

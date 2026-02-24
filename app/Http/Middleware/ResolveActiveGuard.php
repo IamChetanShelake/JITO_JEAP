@@ -17,7 +17,7 @@ class ResolveActiveGuard
      */
     public function handle(Request $request, Closure $next)
     {
-        $guards = ['admin', 'apex', 'committee', 'chapter'];
+        $guards = ['admin', 'apex', 'committee', 'chapter', 'accountant'];
         $activeGuard = null;
 
         foreach ($guards as $guard) {
@@ -37,3 +37,4 @@ class ResolveActiveGuard
         return $next($request);
     }
 }
+

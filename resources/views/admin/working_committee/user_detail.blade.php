@@ -4,6 +4,7 @@
 
 @section('styles')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="{{ asset('summernotes/summernote-lite.min.css') }}">
     <style>
         :root {
             --primary-green: #4CAF50;
@@ -748,9 +749,35 @@
             </h1>
             <p class="page-subtitle">Review and approve working committee steps</p>
         </div>
-        <a href="{{ route('admin.home') }}" class="back-btn">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
-        </a>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <!-- Print Options Dropdown -->
+            <div class="dropdown" style="position: relative;">
+                <button class="back-btn" style="background-color: var(--primary-yellow); color: #333;"
+                    onclick="toggleDropdown()">
+                    <i class="fas fa-print"></i> Print Options <i class="fas fa-chevron-down"
+                        style="margin-left: 0.5rem;"></i>
+                </button>
+                <div id="printDropdown" class="dropdown-content"
+                    style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 200px;">
+                    <a href="{{ route('admin.user.generate.pdf', $user) }}" class="dropdown-item" target="_blank"
+                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
+                        <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Application PDF
+                    </a>
+                    <a href="{{ route('admin.user.generate.summary.pdf', $user) }}" class="dropdown-item" target="_blank"
+                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
+                        <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Summary PDF
+                    </a>
+                    <a href="{{ route('admin.user.sanction.letter', $user) }}" target="_blank" class="dropdown-item"
+                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
+                        <i class="fas fa-file-contract" style="margin-right: 0.5rem;"></i> Sanction Letter
+                    </a>
+                </div>
+            </div>
+
+            <a href="{{ route('admin.home') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
     </div>
 
     <!-- User Info Card -->
@@ -768,6 +795,13 @@
                 <p>{{ $user->email }}</p>
                 <p>{{ $user->phone }}</p>
             </div>
+
+        </div>
+        <div style="text-align: right; margin-top: -2.5rem;">
+            <a href="{{ route('admin.user.logs', ['user' => $user->id]) }}" class="back-btn"
+                style="background-color: var(--primary-blue); color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                <i class="fas fa-history"></i> Logs
+            </a>
         </div>
         <div class="user-info-footer">
             <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}</p>
@@ -868,8 +902,8 @@
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Alternate Phone</label>
-                                    <input type="tel" class="form-input" value="{{ $user->alternate_phone ?? 'N/A' }}"
-                                        readonly>
+                                    <input type="tel" class="form-input"
+                                        value="{{ $user->alternate_phone ?? 'N/A' }}" readonly>
                                 </div>
                             </div>
                             <div class="form-row">
@@ -1959,7 +1993,7 @@
                     <div class="data-item">
                         <div class="data-label">Terms & Conditions Approved</div>
                         <div class="data-value">
-                            @if ($user->document && $user->document->submit_status == 'approved')
+                            @if ($user->document && $user->application_status == 'submitted')
                                 Yes (approved)
                             @elseif($user->document && $user->document->submit_status == 'resubmit')
                                 No (needs resubmission)
@@ -2004,7 +2038,7 @@
                             <div class="form-row">
                                 <div class="form-field">
                                     <label class="form-label">Working Committee Approval Remark</label>
-                                    <textarea class="form-textarea" readonly>{{ $user->workflowStatus->working_committee_approval_remarks }}</textarea>
+                                    <textarea class="form-textarea" readonly>{{ strip_tags($user->workflowStatus->working_committee_approval_remarks ?? 'N/A') }}</textarea>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Approval Date</label>
@@ -2086,7 +2120,7 @@
                                 <div class="form-row">
                                     <div class="form-field form-field-full">
                                         <label class="form-label">Remarks for Approval</label>
-                                        <textarea class="form-textarea" readonly>{{ $user->workingCommitteeApproval->remarks_for_approval }}</textarea>
+                                        <textarea class="form-textarea" readonly>{{ strip_tags($user->workingCommitteeApproval->remarks_for_approval ?? 'N/A') }}</textarea>
                                     </div>
                                 </div>
                             @endif
@@ -2117,7 +2151,8 @@
                                                         @foreach ($yearlyDates as $index => $date)
                                                             <tr>
                                                                 <td>{{ $index + 1 }}</td>
-                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}</td>
+                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}
+                                                                </td>
                                                                 <td class="amount-cell">
                                                                     ₹{{ number_format($yearlyAmounts[$index] ?? 0, 2) }}
                                                                 </td>
@@ -2158,7 +2193,8 @@
                                                                 <td>{{ $index + 1 }}
                                                                     ({{ $index % 2 === 0 ? '1st Half' : '2nd Half' }})
                                                                 </td>
-                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}</td>
+                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}
+                                                                </td>
                                                                 <td class="amount-cell">
                                                                     ₹{{ number_format($halfYearlyAmounts[$index] ?? 0, 2) }}
                                                                 </td>
@@ -2181,7 +2217,7 @@
                                         <div class="form-row">
                                             <div class="form-field">
                                                 <label class="form-label">Apex 1 Approval Remark</label>
-                                                <textarea class="form-input" readonly>{{ $user->workflowStatus->apex_1_approval_remarks ?? 'N/A' }}</textarea>
+                                                <textarea class="form-input" readonly>{{ strip_tags($user->workflowStatus->apex_1_approval_remarks ?? 'N/A') }}</textarea>
                                             </div>
                                             <div class="form-field">
                                                 <label class="form-label">Apex 1 Approval Date</label>
@@ -2193,7 +2229,7 @@
                                         <div class="form-row">
                                             <div class="form-field">
                                                 <label class="form-label">Chapter Approval Remark</label>
-                                                <textarea class="form-input" readonly>{{ $user->workflowStatus->chapter_approval_remarks ?? 'N/A' }}</textarea>
+                                                <textarea class="form-input" readonly>{{ strip_tags($user->workflowStatus->chapter_approval_remarks ?? 'N/A')  }}</textarea>
                                             </div>
                                             <div class="form-field">
                                                 <label class="form-label">Chapter Approval Date</label>
@@ -2233,7 +2269,7 @@
                             <div class="form-row">
                                 <div class="form-field form-field-full">
                                     <label class="form-label" style="color: #c62828;">Rejection Remarks</label>
-                                    <textarea class="form-textarea" readonly style="border-color: #f44336; background: rgba(244, 67, 54, 0.05);">{{ $user->workflowStatus->working_committee_reject_remarks }}</textarea>
+                                    <textarea class="form-textarea" readonly style="border-color: #f44336; background: rgba(244, 67, 54, 0.05);">{!! $user->workflowStatus->working_committee_reject_remarks !!}</textarea>
                                 </div>
                             </div>
                             <div class="form-row">
@@ -2263,7 +2299,7 @@
                             <div class="form-row">
                                 <div class="form-field form-field-full">
                                     <label class="form-label" style="color: #f57c00;">Hold Remarks</label>
-                                    <textarea class="form-textarea" readonly style="border-color: #ffc107; background: rgba(255, 193, 7, 0.05);">{{ $user->workflowStatus->working_committee_reject_remarks }}</textarea>
+                                    <textarea class="form-textarea" readonly style="border-color: #ffc107; background: rgba(255, 193, 7, 0.05);">{!! $user->workflowStatus->working_committee_hold_remarks !!}</textarea>
                                 </div>
                             </div>
                             <div class="form-row">
@@ -2361,7 +2397,7 @@
                                             <div class="form-row">
                                                 <div class="form-field">
                                                     <label class="form-label">Chapter Approval Remark</label>
-                                                    <textarea class="form-input" readonly>{{ $user->workflowStatus->chapter_approval_remarks ?? 'N/A' }}</textarea>
+                                                    <textarea class="form-input" readonly>{{ strip_tags($user->workflowStatus->chapter_approval_remarks ?? 'N/A')  }}</textarea>
                                                 </div>
                                                 <div class="form-field">
                                                     <label class="form-label">Chapter Approval Date</label>
@@ -2605,6 +2641,26 @@
     </div>
 
     <script>
+        function toggleDropdown() {
+            const dropdown = document.getElementById('printDropdown');
+            if (dropdown) {
+                dropdown.style.display = dropdown.style.display === 'none' || dropdown.style.display === '' ? 'block' :
+                    'none';
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('printDropdown');
+            const button = dropdown ? dropdown.previousElementSibling : null;
+
+            if (dropdown && button) {
+                if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+                    dropdown.style.display = 'none';
+                }
+            }
+        });
+
         function showStep(stepNumber) {
             document.querySelectorAll('.step-content').forEach(content => {
                 content.classList.remove('active');
@@ -2779,6 +2835,8 @@
         }
     </script>
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="{{ asset('summernotes/summernote-lite.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -2831,6 +2889,28 @@
                 }
             });
 
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('textarea:not([readonly]):not([disabled]):not(.swal2-textarea)').each(function() {
+                const $textarea = $(this);
+                if ($textarea.next('.note-editor').length) {
+                    return;
+                }
+
+                $textarea.summernote({
+                    height: 140,
+                    toolbar: [
+                        ['style', ['bold', 'italic', 'underline']],
+                        ['fontsize', ['fontsize']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['insert', ['link']],
+                        ['view', ['codeview']]
+                    ]
+                });
+            });
         });
     </script>
 

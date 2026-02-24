@@ -18,6 +18,7 @@ use App\Http\Controllers\PincodeController;
 use App\Http\Controllers\ApexLeadershipController;
 use App\Http\Controllers\WorkingCommitteeController;
 use App\Http\Controllers\InitiativeController;
+use App\Http\Controllers\AccountantController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -30,9 +31,8 @@ Route::prefix('donor')->name('donor.')->group(function () {
     Route::get('/register', [DonorAuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [DonorAuthController::class, 'register'])->name('register.submit');
     Route::post('/logout', [DonorAuthController::class, 'logout'])->name('logout');
-});
 
-Route::middleware('auth:donor')->group(function () {
+    Route::middleware('auth:donor')->group(function () {
         Route::get('/dashboard', [DonorAuthController::class, 'dashboard'])->name('dashboard');
         Route::get('/step1', [DonorWebController::class, 'step1'])->name('step1');
         Route::post('/step1', [DonorWebController::class, 'storestep1'])->name('step1.store');
@@ -57,7 +57,7 @@ Route::middleware('auth:donor')->group(function () {
 
         Route::get('/step8', [DonorWebController::class, 'step8'])->name('step8');
         Route::post('/step8', [DonorWebController::class, 'storestep8'])->name('step8.store');
-        
+    });
 });
 
 Auth::routes();
@@ -189,17 +189,15 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/repayments/user/{user}', [RepaymentController::class, 'show'])->name('repayments.show');
     Route::post('/repayments/user/{user}', [RepaymentController::class, 'store'])->name('repayments.store');
 
+    // Accountant Routes
+    Route::resource('accountants', AccountantController::class);
+
     // Donor Routes
     Route::resource('donors', DonorController::class);
     Route::get('/donor-dashboard', [DonorController::class, 'dashboard'])->name('donors.dashboard');
     Route::get('/donor-dashboard/{donor}', [DonorController::class, 'dashboardShow'])->name('donors.dashboard.show');
+
     Route::put('/donor-dashboard-update/{donor}', [DonorController::class, 'updatedonor'])->name('donors.updatedonor');
-   
-
-    
-
-
-    
 
     // Disbursement Filtered Routes
     Route::get('/disbursement/completed', [DisbursementController::class, 'completed'])->name('disbursement.completed');
@@ -310,4 +308,13 @@ Route::middleware(['auth', 'user'])
         // User logs route
         Route::get('/logs', [UserController::class, 'showUserLogs'])
             ->name('logs');
+
+        // Generate Application PDF
+        Route::get('/{user}/generate-pdf', [AdminController::class, 'generateApplicationPDF'])->name('generate.pdf');
+
+        // Generate Summary PDF
+        Route::get('/{user}/generate-summary-pdf', [AdminController::class, 'generateSummaryPDF'])->name('generate.summary.pdf');
+
+        // View Sanction Letter
+        Route::get('/{user}/sanction-letter', [AdminController::class, 'viewSanctionLetter'])->name('sanction.letter');
     });

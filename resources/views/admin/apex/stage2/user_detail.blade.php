@@ -3,6 +3,7 @@
 @section('title', 'User Form Details - JitoJeap Admin')
 
 @section('styles')
+<link rel="stylesheet" href="{{ asset('summernotes/summernote-lite.min.css') }}">
 <style>
     :root {
         --primary-green: #4CAF50;
@@ -2016,7 +2017,7 @@
                 <div class="data-item">
                     <div class="data-label">Terms & Conditions Approved</div>
                     <div class="data-value">
-                        @if($user->document && $user->document->submit_status == 'approved')
+                        @if($user->document && $user->application_status == 'submitted')
                             Yes (approved)
                         @elseif($user->document && $user->document->submit_status == 'resubmit')
                             No (needs resubmission)
@@ -2108,7 +2109,7 @@
                             <thead>
                                 <tr>
                                     <th>Sr No</th>
-                                    <th>Cheque Date</th>
+                                    <th>Repayment Date</th>
                                     <th>Amount (₹)</th>
                                     <th>Bank Name</th>
                                     <th>IFSC Code</th>
@@ -2183,13 +2184,13 @@
                         @if($user->workflowStatus->apex_2_approval_remarks)
                             <div class="data-item">
                                 <div class="data-label">Apex Approval Remarks</div>
-                                <div class="data-value">{{ $user->workflowStatus->apex_2_approval_remarks }}</div>
+                                <div class="data-value">{{ strip_tags($user->workflowStatus->apex_2_approval_remarks) }}</div>
                             </div>
                         @endif
                         @if($user->workflowStatus->apex_staff_remark)
                             <div class="data-item">
                                 <div class="data-label">Apex Staff Remarks</div>
-                                <div class="data-value">{{ $user->workflowStatus->apex_staff_remark }}</div>
+                                <div class="data-value">{{ strip_tags($user->workflowStatus->apex_staff_remark ?? 'N/A') }}</div>
                             </div>
                         @endif
                     </div>
@@ -2206,7 +2207,7 @@
                         @if($user->workflowStatus->apex_2_reject_remarks)
                             <div class="data-item">
                                 <div class="data-label">Send Back For Correction Remarks</div>
-                                <div class="data-value">{{ $user->workflowStatus->apex_2_reject_remarks }}</div>
+                                <div class="data-value">{{ strip_tags($user->workflowStatus->apex_2_reject_remarks ?? 'N/A') }}</div>
                             </div>
                         @endif
                     </div>
@@ -2238,6 +2239,7 @@
                     @csrf
                     <div class="action-form-row">
                         <div style="flex: 2;">
+                            <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Approval Remark</label>
                             <textarea name="admin_remark"
                                       placeholder="Approval remark (optional but recommended)"
                                       rows="3"
@@ -2268,6 +2270,7 @@
                     @csrf
                     <div class="action-form-row">
                         <div style="flex: 2;">
+                            <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Send Back For Correction Remark <span style="color: var(--primary-red);">*</span></label>
                             <textarea name="admin_remark"
                                       placeholder="Send back for correction remark (required)"
                                       rows="3"
@@ -2299,6 +2302,8 @@
 
 
 <!-- SweetAlert CDN -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="{{ asset('summernotes/summernote-lite.min.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
@@ -2452,6 +2457,28 @@ document.addEventListener('click', function(event) {
 });
 </script>
 
+<script>
+$(document).ready(function() {
+    $('textarea:not([readonly]):not([disabled]):not(.swal2-textarea)').each(function() {
+        const $textarea = $(this);
+        if ($textarea.next('.note-editor').length) {
+            return;
+        }
+
+        $textarea.summernote({
+            height: 140,
+            toolbar: [
+                ['style', ['bold', 'italic', 'underline']],
+                ['fontsize', ['fontsize']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['insert', ['link']],
+                ['view', ['codeview']]
+            ]
+        });
+    });
+});
+</script>
+
 <!-- Document Modal -->
 <div id="documentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
     <div style="position:relative; max-width:90%; max-height:90%; background:white; border-radius:8px; overflow:hidden; display: flex; flex-direction: column;">
@@ -2467,5 +2494,4 @@ document.addEventListener('click', function(event) {
         </div>
     </div>
 </div>
-
 

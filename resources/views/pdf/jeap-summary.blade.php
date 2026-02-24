@@ -502,7 +502,7 @@
         <h2>PART [10]:Chapter Remarks</h2>
         <div class="remarks-section">
             <p><strong>Chapter Remarks:</strong></p>
-            <p>{{ $workflow->chapter_approval_remarks ?? 'No chapter remarks available.' }}</p>
+            <p>{!! $workflow->chapter_approval_remarks ?? 'No chapter remarks available.' !!}</p>
         </div>
     </div>
 
@@ -511,7 +511,7 @@
         <h2>PART [11]:Apex Working Scrutiny team Remarks</h2>
         <div class="remarks-section">
             <p><strong>Apex Working Comittee Remarks:</strong></p>
-            <p>{{ $workflow->working_committee_approval_remarks ?? 'No apex remarks available.' }}</p>
+            <p>{!! $workflow->working_committee_approval_remarks ?? 'No apex remarks available.' !!}</p>
             <p><strong>Apex Working Comittee Approval Date:</strong> {{ $workflow->working_committee_updated_at ? \Carbon\Carbon::parse($workflow->working_committee_updated_at)->format('d/m/Y') : 'N/A' }}</p>
         </div>
     </div>

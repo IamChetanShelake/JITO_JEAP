@@ -100,9 +100,35 @@
         @if ($guarantorDetail && $guarantorDetail->submit_status === 'resubmit' && $guarantorDetail->admin_remark)
             <div class="alert alert-warning alert-dismissible fade show" role="alert"
                 style="background-color: #fff3cd; border-color: #ffeaa7; color: #856404; border-radius: 8px; margin-bottom: 20px;">
-                <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
-                <p style="margin: 8px 0 0 0; font-size: 14px;">{{ $guarantorDetail->admin_remark }}</p>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                    <div style="min-width: 0;">
+                        <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
+                        <p style="margin: 8px 0 4px 0; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            {{ trim(preg_replace('/\s+/', ' ', strip_tags($guarantorDetail->admin_remark))) }}
+                        </p>
+                        <button type="button" class="btn btn-link p-0" data-bs-toggle="modal"
+                            data-bs-target="#holdRemarkModal">
+                            View More
+                        </button>
+                    </div>
+                    <button type="button" class="btn-close ms-2 flex-shrink-0" data-bs-dismiss="alert"
+                        aria-label="Close"></button>
+                </div>
+            </div>
+
+            <div class="modal fade" id="holdRemarkModal" tabindex="-1" aria-labelledby="holdRemarkModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="holdRemarkModalLabel">Hold Notice</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            {!! $guarantorDetail->admin_remark !!}
+                        </div>
+                    </div>
+                </div>
             </div>
         @endif
         <div class="container-fluid">
@@ -466,11 +492,6 @@
                                             <div class="form-group mb-3">
                                                 <label for="g_two_pan" class="form-label">PAN Card Number <span
                                                         style="color: red;">*</span></label>
-                                                {{-- <input type="text" id="g_two_pan" name="g_two_pan"
-                                                    class="form-control" placeholder="Enter 10-character PAN number"
-                                                    value="{{ old('g_two_pan') ?: $guarantorDetail->g_two_pan ?? '' }}"
-                                                    onblur="checkDuplicate('pan', this.value, 'g_two_pan_error')" required>
-                                                <small id="g_two_pan_error" class="text-danger"></small> --}}
 
                                                 <input type="text" id="g_two_pan" name="g_two_pan"
                                                     class="form-control"
@@ -772,6 +793,60 @@
 
         document.addEventListener('DOMContentLoaded', function() {
 
+            /* ===== Age Validation Function ===== */
+            function validateGuarantorAge(dob, guarantorName) {
+                try {
+                    // Parse the DOB from API response (format: YYYY-MM-DD)
+                    const birthDate = new Date(dob);
+                    const today = new Date();
+
+                    // Calculate age
+                    let age = today.getFullYear() - birthDate.getFullYear();
+                    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+                    // Adjust age if birthday hasn't occurred this year yet
+                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                        age--;
+                    }
+
+                    // Check if age is within valid range (25-65 years)
+                    if (age >= 25 && age <= 65) {
+                        return {
+                            isValid: true,
+                            age: age
+                        };
+                    } else {
+                        return {
+                            isValid: false,
+                            message: `${guarantorName} age must be between 25 and 65 years. Current age: ${age} years.`
+                        };
+                    }
+                } catch (error) {
+                    console.error('Error calculating age:', error);
+                    return {
+                        isValid: false,
+                        message: `${guarantorName} age validation failed. Please check the date of birth format.`
+                    };
+                }
+            }
+
+            /* ===== Clear Guarantor Fields Function ===== */
+            function clearGuarantorFields(guarantorType) {
+                if (guarantorType === 'first') {
+                    // Clear First Guarantor fields
+                    document.getElementById('g_one_pan').value = '';
+                    document.getElementById('g_one_name').value = '';
+                    document.querySelector('[name="g_one_d_o_b"]').value = '';
+                    document.getElementById('g_one_gender').value = '';
+                } else if (guarantorType === 'second') {
+                    // Clear Second Guarantor fields
+                    document.getElementById('g_two_pan').value = '';
+                    document.querySelector('[name="g_two_name"]').value = '';
+                    document.querySelector('[name="g_two_d_o_b"]').value = '';
+                    document.querySelector('[name="g_two_gender"]').value = '';
+                }
+            }
+
             /* ===== First Guarantor PAN Verification ===== */
             function verifyFirstGuarantorPan() {
                 const panInput = document.getElementById('g_one_pan');
@@ -804,6 +879,17 @@
                         if (resp.status === true) {
                             let data = resp.data;
 
+                            // Check age validation based on DOB
+                            if (data.dob) {
+                                const ageValidation = validateGuarantorAge(data.dob, 'First Guarantor');
+                                if (!ageValidation.isValid) {
+                                    // Age validation failed - clear fields and show error
+                                    clearGuarantorFields('first');
+                                    alert(ageValidation.message);
+                                    return;
+                                }
+                            }
+
                             // Populate First Guarantor fields
                             document.getElementById('g_one_name').value = data.full_name ?? '';
                             document.querySelector('[name="g_one_d_o_b"]').value = data.dob ?? '';
@@ -814,7 +900,7 @@
                                 document.getElementById('g_one_gender').value = 'female';
                             }
 
-                            alert('First Guarantor PAN verified successfully!');
+                            showMessage('alert-success', 'First Guarantor PAN verified successfully!');
                         } else {
                             alert('Invalid First Guarantor PAN: ' + (resp.message ||
                                 'Please check and try again'));
@@ -858,6 +944,17 @@
                         if (resp.status === true) {
                             let data = resp.data;
 
+                            // Check age validation based on DOB
+                            if (data.dob) {
+                                const ageValidation = validateGuarantorAge(data.dob, 'Second Guarantor');
+                                if (!ageValidation.isValid) {
+                                    // Age validation failed - clear fields and show error
+                                    clearGuarantorFields('second');
+                                    alert(ageValidation.message);
+                                    return;
+                                }
+                            }
+
                             // Populate Second Guarantor fields
                             document.querySelector('[name="g_two_name"]').value = data.full_name ?? '';
                             document.querySelector('[name="g_two_d_o_b"]').value = data.dob ?? '';
@@ -868,7 +965,7 @@
                                 document.querySelector('[name="g_two_gender"]').value = 'female';
                             }
 
-                            alert('Second Guarantor PAN verified successfully!');
+                            showMessage('alert-success', 'Second Guarantor PAN verified successfully!');
                         } else {
                             alert('Invalid Second Guarantor PAN: ' + (resp.message ||
                                 'Please check and try again'));
@@ -986,7 +1083,7 @@
             });
     </script>
 
-   
+
     <script>
         function checkDuplicate(field, value, errorElementId) {
             const errorEl = document.getElementById(errorElementId);

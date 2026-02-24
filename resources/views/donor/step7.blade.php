@@ -67,7 +67,9 @@
                                     <!-- For RTGS/NEFT  -->
                                     <div class="col-md-6 mb-3">
                                         <label>RTGS/NEFT *</label>
-                                        <input type="text" class="form-control" value="">
+                                        <input type="text" class="form-control" name="rtgs_neft"
+                                            placeholder="Enter RTGS/NEFT details" required
+                                            value="{{ old('rtgs_neft', $paymentDetail->rtgs_neft ?? '') }}">
                                     </div>
 
                                     <!-- Bank Name -->
@@ -123,7 +125,8 @@
                                                 <tr>
                                                     <td>{{ $i + 1 }}</td>
                                                     <td>
-                                                        <input type="text" name="utr_no[]" class="form-control" required
+                                                        <input type="text" name="utr_no[]" class="form-control"
+                                                            placeholder="Enter cheque/DD/UTR number" required
                                                             value="{{ old('utr_no.' . $i, $entry['utr_no'] ?? '') }}">
                                                         @error('utr_no.' . $i)
                                                             <small class="text-danger">{{ $message }}</small>
@@ -137,21 +140,24 @@
                                                         @enderror
                                                     </td>
                                                     <td>
-                                                        <input type="number" name="amount[]" class="form-control" required
+                                                        <input type="number" name="amount[]" class="form-control"
+                                                            placeholder="Enter amount" required
                                                             value="{{ old('amount.' . $i, $entry['amount'] ?? '') }}">
                                                         @error('amount.' . $i)
                                                             <small class="text-danger">{{ $message }}</small>
                                                         @enderror
                                                     </td>
                                                     <td>
-                                                        <input type="text" name="bank_branch[]" class="form-control" required
+                                                        <input type="text" name="bank_branch[]" class="form-control"
+                                                            placeholder="Enter bank name and branch" required
                                                             value="{{ old('bank_branch.' . $i, $entry['bank_branch'] ?? '') }}">
                                                         @error('bank_branch.' . $i)
                                                             <small class="text-danger">{{ $message }}</small>
                                                         @enderror
                                                     </td>
                                                     <td>
-                                                        <input type="text" name="issued_by[]" class="form-control" required
+                                                        <input type="text" name="issued_by[]" class="form-control"
+                                                            placeholder="Enter issuer/transfer name" required
                                                             value="{{ old('issued_by.' . $i, $entry['issued_by'] ?? '') }}">
                                                         @error('issued_by.' . $i)
                                                             <small class="text-danger">{{ $message }}</small>

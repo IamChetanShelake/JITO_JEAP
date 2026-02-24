@@ -365,7 +365,7 @@ $currentPage = 1;
       The repayment of Financial Assistance is in
       <strong>{{$workingCommitteeApproval->no_of_cheques_to_be_collected}} equal {{$workingCommitteeApproval->repayment_type}} installments of Rs. {{number_format($workingCommitteeApproval->installment_amount,0)}}</strong>
       commencing from <strong>{{$workingCommitteeApproval->repayment_starting_from ? \Carbon\Carbon::parse($date)->format('d/m/Y') : '-'}}</strong>.
-        @if($workingCommitteeApproval->additional_installment_amount != 0 || $workingCommitteeApproval->additional_installment_amount != null)
+        @if($workingCommitteeApproval->additional_installment_amount != 0.00 && $workingCommitteeApproval->additional_installment_amount != null)
             After the completion of the above installments, there will be an additional installment of Rs. {{ number_format($workingCommitteeApproval->additional_installment_amount, 0) }} to be paid in the last month of repayment.
         @endif
     </p>
@@ -844,7 +844,7 @@ $currentPage++;
         <td>1</td>
         <td>
           JEAP SANCTION LETTER
-          (Login → Application → Print & Download)
+          (Login -> Application -> Print & Download)
         </td>
         <td>☐</td>
       </tr>

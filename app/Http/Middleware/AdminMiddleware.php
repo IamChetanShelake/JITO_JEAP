@@ -16,16 +16,17 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = Auth::user() ?: Auth::guard('admin')->user() ?: Auth::guard('apex')->user() ?: Auth::guard('committee')->user() ?: Auth::guard('chapter')->user();
+        $user = Auth::user() ?: Auth::guard('admin')->user() ?: Auth::guard('apex')->user() ?: Auth::guard('committee')->user() ?: Auth::guard('chapter')->user() ?: Auth::guard('accountant')->user();
 
         if (!$user) {
             return redirect()->route('login');
         }
 
-        if (!in_array($user->role, ['admin', 'apex', 'working-committee', 'chapter'])) {
+        if (!in_array($user->role, ['admin', 'apex', 'working-committee', 'chapter', 'accountant'])) {
             abort(403);
         }
 
         return $next($request);
     }
 }
+

@@ -151,7 +151,7 @@ class DonorController extends Controller
     /**
      * Handle detailed donor application update.
      */
-    public function updatedonor(Request $request, Donor $donor)
+   public function updatedonor(Request $request, Donor $donor)
 {
     $request->validate([
         'personal_detail.email_id_1' => 'required|email',
@@ -165,103 +165,88 @@ class DonorController extends Controller
             $donor->personalDetail()->update($request->personal_detail);
         }
 
-        // 2. Family Details
-        if ($request->has('family_detail')) {
-            $donor->familyDetail()->update($request->family_detail);
+        // 2. Family Details & Children (Merged for efficiency)
+        if ($request->has('family_detail') || $request->has('children')) {
+            $familyData = $request->input('family_detail', []);
+            
+            // CRITICAL: This saves the children array into the 'children_details' JSON column
+            if ($request->has('children')) {
+                $familyData['children_details'] = $request->children;
+            }
+
+            // Use updateOrCreate to ensure record exists
+            $donor->familyDetail()->updateOrCreate(
+                ['donor_id' => $donor->id], // Match condition
+                $familyData // Data to update
+            );
         }
 
-        // 3. Children Details
-        // Note: If your model has 'protected $casts = ['children_details' => 'array']', 
-        // you can pass the array directly. If not, use json_encode.
-        if ($request->has('children')) {
-            $donor->familyDetail()->update([
-                'children_details' => $request->children // Laravel casts handle this automatically
-            ]);
-        }
-
-        // 4. Nominee Details
+        // 3. Nominee Details
         if ($request->has('nominee_detail')) {
-            $donor->nomineeDetail()->update($request->nominee_detail);
+            $donor->nomineeDetail()->updateOrCreate(
+                ['donor_id' => $donor->id],
+                $request->nominee_detail
+            );
         }
 
-        // 5. Professional Details
+        // 4. Professional Details
         if ($request->has('professional_detail')) {
-            $donor->professionalDetail()->update($request->professional_detail);
+            $donor->professionalDetail()->updateOrCreate(
+                ['donor_id' => $donor->id],
+                $request->professional_detail
+            );
         }
 
-        // 6. Membership Options
+        // 5. Membership Options
         if ($request->has('membership_options') && $donor->membershipDetail) {
-            // Explode string from textarea into array
             $options = array_filter(explode("\n", $request->membership_options));
-            
             $donor->membershipDetail()->update([
-                'payment_options' => array_values($options) // Laravel casts handle this automatically
+                'payment_options' => array_values($options)
             ]);
         }
 
-        
-
-        
-
-        // 7. File Uploads (FIXED)
-        // We check if the 'document' relationship exists. If not, you might need to create it first.
+        // 6. Documents Upload
         if ($donor->document) {
-            
-            if ($request->hasFile('pan_member_file')) {
-                // Delete old file if it exists to save space
-                if ($donor->document->pan_member_file && file_exists(public_path($donor->document->pan_member_file))) {
-                    unlink(public_path($donor->document->pan_member_file));
+            $files = [
+                'pan_member_file',
+                'photo_file',
+                'address_proof_file',
+                'pan_donor_file',
+                'authorization_letter_file'
+            ];
+
+            foreach ($files as $fileInputName) {
+                if ($request->hasFile($fileInputName)) {
+                    // Delete old file
+                    $existingFile = $donor->document->{$fileInputName};
+                    if ($existingFile && file_exists(public_path($existingFile))) {
+                        unlink(public_path($existingFile));
+                    }
+
+                    // Upload new file
+                    $file = $request->file($fileInputName);
+                    $filename = time() . '_' . $fileInputName . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('uploads/documents'), $filename);
+                    
+                    // Update specific column
+                    $donor->document()->update([$fileInputName => 'uploads/documents/' . $filename]);
                 }
-                // Store in 'public/uploads/documents' so asset() can find it
-                $file = $request->file('pan_member_file');
-                $filename = time() . '_pan_' . $file->getClientOriginalName();
-                $file->move(public_path('uploads/documents'), $filename);
-                $path = 'uploads/documents/' . $filename;
-                
-                $donor->document()->update(['pan_member_file' => $path]);
-            }
-
-            if ($request->hasFile('photo_file')) {
-                if ($donor->document->photo_file && file_exists(public_path($donor->document->photo_file))) {
-                    unlink(public_path($donor->document->photo_file));
-                }
-                $file = $request->file('photo_file');
-                $filename = time() . '_photo_' . $file->getClientOriginalName();
-                $file->move(public_path('uploads/documents'), $filename);
-                $path = 'uploads/documents/' . $filename;
-
-                $donor->document()->update(['photo_file' => $path]);
-            }
-
-            if ($request->hasFile('address_proof_file')) {
-                if ($donor->document->address_proof_file && file_exists(public_path($donor->document->address_proof_file))) {
-                    unlink(public_path($donor->document->address_proof_file));
-                }
-                $file = $request->file('address_proof_file');
-                $filename = time() . '_address_' . $file->getClientOriginalName();
-                $file->move(public_path('uploads/documents'), $filename);
-                $path = 'uploads/documents/' . $filename;
-
-                $donor->document()->update(['address_proof_file' => $path]);
             }
         }
 
-     
-
-
-        // 8. Payment Entries
+        // 7. Payment Entries
         if ($request->has('payments') && $donor->paymentDetail) {
             $donor->paymentDetail()->update([
-                'payment_entries' => $request->payments // Laravel casts handle this automatically
+                'payment_entries' => $request->payments
             ]);
         }
 
         DB::commit();
+
         $step = $request->input('current_step', 1);
         return redirect()
             ->route('admin.donors.dashboard.show', ['donor' => $donor->id, 'step' => $step])
             ->with('success', 'Donor Application updated successfully.');
-        
 
     } catch (\Exception $e) {
         DB::rollBack();
@@ -269,4 +254,3 @@ class DonorController extends Controller
     }
 }
 }
-          

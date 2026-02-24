@@ -93,6 +93,14 @@ class LoginController extends Controller
             return true;
         }
 
+        // If chapter fails, try accountant guard
+        if (Auth::guard('accountant')->attempt($credentials, $request->filled('remember'))) {
+            // Log the accountant user into web guard for middleware compatibility
+            $user = Auth::guard('accountant')->user();
+            Auth::login($user);
+            AuthHelper::logoutOtherGuards(['accountant', 'web']);
+            return true;
+        }
         return false;
     }
 
@@ -105,7 +113,7 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        if ($user && in_array($user->role, ['admin', 'apex', 'working-committee'])) {
+        if ($user && in_array($user->role, ['admin', 'apex', 'working-committee', 'accountant'])) {
             return redirect()->route('admin.home');
         } elseif ($user && $user->role === 'chapter') {
             return redirect()->route('admin.chapter.user.dashboard');
@@ -124,7 +132,7 @@ class LoginController extends Controller
     {
         $request->session()->regenerate();
 
-        $user = Auth::user() ?: Auth::guard('admin')->user() ?: Auth::guard('apex')->user();
+        $user = Auth::user() ?: Auth::guard('admin')->user() ?: Auth::guard('apex')->user() ?: Auth::guard('committee')->user() ?: Auth::guard('chapter')->user() ?: Auth::guard('accountant')->user();
 
         $response = $this->authenticated($request, $user);
 
@@ -148,6 +156,7 @@ class LoginController extends Controller
         Auth::guard('apex')->logout();
         Auth::guard('committee')->logout();
         Auth::guard('chapter')->logout();
+        Auth::guard('accountant')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -155,3 +164,4 @@ class LoginController extends Controller
         return redirect('/');
     }
 }
+

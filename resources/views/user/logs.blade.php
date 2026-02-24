@@ -302,7 +302,7 @@
 
                                                 <div class="activity-content">
                                                     <span
-                                                        class="activity-type-badge 
+                                                        class="activity-type-badge
                                                         @if (str_contains(strtolower($log->process_type), 'step')) activity-type-step
                                                         @elseif(str_contains(strtolower($log->process_type), 'document')) activity-type-document
                                                         @else activity-type-system @endif">
@@ -314,7 +314,7 @@
                                                     </div>
 
                                                     <div class="activity-description">
-                                                        {{ $log->process_description }}
+                                                        {!! $log->process_description !!}
                                                     </div>
 
                                                     <div class="activity-details">

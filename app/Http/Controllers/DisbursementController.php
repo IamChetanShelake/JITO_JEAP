@@ -9,12 +9,16 @@ use App\Models\User;
 use App\Models\ApplicationWorkflowStatus;
 use App\Models\WorkingCommitteeApproval;
 use App\Models\PdcDetail;
+use App\Traits\LogsUserActivity;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class DisbursementController extends Controller
 {
+    use LogsUserActivity;
+
     /**
      * Display the disbursement dashboard for Accounts Team - Shows list of students
      */
@@ -270,7 +274,9 @@ class DisbursementController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($request) {
+            $logData = null;
+
+            DB::transaction(function () use ($request, &$logData) {
                 // Get schedule from admin_panel connection
                 $schedule = DB::connection('admin_panel')
                     ->table('disbursement_schedules')
@@ -319,7 +325,36 @@ class DisbursementController extends Controller
 
                 // Update workflow status if this is the first disbursement
                 $this->updateWorkflowStatus($schedule->user_id);
+
+                $logData = [
+                    'disbursement_id' => $disbursementId,
+                    'user_id' => (int) $schedule->user_id,
+                    'disbursement_schedule_id' => (int) $request->disbursement_schedule_id,
+                    'disbursement_date' => $request->disbursement_date,
+                    'amount' => (float) $request->amount,
+                    'jito_jeap_bank_id' => (int) $request->jito_jeap_bank_id,
+                    'utr_number' => $request->utr_number,
+                    'remarks' => $request->remarks,
+                ];
             });
+
+            if ($logData) {
+                $actor = Auth::user();
+
+                $this->logUserActivity(
+                    processType: 'disbursement',
+                    processAction: 'created',
+                    processDescription: 'Disbursement of amount ' . $logData['amount'] . ' recorded successfully',
+                    module: 'disbursement',
+                    oldValues: null,
+                    newValues: null,
+                    additionalData: $logData,
+                    targetUserId: $logData['user_id'],
+                    actorId: (int) ($actor?->id ?? 0),
+                    actorName: $actor?->name ?? 'System',
+                    actorRole: $actor?->role ?? 'system'
+                );
+            }
 
             return response()->json([
                 'success' => true,

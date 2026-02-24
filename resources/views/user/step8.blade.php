@@ -42,16 +42,38 @@
                                         $user->workflowStatus->apex_2_reject_remarks)
                                     <div class="alert alert-danger"
                                         style="border: 2px solid #dc3545; border-radius: 10px; background-color: #f8d7da; margin-top: 20px;">
-                                        <div class="d-flex align-items-center">
+                                        <div class="d-flex align-items-start justify-content-between gap-2">
                                             <i class="fas fa-exclamation-triangle me-2"
                                                 style="font-size: 1.2rem; color: #dc3545;"></i>
-                                            <div>
+                                            <div style="min-width: 0;">
                                                 <h5 class="mb-1" style="color: #721c24; font-weight: 600;">Application
                                                     Send Back for Correction</h5>
-                                                <p class="mb-0" style="color: #721c24; font-size: 14px;">
+                                                <p style="margin: 0 0 4px 0; color: #721c24; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                                                     <strong>Remarks:</strong>
-                                                    {{ $user->workflowStatus->apex_2_reject_remarks }}
+                                                    {{ trim(preg_replace('/\s+/', ' ', strip_tags($user->workflowStatus->apex_2_reject_remarks))) }}
                                                 </p>
+                                                <button type="button" class="btn btn-link p-0 text-danger"
+                                                    data-bs-toggle="modal" data-bs-target="#holdRemarkModalStep8">
+                                                    View More
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal fade" id="holdRemarkModalStep8" tabindex="-1"
+                                        aria-labelledby="holdRemarkModalStep8Label" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="holdRemarkModalStep8Label">Application Send Back
+                                                        Remarks</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <strong>Remarks:</strong>
+                                                    {!! $user->workflowStatus->apex_2_reject_remarks !!}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -309,14 +331,14 @@
                     </td>
                     <td>
                         <input type="text" class="form-control"
-                               name="cheque_details[${index}][parents_jnt_ac_name]" value="${parentsJntAcName}" 
+                               name="cheque_details[${index}][parents_jnt_ac_name]" value="${parentsJntAcName}"
                                placeholder="${parentsJntAcName ? '' : 'Enter parents joint account name (Optional)'}"
                                style="border: 2px solid #393185; border-radius: 10px;width:220px !important;">
                     </td>
                     <td>
                         <input type="date" class="form-control"
                                name="cheque_details[${index}][cheque_date]" value="${chequeDate}" required
-                               min="{{ date('Y-m-d') }}" 
+                               min="{{ date('Y-m-d') }}"
                                style="border: 2px solid #393185; border-radius: 10px; background-color: white;width:160px !important;">
                     </td>
                     <td>

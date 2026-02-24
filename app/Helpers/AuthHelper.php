@@ -14,7 +14,7 @@ class AuthHelper
      */
     public static function logoutOtherGuards(array $except = [])
     {
-        $guards = ['admin', 'apex', 'committee', 'chapter'];
+        $guards = ['admin', 'apex', 'committee', 'chapter', 'accountant'];
 
         foreach ($guards as $guard) {
             if (!in_array($guard, $except) && Auth::guard($guard)->check()) {
@@ -23,3 +23,4 @@ class AuthHelper
         }
     }
 }
+

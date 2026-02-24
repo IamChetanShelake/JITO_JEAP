@@ -212,7 +212,7 @@
                 Rs.{{ $workflow->working_committee_assistance_amount ?? 'N/A'}}
             </td>
             <td>
-                Rs.{{ number_format($workflow->final_status == 'approved' ? 1500000 : 0, 2) }}
+                Rs.{{ number_format($allDisbursements->sum('amount'), 2) ?? '0' }}
             </td>
         </tr>
     </tbody>

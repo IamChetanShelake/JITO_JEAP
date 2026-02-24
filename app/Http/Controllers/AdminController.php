@@ -208,11 +208,51 @@ class AdminController extends Controller
                 }
             }
 
-            // Keep these aligned with Repayment section buttons:
-            // Upcoming => Ready + In Progress students
-            // Past => Repayment Completed students
-            $upcoming = $ready + $inProgress;
-            $past = $completed;
+            // Keep these aligned with Repayment section buttons/routes:
+            // Upcoming => Pending repayment installments (from latest PDC cheques)
+            // Past => Completed repayment installments (from latest PDC cheques)
+            $upcoming = 0;
+            $past = 0;
+
+            $pdcDetailsByUser = PdcDetail::query()
+                ->orderByDesc('id')
+                ->get()
+                ->groupBy('user_id')
+                ->map(fn($items) => $items->first());
+
+            foreach ($pdcDetailsByUser as $userId => $pdcDetail) {
+                $chequeDetails = $pdcDetail->cheque_details;
+                if (is_string($chequeDetails)) {
+                    $decoded = json_decode($chequeDetails, true);
+                    $chequeDetails = is_array($decoded) ? $decoded : [];
+                }
+
+                if (!is_array($chequeDetails) || empty($chequeDetails)) {
+                    continue;
+                }
+
+                $installments = collect($chequeDetails)
+                    ->filter(fn($item) => is_array($item))
+                    ->map(function (array $item, int $index) {
+                        return (object) [
+                            'installment_no' => (int) ($item['row_number'] ?? ($index + 1)),
+                            'amount' => (float) ($item['amount'] ?? 0),
+                        ];
+                    })
+                    ->sortBy('installment_no')
+                    ->values();
+
+                $remainingPaidAmount = (float) ($repaymentData->get($userId)->total_repaid_amount ?? 0);
+
+                foreach ($installments as $installment) {
+                    if ($remainingPaidAmount >= $installment->amount && $installment->amount > 0) {
+                        $past++;
+                        $remainingPaidAmount -= $installment->amount;
+                    } else {
+                        $upcoming++;
+                    }
+                }
+            }
 
             return [
                 'completed' => $completed,

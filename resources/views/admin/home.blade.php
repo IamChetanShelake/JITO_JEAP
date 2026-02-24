@@ -1192,7 +1192,26 @@
                                     <div class="status-value">{{ $repaymentReady ?? 0 }}</div>
                                 </div>
                             </a>
-
+                            <a href="{{ route('admin.repayments.upcoming') }}" class="status-badge pending"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon pending">
+                                    <i class="fas fa-calendar-plus"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Upcoming Repayment</div>
+                                    <div class="status-value">{{ $repaymentUpcoming ?? 0 }}</div>
+                                </div>
+                            </a>
+                            <a href="{{ route('admin.repayments.past') }}" class="status-badge approved"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon approved">
+                                    <i class="fas fa-history"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Past Repayment</div>
+                                    <div class="status-value">{{ $repaymentPast ?? 0 }}</div>
+                                </div>
+                            </a>
                         </div>
                     </div>
                 @endif

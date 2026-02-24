@@ -28,7 +28,7 @@
 
                         @php
                             $paymentEntries = [];
-                            
+
                             // 1. Check if there is old input from a validation error
                             if (old('utr_no')) {
                                 $utrNos = old('utr_no', []);
@@ -46,10 +46,12 @@
                                         'issued_by' => $issuedBy[$index] ?? '',
                                     ];
                                 }
-                            } 
+                            }
                             // 2. Check database records
                             elseif (!empty($paymentDetail?->payment_entries)) {
-                                $paymentEntries = $paymentDetail->payment_entries;
+                                $paymentEntries = is_array($paymentDetail->payment_entries)
+                                    ? $paymentDetail->payment_entries
+                                    : json_decode($paymentDetail->payment_entries, true) ?? [];
                             }
 
                             $rows = max(count($paymentEntries), 2);
@@ -132,7 +134,7 @@
                                                     <td>{{ $i + 1 }}</td>
                                                     <td>
                                                         <input type="text" name="utr_no[]" class="form-control"
-                                                            style="text-transform: uppercase;" 
+                                                            style="text-transform: uppercase;"
                                                             onblur="this.value = this.value.toUpperCase();"
                                                             placeholder="Enter cheque/DD/UTR number" required
                                                             value="{{ old('utr_no.' . $i, $entry['utr_no'] ?? '') }}">
@@ -141,7 +143,8 @@
                                                         @enderror
                                                     </td>
                                                     <td>
-                                                        <input type="date" name="cheque_date[]" class="form-control" required
+                                                        <input type="date" name="cheque_date[]" class="form-control"
+                                                            required
                                                             value="{{ old('cheque_date.' . $i, $entry['cheque_date'] ?? '') }}">
                                                         @error('cheque_date.' . $i)
                                                             <small class="text-danger">{{ $message }}</small>
@@ -157,7 +160,7 @@
                                                     </td>
                                                     <td>
                                                         <input type="text" name="bank_branch[]" class="form-control"
-                                                            style="text-transform: capitalize;" 
+                                                            style="text-transform: capitalize;"
                                                             onblur="capitalizeWords(this)"
                                                             placeholder="Enter bank name and branch" required
                                                             value="{{ old('bank_branch.' . $i, $entry['bank_branch'] ?? '') }}">
@@ -167,7 +170,7 @@
                                                     </td>
                                                     <td>
                                                         <input type="text" name="issued_by[]" class="form-control"
-                                                            style="text-transform: capitalize;" 
+                                                            style="text-transform: capitalize;"
                                                             onblur="capitalizeWords(this)"
                                                             placeholder="Enter issuer/transfer name" required
                                                             value="{{ old('issued_by.' . $i, $entry['issued_by'] ?? '') }}">
@@ -209,7 +212,9 @@
         function capitalizeWords(input) {
             if (input.value) {
                 var value = input.value.toLowerCase();
-                input.value = value.replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
+                input.value = value.replace(/(?:^|\s)\S/g, function(a) {
+                    return a.toUpperCase();
+                });
             }
         }
     </script>

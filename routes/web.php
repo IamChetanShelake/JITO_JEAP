@@ -31,9 +31,8 @@ Route::prefix('donor')->name('donor.')->group(function () {
     Route::get('/register', [DonorAuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [DonorAuthController::class, 'register'])->name('register.submit');
     Route::post('/logout', [DonorAuthController::class, 'logout'])->name('logout');
-});
 
-Route::middleware('auth:donor')->group(function () {
+    Route::middleware('auth:donor')->group(function () {
         Route::get('/dashboard', [DonorAuthController::class, 'dashboard'])->name('dashboard');
         Route::get('/step1', [DonorWebController::class, 'step1'])->name('step1');
         Route::post('/step1', [DonorWebController::class, 'storestep1'])->name('step1.store');
@@ -58,7 +57,7 @@ Route::middleware('auth:donor')->group(function () {
 
         Route::get('/step8', [DonorWebController::class, 'step8'])->name('step8');
         Route::post('/step8', [DonorWebController::class, 'storestep8'])->name('step8.store');
-        
+    });
 });
 
 Auth::routes();
@@ -201,13 +200,6 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::resource('donors', DonorController::class);
     Route::get('/donor-dashboard', [DonorController::class, 'dashboard'])->name('donors.dashboard');
     Route::get('/donor-dashboard/{donor}', [DonorController::class, 'dashboardShow'])->name('donors.dashboard.show');
-    Route::put('/donor-dashboard-update/{donor}', [DonorController::class, 'updatedonor'])->name('donors.updatedonor');
-   
-
-    
-
-
-    
 
     Route::put('/donor-dashboard-update/{donor}', [DonorController::class, 'updatedonor'])->name('donors.updatedonor');
 

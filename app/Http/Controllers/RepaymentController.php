@@ -71,15 +71,23 @@ class RepaymentController extends Controller
 
     public function upcoming(Request $request)
     {
+        $todayOnly = $request->boolean('today_only');
         $repayments = $this->getRepaymentEntriesByPeriod('upcoming', $request);
+        $todayPendingCountRequest = Request::create('', 'GET', [
+            'student_type' => $request->get('student_type'),
+            'today_only' => 1,
+        ]);
+        $todayPendingCount = $this->getRepaymentEntriesByPeriod('upcoming', $todayPendingCountRequest)->count();
 
         return view('admin.repayments.schedule_list', [
             'repayments' => $repayments,
             'period' => 'upcoming',
-            'pageTitle' => 'Upcoming Repayment',
+            'pageTitle' => 'Upcoming Repayment Installments',
             'studentType' => $request->get('student_type'),
             'dateFrom' => $request->get('date_from'),
             'dateTo' => $request->get('date_to'),
+            'todayOnly' => $todayOnly,
+            'todayPendingCount' => $todayPendingCount,
         ]);
     }
 
@@ -90,7 +98,7 @@ class RepaymentController extends Controller
         return view('admin.repayments.schedule_list', [
             'repayments' => $repayments,
             'period' => 'past',
-            'pageTitle' => 'Past Repayment',
+            'pageTitle' => 'Completed Repayment Installments',
             'studentType' => $request->get('student_type'),
             'dateFrom' => $request->get('date_from'),
             'dateTo' => $request->get('date_to'),
@@ -160,12 +168,13 @@ class RepaymentController extends Controller
                 'Student ID',
                 'Student Name',
                 'Student Type',
-                'Payment Date',
-                'Amount',
-                'Payment Mode',
-                'Reference Number',
+                'Installment',
+                'Paid Installments',
+                'Pending Installments',
+                'Repayment Date',
+                'Installment Amount',
+                'Cheque Number',
                 'Status',
-                'Remarks',
             ]);
 
             foreach ($repayments as $repayment) {
@@ -173,12 +182,13 @@ class RepaymentController extends Controller
                     $repayment->user_id,
                     $repayment->student_name,
                     $repayment->student_type,
-                    $repayment->payment_date,
+                    $repayment->installment_no,
+                    $repayment->paid_installments ?? 0,
+                    $repayment->pending_installments ?? 0,
+                    $repayment->repayment_date,
                     $repayment->amount,
-                    strtoupper((string) $repayment->payment_mode),
-                    $repayment->reference_number ?? '',
+                    $repayment->cheque_number ?? '',
                     ucfirst((string) $repayment->status),
-                    $repayment->remarks ?? '',
                 ]);
             }
 
@@ -560,5 +570,166 @@ class RepaymentController extends Controller
             })
             ->sortBy('installment_no')
             ->values();
+    }
+
+    /**
+     * Fetch repayment installment list by period from PDC cheque_details.
+     * upcoming = pending installments, past = completed installments.
+     */
+    private function getRepaymentEntriesByPeriod(string $period, Request $request)
+    {
+        $studentType = $request->get('student_type');
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+        $todayOnly = $request->boolean('today_only');
+        $today = now()->toDateString();
+
+        $userQuery = User::query()->select('id', 'name', 'financial_asset_type', 'financial_asset_for');
+
+        if ($studentType === 'domestic_ug') {
+            $userQuery->where('financial_asset_type', 'domestic')
+                ->where('financial_asset_for', 'graduation');
+        } elseif ($studentType === 'domestic_pg') {
+            $userQuery->where('financial_asset_type', 'domestic')
+                ->where('financial_asset_for', 'post_graduation');
+        } elseif ($studentType === 'foreign_pg') {
+            $userQuery->where('financial_asset_type', 'foreign_finance_assistant')
+                ->where('financial_asset_for', 'post_graduation');
+        }
+
+        $users = $userQuery->get()->keyBy('id');
+        $userIds = $users->keys()->values()->all();
+
+        if (empty($userIds)) {
+            return collect();
+        }
+
+        $pdcDetailsByUser = PdcDetail::query()
+            ->whereIn('user_id', $userIds)
+            ->orderByDesc('id')
+            ->get()
+            ->groupBy('user_id')
+            ->map(fn($items) => $items->first());
+
+        $repaidByUser = DB::connection('admin_panel')
+            ->table('repayments')
+            ->select('user_id', DB::raw('SUM(amount) as total_repaid_amount'))
+            ->whereIn('user_id', $userIds)
+            ->where('status', '!=', 'bounced')
+            ->groupBy('user_id')
+            ->get()
+            ->keyBy('user_id');
+
+        $rows = collect();
+
+        foreach ($users as $userId => $user) {
+            $pdcDetail = $pdcDetailsByUser->get($userId);
+            if (!$pdcDetail) {
+                continue;
+            }
+
+            $chequeDetails = $pdcDetail->cheque_details;
+            if (is_string($chequeDetails)) {
+                $decoded = json_decode($chequeDetails, true);
+                $chequeDetails = is_array($decoded) ? $decoded : [];
+            }
+
+            if (!is_array($chequeDetails) || empty($chequeDetails)) {
+                continue;
+            }
+
+            $installments = collect($chequeDetails)
+                ->filter(fn($item) => is_array($item))
+                ->map(function (array $item, int $index) {
+                    return (object) [
+                        'installment_no' => (int) ($item['row_number'] ?? ($index + 1)),
+                        'repayment_date' => $item['cheque_date'] ?? null,
+                        'amount' => (float) ($item['amount'] ?? 0),
+                        'cheque_number' => $item['cheque_number'] ?? null,
+                    ];
+                })
+                ->sortBy('installment_no')
+                ->values();
+
+            if ($installments->isEmpty()) {
+                continue;
+            }
+
+            $totalInstallments = $installments->count();
+            $remainingPaid = (float) ($repaidByUser->get($userId)->total_repaid_amount ?? 0);
+
+            foreach ($installments as $installment) {
+                if ($remainingPaid >= $installment->amount && $installment->amount > 0) {
+                    $status = 'completed';
+                    $remainingPaid -= $installment->amount;
+                } else {
+                    $status = 'pending';
+                }
+
+                if ($period === 'upcoming' && $status !== 'pending') {
+                    continue;
+                }
+                if ($period === 'past' && $status !== 'completed') {
+                    continue;
+                }
+
+                if ($period === 'upcoming' && $todayOnly) {
+                    if (empty($installment->repayment_date) || $installment->repayment_date !== $today) {
+                        continue;
+                    }
+                }
+
+                if (!empty($dateFrom) && !$todayOnly && !empty($installment->repayment_date) && $installment->repayment_date < $dateFrom) {
+                    continue;
+                }
+                if (!empty($dateTo) && !$todayOnly && !empty($installment->repayment_date) && $installment->repayment_date > $dateTo) {
+                    continue;
+                }
+
+                $paidInstallments = $status === 'completed'
+                    ? $installment->installment_no
+                    : max($installment->installment_no - 1, 0);
+
+                $rows->push((object) [
+                    'user_id' => $userId,
+                    'student_name' => $user->name ?? 'Unknown',
+                    'student_type' => $this->formatStudentType($user),
+                    'installment_no' => $installment->installment_no,
+                    'paid_installments' => min($paidInstallments, $totalInstallments),
+                    'pending_installments' => max($totalInstallments - $paidInstallments, 0),
+                    'repayment_date' => $installment->repayment_date,
+                    'amount' => $installment->amount,
+                    'cheque_number' => $installment->cheque_number,
+                    'status' => $status,
+                ]);
+            }
+        }
+
+        return $rows->sortBy([
+            ['repayment_date', $period === 'upcoming' ? 'asc' : 'desc'],
+            ['student_name', 'asc'],
+            ['installment_no', 'asc'],
+        ])->values();
+    }
+
+    private function formatStudentType($user): string
+    {
+        if (!$user) {
+            return 'N/A';
+        }
+
+        if ($user->financial_asset_type === 'domestic' && $user->financial_asset_for === 'graduation') {
+            return 'Domestic - UG';
+        }
+
+        if ($user->financial_asset_type === 'domestic' && $user->financial_asset_for === 'post_graduation') {
+            return 'Domestic - PG';
+        }
+
+        if ($user->financial_asset_type === 'foreign_finance_assistant' && $user->financial_asset_for === 'post_graduation') {
+            return 'Foreign - PG';
+        }
+
+        return 'N/A';
     }
 }

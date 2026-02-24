@@ -187,6 +187,11 @@
                     margin-top: 0.25rem;
                 }
                 .current-file a { color: #393185; font-weight: 600; }
+                
+                /* CHANGE 1: CSS Class for Title Case Visual */
+                .ucwords {
+                    text-transform: capitalize;
+                }
             </style>
 
             <div class="dashboard-header">
@@ -233,17 +238,18 @@
                                     <option value="Ms" {{ ($donor->personalDetail->title ?? '') == 'Ms' ? 'selected' : '' }}>Ms</option>
                                 </select>
                             </div>
+                            <!-- CHANGE 2: Added 'ucwords' class to inputs -->
                             <div class="col-md-4">
                                 <div class="info-label">First Name</div>
-                                <input type="text" name="personal_detail[first_name]" class="form-control" value="{{ $donor->personalDetail->first_name ?? '' }}">
+                                <input type="text" name="personal_detail[first_name]" class="form-control ucwords" value="{{ $donor->personalDetail->first_name ?? '' }}">
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">Middle Name</div>
-                                <input type="text" name="personal_detail[middle_name]" class="form-control" value="{{ $donor->personalDetail->middle_name ?? '' }}">
+                                <input type="text" name="personal_detail[middle_name]" class="form-control ucwords" value="{{ $donor->personalDetail->middle_name ?? '' }}">
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">Surname</div>
-                                <input type="text" name="personal_detail[surname]" class="form-control" value="{{ $donor->personalDetail->surname ?? '' }}">
+                                <input type="text" name="personal_detail[surname]" class="form-control ucwords" value="{{ $donor->personalDetail->surname ?? '' }}">
                             </div>
                             <div class="col-md-8">
                                 <div class="info-label">Complete Address</div>
@@ -251,11 +257,11 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">City</div>
-                                <input type="text" name="personal_detail[city]" class="form-control" value="{{ $donor->personalDetail->city ?? '' }}">
+                                <input type="text" name="personal_detail[city]" class="form-control ucwords" value="{{ $donor->personalDetail->city ?? '' }}">
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">State</div>
-                                <input type="text" name="personal_detail[state]" class="form-control" value="{{ $donor->personalDetail->state ?? '' }}">
+                                <input type="text" name="personal_detail[state]" class="form-control ucwords" value="{{ $donor->personalDetail->state ?? '' }}">
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">Pin Code</div>
@@ -295,7 +301,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">Chapter Name</div>
-                                <input type="text" name="personal_detail[chapter_name]" class="form-control" value="{{ $donor->personalDetail->chapter_name ?? '' }}">
+                                <input type="text" name="personal_detail[chapter_name]" class="form-control ucwords" value="{{ $donor->personalDetail->chapter_name ?? '' }}">
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">Date of Birth</div>
@@ -311,15 +317,15 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">Mother Tongue</div>
-                                <input type="text" name="personal_detail[mother_tongue]" class="form-control" value="{{ $donor->personalDetail->mother_tongue ?? '' }}">
+                                <input type="text" name="personal_detail[mother_tongue]" class="form-control ucwords" value="{{ $donor->personalDetail->mother_tongue ?? '' }}">
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">District Of Native Place</div>
-                                <input type="text" name="personal_detail[district_of_native_place]" class="form-control" value="{{ $donor->personalDetail->district_of_native_place ?? '' }}">
+                                <input type="text" name="personal_detail[district_of_native_place]" class="form-control ucwords" value="{{ $donor->personalDetail->district_of_native_place ?? '' }}">
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">Father Name</div>
-                                <input type="text" name="personal_detail[fathers_name]" class="form-control" value="{{ $donor->personalDetail->fathers_name ?? '' }}">
+                                <input type="text" name="personal_detail[fathers_name]" class="form-control ucwords" value="{{ $donor->personalDetail->fathers_name ?? '' }}">
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">Jito Member</div>
@@ -358,7 +364,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">Spouse Name</div>
-                                <input type="text" name="family_detail[spouse_name]" class="form-control" value="{{ $donor->familyDetail->spouse_name ?? '' }}">
+                                <input type="text" name="family_detail[spouse_name]" class="form-control ucwords" value="{{ $donor->familyDetail->spouse_name ?? '' }}">
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">Spouse DOB</div>
@@ -397,7 +403,7 @@
                                         @if (isset($children) && count($children) > 0)
                                             @foreach ($children as $i => $child)
                                                 <tr>
-                                                    <td><input type="text" name="children[{{ $i }}][name]" class="form-control form-control-sm" value="{{ $child['name'] ?? '' }}"></td>
+                                                    <td><input type="text" name="children[{{ $i }}][name]" class="form-control form-control-sm ucwords" value="{{ $child['name'] ?? '' }}"></td>
                                                     <td>
                                                         <select name="children[{{ $i }}][gender]" class="form-select form-select-sm">
                                                             <option value="Male" {{ ($child['gender'] ?? '') == 'Male' ? 'selected' : '' }}>Male</option>
@@ -411,7 +417,7 @@
                                             @endforeach
                                         @else
                                             <tr>
-                                                <td><input type="text" name="children[0][name]" class="form-control form-control-sm"></td>
+                                                <td><input type="text" name="children[0][name]" class="form-control form-control-sm ucwords"></td>
                                                 <td><select name="children[0][gender]" class="form-select form-select-sm"><option>Male</option><option>Female</option></select></td>
                                                 <td><input type="date" name="children[0][dob]" class="form-control form-control-sm"></td>
                                                 <td><input type="text" name="children[0][blood_group]" class="form-control form-control-sm"></td>
@@ -438,11 +444,11 @@
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <div class="info-label">Nominee Name</div>
-                                <input type="text" name="nominee_detail[nominee_name]" class="form-control" value="{{ $donor->nomineeDetail->nominee_name ?? '' }}">
+                                <input type="text" name="nominee_detail[nominee_name]" class="form-control ucwords" value="{{ $donor->nomineeDetail->nominee_name ?? '' }}">
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">Relationship</div>
-                                <input type="text" name="nominee_detail[nominee_relationship]" class="form-control" value="{{ $donor->nomineeDetail->nominee_relationship ?? '' }}">
+                                <input type="text" name="nominee_detail[nominee_relationship]" class="form-control ucwords" value="{{ $donor->nomineeDetail->nominee_relationship ?? '' }}">
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">Mobile</div>
@@ -454,7 +460,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">City</div>
-                                <input type="text" name="nominee_detail[nominee_city]" class="form-control" value="{{ $donor->nomineeDetail->nominee_city ?? '' }}">
+                                <input type="text" name="nominee_detail[nominee_city]" class="form-control ucwords" value="{{ $donor->nomineeDetail->nominee_city ?? '' }}">
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">Pin Code</div>
@@ -497,7 +503,7 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="info-label">Company Name</div>
-                                <input type="text" name="professional_detail[company_name]" class="form-control" value="{{ $donor->professionalDetail->company_name ?? '' }}">
+                                <input type="text" name="professional_detail[company_name]" class="form-control ucwords" value="{{ $donor->professionalDetail->company_name ?? '' }}">
                             </div>
                             <div class="col-md-6">
                                 <div class="info-label">Company Activity</div>
@@ -505,7 +511,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="info-label">Designation</div>
-                                <input type="text" name="professional_detail[designation]" class="form-control" value="{{ $donor->professionalDetail->designation ?? '' }}">
+                                <input type="text" name="professional_detail[designation]" class="form-control ucwords" value="{{ $donor->professionalDetail->designation ?? '' }}">
                             </div>
                             <div class="col-md-6">
                                 <div class="info-label">Office Mobile</div>
@@ -517,11 +523,11 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="info-label">Office State</div>
-                                <input type="text" name="professional_detail[office_state]" class="form-control" value="{{ $donor->professionalDetail->office_state ?? '' }}">
+                                <input type="text" name="professional_detail[office_state]" class="form-control ucwords" value="{{ $donor->professionalDetail->office_state ?? '' }}">
                             </div>
                             <div class="col-md-6">
                                 <div class="info-label">Office City</div>
-                                <input type="text" name="professional_detail[office_city]" class="form-control" value="{{ $donor->professionalDetail->office_city ?? '' }}">
+                                <input type="text" name="professional_detail[office_city]" class="form-control ucwords" value="{{ $donor->professionalDetail->office_city ?? '' }}">
                             </div>
                             <div class="col-md-6">
                                 <div class="info-label">Office Pincode</div>
@@ -537,7 +543,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="info-label">Coordinator Name</div>
-                                <input type="text" name="professional_detail[coordinator_name]" class="form-control" value="{{ $donor->professionalDetail->coordinator_name ?? '' }}">
+                                <input type="text" name="professional_detail[coordinator_name]" class="form-control ucwords" value="{{ $donor->professionalDetail->coordinator_name ?? '' }}">
                             </div>
                             <div class="col-md-6">
                                 <div class="info-label">Coordinator Mobile</div>
@@ -662,8 +668,8 @@
                                                 <td><input type="text" name="payments[{{ $i }}][utr_no]" class="form-control form-control-sm" value="{{ $entry['utr_no'] ?? '' }}"></td>
                                                 <td><input type="date" name="payments[{{ $i }}][cheque_date]" class="form-control form-control-sm" value="{{ $entry['cheque_date'] ?? '' }}"></td>
                                                 <td><input type="number" name="payments[{{ $i }}][amount]" class="form-control form-control-sm" value="{{ $entry['amount'] ?? '' }}"></td>
-                                                <td><input type="text" name="payments[{{ $i }}][bank_branch]" class="form-control form-control-sm" value="{{ $entry['bank_branch'] ?? '' }}"></td>
-                                                <td><input type="text" name="payments[{{ $i }}][issued_by]" class="form-control form-control-sm" value="{{ $entry['issued_by'] ?? '' }}"></td>
+                                                <td><input type="text" name="payments[{{ $i }}][bank_branch]" class="form-control form-control-sm ucwords" value="{{ $entry['bank_branch'] ?? '' }}"></td>
+                                                <td><input type="text" name="payments[{{ $i }}][issued_by]" class="form-control form-control-sm ucwords" value="{{ $entry['issued_by'] ?? '' }}"></td>
                                             </tr>
                                         @endforeach
                                     @else
@@ -671,8 +677,8 @@
                                             <td><input type="text" name="payments[0][utr_no]" class="form-control form-control-sm"></td>
                                             <td><input type="date" name="payments[0][cheque_date]" class="form-control form-control-sm"></td>
                                             <td><input type="number" name="payments[0][amount]" class="form-control form-control-sm"></td>
-                                            <td><input type="text" name="payments[0][bank_branch]" class="form-control form-control-sm"></td>
-                                            <td><input type="text" name="payments[0][issued_by]" class="form-control form-control-sm"></td>
+                                            <td><input type="text" name="payments[0][bank_branch]" class="form-control form-control-sm ucwords"></td>
+                                            <td><input type="text" name="payments[0][issued_by]" class="form-control form-control-sm ucwords"></td>
                                         </tr>
                                     @endif
                                 </tbody>
@@ -732,7 +738,7 @@
         if (currentStep > 1) goToStep(currentStep - 1);
     }
 
-    // --- Dynamic Children Rows Logic (FIXED) ---
+    // --- Dynamic Children Rows Logic ---
     const kidsInput = document.getElementById('num_kids_input');
     const childrenTbody = document.getElementById('children_tbody');
 
@@ -742,8 +748,6 @@
             let count = parseInt(this.value);
             
             // FIX: If the input is empty (NaN), we STOP here. 
-            // This prevents deleting existing data when the user clears the input 
-            // to type a new number (e.g., changing 2 to 3).
             if (isNaN(count)) {
                 return;
             }
@@ -761,7 +765,7 @@
             for (let i = currentCount; i < count; i++) {
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
-                    <td><input type="text" name="children[${i}][name]" class="form-control form-control-sm"></td>
+                    <td><input type="text" name="children[${i}][name]" class="form-control form-control-sm ucwords"></td>
                     <td>
                         <select name="children[${i}][gender]" class="form-select form-select-sm">
                             <option value="Male">Male</option>
@@ -783,5 +787,20 @@
             }
         }
     }
+
+    // --- CHANGE 3: Title Case Auto-Capitalization Logic ---
+    function toTitleCase(str) {
+        return str.toLowerCase().split(' ').map(function(word) {
+            return (word.charAt(0).toUpperCase() + word.slice(1));
+        }).join(' ');
+    }
+
+    // Use event delegation to handle blur for dynamically added inputs too
+    document.addEventListener('blur', function(e) {
+        // Check if the blurred element has the 'ucwords' class
+        if (e.target.classList.contains('ucwords')) {
+            e.target.value = toTitleCase(e.target.value);
+        }
+    }, true);
 </script>
 @endsection

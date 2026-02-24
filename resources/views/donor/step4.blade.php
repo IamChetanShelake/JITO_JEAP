@@ -25,12 +25,16 @@
                                 </button>
                             </div>
                         @endif
+                                               
                         @php
+                            // No need for json_decode if using $casts in model
                             $selectedPayments = old(
                                 'payment_options',
-                                $membershipDetail ? (json_decode($membershipDetail->payment_options, true) ?: []) : [],
+                                $membershipDetail ? ($membershipDetail->payment_options ?? []) : []
                             );
                         @endphp
+
+                        
 
                         <div class="card form-card">
                             <div class="card-body">

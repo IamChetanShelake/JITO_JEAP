@@ -35,6 +35,8 @@
                                     <div class="col-md-6">
                                         <label>Company Name *</label>
                                         <input type="text" name="company_name" class="form-control"
+                                            style="text-transform: capitalize;" 
+                                            onblur="capitalizeWords(this)"
                                             placeholder="Enter company name" required
                                             value="{{ old('company_name', $professionalDetail->company_name ?? '') }}">
                                         @error('company_name')
@@ -45,6 +47,8 @@
                                     <div class="col-md-6">
                                         <label>Company Activity *</label>
                                         <input type="text" name="company_activity_details" class="form-control"
+                                            style="text-transform: capitalize;" 
+                                            onblur="capitalizeWords(this)"
                                             placeholder="Enter company activity details" required
                                             value="{{ old('company_activity_details', $professionalDetail->company_activity_details ?? '') }}">
                                         @error('company_activity_details')
@@ -57,6 +61,8 @@
                                     <div class="col-md-6">
                                         <label>Designation *</label>
                                         <input type="text" name="designation" class="form-control"
+                                            style="text-transform: capitalize;" 
+                                            onblur="capitalizeWords(this)"
                                             placeholder="Enter designation" required
                                             value="{{ old('designation', $professionalDetail->designation ?? '') }}">
                                         @error('designation')
@@ -73,14 +79,6 @@
                                         @enderror
                                     </div>
                                 </div>
-                                <script>
-                                    function fixUrl(input) {
-                                        if (input.value && !input.value.match(/^https?:\/\//)) {
-                                            input.value = 'https://' + input.value;
-                                        }
-                                    }
-                                </script>
-
 
                                 <hr>
 
@@ -90,7 +88,10 @@
                                 <div class="row mb-3">
                                     <div class="col-md-12">
                                         <label>Office Address *</label>
-                                        <textarea name="office_address" class="form-control" rows="2" placeholder="Enter office address"
+                                        <textarea name="office_address" class="form-control" rows="2" 
+                                            style="text-transform: capitalize;" 
+                                            onblur="capitalizeWords(this)"
+                                            placeholder="Enter office address"
                                             required>{{ old('office_address', $professionalDetail->office_address ?? '') }}</textarea>
                                         @error('office_address')
                                             <small class="text-danger">{{ $message }}</small>
@@ -102,6 +103,8 @@
                                     <div class="col-md-4">
                                         <label>State *</label>
                                         <input type="text" name="office_state" class="form-control"
+                                            style="text-transform: capitalize;" 
+                                            onblur="capitalizeWords(this)"
                                             placeholder="Enter office state" required
                                             value="{{ old('office_state', $professionalDetail->office_state ?? '') }}">
                                         @error('office_state')
@@ -112,6 +115,8 @@
                                     <div class="col-md-4">
                                         <label>City *</label>
                                         <input type="text" name="office_city" class="form-control"
+                                            style="text-transform: capitalize;" 
+                                            onblur="capitalizeWords(this)"
                                             placeholder="Enter office city" required
                                             value="{{ old('office_city', $professionalDetail->office_city ?? '') }}">
                                         @error('office_city')
@@ -159,6 +164,8 @@
                                     <div class="col-md-6">
                                         <label>PAN No *</label>
                                         <input type="text" name="pan_no" class="form-control" maxlength="10"
+                                            style="text-transform: uppercase;" 
+                                            onblur="this.value = this.value.toUpperCase();"
                                             placeholder="Enter PAN number" required
                                             value="{{ old('pan_no', $professionalDetail->pan_no ?? '') }}">
                                         @error('pan_no')
@@ -175,7 +182,10 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label>Name</label>
-                                        <input type="text" name="coordinator_name" class="form-control" placeholder="Enter coordinator name"
+                                        <input type="text" name="coordinator_name" class="form-control" 
+                                            style="text-transform: capitalize;" 
+                                            onblur="capitalizeWords(this)"
+                                            placeholder="Enter coordinator name"
                                             value="{{ old('coordinator_name', $professionalDetail->coordinator_name ?? '') }}">
                                         @error('coordinator_name')
                                             <small class="text-danger">{{ $message }}</small>
@@ -234,4 +244,23 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Function to fix URL (Existing)
+        function fixUrl(input) {
+            if (input.value && !input.value.match(/^https?:\/\//)) {
+                input.value = 'https://' + input.value;
+            }
+        }
+
+        // New function to capitalize each word
+        function capitalizeWords(input) {
+            if (input.value) {
+                // Convert whole string to lowercase first to handle cases like "HELLO" -> "Hello"
+                var value = input.value.toLowerCase();
+                // Capitalize the first letter of every word
+                input.value = value.replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
+            }
+        }
+    </script>
 @endsection

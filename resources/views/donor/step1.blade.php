@@ -11,6 +11,11 @@
             border-radius: 15px !important;
             background-color: #F2F2F2 !important;
         }
+        
+        /* CHANGE 1: CSS Class for Title Case Visual */
+        .ucwords {
+            text-transform: capitalize;
+        }
     </style>
 
 
@@ -65,7 +70,8 @@
                                 <div class="row mb-3">
                                     <div class="col-md-4">
                                         <label>First Name *</label>
-                                        <input type="text" name="first_name" class="form-control"
+                                        <!-- CHANGE 2: Added ucwords class -->
+                                        <input type="text" name="first_name" class="form-control ucwords"
                                             placeholder="Enter first name" required
                                             value="{{ old('first_name', $personalDetail->first_name ?? '') }}">
                                         @error('first_name')
@@ -74,7 +80,8 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label>Middle Name</label>
-                                        <input type="text" name="middle_name" class="form-control" placeholder="Enter middle name"
+                                        <!-- CHANGE 2: Added ucwords class -->
+                                        <input type="text" name="middle_name" class="form-control ucwords" placeholder="Enter middle name"
                                             value="{{ old('middle_name', $personalDetail->middle_name ?? '') }}">
                                         @error('middle_name')
                                             <small class="text-danger">{{ $message }}</small>
@@ -82,7 +89,8 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label>Surname *</label>
-                                        <input type="text" name="surname" class="form-control"
+                                        <!-- CHANGE 2: Added ucwords class -->
+                                        <input type="text" name="surname" class="form-control ucwords"
                                             placeholder="Enter surname" required
                                             value="{{ old('surname', $personalDetail->surname ?? '') }}">
                                         @error('surname')
@@ -104,7 +112,8 @@
                                 <div class="row mb-3">
                                     <div class="col-md-4">
                                         <label>City *</label>
-                                        <input type="text" name="city" class="form-control" placeholder="Enter city"
+                                        <!-- CHANGE 2: Added ucwords class -->
+                                        <input type="text" name="city" class="form-control ucwords" placeholder="Enter city"
                                             required value="{{ old('city', $personalDetail->city ?? '') }}">
                                         @error('city')
                                             <small class="text-danger">{{ $message }}</small>
@@ -112,12 +121,25 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label>State *</label>
-                                        <input type="text" name="state" class="form-control" placeholder="Enter state"
+                                        <!-- CHANGE 2: Added ucwords class -->
+                                        <input type="text" name="state" class="form-control ucwords" placeholder="Enter state"
                                             required value="{{ old('state', $personalDetail->state ?? '') }}">
                                         @error('state')
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
                                     </div>
+
+                                    <div class="col-md-4">
+                                        <label>Zone *</label>
+                                        <!-- CHANGE 2: Added ucwords class -->
+                                        <input type="text" name="zone" class="form-control ucwords" placeholder="Enter Zone"
+                                            required value="{{ old('zone', $personalDetail->zone ?? '') }}">
+                                        @error('zone')
+                                            <small class="text-danger">{{ $message }}</small>
+                                        @enderror
+                                    </div>
+
+
                                     <div class="col-md-4">
                                         <label>Pin Code *</label>
                                         <input type="number" name="pin_code" class="form-control" placeholder="Enter 6-digit pin code"
@@ -190,14 +212,16 @@
                                 <div class="row mb-3">
                                     <div class="col-md-4">
                                         <label>Residence Address</label>
-                                        <textarea name="preferred_residence_address" placeholder="Enter Residence Address" class="form-control" rows="2">{{ old('preferred_residence_address', $personalDetail->preferred_residence_address ?? '') }}</textarea>
+                                        <!-- CHANGE 2: Added ucwords class -->
+                                        <textarea name="preferred_residence_address" placeholder="Enter Residence Address" class="form-control ucwords" rows="2">{{ old('preferred_residence_address', $personalDetail->preferred_residence_address ?? '') }}</textarea>
                                         @error('preferred_residence_address')
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
                                     </div>
                                     <div class="col-md-4">
                                         <label>Office Address</label>
-                                        <textarea name="preferred_office_address" placeholder="Enter Office Address" class="form-control" rows="2">{{ old('preferred_office_address', $personalDetail->preferred_office_address ?? '') }}</textarea>
+                                        <!-- CHANGE 2: Added ucwords class -->
+                                        <textarea name="preferred_office_address" placeholder="Enter Office Address" class="form-control ucwords" rows="2">{{ old('preferred_office_address', $personalDetail->preferred_office_address ?? '') }}</textarea>
                                         @error('preferred_office_address')
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
@@ -295,7 +319,8 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label>Mother Tongue *</label>
-                                        <input type="text" name="mother_tongue" class="form-control" placeholder="Enter mother tongue"
+                                        <!-- CHANGE 2: Added ucwords class -->
+                                        <input type="text" name="mother_tongue" class="form-control ucwords" placeholder="Enter mother tongue"
                                             required value="{{ old('mother_tongue', $personalDetail->mother_tongue ?? '') }}">
                                         @error('mother_tongue')
                                             <small class="text-danger">{{ $message }}</small>
@@ -303,7 +328,8 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label>District of Native Place *</label>
-                                        <input type="text" name="district_of_native_place" class="form-control"
+                                        <!-- CHANGE 2: Added ucwords class -->
+                                        <input type="text" name="district_of_native_place" class="form-control ucwords"
                                             placeholder="Enter district of native place" required
                                             value="{{ old('district_of_native_place', $personalDetail->district_of_native_place ?? '') }}">
                                         @error('district_of_native_place')
@@ -314,7 +340,8 @@
 
                                 <div class="mb-3">
                                     <label>Father's Name *</label>
-                                    <input type="text" name="fathers_name" class="form-control"
+                                    <!-- CHANGE 2: Added ucwords class -->
+                                    <input type="text" name="fathers_name" class="form-control ucwords"
                                         placeholder="Enter father's name" required
                                         value="{{ old('fathers_name', $personalDetail->fathers_name ?? '') }}">
                                     @error('fathers_name')
@@ -325,7 +352,8 @@
                                 <!-- HOBBIES -->
                                 <div class="mb-3">
                                     <label>Hobby 1</label>
-                                    <input type="text" name="hobby_1" class="form-control"
+                                    <!-- CHANGE 2: Added ucwords class -->
+                                    <input type="text" name="hobby_1" class="form-control ucwords"
                                         value="{{ old('hobby_1', $personalDetail->hobby_1 ?? '') }}">
                                     @error('hobby_1')
                                         <small class="text-danger">{{ $message }}</small>
@@ -334,7 +362,8 @@
 
                                 <div class="mb-4">
                                     <label>Hobby 2</label>
-                                    <input type="text" name="hobby_2" class="form-control"
+                                    <!-- CHANGE 2: Added ucwords class -->
+                                    <input type="text" name="hobby_2" class="form-control ucwords"
                                         value="{{ old('hobby_2', $personalDetail->hobby_2 ?? '') }}">
                                     @error('hobby_2')
                                         <small class="text-danger">{{ $message }}</small>
@@ -425,5 +454,20 @@
                 }
             }
         });
+
+        // --- CHANGE 3: Title Case Auto-Capitalization Logic ---
+        function toTitleCase(str) {
+            return str.toLowerCase().split(' ').map(function(word) {
+                return (word.charAt(0).toUpperCase() + word.slice(1));
+            }).join(' ');
+        }
+
+        // Use event delegation to handle blur for inputs
+        document.addEventListener('blur', function(e) {
+            // Check if the blurred element has the 'ucwords' class
+            if (e.target.classList.contains('ucwords')) {
+                e.target.value = toTitleCase(e.target.value);
+            }
+        }, true);
     </script>
     @endsection

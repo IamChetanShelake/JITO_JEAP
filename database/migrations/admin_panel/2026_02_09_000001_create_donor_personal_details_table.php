@@ -22,6 +22,7 @@ return new class extends Migration
             $table->text('complete_address')->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();
+            $table->string('zone')->nullable();
             $table->string('pin_code')->nullable();
             $table->string('resi_landline')->nullable();
 

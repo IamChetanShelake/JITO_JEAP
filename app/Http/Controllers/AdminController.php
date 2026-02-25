@@ -41,10 +41,16 @@ class AdminController extends Controller
             'disbursementCompleted' => $disbursementCounts['completed'],
             'disbursementInProgress' => $disbursementCounts['in_progress'],
             'disbursementPending' => $disbursementCounts['pending'],
+            'disbursementTodayPending' => $disbursementCounts['today_pending'],
+            'disbursementUpcoming' => $disbursementCounts['upcoming'],
+            'disbursementPast' => $disbursementCounts['past'],
             'disbursementTotal' => $disbursementCounts['total'],
             'repaymentCompleted' => $repaymentCounts['completed'],
             'repaymentInProgress' => $repaymentCounts['in_progress'],
             'repaymentReady' => $repaymentCounts['ready'],
+            'repaymentTodayPending' => $repaymentCounts['today_pending'],
+            'repaymentUpcoming' => $repaymentCounts['upcoming'],
+            'repaymentPast' => $repaymentCounts['past'],
             'repaymentTotal' => $repaymentCounts['total'],
         ]);
     }
@@ -97,6 +103,24 @@ class AdminController extends Controller
             $completed = 0;
             $inProgress = 0;
             $pending = 0;
+            $today = now()->toDateString();
+
+            $upcoming = DB::connection('admin_panel')
+                ->table('disbursement_schedules')
+                ->where('status', 'pending')
+                ->whereDate('planned_date', '>=', $today)
+                ->count();
+
+            $todayPending = DB::connection('admin_panel')
+                ->table('disbursement_schedules')
+                ->where('status', 'pending')
+                ->whereDate('planned_date', '=', $today)
+                ->count();
+
+            $past = DB::connection('admin_panel')
+                ->table('disbursement_schedules')
+                ->where('status', 'completed')
+                ->count();
 
             foreach ($scheduleData as $item) {
                 $disbursed = $disbursedData->get($item->user_id);
@@ -121,6 +145,9 @@ class AdminController extends Controller
                 'completed' => $completed,
                 'in_progress' => $inProgress,
                 'pending' => $pending,
+                'today_pending' => $todayPending,
+                'upcoming' => $upcoming,
+                'past' => $past,
                 'total' => $completed + $inProgress + $pending
             ];
         } catch (\Exception $e) {
@@ -128,6 +155,9 @@ class AdminController extends Controller
                 'completed' => 0,
                 'in_progress' => 0,
                 'pending' => 0,
+                'today_pending' => 0,
+                'upcoming' => 0,
+                'past' => 0,
                 'total' => 0
             ];
         }
@@ -188,10 +218,66 @@ class AdminController extends Controller
                 }
             }
 
+            // Keep these aligned with Repayment section buttons/routes:
+            // Upcoming => Pending repayment installments (from latest PDC cheques)
+            // Past => Completed repayment installments (from latest PDC cheques)
+            $upcoming = 0;
+            $past = 0;
+            $todayPending = 0;
+            $today = now()->toDateString();
+
+            $pdcDetailsByUser = PdcDetail::query()
+                ->orderByDesc('id')
+                ->get()
+                ->groupBy('user_id')
+                ->map(fn($items) => $items->first());
+
+            foreach ($pdcDetailsByUser as $userId => $pdcDetail) {
+                $chequeDetails = $pdcDetail->cheque_details;
+                if (is_string($chequeDetails)) {
+                    $decoded = json_decode($chequeDetails, true);
+                    $chequeDetails = is_array($decoded) ? $decoded : [];
+                }
+
+                if (!is_array($chequeDetails) || empty($chequeDetails)) {
+                    continue;
+                }
+
+                $installments = collect($chequeDetails)
+                    ->filter(fn($item) => is_array($item))
+                    ->map(function (array $item, int $index) {
+                        return (object) [
+                            'installment_no' => (int) ($item['row_number'] ?? ($index + 1)),
+                            'amount' => (float) ($item['amount'] ?? 0),
+                            'cheque_date' => $item['cheque_date'] ?? null,
+                        ];
+                    })
+                    ->sortBy('installment_no')
+                    ->values();
+
+                $remainingPaidAmount = (float) ($repaymentData->get($userId)->total_repaid_amount ?? 0);
+
+                foreach ($installments as $installment) {
+                    if ($remainingPaidAmount >= $installment->amount && $installment->amount > 0) {
+                        $past++;
+                        $remainingPaidAmount -= $installment->amount;
+                    } else {
+                        $upcoming++;
+                        $installmentDate = $installment->cheque_date ?? null;
+                        if (!empty($installmentDate) && $installmentDate === $today) {
+                            $todayPending++;
+                        }
+                    }
+                }
+            }
+
             return [
                 'completed' => $completed,
                 'in_progress' => $inProgress,
                 'ready' => $ready,
+                'today_pending' => $todayPending,
+                'upcoming' => $upcoming,
+                'past' => $past,
                 'total' => $completed + $inProgress + $ready,
             ];
         } catch (\Exception $e) {
@@ -199,6 +285,9 @@ class AdminController extends Controller
                 'completed' => 0,
                 'in_progress' => 0,
                 'ready' => 0,
+                'today_pending' => 0,
+                'upcoming' => 0,
+                'past' => 0,
                 'total' => 0,
             ];
         }

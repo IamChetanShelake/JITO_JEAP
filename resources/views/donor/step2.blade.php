@@ -11,6 +11,11 @@
             border-radius: 15px !important;
             background-color: #F2F2F2 !important;
         }
+        
+        /* CHANGE 1: CSS Class for Title Case Visual */
+        .ucwords {
+            text-transform: capitalize;
+        }
     </style>
 
 
@@ -41,14 +46,17 @@
                                 </button>
                             </div>
                         @endif
-                        @php
+                                                @php
                             $existingChildren = [];
+                            
+                            // Check if there is old input from a validation error
                             if (old('child_name')) {
                                 $childNames = old('child_name', []);
                                 $childGenders = old('child_gender', []);
                                 $childDobs = old('child_dob', []);
                                 $childBloodGroups = old('child_blood_group', []);
                                 $childMaritalStatuses = old('child_marital_status', []);
+                                
                                 foreach ($childNames as $index => $childName) {
                                     $existingChildren[] = [
                                         'name' => $childName,
@@ -58,8 +66,19 @@
                                         'marital_status' => $childMaritalStatuses[$index] ?? '',
                                     ];
                                 }
-                            } elseif (!empty($familyDetail?->children_details)) {
-                                $existingChildren = json_decode($familyDetail->children_details, true) ?: [];
+                            } 
+                            // Check database data
+                            elseif (!empty($familyDetail?->children_details)) {
+                                $details = $familyDetail->children_details;
+                                
+                                // FIX: Check if it is already an array (due to model casting)
+                                if (is_array($details)) {
+                                    $existingChildren = $details;
+                                } 
+                                // Otherwise, decode it from JSON string
+                                elseif (is_string($details)) {
+                                    $existingChildren = json_decode($details, true) ?: [];
+                                }
                             }
 
                             $childCount = old(
@@ -102,7 +121,8 @@
 
                                     <div class="col-md-9">
                                         <label>Spouse Name *</label>
-                                        <input type="text" name="spouse_name" class="form-control"
+                                        <!-- CHANGE 2: Added ucwords class -->
+                                        <input type="text" name="spouse_name" class="form-control ucwords"
                                             placeholder="Enter spouse name" required
                                             value="{{ old('spouse_name', $familyDetail->spouse_name ?? '') }}">
                                         @error('spouse_name')
@@ -215,7 +235,8 @@
                                                 <div class="row">
                                                     <div class="col-md-4">
                                                         <label>Name *</label>
-                                                        <input type="text" name="child_name[]" class="form-control"
+                                                        <!-- CHANGE 2: Added ucwords class -->
+                                                        <input type="text" name="child_name[]" class="form-control ucwords"
                                                             placeholder="Enter child name" required
                                                             value="{{ $child['name'] ?? '' }}">
                                                         @error('child_name.' . $i)
@@ -380,7 +401,8 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <label>Name *</label>
-                                <input type="text" name="child_name[]" class="form-control" placeholder="Enter child name" required value="${childName}">
+                                <!-- CHANGE 2: Added ucwords class to dynamic input -->
+                                <input type="text" name="child_name[]" class="form-control ucwords" placeholder="Enter child name" required value="${childName}">
                             </div>
 
                             <div class="col-md-4">
@@ -442,4 +464,19 @@
             });
 
         });
+
+        // --- CHANGE 3: Title Case Auto-Capitalization Logic ---
+        function toTitleCase(str) {
+            return str.toLowerCase().split(' ').map(function(word) {
+                return (word.charAt(0).toUpperCase() + word.slice(1));
+            }).join(' ');
+        }
+
+        // Use event delegation to handle blur for inputs (including dynamic ones)
+        document.addEventListener('blur', function(e) {
+            // Check if the blurred element has the 'ucwords' class
+            if (e.target.classList.contains('ucwords')) {
+                e.target.value = toTitleCase(e.target.value);
+            }
+        }, true);
     </script>

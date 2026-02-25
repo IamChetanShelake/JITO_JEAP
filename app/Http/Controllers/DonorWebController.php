@@ -132,6 +132,8 @@ class DonorWebController extends Controller
             "fathers_name" => "required|string|max:255",
             "hobby_1" => "nullable|string|max:255",
             "hobby_2" => "nullable|string|max:255",
+            "jito_member" => "required|in:yes,no",
+            "jito_uid" => "nullable|required_if:jito_member,yes|string|max:50",
         ]);
 
         $donor = Auth::guard("donor")->user();
@@ -163,6 +165,8 @@ class DonorWebController extends Controller
             "fathers_name" => $request->fathers_name,
             "hobby_1" => $request->hobby_1,
             "hobby_2" => $request->hobby_2,
+            "jito_member" => $request->jito_member,
+            "jito_uid" => $request->jito_member === 'yes' ? $request->jito_uid : null,
             "submit_status" => "submited",
         ];
 

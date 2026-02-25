@@ -170,11 +170,16 @@
                     All Students with Repayment Eligibility
                 @endif
             </div>
-            @if(isset($filter))
-                <a href="{{ route('admin.repayments.index') }}" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-times me-1"></i> Clear Filter
+            <div class="d-flex gap-2">
+                <a href="{{ route('admin.repayments.export', isset($filter) ? ['filter' => $filter] : []) }}" class="btn btn-success btn-sm">
+                    <i class="fas fa-file-excel me-1"></i> Export to Excel
                 </a>
-            @endif
+                @if(isset($filter))
+                    <a href="{{ route('admin.repayments.index') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-times me-1"></i> Clear Filter
+                    </a>
+                @endif
+            </div>
         </div>
 
         @if($students->isEmpty())

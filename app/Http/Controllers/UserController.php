@@ -839,7 +839,7 @@ class UserController extends Controller
     public function step2_foreign_pg_store(Request $request)
     {
         // Validation for education details
-        // dd($request->all());
+         dd($request->all());
 
         // Add workflow update here for simplicity
         $rules = [

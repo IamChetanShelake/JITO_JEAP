@@ -279,6 +279,7 @@
             background: #ffebee;
             border-color: #ffcdd2;
         }
+
         .status-badge.ready {
             background: #e3f2fd;
             border-color: #90caf9;
@@ -310,6 +311,7 @@
             border-color: #f44336;
             color: #f44336;
         }
+
         .status-icon.ready {
             border-color: #2196f3;
             color: #2196f3;
@@ -777,7 +779,7 @@
                                     <div class="status-label">Resubmitted Applicants</div>
                                     <div class="status-value">
                                         {{ \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
-                                                $q->where('apex_1_status', 'pending')->where('apex_1_reject_remarks', '!=','null');
+                                                $q->where('apex_1_status', 'pending')->where('apex_1_reject_remarks', '!=', 'null');
                                             })->count() }}
                                     </div>
                                 </div>
@@ -805,7 +807,7 @@
                         ->count();
                     $chapter_progress = $chapter_total > 0 ? ($chapter_approved / $chapter_total) * 100 : 0;
                 @endphp
-               @if (in_array($activeGuard, ['admin', 'apex', 'chapter']))
+                @if (in_array($activeGuard, ['admin', 'apex', 'chapter']))
                     <div class="approval-section">
                         <div class="approval-header">
                             <div class="approval-title working-committee-title">
@@ -865,9 +867,16 @@
                                 $q->where('working_committee_status', 'rejected');
                             })
                             ->count();
-                        $working_committee_total = $working_committee_approved + $working_committee_pending + $working_committee_hold + $working_committee_reject;
+                        $working_committee_total =
+                            $working_committee_approved +
+                            $working_committee_pending +
+                            $working_committee_hold +
+                            $working_committee_reject;
 
-                        $working_committee_progress = $working_committee_total > 0 ? ($working_committee_approved / $working_committee_total) * 100 : 0;
+                        $working_committee_progress =
+                            $working_committee_total > 0
+                                ? ($working_committee_approved / $working_committee_total) * 100
+                                : 0;
                     @endphp
                     <!-- working committee -->
                     <div class="approval-section">
@@ -884,7 +893,8 @@
                         </div>
                         <div class="progress-custom">
                             <div class="progress-bar-custom"
-                                style="width: {{ $working_committee_progress }}%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
+                                style="width: {{ $working_committee_progress }}%; background: linear-gradient(90deg, #495049, #6e796f);">
+                            </div>
                         </div>
                         <div class="status-badges" style="grid-template-columns: repeat(4, 1fr);">
                             <a href="{{ route('admin.working_committee.approved') }}" class="status-badge approved"
@@ -940,18 +950,29 @@
                 @endif
             </div>
             @php
-                $apex2approved = \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
-                                                $q->where('apex_2_status', 'approved');
-                                            })->count();
-                $apex2pending = \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
-                                                $q->where('apex_2_status', 'pending')->where('final_status', 'in_progress')->where('current_stage','apex_2')->whereNull('apex_2_reject_remarks');
-                                            })->count();
-                $apex2sendback =  \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
-                                                $q->where('apex_2_status', 'rejected');
-                                            })->count();
-                $apex2resubmitted = \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
-                                                $q->where('apex_2_status', 'pending')->where('apex_2_reject_remarks', '!=','null');
-                                            })->count();
+                $apex2approved = \App\Models\User::where('role', 'user')
+                    ->whereHas('workflowStatus', function ($q) {
+                        $q->where('apex_2_status', 'approved');
+                    })
+                    ->count();
+                $apex2pending = \App\Models\User::where('role', 'user')
+                    ->whereHas('workflowStatus', function ($q) {
+                        $q->where('apex_2_status', 'pending')
+                            ->where('final_status', 'in_progress')
+                            ->where('current_stage', 'apex_2')
+                            ->whereNull('apex_2_reject_remarks');
+                    })
+                    ->count();
+                $apex2sendback = \App\Models\User::where('role', 'user')
+                    ->whereHas('workflowStatus', function ($q) {
+                        $q->where('apex_2_status', 'rejected');
+                    })
+                    ->count();
+                $apex2resubmitted = \App\Models\User::where('role', 'user')
+                    ->whereHas('workflowStatus', function ($q) {
+                        $q->where('apex_2_status', 'pending')->where('apex_2_reject_remarks', '!=', 'null');
+                    })
+                    ->count();
                 $totalapex2 = $apex2approved + $apex2pending + $apex2sendback + $apex2resubmitted;
             @endphp
             <div class="col-lg-6">
@@ -964,7 +985,7 @@
                                 Apex Stage 2 (Post Dated Cheques Details)
                             </div>
                             <div class="approval-total">Total -
-                                {{ $totalapex2}}</div>
+                                {{ $totalapex2 }}</div>
                         </div>
                         <div class="approval-rate">
                             <span>Approval Rate</span>
@@ -998,7 +1019,7 @@
                                     <div class="status-label">Pending</div>
                                     <div class="status-value">
                                         {{ \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
-                                                $q->where('apex_2_status', 'pending')->where('final_status', 'in_progress')->where('current_stage','apex_2')->whereNull('apex_2_reject_remarks');
+                                                $q->where('apex_2_status', 'pending')->where('final_status', 'in_progress')->where('current_stage', 'apex_2')->whereNull('apex_2_reject_remarks');
                                             })->count() }}
                                     </div>
                                 </div>
@@ -1028,7 +1049,7 @@
                                     <div class="status-label">Resubmitted Applicants</div>
                                     <div class="status-value">
                                         {{ \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
-                                                $q->where('apex_2_status', 'pending')->where('apex_2_reject_remarks', '!=','null');
+                                                $q->where('apex_2_status', 'pending')->where('apex_2_reject_remarks', '!=', 'null');
                                             })->count() }}
                                     </div>
                                 </div>
@@ -1043,7 +1064,7 @@
         <!-- Row 3: Accounts Department, Disbursement -->
         <div class="row g-3">
             <div class="col-lg-6">
-               @if (in_array($activeGuard, ['admin','accountant']))
+                @if (in_array($activeGuard, ['admin', 'accountant']))
                     <!-- Accounts Department -->
                     <div class="approval-section">
                         <div class="approval-header">
@@ -1053,16 +1074,21 @@
                             </div>
                             <div class="approval-total">Total - {{ $disbursementTotal ?? 0 }}</div>
                         </div>
+                        <div>
+                            Todays Pending :- {{ $disbursementTodayPending ?? 0 }}
+                        </div>
                         <div class="approval-rate">
                             <span>Disbursement Progress</span>
                             <span>{{ $disbursementTotal > 0 ? round(($disbursementCompleted / $disbursementTotal) * 100) : 0 }}%</span>
                         </div>
                         <div class="progress-custom">
                             <div class="progress-bar-custom"
-                                style="width: {{ $disbursementTotal > 0 ? ($disbursementCompleted / $disbursementTotal) * 100 : 0 }}%; background: linear-gradient(90deg, #009846, #00b359);"></div>
+                                style="width: {{ $disbursementTotal > 0 ? ($disbursementCompleted / $disbursementTotal) * 100 : 0 }}%; background: linear-gradient(90deg, #009846, #00b359);">
+                            </div>
                         </div>
                         <div class="status-badges">
-                            <a href="{{ route('admin.disbursement.completed') }}" class="status-badge approved" style="text-decoration: none; color: inherit;">
+                            <a href="{{ route('admin.disbursement.completed') }}" class="status-badge approved"
+                                style="text-decoration: none; color: inherit;">
                                 <div class="status-icon approved">
                                     <i class="fas fa-check"></i>
                                 </div>
@@ -1071,7 +1097,8 @@
                                     <div class="status-value">{{ $disbursementCompleted ?? 0 }}</div>
                                 </div>
                             </a>
-                            <a href="{{ route('admin.disbursement.in_progress') }}" class="status-badge pending" style="text-decoration: none; color: inherit;">
+                            <a href="{{ route('admin.disbursement.in_progress') }}" class="status-badge pending"
+                                style="text-decoration: none; color: inherit;">
                                 <div class="status-icon pending">
                                     <i class="fas fa-clock"></i>
                                 </div>
@@ -1080,7 +1107,8 @@
                                     <div class="status-value">{{ $disbursementInProgress ?? 0 }}</div>
                                 </div>
                             </a>
-                            <a href="{{ route('admin.disbursement.pending') }}" class="status-badge hold" style="text-decoration: none; color: inherit;">
+                            <a href="{{ route('admin.disbursement.pending') }}" class="status-badge hold"
+                                style="text-decoration: none; color: inherit;">
                                 <div class="status-icon hold">
                                     <i class="fas fa-exclamation"></i>
                                 </div>
@@ -1089,22 +1117,47 @@
                                     <div class="status-value">{{ $disbursementPending ?? 0 }}</div>
                                 </div>
                             </a>
+                            <a href="{{ route('admin.disbursement.upcoming') }}" class="status-badge pending"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon pending">
+                                    <i class="fas fa-calendar-plus"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Upcoming Disbursement</div>
+                                    <div class="status-value">{{ $disbursementUpcoming ?? 0 }}</div>
+                                </div>
+                            </a>
+                            <a href="{{ route('admin.disbursement.past') }}" class="status-badge approved"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon approved">
+                                    <i class="fas fa-history"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Past Disbursement</div>
+                                    <div class="status-value">{{ $disbursementPast ?? 0 }}</div>
+                                </div>
+                            </a>
                         </div>
                     </div>
                 @endif
             </div>
             <div class="col-lg-6">
-                @if (in_array($activeGuard, ['admin','accountant']))
+                @if (in_array($activeGuard, ['admin', 'accountant']))
                     <!-- Repayment Summary -->
                     <div class="approval-section">
                         <div class="approval-header">
                             <div class="approval-title chapter-title">
                                 <i class="fas fa-receipt" style="color: #4caf50;"></i>
-                                <a href="{{ route('admin.repayments.index') }}" style="color: #4caf50; text-decoration: none;">
+                                <a href="{{ route('admin.repayments.index') }}"
+                                    style="color: #4caf50; text-decoration: none;">
                                     <span>Repayment Summary</span>
                                 </a>
                             </div>
+
                             <div class="approval-total">Total - {{ $repaymentTotal ?? 0 }}</div>
+                        </div>
+                        <div>
+                            Todays Pending :- {{ $repaymentTodayPending ?? 0 }}
                         </div>
                         <div class="approval-rate">
                             <span>Completion Rate</span>
@@ -1112,10 +1165,12 @@
                         </div>
                         <div class="progress-custom">
                             <div class="progress-bar-custom"
-                                style="width: {{ $repaymentTotal > 0 ? ($repaymentCompleted / $repaymentTotal) * 100 : 0 }}%; background: linear-gradient(90deg, #009846, #00b359);"></div>
+                                style="width: {{ $repaymentTotal > 0 ? ($repaymentCompleted / $repaymentTotal) * 100 : 0 }}%; background: linear-gradient(90deg, #009846, #00b359);">
+                            </div>
                         </div>
                         <div class="status-badges">
-                            <a href="{{ route('admin.repayments.completed') }}" class="status-badge approved" style="text-decoration: none; color: inherit;">
+                            <a href="{{ route('admin.repayments.completed') }}" class="status-badge approved"
+                                style="text-decoration: none; color: inherit;">
                                 <div class="status-icon approved">
                                     <i class="fas fa-check"></i>
                                 </div>
@@ -1124,7 +1179,8 @@
                                     <div class="status-value">{{ $repaymentCompleted ?? 0 }}</div>
                                 </div>
                             </a>
-                            <a href="{{ route('admin.repayments.in_progress') }}" class="status-badge pending" style="text-decoration: none; color: inherit;">
+                            <a href="{{ route('admin.repayments.in_progress') }}" class="status-badge pending"
+                                style="text-decoration: none; color: inherit;">
                                 <div class="status-icon pending">
                                     <i class="fas fa-clock"></i>
                                 </div>
@@ -1133,13 +1189,34 @@
                                     <div class="status-value">{{ $repaymentInProgress ?? 0 }}</div>
                                 </div>
                             </a>
-                            <a href="{{ route('admin.repayments.ready') }}" class="status-badge ready" style="text-decoration: none; color: inherit;">
+                            <a href="{{ route('admin.repayments.ready') }}" class="status-badge ready"
+                                style="text-decoration: none; color: inherit;">
                                 <div class="status-icon ready">
                                     <i class="fas fa-clipboard-check"></i>
                                 </div>
                                 <div>
                                     <div class="status-label">Ready for Repayment</div>
                                     <div class="status-value">{{ $repaymentReady ?? 0 }}</div>
+                                </div>
+                            </a>
+                            <a href="{{ route('admin.repayments.upcoming') }}" class="status-badge pending"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon pending">
+                                    <i class="fas fa-calendar-plus"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Upcoming Repayment</div>
+                                    <div class="status-value">{{ $repaymentUpcoming ?? 0 }}</div>
+                                </div>
+                            </a>
+                            <a href="{{ route('admin.repayments.past') }}" class="status-badge approved"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon approved">
+                                    <i class="fas fa-history"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Past Repayment</div>
+                                    <div class="status-value">{{ $repaymentPast ?? 0 }}</div>
                                 </div>
                             </a>
                         </div>

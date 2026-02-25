@@ -41,12 +41,14 @@ class AdminController extends Controller
             'disbursementCompleted' => $disbursementCounts['completed'],
             'disbursementInProgress' => $disbursementCounts['in_progress'],
             'disbursementPending' => $disbursementCounts['pending'],
+            'disbursementTodayPending' => $disbursementCounts['today_pending'],
             'disbursementUpcoming' => $disbursementCounts['upcoming'],
             'disbursementPast' => $disbursementCounts['past'],
             'disbursementTotal' => $disbursementCounts['total'],
             'repaymentCompleted' => $repaymentCounts['completed'],
             'repaymentInProgress' => $repaymentCounts['in_progress'],
             'repaymentReady' => $repaymentCounts['ready'],
+            'repaymentTodayPending' => $repaymentCounts['today_pending'],
             'repaymentUpcoming' => $repaymentCounts['upcoming'],
             'repaymentPast' => $repaymentCounts['past'],
             'repaymentTotal' => $repaymentCounts['total'],
@@ -109,6 +111,12 @@ class AdminController extends Controller
                 ->whereDate('planned_date', '>=', $today)
                 ->count();
 
+            $todayPending = DB::connection('admin_panel')
+                ->table('disbursement_schedules')
+                ->where('status', 'pending')
+                ->whereDate('planned_date', '=', $today)
+                ->count();
+
             $past = DB::connection('admin_panel')
                 ->table('disbursement_schedules')
                 ->where('status', 'completed')
@@ -137,6 +145,7 @@ class AdminController extends Controller
                 'completed' => $completed,
                 'in_progress' => $inProgress,
                 'pending' => $pending,
+                'today_pending' => $todayPending,
                 'upcoming' => $upcoming,
                 'past' => $past,
                 'total' => $completed + $inProgress + $pending
@@ -146,6 +155,7 @@ class AdminController extends Controller
                 'completed' => 0,
                 'in_progress' => 0,
                 'pending' => 0,
+                'today_pending' => 0,
                 'upcoming' => 0,
                 'past' => 0,
                 'total' => 0
@@ -213,6 +223,8 @@ class AdminController extends Controller
             // Past => Completed repayment installments (from latest PDC cheques)
             $upcoming = 0;
             $past = 0;
+            $todayPending = 0;
+            $today = now()->toDateString();
 
             $pdcDetailsByUser = PdcDetail::query()
                 ->orderByDesc('id')
@@ -237,6 +249,7 @@ class AdminController extends Controller
                         return (object) [
                             'installment_no' => (int) ($item['row_number'] ?? ($index + 1)),
                             'amount' => (float) ($item['amount'] ?? 0),
+                            'cheque_date' => $item['cheque_date'] ?? null,
                         ];
                     })
                     ->sortBy('installment_no')
@@ -250,6 +263,10 @@ class AdminController extends Controller
                         $remainingPaidAmount -= $installment->amount;
                     } else {
                         $upcoming++;
+                        $installmentDate = $installment->cheque_date ?? null;
+                        if (!empty($installmentDate) && $installmentDate === $today) {
+                            $todayPending++;
+                        }
                     }
                 }
             }
@@ -258,6 +275,7 @@ class AdminController extends Controller
                 'completed' => $completed,
                 'in_progress' => $inProgress,
                 'ready' => $ready,
+                'today_pending' => $todayPending,
                 'upcoming' => $upcoming,
                 'past' => $past,
                 'total' => $completed + $inProgress + $ready,
@@ -267,6 +285,7 @@ class AdminController extends Controller
                 'completed' => 0,
                 'in_progress' => 0,
                 'ready' => 0,
+                'today_pending' => 0,
                 'upcoming' => 0,
                 'past' => 0,
                 'total' => 0,

@@ -1074,6 +1074,9 @@
                             </div>
                             <div class="approval-total">Total - {{ $disbursementTotal ?? 0 }}</div>
                         </div>
+                        <div>
+                            Todays Pending :- {{ $disbursementTodayPending ?? 0 }}
+                        </div>
                         <div class="approval-rate">
                             <span>Disbursement Progress</span>
                             <span>{{ $disbursementTotal > 0 ? round(($disbursementCompleted / $disbursementTotal) * 100) : 0 }}%</span>
@@ -1150,7 +1153,11 @@
                                     <span>Repayment Summary</span>
                                 </a>
                             </div>
+
                             <div class="approval-total">Total - {{ $repaymentTotal ?? 0 }}</div>
+                        </div>
+                        <div>
+                            Todays Pending :- {{ $repaymentTodayPending ?? 0 }}
                         </div>
                         <div class="approval-rate">
                             <span>Completion Rate</span>

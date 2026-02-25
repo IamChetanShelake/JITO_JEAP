@@ -375,6 +375,11 @@
             min-width: 250px;
         }
 
+        .form-field2 {
+            flex: 1;
+            width: 33%;
+        }
+
         .form-field-full {
             width: 100%;
         }
@@ -2067,13 +2072,45 @@
                                         value="₹{{ number_format($user->workingCommitteeApproval->approval_financial_assistance_amount ?? 0, 2) }}"
                                         readonly>
                                 </div>
-                                <div class="form-field">
-                                    <label class="form-label">Installment Amount</label>
-                                    <input type="text" class="form-input"
-                                        value="₹{{ number_format($user->workingCommitteeApproval->installment_amount ?? 0, 2) }}"
-                                        readonly>
-                                </div>
                             </div>
+
+                            <!-- Installment Details Table -->
+                            @if (
+                                $user->workingCommitteeApproval->installment_amount &&
+                                    is_array($user->workingCommitteeApproval->installment_amount))
+                                <div class="form-row">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label">Installment Details</label>
+                                        <div class="table-container">
+                                            <table class="custom-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Sr No</th>
+                                                        <th>Installment Amount</th>
+                                                        <th>No. of Months</th>
+                                                        <th>Total</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($user->workingCommitteeApproval->installment_amount as $index => $installmentAmount)
+                                                        <tr>
+                                                            <td>{{ $index + 1 }}</td>
+                                                            <td class="amount-cell">
+                                                                ₹{{ number_format($installmentAmount ?? 0, 2) }}</td>
+                                                            <td>{{ $user->workingCommitteeApproval->no_of_months[$index] ?? 'N/A' }}
+                                                            </td>
+                                                            <td class="amount-cell">
+                                                                ₹{{ number_format($user->workingCommitteeApproval->total[$index] ?? 0, 2) }}
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
                             <div class="form-row">
                                 <div class="form-field">
                                     <label class="form-label">Additional Installment Amount</label>
@@ -2229,7 +2266,7 @@
                                         <div class="form-row">
                                             <div class="form-field">
                                                 <label class="form-label">Chapter Approval Remark</label>
-                                                <textarea class="form-input" readonly>{{ strip_tags($user->workflowStatus->chapter_approval_remarks ?? 'N/A')  }}</textarea>
+                                                <textarea class="form-input" readonly>{{ strip_tags($user->workflowStatus->chapter_approval_remarks ?? 'N/A') }}</textarea>
                                             </div>
                                             <div class="form-field">
                                                 <label class="form-label">Chapter Approval Date</label>
@@ -2397,7 +2434,7 @@
                                             <div class="form-row">
                                                 <div class="form-field">
                                                     <label class="form-label">Chapter Approval Remark</label>
-                                                    <textarea class="form-input" readonly>{{ strip_tags($user->workflowStatus->chapter_approval_remarks ?? 'N/A')  }}</textarea>
+                                                    <textarea class="form-input" readonly>{{ strip_tags($user->workflowStatus->chapter_approval_remarks ?? 'N/A') }}</textarea>
                                                 </div>
                                                 <div class="form-field">
                                                     <label class="form-label">Chapter Approval Date</label>
@@ -2479,7 +2516,7 @@
                                                         <select name="disbursement_in_year" class="form-input"
                                                             id="disbursement-year-select">
                                                             <option value="">Select number of years</option>
-                                                            @for ($i = 1; $i <= 6; $i++)
+                                                            @for ($i = 1; $i <= 8; $i++)
                                                                 <option value="{{ $i }}">
                                                                     {{ $i }}</option>
                                                             @endfor
@@ -2505,22 +2542,61 @@
                                             </div> --}}
                                         </div>
 
-                                        <div class="form-row">
-                                            <div class="form-field">
+
+                                        <div id="installment-rows">
+
+                                            <div style="text-align: end;">
+                                                <button type="button" id="add-installment"
+                                                    class="btn btn-sm btn-secondary">
+                                                    + Add Installment
+                                                </button>
+                                            </div>
+                                            <div class="form-row installment-row">
+                                                <div class="form-field2">
+                                                    <label>Installment Amount</label>
+                                                    <input type="number" class="installment-amount form-input"
+                                                        name="installment_amount[]" step="0.01">
+                                                </div>
+
+                                                <div class="form-field2">
+                                                    <label>No of Months</label>
+                                                    <input type="number" name="no_of_months[]"
+                                                        class="installment-months form-input">
+                                                </div>
+
+                                                <div class="form-field2">
+                                                    <label>Total</label>
+                                                    <input type="number" name="total[]"
+                                                        class="installment-total form-input" readonly>
+                                                </div>
+                                            </div>
+
+
+                                            {{-- </div> --}}
+
+
+
+                                            {{-- <div class="form-row"> --}}
+                                            {{-- <div class="form-field">
                                                 <label class="form-label">Installment Amount</label>
                                                 <input type="number" name="installment_amount"
                                                     id="installment-amount" class="form-input" step="0.01">
-                                            </div>
-                                            <div class="form-field">
+                                            </div> --}}
+                                            {{-- <div class="form-field">
+                                                <label class="form-label">Additional Installment Amount</label>
+                                                <input type="number" name="additional_installment_amount"
+                                                    class="form-input" step="0.01">
+                                            </div> --}}
+
+                                        </div>
+
+                                        <div class="form-row " style="margin-top:20px;">
+                                            <div class="form-field ">
                                                 <label class="form-label">Additional Installment Amount</label>
                                                 <input type="number" name="additional_installment_amount"
                                                     class="form-input" step="0.01">
                                             </div>
-
-                                        </div>
-
-                                        <div class="form-row">
-                                            <div class="form-field">
+                                            <div class="form-field ">
                                                 <label class="form-label">No of Cheques to be Collected</label>
                                                 <input type="number" name="no_of_cheques_to_be_collected"
                                                     class="form-input" min="1">
@@ -2530,8 +2606,9 @@
                                                 <select name="repayment_type" class="form-input" required>
                                                     <option value="">Select repayment type</option>
                                                     <option value="yearly">Yearly</option>
-                                                    <option value="half_yearly">Half Yearly</option>
-                                                    <option value="quarterly">Quarterly</option>
+                                                    <option value="half_yearly">6 Months</option>
+                                                    <option value="quarterly">3 Months</option>
+                                                    <option value="quarterly">2 Months</option>
                                                     <option value="monthly">Monthly</option>
                                                 </select>
                                             </div>
@@ -2862,32 +2939,49 @@
                 });
             @endif
 
+
+
             const totalAmountInput = document.getElementById('total-amount');
-            const installmentInput = document.getElementById('installment-amount');
             const additionalInput = document.querySelector('input[name="additional_installment_amount"]');
             const chequesInput = document.querySelector('input[name="no_of_cheques_to_be_collected"]');
+            const rowsContainer = document.getElementById('installment-rows');
+            const addBtn = document.getElementById('add-installment');
 
-            installmentInput.addEventListener('input', function() {
+            function recalculate() {
+                let sanctionAmount = parseFloat(totalAmountInput.value) || 0;
+                let usedAmount = 0;
+                let totalMonths = 0;
 
-                const totalAmount = parseFloat(totalAmountInput.value) || 0;
-                const installmentAmount = parseFloat(this.value) || 0;
+                document.querySelectorAll('.installment-row').forEach(row => {
+                    const amount = parseFloat(row.querySelector('.installment-amount').value) || 0;
+                    const months = parseInt(row.querySelector('.installment-months').value) || 0;
 
-                if (totalAmount > 0 && installmentAmount > 0) {
+                    const rowTotal = amount * months;
+                    row.querySelector('.installment-total').value = rowTotal;
 
-                    const baseCheques = Math.floor(totalAmount / installmentAmount);
-                    const remainder = totalAmount % installmentAmount;
+                    usedAmount += rowTotal;
+                    totalMonths += months;
+                });
 
-                    // If additional installment exists, add 1 cheque
-                    const totalCheques = remainder > 0 ? baseCheques + 1 : baseCheques;
+                let remaining = sanctionAmount - usedAmount;
+                if (remaining < 0) remaining = 0;
 
-                    chequesInput.value = totalCheques;
-                    additionalInput.value = remainder.toFixed(2);
+                additionalInput.value = remaining.toFixed(2);
+                chequesInput.value = remaining > 0 ? totalMonths + 1 : totalMonths;
+            }
 
-                } else {
-                    chequesInput.value = '';
-                    additionalInput.value = '';
-                }
+            // Listen changes
+            rowsContainer.addEventListener('input', recalculate);
+
+            // Add new row
+            addBtn.addEventListener('click', () => {
+                const newRow = document.querySelector('.installment-row').cloneNode(true);
+                newRow.querySelectorAll('input').forEach(input => input.value = '');
+                rowsContainer.appendChild(newRow);
             });
+
+
+
 
         });
     </script>

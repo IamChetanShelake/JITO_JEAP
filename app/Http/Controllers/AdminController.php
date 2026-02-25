@@ -386,39 +386,16 @@ class AdminController extends Controller
 
     public function approveWorkingCommittee(Request $request, User $user, $stage)
     {
-
-        // // Log the approval attempt
-        // $this->logUserActivity(
-        //     'Working_Committee_Approval',
-        //     'started',
-        //     'Admin started working committee approval process',
-        //     'admin_action',
-        //     null,
-        //     null,
-        //     [
-        //         'user_id' => $user->id,
-        //         'user_name' => $user->name,
-        //         'user_email' => $user->email,
-        //         'stage' => $stage,
-        //         'admin_id' => Auth::id(),
-        //         'admin_name' => Auth::user()->name,
-        //         'admin_email' => Auth::user()->email,
-        //         'request_data' => $request->except(['_token']), // Exclude sensitive data
-        //         'ip_address' => $request->ip(),
-        //         'user_agent' => $request->userAgent(),
-        //     ],
-        //     Auth::id()
-        // );
-
-        // Validation for working committee specific fields
-        //  dd($request->all());
+        //dd($request->all());
         $rules = [
             'w_c_approval_remark' => 'required|string',
             'w_c_approval_date' => 'required|date',
             'meeting_no' => 'required|string|max:255',
             'disbursement_system' => 'required|in:yearly,half_yearly',
             'approval_financial_assistance_amount' => 'required|numeric|min:0',
-            'installment_amount' => 'required|numeric|min:0',
+            'installment_amount' => 'required',
+            'no_of_months'=>'required',
+            'total'=>'required',
             'additional_installment_amount' => 'required|numeric|min:0',
             'repayment_type' => 'required|in:yearly,half_yearly,quarterly,monthly',
             'no_of_cheques_to_be_collected' => 'required|integer|min:1',
@@ -472,7 +449,12 @@ class AdminController extends Controller
             'meeting_no' => $request->meeting_no,
             'disbursement_system' => $request->disbursement_system,
             'approval_financial_assistance_amount' => $request->approval_financial_assistance_amount,
+            // 'installment_amount' => json_encode($request->installment_amount),
+            // 'no_of_months'=>json_encode($request->no_of_months),
+            // 'total'=>json_encode($request->total),
             'installment_amount' => $request->installment_amount,
+'no_of_months' => $request->no_of_months,
+'total' => $request->total,
             'additional_installment_amount' => $request->additional_installment_amount,
             'repayment_type' => $request->repayment_type,
             'no_of_cheques_to_be_collected' => $request->no_of_cheques_to_be_collected,
@@ -505,12 +487,14 @@ class AdminController extends Controller
                 'disbursement_system' => $request->disbursement_system,
                 'disbursement_in_year' => $request->disbursement_in_year ?? null,
                 'disbursement_in_half_year' => $request->disbursement_in_half_year ?? null,
-                'yearly_dates' => $request->yearly_dates ?? null,
-                'yearly_amounts' => $request->yearly_amounts ?? null,
-                'half_yearly_dates' => $request->half_yearly_dates ?? null,
-                'half_yearly_amounts' => $request->half_yearly_amounts ?? null,
+                'yearly_dates' => $request->yearly_dates,
+                'yearly_amounts' => $request->yearly_amounts ,
+                'half_yearly_dates' => $request->half_yearly_dates ,
+                'half_yearly_amounts' => $request->half_yearly_amounts ? json_encode($request->half_yearly_amounts) : null,
                 'approval_financial_assistance_amount' => $request->approval_financial_assistance_amount,
-                'installment_amount' => $request->installment_amount,
+                'installment_amount' => $request->installment_amount ,
+                 'no_of_months' => $request->no_of_months,
+                 'total' => $request->total ,
                 'additional_installment_amount' => $request->additional_installment_amount,
                 'repayment_type' => $request->repayment_type,
                 'no_of_cheques_to_be_collected' => $request->no_of_cheques_to_be_collected,

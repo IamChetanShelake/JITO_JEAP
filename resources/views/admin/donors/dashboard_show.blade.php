@@ -8,7 +8,6 @@
             @csrf
             @method('PUT')
 
-            <!-- Hidden input for current step tracking -->
             <input type="hidden" name="current_step" id="current_step_input"
                 value="{{ request()->get('step', old('current_step', 1)) }}">
 
@@ -26,7 +25,6 @@
                     border: 1px solid #e0e0e0;
                 }
 
-                /* Sidebar Styling */
                 .donor-edit-sidebar {
                     width: 260px;
                     background-color: #393185;
@@ -78,7 +76,6 @@
                     color: #fff;
                 }
 
-                /* Content Area Styling */
                 .donor-edit-content {
                     flex-grow: 1;
                     padding: 2rem;
@@ -99,19 +96,10 @@
                     margin-bottom: 1.5rem;
                 }
 
-                .step-content-section {
-                    display: none;
-                }
+                .step-content-section { display: none; }
+                .step-content-section.active { display: block; animation: fadeIn 0.3s ease; }
 
-                .step-content-section.active {
-                    display: block;
-                    animation: fadeIn 0.3s ease;
-                }
-
-                @keyframes fadeIn {
-                    from { opacity: 0; transform: translateY(5px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
                 .form-control, .form-select {
                     border-radius: 4px;
@@ -133,7 +121,6 @@
                     letter-spacing: 0.5px;
                 }
 
-                /* Buttons Styling */
                 .form-navigation {
                     display: flex;
                     justify-content: space-between;
@@ -153,10 +140,7 @@
                     transition: background 0.2s;
                 }
 
-                .btn-submit-update:hover {
-                    background-color: #2d2669;
-                    color: white;
-                }
+                .btn-submit-update:hover { background-color: #2d2669; color: white; }
 
                 .btn-nav {
                     padding: 0.7rem 1.5rem;
@@ -167,30 +151,42 @@
                     cursor: pointer;
                 }
 
-                .btn-nav-back {
-                    background-color: #6c757d;
-                    color: white;
-                }
-
+                .btn-nav-back { background-color: #6c757d; color: white; }
                 .btn-nav-back:hover { background-color: #5a6268; }
 
-                .btn-nav-next {
-                    background-color: #393185;
-                    color: white;
-                }
-
+                .btn-nav-next { background-color: #393185; color: white; }
                 .btn-nav-next:hover { background-color: #2d2669; }
 
-                .current-file {
-                    font-size: 0.8rem;
-                    color: #666;
-                    margin-top: 0.25rem;
-                }
+                .current-file { font-size: 0.8rem; color: #666; margin-top: 0.25rem; }
                 .current-file a { color: #393185; font-weight: 600; }
                 
-                /* CHANGE 1: CSS Class for Title Case Visual */
-                .ucwords {
-                    text-transform: capitalize;
+                .ucwords { text-transform: capitalize; }
+                
+                /* File preview styles for admin */
+                .file-preview-item {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    background-color: #f8f9fa;
+                    border: 1px solid #e9ecef;
+                    border-radius: 8px;
+                    padding: 10px 15px;
+                    margin-bottom: 8px;
+                }
+                .file-preview-item .file-info {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    overflow: hidden;
+                }
+                .file-preview-item .file-name {
+                    font-size: 13px;
+                    font-weight: 500;
+                    color: #333;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    max-width: 200px;
                 }
             </style>
 
@@ -203,7 +199,6 @@
             </div>
 
             <div class="donor-edit-layout">
-                <!-- Sidebar Navigation -->
                 <div class="donor-edit-sidebar">
                     @for ($i = 1; $i <= 7; $i++)
                         <div class="donor-step-item" data-step="{{ $i }}">
@@ -213,9 +208,9 @@
                                     @case(1) Personal Details @break
                                     @case(2) Family Details @break
                                     @case(3) Nominee Details @break
-                                    @case(4) Membership @break
-                                    @case(5) Professional @break
-                                    @case(6) Documents @break
+                                    @case(4) Professional @break
+                                    @case(5) Documents @break
+                                    @case(6) Membership @break
                                     @case(7) Payment @break
                                 @endswitch
                             </div>
@@ -223,8 +218,28 @@
                     @endfor
                 </div>
 
-                <!-- Content Area -->
                 <div class="donor-edit-content">
+
+                    <!-- Helper Function for URL Resolution -->
+                    @php
+                        if (!function_exists('resolveFileUrl')) {
+                            function resolveFileUrl($path) {
+                                if (empty($path)) return '#';
+                                
+                                // 1. Full URL (http://...)
+                                if (str_starts_with($path, 'http')) return $path;
+                                
+                                // 2. New Public Paths (uploads/documents or donor_documents)
+                                // These are stored as 'uploads/documents/filename.jpg' in DB
+                                if (str_starts_with($path, 'uploads/') || str_starts_with($path, 'donor_documents/')) {
+                                    return asset($path);
+                                }
+                                
+                                // 3. Old Storage Path fallback
+                                return asset('storage/' . $path);
+                            }
+                        }
+                    @endphp
 
                     <!-- Step 1: Personal Details -->
                     <div class="step-content-section" id="step-1">
@@ -238,7 +253,6 @@
                                     <option value="Ms" {{ ($donor->personalDetail->title ?? '') == 'Ms' ? 'selected' : '' }}>Ms</option>
                                 </select>
                             </div>
-                            <!-- CHANGE 2: Added 'ucwords' class to inputs -->
                             <div class="col-md-4">
                                 <div class="info-label">First Name</div>
                                 <input type="text" name="personal_detail[first_name]" class="form-control ucwords" value="{{ $donor->personalDetail->first_name ?? '' }}">
@@ -262,6 +276,10 @@
                             <div class="col-md-4">
                                 <div class="info-label">State</div>
                                 <input type="text" name="personal_detail[state]" class="form-control ucwords" value="{{ $donor->personalDetail->state ?? '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-label">Zone</div>
+                                <input type="text" name="personal_detail[zone]" class="form-control ucwords" value="{{ $donor->personalDetail->zone ?? '' }}">
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">Pin Code</div>
@@ -311,6 +329,81 @@
                                 <div class="info-label">Anniversary Date</div>
                                 <input type="date" name="personal_detail[anniversary_date]" class="form-control" value="{{ $donor->personalDetail->anniversary_date ?? '' }}">
                             </div>
+
+                            <!-- === BIRTH PHOTO === -->
+                            <div class="col-md-6">
+                                <div class="info-label">Birth Photo / Proof (Multiple)</div>
+                                @php
+                                    $rawData = $donor->personalDetail->birth_photo ?? $donor->document->birth_photo ?? null;
+                                    $birthPhotos = [];
+                                    if (is_array($rawData)) { $birthPhotos = $rawData; }
+                                    elseif (is_string($rawData) && !empty($rawData)) { $decoded = json_decode($rawData, true); $birthPhotos = is_array($decoded) ? $decoded : [$rawData]; }
+                                @endphp
+                                @if (!empty($birthPhotos))
+                                    <div class="mb-2">
+                                        @foreach ($birthPhotos as $index => $file)
+                                            @if (!empty($file))
+                                                <div class="file-preview-item">
+                                                    <div class="file-info">
+                                                        <i class="fas {{ (strpos($file, '.pdf') !== false) ? 'fa-file-pdf text-danger' : 'fa-image text-primary' }}"></i>
+                                                        <span class="file-name">{{ basename($file) }}</span>
+                                                    </div>
+                                                    <div class="d-flex gap-2">
+                                                        <a href="{{ resolveFileUrl($file) }}" target="_blank" class="btn btn-sm btn-info text-white">
+                                                            <i class="fas fa-eye"></i> View
+                                                        </a>
+                                                        <div class="form-check mb-0">
+                                                            <input class="form-check-input" type="checkbox" name="delete_birth_photo[]" value="{{ $file }}" id="del_birth_{{ $index }}">
+                                                            <label class="form-check-label text-danger small" for="del_birth_{{ $index }}">Del</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <p class="text-muted small mb-1">No birth photo uploaded yet</p>
+                                @endif
+                                <input type="file" name="birth_photo[]" class="form-control" multiple accept="image/*,.pdf">
+                            </div>
+
+                            <!-- === ANNIVERSARY PHOTO === -->
+                            <div class="col-md-6">
+                                <div class="info-label">Anniversary Photo (Multiple)</div>
+                                @php
+                                    $rawAnnData = $donor->personalDetail->anniversary_photo ?? $donor->document->anniversary_photo ?? null;
+                                    $anniversaryPhotos = [];
+                                    if (is_array($rawAnnData)) { $anniversaryPhotos = $rawAnnData; }
+                                    elseif (is_string($rawAnnData) && !empty($rawAnnData)) { $decodedAnn = json_decode($rawAnnData, true); $anniversaryPhotos = is_array($decodedAnn) ? $decodedAnn : [$rawAnnData]; }
+                                @endphp
+                                @if (!empty($anniversaryPhotos))
+                                    <div class="mb-2">
+                                        @foreach ($anniversaryPhotos as $index => $file)
+                                            @if (!empty($file))
+                                                <div class="file-preview-item">
+                                                    <div class="file-info">
+                                                        <i class="fas {{ (strpos($file, '.pdf') !== false) ? 'fa-file-pdf text-danger' : 'fa-image text-primary' }}"></i>
+                                                        <span class="file-name">{{ basename($file) }}</span>
+                                                    </div>
+                                                    <div class="d-flex gap-2">
+                                                        <a href="{{ resolveFileUrl($file) }}" target="_blank" class="btn btn-sm btn-info text-white">
+                                                            <i class="fas fa-eye"></i> View
+                                                        </a>
+                                                        <div class="form-check mb-0">
+                                                            <input class="form-check-input" type="checkbox" name="delete_anniversary_photo[]" value="{{ $file }}" id="del_ann_{{ $index }}">
+                                                            <label class="form-check-label text-danger small" for="del_ann_{{ $index }}">Del</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <p class="text-muted small mb-1">No anniversary photo uploaded yet</p>
+                                @endif
+                                <input type="file" name="anniversary_photo[]" class="form-control" multiple accept="image/*,.pdf">
+                            </div>
+
                             <div class="col-md-4">
                                 <div class="info-label">Blood Group</div>
                                 <input type="text" name="personal_detail[blood_group]" class="form-control" value="{{ $donor->personalDetail->blood_group ?? '' }}">
@@ -340,7 +433,6 @@
                                 <input type="text" name="personal_detail[hobby_2]" class="form-control" value="{{ $donor->personalDetail->hobby_2 ?? '' }}">
                             </div>
                         </div>
-
                         <div class="form-navigation">
                             <div></div>
                             <div class="d-flex gap-2">
@@ -378,38 +470,22 @@
                                 <div class="info-label">Spouse Blood Group</div>
                                 <input type="text" name="family_detail[spouse_blood_group]" class="form-control" value="{{ $donor->familyDetail->spouse_blood_group ?? '' }}">
                             </div>
-                            <!-- Added ID for JavaScript -->
                             <div class="col-md-4">
                                 <div class="info-label">Number of Kids</div>
                                 <input type="number" name="family_detail[number_of_kids]" id="num_kids_input" class="form-control" value="{{ $donor->familyDetail->number_of_kids ?? 0 }}" min="0">
                             </div>
                         </div>
-
                         <div class="mt-4">
                             <div class="info-label mb-2">Children Details</div>
                             <div class="table-responsive">
                                 <table class="table table-bordered">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Gender</th>
-                                            <th>DOB</th>
-                                            <th>Blood Group</th>
-                                            <th>Marital Status</th>
-                                        </tr>
-                                    </thead>
-                                    <!-- Added ID for JavaScript -->
+                                    <thead class="table-light"><tr><th>Name</th><th>Gender</th><th>DOB</th><th>Blood Group</th><th>Marital Status</th></tr></thead>
                                     <tbody id="children_tbody">
                                         @if (isset($children) && count($children) > 0)
                                             @foreach ($children as $i => $child)
                                                 <tr>
                                                     <td><input type="text" name="children[{{ $i }}][name]" class="form-control form-control-sm ucwords" value="{{ $child['name'] ?? '' }}"></td>
-                                                    <td>
-                                                        <select name="children[{{ $i }}][gender]" class="form-select form-select-sm">
-                                                            <option value="Male" {{ ($child['gender'] ?? '') == 'Male' ? 'selected' : '' }}>Male</option>
-                                                            <option value="Female" {{ ($child['gender'] ?? '') == 'Female' ? 'selected' : '' }}>Female</option>
-                                                        </select>
-                                                    </td>
+                                                    <td><select name="children[{{ $i }}][gender]" class="form-select form-select-sm"><option value="Male" {{ ($child['gender'] ?? '') == 'Male' ? 'selected' : '' }}>Male</option><option value="Female" {{ ($child['gender'] ?? '') == 'Female' ? 'selected' : '' }}>Female</option></select></td>
                                                     <td><input type="date" name="children[{{ $i }}][dob]" class="form-control form-control-sm" value="{{ $child['dob'] ?? '' }}"></td>
                                                     <td><input type="text" name="children[{{ $i }}][blood_group]" class="form-control form-control-sm" value="{{ $child['blood_group'] ?? '' }}"></td>
                                                     <td><input type="text" name="children[{{ $i }}][marital_status]" class="form-control form-control-sm" value="{{ $child['marital_status'] ?? '' }}"></td>
@@ -428,7 +504,6 @@
                                 </table>
                             </div>
                         </div>
-
                         <div class="form-navigation">
                             <button type="button" class="btn-nav btn-nav-back" onclick="prevStep()"><i class="fas fa-arrow-left me-2"></i> Back</button>
                             <div class="d-flex gap-2">
@@ -467,7 +542,6 @@
                                 <input type="text" name="nominee_detail[nominee_pincode]" class="form-control" value="{{ $donor->nomineeDetail->nominee_pincode ?? '' }}">
                             </div>
                         </div>
-
                         <div class="form-navigation">
                             <button type="button" class="btn-nav btn-nav-back" onclick="prevStep()"><i class="fas fa-arrow-left me-2"></i> Back</button>
                             <div class="d-flex gap-2">
@@ -477,28 +551,8 @@
                         </div>
                     </div>
 
-                    <!-- Step 4: Membership Details -->
+                    <!-- Step 4: Professional Details -->
                     <div class="step-content-section" id="step-4">
-                        <h4 class="donorH4">Membership Details</h4>
-                        <div class="row g-3">
-                            <div class="col-md-12">
-                                <div class="info-label">Selected Options</div>
-                                <textarea name="membership_options" class="form-control" rows="4">{{ implode("\n", $paymentOptions ?? []) }}</textarea>
-                                <small class="text-muted">Enter each membership option on a new line.</small>
-                            </div>
-                        </div>
-
-                        <div class="form-navigation">
-                            <button type="button" class="btn-nav btn-nav-back" onclick="prevStep()"><i class="fas fa-arrow-left me-2"></i> Back</button>
-                            <div class="d-flex gap-2">
-                                <button type="submit" class="btn-submit-update"><i class="fas fa-save me-2"></i> Update</button>
-                                <button type="button" class="btn-nav btn-nav-next" onclick="nextStep()">Next <i class="fas fa-arrow-right ms-2"></i></button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 5: Professional Details -->
-                    <div class="step-content-section" id="step-5">
                         <h4 class="donorH4">Professional Details</h4>
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -508,6 +562,10 @@
                             <div class="col-md-6">
                                 <div class="info-label">Company Activity</div>
                                 <input type="text" name="professional_detail[company_activity_details]" class="form-control" value="{{ $donor->professionalDetail->company_activity_details ?? '' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-label">Company Website</div>
+                                <input type="text" name="professional_detail[company_website]" class="form-control" placeholder="https://www.example.com" value="{{ $donor->professionalDetail->company_website ?? '' }}">
                             </div>
                             <div class="col-md-6">
                                 <div class="info-label">Designation</div>
@@ -568,44 +626,64 @@
                         </div>
                     </div>
 
-                    <!-- Step 6: Documents -->
-                    <div class="step-content-section" id="step-6">
+                    <!-- Step 5: Documents -->
+                    <div class="step-content-section" id="step-5">
                         <h4 class="donorH4">Documents</h4>
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="info-label">PAN Card File</div>
                                 <input type="file" name="pan_member_file" class="form-control">
                                 @if (!empty($donor->document?->pan_member_file))
-                                    <div class="current-file">Current: <a href="{{ asset($donor->document->pan_member_file) }}" target="_blank">View File</a></div>
+                                    <div class="current-file">Current: <a href="{{ resolveFileUrl($donor->document->pan_member_file) }}" target="_blank">View File</a></div>
                                 @endif
                             </div>
                             <div class="col-md-6">
                                 <div class="info-label">Photo</div>
                                 <input type="file" name="photo_file" class="form-control">
                                 @if (!empty($donor->document?->photo_file))
-                                    <div class="current-file">Current: <a href="{{ asset($donor->document->photo_file) }}" target="_blank">View File</a></div>
+                                    <div class="current-file">Current: <a href="{{ resolveFileUrl($donor->document->photo_file) }}" target="_blank">View File</a></div>
                                 @endif
                             </div>
                             <div class="col-md-6">
                                 <div class="info-label">Address Proof</div>
                                 <input type="file" name="address_proof_file" class="form-control">
                                 @if (!empty($donor->document?->address_proof_file))
-                                    <div class="current-file">Current: <a href="{{ asset($donor->document->address_proof_file) }}" target="_blank">View File</a></div>
+                                    <div class="current-file">Current: <a href="{{ resolveFileUrl($donor->document->address_proof_file) }}" target="_blank">View File</a></div>
                                 @endif
                             </div>
                             <div class="col-md-6">
                                 <div class="info-label">Pan Donor File</div>
                                 <input type="file" name="pan_donor_file" class="form-control">
                                 @if (!empty($donor->document?->pan_donor_file))
-                                    <div class="current-file">Current: <a href="{{ asset($donor->document->pan_donor_file) }}" target="_blank">View File</a></div>
+                                    <div class="current-file">Current: <a href="{{ resolveFileUrl($donor->document->pan_donor_file) }}" target="_blank">View File</a></div>
                                 @endif
                             </div>
                             <div class="col-md-6">
                                 <div class="info-label">Authorization Letter File</div>
                                 <input type="file" name="authorization_letter_file" class="form-control">
                                 @if (!empty($donor->document?->authorization_letter_file))
-                                    <div class="current-file">Current: <a href="{{ asset($donor->document->authorization_letter_file) }}" target="_blank">View File</a></div>
+                                    <div class="current-file">Current: <a href="{{ resolveFileUrl($donor->document->authorization_letter_file) }}" target="_blank">View File</a></div>
                                 @endif
+                            </div>
+                        </div>
+
+                        <div class="form-navigation">
+                            <button type="button" class="btn-nav btn-nav-back" onclick="prevStep()"><i class="fas fa-arrow-left me-2"></i> Back</button>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn-submit-update"><i class="fas fa-save me-2"></i> Update</button>
+                                <button type="button" class="btn-nav btn-nav-next" onclick="nextStep()">Next <i class="fas fa-arrow-right ms-2"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 6: Membership Details -->
+                    <div class="step-content-section" id="step-6">
+                        <h4 class="donorH4">Membership Details</h4>
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <div class="info-label">Selected Options</div>
+                                <textarea name="membership_options" class="form-control" rows="4">{{ implode("\n", $paymentOptions ?? []) }}</textarea>
+                                <small class="text-muted">Enter each membership option on a new line.</small>
                             </div>
                         </div>
 
@@ -623,7 +701,6 @@
                         <h4 class="donorH4">Payment Details</h4>
                         
                         <div class="row g-3 mb-4">
-                            <!-- Removed readonly attributes to make fields editable -->
                             <div class="col-md-6">
                                 <div class="info-label">Cheque Favoring</div>
                                 <input type="text" class="form-control" name="cheque_favoring" value="{{ old('cheque_favoring', 'JITO EDUCATION ASSISTANCE FOUNDATION') }}" readonly>
@@ -696,111 +773,97 @@
         </form>
     </div>
 
-  <script>
-    // --- Step Navigation Logic ---
-    const stepInput = document.getElementById('current_step_input');
-    let currentStep = parseInt(stepInput.value) || 1;
-    const totalSteps = 7;
+    <!-- JAVASCRIPT -->
+    <script>
+        const stepInput = document.getElementById('current_step_input');
+        let currentStep = parseInt(stepInput.value) || 1;
+        const totalSteps = 7;
 
-    document.addEventListener('DOMContentLoaded', function() {
-        goToStep(currentStep);
+        document.addEventListener('DOMContentLoaded', function() {
+            goToStep(currentStep);
 
-        const items = document.querySelectorAll('.donor-step-item');
-        items.forEach(item => {
-            item.addEventListener('click', function() {
-                const step = parseInt(this.getAttribute('data-step'));
-                goToStep(step);
+            const items = document.querySelectorAll('.donor-step-item');
+            items.forEach(item => {
+                item.addEventListener('click', function() {
+                    const step = parseInt(this.getAttribute('data-step'));
+                    goToStep(step);
+                });
             });
         });
-    });
 
-    function goToStep(step) {
-        if (step < 1 || step > totalSteps) return;
-        currentStep = step;
-        stepInput.value = step;
+        function goToStep(step) {
+            if (step < 1 || step > totalSteps) return;
+            currentStep = step;
+            stepInput.value = step;
 
-        document.querySelectorAll('.donor-step-item').forEach((item, index) => {
-            if (index + 1 === step) item.classList.add('active');
-            else item.classList.remove('active');
-        });
+            document.querySelectorAll('.donor-step-item').forEach((item, index) => {
+                if (index + 1 === step) item.classList.add('active');
+                else item.classList.remove('active');
+            });
 
-        document.querySelectorAll('.step-content-section').forEach((section, index) => {
-            if (index + 1 === step) section.classList.add('active');
-            else section.classList.remove('active');
-        });
-    }
+            document.querySelectorAll('.step-content-section').forEach((section, index) => {
+                if (index + 1 === step) section.classList.add('active');
+                else section.classList.remove('active');
+            });
+        }
 
-    function nextStep() {
-        if (currentStep < totalSteps) goToStep(currentStep + 1);
-    }
+        function nextStep() {
+            if (currentStep < totalSteps) goToStep(currentStep + 1);
+        }
 
-    function prevStep() {
-        if (currentStep > 1) goToStep(currentStep - 1);
-    }
+        function prevStep() {
+            if (currentStep > 1) goToStep(currentStep - 1);
+        }
 
-    // --- Dynamic Children Rows Logic ---
-    const kidsInput = document.getElementById('num_kids_input');
-    const childrenTbody = document.getElementById('children_tbody');
+        const kidsInput = document.getElementById('num_kids_input');
+        const childrenTbody = document.getElementById('children_tbody');
 
-    if (kidsInput) {
-        kidsInput.addEventListener('input', function() {
-            // FIX: Parse the value
-            let count = parseInt(this.value);
-            
-            // FIX: If the input is empty (NaN), we STOP here. 
-            if (isNaN(count)) {
-                return;
-            }
+        if (kidsInput) {
+            kidsInput.addEventListener('input', function() {
+                let count = parseInt(this.value);
+                if (isNaN(count)) return;
+                updateChildrenRows(count);
+            });
+        }
 
-            updateChildrenRows(count);
-        });
-    }
+        function updateChildrenRows(count) {
+            const currentRows = childrenTbody.querySelectorAll('tr');
+            const currentCount = currentRows.length;
 
-    function updateChildrenRows(count) {
-        const currentRows = childrenTbody.querySelectorAll('tr');
-        const currentCount = currentRows.length;
-
-        // Add rows if needed
-        if (count > currentCount) {
-            for (let i = currentCount; i < count; i++) {
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td><input type="text" name="children[${i}][name]" class="form-control form-control-sm ucwords"></td>
-                    <td>
-                        <select name="children[${i}][gender]" class="form-select form-select-sm">
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                        </select>
-                    </td>
-                    <td><input type="date" name="children[${i}][dob]" class="form-control form-control-sm"></td>
-                    <td><input type="text" name="children[${i}][blood_group]" class="form-control form-control-sm"></td>
-                    <td><input type="text" name="children[${i}][marital_status]" class="form-control form-control-sm"></td>
-                `;
-                childrenTbody.appendChild(newRow);
+            if (count > currentCount) {
+                for (let i = currentCount; i < count; i++) {
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td><input type="text" name="children[${i}][name]" class="form-control form-control-sm ucwords"></td>
+                        <td>
+                            <select name="children[${i}][gender]" class="form-select form-select-sm">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </td>
+                        <td><input type="date" name="children[${i}][dob]" class="form-control form-control-sm"></td>
+                        <td><input type="text" name="children[${i}][blood_group]" class="form-control form-control-sm"></td>
+                        <td><input type="text" name="children[${i}][marital_status]" class="form-control form-control-sm"></td>
+                    `;
+                    childrenTbody.appendChild(newRow);
+                }
+            } else if (count < currentCount) {
+                for (let i = currentCount - 1; i >= count; i--) {
+                    childrenTbody.removeChild(currentRows[i]);
+                }
             }
         }
-        // Remove rows if needed
-        else if (count < currentCount) {
-            // Loop backwards to remove rows from the bottom
-            for (let i = currentCount - 1; i >= count; i--) {
-                childrenTbody.removeChild(currentRows[i]);
+
+        function toTitleCase(str) {
+            return str.toLowerCase().split(' ').map(function(word) {
+                return (word.charAt(0).toUpperCase() + word.slice(1));
+            }).join(' ');
+        }
+
+        document.addEventListener('blur', function(e) {
+            if (e.target.classList.contains('ucwords')) {
+                e.target.value = toTitleCase(e.target.value);
             }
-        }
-    }
-
-    // --- CHANGE 3: Title Case Auto-Capitalization Logic ---
-    function toTitleCase(str) {
-        return str.toLowerCase().split(' ').map(function(word) {
-            return (word.charAt(0).toUpperCase() + word.slice(1));
-        }).join(' ');
-    }
-
-    // Use event delegation to handle blur for dynamically added inputs too
-    document.addEventListener('blur', function(e) {
-        // Check if the blurred element has the 'ucwords' class
-        if (e.target.classList.contains('ucwords')) {
-            e.target.value = toTitleCase(e.target.value);
-        }
-    }, true);
-</script>
+        }, true);
+    </script>
 @endsection

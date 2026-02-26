@@ -395,8 +395,11 @@
                                                         <span class="file-name">{{ basename($file) }}</span>
                                                     </div>
                                                     <div class="d-flex gap-2">
-                                                        <a href="{{ resolveFileUrl($file) }}" target="_blank" class="btn btn-sm btn-info text-white">
+                                                        <a href="{{ resolveFileUrl($file) }}" target="_blank" class="btn btn-sm btn-primary">
                                                             <i class="fas fa-eye"></i> View
+                                                        </a>
+                                                        <a href="{{ resolveFileUrl($file) }}" download class="btn btn-sm btn-success">
+                                                            <i class="fas fa-download"></i> Download
                                                         </a>
                                                         <div class="form-check mb-0">
                                                             <input class="form-check-input" type="checkbox" name="delete_birth_photo[]" value="{{ $file }}" id="del_birth_{{ $index }}">
@@ -432,8 +435,11 @@
                                                         <span class="file-name">{{ basename($file) }}</span>
                                                     </div>
                                                     <div class="d-flex gap-2">
-                                                        <a href="{{ resolveFileUrl($file) }}" target="_blank" class="btn btn-sm btn-info text-white">
+                                                        <a href="{{ resolveFileUrl($file) }}" target="_blank" class="btn btn-sm btn-primary">
                                                             <i class="fas fa-eye"></i> View
+                                                        </a>
+                                                        <a href="{{ resolveFileUrl($file) }}" download class="btn btn-sm btn-success">
+                                                            <i class="fas fa-download"></i> Download
                                                         </a>
                                                         <div class="form-check mb-0">
                                                             <input class="form-check-input" type="checkbox" name="delete_anniversary_photo[]" value="{{ $file }}" id="del_ann_{{ $index }}">

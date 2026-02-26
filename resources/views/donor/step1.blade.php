@@ -293,9 +293,13 @@
                                                             </div>
                                                             <div class="file-actions">
                                                                 <!-- VIEW BUTTON -->
-                                                                <button type="button" class="btn btn-sm btn-info text-white" onclick="viewDocument('{{ getImageUrl($photo) }}')">
+                                                                <button type="button" class="btn btn-sm btn-primary" onclick="viewDocument('{{ getImageUrl($photo) }}')">
                                                                     <i class="fas fa-eye me-1"></i> View
                                                                 </button>
+                                                                <!-- DOWNLOAD BUTTON -->
+                                                                <a href="{{ getImageUrl($photo) }}" download class="btn btn-sm btn-success">
+                                                                    <i class="fas fa-download me-1"></i> Download
+                                                                </a>
                                                                 <!-- REMOVE CHECKBOX -->
                                                                 <div class="form-check mb-0">
                                                                     <input class="form-check-input" type="checkbox" name="delete_birth_photo[]" value="{{ $photo }}" id="del_birth_{{ $index }}">
@@ -342,9 +346,13 @@
                                                             </div>
                                                             <div class="file-actions">
                                                                 <!-- VIEW BUTTON -->
-                                                                <button type="button" class="btn btn-sm btn-info text-white" onclick="viewDocument('{{ getImageUrl($photo) }}')">
+                                                                <button type="button" class="btn btn-sm btn-primary" onclick="viewDocument('{{ getImageUrl($photo) }}')">
                                                                     <i class="fas fa-eye me-1"></i> View
                                                                 </button>
+                                                                <!-- DOWNLOAD BUTTON -->
+                                                                <a href="{{ getImageUrl($photo) }}" download class="btn btn-sm btn-success">
+                                                                    <i class="fas fa-download me-1"></i> Download
+                                                                </a>
                                                                 <!-- REMOVE CHECKBOX -->
                                                                 <div class="form-check mb-0">
                                                                     <input class="form-check-input" type="checkbox" name="delete_anniversary_photo[]" value="{{ $photo }}" id="del_anniv_{{ $index }}">

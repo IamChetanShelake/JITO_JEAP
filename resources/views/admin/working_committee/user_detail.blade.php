@@ -2033,6 +2033,19 @@
                 </div>
             </div>
 
+            <!-- Inside step-8 content-area, after the if conditions for approved/hold/rejected -->
+
+            @if (
+                $user->workflowStatus &&
+                    in_array($user->workflowStatus->working_committee_status, ['approved', 'hold', 'rejected']))
+                <div style="margin-top: 2rem; text-align: right;">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#editWorkingCommitteeModal">
+                        <i class="fas fa-edit"></i> Edit Working Committee Decision
+                    </button>
+                </div>
+            @endif
+
             @if ($user->workflowStatus && $user->workflowStatus->working_committee_status === 'approved')
                 <!-- Display Submitted Working Committee Data -->
                 <div class="form-data">
@@ -2348,8 +2361,9 @@
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Held By</label>
-                                    <input type="text" class="form-input" value="{{ Auth::user()->name ?? 'N/A' }}"
-                                        readonly style="border-color: #ffc107;">
+                                    <input type="text" class="form-input"
+                                        value="{{ Auth::user()->name ?? 'N/A' }}" readonly
+                                        style="border-color: #ffc107;">
                                 </div>
                             </div>
                         </div>
@@ -3023,4 +3037,343 @@
                 style="max-width:100%; max-height:600px; display:none; object-fit:contain;" alt="Document Image">
         </div>
     </div>
+
+    <!-- Edit Working Committee Modal -->
+    <div class="modal fade" id="editWorkingCommitteeModal" tabindex="-1"
+        aria-labelledby="editWorkingCommitteeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header" style="background: var(--primary-purple); color: white;">
+                    <h5 class="modal-title" id="editWorkingCommitteeModalLabel">
+                        Edit Working Committee Decision
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
+
+                    <form action="{{ route('admin.working_committee.user.update', ['user' => $user]) }}"
+                        method="POST" id="edit-working-committee-form">
+                        @csrf
+                        @method('PATCH')
+
+                        <!-- Previous Approvals Info (read-only) -->
+                        <div
+                            style="background: rgba(76, 175, 80, 0.08); padding: 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; border: 1px solid rgba(76, 175, 80, 0.25);">
+                            <h6 style="color: #2E7D32; margin-bottom: 1rem;">Previous Approvals (Read-only)</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Apex Approval Remark</label>
+                                    <textarea class="form-control" readonly rows="2">{{ $user->workflowStatus->apex_1_approval_remarks ?? 'N/A' }}</textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Apex Approval Date</label>
+                                    <input type="text" class="form-control" readonly
+                                        value="{{ $user->workflowStatus->apex_1_updated_at ? $user->workflowStatus->apex_1_updated_at->format('d M Y') : 'N/A' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Chapter Approval Remark</label>
+                                    <textarea class="form-control" readonly rows="2">{{ strip_tags($user->workflowStatus->chapter_approval_remarks ?? 'N/A') }}</textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Chapter Approval Date</label>
+                                    <input type="text" class="form-control" readonly
+                                        value="{{ $user->workflowStatus->chapter_updated_at ? $user->workflowStatus->chapter_updated_at->format('d M Y') : 'N/A' }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Total Expenses</label>
+                                    <input type="text" class="form-control" readonly
+                                        value="₹{{ number_format($user->educationDetail->group_4_total ?? 0) }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Chapter Recommended Amount</label>
+                                    <input type="text" class="form-control" readonly
+                                        value="₹{{ number_format($user->workflowStatus->chapter_assistance_amount ?? 0) }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Main Decision Fields -->
+                        <div class="row g-3">
+
+                            <div class="col-md-4">
+                                <label class="form-label">Approval Date <span class="text-danger">*</span></label>
+                                <input type="date" name="w_c_approval_date" class="form-control" required
+                                    value="{{ old('w_c_approval_date', optional($user->workingCommitteeApproval)->w_c_approval_date?->format('Y-m-d') ?? '') }}">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Meeting Number <span class="text-danger">*</span></label>
+                                <input type="text" name="meeting_no" class="form-control" required
+                                    value="{{ old('meeting_no', $user->workingCommitteeApproval->meeting_no ?? '') }}">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Approved Amount (₹) <span class="text-danger">*</span></label>
+                                <input type="number" name="approval_financial_assistance_amount"
+                                    id="edit-total-amount" class="form-control" step="0.01" readonly
+                                    value="{{ old('approval_financial_assistance_amount', $user->workingCommitteeApproval->approval_financial_assistance_amount ?? 0) }}">
+                            </div>
+
+                            <!-- Disbursement System -->
+                            <div class="col-12">
+                                <label class="form-label">Disbursement System</label>
+                                <select name="disbursement_system" class="form-control" id="edit-disbursement-system">
+                                    <option value="yearly"
+                                        {{ old('disbursement_system', $user->workingCommitteeApproval->disbursement_system ?? '') == 'yearly' ? 'selected' : '' }}>
+                                        Yearly</option>
+                                    <option value="half_yearly"
+                                        {{ old('disbursement_system', $user->workingCommitteeApproval->disbursement_system ?? '') == 'half_yearly' ? 'selected' : '' }}>
+                                        Half-Yearly</option>
+                                </select>
+                            </div>
+
+                            <!-- Yearly Disbursement (dynamic) -->
+                            <div class="col-12" id="edit-yearly-section"
+                                style="{{ ($user->workingCommitteeApproval->disbursement_system ?? 'yearly') !== 'yearly' ? 'display:none;' : '' }}">
+                                <label class="form-label">Number of Years</label>
+                                <select name="disbursement_in_year" class="form-control" id="edit-year-count">
+                                    <option value="">Select</option>
+                                    @for ($i = 1; $i <= 8; $i++)
+                                        <option value="{{ $i }}"
+                                            {{ count($user->workingCommitteeApproval->yearly_dates ?? []) == $i ? 'selected' : '' }}>
+                                            {{ $i }} year{{ $i > 1 ? 's' : '' }}
+                                        </option>
+                                    @endfor
+                                </select>
+
+                                <div id="edit-yearly-fields" class="mt-3">
+                                    <!-- Dynamically filled by JS -->
+                                </div>
+                            </div>
+
+                            <!-- Installments -->
+                            <div class="col-12">
+                                <h6>Installment Planning</h6>
+                                <div id="edit-installment-rows">
+                                    @if ($user->workingCommitteeApproval && is_array($user->workingCommitteeApproval->installment_amount ?? []))
+                                        @foreach ($user->workingCommitteeApproval->installment_amount as $idx => $amt)
+                                            <div class="row g-3 installment-row mb-2">
+                                                <div class="col-md-4">
+                                                    <label>Amount (₹)</label>
+                                                    <input type="number" name="installment_amount[]"
+                                                        class="form-control installment-amount"
+                                                        value="{{ old("installment_amount.$idx", $amt) }}"
+                                                        step="0.01">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label>No. of Months</label>
+                                                    <input type="number" name="no_of_months[]"
+                                                        class="form-control installment-months"
+                                                        value="{{ old("no_of_months.$idx", $user->workingCommitteeApproval->no_of_months[$idx] ?? '') }}">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label>Total (₹)</label>
+                                                    <input type="number" class="form-control installment-total"
+                                                        readonly
+                                                        value="{{ old("total.$idx", $user->workingCommitteeApproval->total[$idx] ?? 0) }}">
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                </div>
+
+                                <button type="button" class="btn btn-sm btn-outline-secondary mt-2"
+                                    id="edit-add-installment">
+                                    + Add Installment
+                                </button>
+                            </div>
+
+                            <!-- Additional & Cheques -->
+                            <div class="col-md-4">
+                                <label class="form-label">Additional Amount (₹)</label>
+                                <input type="number" name="additional_installment_amount" id="edit-additional-amount"
+                                    class="form-control" step="0.01" readonly
+                                    value="{{ old('additional_installment_amount', $user->workingCommitteeApproval->additional_installment_amount ?? 0) }}">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">No. of Cheques</label>
+                                <input type="number" name="no_of_cheques_to_be_collected" class="form-control"
+                                    value="{{ old('no_of_cheques_to_be_collected', $user->workingCommitteeApproval->no_of_cheques_to_be_collected ?? '') }}">
+                            </div>
+
+                            <!-- Repayment -->
+                            <div class="col-md-4">
+                                <label class="form-label">Repayment Type</label>
+                                <select name="repayment_type" class="form-control">
+                                    <option value="yearly"
+                                        {{ old('repayment_type', $user->workingCommitteeApproval->repayment_type ?? '') == 'yearly' ? 'selected' : '' }}>
+                                        Yearly</option>
+                                    <option value="half_yearly"
+                                        {{ old('repayment_type', $user->workingCommitteeApproval->repayment_type ?? '') == 'half_yearly' ? 'selected' : '' }}>
+                                        Half-Yearly</option>
+                                    <option value="quarterly"
+                                        {{ old('repayment_type', $user->workingCommitteeApproval->repayment_type ?? '') == 'quarterly' ? 'selected' : '' }}>
+                                        Quarterly</option>
+                                    <option value="monthly"
+                                        {{ old('repayment_type', $user->workingCommitteeApproval->repayment_type ?? '') == 'monthly' ? 'selected' : '' }}>
+                                        Monthly</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Repayment Starting From</label>
+                                <input type="date" name="repayment_starting_from" class="form-control"
+                                    value="{{ old('repayment_starting_from', optional($user->workingCommitteeApproval->repayment_starting_from)->format('Y-m-d') ?? '') }}">
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Approval Remark</label>
+                                <textarea name="w_c_approval_remark" class="form-control" rows="3" required>{{ old('w_c_approval_remark', $user->workflowStatus->working_committee_approval_remarks ?? '') }}</textarea>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Remarks for Approval</label>
+                                <textarea name="remarks_for_approval" class="form-control" rows="4">{{ old('remarks_for_approval', $user->workingCommitteeApproval->remarks_for_approval ?? '') }}</textarea>
+                            </div>
+
+                        </div>
+
+                        <div class="modal-footer mt-4">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Edit modal logic
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const editModal = document.getElementById('editWorkingCommitteeModal');
+            if (!editModal) return;
+
+            // Trigger when modal is shown
+            editModal.addEventListener('shown.bs.modal', function() {
+
+                const yearCountSelect = document.getElementById('edit-year-count');
+                const yearlySection = document.getElementById('edit-yearly-section');
+                const yearlyFields = document.getElementById('edit-yearly-fields');
+
+                // Show yearly section by default (or based on saved value)
+                yearlySection.style.display = 'block';
+
+                // Generate yearly fields based on saved data or selection
+                function generateEditYearlyFields(count) {
+                    yearlyFields.innerHTML = '';
+                    if (!count || count < 1) return;
+
+                    const savedDates = @json($user->workingCommitteeApproval->yearly_dates ?? []);
+                    const savedAmounts = @json($user->workingCommitteeApproval->yearly_amounts ?? []);
+
+                    for (let i = 0; i < count; i++) {
+                        const div = document.createElement('div');
+                        div.className = 'row g-3 mb-3';
+                        div.innerHTML = `
+                    <div class="col-md-6">
+                        <label>Year ${i+1} Date</label>
+                        <input type="date" name="yearly_dates[]" class="form-control"
+                               value="${savedDates[i] ? new Date(savedDates[i]).toISOString().split('T')[0] : ''}">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Year ${i+1} Amount (₹)</label>
+                        <input type="number" name="yearly_amounts[]" class="form-control yearly-amount-edit"
+                               step="0.01" value="${savedAmounts[i] ?? ''}">
+                    </div>
+                `;
+                        yearlyFields.appendChild(div);
+                    }
+
+                    // Recalculate on change
+                    document.querySelectorAll('.yearly-amount-edit').forEach(el => {
+                        el.addEventListener('input', updateEditTotal);
+                    });
+                    updateEditTotal();
+                }
+
+                // Initial load
+                const initialCount = yearCountSelect.value || savedDates.length || 0;
+                if (initialCount > 0) {
+                    yearCountSelect.value = initialCount;
+                    generateEditYearlyFields(initialCount);
+                }
+
+                yearCountSelect.addEventListener('change', () => {
+                    generateEditYearlyFields(parseInt(yearCountSelect.value) || 0);
+                });
+
+                // Installment logic (similar to main form)
+                const addInstallmentBtn = document.getElementById('edit-add-installment');
+                const rowsContainer = document.getElementById('edit-installment-rows');
+
+                addInstallmentBtn.addEventListener('click', () => {
+                    const row = document.createElement('div');
+                    row.className = 'row g-3 installment-row mb-2';
+                    row.innerHTML = `
+                <div class="col-md-4">
+                    <label>Amount (₹)</label>
+                    <input type="number" name="installment_amount[]" class="form-control installment-amount" step="0.01">
+                </div>
+                <div class="col-md-4">
+                    <label>No. of Months</label>
+                    <input type="number" name="no_of_months[]" class="form-control installment-months">
+                </div>
+                <div class="col-md-4">
+                    <label>Total (₹)</label>
+                    <input type="number" class="form-control installment-total" readonly>
+                </div>
+            `;
+                    rowsContainer.appendChild(row);
+                    recalculateEditInstallments();
+                });
+
+                // Recalculate installments + additional
+               function recalculateEditInstallments() {
+    let sanction = parseFloat(document.getElementById('edit-total-amount').value) || 0;
+    let used = 0;
+    let totalMonths = 0;
+
+    document.querySelectorAll('#edit-installment-rows .installment-row').forEach(row => {
+        const amt = parseFloat(row.querySelector('.installment-amount').value) || 0;
+        const months = parseInt(row.querySelector('.installment-months').value) || 0;
+
+        const rowTotal = amt * months;
+        row.querySelector('.installment-total').value = rowTotal.toFixed(2);
+
+        used += rowTotal;
+        totalMonths += months;
+    });
+
+    let remaining = sanction - used;
+    if (remaining < 0) remaining = 0;
+
+    document.getElementById('edit-additional-amount').value = remaining.toFixed(2);
+
+    // ✅ Add 1 cheque if additional amount > 1
+    let extraCheque = remaining > 1 ? 1 : 0;
+
+    document.querySelector('input[name="no_of_cheques_to_be_collected"]').value = totalMonths + extraCheque;
+}
+
+                function updateEditTotal() {
+                    let total = 0;
+                    document.querySelectorAll('.yearly-amount-edit').forEach(input => {
+                        total += parseFloat(input.value) || 0;
+                    });
+                    document.getElementById('edit-total-amount').value = total.toFixed(2);
+                    recalculateEditInstallments();
+                }
+
+                // Listen to all changes
+                rowsContainer.addEventListener('input', recalculateEditInstallments);
+            });
+        });
+    </script>
 @endsection

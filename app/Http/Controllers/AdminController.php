@@ -483,8 +483,8 @@ class AdminController extends Controller
             'disbursement_system' => 'required|in:yearly,half_yearly',
             'approval_financial_assistance_amount' => 'required|numeric|min:0',
             'installment_amount' => 'required',
-            'no_of_months'=>'required',
-            'total'=>'required',
+            'no_of_months' => 'required',
+            'total' => 'required',
             'additional_installment_amount' => 'required|numeric|min:0',
             'repayment_type' => 'required|in:yearly,half_yearly,quarterly,monthly',
             'no_of_cheques_to_be_collected' => 'required|integer|min:1',
@@ -542,8 +542,8 @@ class AdminController extends Controller
             // 'no_of_months'=>json_encode($request->no_of_months),
             // 'total'=>json_encode($request->total),
             'installment_amount' => $request->installment_amount,
-'no_of_months' => $request->no_of_months,
-'total' => $request->total,
+            'no_of_months' => $request->no_of_months,
+            'total' => $request->total,
             'additional_installment_amount' => $request->additional_installment_amount,
             'repayment_type' => $request->repayment_type,
             'no_of_cheques_to_be_collected' => $request->no_of_cheques_to_be_collected,
@@ -577,13 +577,13 @@ class AdminController extends Controller
                 'disbursement_in_year' => $request->disbursement_in_year ?? null,
                 'disbursement_in_half_year' => $request->disbursement_in_half_year ?? null,
                 'yearly_dates' => $request->yearly_dates,
-                'yearly_amounts' => $request->yearly_amounts ,
-                'half_yearly_dates' => $request->half_yearly_dates ,
+                'yearly_amounts' => $request->yearly_amounts,
+                'half_yearly_dates' => $request->half_yearly_dates,
                 'half_yearly_amounts' => $request->half_yearly_amounts ? json_encode($request->half_yearly_amounts) : null,
                 'approval_financial_assistance_amount' => $request->approval_financial_assistance_amount,
-                'installment_amount' => $request->installment_amount ,
-                 'no_of_months' => $request->no_of_months,
-                 'total' => $request->total ,
+                'installment_amount' => $request->installment_amount,
+                'no_of_months' => $request->no_of_months,
+                'total' => $request->total,
                 'additional_installment_amount' => $request->additional_installment_amount,
                 'repayment_type' => $request->repayment_type,
                 'no_of_cheques_to_be_collected' => $request->no_of_cheques_to_be_collected,
@@ -662,6 +662,46 @@ class AdminController extends Controller
 
             return back()->with('error', 'Failed to save working committee approval data: ' . $e->getMessage());
         }
+    }
+    public function updateWorkingCommittee(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'w_c_approval_date'                 => 'required|date',
+            'meeting_no'                        => 'required|string|max:50',
+            'approval_financial_assistance_amount' => 'required|numeric|min:0',
+            'disbursement_system'               => 'required|in:yearly,half_yearly',
+            'yearly_dates.*'                    => 'nullable|date',
+            'yearly_amounts.*'                  => 'nullable|numeric',
+            'installment_amount.*'              => 'nullable|numeric',
+            'no_of_months.*'                    => 'nullable|integer',
+            'total'                             => 'nullable|array',
+            'total.*'                           => 'nullable|numeric',
+            'additional_installment_amount'     => 'nullable|numeric',
+            'no_of_cheques_to_be_collected'     => 'nullable|integer',
+            'repayment_type'                    => 'nullable|string',
+            'repayment_starting_from'           => 'nullable|date',
+            'w_c_approval_remark'               => 'required|string',
+            'remarks_for_approval'              => 'nullable|string',
+        ]);
+
+        $totals = [];
+
+        foreach ($request->installment_amount as $index => $amount) {
+            $months = $request->no_of_months[$index] ?? 0;
+            $totals[] = $amount * $months;
+        }
+
+        $validated['total'] = $totals;
+
+        // Update workingCommitteeApproval model
+        $approval = $user->workingCommitteeApproval ?? new \App\Models\WorkingCommitteeApproval(['user_id' => $user->id]);
+
+        $approval->fill($validated);
+        $approval->save();
+
+        // Also update workflowStatus if needed (approval_remarks, updated_at, etc.)
+
+        return redirect()->back()->with('success', 'Working Committee decision updated successfully.');
     }
 
 

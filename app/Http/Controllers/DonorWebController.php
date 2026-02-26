@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\DonorMembershipDetail;
 use App\Models\DonorProfessionalDetail;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Validator;
 
 class DonorWebController extends Controller
 {
@@ -165,11 +166,23 @@ class DonorWebController extends Controller
             "birth_photo.*" => "file|mimes:jpg,jpeg,png,pdf|max:2048",
             
             "anniversary_date" => "nullable|date",
-            "anniversary_photo" => "nullable|array", 
-            "anniversary_photo.*" => "file|mimes:jpg,jpeg,png,pdf|max:2048",
+            "anniversary_photo" => "required", 
+            "anniversary_photo.*" => "mimes:jpg,jpeg,png,pdf|max:2048",
         ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+       
+        $errorArray = $validator->errors()->all(); 
 
-        $request->validate($rules);
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Validation failed',
+            'errors' => $errorArray
+        ], 422);
+
+    }
+
+        // $request->validate($rules);
 
         // Define the public path for documents
         $uploadPath = public_path('uploads/documents');
@@ -256,10 +269,12 @@ class DonorWebController extends Controller
 
         // Process new uploads
         if ($request->hasFile('anniversary_photo')) {
+            
             foreach ($request->file('anniversary_photo') as $file) {
                 if ($file && $file->isValid()) {
                     // Generate unique filename
                     $fileName = time() . '_anniversary_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    
                     
                     // Move file to public/uploads/documents
                     $file->move($uploadPath, $fileName);
@@ -269,6 +284,7 @@ class DonorWebController extends Controller
                 }
             }
         }
+        
 
         // Ensure anniversary_photo is an empty array if no photos
         if (!is_array($anniversaryPhotoPaths)) {
@@ -315,6 +331,8 @@ class DonorWebController extends Controller
             "jito_uid" => $request->jito_member === 'yes' ? $request->jito_uid : null,
             "submit_status" => "submited",
         ];
+
+        // dd($data);
 
         // 5. UPDATE OR CREATE
         if ($existing) {

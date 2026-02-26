@@ -246,12 +246,21 @@
                         <h4 class="donorH4">Personal Details</h4>
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <div class="info-label">Title</div>
-                                <select name="personal_detail[title]" class="form-select">
-                                    <option value="Mr" {{ ($donor->personalDetail->title ?? '') == 'Mr' ? 'selected' : '' }}>Mr</option>
-                                    <option value="Mrs" {{ ($donor->personalDetail->title ?? '') == 'Mrs' ? 'selected' : '' }}>Mrs</option>
-                                    <option value="Ms" {{ ($donor->personalDetail->title ?? '') == 'Ms' ? 'selected' : '' }}>Ms</option>
-                                </select>
+                               <div class="info-label">Title</div>
+
+                               <div>
+                                 <input type="radio" name="personal_detail[title]" value="Mr"
+                                 {{ ($donor->personalDetail->title ?? '') == 'Mr' ? 'checked' : '' }}> Mr
+
+                                 <input type="radio" name="personal_detail[title]" value="Mrs"
+                                 {{ ($donor->personalDetail->title ?? '') == 'Mrs' ? 'checked' : '' }}> Mrs
+
+                                  <input type="radio" name="personal_detail[title]" value="Ms"
+                                  {{ ($donor->personalDetail->title ?? '') == 'Ms' ? 'checked' : '' }}> Ms
+
+                                  <input type="radio" name="personal_detail[title]" value="Master"
+                                  {{ ($donor->personalDetail->title ?? '') == 'Master' ? 'checked' : '' }}> Master
+                                </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">First Name</div>
@@ -274,12 +283,48 @@
                                 <input type="text" name="personal_detail[city]" class="form-control ucwords" value="{{ $donor->personalDetail->city ?? '' }}">
                             </div>
                             <div class="col-md-4">
-                                <div class="info-label">State</div>
-                                <input type="text" name="personal_detail[state]" class="form-control ucwords" value="{{ $donor->personalDetail->state ?? '' }}">
-                            </div>
+    <div class="info-label">State</div>
+
+    @php
+        $states = [
+            'Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh',
+            'Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand',
+            'Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur',
+            'Meghalaya','Mizoram','Nagaland','Odisha','Punjab',
+            'Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura',
+            'Uttar Pradesh','Uttarakhand','West Bengal',
+            
+        ];
+    @endphp
+
+    <select name="personal_detail[state]" id="state_select" class="form-control">
+        <option value="">Select State</option>
+
+        @foreach($states as $state)
+            <option value="{{ $state }}"
+                {{ ($donor->personalDetail->state ?? '') == $state ? 'selected' : '' }}>
+                {{ $state }}
+            </option>
+        @endforeach
+    </select>
+</div>
                             <div class="col-md-4">
                                 <div class="info-label">Zone</div>
-                                <input type="text" name="personal_detail[zone]" class="form-control ucwords" value="{{ $donor->personalDetail->zone ?? '' }}">
+                                <select name="personal_detail[zone]" id="zone_select" class="form-control">
+                                    <option value="">-- Select Zone --</option>
+                                    @if(isset($donor->personalDetail->zone))
+                                        <option value="{{ $donor->personalDetail->zone }}" selected>{{ $donor->personalDetail->zone }}</option>
+                                    @endif
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-label">Chapter Name</div>
+                                <select name="personal_detail[chapter_name]" id="chapter_select" class="form-control">
+                                    <option value="">-- Select Chapter --</option>
+                                    @if(isset($donor->personalDetail->chapter_name))
+                                        <option value="{{ $donor->personalDetail->chapter_name }}" selected>{{ $donor->personalDetail->chapter_name }}</option>
+                                    @endif
+                                </select>
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">Pin Code</div>
@@ -297,17 +342,21 @@
                                 <div class="info-label">WhatsApp</div>
                                 <input type="text" name="personal_detail[whatsapp_no]" class="form-control" value="{{ $donor->personalDetail->whatsapp_no ?? '' }}">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="info-label">Email 1</div>
                                 <input type="email" name="personal_detail[email_id_1]" class="form-control" value="{{ $donor->personalDetail->email_id_1 ?? '' }}">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="info-label">Email 2</div>
                                 <input type="email" name="personal_detail[email_id_2]" class="form-control" value="{{ $donor->personalDetail->email_id_2 ?? '' }}">
                             </div>
                             <div class="col-md-6">
                                 <div class="info-label">Residence Address</div>
                                 <input type="text" name="personal_detail[preferred_residence_address]" class="form-control" value="{{ $donor->personalDetail->preferred_residence_address ?? '' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-label">Pin Code</div>
+                                <input type="text" name="personal_detail[resi_pin_code]" class="form-control" value="{{ $donor->personalDetail->resi_pin_code ?? '' }}">
                             </div>
                             <div class="col-md-6">
                                 <div class="info-label">Office Address</div>
@@ -317,10 +366,7 @@
                                 <div class="info-label">PAN No</div>
                                 <input type="text" name="personal_detail[pan_no]" class="form-control" value="{{ $donor->personalDetail->pan_no ?? '' }}">
                             </div>
-                            <div class="col-md-4">
-                                <div class="info-label">Chapter Name</div>
-                                <input type="text" name="personal_detail[chapter_name]" class="form-control ucwords" value="{{ $donor->personalDetail->chapter_name ?? '' }}">
-                            </div>
+                            
                             <div class="col-md-4">
                                 <div class="info-label">Date of Birth</div>
                                 <input type="date" name="personal_detail[date_of_birth]" class="form-control" value="{{ $donor->personalDetail->date_of_birth ?? '' }}">
@@ -423,6 +469,14 @@
                             <div class="col-md-4">
                                 <div class="info-label">Jito Member</div>
                                 <input type="text" name="personal_detail[jito_member]" class="form-control" value="{{ $donor->personalDetail->jito_member ?? '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-label">JATF Member</div>
+                                <input type="text" name="personal_detail[jatf_member]" class="form-control" value="{{ $donor->personalDetail->jatf_member ?? '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-label">Shraman Arogyam Member</div>
+                                <input type="text" name="personal_detail[arogyam_member]" class="form-control" value="{{ $donor->personalDetail->arogyam_member ?? '' }}">
                             </div>
                             <div class="col-md-4">
                                 <div class="info-label">Hobby 1</div>
@@ -774,7 +828,84 @@
     </div>
 
     <!-- JAVASCRIPT -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        // === State-Zone-Chapter Cascading Dropdown Logic ===
+        $(document).ready(function() {
+            // Prepare the data (Passed from Controller)
+            var allZones = {!! json_encode($zonesByState) !!};
+            var allChapters = {!! json_encode($chaptersByZone) !!};
+
+            // Function to populate zones
+            function populateZones(stateName, savedZone = '') {
+                var zoneDropdown = $('#zone_select');
+                zoneDropdown.empty(); // Clear existing options
+                
+                // Add default empty option
+                zoneDropdown.append('<option value="">-- Select Zone --</option>');
+
+                // Check if state exists in our data
+                if (stateName && allZones[stateName]) {
+                    // Loop through the zones for this specific state
+                    $.each(allZones[stateName], function(index, zone) {
+                        // We use zone.zone_name
+                        var isSelected = (zone.zone_name == savedZone) ? 'selected' : '';
+                        zoneDropdown.append('<option value="' + zone.zone_name + '" data-zone-id="' + zone.id + '" ' + isSelected + '>' + zone.zone_name + '</option>');
+                    });
+                }
+            }
+
+            // Function to populate chapters based on zone_id
+            function populateChapters(zoneId, savedChapter = '') {
+                var chapterDropdown = $('#chapter_select');
+                chapterDropdown.empty(); // Clear existing options
+                
+                // Add default empty option
+                chapterDropdown.append('<option value="">-- Select Chapter --</option>');
+
+                // Check if zone_id exists in our data
+                if (zoneId && allChapters[zoneId]) {
+                    // Loop through the chapters for this specific zone
+                    $.each(allChapters[zoneId], function(index, chapter) {
+                        var isSelected = (chapter.chapter_name == savedChapter) ? 'selected' : '';
+                        chapterDropdown.append('<option value="' + chapter.chapter_name + '" ' + isSelected + '>' + chapter.chapter_name + '</option>');
+                    });
+                }
+            }
+
+            // EVENT: When State Changes
+            $('#state_select').on('change', function() {
+                var selectedState = $(this).val();
+                populateZones(selectedState); // Populate zones, no saved zone needed for new selection
+                
+                // Also clear chapter dropdown when state changes
+                $('#chapter_select').empty().append('<option value="">-- Select Chapter --</option>');
+            });
+
+            // EVENT: When Zone Changes
+            $('#zone_select').on('change', function() {
+                var selectedZoneOption = $(this).find('option:selected');
+                var zoneId = selectedZoneOption.attr('data-zone-id');
+                populateChapters(zoneId); // Populate chapters based on selected zone
+            });
+
+            // ON LOAD: If user is editing (State already selected)
+            var initialState = $('#state_select').val();
+            var savedZone = "{{ $donor->personalDetail->zone ?? '' }}";
+            var savedChapter = "{{ $donor->personalDetail->chapter_name ?? '' }}";
+            var savedZoneId = "{{ $zone_id ?? '' }}";
+            
+            if (initialState) {
+                // Populate zones and mark the saved one as selected
+                populateZones(initialState, savedZone);
+            }
+            
+            // If we have a saved zone ID, populate chapters
+            if (savedZoneId) {
+                populateChapters(savedZoneId, savedChapter);
+            }
+        });
+
         const stepInput = document.getElementById('current_step_input');
         let currentStep = parseInt(stepInput.value) || 1;
         const totalSteps = 7;

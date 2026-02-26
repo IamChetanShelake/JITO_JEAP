@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Donor;
+use App\Models\Zone;
+use App\Models\Chapter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB; 
@@ -75,7 +77,20 @@ class DonorController extends Controller
     $paymentOptions = $paymentOptions ?: [];
     $paymentEntries = $paymentEntries ?: [];
 
-    return view('admin.donors.dashboard_show', compact('donor', 'children', 'paymentOptions', 'paymentEntries'));
+    // Get zones grouped by state for cascading dropdown
+    $zonesByState = Zone::all()->groupBy('state');
+    
+    // Get chapters grouped by zone_id for cascading dropdown
+    $chaptersByZone = Chapter::whereNotNull('zone_id')->get()->groupBy('zone_id');
+    
+    // Get zone_id for the saved zone
+    $zone_id = null;
+    if ($donor->personalDetail && $donor->personalDetail->zone) {
+        $zone = Zone::where('zone_name', $donor->personalDetail->zone)->first();
+        $zone_id = $zone ? $zone->id : null;
+    }
+
+    return view('admin.donors.dashboard_show', compact('donor', 'children', 'paymentOptions', 'paymentEntries', 'zonesByState', 'chaptersByZone', 'zone_id'));
 }
 
     public function index()

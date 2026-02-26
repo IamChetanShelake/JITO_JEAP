@@ -6,6 +6,8 @@ use App\Models\Donor;
 use App\Models\Chapter;
 use Illuminate\Http\Request;
 use App\Models\DonorDocument;
+use App\Models\Zone;
+
 use App\Models\DonorFamilyDetail;
 use App\Models\DonorNomineeDetail;
 use App\Models\DonorPaymentDetail;
@@ -13,7 +15,7 @@ use App\Models\DonorPersonalDetail;
 use Illuminate\Support\Facades\Auth;
 use App\Models\DonorMembershipDetail;
 use App\Models\DonorProfessionalDetail;
-use Illuminate\Support\Facades\File; // Import File facade for directory handling
+use Illuminate\Support\Facades\File;
 
 class DonorWebController extends Controller
 {
@@ -46,8 +48,32 @@ class DonorWebController extends Controller
         $donor = Auth::guard("donor")->user();
         $personalDetail = DonorPersonalDetail::where("donor_id", $donor->id)->first();
         $chapters = Chapter::get();
+        $states = Zone::select('state')->distinct()->orderBy('state')->pluck('state');
+        $zonesByState = Zone::all()->groupBy('state');
+        
+        // Get chapters grouped by zone_id for cascading dropdown
+        $chaptersByZone = Chapter::whereNotNull('zone_id')->get()->groupBy('zone_id');
+        
+        $zone_id = null;
+        if ($personalDetail && $personalDetail->zone) {
+            // Find the zone ID based on the stored zone name
+            $zone = Zone::where('zone_name', $personalDetail->zone)->first();
+            $zone_id = $zone ? $zone->id : null;
+        }
 
-        return view("donor.step1", compact("donor", "personalDetail", "chapters"));
+        return view("donor.step1", compact("donor", "personalDetail", "chapters", "states" , "zonesByState","chaptersByZone","zone_id"));
+    }
+    public function getZones($state){
+        $zones = Zone::where('state', $state)->get(['id', 'zone_name']);
+        
+        return response()->json($zones);
+
+    }
+    public function getChapters($zone_id)
+    {
+        // Return chapters for the selected zone_id
+        $chapters = Chapter::where('zone_id', $zone_id)->get(['id', 'chapter_name']);
+        return response()->json($chapters);
     }
 
     public function step2()
@@ -65,8 +91,6 @@ class DonorWebController extends Controller
 
         return view("donor.step3", compact("donor", "nomineeDetail"));
     }
-
-    
 
     public function step4()
     {
@@ -122,17 +146,20 @@ class DonorWebController extends Controller
             "state" => "required|string|max:100",
             "zone" => "required|string|max:100",
             "pin_code" => "required|digits:6",
+            "resi_pin_code" => "required|digits:6",
             "mobile_no" => "required|digits:10",
             "whatsapp_no" => "required|digits:10",
             "email_id_1" => "required|email",
             "pan_no" => "required|string|size:10",
-            "chapter_name" => "required|max:255",
+            "chapter" => "required|max:255",
             "date_of_birth" => "required|date",
             "blood_group" => "required",
             "mother_tongue" => "required|string|max:100",
             "district_of_native_place" => "required|string|max:100",
             "fathers_name" => "required|string|max:255",
             "jito_member" => "required|in:yes,no",
+            "jatf_member" => "required|in:yes,no",
+            "arogyam_member" => "required|in:yes,no",
             
             "birth_photo" => "nullable|array",
             "birth_photo.*" => "file|mimes:jpg,jpeg,png,pdf|max:2048",
@@ -145,8 +172,7 @@ class DonorWebController extends Controller
         $request->validate($rules);
 
         // Define the public path for documents
-       
-        
+        $uploadPath = public_path('uploads/documents');
         
         // Create directory if it doesn't exist
         if (!File::isDirectory($uploadPath)) {
@@ -158,7 +184,7 @@ class DonorWebController extends Controller
         
         // Get existing photos from DB
         if ($existing && !empty($existing->birth_photo)) {
-            $birthPhotoPaths = $existing->birth_photo;
+            $birthPhotoPaths = is_array($existing->birth_photo) ? $existing->birth_photo : json_decode($existing->birth_photo, true) ?? [];
         }
         
         // Handle deletion of existing photos
@@ -196,12 +222,17 @@ class DonorWebController extends Controller
             }
         }
 
+        // Ensure birth_photo is an empty array if no photos
+        if (!is_array($birthPhotoPaths)) {
+            $birthPhotoPaths = [];
+        }
+
         // 3. HANDLE ANNIVERSARY PHOTOS
         $anniversaryPhotoPaths = [];
         
         // Get existing photos from DB
         if ($existing && !empty($existing->anniversary_photo)) {
-            $anniversaryPhotoPaths = $existing->anniversary_photo;
+            $anniversaryPhotoPaths = is_array($existing->anniversary_photo) ? $existing->anniversary_photo : json_decode($existing->anniversary_photo, true) ?? [];
         }
         
         // Handle deletion of existing photos
@@ -239,6 +270,11 @@ class DonorWebController extends Controller
             }
         }
 
+        // Ensure anniversary_photo is an empty array if no photos
+        if (!is_array($anniversaryPhotoPaths)) {
+            $anniversaryPhotoPaths = [];
+        }
+
         // 4. PREPARE DATA
         $data = [
             "donor_id" => $donor->id,
@@ -257,9 +293,10 @@ class DonorWebController extends Controller
             "email_id_1" => $request->email_id_1,
             "email_id_2" => $request->email_id_2,
             "preferred_residence_address" => $request->preferred_residence_address,
+            "resi_pin_code" => $request->resi_pin_code,
             "preferred_office_address" => $request->preferred_office_address,
             "pan_no" => $request->pan_no,
-            "chapter_name" => $request->chapter_name,
+            "chapter_name" => $request->chapter,
             "date_of_birth" => $request->date_of_birth,
             
             "birth_photo" => $birthPhotoPaths, 
@@ -273,6 +310,8 @@ class DonorWebController extends Controller
             "hobby_1" => $request->hobby_1,
             "hobby_2" => $request->hobby_2,
             "jito_member" => $request->jito_member,
+            "jatf_member" => $request->jatf_member,
+            "arogyam_member" => $request->arogyam_member,
             "jito_uid" => $request->jito_member === 'yes' ? $request->jito_uid : null,
             "submit_status" => "submited",
         ];
@@ -379,32 +418,6 @@ class DonorWebController extends Controller
         }
 
         return redirect()->route("donor.step4")->with("success", "Nominee details saved successfully!");
-    }
-
-    public function storestep6(Request $request)
-    {
-        $request->validate([
-            "payment_options" => "required|array|min:1",
-            "payment_options.*" => "in:54_lakhs,1_year,2_year,3_year",
-        ]);
-
-        $donor = Auth::guard("donor")->user();
-
-        $data = [
-            "donor_id" => $donor->id,
-            "payment_options" => json_encode($request->payment_options),
-            "submit_status" => "submited",
-        ];
-
-        $existing = DonorMembershipDetail::where("donor_id", $donor->id)->first();
-
-        if ($existing) {
-            $existing->update($data);
-        } else {
-            DonorMembershipDetail::create($data);
-        }
-
-        return redirect()->route("donor.step7")->with("success", "Membership details saved successfully!");
     }
 
     public function storestep4(Request $request)
@@ -517,6 +530,32 @@ class DonorWebController extends Controller
         }
 
         return redirect()->route("donor.step6")->with("success", "Document saved successfully!");
+    }
+
+    public function storestep6(Request $request)
+    {
+        $request->validate([
+            "payment_options" => "required|array|min:1",
+            "payment_options.*" => "in:54_lakhs,1_year,2_year,3_year",
+        ]);
+
+        $donor = Auth::guard("donor")->user();
+
+        $data = [
+            "donor_id" => $donor->id,
+            "payment_options" => json_encode($request->payment_options),
+            "submit_status" => "submited",
+        ];
+
+        $existing = DonorMembershipDetail::where("donor_id", $donor->id)->first();
+
+        if ($existing) {
+            $existing->update($data);
+        } else {
+            DonorMembershipDetail::create($data);
+        }
+
+        return redirect()->route("donor.step7")->with("success", "Membership details saved successfully!");
     }
 
     public function storestep7(Request $request)

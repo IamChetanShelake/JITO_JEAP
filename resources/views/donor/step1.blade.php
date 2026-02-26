@@ -109,18 +109,26 @@
 
                                 <!-- NAME SECTION -->
                                 <div class="row mb-3">
-                                    <div class="col-md-3">
-                                        <label>Title</label>
-                                        <select class="form-control" name="title">
-                                            <option value="" disabled {{ old('title', $personalDetail->title ?? '') === '' ? 'selected' : '' }}>Select</option>
-                                            <option value="Mr" {{ old('title', $personalDetail->title ?? '') === 'Mr' ? 'selected' : '' }}>Mr</option>
-                                            <option value="Mrs" {{ old('title', $personalDetail->title ?? '') === 'Mrs' ? 'selected' : '' }}>Mrs</option>
-                                            <option value="Miss" {{ old('title', $personalDetail->title ?? '') === 'Miss' ? 'selected' : '' }}>Miss</option>
-                                            <option value="Ms" {{ old('title', $personalDetail->title ?? '') === 'Ms' ? 'selected' : '' }}>Ms</option>
-                                        </select>
-                                        @error('title') <small class="text-danger">{{ $message }}</small> @enderror
-                                    </div>
-                                </div>
+                                  <div class="col-md-6">
+                                  <label>Title</label><br>
+
+                                  <input type="radio" name="title" value="Mr"
+                                  {{ old('title', $personalDetail->title ?? '') == 'Mr' ? 'checked' : '' }}> Mr
+
+                                  <input type="radio" name="title" value="Mrs"
+                                   {{ old('title', $personalDetail->title ?? '') == 'Mrs' ? 'checked' : '' }}> Mrs
+
+                                   <input type="radio" name="title" value="Ms"
+                                   {{ old('title', $personalDetail->title ?? '') == 'Ms' ? 'checked' : '' }}> Ms
+
+                                   <input type="radio" name="title" value="Master"
+                                   {{ old('title', $personalDetail->title ?? '') == 'Master' ? 'checked' : '' }}> Master
+
+                                    @error('title') 
+                                    <small class="text-danger">{{ $message }}</small> 
+                                    @enderror
+                            </div>
+                        </div>
 
                                 <div class="row mb-3">
                                     <div class="col-md-4">
@@ -152,21 +160,58 @@
                                         <input type="text" name="city" class="form-control ucwords" placeholder="Enter city" required value="{{ old('city', $personalDetail->city ?? '') }}">
                                         @error('city') <small class="text-danger">{{ $message }}</small> @enderror
                                     </div>
-                                    <div class="col-md-4">
-                                        <label>State *</label>
-                                        <input type="text" name="state" class="form-control ucwords" placeholder="Enter state" required value="{{ old('state', $personalDetail->state ?? '') }}">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label>Zone *</label>
-                                        <input type="text" name="zone" class="form-control ucwords" placeholder="Enter Zone" required value="{{ old('zone', $personalDetail->zone ?? '') }}">
-                                    </div>
+                                   <!-- STATE DROPDOWN -->
+@php
+            $states = [
+                'Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh',
+                'Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand',
+                'Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur',
+                'Meghalaya','Mizoram','Nagaland','Odisha','Punjab',
+                'Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura',
+                'Uttar Pradesh','Uttarakhand','West Bengal'
+            ];
+        @endphp
+        <div class="col-md-4">
+    <label>State <span class="text-danger">*</span></label>
+    <select name="state" id="state_select" class="form-control" >
+        <option value="">-- Select State --</option>
+        @foreach ($states as $state)
+            <option value="{{ $state }}" {{ ($personalDetail->state ?? '') == $state ? 'selected' : '' }}>
+                {{ $state }}
+            </option>
+        @endforeach
+    </select>
+</div>
+
+<!-- ZONE DROPDOWN -->
+<div class="col-md-4">
+    <label>Zone <span class="text-danger">*</span></label>
+    <select name="zone" id="zone_select" class="form-control">
+        <option value="">-- Select Zone --</option>
+        @if(isset($personalDetail->zone))
+           <option value="{{ $personalDetail->zone }}" selected>{{ $personalDetail->zone }}</option>
+        @endif
+    </select>
+</div>
+                 
+                                   <div class="col-md-4">
+    <label>Chapter <span class="text-danger">*</span></label>
+    <select name="chapter" id="chapter_select" class="form-control">
+        <option value="">-- Select Chapter --</option>
+        @if(isset($personalDetail->chapter_name))
+            <option value="{{ $personalDetail->chapter_name }}" selected>{{ $personalDetail->chapter_name }}</option>
+        @endif
+    </select>
+</div>
+   
+
                                     <div class="col-md-4">
                                         <label>Pin Code *</label>
                                         <input type="number" name="pin_code" class="form-control" placeholder="Enter 6-digit pin code" required value="{{ old('pin_code', $personalDetail->pin_code ?? '') }}">
                                     </div>
-                                </div>
+                                
 
-                                <div class="mb-3">
+                                <div class="col-md-4">
                                     <label>Resi. Landline</label>
                                     <input type="text" name="resi_landline" class="form-control" placeholder="Enter landline number" value="{{ old('resi_landline', $personalDetail->resi_landline ?? '') }}">
                                 </div>
@@ -182,43 +227,37 @@
                                     </div>
                                 </div>
 
-                                <div class="mb-3">
+                                <div class="col-md-6">
                                     <label>Email ID 1 *</label>
                                     <input type="email" name="email_id_1" class="form-control" placeholder="Enter primary email address" required value="{{ old('email_id_1', $personalDetail->email_id_1 ?? '') }}">
                                 </div>
-                                <div class="mb-3">
+                                <div class="col-md-6">
                                     <label>Email ID 2</label>
                                     <input type="email" name="email_id_2" class="form-control" placeholder="Enter secondary email address" value="{{ old('email_id_2', $personalDetail->email_id_2 ?? '') }}">
                                 </div>
 
                                 <h6 class="mt-4 mb-3">Preferred Address for Communication</h6>
                                 <div class="row mb-3">
-                                    <div class="col-md-4">
+                                    <div class="col-md-6">
                                         <label>Residence Address</label>
                                         <textarea name="preferred_residence_address" placeholder="Enter Residence Address" class="form-control ucwords" rows="2">{{ old('preferred_residence_address', $personalDetail->preferred_residence_address ?? '') }}</textarea>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-6">
+                                        <label>Pin Code *</label>
+                                        <input type="number" name="resi_pin_code" class="form-control" placeholder="Enter 6-digit pin code" required value="{{ old('resi_pin_code', $personalDetail->resi_pin_code ?? '') }}">
+                                    </div>
+                                    <div class="col-md-6">
                                         <label>Office Address</label>
                                         <textarea name="preferred_office_address" placeholder="Enter Office Address" class="form-control ucwords" rows="2">{{ old('preferred_office_address', $personalDetail->preferred_office_address ?? '') }}</textarea>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-6">
                                         <label>PAN No *</label>
                                         <input type="text" name="pan_no" class="form-control" placeholder="Enter PAN number" required value="{{ old('pan_no', $personalDetail->pan_no ?? '') }}">
                                     </div>
                                 </div>
                                 
-                                <h6 class="mt-4 mb-3">Chapter Details</h6>
-                                <div class="mb-3">
-                                    <label>Chapter Name *</label>
-                                    <select name="chapter_name" class="form-control" required>
-                                        <option value="" disabled {{ old('chapter_name', $personalDetail->chapter_name ?? '') === '' ? 'selected' : '' }}>Select Chapter</option>
-                                        @foreach ($chapters as $chapter)
-                                            <option value="{{ $chapter->chapter_name }}" {{ old('chapter_name', $personalDetail->chapter_name ?? '') == $chapter->chapter_name ? 'selected' : '' }}>
-                                                {{ $chapter->chapter_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                {{-- <h6 class="mt-4 mb-3">Chapter Details</h6> --}}
+                                
 
                                 <div class="row mb-3">
                                     <div class="col-md-6">
@@ -281,13 +320,14 @@
                                         </div>
                                     </div>
                                 </div>
+                                        
+
 
                                 <!-- ANNIVERSARY PHOTO SECTION -->
                                 @php $existingAnniversaryPhotos = $personalDetail->anniversary_photo ?? []; @endphp
                                 <div class="row mb-3">
                                     <div class="col-md-12">
                                         <label>Anniversary Photo <small class="text-muted">(Click + to add multiple)</small></label>
-                                        
                                         @if(!empty($existingAnniversaryPhotos) && is_array($existingAnniversaryPhotos))
                                             <div class="mb-3">
                                                 @foreach($existingAnniversaryPhotos as $index => $photo)
@@ -381,11 +421,37 @@
                                         </label>
                                     </div>
                                 </div>
-
-                                <div class="mb-3" id="jito_uid_container" style="display: {{ old('jito_member', $personalDetail->jito_member ?? '') === 'yes' ? 'block' : 'none' }}">
+                               <div class="mb-3" id="jito_uid_container" style="display: {{ old('jito_member', $personalDetail->jito_member ?? '') === 'yes' ? 'block' : 'none' }}">
                                     <label>JITO UID *</label>
                                     <input type="text" name="jito_uid" id="jito_uid" class="form-control" placeholder="Enter JITO UID" value="{{ old('jito_uid', $personalDetail->jito_uid ?? '') }}">
+                                </div> 
+
+                                <div class="mb-3">
+                                    <label>Are you a JATF Member? *</label><br>
+                                    <div class="d-flex gap-4 mt-2">
+                                        <label class="fw-normal">
+                                            <input type="radio" name="jatf_member" value="yes" {{ old('jatf_member', $personalDetail->jatf_member ?? '') === 'yes' ? 'checked' : '' }} required> Yes
+                                        </label>
+                                        <label class="fw-normal">
+                                            <input type="radio" name="jatf_member" value="no" {{ old('jatf_member', $personalDetail->jatf_member ?? '') === 'no' ? 'checked' : '' }} required> No
+                                        </label>
+                                    </div>
                                 </div>
+                                
+
+                                <div class="mb-3">
+                                    <label>Are you a Shraman Arogyam Member? *</label><br>
+                                    <div class="d-flex gap-4 mt-2">
+                                        <label class="fw-normal">
+                                            <input type="radio" name="arogyam_member" value="yes" {{ old('arogyam_member', $personalDetail->arogyam_member ?? '') === 'yes' ? 'checked' : '' }}  required> Yes
+                                        </label>
+                                        <label class="fw-normal">
+                                            <input type="radio" name="arogyam_member" value="no" {{ old('arogyam_member', $personalDetail->arogyam_member ?? '') === 'no' ? 'checked' : '' }}  required> No
+                                        </label>
+                                    </div>
+                                </div>
+
+                                
 
                             </div>
                         </div>
@@ -416,7 +482,7 @@
             </div>
         </div>
     </div>
-
+   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         function toggleJitoUid(value) {
             var jitoUidContainer = document.getElementById('jito_uid_container');
@@ -481,5 +547,83 @@
                 e.target.value = e.target.value.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
             }
         }, true);
+
+        $(document).ready(function() {
+        // 1. Prepare the data (Passed from Controller)
+        // This creates a JSON object available in JS
+        var allZones = {!! json_encode($zonesByState) !!};
+        var allChapters = {!! json_encode($chaptersByZone) !!};
+
+        // Function to populate zones
+        function populateZones(stateName, savedZone = '') {
+            var zoneDropdown = $('#zone_select');
+            zoneDropdown.empty(); // Clear existing options
+            
+            // Add default empty option
+            zoneDropdown.append('<option value="">-- Select Zone --</option>');
+
+            // Check if state exists in our data
+            if (stateName && allZones[stateName]) {
+                // Loop through the zones for this specific state
+                $.each(allZones[stateName], function(index, zone) {
+                    // We use zone.zone_name
+                    var isSelected = (zone.zone_name == savedZone) ? 'selected' : '';
+                    zoneDropdown.append('<option value="' + zone.zone_name + '" data-zone-id="' + zone.id + '" ' + isSelected + '>' + zone.zone_name + '</option>');
+                });
+            }
+        }
+
+        // Function to populate chapters based on zone_id
+        function populateChapters(zoneId, savedChapter = '') {
+            var chapterDropdown = $('#chapter_select');
+            chapterDropdown.empty(); // Clear existing options
+            
+            // Add default empty option
+            chapterDropdown.append('<option value="">-- Select Chapter --</option>');
+
+            // Check if zone_id exists in our data
+            if (zoneId && allChapters[zoneId]) {
+                // Loop through the chapters for this specific zone
+                $.each(allChapters[zoneId], function(index, chapter) {
+                    var isSelected = (chapter.chapter_name == savedChapter) ? 'selected' : '';
+                    chapterDropdown.append('<option value="' + chapter.chapter_name + '" ' + isSelected + '>' + chapter.chapter_name + '</option>');
+                });
+            }
+        }
+
+        // 2. EVENT: When State Changes
+        $('#state_select').on('change', function() {
+            var selectedState = $(this).val();
+            populateZones(selectedState); // Populate zones, no saved zone needed for new selection
+            
+            // Also clear chapter dropdown when state changes
+            $('#chapter_select').empty().append('<option value="">-- Select Chapter --</option>');
+        });
+
+        // 3. EVENT: When Zone Changes
+        $('#zone_select').on('change', function() {
+            var selectedZoneOption = $(this).find('option:selected');
+            var zoneId = selectedZoneOption.attr('data-zone-id');
+            populateChapters(zoneId); // Populate chapters based on selected zone
+        });
+
+        // 4. ON LOAD: If user is editing (State already selected)
+        var initialState = $('#state_select').val();
+        var savedZone = "{{ $personalDetail->zone ?? '' }}";
+        var savedChapter = "{{ $personalDetail->chapter_name ?? '' }}";
+        var savedZoneId = "{{ $zone_id ?? '' }}";
+        
+        if (initialState) {
+            // Populate zones and mark the saved one as selected
+            populateZones(initialState, savedZone);
+        }
+        
+        // If we have a saved zone ID, populate chapters
+        if (savedZoneId) {
+            populateChapters(savedZoneId, savedChapter);
+        }
+    });
     </script>
+
 @endsection
+

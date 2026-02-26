@@ -166,23 +166,23 @@ class DonorWebController extends Controller
             "birth_photo.*" => "file|mimes:jpg,jpeg,png,pdf|max:2048",
             
             "anniversary_date" => "nullable|date",
-            "anniversary_photo" => "required", 
-            "anniversary_photo.*" => "mimes:jpg,jpeg,png,pdf|max:2048",
+            "anniversary_photo" => "nullable|array", 
+            "anniversary_photo.*" => "file|mimes:jpg,jpeg,png,pdf|max:2048",
         ];
-        $validator = Validator::make($request->all(), $rules);
-        if ($validator->fails()) {
+    //     $validator = Validator::make($request->all(), $rules);
+    //     if ($validator->fails()) {
        
-        $errorArray = $validator->errors()->all(); 
+    //     $errorArray = $validator->errors()->all(); 
 
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Validation failed',
-            'errors' => $errorArray
-        ], 422);
+    //     return response()->json([
+    //         'status' => 'error',
+    //         'message' => 'Validation failed',
+    //         'errors' => $errorArray
+    //     ], 422);
 
-    }
+    // }
 
-        // $request->validate($rules);
+        $request->validate($rules);
 
         // Define the public path for documents
         $uploadPath = public_path('uploads/documents');

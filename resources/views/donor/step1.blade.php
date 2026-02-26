@@ -274,7 +274,7 @@
                                 @php $existingBirthPhotos = $personalDetail->birth_photo ?? []; @endphp
                                 <div class="row mb-3">
                                     <div class="col-md-12">
-                                        <label>Birth Photo / Proof <small class="text-muted">(Click + to add multiple)</small></label>
+                                        <label>Birth Photo / Proof <small class="text-muted">(Hold Ctrl to select multiple)</small></label>
                                         
                                         @if(!empty($existingBirthPhotos) && is_array($existingBirthPhotos))
                                             <div class="mb-3">
@@ -311,11 +311,8 @@
                                         <div id="birth_photo_container">
                                             <div class="d-flex align-items-center mb-2">
                                                 <div class="flex-grow-1">
-                                                    <input type="file" name="birth_photo[]" class="form-control" accept="image/*,.pdf">
+                                                    <input type="file" name="birth_photo[]" class="form-control" accept="image/*,.pdf" multiple>
                                                 </div>
-                                                <button type="button" class="btn btn-success btn-add-remove ms-2" onclick="addBirthPhotoField()">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" class="bi bi-plus" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
-                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -327,7 +324,7 @@
                                 @php $existingAnniversaryPhotos = $personalDetail->anniversary_photo ?? []; @endphp
                                 <div class="row mb-3">
                                     <div class="col-md-12">
-                                        <label>Anniversary Photo <small class="text-muted">(Click + to add multiple)</small></label>
+                                        <label>Anniversary Photo <small class="text-muted">(Hold Ctrl to select multiple)</small></label>
                                         @if(!empty($existingAnniversaryPhotos) && is_array($existingAnniversaryPhotos))
                                             <div class="mb-3">
                                                 @foreach($existingAnniversaryPhotos as $index => $photo)
@@ -363,11 +360,8 @@
                                         <div id="anniversary_photo_container">
                                             <div class="d-flex align-items-center mb-2">
                                                 <div class="flex-grow-1">
-                                                    <input type="file" name="anniversary_photo[]" class="form-control" accept="image/*,.pdf">
+                                                    <input type="file" name="anniversary_photo[]" class="form-control" accept="image/*,.pdf" multiple>
                                                 </div>
-                                                <button type="button" class="btn btn-success btn-add-remove ms-2" onclick="addAnniversaryPhotoField()">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" class="bi bi-plus" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
-                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -522,23 +516,6 @@
             
             var myModal = new bootstrap.Modal(document.getElementById('documentViewModal'));
             myModal.show();
-        }
-
-        // --- Dynamic Add Fields ---
-        function addBirthPhotoField() {
-            var container = document.getElementById('birth_photo_container');
-            var divWrapper = document.createElement('div');
-            divWrapper.className = 'd-flex align-items-center mb-2';
-            divWrapper.innerHTML = '<div class="flex-grow-1"><input type="file" name="birth_photo[]" class="form-control" accept="image/*,.pdf"></div><button type="button" class="btn btn-danger btn-add-remove ms-2" onclick="this.parentElement.remove()"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" class="bi bi-dash" viewBox="0 0 16 16"><path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/></svg></button>';
-            container.appendChild(divWrapper);
-        }
-        
-        function addAnniversaryPhotoField() {
-            var container = document.getElementById('anniversary_photo_container');
-            var divWrapper = document.createElement('div');
-            divWrapper.className = 'd-flex align-items-center mb-2';
-            divWrapper.innerHTML = '<div class="flex-grow-1"><input type="file" name="anniversary_photo[]" class="form-control" accept="image/*,.pdf"></div><button type="button" class="btn btn-danger btn-add-remove ms-2" onclick="this.parentElement.remove()"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" class="bi bi-dash" viewBox="0 0 16 16"><path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/></svg></button>';
-            container.appendChild(divWrapper);
         }
 
         // Title Case

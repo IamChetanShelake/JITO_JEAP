@@ -209,7 +209,15 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/donor-dashboard', [DonorController::class, 'dashboard'])->name('donors.dashboard');
     Route::get('/donor-dashboard/{donor}', [DonorController::class, 'dashboardShow'])->name('donors.dashboard.show');
 
+    // General Donors Routes
+    Route::get('/general-donor-dashboard', [DonorController::class, 'generalDonorsDashboard'])->name('general-donors.dashboard');
+    Route::get('/general-donor-dashboard/{donor}', [DonorController::class, 'generalDonorShow'])->name('general-donors.show');
+
     Route::put('/donor-dashboard-update/{donor}', [DonorController::class, 'updatedonor'])->name('donors.updatedonor');
+
+    // Donor conversion routes
+    Route::post('/donors/{donor}/convert-to-general', [DonorController::class, 'convertToGeneral'])->name('donors.convertToGeneral');
+    Route::post('/donors/{donor}/create-commitment', [DonorController::class, 'createCommitment'])->name('donors.createCommitment');
 
     // Disbursement Filtered Routes
     Route::get('/disbursement/completed', [DisbursementController::class, 'completed'])->name('disbursement.completed');

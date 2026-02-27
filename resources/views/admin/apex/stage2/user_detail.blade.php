@@ -2289,7 +2289,8 @@
                                         $chequeImageUrl = asset($chequeImagePath);
                                     }
                                     $fileExtension = strtolower(pathinfo($chequeImagePath, PATHINFO_EXTENSION));
-                                    $fileName = 'First_Cheque_' . ($user->application_no ?? $user->id) . '.' . $fileExtension;
+                                    $fileName =
+                                        'First_Cheque_' . ($user->application_no ?? $user->id) . '.' . $fileExtension;
                                 @endphp
                                 <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;">
                                     @if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif', 'webp']))
@@ -2304,7 +2305,8 @@
                                                 style="background: var(--primary-blue); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
                                                 <i class="fas fa-eye"></i> View
                                             </a>
-                                            <a href="{{ $chequeImageUrl }}" download="{{ $fileName }}" class="btn"
+                                            <a href="{{ $chequeImageUrl }}" download="{{ $fileName }}"
+                                                class="btn"
                                                 style="background: var(--primary-green); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
                                                 <i class="fas fa-download"></i> Download
                                             </a>
@@ -2326,7 +2328,8 @@
                                                 style="background: var(--primary-blue); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
                                                 <i class="fas fa-eye"></i> View
                                             </a>
-                                            <a href="{{ $chequeImageUrl }}" download="{{ $fileName }}" class="btn"
+                                            <a href="{{ $chequeImageUrl }}" download="{{ $fileName }}"
+                                                class="btn"
                                                 style="background: var(--primary-green); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
                                                 <i class="fas fa-download"></i> Download
                                             </a>
@@ -2490,31 +2493,31 @@
                         method="POST">
                         @csrf
                         <div class="action-form-row">
-                            <div style="flex: 2;">
+                            {{--  <div style="flex: 2;">
                                 <label class="form-label"
                                     style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Approval
                                     Remark</label>
                                 <textarea name="admin_remark" placeholder="Approval remark (optional but recommended)" rows="3"
                                     class="remark-input"></textarea>
 
-                                {{-- <div style="margin-top: 1rem;">
+                                <div style="margin-top: 1rem;">
                                 <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Apex Staff Remark</label>
                                 <textarea name="apex_staff_remark"
                                           placeholder="Optional apex staff remark"
                                           rows="3"
                                           class="remark-input"></textarea>
-                            </div> --}}
+                            </div>  --}}
 
 
-                            </div>
-                            <button type="submit" class="btn btn-approve">
-                                <i class="fas fa-check"></i>
-                                Approve Application
-                            </button>
                         </div>
-                    </form>
+                        <button type="submit" class="btn btn-approve">
+                            <i class="fas fa-check"></i>
+                            Approve Application
+                        </button>
+                </div>
+                </form>
 
-                    <div class="divider"></div>
+                {{--  <div class="divider"></div>
 
                     <!-- Reject Form -->
                     <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_2']) }}"
@@ -2533,14 +2536,14 @@
                                 Send Back For Correction
                             </button>
                         </div>
-                    </form>
-                </div>
-            @else
-                <div class="no-data">
-                    <p>Decision not available for this application.</p>
-                </div>
-            @endif
+                    </form>  --}}
         </div>
+    @else
+        <div class="no-data">
+            <p>Decision not available for this application.</p>
+        </div>
+        @endif
+    </div>
 
 
 
@@ -2718,7 +2721,9 @@
     function printImage(imageUrl) {
         const printWindow = window.open('', '_blank', 'width=800,height=600');
         printWindow.document.write('<html><head><title>Print Cheque Image</title>');
-        printWindow.document.write('<style>body{margin:0;padding:20px;text-align:center;} img{max-width:100%;height:auto;} @media print{body{margin:0;}}</style>');
+        printWindow.document.write(
+            '<style>body{margin:0;padding:20px;text-align:center;} img{max-width:100%;height:auto;} @media print{body{margin:0;}}</style>'
+        );
         printWindow.document.write('</head><body>');
         printWindow.document.write('<img src="' + imageUrl + '" onload="window.print();window.close();">');
         printWindow.document.write('</body></html>');

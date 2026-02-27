@@ -2035,16 +2035,14 @@
 
             <!-- Inside step-8 content-area, after the if conditions for approved/hold/rejected -->
 
-            @if (
-                $user->workflowStatus &&
-                    in_array($user->workflowStatus->working_committee_status, ['approved', 'hold', 'rejected']))
+            {{-- @if ($user->workflowStatus && in_array($user->workflowStatus->working_committee_status, ['approved', 'hold', 'rejected']))
                 <div style="margin-top: 2rem; text-align: right;">
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                         data-bs-target="#editWorkingCommitteeModal">
                         <i class="fas fa-edit"></i> Edit Working Committee Decision
                     </button>
                 </div>
-            @endif
+            @endif --}}
 
             @if ($user->workflowStatus && $user->workflowStatus->working_committee_status === 'approved')
                 <!-- Display Submitted Working Committee Data -->
@@ -2361,9 +2359,8 @@
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Held By</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ Auth::user()->name ?? 'N/A' }}" readonly
-                                        style="border-color: #ffc107;">
+                                    <input type="text" class="form-input" value="{{ Auth::user()->name ?? 'N/A' }}"
+                                        readonly style="border-color: #ffc107;">
                                 </div>
                             </div>
                         </div>
@@ -3043,13 +3040,13 @@
         aria-labelledby="editWorkingCommitteeModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header" style="background: var(--primary-purple); color: white;">
+                {{-- <div class="modal-header" style="background: var(--primary-purple); color: white;">
                     <h5 class="modal-title" id="editWorkingCommitteeModalLabel">
                         Edit Working Committee Decision
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
-                </div>
+                </div> --}}
                 <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
 
                     <form action="{{ route('admin.working_committee.user.update', ['user' => $user]) }}"
@@ -3335,32 +3332,34 @@
                 });
 
                 // Recalculate installments + additional
-               function recalculateEditInstallments() {
-    let sanction = parseFloat(document.getElementById('edit-total-amount').value) || 0;
-    let used = 0;
-    let totalMonths = 0;
+                function recalculateEditInstallments() {
+                    let sanction = parseFloat(document.getElementById('edit-total-amount').value) || 0;
+                    let used = 0;
+                    let totalMonths = 0;
 
-    document.querySelectorAll('#edit-installment-rows .installment-row').forEach(row => {
-        const amt = parseFloat(row.querySelector('.installment-amount').value) || 0;
-        const months = parseInt(row.querySelector('.installment-months').value) || 0;
+                    document.querySelectorAll('#edit-installment-rows .installment-row').forEach(row => {
+                        const amt = parseFloat(row.querySelector('.installment-amount').value) || 0;
+                        const months = parseInt(row.querySelector('.installment-months').value) ||
+                            0;
 
-        const rowTotal = amt * months;
-        row.querySelector('.installment-total').value = rowTotal.toFixed(2);
+                        const rowTotal = amt * months;
+                        row.querySelector('.installment-total').value = rowTotal.toFixed(2);
 
-        used += rowTotal;
-        totalMonths += months;
-    });
+                        used += rowTotal;
+                        totalMonths += months;
+                    });
 
-    let remaining = sanction - used;
-    if (remaining < 0) remaining = 0;
+                    let remaining = sanction - used;
+                    if (remaining < 0) remaining = 0;
 
-    document.getElementById('edit-additional-amount').value = remaining.toFixed(2);
+                    document.getElementById('edit-additional-amount').value = remaining.toFixed(2);
 
-    // ✅ Add 1 cheque if additional amount > 1
-    let extraCheque = remaining > 1 ? 1 : 0;
+                    // ✅ Add 1 cheque if additional amount > 1
+                    let extraCheque = remaining > 1 ? 1 : 0;
 
-    document.querySelector('input[name="no_of_cheques_to_be_collected"]').value = totalMonths + extraCheque;
-}
+                    document.querySelector('input[name="no_of_cheques_to_be_collected"]').value =
+                        totalMonths + extraCheque;
+                }
 
                 function updateEditTotal() {
                     let total = 0;

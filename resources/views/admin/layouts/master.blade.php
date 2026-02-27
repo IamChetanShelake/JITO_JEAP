@@ -758,15 +758,23 @@
                             <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.donors.dashboard') ? 'active' : '' }}"
                                 href="{{ route('admin.donors.dashboard') }}">
                                 <i class="fas fa-hand-holding-heart"></i>
-                                <span class="nav-text">Donor Dashboard</span>
+                                <span class="nav-text">Member Donors</span>
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.donors') ? 'active' : '' }}"
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.general-donors') ? 'active' : '' }}"
+                                href="{{ route('admin.general-donors.dashboard') }}">
+                                <i class="fas fa-users"></i>
+                                <span class="nav-text">General Donors</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.donors.index') ? 'active' : '' }}"
                                 href="{{ route('admin.donors.index') }}">
-                                <i class="fas fa-hand-holding-heart"></i>
-                                <span class="nav-text">Donors</span>
+                                <i class="fas fa-list"></i>
+                                <span class="nav-text">All Donors</span>
                             </a>
                         </li>
                     @endif
@@ -776,7 +784,8 @@
                             <i class="fas fa-sign-out-alt"></i>
                             <span class="nav-text">Logout</span>
                         </a>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                            style="display: none;">
                             @csrf
                         </form>
                     </li>
@@ -932,4 +941,3 @@
 </body>
 
 </html>
-

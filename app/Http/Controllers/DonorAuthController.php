@@ -21,6 +21,16 @@ class DonorAuthController extends Controller
             'password' => 'required|string',
         ]);
 
+        // Find the donor first to check their login status
+        $donor = Donor::where('email', $request->email)->first();
+
+        // Check if donor is allowed to login
+        if ($donor && !$donor->can_login) {
+            return back()->withErrors([
+                'email' => 'Your account does not have login access.',
+            ])->onlyInput('email');
+        }
+
         if (Auth::guard('donor')->attempt($credentials)) {
             $request->session()->regenerate();
             return redirect()->route('donor.step1');
@@ -50,6 +60,10 @@ class DonorAuthController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'password' => Hash::make($request->password),
+            // Default values for new fields
+            'donor_type' => 'member',  // Default to member
+            'can_login' => true,       // Members can login
+            'status' => 'active',      // Default to active
         ]);
 
         Auth::guard('donor')->login($donor);

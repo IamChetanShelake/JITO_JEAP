@@ -51,10 +51,10 @@ class DonorWebController extends Controller
         $chapters = Chapter::get();
         $states = Zone::select('state')->distinct()->orderBy('state')->pluck('state');
         $zonesByState = Zone::all()->groupBy('state');
-        
+
         // Get chapters grouped by zone_id for cascading dropdown
         $chaptersByZone = Chapter::whereNotNull('zone_id')->get()->groupBy('zone_id');
-        
+
         $zone_id = null;
         if ($personalDetail && $personalDetail->zone) {
             // Find the zone ID based on the stored zone name
@@ -62,13 +62,13 @@ class DonorWebController extends Controller
             $zone_id = $zone ? $zone->id : null;
         }
 
-        return view("donor.step1", compact("donor", "personalDetail", "chapters", "states" , "zonesByState","chaptersByZone","zone_id"));
+        return view("donor.step1", compact("donor", "personalDetail", "chapters", "states", "zonesByState", "chaptersByZone", "zone_id"));
     }
-    public function getZones($state){
+    public function getZones($state)
+    {
         $zones = Zone::where('state', $state)->get(['id', 'zone_name']);
-        
-        return response()->json($zones);
 
+        return response()->json($zones);
     }
     public function getChapters($zone_id)
     {
@@ -80,6 +80,12 @@ class DonorWebController extends Controller
     public function step2()
     {
         $donor = Auth::guard("donor")->user();
+
+        // Only member donors can access family details
+        if ($donor->donor_type !== 'member') {
+            abort(403, 'This section is only available for member donors.');
+        }
+
         $familyDetail = DonorFamilyDetail::where("donor_id", $donor->id)->first();
 
         return view("donor.step2", compact("donor", "familyDetail"));
@@ -88,6 +94,12 @@ class DonorWebController extends Controller
     public function step3()
     {
         $donor = Auth::guard("donor")->user();
+
+        // Only member donors can access nominee details
+        if ($donor->donor_type !== 'member') {
+            abort(403, 'This section is only available for member donors.');
+        }
+
         $nomineeDetail = DonorNomineeDetail::where("donor_id", $donor->id)->first();
 
         return view("donor.step3", compact("donor", "nomineeDetail"));
@@ -96,6 +108,12 @@ class DonorWebController extends Controller
     public function step4()
     {
         $donor = Auth::guard("donor")->user();
+
+        // Only member donors can access professional details
+        if ($donor->donor_type !== 'member') {
+            abort(403, 'This section is only available for member donors.');
+        }
+
         $professionalDetail = DonorProfessionalDetail::where("donor_id", $donor->id)->first();
 
         return view("donor.step4", compact("donor", "professionalDetail"));
@@ -104,6 +122,12 @@ class DonorWebController extends Controller
     public function step5()
     {
         $donor = Auth::guard("donor")->user();
+
+        // Only member donors can access documents
+        if ($donor->donor_type !== 'member') {
+            abort(403, 'This section is only available for member donors.');
+        }
+
         $document = DonorDocument::where("donor_id", $donor->id)->first();
 
         return view("donor.step5", compact("donor", "document"));
@@ -112,6 +136,12 @@ class DonorWebController extends Controller
     public function step6()
     {
         $donor = Auth::guard("donor")->user();
+
+        // Only member donors can access membership details
+        if ($donor->donor_type !== 'member') {
+            abort(403, 'This section is only available for member donors.');
+        }
+
         $membershipDetail = DonorMembershipDetail::where("donor_id", $donor->id)->first();
 
         return view("donor.step6", compact("donor", "membershipDetail"));
@@ -161,32 +191,32 @@ class DonorWebController extends Controller
             "jito_member" => "required|in:yes,no",
             "jatf_member" => "required|in:yes,no",
             "arogyam_member" => "required|in:yes,no",
-            
+
             "birth_photo" => "nullable|array",
             "birth_photo.*" => "file|mimes:jpg,jpeg,png,pdf|max:2048",
-            
+
             "anniversary_date" => "nullable|date",
-            "anniversary_photo" => "nullable|array", 
+            "anniversary_photo" => "nullable|array",
             "anniversary_photo.*" => "file|mimes:jpg,jpeg,png,pdf|max:2048",
         ];
-    //     $validator = Validator::make($request->all(), $rules);
-    //     if ($validator->fails()) {
-       
-    //     $errorArray = $validator->errors()->all(); 
+        //     $validator = Validator::make($request->all(), $rules);
+        //     if ($validator->fails()) {
 
-    //     return response()->json([
-    //         'status' => 'error',
-    //         'message' => 'Validation failed',
-    //         'errors' => $errorArray
-    //     ], 422);
+        //     $errorArray = $validator->errors()->all(); 
 
-    // }
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'message' => 'Validation failed',
+        //         'errors' => $errorArray
+        //     ], 422);
+
+        // }
 
         $request->validate($rules);
 
         // Define the public path for documents
         $uploadPath = public_path('uploads/documents');
-        
+
         // Create directory if it doesn't exist
         if (!File::isDirectory($uploadPath)) {
             File::makeDirectory($uploadPath, 0777, true, true);
@@ -194,12 +224,12 @@ class DonorWebController extends Controller
 
         // 2. HANDLE BIRTH PHOTOS
         $birthPhotoPaths = [];
-        
+
         // Get existing photos from DB
         if ($existing && !empty($existing->birth_photo)) {
             $birthPhotoPaths = is_array($existing->birth_photo) ? $existing->birth_photo : json_decode($existing->birth_photo, true) ?? [];
         }
-        
+
         // Handle deletion of existing photos
         if ($request->has('delete_birth_photo')) {
             foreach ($request->delete_birth_photo as $fileToDelete) {
@@ -208,7 +238,7 @@ class DonorWebController extends Controller
                 if ($key !== false) {
                     unset($birthPhotoPaths[$key]);
                 }
-                
+
                 // Delete file from public path
                 $filePath = public_path($fileToDelete);
                 if (file_exists($filePath)) {
@@ -225,10 +255,10 @@ class DonorWebController extends Controller
                 if ($file && $file->isValid()) {
                     // Generate unique filename
                     $fileName = time() . '_birth_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                    
+
                     // Move file to public/uploads/documents
                     $file->move($uploadPath, $fileName);
-                    
+
                     // Save path relative to public folder (for easy access in views)
                     $birthPhotoPaths[] = 'uploads/documents/' . $fileName;
                 }
@@ -242,12 +272,12 @@ class DonorWebController extends Controller
 
         // 3. HANDLE ANNIVERSARY PHOTOS
         $anniversaryPhotoPaths = [];
-        
+
         // Get existing photos from DB
         if ($existing && !empty($existing->anniversary_photo)) {
             $anniversaryPhotoPaths = is_array($existing->anniversary_photo) ? $existing->anniversary_photo : json_decode($existing->anniversary_photo, true) ?? [];
         }
-        
+
         // Handle deletion of existing photos
         if ($request->has('delete_anniversary_photo')) {
             foreach ($request->delete_anniversary_photo as $fileToDelete) {
@@ -256,7 +286,7 @@ class DonorWebController extends Controller
                 if ($key !== false) {
                     unset($anniversaryPhotoPaths[$key]);
                 }
-                
+
                 // Delete file from public path
                 $filePath = public_path($fileToDelete);
                 if (file_exists($filePath)) {
@@ -269,22 +299,22 @@ class DonorWebController extends Controller
 
         // Process new uploads
         if ($request->hasFile('anniversary_photo')) {
-            
+
             foreach ($request->file('anniversary_photo') as $file) {
                 if ($file && $file->isValid()) {
                     // Generate unique filename
                     $fileName = time() . '_anniversary_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                    
-                    
+
+
                     // Move file to public/uploads/documents
                     $file->move($uploadPath, $fileName);
-                    
+
                     // Save path relative to public folder
                     $anniversaryPhotoPaths[] = 'uploads/documents/' . $fileName;
                 }
             }
         }
-        
+
 
         // Ensure anniversary_photo is an empty array if no photos
         if (!is_array($anniversaryPhotoPaths)) {
@@ -314,11 +344,11 @@ class DonorWebController extends Controller
             "pan_no" => $request->pan_no,
             "chapter_name" => $request->chapter,
             "date_of_birth" => $request->date_of_birth,
-            
-            "birth_photo" => $birthPhotoPaths, 
+
+            "birth_photo" => $birthPhotoPaths,
             "anniversary_date" => $request->anniversary_date,
-            "anniversary_photo" => $anniversaryPhotoPaths, 
-            
+            "anniversary_photo" => $anniversaryPhotoPaths,
+
             "blood_group" => $request->blood_group,
             "mother_tongue" => $request->mother_tongue,
             "district_of_native_place" => $request->district_of_native_place,
@@ -346,6 +376,13 @@ class DonorWebController extends Controller
 
     public function storestep2(Request $request)
     {
+        $donor = Auth::guard("donor")->user();
+
+        // Only member donors can save family details
+        if ($donor->donor_type !== 'member') {
+            abort(403, 'This section is only available for member donors.');
+        }
+
         $request->validate([
             "spouse_title" => "nullable|string|max:10",
             "spouse_name" => "required|string|max:255",
@@ -360,8 +397,6 @@ class DonorWebController extends Controller
             "child_blood_group" => "nullable|array",
             "child_marital_status" => "nullable|array",
         ]);
-
-        $donor = Auth::guard("donor")->user();
 
         // Build children array
         $children = [];
@@ -403,6 +438,13 @@ class DonorWebController extends Controller
 
     public function storestep3(Request $request)
     {
+        $donor = Auth::guard("donor")->user();
+
+        // Only member donors can save nominee details
+        if ($donor->donor_type !== 'member') {
+            abort(403, 'This section is only available for member donors.');
+        }
+
         $request->validate([
             "nominee_title" => "nullable|string|max:10",
             "nominee_name" => "required|string|max:255",
@@ -412,8 +454,6 @@ class DonorWebController extends Controller
             "nominee_city" => "required|string|max:100",
             "nominee_pincode" => "required|digits:6",
         ]);
-
-        $donor = Auth::guard("donor")->user();
 
         $data = [
             "donor_id" => $donor->id,
@@ -440,6 +480,13 @@ class DonorWebController extends Controller
 
     public function storestep4(Request $request)
     {
+        $donor = Auth::guard("donor")->user();
+
+        // Only member donors can save professional details
+        if ($donor->donor_type !== 'member') {
+            abort(403, 'This section is only available for member donors.');
+        }
+
         $request->validate([
             "company_name" => "required|string|max:255",
             "company_activity_details" => "required|string",
@@ -457,8 +504,6 @@ class DonorWebController extends Controller
             "coordinator_email_1" => "nullable|email",
             "coordinator_email_2" => "nullable|email",
         ]);
-
-        $donor = Auth::guard("donor")->user();
 
         $data = [
             "donor_id" => $donor->id,
@@ -494,6 +539,12 @@ class DonorWebController extends Controller
     public function storestep5(Request $request)
     {
         $donor = Auth::guard("donor")->user();
+
+        // Only member donors can save documents
+        if ($donor->donor_type !== 'member') {
+            abort(403, 'This section is only available for member donors.');
+        }
+
         $existing = DonorDocument::where("donor_id", $donor->id)->first();
 
         // Validation for required files (only if not already uploaded)
@@ -519,7 +570,7 @@ class DonorWebController extends Controller
 
         // Define the public path for donor documents
         $docPath = public_path('donor_documents');
-        
+
         // Create directory if it doesn't exist
         if (!File::isDirectory($docPath)) {
             File::makeDirectory($docPath, 0777, true, true);
@@ -532,10 +583,10 @@ class DonorWebController extends Controller
             if ($request->hasFile($fileInputName)) {
                 // Generate unique filename
                 $fileName = time() . "_" . $fileInputName . "_" . uniqid() . "." . $request->$fileInputName->extension();
-                
+
                 // Move file to public/donor_documents
                 $request->$fileInputName->move($docPath, $fileName);
-                
+
                 // Save path relative to public folder
                 $data[$fileInputName] = "donor_documents/" . $fileName;
             }
@@ -552,6 +603,13 @@ class DonorWebController extends Controller
 
     public function storestep6(Request $request)
     {
+        $donor = Auth::guard("donor")->user();
+
+        // Only member donors can save membership details
+        if ($donor->donor_type !== 'member') {
+            abort(403, 'This section is only available for member donors.');
+        }
+
         $request->validate([
             "payment_options" => "required|array|min:1",
             "payment_options.*" => "in:54_lakhs,1_year,2_year,3_year",

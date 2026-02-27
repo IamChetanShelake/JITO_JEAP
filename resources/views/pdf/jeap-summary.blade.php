@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>JITO JEAP Application Summary</title>
@@ -11,21 +12,25 @@
             margin: 0;
             padding: 20px;
         }
+
         .header {
             text-align: center;
             margin-bottom: 20px;
             border-bottom: 2px solid #000;
             padding-bottom: 10px;
         }
+
         .header h1 {
             margin: 0;
             font-size: 16px;
             font-weight: bold;
         }
+
         .section {
             margin: 15px 0;
             page-break-inside: avoid;
         }
+
         .section h2 {
             font-size: 12px;
             font-weight: bold;
@@ -33,32 +38,42 @@
             border-bottom: 1px solid #000;
             padding-bottom: 3px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 8px 0;
             font-size: 10px;
         }
-        table, th, td {
+
+        table,
+        th,
+        td {
             border: 1px solid #000;
         }
-        th, td {
+
+        th,
+        td {
             padding: 4px;
             text-align: left;
             vertical-align: top;
         }
+
         th {
             background-color: #f5f5f5;
             font-weight: bold;
             font-size: 9px;
         }
+
         .page-break {
             page-break-before: always;
         }
+
         .amount-highlight {
             font-weight: bold;
             color: #000;
         }
+
         .remarks-section {
             margin: 10px 0;
             padding: 8px;
@@ -67,13 +82,14 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Header -->
     <div class="header">
         <img src="{{ public_path('jitojeaplogo.png') }}" alt="JITO JEAP Logo" style="height: 60px; margin-bottom: 10px;">
         <h1>JITO EDUCATION ASSISTANCE PROGRAM</h1>
         <h2>SUMMARY</h2>
-        <p><strong>Application no.: JITO-JEAP/2025/{{ str_pad($user->id, 4, '0', STR_PAD_LEFT) }}</strong></p>
+        <p><strong>Application no.: {{ str_pad($user->application_no, 4, '0', STR_PAD_LEFT) }}</strong></p>
     </div>
 
     <!-- PART[1]: Student Details -->
@@ -133,13 +149,13 @@
                 </tr>
             </thead>
             <tbody>
-                @if($familyDetail && $familyDetail->additional_family_members)
+                @if ($familyDetail && $familyDetail->additional_family_members)
                     @php
                         $familyMembers = is_array($familyDetail->additional_family_members)
                             ? $familyDetail->additional_family_members
                             : json_decode($familyDetail->additional_family_members, true);
                     @endphp
-                    @foreach($familyMembers as $member)
+                    @foreach ($familyMembers as $member)
                         <tr>
                             <td>{{ $member['relation'] ?? '' }}</td>
                             <td>{{ $member['age'] ?? '' }}</td>
@@ -153,18 +169,18 @@
                             <td>{{ $familyDetail->total_premium_paid ?? 0 }}</td>
                         </tr>
                     @endforeach
-                        <tr>
-                            <td>{{ $user->namee ?? '' }}</td>
-                            <td>{{ $user->age ?? '' }}</td>
-                            <td>{{ $user->qualification ?? '' }}</td>
-                            <td>{{ $user->occupation ?? '' }}</td>
-                            <td>{{ $user->pan_card ?? '' }}</td>
-                            <td>{{ $user->phone ?? '' }}</td>
-                            <td>{{ $user->email ?? '' }}</td>
-                            <td>{{ $user->yearly_income ?? 0 }}</td>
-                            <td>{{ $user->total_insurance_coverage ?? 0 }}</td>
-                            <td>{{ $user->total_premium_paid ?? 0 }}</td>
-                        </tr>
+                    <tr>
+                        <td>{{ $user->namee ?? '' }}</td>
+                        <td>{{ $user->age ?? '' }}</td>
+                        <td>{{ $user->qualification ?? '' }}</td>
+                        <td>{{ $user->occupation ?? '' }}</td>
+                        <td>{{ $user->pan_card ?? '' }}</td>
+                        <td>{{ $user->phone ?? '' }}</td>
+                        <td>{{ $user->email ?? '' }}</td>
+                        <td>{{ $user->yearly_income ?? 0 }}</td>
+                        <td>{{ $user->total_insurance_coverage ?? 0 }}</td>
+                        <td>{{ $user->total_premium_paid ?? 0 }}</td>
+                    </tr>
                 @endif
             </tbody>
         </table>
@@ -203,11 +219,13 @@
                 </tr>
             </thead>
             <tbody>
-                @if($educationDetail)
+                @if ($educationDetail)
                     <tr>
                         <td>S.S.C</td>
-                        <td>{{ $educationDetail->school_completion_year ? \Carbon\Carbon::parse($educationDetail->school_completion_year)->format('Y') : '' }}</td>
-                        <td>{{ $educationDetail->school_percentage ? $educationDetail->school_percentage . '%' : '' }}</td>
+                        <td>{{ $educationDetail->school_completion_year ? \Carbon\Carbon::parse($educationDetail->school_completion_year)->format('Y') : '' }}
+                        </td>
+                        <td>{{ $educationDetail->school_percentage ? $educationDetail->school_percentage . '%' : '' }}
+                        </td>
                         <td>100</td>
                         <td>{{ $educationDetail->school_percentage ?? '' }}</td>
                     </tr>
@@ -218,16 +236,18 @@
                         <td>100</td>
                         <td>{{ $educationDetail->jc_percentage ?? '' }}</td>
                     </tr>
-                    @if($educationDetail->qualifications)
+                    @if ($educationDetail->qualifications)
                         <tr>
                             <td>{{ $educationDetail->qualifications }}</td>
-                            <td>{{ $educationDetail->qualification_end_year ? \Carbon\Carbon::parse($educationDetail->qualification_end_year)->format('Y') : '' }}</td>
-                            <td>{{ $educationDetail->qualification_percentage ? $educationDetail->qualification_percentage . '%' : '' }}</td>
+                            <td>{{ $educationDetail->qualification_end_year ? \Carbon\Carbon::parse($educationDetail->qualification_end_year)->format('Y') : '' }}
+                            </td>
+                            <td>{{ $educationDetail->qualification_percentage ? $educationDetail->qualification_percentage . '%' : '' }}
+                            </td>
                             <td>100</td>
                             <td>{{ $educationDetail->qualification_percentage ?? '' }}</td>
                         </tr>
                     @endif
-                    @if($educationDetail->ielts_overall_band_year)
+                    @if ($educationDetail->ielts_overall_band_year)
                         <tr>
                             <td>IELTS</td>
                             <td>{{ $educationDetail->ielts_overall_band_year }}</td>
@@ -236,7 +256,7 @@
                             <td></td>
                         </tr>
                     @endif
-                    @if($educationDetail->toefl_score_year)
+                    @if ($educationDetail->toefl_score_year)
                         <tr>
                             <td>TOEFL</td>
                             <td>{{ $educationDetail->toefl_score_year }}</td>
@@ -245,7 +265,7 @@
                             <td></td>
                         </tr>
                     @endif
-                    @if($educationDetail->gre_score_year)
+                    @if ($educationDetail->gre_score_year)
                         <tr>
                             <td>GRE</td>
                             <td>{{ $educationDetail->gre_score_year }}</td>
@@ -254,7 +274,7 @@
                             <td></td>
                         </tr>
                     @endif
-                    @if($educationDetail->gmat_score_year)
+                    @if ($educationDetail->gmat_score_year)
                         <tr>
                             <td>GMAT</td>
                             <td>{{ $educationDetail->gmat_score_year }}</td>
@@ -263,7 +283,7 @@
                             <td></td>
                         </tr>
                     @endif
-                    @if($educationDetail->sat_score_year)
+                    @if ($educationDetail->sat_score_year)
                         <tr>
                             <td>SAT</td>
                             <td>{{ $educationDetail->sat_score_year }}</td>
@@ -292,11 +312,13 @@
                 </tr>
             </thead>
             <tbody>
-                @if($educationDetail)
+                @if ($educationDetail)
                     <tr>
                         <td>{{ $educationDetail->course_name }}</td>
-                        <td>{{ $educationDetail->start_year ? \Carbon\Carbon::parse($educationDetail->start_year)->format('m/Y') : '' }}</td>
-                        <td>{{ $educationDetail->expected_year ? \Carbon\Carbon::parse($educationDetail->expected_year)->format('m/Y') : '' }}</td>
+                        <td>{{ $educationDetail->start_year ? \Carbon\Carbon::parse($educationDetail->start_year)->format('m/Y') : '' }}
+                        </td>
+                        <td>{{ $educationDetail->expected_year ? \Carbon\Carbon::parse($educationDetail->expected_year)->format('m/Y') : '' }}
+                        </td>
                         <td>{{ $educationDetail->university_name }}</td>
                         <td>{{ $educationDetail->city_name }}</td>
                         <td>{{ $educationDetail->country }}</td>
@@ -351,12 +373,18 @@
                 </tr>
                 <tr>
                     <td><strong>Total Expenses Rs</strong></td>
-                    <td><strong>{{ number_format(($educationDetail->group_1_year1 ?? 0) + ($educationDetail->group_2_year1 ?? 0) + ($educationDetail->group_3_year1 ?? 0), 2) }}</strong></td>
-                    <td><strong>{{ number_format(($educationDetail->group_1_year2 ?? 0) + ($educationDetail->group_2_year2 ?? 0) + ($educationDetail->group_3_year2 ?? 0), 2) }}</strong></td>
-                    <td><strong>{{ number_format(($educationDetail->group_1_year3 ?? 0) + ($educationDetail->group_2_year3 ?? 0) + ($educationDetail->group_3_year3 ?? 0), 2) }}</strong></td>
-                    <td><strong>{{ number_format(($educationDetail->group_1_year4 ?? 0) + ($educationDetail->group_2_year4 ?? 0) + ($educationDetail->group_3_year4 ?? 0), 2) }}</strong></td>
-                    <td><strong>{{ number_format(($educationDetail->group_1_year5 ?? 0) + ($educationDetail->group_2_year5 ?? 0) + ($educationDetail->group_3_year5 ?? 0), 2) }}</strong></td>
-                    <td><strong>{{ number_format(($educationDetail->group_1_total ?? 0) + ($educationDetail->group_2_total ?? 0) + ($educationDetail->group_3_total ?? 0), 2) }}</strong></td>
+                    <td><strong>{{ number_format(($educationDetail->group_1_year1 ?? 0) + ($educationDetail->group_2_year1 ?? 0) + ($educationDetail->group_3_year1 ?? 0), 2) }}</strong>
+                    </td>
+                    <td><strong>{{ number_format(($educationDetail->group_1_year2 ?? 0) + ($educationDetail->group_2_year2 ?? 0) + ($educationDetail->group_3_year2 ?? 0), 2) }}</strong>
+                    </td>
+                    <td><strong>{{ number_format(($educationDetail->group_1_year3 ?? 0) + ($educationDetail->group_2_year3 ?? 0) + ($educationDetail->group_3_year3 ?? 0), 2) }}</strong>
+                    </td>
+                    <td><strong>{{ number_format(($educationDetail->group_1_year4 ?? 0) + ($educationDetail->group_2_year4 ?? 0) + ($educationDetail->group_3_year4 ?? 0), 2) }}</strong>
+                    </td>
+                    <td><strong>{{ number_format(($educationDetail->group_1_year5 ?? 0) + ($educationDetail->group_2_year5 ?? 0) + ($educationDetail->group_3_year5 ?? 0), 2) }}</strong>
+                    </td>
+                    <td><strong>{{ number_format(($educationDetail->group_1_total ?? 0) + ($educationDetail->group_2_total ?? 0) + ($educationDetail->group_3_total ?? 0), 2) }}</strong>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -374,7 +402,7 @@
                 </tr>
             </thead>
             <tbody>
-                @if($fundingDetail)
+                @if ($fundingDetail)
                     <tr>
                         <td>Own family funding (Father+Mother)</td>
                         <td>{{ $fundingDetail->family_funding_status ?? '' }}</td>
@@ -423,7 +451,7 @@
                 </tr>
             </thead>
             <tbody>
-                @if($familyDetail)
+                @if ($familyDetail)
                     <tr>
                         <td>Paternal Uncle</td>
                         <td>{{ $familyDetail->paternal_uncle_name ?? '' }}</td>
@@ -512,7 +540,9 @@
         <div class="remarks-section">
             <p><strong>Apex Working Comittee Remarks:</strong></p>
             <p>{!! $workflow->working_committee_approval_remarks ?? 'No apex remarks available.' !!}</p>
-            <p><strong>Apex Working Comittee Approval Date:</strong> {{ $workflow->working_committee_updated_at ? \Carbon\Carbon::parse($workflow->working_committee_updated_at)->format('d/m/Y') : 'N/A' }}</p>
+            <p><strong>Apex Working Comittee Approval Date:</strong>
+                {{ $workflow->working_committee_updated_at ? \Carbon\Carbon::parse($workflow->working_committee_updated_at)->format('d/m/Y') : 'N/A' }}
+            </p>
         </div>
     </div>
 
@@ -522,11 +552,14 @@
         <table>
             <tr>
                 <th width="30%">Working Commitee Approval Date</th>
-                <td width="70%">{{ $workingCommitteeApproval->w_c_approval_date ? \Carbon\Carbon::parse($workingCommitteeApproval->w_c_approval_date)->format('d/m/Y') : 'N/A' }}</td>
+                <td width="70%">
+                    {{ $workingCommitteeApproval->w_c_approval_date ? \Carbon\Carbon::parse($workingCommitteeApproval->w_c_approval_date)->format('d/m/Y') : 'N/A' }}
+                </td>
             </tr>
             <tr>
                 <th>Approve Financial Assistance</th>
-                <td>Rs. {{ number_format($workingCommitteeApproval->approval_financial_assistance_amount ?? 0, 2) }}</td>
+                <td>Rs. {{ number_format($workingCommitteeApproval->approval_financial_assistance_amount ?? 0, 2) }}
+                </td>
             </tr>
             <tr>
                 <th>Meeting No.</th>
@@ -543,7 +576,7 @@
                 <th width="30%">Disbursement System</th>
                 <td width="70%">{{ $workingCommitteeApproval->disbursement_system ?? 'N/A' }}</td>
             </tr>
-            @if($workingCommitteeApproval && $workingCommitteeApproval->disbursement_system === 'yearly')
+            @if ($workingCommitteeApproval && $workingCommitteeApproval->disbursement_system === 'yearly')
                 @php
                     $yearlyDates = is_array($workingCommitteeApproval->yearly_dates)
                         ? $workingCommitteeApproval->yearly_dates
@@ -552,11 +585,12 @@
                         ? $workingCommitteeApproval->yearly_amounts
                         : json_decode($workingCommitteeApproval->yearly_amounts, true);
                 @endphp
-                @if($yearlyDates && $yearlyAmounts)
-                    @foreach($yearlyDates as $index => $date)
+                @if ($yearlyDates && $yearlyAmounts)
+                    @foreach ($yearlyDates as $index => $date)
                         <tr>
                             <th>Disbursement Date {{ $index + 1 }}</th>
-                            <td>{{ \Carbon\Carbon::parse($date)->format('d/m/Y') }} - Rs. {{ number_format($yearlyAmounts[$index] ?? 0, 2) }}</td>
+                            <td>{{ \Carbon\Carbon::parse($date)->format('d/m/Y') }} - Rs.
+                                {{ number_format($yearlyAmounts[$index] ?? 0, 2) }}</td>
                         </tr>
                     @endforeach
                 @endif
@@ -569,11 +603,12 @@
                         ? $workingCommitteeApproval->half_yearly_amounts
                         : json_decode($workingCommitteeApproval->half_yearly_amounts, true);
                 @endphp
-                @if($halfYearlyDates && $halfYearlyAmounts)
-                    @foreach($halfYearlyDates as $index => $date)
+                @if ($halfYearlyDates && $halfYearlyAmounts)
+                    @foreach ($halfYearlyDates as $index => $date)
                         <tr>
                             <th>Disbursement Date {{ $index + 1 }}</th>
-                            <td>{{ \Carbon\Carbon::parse($date)->format('d/m/Y') }} - Rs. {{ number_format($halfYearlyAmounts[$index] ?? 0, 2) }}</td>
+                            <td>{{ \Carbon\Carbon::parse($date)->format('d/m/Y') }} - Rs.
+                                {{ number_format($halfYearlyAmounts[$index] ?? 0, 2) }}</td>
                         </tr>
                     @endforeach
                 @endif
@@ -582,4 +617,5 @@
     </div>
 
 </body>
+
 </html>

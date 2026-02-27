@@ -3184,18 +3184,21 @@ class UserController extends Controller
         // Get existing PDC details
         $pdcDetail = PdcDetail::where('user_id', $user_id)->first();
 
+        // Get funding details to check bank_name
+        $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
+
         // Get number of cheques from working committee approval
         $noOfCheques = 11; // Default to 11 cheques
-        $workflowApproval = \Illuminate\Support\Facades\DB::connection('admin_panel')
+        $workingCommitteeApproval = \Illuminate\Support\Facades\DB::connection('admin_panel')
             ->table('working_committee_approvals')
             ->where('user_id', $user_id)
             ->first();
 
-        if ($workflowApproval && $workflowApproval->no_of_cheques_to_be_collected) {
-            $noOfCheques = $workflowApproval->no_of_cheques_to_be_collected;
+        if ($workingCommitteeApproval && $workingCommitteeApproval->no_of_cheques_to_be_collected) {
+            $noOfCheques = $workingCommitteeApproval->no_of_cheques_to_be_collected;
         }
 
-        return view('user.step8', compact('type', 'user', 'pdcDetail', 'noOfCheques'));
+        return view('user.step8', compact('type', 'user', 'pdcDetail', 'noOfCheques', 'workingCommitteeApproval', 'fundingDetail'));
     }
 
     /**

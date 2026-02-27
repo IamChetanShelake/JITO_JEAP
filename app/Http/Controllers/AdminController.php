@@ -579,7 +579,7 @@ class AdminController extends Controller
                 'yearly_dates' => $request->yearly_dates,
                 'yearly_amounts' => $request->yearly_amounts ,
                 'half_yearly_dates' => $request->half_yearly_dates ,
-                'half_yearly_amounts' => $request->half_yearly_amounts ? json_encode($request->half_yearly_amounts) : null,
+                'half_yearly_amounts' => $request->half_yearly_amounts ,
                 'approval_financial_assistance_amount' => $request->approval_financial_assistance_amount,
                 'installment_amount' => $request->installment_amount ,
                  'no_of_months' => $request->no_of_months,

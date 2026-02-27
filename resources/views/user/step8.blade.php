@@ -48,7 +48,8 @@
                                             <div style="min-width: 0;">
                                                 <h5 class="mb-1" style="color: #721c24; font-weight: 600;">Application
                                                     Send Back for Correction</h5>
-                                                <p style="margin: 0 0 4px 0; color: #721c24; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                                <p
+                                                    style="margin: 0 0 4px 0; color: #721c24; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                                                     <strong>Remarks:</strong>
                                                     {{ trim(preg_replace('/\s+/', ' ', strip_tags($user->workflowStatus->apex_2_reject_remarks))) }}
                                                 </p>
@@ -65,7 +66,8 @@
                                         <div class="modal-dialog modal-lg modal-dialog-scrollable">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="holdRemarkModalStep8Label">Application Send Back
+                                                    <h5 class="modal-title" id="holdRemarkModalStep8Label">Application Send
+                                                        Back
                                                         Remarks</h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                         aria-label="Close"></button>
@@ -79,6 +81,285 @@
                                     </div>
                                 @endif
 
+
+                                <!-- Approval Details Section - Displayed before Note -->
+                                @if (isset($workingCommitteeApproval) && $workingCommitteeApproval)
+                                    <div class="card mb-4" style="border: 2px solid #009846; border-radius: 15px;">
+                                        <div class="card-header bg-success text-white"
+                                            style="border-radius: 13px 13px 0 0; background-color: #009846 !important;">
+                                            <h5 class="mb-0">Approval Details</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <!-- Approved Financial Assistance Amount -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label" style="font-weight: 600; color: #393185;">
+                                                        Approved Financial Assistance Amount
+                                                    </label>
+                                                    <div class="form-control"
+                                                        style="background-color: #f8f9fa; border: 2px solid #393185; border-radius: 10px;">
+                                                        @if (isset($workingCommitteeApproval->approval_financial_assistance_amount) &&
+                                                                $workingCommitteeApproval->approval_financial_assistance_amount)
+                                                            <strong>₹{{ number_format($workingCommitteeApproval->approval_financial_assistance_amount, 2) }}</strong>
+                                                        @else
+                                                            <span class="text-muted">Not Available</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+
+                                                <!-- Repayment Type -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label" style="font-weight: 600; color: #393185;">
+                                                        Repayment Type
+                                                    </label>
+                                                    <div class="form-control"
+                                                        style="background-color: #f8f9fa; border: 2px solid #393185; border-radius: 10px;">
+                                                        @if (isset($workingCommitteeApproval->repayment_type) && $workingCommitteeApproval->repayment_type)
+                                                            <strong>{{ ucfirst($workingCommitteeApproval->repayment_type) }}</strong>
+                                                        @else
+                                                            <span class="text-muted">Not Available</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+
+                                                <!-- No. of Cheques to be Collected -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label" style="font-weight: 600; color: #393185;">
+                                                        No. of Cheques to be Collected
+                                                    </label>
+                                                    <div class="form-control"
+                                                        style="background-color: #f8f9fa; border: 2px solid #393185; border-radius: 10px;">
+                                                        @if (isset($workingCommitteeApproval->no_of_cheques_to_be_collected) &&
+                                                                $workingCommitteeApproval->no_of_cheques_to_be_collected)
+                                                            <strong>{{ $workingCommitteeApproval->no_of_cheques_to_be_collected }}</strong>
+                                                        @else
+                                                            <span class="text-muted">Not Available</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+
+                                                <!-- Repayment Starting From -->
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label" style="font-weight: 600; color: #393185;">
+                                                        Repayment Starting From
+                                                    </label>
+                                                    <div class="form-control"
+                                                        style="background-color: #f8f9fa; border: 2px solid #393185; border-radius: 10px;">
+                                                        @if (isset($workingCommitteeApproval->repayment_starting_from) && $workingCommitteeApproval->repayment_starting_from)
+                                                            <strong>{{ \Carbon\Carbon::parse($workingCommitteeApproval->repayment_starting_from)->format('d-m-Y') }}</strong>
+                                                        @else
+                                                            <span class="text-muted">Not Available</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Installment Details Table -->
+                                            {{--  @if (isset($workingCommitteeApproval->installment_amount) || isset($workingCommitteeApproval->no_of_months))
+                                        <div class="mt-3">
+                                            <label class="form-label" style="font-weight: 600; color: #393185;">
+                                                Installment Details
+                                            </label>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-striped" style="border: 2px solid #393185;">
+                                                    <thead class="table-dark" style="background-color: #393185 !important;">
+                                                        <tr>
+                                                            <th style="background-color: #393185; color: white; font-weight: 700;">Installment No.</th>
+                                                            <th style="background-color: #393185; color: white; font-weight: 700;">Amount (₹)</th>
+                                                            <th style="background-color: #393185; color: white; font-weight: 700;">Due Date</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @php
+                                                            $installmentAmounts = is_array($workingCommitteeApproval->installment_amount)
+                                                                ? $workingCommitteeApproval->installment_amount
+                                                                : json_decode($workingCommitteeApproval->installment_amount, true) ?? [];
+
+                                                            $noOfMonths = is_array($workingCommitteeApproval->no_of_months)
+                                                                ? $workingCommitteeApproval->no_of_months
+                                                                : json_decode($workingCommitteeApproval->no_of_months, true) ?? [];
+
+                                                            $repaymentStart = isset($workingCommitteeApproval->repayment_starting_from)
+                                                                ? \Carbon\Carbon::parse($workingCommitteeApproval->repayment_starting_from)
+                                                                : null;
+                                                        @endphp
+
+                                                        @if (count($installmentAmounts) > 0)
+                                                            @foreach ($installmentAmounts as $index => $amount)
+                                                                <tr>
+                                                                    <td>Installment {{ $index + 1 }}</td>
+                                                                    <td>₹{{ number_format($amount, 2) }}</td>
+                                                                    <td>
+                                                                        @if ($repaymentStart)
+                                                                            {{ $repaymentStart->copy()->addMonths($index)->format('d-m-Y') }}
+                                                                        @else
+                                                                            -
+                                                                        @endif
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        @else
+                                                            <tr>
+                                                                <td colspan="3" class="text-center text-muted">No installment details available</td>
+                                                            </tr>
+                                                        @endif
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        @endif  --}}
+
+                                            <!-- Installment Details Table - Attractive UI -->
+                                            @if (
+                                                $user->workingCommitteeApproval->installment_amount &&
+                                                    is_array($user->workingCommitteeApproval->installment_amount))
+                                                <div class="mt-4">
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <div class="icon-circle"
+                                                            style="width: 40px; height: 40px; background: linear-gradient(135deg, #393185 0%, #5a5aad 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; box-shadow: 0 4px 10px rgba(57, 49, 133, 0.3);">
+                                                            <i class="bi bi-calendar-check"
+                                                                style="color: white; font-size: 18px;"></i>
+                                                        </div>
+                                                        <h5 class="mb-0" style="font-weight: 600; color: #393185;">
+                                                            Installment Details</h5>
+                                                    </div>
+
+                                                    <div class="installment-card"
+                                                        style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px; padding: 20px; border: 1px solid #dee2e6; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+                                                        <div class="table-responsive">
+                                                            <table class="table mb-0" style="background: transparent;">
+                                                                <thead>
+                                                                    <tr>
+                                                                        {{--  <th
+                                                                            style="background-color: #393185; color: white; font-weight: 600; padding: 12px 15px; border-radius: 8px 0 0 0;">
+                                                                        #</th> --}}
+                                                                        {{--  <th style="background-color: #393185; color: white; font-weight: 600; padding: 12px 15px;">
+                                                                            <i class="bi bi-hash me-1"></i>Sr No.
+                                                                        </th>  --}}
+                                                                        <th
+                                                                            style="background-color: #393185; color: white; font-weight: 600; padding: 12px 15px;">
+                                                                            <i
+                                                                                class="bi bi-currency-rupee me-1"></i>Installment
+                                                                            Amount
+                                                                        </th>
+                                                                        <th
+                                                                            style="background-color: #393185; color: white; font-weight: 600; padding: 12px 15px;">
+                                                                            <i class="bi bi-calendar-range me-1"></i>No. of
+                                                                            Cheques
+                                                                        </th>
+                                                                        <th
+                                                                            style="background-color: #393185; color: white; font-weight: 600; padding: 12px 15px; border-radius: 0 8px 0 0;">
+                                                                            <i class="bi bi-calculator me-1"></i>Total
+                                                                        </th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach ($user->workingCommitteeApproval->installment_amount as $index => $installmentAmount)
+                                                                        <tr style="transition: all 0.3s ease;">
+                                                                            {{--  <td
+                                                                                style="padding: 12px 15px; border-bottom: 1px solid #dee2e6; font-weight: 600; color: #393185;">
+                                                                                <span class="installment-badge"
+                                                                                    style="background: linear-gradient(135deg, #393185 0%, #5a5aad 100%); color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px;">
+                                                                                    {{ $index + 1 }}
+                                                                                </span>
+                                                                            </td>  --}}
+                                                                            {{--  <td
+                                                                                style="padding: 12px 15px; border-bottom: 1px solid #dee2e6; font-weight: 500; color: #495057;">
+                                                                                Installment {{ $index + 1 }}
+                                                                            </td>  --}}
+                                                                            <td
+                                                                                style="padding: 12px 15px; border-bottom: 1px solid #dee2e6; font-weight: 600; color: #009846;">
+                                                                                <i class="bi bi-currency-rupee"
+                                                                                    style="font-size: 12px;"></i>
+                                                                                {{ number_format($installmentAmount ?? 0, 2) }}
+                                                                            </td>
+                                                                            <td
+                                                                                style="padding: 12px 15px; border-bottom: 1px solid #dee2e6; font-weight: 500; color: #495057;">
+                                                                                <span class="months-badge"
+                                                                                    style="background: linear-gradient(135deg, #FBBA00 0%, #FFD700 100%); color: #333; padding: 4px 12px; border-radius: 20px; font-size: 15px; font-weight: 600;">
+                                                                                    {{ $user->workingCommitteeApproval->no_of_months[$index] ?? 'N/A' }}
+
+                                                                                </span>
+                                                                            </td>
+                                                                            <td
+                                                                                style="padding: 12px 15px; border-bottom: 1px solid #dee2e6; font-weight: 600; color: #393185;">
+                                                                                <i class="bi bi-currency-rupee"
+                                                                                    style="font-size: 12px;"></i>
+                                                                                {{ number_format($user->workingCommitteeApproval->total[$index] ?? 0, 2) }}
+                                                                            </td>
+                                                                        </tr>
+                                                                    @endforeach
+
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    {{--
+                                                    <div class="mt-3 d-flex justify-content-between align-items-center"
+                                                        style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 15px 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                                                        <div class="text-center" style="flex: 1;">
+                                                            <small class="text-muted d-block">Total Installments</small>
+                                                            <p class="mb-0"
+                                                                style="font-weight: 700; color: #393185; font-size: 16px;">
+                                                                {{ count($user->workingCommitteeApproval->installment_amount) }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="vr"
+                                                            style="height: 40px; width: 2px; background: #dee2e6;"></div>
+                                                        <div class="text-center" style="flex: 1;">
+                                                            <small class="text-muted d-block">Per Installment</small>
+                                                            <p class="mb-0"
+                                                                style="font-weight: 700; color: #009846; font-size: 16px;">
+                                                                ₹{{ number_format(array_sum($user->workingCommitteeApproval->installment_amount) / count($user->workingCommitteeApproval->installment_amount), 2) }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="vr"
+                                                            style="height: 40px; width: 2px; background: #dee2e6;"></div>
+                                                        <div class="text-center" style="flex: 1;">
+                                                            <small class="text-muted d-block">Total Amount</small>
+                                                            <p class="mb-0"
+                                                                style="font-weight: 700; color: #393185; font-size: 16px;">
+                                                                ₹{{ number_format(array_sum($user->workingCommitteeApproval->installment_amount), 2) }}
+                                                            </p>
+                                                        </div>
+                                                    </div>  --}}
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <!-- Bank Details Check Modal - Show if bank_name is OTHER -->
+                                @if(isset($fundingDetail) && $fundingDetail && strtoupper($fundingDetail->bank_name) === 'OTHER')
+                                    <div class="modal fade" id="bankDetailsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bankDetailsModalLabel" aria-hidden="true" style="pointer-events: none;">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content" style="border-radius: 15px; border: 3px solid #dc3545;">
+                                                <div class="modal-header bg-danger text-white" style="border-radius: 12px 12px 0 0;">
+                                                    <h5 class="modal-title" id="bankDetailsModalLabel">
+                                                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                                        Action Required
+                                                    </h5>
+                                                    <!-- Close button removed - modal cannot be closed -->
+                                                </div>
+                                                <div class="modal-body text-center py-4">
+                                                    <div class="mb-3">
+                                                        <i class="bi bi-bank" style="font-size: 4rem; color: #dc3545;"></i>
+                                                    </div>
+                                                    <h4 class="text-danger mb-3">Please Update Bank Details</h4>
+                                                    <p class="text-dark fs-5">
+                                                        Your bank name is marked as "OTHER". Please update the bank details according to JITO JEAP registered bank.
+                                                    </p>
+                                                </div>
+                                                <div class="modal-footer justify-content-center" style="border-top: none;">
+                                                    <a href="{{ route('user.step4') }}" class="btn btn-danger btn-lg px-5" style="border-radius: 10px; font-weight: 600;">
+                                                        <i class="bi bi-arrow-right-circle me-2"></i>
+                                                        Go to Step 4
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
 
                                 <!-- Important Note Section -->
                                 <div class="alert alert-info"
@@ -184,9 +465,11 @@
                                                 <i class="fas fa-exclamation-circle me-2"
                                                     style="font-size: 1.2rem; color: #dc3545;"></i>
                                                 <div>
-                                                    <h5 class="mb-1" style="color: #721c24; font-weight: 600;">Validation Error</h5>
+                                                    <h5 class="mb-1" style="color: #721c24; font-weight: 600;">
+                                                        Validation Error</h5>
                                                     <p class="mb-0" style="color: #721c24; font-size: 14px;">
-                                                        Total cheque amount must match the approved financial assistance amount exactly.
+                                                        Total cheque amount must match the approved financial assistance
+                                                        amount exactly.
                                                     </p>
                                                 </div>
                                             </div>
@@ -212,6 +495,9 @@
                                                         style="width: 5%; background-color: #393185; color: white; font-weight: 700;">
                                                         Sr. No</th>
                                                     <th scope="col"
+                                                        style="width: 5%; background-color: #393185; color: white; font-weight: 700;">
+                                                        Student Name</th>
+                                                    <th scope="col"
                                                         style="width: 20%; background-color: #393185; color: white; font-weight: 700;">
                                                         If Parents Jnt A/C Name</th>
                                                     <th scope="col"
@@ -232,6 +518,9 @@
                                                     <th scope="col"
                                                         style="width: 12%; background-color: #393185; color: white; font-weight: 700;">
                                                         Cheque Number</th>
+                                                    <th scope="col"
+                                                        style="width: 30%; background-color: #393185; color: white; font-weight: 700;">
+                                                        Application NO.</th>
                                                     <th scope="col"
                                                         style="width: 10%; background-color: #393185; color: white; font-weight: 700;">
                                                         Actions</th>
@@ -279,13 +568,27 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Check if bank_name is "OTHER" and show modal
+            const isBankOther = {{ isset($fundingDetail) && $fundingDetail && strtoupper($fundingDetail->bank_name) === 'OTHER' ? 'true' : 'false' }};
+
+            if (isBankOther) {
+                // Show the modal automatically
+                const bankModal = new bootstrap.Modal(document.getElementById('bankDetailsModal'));
+                bankModal.show();
+            }
+
+            // Get funding details for pre-populating bank fields
+            const fundingBankName = "{{ $fundingDetail->bank_name ?? '' }}";
+            const fundingIfsc = "{{ $fundingDetail->ifsc_code ?? '' }}";
+            const fundingAccountNumber = "{{ $fundingDetail->account_number ?? '' }}";
+
             const chequeRowsContainer = document.getElementById('chequeRows');
             const addRowBtn = document.getElementById('addRowBtn');
             const totalCheques = {{ 1 }};
 
             // Get approval amount from PHP
             const approvalAmount =
-            {{ $user->workingCommitteeApproval->approval_financial_assistance_amount ?? 0 }};
+                {{ $user->workingCommitteeApproval->approval_financial_assistance_amount ?? 0 }};
             const amountMismatchAlert = document.getElementById('amountMismatchAlert');
             const currentTotalSpan = document.getElementById('currentTotal');
             const differenceAmountSpan = document.getElementById('differenceAmount');
@@ -317,17 +620,23 @@
                 row.className = 'cheque-row';
                 row.dataset.rowIndex = index;
 
+                const studentName = "{{ $user->name ?? '' }}";
+                const applicationNo = "{{ $user->application_no ?? '' }}";
                 const chequeDate = data ? data.cheque_date : '';
                 const amount = data ? data.amount : '';
-                const bankName = data ? data.bank_name : '';
-                const ifsc = data ? data.ifsc : '';
-                const accountNumber = data ? data.account_number : '';
+                // Pre-populate from funding details if no existing data and bank is not "OTHER"
+                const bankName = data ? data.bank_name : (isBankOther ? '' : fundingBankName);
+                const ifsc = data ? data.ifsc : (isBankOther ? '' : fundingIfsc);
+                const accountNumber = data ? data.account_number : (isBankOther ? '' : fundingAccountNumber);
                 const chequeNumber = data ? data.cheque_number : '';
                 const parentsJntAcName = data ? data.parents_jnt_ac_name : '';
 
                 row.innerHTML = `
                     <td class="align-middle">
                         <span class="sr-no">${index + 1}</span>
+                    </td>
+                    <td class="align-middle">
+                        <span class="student-name">${studentName}</span>
                     </td>
                     <td>
                         <input type="text" class="form-control"
@@ -366,15 +675,20 @@
                                name="cheque_details[${index}][cheque_number]" value="${chequeNumber}" placeholder="Enter cheque number" required
                                style="border: 2px solid #393185; border-radius: 10px;width:100px !important;">
                     </td>
+                    <td>
+                        <input type="text" class="form-control"
+                               name="cheque_details[${index}][application_no]" value="${applicationNo}" readonly
+                               style="border: 2px solid #393185; border-radius: 10px;width:200px !important; background-color: #f8f9fa;">
+                    </td>
                     <td class="text-center">
                         ${index > 0 ? `
-                                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"
-                                    style="border-radius: 8px; font-weight: 600;">
-                                    Remove
-                                </button>
-                            ` : `
-                                <span class="text-muted"></span>
-                            `}
+                                                                                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"
+                                                                                    style="border-radius: 8px; font-weight: 600;">
+                                                                                    Remove
+                                                                                </button>
+                                                                            ` : `
+                                                                                <span class="text-muted"></span>
+                                                                            `}
                     </td>
                 `;
 

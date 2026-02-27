@@ -534,6 +534,7 @@
                 <h3>{{ $user->name }}</h3>
                 <p>{{ $user->email }}</p>
                 <p>{{ $user->mobile }}</p>
+                <p><strong>Application No.:</strong> {{ $user->application_no ?? 'N/A' }}</p>
             </div>
         </div>
     </div>
@@ -543,6 +544,43 @@
         <form action="{{ route('admin.pdc.update', $user) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
+
+            <!-- Approval Details Section -->
+            @if(isset($workingCommitteeApproval) && $workingCommitteeApproval)
+            <div class="data-group">
+                <h4>Approval Details</h4>
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Approved Financial Assistance Amount</label>
+                            <input type="text" class="form-input"
+                                value="{{ $workingCommitteeApproval->approval_financial_assistance_amount ? '₹' . number_format($workingCommitteeApproval->approval_financial_assistance_amount) : 'N/A' }}"
+                                readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Repayment Type</label>
+                            <input type="text" class="form-input"
+                                value="{{ ucfirst($workingCommitteeApproval->repayment_type ?? 'N/A') }}"
+                                readonly>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">No. of Cheques to be Collected</label>
+                            <input type="text" class="form-input"
+                                value="{{ $workingCommitteeApproval->no_of_cheques_to_be_collected ?? 'N/A' }}"
+                                readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Repayment Starting From</label>
+                            <input type="text" class="form-input"
+                                value="{{ $workingCommitteeApproval->repayment_starting_from ? \Carbon\Carbon::parse($workingCommitteeApproval->repayment_starting_from)->format('d M Y') : 'N/A' }}"
+                                readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
 
             <!-- First Cheque Image Section -->
             <div class="data-group">
@@ -588,6 +626,18 @@
             <div class="data-group">
                 <h4>Cheque Details</h4>
                 <div class="form-section">
+                    <!-- Student Info Display -->
+                    <div style="display: flex; gap: 2rem; margin-bottom: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 6px; border: 1px solid #e9ecef;">
+                        <div class="cheque-form-field" style="flex: 1;">
+                            <label class="form-label">Student Name</label>
+                            <input type="text" value="{{ $user->name ?? 'N/A' }}" readonly style="background: white;">
+                        </div>
+                        <div class="cheque-form-field" style="flex: 1;">
+                            <label class="form-label">Application No.</label>
+                            <input type="text" value="{{ $user->application_no ?? 'N/A' }}" readonly style="background: white;">
+                        </div>
+                    </div>
+
                     <div id="cheque-details-container">
                         @php
                             $chequeDetails = json_decode($user->pdcDetail->cheque_details, true);
@@ -615,17 +665,17 @@
                                     <div class="cheque-form-field">
                                         <label class="form-label">Bank Name</label>
                                         <input type="text" name="cheque_details[{{ $index }}][bank_name]"
-                                            value="{{ $cheque['bank_name'] ?? '' }}" required>
+                                            value="{{ $cheque['bank_name'] ?? ($bankDetails['bank_name'] ?? '') }}" required>
                                     </div>
                                     <div class="cheque-form-field">
                                         <label class="form-label">IFSC Code</label>
                                         <input type="text" name="cheque_details[{{ $index }}][ifsc]"
-                                            value="{{ $cheque['ifsc'] ?? '' }}" required>
+                                            value="{{ $cheque['ifsc'] ?? ($bankDetails['ifsc'] ?? '') }}" required>
                                     </div>
                                     <div class="cheque-form-field">
                                         <label class="form-label">Account Number</label>
                                         <input type="text" name="cheque_details[{{ $index }}][account_number]"
-                                            value="{{ $cheque['account_number'] ?? '' }}" required>
+                                            value="{{ $cheque['account_number'] ?? ($bankDetails['account_number'] ?? '') }}" required>
                                     </div>
                                     <div class="cheque-form-field">
                                         <label class="form-label">Cheque Number</label>
@@ -663,15 +713,15 @@
                                 </div>
                                 <div class="cheque-form-field">
                                     <label class="form-label">Bank Name</label>
-                                    <input type="text" name="cheque_details[0][bank_name]" required>
+                                    <input type="text" name="cheque_details[0][bank_name]" value="{{ $bankDetails['bank_name'] ?? '' }}" required>
                                 </div>
                                 <div class="cheque-form-field">
                                     <label class="form-label">IFSC Code</label>
-                                    <input type="text" name="cheque_details[0][ifsc]" required>
+                                    <input type="text" name="cheque_details[0][ifsc]" value="{{ $bankDetails['ifsc'] ?? '' }}" required>
                                 </div>
                                 <div class="cheque-form-field">
                                     <label class="form-label">Account Number</label>
-                                    <input type="text" name="cheque_details[0][account_number]" required>
+                                    <input type="text" name="cheque_details[0][account_number]" value="{{ $bankDetails['account_number'] ?? '' }}" required>
                                 </div>
                                 <div class="cheque-form-field">
                                     <label class="form-label">Cheque Number</label>
@@ -712,6 +762,11 @@
         newRow.className = 'cheque-form-row';
         newRow.setAttribute('data-cheque-index', chequeIndex);
 
+        // Get bank details from PHP variables
+        const bankName = '{{ $bankDetails["bank_name"] ?? "" }}';
+        const ifscCode = '{{ $bankDetails["ifsc"] ?? "" }}';
+        const accountNumber = '{{ $bankDetails["account_number"] ?? "" }}';
+
         newRow.innerHTML = `
             <div class="cheque-form-field">
                 <label class="form-label">Parents JNT A/C Name</label>
@@ -727,15 +782,15 @@
             </div>
             <div class="cheque-form-field">
                 <label class="form-label">Bank Name</label>
-                <input type="text" name="cheque_details[${chequeIndex}][bank_name]" required>
+                <input type="text" name="cheque_details[${chequeIndex}][bank_name]" value="${bankName}" required>
             </div>
             <div class="cheque-form-field">
                 <label class="form-label">IFSC Code</label>
-                <input type="text" name="cheque_details[${chequeIndex}][ifsc]" required>
+                <input type="text" name="cheque_details[${chequeIndex}][ifsc]" value="${ifscCode}" required>
             </div>
             <div class="cheque-form-field">
                 <label class="form-label">Account Number</label>
-                <input type="text" name="cheque_details[${chequeIndex}][account_number]" required>
+                <input type="text" name="cheque_details[${chequeIndex}][account_number]" value="${accountNumber}" required>
             </div>
             <div class="cheque-form-field">
                 <label class="form-label">Cheque Number</label>

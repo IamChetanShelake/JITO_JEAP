@@ -2276,6 +2276,43 @@
 
             @if (isset($pdcDetail) && $pdcDetail)
                 <div class="form-data">
+                    <!-- Approval Details -->
+                    @if(isset($workingCommitteeApproval) && $workingCommitteeApproval)
+                    <div class="data-group">
+                        <h4>Approval Details</h4>
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Approved Financial Assistance Amount</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $workingCommitteeApproval->approval_financial_assistance_amount ? '₹' . number_format($workingCommitteeApproval->approval_financial_assistance_amount) : 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Repayment Type</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ ucfirst($workingCommitteeApproval->repayment_type ?? 'N/A') }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">No. of Cheques to be Collected</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $workingCommitteeApproval->no_of_cheques_to_be_collected ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Repayment Starting From</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $workingCommitteeApproval->repayment_starting_from ? \Carbon\Carbon::parse($workingCommitteeApproval->repayment_starting_from)->format('d M Y') : 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
                     <!-- First Cheque Image -->
                     <div class="data-group">
                         <h4>First Cheque Image</h4>
@@ -2360,6 +2397,8 @@
                                     <thead>
                                         <tr>
                                             <th>Sr No</th>
+                                            <th>Student Name</th>
+                                            <th>Application No.</th>
                                             <th>Repayment Date</th>
                                             <th>Amount (₹)</th>
                                             <th>Bank Name</th>
@@ -2372,6 +2411,8 @@
                                         @foreach ($chequeDetails as $index => $cheque)
                                             <tr>
                                                 <td>{{ $index + 1 }}</td>
+                                                <td>{{ $user->name ?? 'N/A' }}</td>
+                                                <td>{{ $user->application_no ?? 'N/A' }}</td>
                                                 <td>{{ isset($cheque['cheque_date']) ? date('d M Y', strtotime($cheque['cheque_date'])) : 'N/A' }}
                                                 </td>
                                                 <td class="amount-cell">₹{{ number_format($cheque['amount'] ?? 0) }}</td>

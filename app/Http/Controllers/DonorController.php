@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Donor;
+use App\Models\Zone;
+use App\Models\Chapter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Facades\File;
+
 class DonorController extends Controller
 {
     public function dashboard()
@@ -73,7 +77,20 @@ class DonorController extends Controller
     $paymentOptions = $paymentOptions ?: [];
     $paymentEntries = $paymentEntries ?: [];
 
-    return view('admin.donors.dashboard_show', compact('donor', 'children', 'paymentOptions', 'paymentEntries'));
+    // Get zones grouped by state for cascading dropdown
+    $zonesByState = Zone::all()->groupBy('state');
+    
+    // Get chapters grouped by zone_id for cascading dropdown
+    $chaptersByZone = Chapter::whereNotNull('zone_id')->get()->groupBy('zone_id');
+    
+    // Get zone_id for the saved zone
+    $zone_id = null;
+    if ($donor->personalDetail && $donor->personalDetail->zone) {
+        $zone = Zone::where('zone_name', $donor->personalDetail->zone)->first();
+        $zone_id = $zone ? $zone->id : null;
+    }
+
+    return view('admin.donors.dashboard_show', compact('donor', 'children', 'paymentOptions', 'paymentEntries', 'zonesByState', 'chaptersByZone', 'zone_id'));
 }
 
     public function index()
@@ -151,7 +168,11 @@ class DonorController extends Controller
     /**
      * Handle detailed donor application update.
      */
-   public function updatedonor(Request $request, Donor $donor)
+     // Ensure this is imported at the top of your controller
+
+  
+
+public function updatedonor(Request $request, Donor $donor)
 {
     $request->validate([
         'personal_detail.email_id_1' => 'required|email',
@@ -160,24 +181,117 @@ class DonorController extends Controller
     try {
         DB::beginTransaction();
 
-        // 1. Personal Details
-        if ($request->has('personal_detail')) {
-            $donor->personalDetail()->update($request->personal_detail);
+        // ============================================================
+        // 1. Personal Details (Text + Birth/Anniversary Photos)
+        // ============================================================
+        
+        // Get existing personal detail record
+        $personalDetail = $donor->personalDetail()->firstOrNew(['donor_id' => $donor->id]);
+        
+        // Start with the text data provided in the form
+        $personalData = $request->input('personal_detail', []);
+
+        // Define upload path
+        $uploadPath = public_path('uploads/documents');
+        if (!File::isDirectory($uploadPath)) {
+            File::makeDirectory($uploadPath, 0777, true, true);
         }
 
-        // 2. Family Details & Children (Merged for efficiency)
+        // --- A. Handle Birth Photos ---
+        $currentBirthPhotos = $personalDetail->birth_photo ?? [];
+        // Ensure it's an array (decode if stored as JSON string in DB without cast)
+        if (is_string($currentBirthPhotos)) {
+            $currentBirthPhotos = json_decode($currentBirthPhotos, true) ?? [];
+        }
+        if (!is_array($currentBirthPhotos)) $currentBirthPhotos = [];
+
+        // 1. Handle Deletions
+        if ($request->has('delete_birth_photo')) {
+            foreach ($request->delete_birth_photo as $fileToDelete) {
+                $key = array_search($fileToDelete, $currentBirthPhotos);
+                if ($key !== false) {
+                    // Delete from disk
+                    $filePath = public_path($fileToDelete);
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+                    // Remove from array
+                    unset($currentBirthPhotos[$key]);
+                }
+            }
+            // Re-index array keys
+            $currentBirthPhotos = array_values($currentBirthPhotos);
+        }
+
+        // 2. Handle New Uploads
+        if ($request->hasFile('birth_photo')) {
+            foreach ($request->file('birth_photo') as $file) {
+                if ($file->isValid()) {
+                    $filename = time() . '_birth_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $file->move($uploadPath, $filename);
+                    $currentBirthPhotos[] = 'uploads/documents/' . $filename;
+                }
+            }
+        }
+        
+        // Save back to personal data array
+        $personalData['birth_photo'] = $currentBirthPhotos;
+
+        // --- B. Handle Anniversary Photos ---
+        $currentAnnPhotos = $personalDetail->anniversary_photo ?? [];
+        if (is_string($currentAnnPhotos)) {
+            $currentAnnPhotos = json_decode($currentAnnPhotos, true) ?? [];
+        }
+        if (!is_array($currentAnnPhotos)) $currentAnnPhotos = [];
+
+        // 1. Handle Deletions
+        if ($request->has('delete_anniversary_photo')) {
+            foreach ($request->delete_anniversary_photo as $fileToDelete) {
+                $key = array_search($fileToDelete, $currentAnnPhotos);
+                if ($key !== false) {
+                    // Delete from disk
+                    $filePath = public_path($fileToDelete);
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+                    // Remove from array
+                    unset($currentAnnPhotos[$key]);
+                }
+            }
+            $currentAnnPhotos = array_values($currentAnnPhotos);
+        }
+
+        // 2. Handle New Uploads
+        if ($request->hasFile('anniversary_photo')) {
+            foreach ($request->file('anniversary_photo') as $file) {
+                if ($file->isValid()) {
+                    $filename = time() . '_anniversary_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $file->move($uploadPath, $filename);
+                    $currentAnnPhotos[] = 'uploads/documents/' . $filename;
+                }
+            }
+        }
+
+        // Save back to personal data array
+        $personalData['anniversary_photo'] = $currentAnnPhotos;
+
+        // Update/Create Personal Detail Record
+        $donor->personalDetail()->updateOrCreate(
+            ['donor_id' => $donor->id],
+            $personalData
+        );
+
+        // ============================================================
+        // 2. Family Details & Children
+        // ============================================================
         if ($request->has('family_detail') || $request->has('children')) {
             $familyData = $request->input('family_detail', []);
-            
-            // CRITICAL: This saves the children array into the 'children_details' JSON column
             if ($request->has('children')) {
-                $familyData['children_details'] = $request->children;
+                $familyData['children_details'] = json_encode($request->children);
             }
-
-            // Use updateOrCreate to ensure record exists
             $donor->familyDetail()->updateOrCreate(
-                ['donor_id' => $donor->id], // Match condition
-                $familyData // Data to update
+                ['donor_id' => $donor->id],
+                $familyData
             );
         }
 
@@ -198,47 +312,58 @@ class DonorController extends Controller
         }
 
         // 5. Membership Options
-        if ($request->has('membership_options') && $donor->membershipDetail) {
+        if ($request->has('membership_options')) {
             $options = array_filter(explode("\n", $request->membership_options));
-            $donor->membershipDetail()->update([
-                'payment_options' => array_values($options)
-            ]);
+            $donor->membershipDetail()->updateOrCreate(
+                ['donor_id' => $donor->id],
+                ['payment_options' => json_encode(array_values($options))]
+            );
         }
 
-        // 6. Documents Upload
-        if ($donor->document) {
-            $files = [
-                'pan_member_file',
-                'photo_file',
-                'address_proof_file',
-                'pan_donor_file',
-                'authorization_letter_file'
-            ];
+        // ============================================================
+        // 6. Standard Documents (PAN, Photo, Address Proof etc.)
+        // ============================================================
+        $standardFiles = ['pan_member_file', 'photo_file', 'address_proof_file', 'pan_donor_file', 'authorization_letter_file'];
+        $hasFiles = false;
 
-            foreach ($files as $fileInputName) {
+        foreach ($standardFiles as $fileInputName) {
+            if ($request->hasFile($fileInputName)) {
+                $hasFiles = true;
+                break;
+            }
+        }
+
+        if ($hasFiles) {
+            $document = $donor->document()->firstOrNew(['donor_id' => $donor->id]);
+
+            foreach ($standardFiles as $fileInputName) {
                 if ($request->hasFile($fileInputName)) {
                     // Delete old file
-                    $existingFile = $donor->document->{$fileInputName};
-                    if ($existingFile && file_exists(public_path($existingFile))) {
-                        unlink(public_path($existingFile));
+                    $existingFile = $document->{$fileInputName};
+                    if ($existingFile) {
+                        $oldPath = public_path($existingFile);
+                        if (file_exists($oldPath)) {
+                            unlink($oldPath);
+                        }
                     }
 
                     // Upload new file
                     $file = $request->file($fileInputName);
-                    $filename = time() . '_' . $fileInputName . '.' . $file->getClientOriginalExtension();
-                    $file->move(public_path('uploads/documents'), $filename);
-                    
-                    // Update specific column
-                    $donor->document()->update([$fileInputName => 'uploads/documents/' . $filename]);
+                    $filename = time() . '_' . $fileInputName . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $file->move($uploadPath, $filename);
+
+                    $document->{$fileInputName} = 'uploads/documents/' . $filename;
                 }
             }
+            $document->save();
         }
 
-        // 7. Payment Entries
-        if ($request->has('payments') && $donor->paymentDetail) {
-            $donor->paymentDetail()->update([
-                'payment_entries' => $request->payments
-            ]);
+        // 7. Payment Details
+        if ($request->has('payments')) {
+            $donor->paymentDetail()->updateOrCreate(
+                ['donor_id' => $donor->id],
+                ['payment_entries' => json_encode($request->payments)]
+            );
         }
 
         DB::commit();
@@ -250,7 +375,7 @@ class DonorController extends Controller
 
     } catch (\Exception $e) {
         DB::rollBack();
-        return back()->with('error', 'Error updating donor: ' . $e->getMessage());
+        return back()->with('error', 'Error updating donor: ' . $e->getMessage())->withInput();
     }
 }
 }

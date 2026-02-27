@@ -15,7 +15,11 @@ class DonorPersonalDetail extends Model
 
     protected $casts = [
         'children_details' => 'array',
+        'birth_photo'=>'array',
+        'anniversary_photo'=>'array',
+
     ];
+    
 
     public function donor()
     {

@@ -36,6 +36,8 @@ Route::prefix('donor')->name('donor.')->group(function () {
         Route::get('/dashboard', [DonorAuthController::class, 'dashboard'])->name('dashboard');
         Route::get('/step1', [DonorWebController::class, 'step1'])->name('step1');
         Route::post('/step1', [DonorWebController::class, 'storestep1'])->name('step1.store');
+        Route::get('/get-zones/{state}', [DonorWebController::class, 'getZones'])->name('get.zones');
+        Route::get('/get-chapters/{zone_id}', [DonorWebController::class, 'getChapters'])->name('get.chapters');
 
         Route::get('/step2', [DonorWebController::class, 'step2'])->name('step2');
         Route::post('/step2', [DonorWebController::class, 'storestep2'])->name('step2.store');
@@ -88,9 +90,15 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/working-committee/hold', [AdminController::class, 'workingCommitteeHold'])->name('working_committee.hold');
     Route::get('/working-committee/reject', [AdminController::class, 'workingCommitteeReject'])->name('working_committee.reject');
 
+
+
     Route::get('/working-committee/user/{user}', [AdminController::class, 'workingCommitteeUserDetail'])->name('working_committee.user.detail');
     Route::post('/working-committee/user/{user}/approve/{stage}', [AdminController::class, 'approveWorkingCommittee'])->name('working_committee.user.approve');
     Route::post('/working-committee/user/{user}/unhold', [AdminController::class, 'unholdWorkingCommittee'])->name('working_committee.user.unhold');
+
+    // NEW: Update (edit/save) Working Committee decision
+    Route::patch('admin/working-committee/users/{user}/update', [AdminController::class, 'updateWorkingCommittee'])
+        ->name('working_committee.user.update');
 
     // Approval workflow endpoints
     Route::post('/user/{user}/approve/{stage}', [AdminController::class, 'approveStage'])->name('user.approve');

@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::connection('admin_panel')->create('working_committee_approvals', function (Blueprint $table) {
+        Schema::connection('admin_panel')->table('working_committee_approvals', function (Blueprint $table) {
             $table->string('no_of_months')->nullable();
             $table->string('total')->nullable();
         });

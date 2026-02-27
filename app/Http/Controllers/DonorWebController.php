@@ -6,6 +6,8 @@ use App\Models\Donor;
 use App\Models\Chapter;
 use Illuminate\Http\Request;
 use App\Models\DonorDocument;
+use App\Models\Zone;
+
 use App\Models\DonorFamilyDetail;
 use App\Models\DonorNomineeDetail;
 use App\Models\DonorPaymentDetail;
@@ -13,6 +15,8 @@ use App\Models\DonorPersonalDetail;
 use Illuminate\Support\Facades\Auth;
 use App\Models\DonorMembershipDetail;
 use App\Models\DonorProfessionalDetail;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Validator;
 
 class DonorWebController extends Controller
 {
@@ -45,8 +49,32 @@ class DonorWebController extends Controller
         $donor = Auth::guard("donor")->user();
         $personalDetail = DonorPersonalDetail::where("donor_id", $donor->id)->first();
         $chapters = Chapter::get();
+        $states = Zone::select('state')->distinct()->orderBy('state')->pluck('state');
+        $zonesByState = Zone::all()->groupBy('state');
+        
+        // Get chapters grouped by zone_id for cascading dropdown
+        $chaptersByZone = Chapter::whereNotNull('zone_id')->get()->groupBy('zone_id');
+        
+        $zone_id = null;
+        if ($personalDetail && $personalDetail->zone) {
+            // Find the zone ID based on the stored zone name
+            $zone = Zone::where('zone_name', $personalDetail->zone)->first();
+            $zone_id = $zone ? $zone->id : null;
+        }
 
-        return view("donor.step1", compact("donor", "personalDetail", "chapters"));
+        return view("donor.step1", compact("donor", "personalDetail", "chapters", "states" , "zonesByState","chaptersByZone","zone_id"));
+    }
+    public function getZones($state){
+        $zones = Zone::where('state', $state)->get(['id', 'zone_name']);
+        
+        return response()->json($zones);
+
+    }
+    public function getChapters($zone_id)
+    {
+        // Return chapters for the selected zone_id
+        $chapters = Chapter::where('zone_id', $zone_id)->get(['id', 'chapter_name']);
+        return response()->json($chapters);
     }
 
     public function step2()
@@ -68,25 +96,25 @@ class DonorWebController extends Controller
     public function step4()
     {
         $donor = Auth::guard("donor")->user();
-        $membershipDetail = DonorMembershipDetail::where("donor_id", $donor->id)->first();
+        $professionalDetail = DonorProfessionalDetail::where("donor_id", $donor->id)->first();
 
-        return view("donor.step4", compact("donor", "membershipDetail"));
+        return view("donor.step4", compact("donor", "professionalDetail"));
     }
 
     public function step5()
     {
         $donor = Auth::guard("donor")->user();
-        $professionalDetail = DonorProfessionalDetail::where("donor_id", $donor->id)->first();
+        $document = DonorDocument::where("donor_id", $donor->id)->first();
 
-        return view("donor.step5", compact("donor", "professionalDetail"));
+        return view("donor.step5", compact("donor", "document"));
     }
 
     public function step6()
     {
         $donor = Auth::guard("donor")->user();
-        $document = DonorDocument::where("donor_id", $donor->id)->first();
+        $membershipDetail = DonorMembershipDetail::where("donor_id", $donor->id)->first();
 
-        return view("donor.step6", compact("donor", "document"));
+        return view("donor.step6", compact("donor", "membershipDetail"));
     }
 
     public function step7()
@@ -106,38 +134,164 @@ class DonorWebController extends Controller
 
     public function storestep1(Request $request)
     {
-        $request->validate([
+        $donor = Auth::guard("donor")->user();
+        $existing = DonorPersonalDetail::where("donor_id", $donor->id)->first();
+
+        // 1. Validation
+        $rules = [
             "title" => "nullable|string|max:10",
             "first_name" => "required|string|max:255",
-            "middle_name" => "nullable|string|max:255",
             "surname" => "required|string|max:255",
             "complete_address" => "required|string",
             "city" => "required|string|max:100",
             "state" => "required|string|max:100",
+            "zone" => "required|string|max:100",
             "pin_code" => "required|digits:6",
-            "resi_landline" => "nullable|string|max:20",
+            "resi_pin_code" => "required|digits:6",
             "mobile_no" => "required|digits:10",
             "whatsapp_no" => "required|digits:10",
             "email_id_1" => "required|email",
-            "email_id_2" => "nullable|email",
-            "preferred_residence_address" => "nullable|string",
-            "preferred_office_address" => "nullable|string",
             "pan_no" => "required|string|size:10",
-            "chapter_name" => "required|max:255",
+            "chapter" => "required|max:255",
             "date_of_birth" => "required|date",
-            "anniversary_date" => "nullable|date",
-            "blood_group" => "required|in:A+,A-,B+,B-,AB+,AB-,O+,O-",
+            "blood_group" => "required",
             "mother_tongue" => "required|string|max:100",
             "district_of_native_place" => "required|string|max:100",
             "fathers_name" => "required|string|max:255",
-            "hobby_1" => "nullable|string|max:255",
-            "hobby_2" => "nullable|string|max:255",
             "jito_member" => "required|in:yes,no",
-            "jito_uid" => "nullable|required_if:jito_member,yes|string|max:50",
-        ]);
+            "jatf_member" => "required|in:yes,no",
+            "arogyam_member" => "required|in:yes,no",
+            
+            "birth_photo" => "nullable|array",
+            "birth_photo.*" => "file|mimes:jpg,jpeg,png,pdf|max:2048",
+            
+            "anniversary_date" => "nullable|date",
+            "anniversary_photo" => "nullable|array", 
+            "anniversary_photo.*" => "file|mimes:jpg,jpeg,png,pdf|max:2048",
+        ];
+    //     $validator = Validator::make($request->all(), $rules);
+    //     if ($validator->fails()) {
+       
+    //     $errorArray = $validator->errors()->all(); 
 
-        $donor = Auth::guard("donor")->user();
+    //     return response()->json([
+    //         'status' => 'error',
+    //         'message' => 'Validation failed',
+    //         'errors' => $errorArray
+    //     ], 422);
 
+    // }
+
+        $request->validate($rules);
+
+        // Define the public path for documents
+        $uploadPath = public_path('uploads/documents');
+        
+        // Create directory if it doesn't exist
+        if (!File::isDirectory($uploadPath)) {
+            File::makeDirectory($uploadPath, 0777, true, true);
+        }
+
+        // 2. HANDLE BIRTH PHOTOS
+        $birthPhotoPaths = [];
+        
+        // Get existing photos from DB
+        if ($existing && !empty($existing->birth_photo)) {
+            $birthPhotoPaths = is_array($existing->birth_photo) ? $existing->birth_photo : json_decode($existing->birth_photo, true) ?? [];
+        }
+        
+        // Handle deletion of existing photos
+        if ($request->has('delete_birth_photo')) {
+            foreach ($request->delete_birth_photo as $fileToDelete) {
+                // Remove from array
+                $key = array_search($fileToDelete, $birthPhotoPaths);
+                if ($key !== false) {
+                    unset($birthPhotoPaths[$key]);
+                }
+                
+                // Delete file from public path
+                $filePath = public_path($fileToDelete);
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+            // Re-index array
+            $birthPhotoPaths = array_values($birthPhotoPaths);
+        }
+
+        // Process new uploads
+        if ($request->hasFile('birth_photo')) {
+            foreach ($request->file('birth_photo') as $file) {
+                if ($file && $file->isValid()) {
+                    // Generate unique filename
+                    $fileName = time() . '_birth_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    
+                    // Move file to public/uploads/documents
+                    $file->move($uploadPath, $fileName);
+                    
+                    // Save path relative to public folder (for easy access in views)
+                    $birthPhotoPaths[] = 'uploads/documents/' . $fileName;
+                }
+            }
+        }
+
+        // Ensure birth_photo is an empty array if no photos
+        if (!is_array($birthPhotoPaths)) {
+            $birthPhotoPaths = [];
+        }
+
+        // 3. HANDLE ANNIVERSARY PHOTOS
+        $anniversaryPhotoPaths = [];
+        
+        // Get existing photos from DB
+        if ($existing && !empty($existing->anniversary_photo)) {
+            $anniversaryPhotoPaths = is_array($existing->anniversary_photo) ? $existing->anniversary_photo : json_decode($existing->anniversary_photo, true) ?? [];
+        }
+        
+        // Handle deletion of existing photos
+        if ($request->has('delete_anniversary_photo')) {
+            foreach ($request->delete_anniversary_photo as $fileToDelete) {
+                // Remove from array
+                $key = array_search($fileToDelete, $anniversaryPhotoPaths);
+                if ($key !== false) {
+                    unset($anniversaryPhotoPaths[$key]);
+                }
+                
+                // Delete file from public path
+                $filePath = public_path($fileToDelete);
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+            // Re-index array
+            $anniversaryPhotoPaths = array_values($anniversaryPhotoPaths);
+        }
+
+        // Process new uploads
+        if ($request->hasFile('anniversary_photo')) {
+            
+            foreach ($request->file('anniversary_photo') as $file) {
+                if ($file && $file->isValid()) {
+                    // Generate unique filename
+                    $fileName = time() . '_anniversary_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    
+                    
+                    // Move file to public/uploads/documents
+                    $file->move($uploadPath, $fileName);
+                    
+                    // Save path relative to public folder
+                    $anniversaryPhotoPaths[] = 'uploads/documents/' . $fileName;
+                }
+            }
+        }
+        
+
+        // Ensure anniversary_photo is an empty array if no photos
+        if (!is_array($anniversaryPhotoPaths)) {
+            $anniversaryPhotoPaths = [];
+        }
+
+        // 4. PREPARE DATA
         $data = [
             "donor_id" => $donor->id,
             "title" => $request->title,
@@ -147,6 +301,7 @@ class DonorWebController extends Controller
             "complete_address" => $request->complete_address,
             "city" => $request->city,
             "state" => $request->state,
+            "zone" => $request->zone,
             "pin_code" => $request->pin_code,
             "resi_landline" => $request->resi_landline,
             "mobile_no" => $request->mobile_no,
@@ -154,11 +309,16 @@ class DonorWebController extends Controller
             "email_id_1" => $request->email_id_1,
             "email_id_2" => $request->email_id_2,
             "preferred_residence_address" => $request->preferred_residence_address,
+            "resi_pin_code" => $request->resi_pin_code,
             "preferred_office_address" => $request->preferred_office_address,
             "pan_no" => $request->pan_no,
-            "chapter_name" => $request->chapter_name,
+            "chapter_name" => $request->chapter,
             "date_of_birth" => $request->date_of_birth,
+            
+            "birth_photo" => $birthPhotoPaths, 
             "anniversary_date" => $request->anniversary_date,
+            "anniversary_photo" => $anniversaryPhotoPaths, 
+            
             "blood_group" => $request->blood_group,
             "mother_tongue" => $request->mother_tongue,
             "district_of_native_place" => $request->district_of_native_place,
@@ -166,12 +326,15 @@ class DonorWebController extends Controller
             "hobby_1" => $request->hobby_1,
             "hobby_2" => $request->hobby_2,
             "jito_member" => $request->jito_member,
+            "jatf_member" => $request->jatf_member,
+            "arogyam_member" => $request->arogyam_member,
             "jito_uid" => $request->jito_member === 'yes' ? $request->jito_uid : null,
             "submit_status" => "submited",
         ];
 
-        $existing = DonorPersonalDetail::where("donor_id", $donor->id)->first();
+        // dd($data);
 
+        // 5. UPDATE OR CREATE
         if ($existing) {
             $existing->update($data);
         } else {
@@ -278,32 +441,6 @@ class DonorWebController extends Controller
     public function storestep4(Request $request)
     {
         $request->validate([
-            "payment_options" => "required|array|min:1",
-            "payment_options.*" => "in:54_lakhs,1_year,2_year,3_year",
-        ]);
-
-        $donor = Auth::guard("donor")->user();
-
-        $data = [
-            "donor_id" => $donor->id,
-            "payment_options" => json_encode($request->payment_options),
-            "submit_status" => "submited",
-        ];
-
-        $existing = DonorMembershipDetail::where("donor_id", $donor->id)->first();
-
-        if ($existing) {
-            $existing->update($data);
-        } else {
-            DonorMembershipDetail::create($data);
-        }
-
-        return redirect()->route("donor.step5")->with("success", "Membership details saved successfully!");
-    }
-
-    public function storestep5(Request $request)
-    {
-        $request->validate([
             "company_name" => "required|string|max:255",
             "company_activity_details" => "required|string",
             "designation" => "required|string|max:255",
@@ -314,7 +451,7 @@ class DonorWebController extends Controller
             "office_pincode" => "required|digits:6",
             "office_telephone" => "nullable|string|max:20",
             "office_mobile" => "required|digits:10",
-            "pan_no" => "required|string|size:10",
+            "pan_no" => "string|size:10",
             "coordinator_name" => "nullable|string|max:255",
             "coordinator_mobile" => "nullable|digits:10",
             "coordinator_email_1" => "nullable|email",
@@ -351,10 +488,10 @@ class DonorWebController extends Controller
             DonorProfessionalDetail::create($data);
         }
 
-        return redirect()->route("donor.step6")->with("success", "Professional details saved successfully!");
+        return redirect()->route("donor.step5")->with("success", "Professional details saved successfully!");
     }
 
-    public function storestep6(Request $request)
+    public function storestep5(Request $request)
     {
         $donor = Auth::guard("donor")->user();
         $existing = DonorDocument::where("donor_id", $donor->id)->first();
@@ -380,14 +517,27 @@ class DonorWebController extends Controller
             "submit_status" => "submited",
         ];
 
+        // Define the public path for donor documents
+        $docPath = public_path('donor_documents');
+        
+        // Create directory if it doesn't exist
+        if (!File::isDirectory($docPath)) {
+            File::makeDirectory($docPath, 0777, true, true);
+        }
+
         // Handle file uploads
         $files = ["pan_member_file", "pan_donor_file", "photo_file", "address_proof_file", "authorization_letter_file"];
 
-        foreach ($files as $file) {
-            if ($request->hasFile($file)) {
-                $fileName = time() . "_" . $file . "." . $request->$file->extension();
-                $request->$file->move("donor_documents", $fileName);
-                $data[$file] = "donor_documents/" . $fileName;
+        foreach ($files as $fileInputName) {
+            if ($request->hasFile($fileInputName)) {
+                // Generate unique filename
+                $fileName = time() . "_" . $fileInputName . "_" . uniqid() . "." . $request->$fileInputName->extension();
+                
+                // Move file to public/donor_documents
+                $request->$fileInputName->move($docPath, $fileName);
+                
+                // Save path relative to public folder
+                $data[$fileInputName] = "donor_documents/" . $fileName;
             }
         }
 
@@ -397,7 +547,33 @@ class DonorWebController extends Controller
             DonorDocument::create($data);
         }
 
-        return redirect()->route("donor.step7")->with("success", "Documents uploaded successfully!");
+        return redirect()->route("donor.step6")->with("success", "Document saved successfully!");
+    }
+
+    public function storestep6(Request $request)
+    {
+        $request->validate([
+            "payment_options" => "required|array|min:1",
+            "payment_options.*" => "in:54_lakhs,1_year,2_year,3_year",
+        ]);
+
+        $donor = Auth::guard("donor")->user();
+
+        $data = [
+            "donor_id" => $donor->id,
+            "payment_options" => json_encode($request->payment_options),
+            "submit_status" => "submited",
+        ];
+
+        $existing = DonorMembershipDetail::where("donor_id", $donor->id)->first();
+
+        if ($existing) {
+            $existing->update($data);
+        } else {
+            DonorMembershipDetail::create($data);
+        }
+
+        return redirect()->route("donor.step7")->with("success", "Membership details saved successfully!");
     }
 
     public function storestep7(Request $request)

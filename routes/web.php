@@ -36,6 +36,8 @@ Route::prefix('donor')->name('donor.')->group(function () {
         Route::get('/dashboard', [DonorAuthController::class, 'dashboard'])->name('dashboard');
         Route::get('/step1', [DonorWebController::class, 'step1'])->name('step1');
         Route::post('/step1', [DonorWebController::class, 'storestep1'])->name('step1.store');
+        Route::get('/get-zones/{state}', [DonorWebController::class, 'getZones'])->name('get.zones');
+        Route::get('/get-chapters/{zone_id}', [DonorWebController::class, 'getChapters'])->name('get.chapters');
 
         Route::get('/step2', [DonorWebController::class, 'step2'])->name('step2');
         Route::post('/step2', [DonorWebController::class, 'storestep2'])->name('step2.store');

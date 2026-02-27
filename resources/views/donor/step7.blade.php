@@ -15,11 +15,8 @@
                     <form method="POST" action="{{ route('donor.step7.store') }}">
                         @csrf
                         @if (session('success'))
-                            <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
-                                id="successAlert">
-
+                            <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert" id="successAlert">
                                 {{ session('success') }}
-
                                 <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
@@ -28,8 +25,8 @@
 
                         @php
                             $paymentEntries = [];
-
-                            // 1. Check if there is old input from a validation error
+                            
+                            // 1. Check if there is old input from a validation error (Form Submission)
                             if (old('utr_no')) {
                                 $utrNos = old('utr_no', []);
                                 $chequeDates = old('cheque_date', []);
@@ -49,9 +46,15 @@
                             }
                             // 2. Check database records
                             elseif (!empty($paymentDetail?->payment_entries)) {
-                                $paymentEntries = is_array($paymentDetail->payment_entries)
-                                    ? $paymentDetail->payment_entries
-                                    : json_decode($paymentDetail->payment_entries, true) ?? [];
+                                $rawEntries = $paymentDetail->payment_entries;
+
+                                // FIX: Decode JSON string if it is a string
+                                if (is_string($rawEntries)) {
+                                    $decoded = json_decode($rawEntries, true);
+                                    $paymentEntries = is_array($decoded) ? $decoded : [];
+                                } elseif (is_array($rawEntries)) {
+                                    $paymentEntries = $rawEntries;
+                                }
                             }
 
                             $rows = max(count($paymentEntries), 2);
@@ -61,7 +64,6 @@
 
                         <div class="card mb-4">
                             <div class="card-body">
-
                                 <h5 class="mb-3">Cheque / RTGS / NEFT Details</h5>
 
                                 <div class="row">
@@ -89,8 +91,7 @@
                                     <!-- Branch Name -->
                                     <div class="col-md-6 mb-3">
                                         <label>Branch Name *</label>
-                                        <input type="text" class="form-control" value="WATER FIELD ROAD, BANDRA (WEST)"
-                                            readonly>
+                                        <input type="text" class="form-control" value="WATER FIELD ROAD, BANDRA (WEST)" readonly>
                                     </div>
 
                                     <!-- Account Number -->
@@ -105,14 +106,12 @@
                                         <input type="text" class="form-control" value="ICIC0000388" readonly>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
 
                         <!-- PAYMENT ENTRY TABLE -->
                         <div class="card mb-4">
                             <div class="card-body">
-
                                 <h5 class="mb-3">Payment Details (To be filled by Applicant)</h5>
 
                                 <div class="table-responsive">
@@ -183,11 +182,8 @@
                                         </tbody>
                                     </table>
                                 </div>
-
                             </div>
                         </div>
-
-
 
                         <!-- BUTTONS -->
                         <div class="d-flex justify-content-between mt-4 mb-4">
@@ -201,7 +197,6 @@
                         </div>
 
                     </form>
-
                 </div>
             </div>
         </div>

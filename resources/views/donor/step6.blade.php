@@ -11,161 +11,112 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul class="mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
 
-
-                    <form method="POST" action="{{ route('donor.step6.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('donor.step6.store') }}">
                         @csrf
                         @if (session('success'))
-                            <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
-                                id="successAlert">
-
+                            <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert" id="successAlert">
                                 {{ session('success') }}
-
                                 <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
                         @endif
 
-                        <h4 class="mb-3 text-center">Step 6 : Document Upload</h4>
+                        @php
+                            // 1. Get the raw value from DB or old input
+                            $rawPayments = old('payment_options', $membershipDetail->payment_options ?? null);
+                            
+                            // 2. Initialize as empty array
+                            $selectedPayments = [];
+                            
+                            // 3. Decode if it's a JSON string, or handle if it's already an array
+                            if (is_string($rawPayments) && !empty($rawPayments)) {
+                                $decoded = json_decode($rawPayments, true);
+                                // Check if json_decode was successful
+                                $selectedPayments = is_array($decoded) ? $decoded : [];
+                            } elseif (is_array($rawPayments)) {
+                                $selectedPayments = $rawPayments;
+                            }
+                        @endphp
 
-                        <div class="card mb-4">
+                        <div class="card form-card">
                             <div class="card-body">
 
-                                <h5 class="mb-3">Mandatory Documents</h5>
+                                <h4 class="mb-4 text-center">Membership Fees Payment Schedule</h4>
 
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label>PAN Card Copy of Member *</label>
-                                        <input type="file" class="form-control" name="pan_member_file"
-                                            {{ empty($document?->pan_member_file) ? 'required' : '' }}>
-                                        @error('pan_member_file')
-                                            <small class="text-danger">{{ $message }}</small>
-                                        @enderror
-                                        @if (!empty($document?->pan_member_file))
-                                            <small class="text-muted">Uploaded: <a
-                                                    href="{{ asset($document->pan_member_file) }}"
-                                                    target="_blank">View</a></small>
-                                        @endif
+                                <p>
+                                    <strong>JITO Education Assistance Foundation Membership:</strong><br>
+                                    I wish to become JITO Education Assistance Foundation member as follows
+                                    (please tick ✓ in appropriate box)
+                                </p>
+
+                                <p>
+                                    An individual JITO member can become a member of JITO Education Assistance
+                                    Foundation by paying upfront payment of <strong>Rs. 54 Lakhs</strong>.
+                                </p>
+
+                                <hr>
+
+                                <!-- CHECKBOX OPTIONS -->
+                                <div class="mb-3">
+
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="checkbox" name="payment_options[]"
+                                            value="54_lakhs"
+                                            {{ in_array('54_lakhs', $selectedPayments) ? 'checked' : '' }}>
+                                        <label class="form-check-label">
+                                            Rs. 54 Lakhs at time of Application
+                                        </label>
                                     </div>
 
-                                    <div class="col-md-6 mb-3">
-                                        <label>PAN Card Copy of Donor (If Different) *</label>
-                                        <input type="file" class="form-control" name="pan_donor_file"
-                                            {{ empty($document?->pan_donor_file) ? 'required' : '' }}>
-                                        @error('pan_donor_file')
-                                            <small class="text-danger">{{ $message }}</small>
-                                        @enderror
-                                        @if (!empty($document?->pan_donor_file))
-                                            <small class="text-muted">Uploaded: <a
-                                                    href="{{ asset($document->pan_donor_file) }}"
-                                                    target="_blank">View</a></small>
-                                        @endif
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="checkbox" name="payment_options[]"
+                                            value="1_year"
+                                            {{ in_array('1_year', $selectedPayments) ? 'checked' : '' }}>
+                                        <label class="form-check-label">
+                                            1<sup>st</sup> Installment of Rs. 17 Lakhs within 1<sup>st</sup> year of
+                                            application
+                                        </label>
                                     </div>
 
-                                    <div class="col-md-6 mb-3">
-                                        <label>Passport Size Photograph *</label>
-                                        <input type="file" class="form-control" name="photo_file"
-                                            {{ empty($document?->photo_file) ? 'required' : '' }}>
-                                        @error('photo_file')
-                                            <small class="text-danger">{{ $message }}</small>
-                                        @enderror
-                                        @if (!empty($document?->photo_file))
-                                            <small class="text-muted">Uploaded: <a href="{{ asset($document->photo_file) }}"
-                                                    target="_blank">View</a></small>
-                                        @endif
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="checkbox" name="payment_options[]"
+                                            value="2_year"
+                                            {{ in_array('2_year', $selectedPayments) ? 'checked' : '' }}>
+                                        <label class="form-check-label">
+                                            2<sup>nd</sup> Installment of Rs. 17 Lakhs within 2<sup>nd</sup> year of
+                                            application
+                                        </label>
                                     </div>
 
-                                    <div class="col-md-6 mb-3">
-                                        <label>Address Proof *</label>
-                                        <input type="file" class="form-control" name="address_proof_file"
-                                            {{ empty($document?->address_proof_file) ? 'required' : '' }}>
-                                        @error('address_proof_file')
-                                            <small class="text-danger">{{ $message }}</small>
-                                        @enderror
-                                        @if (!empty($document?->address_proof_file))
-                                            <small class="text-muted">Uploaded: <a
-                                                    href="{{ asset($document->address_proof_file) }}"
-                                                    target="_blank">View</a></small>
-                                        @endif
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="checkbox" name="payment_options[]"
+                                            value="3_year"
+                                            {{ in_array('3_year', $selectedPayments) ? 'checked' : '' }}>
+                                        <label class="form-check-label">
+                                            3<sup>rd</sup> Installment of Rs. 17 Lakhs within 3<sup>rd</sup> year of
+                                            application
+                                        </label>
                                     </div>
 
-                                    <div class="col-md-6 mb-3">
-                                        <label>Company Authorization Letter *</label>
-                                        <input type="file" class="form-control" name="authorization_letter_file"
-                                            {{ empty($document?->authorization_letter_file) ? 'required' : '' }}>
-                                        @error('authorization_letter_file')
-                                            <small class="text-danger">{{ $message }}</small>
-                                        @enderror
-                                        @if (!empty($document?->authorization_letter_file))
-                                            <small class="text-muted">Uploaded: <a
-                                                    href="{{ asset($document->authorization_letter_file) }}"
-                                                    target="_blank">View</a></small>
-                                        @endif
-                                    </div>
+                                    @error('payment_options')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                    @error('payment_options.*')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
                                 </div>
+
+                                <hr>
+
+                                <p class="text-muted" style="font-size:14px;">
+                                    The terms of membership and payment will be governed by the
+                                    Article of Association of JITO Education Assistance Foundation.
+                                </p>
 
                             </div>
                         </div>
-
-                        <!-- CHECKLIST -->
-                        <div class="card mb-4">
-                            <div class="card-body">
-
-                                <h5 class="mb-3">Most Important Things to Check</h5>
-
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" name="check_signature"
-                                        {{ old('check_signature', $document->check_signature ?? false) ? 'checked' : '' }}>
-                                    <label class="form-check-label">
-                                        Member’s Signature on Form
-                                    </label>
-                                </div>
-
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" name="check_contact"
-                                        {{ old('check_contact', $document->check_contact ?? false) ? 'checked' : '' }}>
-                                    <label class="form-check-label">
-                                        Mobile Number & Email Address Mentioned
-                                    </label>
-                                </div>
-
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" name="check_nominee"
-                                        {{ old('check_nominee', $document->check_nominee ?? false) ? 'checked' : '' }}>
-                                    <label class="form-check-label">
-                                        Nominee Name & Details Filled
-                                    </label>
-                                </div>
-
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" name="check_pan"
-                                        {{ old('check_pan', $document->check_pan ?? false) ? 'checked' : '' }}>
-                                    <label class="form-check-label">
-                                        PAN Card Copy Attached
-                                    </label>
-                                </div>
-
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="check_payment"
-                                        {{ old('check_payment', $document->check_payment ?? false) ? 'checked' : '' }}>
-                                    <label class="form-check-label">
-                                        Payment Details Filled Properly
-                                    </label>
-                                </div>
-
-                            </div>
-                        </div>
-
 
                         <!-- BUTTONS -->
                         <div class="d-flex justify-content-between mt-4 mb-4">

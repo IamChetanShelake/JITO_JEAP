@@ -768,6 +768,36 @@
         }
 
     }
+
+    .top-summary-layout {
+            display: grid;
+            grid-template-columns: 1fr 4fr;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .top-summary-layout .user-info-card {
+            margin-bottom: 0 !important;
+        }
+
+        .top-card-user {
+            order: 2;
+        }
+
+        .top-card-workflow {
+            order: 1;
+        }
+
+        @media (max-width: 991.98px) {
+            .top-summary-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .top-card-user,
+            .top-card-workflow {
+                order: unset;
+            }
+        }
 </style>
 @endsection
 
@@ -806,62 +836,55 @@
 </div>
 
 <!-- User Info Card -->
-<div class="user-info-card">
-    <div class="user-info-header">
-        <div class="user-avatar">
-            {{ strtoupper(substr($user->name, 0, 1)) }}
-        </div>
-        <div class="user-details">
-            <h3>{{ $user->name }}</h3>
-            <p>{{ $user->email }}</p>
-            <p>{{ $user->mobile }}</p>
-        </div>
-    </div>
-     <div class="user-info-footer">
-            <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}</p>
-            <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type ?? 'N/A' }}</p>
-            <p><strong>Financial Assistance For:</strong> {{ $user->financial_asset_for ?? 'N/A' }}</p>
-        </div>
-</div>
+<div class="top-summary-layout">
+        <!-- User Info Card (Right) -->
+        <div class="user-info-card top-card-user">
+            <div class="user-info-header">
+                <div class="user-avatar">
+                    @if ($user->image)
+                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img">
+                    @else
+                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                    @endif
+                </div>
+                <div class="user-details">
+                    <h3>{{ $user->name }}</h3>
+                    <p>{{ $user->email }}</p>
+                    <p>{{ $user->phone }}</p>
+                </div>
 
-{{-- <!-- Workflow Status Card -->
-<div class="user-info-card">
-    <div class="user-info-header">
-        <div class="user-details">
-            <h3>Workflow Status</h3>
-            <p>Current Stage: {{ $user->workflowStatus ? ucfirst(str_replace('_', ' ', $user->workflowStatus->current_stage)) : 'N/A' }}</p>
-            <p>Final Status: {{ $user->workflowStatus ? $user->workflowStatus->final_status : 'N/A' }}</p>
+            </div>
+            <div style="text-align: right; margin-top: -2.5rem;">
+                <a href="{{ route('admin.user.logs', ['user' => $user->id]) }}" class="back-btn"
+                    style="background-color: var(--primary-blue); color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                    <i class="fas fa-history"></i> Logs
+                </a>
+            </div>
+            <div class="user-info-footer">
+                <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}</p>
+                <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type ?? 'N/A' }}</p>
+                <p><strong>Financial Assistance For:</strong> {{ $user->financial_asset_for ?? 'N/A' }}</p>
+            </div>
         </div>
-    </div>
-    @if($user->workflowStatus && $user->workflowStatus->current_stage == 'apex_1' && $user->workflowStatus->final_status == 'in_progress')
-    <div style="margin-top: 1rem; display: flex; gap: 1rem;">
-        <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
-            @csrf
-            <button type="submit" class="btn-approve">Approve Apex 1</button>
-        </form>
-        <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
-            @csrf
-            <textarea name="admin_remark" placeholder="Reject remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:20rem;box-sizing:border-box;"></textarea>
-            <button type="submit" class="btn-hold">Reject Apex 1</button>
-        </form>
-    </div>
-    @endif
-</div> --}}
-<!-- Workflow Status Card -->
-<div class="user-info-card">
-    <div class="workflow-status-header">
-        <div class="workflow-status-icon">
-            <i class="fas fa-tasks"></i>
-        </div>
-        <div class="workflow-stage-info">
-            <h3>Workflow Status</h3>
-            <p><strong>Current Stage:</strong> <span class="status-highlight">{{ $user->workflowStatus ? ucfirst(str_replace('_', ' ', $user->workflowStatus->current_stage)) : 'N/A' }}</span></p>
-            <p><strong>Final Status:</strong> <span class="status-highlight">{{ $user->workflowStatus ? ucfirst($user->workflowStatus->final_status) : 'N/A' }}</span></p>
-        </div>
-    </div>
 
-
-</div>
+        <!-- Workflow Status Card (Left) -->
+        <div class="user-info-card top-card-workflow">
+            <div class="workflow-status-header">
+                <div class="workflow-status-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="workflow-stage-info">
+                    <h3>Workflow Status</h3>
+                    <p><strong>Current Stage:</strong> <span
+                            class="status-highlight">{{ $user->workflowStatus ? ucfirst(str_replace('_', ' ', $user->workflowStatus->current_stage)) : 'N/A' }}</span>
+                    </p>
+                    <p><strong>Final Status:</strong> <span
+                            class="status-highlight">{{ $user->workflowStatus ? ucfirst($user->workflowStatus->final_status) : 'N/A' }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 <!-- Steps Container -->

@@ -384,9 +384,22 @@ class DonorController extends Controller
             }
             // Handle Member Donor payments (by commitment)
             elseif ($request->has('payments')) {
-                $payments = $request->input('payments');
+                $payments = $request->input('payments', []);
+
+                // Build a commitment-indexed map to avoid numeric-index collisions.
+                $memberPayments = [];
+                $nonCommitmentPayments = [];
+                foreach ($existingPayments as $entry) {
+                    $entryCommitmentId = $entry['commitment_id'] ?? null;
+                    if ($entryCommitmentId !== null && $entryCommitmentId !== '') {
+                        $memberPayments[(string) $entryCommitmentId] = $entry;
+                    } else {
+                        $nonCommitmentPayments[] = $entry;
+                    }
+                }
+
                 foreach ($payments as $commitmentId => $paymentData) {
-                    $existingPayments[$commitmentId] = [
+                    $memberPayments[(string) $commitmentId] = [
                         'commitment_id' => $paymentData['commitment_id'] ?? $commitmentId,
                         'utr_no' => $paymentData['utr_no'] ?? '',
                         'cheque_date' => $paymentData['cheque_date'] ?? '',
@@ -395,6 +408,8 @@ class DonorController extends Controller
                         'issued_by' => $paymentData['issued_by'] ?? '',
                     ];
                 }
+
+                $existingPayments = array_values(array_merge($nonCommitmentPayments, array_values($memberPayments)));
             }
 
             // Save payment entries
@@ -640,8 +655,21 @@ class DonorController extends Controller
                 // Member donor payments (by commitment)
                 if ($request->has('payments')) {
                     $payments = $request->input('payments', []);
+
+                    // Build a commitment-indexed map to avoid numeric-index collisions.
+                    $memberPayments = [];
+                    $nonCommitmentPayments = [];
+                    foreach ($existingPayments as $entry) {
+                        $entryCommitmentId = $entry['commitment_id'] ?? null;
+                        if ($entryCommitmentId !== null && $entryCommitmentId !== '') {
+                            $memberPayments[(string) $entryCommitmentId] = $entry;
+                        } else {
+                            $nonCommitmentPayments[] = $entry;
+                        }
+                    }
+
                     foreach ($payments as $commitmentId => $paymentData) {
-                        $existingPayments[$commitmentId] = [
+                        $memberPayments[(string) $commitmentId] = [
                             'commitment_id' => $paymentData['commitment_id'] ?? $commitmentId,
                             'utr_no' => $paymentData['utr_no'] ?? '',
                             'cheque_date' => $paymentData['cheque_date'] ?? '',
@@ -650,6 +678,8 @@ class DonorController extends Controller
                             'issued_by' => $paymentData['issued_by'] ?? '',
                         ];
                     }
+
+                    $existingPayments = array_values(array_merge($nonCommitmentPayments, array_values($memberPayments)));
                 }
 
                 $paymentDetail->payment_entries = array_values($existingPayments);

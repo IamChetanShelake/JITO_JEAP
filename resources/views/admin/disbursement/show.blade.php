@@ -394,7 +394,7 @@
                                 <th>Bank Account</th>
                                 <th>UTR Number</th>
                                 <th>Amount</th>
-                                {{-- <th>Remarks</th> --}}
+
                             </tr>
                         </thead>
                         <tbody>
@@ -417,7 +417,7 @@
                                     </td>
                                     <td class="fw-bold">{{ $disbursement->utr_number }}</td>
                                     <td class="fw-bold text-success">₹{{ number_format($disbursement->amount, 2) }}</td>
-                                    {{-- <td>{{ strip_tags($disbursement->remarks ?? '-') }}</td> --}}
+
                                 </tr>
                             @endforeach
                         </tbody>

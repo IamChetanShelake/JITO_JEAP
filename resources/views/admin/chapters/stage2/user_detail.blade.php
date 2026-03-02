@@ -333,9 +333,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .form-section {
-            padding: 1.5rem;
-        }
+
 
         .form-row {
             display: flex;
@@ -579,8 +577,6 @@
         .workflow-action-card {
             background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
             border-radius: 12px;
-            padding: 2rem;
-            margin-top: 1.5rem;
             border: 1px solid rgba(57, 49, 133, 0.1);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
         }
@@ -764,6 +760,36 @@
                 border-right-color: transparent;
             }
         }
+
+        .top-summary-layout {
+            display: grid;
+            grid-template-columns: 1fr 4fr;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .top-summary-layout .user-info-card {
+            margin-bottom: 0 !important;
+        }
+
+        .top-card-user {
+            order: 2;
+        }
+
+        .top-card-workflow {
+            order: 1;
+        }
+
+        @media (max-width: 991.98px) {
+            .top-summary-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .top-card-user,
+            .top-card-workflow {
+                order: unset;
+            }
+        }
     </style>
     <!-- SweetAlert CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -810,53 +836,60 @@
 
 
     <!-- User Info Card -->
-    <div class="user-info-card">
-        <div class="user-info-header" style="display: flex; align-items: center; gap: 1rem;">
-            {{-- <!-- Logs Button (Top Left) -->
-            <a href="{{ route('admin.user.logs', ['user' => $user->id]) }}" class="back-btn"
-                style="background-color: var(--primary-blue); color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease; min-width: auto; height: auto;">
-                <i class="fas fa-history"></i> Logs
-            </a> --}}
+    <!-- User Info Card -->
+    <div class="top-summary-layout">
+        <!-- User Info Card (Right) -->
+        <div class="user-info-card top-card-user">
+            <div class="user-info-header">
+                <div class="user-avatar">
+                    @if ($user->image)
+                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img">
+                    @else
+                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                    @endif
+                </div>
+                <div class="user-details">
+                    <h3>{{ $user->name }}</h3>
+                    <p>{{ $user->email }}</p>
+                    <p>{{ $user->phone }}</p>
+                </div>
 
-            <!-- User Avatar and Details -->
-            <div class="user-avatar">
-                {{ strtoupper(substr($user->name, 0, 1)) }}
             </div>
-            <div class="user-details">
-                <h3>{{ $user->name }}</h3>
-                <p>{{ $user->email }}</p>
-                <p>{{ $user->mobile }}</p>
+            <div style="text-align: right; margin-top: -2.5rem;">
+                <a href="{{ route('admin.user.logs', ['user' => $user->id]) }}" class="back-btn"
+                    style="background-color: var(--primary-blue); color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                    <i class="fas fa-history"></i> Logs
+                </a>
+            </div>
+            <div class="user-info-footer">
+                <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}
+                </p>
+                <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type ?? 'N/A' }}</p>
+                <p><strong>Financial Assistance For:</strong> {{ $user->financial_asset_for ?? 'N/A' }}</p>
             </div>
         </div>
-        <div style="text-align: right; margin-top: -2.5rem;">
-            <a href="{{ route('admin.user.logs', ['user' => $user->id]) }}" class="back-btn"
-                style="background-color: var(--primary-blue); color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
-                <i class="fas fa-history"></i> Logs
-            </a>
-        </div>
-        <div class="user-info-footer">
-            <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}</p>
-            <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type ?? 'N/A' }}</p>
-            <p><strong>Financial Assistance For:</strong> {{ $user->financial_asset_for ?? 'N/A' }}</p>
+
+        <!-- Workflow Status Card (Left) -->
+        <div class="user-info-card top-card-workflow">
+            <div class="workflow-status-header">
+                <div class="workflow-status-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="workflow-stage-info">
+                    <h3>Workflow Status</h3>
+                    <p><strong>Current Stage:</strong> <span
+                            class="status-highlight">{{ $user->workflowStatus ? ucfirst(str_replace('_', ' ', $user->workflowStatus->current_stage)) : 'N/A' }}</span>
+                    </p>
+                    <p><strong>Final Status:</strong> <span
+                            class="status-highlight">{{ $user->workflowStatus ? ucfirst($user->workflowStatus->final_status) : 'N/A' }}</span>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Workflow Status Card -->
     <div class="user-info-card">
-        <div class="workflow-status-header">
-            <div class="workflow-status-icon">
-                <i class="fas fa-tasks"></i>
-            </div>
-            <div class="workflow-stage-info">
-                <h3>Workflow Status</h3>
-                <p><strong>Current Stage:</strong> <span
-                        class="status-highlight">{{ $user->workflowStatus ? ucfirst(str_replace('_', ' ', $user->workflowStatus->current_stage)) : 'N/A' }}</span>
-                </p>
-                <p><strong>Final Status:</strong> <span
-                        class="status-highlight">{{ $user->workflowStatus ? ucfirst($user->workflowStatus->final_status) : 'N/A' }}</span>
-                </p>
-            </div>
-        </div>
 
         @if (
             $user->workflowStatus &&
@@ -873,7 +906,7 @@
                         <div class="workflow-action-card">
                             <h4 class="action-title">Chapter Decision - Approved</h4>
                             <div
-                                style="padding: 2rem; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 12px; border: 2px solid #4CAF50;">
+                                style="padding: 1rem; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 12px; border: 2px solid #4CAF50;">
                                 <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
                                     <i class="fas fa-check-circle" style="color: #2E7D32; font-size: 2rem;"></i>
                                     <div>
@@ -948,40 +981,40 @@
 
                                     <!-- Approve Form -->
                                     {{-- <div class="action-form-row">
-                <textarea name="admin_remark"
-                          placeholder="Approval remark (optional but recommended)"
-                          rows="3"
-                          class="remark-input"></textarea>
-                <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'chapter']) }}"
-                      method="POST">
-                    @csrf
-                    <input type="hidden" name="admin_remark" id="approve_remark">
-                    <button type="submit" class="btn btn-approve">
-                        <i class="fas fa-check"></i>
-                        Approve Chapter
-                    </button>
-                </form>
-            </div>
+                                            <textarea name="admin_remark"
+                                                    placeholder="Approval remark (optional but recommended)"
+                                                    rows="3"
+                                                    class="remark-input"></textarea>
+                                            <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'chapter']) }}"
+                                                method="POST">
+                                                @csrf
+                                                <input type="hidden" name="admin_remark" id="approve_remark">
+                                                <button type="submit" class="btn btn-approve">
+                                                    <i class="fas fa-check"></i>
+                                                    Approve Chapter
+                                                </button>
+                                            </form>
+                                        </div>
 
-            <div class="divider"></div>
+                                        <div class="divider"></div>
 
-            <!-- Reject Form -->
-            <div class="action-form-row">
-                <textarea name="admin_remark"
-                          placeholder="Rejection remark (required)"
-                          rows="3"
-                          class="remark-input"
-                          required></textarea>
-                <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'chapter']) }}"
-                      method="POST">
-                    @csrf
-                    <input type="hidden" name="admin_remark" id="reject_remark">
-                    <button type="submit" class="btn btn-reject">
-                        <i class="fas fa-times"></i>
-                        Reject Chapter
-                    </button>
-                </form>
-            </div> --}}
+                                        <!-- Reject Form -->
+                                        <div class="action-form-row">
+                                            <textarea name="admin_remark"
+                                                    placeholder="Rejection remark (required)"
+                                                    rows="3"
+                                                    class="remark-input"
+                                                    required></textarea>
+                                            <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'chapter']) }}"
+                                                method="POST">
+                                                @csrf
+                                                <input type="hidden" name="admin_remark" id="reject_remark">
+                                                <button type="submit" class="btn btn-reject">
+                                                    <i class="fas fa-times"></i>
+                                                    Reject Chapter
+                                                </button>
+                                            </form>
+                                        </div> --}}
                                 </div>
                     @endif
                 </div>
@@ -2792,7 +2825,7 @@
                                     <div class="form-field form-field-full">
                                         <label class="form-label" style="color: #2E7D32;">Approval Remarks</label>
                                         <textarea readonly rows="4" class="remark-input"
-                                            style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">{{ strip_tags($user->workflowStatus->chapter_approval_remarks ?? '')}}</textarea>
+                                            style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">{{ strip_tags($user->workflowStatus->chapter_approval_remarks ?? '') }}</textarea>
                                     </div>
                                 </div>
                             </div>

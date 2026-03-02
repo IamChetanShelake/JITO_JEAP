@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 
 class DonorController extends Controller
 {
@@ -84,6 +85,7 @@ class DonorController extends Controller
             'professionalDetail',
             'document',
             'paymentDetail',
+            'donationCommitments',
         ]);
 
         // Fix: Check if it's already an array, otherwise decode it
@@ -126,7 +128,11 @@ class DonorController extends Controller
             $zone_id = $zone ? $zone->id : null;
         }
 
-        return view('admin.donors.dashboard_show', compact('donor', 'children', 'paymentOptions', 'paymentEntries', 'zonesByState', 'chaptersByZone', 'zone_id'));
+        // Get active commitments for the donor
+        $donorCommitments = $donor->donationCommitments ?? collect();
+        $activeCommitments = $donorCommitments->where('status', 'active');
+
+        return view('admin.donors.dashboard_show', compact('donor', 'children', 'paymentOptions', 'paymentEntries', 'zonesByState', 'chaptersByZone', 'zone_id', 'donorCommitments', 'activeCommitments'));
     }
 
     public function index()
@@ -256,26 +262,151 @@ class DonorController extends Controller
      */
     public function createCommitment(Request $request, Donor $donor)
     {
-        $request->validate([
+        Log::info('createCommitment called', [
+            'donor_id' => $donor->id,
+            'donor_name' => $donor->name,
+            'request_data' => $request->all(),
+        ]);
+
+        $validated = $request->validate([
             'committed_amount' => 'required|numeric|min:1',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);
 
-        if ($donor->donor_type !== 'member') {
-            return back()->with('error', 'Only member donors can have donation commitments.');
+        Log::info('Validation passed', $validated);
+
+        // Check if donor exists
+        if (!$donor || !$donor->exists) {
+            Log::error('Donor not found', ['donor_id' => $donor->id]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Donor not found.'
+            ], 404);
+        }
+
+        // Check donor type
+        $donorType = $donor->donor_type ?? 'member';
+        if ($donorType !== 'member') {
+            Log::warning('Non-member donor attempting to create commitment', [
+                'donor_id' => $donor->id,
+                'donor_type' => $donorType,
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Only member donors can have donation commitments.'
+            ], 403);
         }
 
         try {
-            $donor->createCommitment([
-                'committed_amount' => $request->committed_amount,
-                'start_date' => $request->start_date,
-                'end_date' => $request->end_date,
+            Log::info('Creating commitment for donor', ['donor_id' => $donor->id]);
+
+            // Use the commitments relationship (not donationCommitments)
+            $commitment = $donor->commitments()->create([
+                'committed_amount' => $validated['committed_amount'],
+                'start_date' => $validated['start_date'] ?? null,
+                'end_date' => $validated['end_date'] ?? null,
+                'status' => 'active',
             ]);
 
-            return back()->with('success', 'Donation commitment created successfully.');
+            Log::info('Commitment created successfully', [
+                'commitment_id' => $commitment->id,
+                'donor_id' => $donor->id,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Donation commitment created successfully.',
+                'commitment' => [
+                    'id' => $commitment->id,
+                    'committed_amount' => $commitment->committed_amount,
+                    'start_date' => $commitment->start_date,
+                    'end_date' => $commitment->end_date,
+                    'status' => $commitment->status,
+                ]
+            ], 201);
         } catch (\Exception $e) {
-            return back()->with('error', 'Error creating commitment: ' . $e->getMessage());
+            Log::error('Error creating commitment', [
+                'donor_id' => $donor->id,
+                'error_message' => $e->getMessage(),
+                'error_file' => $e->getFile(),
+                'error_line' => $e->getLine(),
+                'error_trace' => $e->getTraceAsString(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error creating commitment: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update payment for a specific commitment via modal form.
+     */
+    public function updatePayment(Request $request, Donor $donor)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Get or create payment detail
+            $paymentDetail = $donor->paymentDetail()->firstOrNew(['donor_id' => $donor->id]);
+
+            // Get existing payments
+            $existingPayments = [];
+            if (!empty($paymentDetail->payment_entries)) {
+                $existingPayments = is_array($paymentDetail->payment_entries)
+                    ? $paymentDetail->payment_entries
+                    : json_decode($paymentDetail->payment_entries, true);
+            }
+            if (!is_array($existingPayments)) {
+                $existingPayments = [];
+            }
+
+            // Handle General Donor payment (no commitment)
+            if ($donor->donor_type === 'general' && $request->has('general_payment')) {
+                $generalPayment = $request->input('general_payment');
+                $generalPaymentData = [
+                    'commitment_id' => null,
+                    'utr_no' => $generalPayment['utr_no'] ?? '',
+                    'cheque_date' => $generalPayment['cheque_date'] ?? '',
+                    'amount' => $generalPayment['amount'] ?? 0,
+                    'bank_branch' => $generalPayment['bank_branch'] ?? '',
+                    'issued_by' => $generalPayment['issued_by'] ?? '',
+                ];
+
+                // If an index is provided, update that payment, else append as new
+                $generalPaymentIndex = $request->input('general_payment_index');
+                if ($generalPaymentIndex !== null && $generalPaymentIndex !== '' && isset($existingPayments[$generalPaymentIndex])) {
+                    $existingPayments[$generalPaymentIndex] = $generalPaymentData;
+                } else {
+                    $existingPayments[] = $generalPaymentData;
+                }
+            }
+            // Handle Member Donor payments (by commitment)
+            elseif ($request->has('payments')) {
+                $payments = $request->input('payments');
+                foreach ($payments as $commitmentId => $paymentData) {
+                    $existingPayments[$commitmentId] = [
+                        'commitment_id' => $paymentData['commitment_id'] ?? $commitmentId,
+                        'utr_no' => $paymentData['utr_no'] ?? '',
+                        'cheque_date' => $paymentData['cheque_date'] ?? '',
+                        'amount' => $paymentData['amount'] ?? 0,
+                        'bank_branch' => $paymentData['bank_branch'] ?? '',
+                        'issued_by' => $paymentData['issued_by'] ?? '',
+                    ];
+                }
+            }
+
+            // Save payment entries
+            $paymentDetail->payment_entries = array_values($existingPayments);
+            $paymentDetail->save();
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Payment updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Error updating payment: ' . $e->getMessage());
         }
     }
 
@@ -473,11 +604,56 @@ class DonorController extends Controller
             }
 
             // 7. Payment Details
-            if ($request->has('payments')) {
-                $donor->paymentDetail()->updateOrCreate(
-                    ['donor_id' => $donor->id],
-                    ['payment_entries' => json_encode($request->payments)]
-                );
+            if ($request->has('payments') || $request->has('general_payment')) {
+                $paymentDetail = $donor->paymentDetail()->firstOrNew(['donor_id' => $donor->id]);
+
+                $existingPayments = [];
+                if (!empty($paymentDetail->payment_entries)) {
+                    $existingPayments = is_array($paymentDetail->payment_entries)
+                        ? $paymentDetail->payment_entries
+                        : json_decode($paymentDetail->payment_entries, true);
+                }
+                if (!is_array($existingPayments)) {
+                    $existingPayments = [];
+                }
+
+                // General donor payment add/edit
+                if ($request->has('general_payment')) {
+                    $generalPayment = $request->input('general_payment');
+                    $generalPaymentData = [
+                        'commitment_id' => null,
+                        'utr_no' => $generalPayment['utr_no'] ?? '',
+                        'cheque_date' => $generalPayment['cheque_date'] ?? '',
+                        'amount' => $generalPayment['amount'] ?? 0,
+                        'bank_branch' => $generalPayment['bank_branch'] ?? '',
+                        'issued_by' => $generalPayment['issued_by'] ?? '',
+                    ];
+
+                    $generalPaymentIndex = $request->input('general_payment_index');
+                    if ($generalPaymentIndex !== null && $generalPaymentIndex !== '' && isset($existingPayments[$generalPaymentIndex])) {
+                        $existingPayments[$generalPaymentIndex] = $generalPaymentData;
+                    } else {
+                        $existingPayments[] = $generalPaymentData;
+                    }
+                }
+
+                // Member donor payments (by commitment)
+                if ($request->has('payments')) {
+                    $payments = $request->input('payments', []);
+                    foreach ($payments as $commitmentId => $paymentData) {
+                        $existingPayments[$commitmentId] = [
+                            'commitment_id' => $paymentData['commitment_id'] ?? $commitmentId,
+                            'utr_no' => $paymentData['utr_no'] ?? '',
+                            'cheque_date' => $paymentData['cheque_date'] ?? '',
+                            'amount' => $paymentData['amount'] ?? 0,
+                            'bank_branch' => $paymentData['bank_branch'] ?? '',
+                            'issued_by' => $paymentData['issued_by'] ?? '',
+                        ];
+                    }
+                }
+
+                $paymentDetail->payment_entries = array_values($existingPayments);
+                $paymentDetail->save();
             }
 
             DB::commit();

@@ -214,6 +214,7 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/general-donor-dashboard/{donor}', [DonorController::class, 'generalDonorShow'])->name('general-donors.show');
 
     Route::put('/donor-dashboard-update/{donor}', [DonorController::class, 'updatedonor'])->name('donors.updatedonor');
+    Route::put('/donor-payment-update/{donor}', [DonorController::class, 'updatePayment'])->name('donors.updatepayment');
 
     // Donor conversion routes
     Route::post('/donors/{donor}/convert-to-general', [DonorController::class, 'convertToGeneral'])->name('donors.convertToGeneral');

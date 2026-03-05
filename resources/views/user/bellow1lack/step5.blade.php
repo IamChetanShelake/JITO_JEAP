@@ -9,38 +9,31 @@
          <div class="container-fluid">
              <div class="row">
                  <div class="col-12">
-                     @php
-                         // Get loan category type to determine if below 1 lakh
-                         $loanCategory = \App\Models\Loan_category::where('user_id', auth()->id())
-                             ->latest()
-                             ->first();
-                         $isBelowOneLakh = $loanCategory && $loanCategory->type === 'below';
-                     @endphp
                      <form method="POST" action="{{ route('user.step7.store') }}" enctype="multipart/form-data">
                          @csrf
-                         @if (session('success'))
-                             <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
-                                 id="successAlert">
+                        @if (session('success'))
+                            <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
+                                id="successAlert">
 
-                                 {{ session('success') }}
+                                {{ session('success') }}
 
-                                 <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
-                                     <span aria-hidden="true">&times;</span>
-                                 </button>
-                             </div>
-                         @endif
+                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
+                        
+                        @if (session('upload_success'))
+                            <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
+                                id="uploadSuccessAlert">
 
-                         @if (session('upload_success'))
-                             <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
-                                 id="uploadSuccessAlert">
+                                {{ session('upload_success') }}
 
-                                 {{ session('upload_success') }}
-
-                                 <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
-                                     <span aria-hidden="true">&times;</span>
-                                 </button>
-                             </div>
-                         @endif
+                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
                          <div class="row mb-3">
                              <div class="col-md-5 offset-md-1">
 
@@ -273,7 +266,7 @@
                                      ($user->educationDetail && $user->educationDetail->submit_status == 'submited') &&
                                      ($user->familyDetail && $user->familyDetail->submit_status == 'submited') &&
                                      ($user->fundingDetail && $user->fundingDetail->submit_status == 'submited') &&
-                                     ($user->guarantorDetail && in_array($user->guarantorDetail->submit_status, ['submited', 'skipped'])) &&
+                                     ($user->guarantorDetail && $user->guarantorDetail->submit_status == 'submited') &&
                                      ($user->document && $user->document->submit_status == 'submited') &&
                                      $user->application_status != 'submitted')
                                  <button type="submit" class="btn"
@@ -315,13 +308,8 @@
 
                                              <div class="modal-body">
                                                  <p style="color:red; font-weight:500;">
-                                                     @if ($isBelowOneLakh)
-                                                         Please submit all 5 steps first.
-                                                         Only after completing all steps will the application be submitted.
-                                                     @else
-                                                         Please submit all 6 steps first.
-                                                         Only after completing all steps will the application be submitted.
-                                                     @endif
+                                                     Please submit all 6 steps first.
+                                                     Only after completing all steps will the application be submitted.
                                                  </p>
                                              </div>
 
@@ -361,7 +349,7 @@
      <script>
          // Show SweetAlert2 success message only when Step 7 form is submitted
          // This ensures it only shows after form submission, not when navigating to Step 7
-         @if (session('success') && session('step7_submitted'))
+         @if(session('success') && session('step7_submitted'))
              document.addEventListener('DOMContentLoaded', function() {
                  Swal.fire({
                      title: 'Application Submitted Successfully!',
@@ -474,17 +462,9 @@
 
          /* Animation for the success icon */
          @keyframes pulse {
-             0% {
-                 transform: scale(1);
-             }
-
-             50% {
-                 transform: scale(1.1);
-             }
-
-             100% {
-                 transform: scale(1);
-             }
+             0% { transform: scale(1); }
+             50% { transform: scale(1.1); }
+             100% { transform: scale(1); }
          }
 
          .swal2-icon.swal2-success {
@@ -497,11 +477,11 @@
                  width: 90% !important;
                  margin: 10px !important;
              }
-
+             
              .swal2-title {
                  font-size: 20px !important;
              }
-
+             
              .swal2-html-container {
                  font-size: 14px !important;
              }

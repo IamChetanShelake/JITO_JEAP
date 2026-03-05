@@ -51,14 +51,14 @@
         }
 
         .summary-label {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 500;
             margin-bottom: 0.5rem;
             opacity: 0.9;
         }
 
         .summary-value {
-            font-size: 1.5rem;
+            font-size: 15px;
             font-weight: 700;
         }
 
@@ -146,38 +146,50 @@
             font-weight: 700;
             color: #009846;
         }
+
+        .info-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+        }
     </style>
 @endsection
 
 @section('content')
     <div class="container">
-        <div class="dashboard-header">
-            <div>
-                <h1 class="dashboard-title">
-                    <i class="fas fa-receipt me-2"></i>
-                    Repayment Details
-                </h1>
-                <p class="dashboard-subtitle">Accounts Department</p>
-            </div>
-            <div class="d-flex gap-2">
-                <a href="{{ route('admin.disbursement.show', ['user' => $user->id]) }}" class="change-country-btn">
-                    <i class="fas fa-arrow-left me-1"></i> Back to Disbursement
-                </a>
-                <button type="button" class="btn-add" data-bs-toggle="modal" data-bs-target="#repaymentModal"
-                    @if ($outstandingAmount <= 0) disabled @endif>
-                    <i class="fas fa-plus me-1"></i> Add Repayment
-                </button>
-            </div>
-        </div>
-
-        <div class="detail-container">
-            <div class="detail-header">
-                <div class="detail-title">
-                    <i class="fas fa-user me-2"></i>
-                    {{ $user->name }}
-                    <span class="text-muted ms-2" style="font-size: 0.9rem;">ID: {{ $user->id }}</span>
+        <div style="display: grid;grid-template-columns: 1fr 1.5fr;gap: 0.75rem;margin-bottom: 0.75rem;">
+            <div class="dashboard-header">
+                <div>
+                    <h1 class="dashboard-title">
+                        <i class="fas fa-receipt me-2"></i>
+                        Repayment Details
+                    </h1>
+                    <p class="dashboard-subtitle">Accounts Department</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('admin.repayments.index') }}" class="change-country-btn">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Repayment list
+                    </a>
+                    <button type="button" class="btn-add" data-bs-toggle="modal" data-bs-target="#repaymentModal"
+                        @if ($outstandingAmount <= 0) disabled @endif>
+                        <i class="fas fa-plus me-1"></i> Add Repayment
+                    </button>
                 </div>
             </div>
+
 
             <div class="row g-3">
                 <div class="col-md-3">
@@ -202,6 +214,43 @@
                     <div class="summary-box outstanding">
                         <div class="summary-label">Outstanding Amount</div>
                         <div class="summary-value">Rs. {{ number_format($outstandingAmount, 2) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-container">
+            <div class="detail-header">
+                <div class="detail-title">
+                    <i class="fas fa-user me-2"></i>
+                    {{ $user->name }}
+                    <span class="text-muted ms-2" style="font-size: 0.9rem;">ID: {{ $user->id }}</span>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="info-card">
+                        <div class="info-label">Email</div>
+                        <div class="info-value">{{ $user->email }}</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="info-card">
+                        <div class="info-label">Phone</div>
+                        <div class="info-value">{{ $user->phone }}</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="info-card">
+                        <div class="info-label">Financial Assistent Type</div>
+                        <div class="info-value">{{ $user->financial_asset_type ?? 'N/A' }}</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="info-card">
+                        <div class="info-label">Financial Assistent For</div>
+                        <div class="info-value">{{ $user->financial_asset_for ?? 'N/A' }}</div>
                     </div>
                 </div>
             </div>
@@ -353,7 +402,8 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                <small class="text-muted">Selecting an installment auto-fills payment date, amount, and cheque number.</small>
+                                <small class="text-muted">Selecting an installment auto-fills payment date, amount, and
+                                    cheque number.</small>
                             </div>
                         @endif
 
@@ -460,7 +510,8 @@
             const installmentSelect = document.getElementById('repaymentInstallmentSelect');
             const paymentDateInput = document.querySelector('input[name="payment_date"]');
             const amountInput = document.querySelector('input[name="amount"]');
-            const referenceInput = referenceField ? referenceField.querySelector('input[name="reference_number"]') : null;
+            const referenceInput = referenceField ? referenceField.querySelector('input[name="reference_number"]') :
+                null;
 
             function updateReferenceField() {
                 const mode = modeSelect.value;

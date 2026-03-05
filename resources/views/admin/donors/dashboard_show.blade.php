@@ -269,8 +269,8 @@
                             <div>Payment</div>
                         </div>
                     @else
-                        {{-- Member Donors: All 7 Steps --}}
-                        @for ($i = 1; $i <= 7; $i++)
+                        {{-- Member Donors: All 8 Steps --}}
+                        @for ($i = 1; $i <= 8; $i++)
                             <div class="donor-step-item" data-step="{{ $i }}">
                                 <div class="donor-step-number">{{ $i }}</div>
                                 <div>
@@ -300,6 +300,11 @@
                                         @break
 
                                         @case(7)
+                                            Commitment
+                                        @break
+
+                                        <!-- ← new -->
+                                        @case(8)
                                             Payment
                                         @break
                                     @endswitch
@@ -1077,8 +1082,187 @@
                         </div>
                     @endif
 
-                    <!-- Step 7: Payment Details -->
+                    @if ($donor->donor_type !== 'general')
+                    <!-- Step 7: Commitment -->
                     <div class="step-content-section" id="step-7">
+                        <h4 class="donorH4">Donation Commitment</h4>
+
+                        <div class="mb-4 p-3 border rounded bg-light">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-hand-holding-heart me-2"></i>
+                                    Donation Commitment
+                                </h5>
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#addCommitmentModal">
+                                    <i class="fas fa-plus me-1"></i> Add Commitment
+                                </button>
+                            </div>
+
+                            @php
+                                $donorCommitments = $donor->commitments ?? collect();
+                                $activeCommitment = $donorCommitments->where('status', 'active')->first();
+                            @endphp
+
+                            <!-- Show all active commitments with progress -->
+                            @if ($donorCommitments->where('status', 'active')->count() > 0)
+                                @foreach ($donorCommitments->where('status', 'active') as $commitment)
+                                    @php
+                                        $totalPaid = $commitment->getTotalPaidAmount();
+                                        $remaining = $commitment->getRemainingAmount();
+                                        $percentagePaid =
+                                            $commitment->committed_amount > 0
+                                                ? round(($totalPaid / $commitment->committed_amount) * 100, 2)
+                                                : 0;
+                                    @endphp
+                                    <div class="alert alert-success mb-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h6 class="mb-1">Active Commitment</h6>
+                                            <span
+                                                class="badge bg-secondary">₹{{ number_format($commitment->committed_amount, 0) }}</span>
+                                        </div>
+                                        <p class="mb-1">Total Paid:
+                                            <strong>₹{{ number_format($totalPaid, 2) }}</strong>
+                                        </p>
+                                        <p class="mb-1">Remaining: <strong>₹{{ number_format($remaining, 2) }}</strong>
+                                        </p>
+                                        <div class="progress mt-2">
+                                            <div class="progress-bar bg-success" role="progressbar"
+                                                style="width: {{ $percentagePaid }}%"
+                                                aria-valuenow="{{ $percentagePaid }}" aria-valuemin="0"
+                                                aria-valuemax="100">
+                                                {{ $percentagePaid }}%
+                                            </div>
+                                        </div>
+                                        @if ($commitment->start_date)
+                                            <small class="text-muted">Start:
+                                                {{ $commitment->start_date->format('d-m-Y') }}</small>
+                                        @endif
+                                        @if ($commitment->end_date)
+                                            <small class="text-muted ms-2">End:
+                                                {{ $commitment->end_date->format('d-m-Y') }}</small>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="alert alert-info mb-3">
+                                    <p class="mb-0">No active donation commitment. Create one to track your donation
+                                        goals.</p>
+                                </div>
+                            @endif
+
+
+                            <!-- Commitment History -->
+                            @if ($donorCommitments->count() > 0)
+                                <div class="mt-3">
+                                    <h6>Commitment History</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Committed Amount</th>
+                                                    <th>Start Date</th>
+                                                    <th>End Date</th>
+                                                    <th>Status</th>
+                                                    <th>Total Paid</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($donorCommitments as $commitment)
+                                                    <tr>
+                                                        <td>₹{{ number_format($commitment->committed_amount, 2) }}</td>
+                                                        <td>{{ $commitment->start_date?->format('d-m-Y') ?? '-' }}</td>
+                                                        <td>{{ $commitment->end_date?->format('d-m-Y') ?? '-' }}</td>
+                                                        <td>
+                                                            @switch($commitment->status)
+                                                                @case('active')
+                                                                    <span class="badge bg-success">Active</span>
+                                                                @break
+
+                                                                @case('completed')
+                                                                    <span class="badge bg-primary">Completed</span>
+                                                                @break
+
+                                                                @case('cancelled')
+                                                                    <span class="badge bg-danger">Cancelled</span>
+                                                                @break
+                                                            @endswitch
+                                                        </td>
+                                                        <td>₹{{ number_format($commitment->getTotalPaidAmount(), 2) }}
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="form-navigation">
+                            <button type="button" class="btn-nav btn-nav-back" onclick="prevStep()">
+                                <i class="fas fa-arrow-left me-2"></i> Back
+                            </button>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn-submit-update">
+                                    <i class="fas fa-save me-2"></i> Update
+                                </button>
+                                <button type="button" class="btn-nav btn-nav-next" onclick="nextStep()">
+                                    Next <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Commitment Modal -->
+                    <div class="modal fade" id="addCommitmentModal" tabindex="-1"
+                        aria-labelledby="addCommitmentModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header" style="background: #393185; color: white;">
+                                    <h5 class="modal-title" id="addCommitmentModalLabel">
+                                        <i class="fas fa-handshake me-2"></i>Add New Commitment
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Committed Amount <span
+                                                class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">₹</span>
+                                            <input type="number" class="form-control" id="committedAmount"
+                                                placeholder="Enter amount" min="1" step="0.01">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Start Date</label>
+                                            <input type="date" class="form-control" id="startDate">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">End Date</label>
+                                            <input type="date" class="form-control" id="endDate">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">Leave dates empty if this is a one-time commitment.</small>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn" id="addCommitmentBtn"
+                                        style="background: #393185; color: white;" onclick="submitCommitmentAJAX()">
+                                        <i class="fas fa-plus me-1"></i> Add Commitment
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Step {{ $donor->donor_type === 'general' ? '2' : '8' }}: Payment Details -->
+                    <div class="step-content-section" id="step-{{ $donor->donor_type === 'general' ? '2' : '8' }}">
                         <h4 class="donorH4">Payment Details</h4>
 
                         <div class="row g-3 mb-4">
@@ -1116,60 +1300,435 @@
                             </div>
                         </div>
 
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>UTR/Cheque No</th>
-                                        <th>Date</th>
-                                        <th>Amount</th>
-                                        <th>Bank Branch</th>
-                                        <th>Issued By</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if (count($paymentEntries) > 0)
-                                        @foreach ($paymentEntries as $i => $entry)
-                                            <tr>
-                                                <td><input type="text" name="payments[{{ $i }}][utr_no]"
-                                                        class="form-control form-control-sm"
-                                                        value="{{ $entry['utr_no'] ?? '' }}"></td>
-                                                <td><input type="date"
-                                                        name="payments[{{ $i }}][cheque_date]"
-                                                        class="form-control form-control-sm"
-                                                        value="{{ $entry['cheque_date'] ?? '' }}"></td>
-                                                <td><input type="number" name="payments[{{ $i }}][amount]"
-                                                        class="form-control form-control-sm"
-                                                        value="{{ $entry['amount'] ?? '' }}"></td>
-                                                <td><input type="text"
-                                                        name="payments[{{ $i }}][bank_branch]"
-                                                        class="form-control form-control-sm ucwords"
-                                                        value="{{ $entry['bank_branch'] ?? '' }}"></td>
-                                                <td><input type="text"
-                                                        name="payments[{{ $i }}][issued_by]"
-                                                        class="form-control form-control-sm ucwords"
-                                                        value="{{ $entry['issued_by'] ?? '' }}"></td>
-                                            </tr>
-                                        @endforeach
-                                    @else
-                                        <tr>
-                                            <td><input type="text" name="payments[0][utr_no]"
-                                                    class="form-control form-control-sm"></td>
-                                            <td><input type="date" name="payments[0][cheque_date]"
-                                                    class="form-control form-control-sm"></td>
-                                            <td><input type="number" name="payments[0][amount]"
-                                                    class="form-control form-control-sm"></td>
-                                            <td><input type="text" name="payments[0][bank_branch]"
-                                                    class="form-control form-control-sm ucwords"></td>
-                                            <td><input type="text" name="payments[0][issued_by]"
-                                                    class="form-control form-control-sm ucwords"></td>
-                                        </tr>
-                                    @endif
-                                </tbody>
-                            </table>
-                        </div>
+                        @php
+                            $isGeneralDonor = ($donor->donor_type ?? '') == 'general';
+                        @endphp
 
-                        <div class="form-navigation">
+                        @if($isGeneralDonor)
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>Donation Payment</h5>
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#addGeneralPaymentModal">
+                                        <i class="fas fa-plus me-1"></i> Add Payment
+                                    </button>
+                                </div>
+
+                                @if (!empty($paymentEntries))
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered align-middle">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>UTR/Cheque No</th>
+                                                    <th>Date</th>
+                                                    <th>Amount</th>
+                                                    <th>Bank Branch</th>
+                                                    <th>Issued By</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($paymentEntries as $index => $generalPayment)
+                                                    <tr>
+                                                        <td>{{ $loop->iteration }}</td>
+                                                        <td>{{ $generalPayment['utr_no'] ?? '-' }}</td>
+                                                        <td>{{ !empty($generalPayment['cheque_date']) ? \Carbon\Carbon::parse($generalPayment['cheque_date'])->format('d-m-Y') : '-' }}</td>
+                                                        <td>₹{{ number_format($generalPayment['amount'] ?? 0, 2) }}</td>
+                                                        <td>{{ $generalPayment['bank_branch'] ?? '-' }}</td>
+                                                        <td>{{ $generalPayment['issued_by'] ?? '-' }}</td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-outline-primary btn-sm"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#editGeneralPaymentModal{{ $index }}">
+                                                                <i class="fas fa-edit me-1"></i>Edit
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @else
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        No payment received yet. Click "Add Payment" to record a donation payment.
+                                    </div>
+                                @endif
+                            </div>
+
+                            <div class="modal fade" id="addGeneralPaymentModal" tabindex="-1"
+                                aria-labelledby="addGeneralPaymentModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header" style="background: #393185; color: white;">
+                                            <h5 class="modal-title" id="addGeneralPaymentModalLabel">
+                                                <i class="fas fa-money-bill-wave me-2"></i>Add Payment
+                                            </h5>
+                                            <button type="button" class="btn-close btn-close-white"
+                                                data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form method="POST" action="{{ route('admin.donors.updatepayment', $donor->id) }}">
+                                            @csrf
+                                            @method('PUT')
+                                            <div class="modal-body">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">UTR/Cheque No <span class="text-danger">*</span></label>
+                                                        <input type="text" name="general_payment[utr_no]" class="form-control" required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Date <span class="text-danger">*</span></label>
+                                                        <input type="date" name="general_payment[cheque_date]" class="form-control" required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Amount <span class="text-danger">*</span></label>
+                                                        <input type="number" name="general_payment[amount]" class="form-control" min="0" step="0.01" required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Bank Branch</label>
+                                                        <input type="text" name="general_payment[bank_branch]" class="form-control ucwords">
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label class="form-label">Issued By</label>
+                                                        <input type="text" name="general_payment[issued_by]" class="form-control ucwords">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn" style="background: #393185; color: white;">
+                                                    <i class="fas fa-save me-1"></i> Save Payment
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @foreach ($paymentEntries as $index => $generalPayment)
+                                <div class="modal fade" id="editGeneralPaymentModal{{ $index }}" tabindex="-1"
+                                    aria-labelledby="editGeneralPaymentModalLabel{{ $index }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header" style="background: #393185; color: white;">
+                                                <h5 class="modal-title" id="editGeneralPaymentModalLabel{{ $index }}">
+                                                    <i class="fas fa-money-bill-wave me-2"></i>Edit Payment #{{ $loop->iteration }}
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white"
+                                                    data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form method="POST" action="{{ route('admin.donors.updatepayment', $donor->id) }}">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="general_payment_index" value="{{ $index }}">
+                                                <div class="modal-body">
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6">
+                                                            <label class="form-label">UTR/Cheque No <span class="text-danger">*</span></label>
+                                                            <input type="text" name="general_payment[utr_no]" class="form-control" value="{{ $generalPayment['utr_no'] ?? '' }}" required>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label">Date <span class="text-danger">*</span></label>
+                                                            <input type="date" name="general_payment[cheque_date]" class="form-control" value="{{ $generalPayment['cheque_date'] ?? '' }}" required>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label">Amount <span class="text-danger">*</span></label>
+                                                            <input type="number" name="general_payment[amount]" class="form-control" min="0" step="0.01" value="{{ $generalPayment['amount'] ?? '' }}" required>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label">Bank Branch</label>
+                                                            <input type="text" name="general_payment[bank_branch]" class="form-control ucwords" value="{{ $generalPayment['bank_branch'] ?? '' }}">
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <label class="form-label">Issued By</label>
+                                                            <input type="text" name="general_payment[issued_by]" class="form-control ucwords" value="{{ $generalPayment['issued_by'] ?? '' }}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn" style="background: #393185; color: white;">
+                                                        <i class="fas fa-save me-1"></i> Save Payment
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                            @if (false)
+                            {{-- General Donor: Simple one-time payment --}}
+                            @php
+                                // For general donors, get the first payment entry (if any)
+                                $generalPayment = !empty($paymentEntries) ? reset($paymentEntries) : null;
+                            @endphp
+
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>Donation Payment</h5>
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#generalPaymentModal">
+                                        <i class="fas fa-{{ $generalPayment ? 'edit' : 'plus' }} me-1"></i>
+                                        {{ $generalPayment ? 'Edit Payment' : 'Add Payment' }}
+                                    </button>
+                                </div>
+
+                                @if ($generalPayment)
+                                    <div class="card border-success mb-3">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <p class="mb-1"><strong>UTR/Cheque No:</strong>
+                                                        {{ $generalPayment['utr_no'] ?? '-' }}</p>
+                                                    <p class="mb-1"><strong>Date:</strong>
+                                                        {{ isset($generalPayment['cheque_date']) ? \Carbon\Carbon::parse($generalPayment['cheque_date'])->format('d-m-Y') : '-' }}
+                                                    </p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p class="mb-1"><strong>Amount:</strong>
+                                                        ₹{{ number_format($generalPayment['amount'] ?? 0, 2) }}</p>
+                                                    <p class="mb-1"><strong>Bank Branch:</strong>
+                                                        {{ $generalPayment['bank_branch'] ?? '-' }}</p>
+                                                </div>
+                                            </div>
+                                            <span class="badge bg-success mt-2">Payment Received</span>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        No payment received yet. Click "Add Payment" to record a donation payment.
+                                    </div>
+                                @endif
+                            </div>
+
+                            <!-- General Donor Payment Modal -->
+                            <div class="modal fade" id="generalPaymentModal" tabindex="-1"
+                                aria-labelledby="generalPaymentModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header" style="background: #393185; color: white;">
+                                            <h5 class="modal-title" id="generalPaymentModalLabel">
+                                                <i class="fas fa-money-bill-wave me-2"></i>
+                                                {{ $generalPayment ? 'Edit' : 'Add' }} Payment
+                                            </h5>
+                                            <button type="button" class="btn-close btn-close-white"
+                                                data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form method="POST"
+                                            action="{{ route('admin.donors.updatepayment', $donor->id) }}">
+                                            @csrf
+                                            @method('PUT')
+                                            <div class="modal-body">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">UTR/Cheque No <span
+                                                                class="text-danger">*</span></label>
+                                                        <input type="text" name="general_payment[utr_no]"
+                                                            class="form-control"
+                                                            value="{{ $generalPayment['utr_no'] ?? '' }}" required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Date <span
+                                                                class="text-danger">*</span></label>
+                                                        <input type="date" name="general_payment[cheque_date]"
+                                                            class="form-control"
+                                                            value="{{ $generalPayment['cheque_date'] ?? '' }}" required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Amount <span
+                                                                class="text-danger">*</span></label>
+                                                        <input type="number" name="general_payment[amount]"
+                                                            class="form-control"
+                                                            value="{{ $generalPayment['amount'] ?? '' }}" required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Bank Branch</label>
+                                                        <input type="text" name="general_payment[bank_branch]"
+                                                            class="form-control ucwords"
+                                                            value="{{ $generalPayment['bank_branch'] ?? '' }}">
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label class="form-label">Issued By</label>
+                                                        <input type="text" name="general_payment[issued_by]"
+                                                            class="form-control ucwords"
+                                                            value="{{ $generalPayment['issued_by'] ?? '' }}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn"
+                                                    style="background: #393185; color: white;">
+                                                    <i class="fas fa-save me-1"></i> Save Payment
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+                        @else
+                            {{-- Member Donor: Commitment-based payments --}}
+                            @php
+                                $activeCommitments = $donor->donationCommitments->where('status', 'active');
+
+                                // Get existing payment entries indexed by commitment_id
+                                $existingPayments = [];
+                                if (!empty($paymentEntries)) {
+                                    foreach ($paymentEntries as $entry) {
+                                        $existingPayments[$entry['commitment_id'] ?? ''] = $entry;
+                                    }
+                                }
+                            @endphp
+
+                            <h5 class="mb-3"><i class="fas fa-handshake me-2"></i>Donation Commitments</h5>
+
+                            @if ($activeCommitments->count() > 0)
+                                <div class="row g-3">
+                                    @foreach ($activeCommitments as $commitment)
+                                        @php
+                                            $entry = $existingPayments[$commitment->id] ?? null;
+                                            $hasPayment = !empty($entry);
+                                        @endphp
+                                        <div class="col-md-6">
+                                            <div class="card border-{{ $hasPayment ? 'success' : 'secondary' }} mb-3">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                                        <div>
+                                                            <h6 class="mb-1">Commitment #{{ $loop->iteration }}</h6>
+                                                            <h4 class="text-primary mb-0">
+                                                                ₹{{ number_format($commitment->committed_amount, 2) }}
+                                                            </h4>
+                                                        </div>
+                                                        <span class="badge bg-{{ $hasPayment ? 'success' : 'warning' }}">
+                                                            {{ $hasPayment ? 'Paid' : 'Pending' }}
+                                                        </span>
+                                                    </div>
+                                                    @if ($commitment->start_date || $commitment->end_date)
+                                                        <p class="text-muted small mb-2">
+                                                            Period:
+                                                            {{ $commitment->start_date ? \Carbon\Carbon::parse($commitment->start_date)->format('d-m-Y') : '' }}
+                                                            {{ $commitment->end_date ? ' to ' . \Carbon\Carbon::parse($commitment->end_date)->format('d-m-Y') : '' }}
+                                                        </p>
+                                                    @endif
+
+                                                    @if ($hasPayment)
+                                                        <div class="bg-light p-2 rounded mb-2">
+                                                            <small>
+                                                                <strong>UTR:</strong> {{ $entry['utr_no'] ?? '-' }}<br>
+                                                                <strong>Date:</strong>
+                                                                {{ $entry['cheque_date'] ? \Carbon\Carbon::parse($entry['cheque_date'])->format('d-m-Y') : '-' }}<br>
+                                                                <strong>Amount:</strong>
+                                                                ₹{{ number_format($entry['amount'] ?? 0, 2) }}
+                                                            </small>
+                                                        </div>
+                                                    @endif
+
+                                                    <button type="button"
+                                                        class="btn btn-sm {{ $hasPayment ? 'btn-outline-primary' : 'btn-primary' }} w-100"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#paymentModal{{ $commitment->id }}">
+                                                        <i class="fas fa-{{ $hasPayment ? 'edit' : 'plus' }} me-1"></i>
+                                                        {{ $hasPayment ? 'Edit Payment' : 'Add Payment' }}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Payment Modal for this Commitment -->
+                                        <div class="modal fade" id="paymentModal{{ $commitment->id }}" tabindex="-1"
+                                            aria-labelledby="paymentModalLabel{{ $commitment->id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header" style="background: #393185; color: white;">
+                                                        <h5 class="modal-title"
+                                                            id="paymentModalLabel{{ $commitment->id }}">
+                                                            <i class="fas fa-money-bill-wave me-2"></i>
+                                                            Payment for Commitment #{{ $loop->iteration }}
+                                                            (₹{{ number_format($commitment->committed_amount, 2) }})
+                                                        </h5>
+                                                        <button type="button" class="btn-close btn-close-white"
+                                                            data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <form method="POST"
+                                                        action="{{ route('admin.donors.updatepayment', $donor->id) }}">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <div class="modal-body">
+                                                            <input type="hidden"
+                                                                name="payments[{{ $commitment->id }}][commitment_id]"
+                                                                value="{{ $commitment->id }}">
+
+                                                            <div class="row g-3">
+                                                                <div class="col-md-6">
+                                                                    <label class="form-label">UTR/Cheque No <span
+                                                                            class="text-danger">*</span></label>
+                                                                    <input type="text"
+                                                                        name="payments[{{ $commitment->id }}][utr_no]"
+                                                                        class="form-control"
+                                                                        value="{{ $entry['utr_no'] ?? '' }}" required>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <label class="form-label">Date <span
+                                                                            class="text-danger">*</span></label>
+                                                                    <input type="date"
+                                                                        name="payments[{{ $commitment->id }}][cheque_date]"
+                                                                        class="form-control"
+                                                                        value="{{ $entry['cheque_date'] ?? '' }}"
+                                                                        required>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <label class="form-label">Amount <span
+                                                                            class="text-danger">*</span></label>
+                                                                    <input type="number"
+                                                                        name="payments[{{ $commitment->id }}][amount]"
+                                                                        class="form-control"
+                                                                        value="{{ $entry['amount'] ?? $commitment->committed_amount }}"
+                                                                        required>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <label class="form-label">Bank Branch</label>
+                                                                    <input type="text"
+                                                                        name="payments[{{ $commitment->id }}][bank_branch]"
+                                                                        class="form-control ucwords"
+                                                                        value="{{ $entry['bank_branch'] ?? '' }}">
+                                                                </div>
+                                                                <div class="col-md-12">
+                                                                    <label class="form-label">Issued By</label>
+                                                                    <input type="text"
+                                                                        name="payments[{{ $commitment->id }}][issued_by]"
+                                                                        class="form-control ucwords"
+                                                                        value="{{ $entry['issued_by'] ?? '' }}">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn"
+                                                                style="background: #393185; color: white;">
+                                                                <i class="fas fa-save me-1"></i> Save Payment
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    No active commitments found. Please create a commitment first.
+                                </div>
+                            @endif
+
+                        @endif
+
+                        <div class="form-navigation mt-4">
                             <button type="button" class="btn-nav btn-nav-back" onclick="prevStep()"><i
                                     class="fas fa-arrow-left me-2"></i> Back</button>
                             <button type="submit" class="btn-submit-update"><i class="fas fa-save me-2"></i> Update
@@ -1275,8 +1834,9 @@
 
         const stepInput = document.getElementById('current_step_input');
         let currentStep = parseInt(stepInput.value) || 1;
-        // General donors have 2 steps (Personal Details + Payment), members have 7 steps
-        const totalSteps = {{ $donor->donor_type === 'general' ? '2' : '7' }};
+        // General donors have 2 steps (Personal Details + Payment), members have 8 steps
+        const totalSteps = {{ $donor->donor_type === 'general' ? '2' : '8' }};
+        if (currentStep < 1 || currentStep > totalSteps) currentStep = 1;
 
         document.addEventListener('DOMContentLoaded', function() {
             goToStep(currentStep);
@@ -1295,15 +1855,18 @@
             currentStep = step;
             stepInput.value = step;
 
-            document.querySelectorAll('.donor-step-item').forEach((item, index) => {
-                if (index + 1 === step) item.classList.add('active');
+            document.querySelectorAll('.donor-step-item').forEach((item) => {
+                const itemStep = parseInt(item.getAttribute('data-step'));
+                if (itemStep === step) item.classList.add('active');
                 else item.classList.remove('active');
             });
 
-            document.querySelectorAll('.step-content-section').forEach((section, index) => {
-                if (index + 1 === step) section.classList.add('active');
-                else section.classList.remove('active');
+            document.querySelectorAll('.step-content-section').forEach((section) => {
+                section.classList.remove('active');
             });
+
+            const targetSection = document.getElementById(`step-${step}`);
+            if (targetSection) targetSection.classList.add('active');
         }
 
         function nextStep() {
@@ -1364,5 +1927,102 @@
                 e.target.value = toTitleCase(e.target.value);
             }
         }, true);
+
+        // === AJAX Submission for Donation Commitment ===
+        function submitCommitmentAJAX() {
+            const committedAmount = document.getElementById('committedAmount').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const addBtn = document.getElementById('addCommitmentBtn');
+
+            // Validation
+            if (!committedAmount || committedAmount <= 0) {
+                alert('Please enter a valid committed amount');
+                return;
+            }
+
+            if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+                alert('End date must be after start date');
+                return;
+            }
+
+            // Disable button and show loading state
+            addBtn.disabled = true;
+            addBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Adding...';
+
+            // Get CSRF token
+            const csrfToken = document.querySelector('input[name="_token"]').value;
+
+            // Prepare data
+            const formData = new FormData();
+            formData.append('committed_amount', committedAmount);
+            formData.append('start_date', startDate || '');
+            formData.append('end_date', endDate || '');
+            formData.append('_token', csrfToken);
+
+            // AJAX request
+            fetch('{{ route('admin.donors.createCommitment', $donor->id) }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Success
+                    if (data.success) {
+                        // Show success message
+                        showAlert('Donation commitment created successfully!', 'success');
+
+                        // Clear form
+                        document.getElementById('committedAmount').value = '';
+                        document.getElementById('startDate').value = '';
+                        document.getElementById('endDate').value = '';
+
+                        // Reload the commitments section after 2 seconds
+                        setTimeout(function() {
+                            location.reload();
+                        }, 2000);
+                    } else {
+                        showAlert(data.message || 'Failed to create commitment', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('Error: ' + error.message, 'error');
+                })
+                .finally(() => {
+                    // Reset button
+                    addBtn.disabled = false;
+                    addBtn.innerHTML = '<i class="fas fa-plus me-1"></i> Add';
+                });
+        }
+
+        // === Helper Function to Show Alerts ===
+        function showAlert(message, type) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+
+            const alertHtml = `<div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                <i class="fas ${icon} me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>`;
+
+            // Insert alert at the top of the commitment section
+            const commitmentSection = document.querySelector('.mb-4.p-3.border.rounded.bg-light');
+            if (commitmentSection) {
+                commitmentSection.insertAdjacentHTML('afterbegin', alertHtml);
+
+                // Auto-remove alert after 5 seconds
+                setTimeout(function() {
+                    const alert = commitmentSection.querySelector('.alert');
+                    if (alert) {
+                        alert.remove();
+                    }
+                }, 5000);
+            }
+        }
     </script>
 @endsection

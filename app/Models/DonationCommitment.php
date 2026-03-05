@@ -10,6 +10,7 @@ class DonationCommitment extends Model
     use HasFactory;
 
     protected $connection = 'admin_panel';
+    protected $table = 'donation_commitments';
 
     protected $guarded = [];
 
@@ -87,9 +88,36 @@ class DonationCommitment extends Model
      */
     public function getTotalPaidAmount(): float
     {
+        // First try to get from donor_payment_details JSON field
+        if ($this->donor && $this->donor->paymentDetail) {
+            $paymentEntries = $this->donor->paymentDetail->payment_entries;
+            if (!empty($paymentEntries)) {
+                $entries = is_array($paymentEntries)
+                    ? $paymentEntries
+                    : json_decode($paymentEntries, true);
+
+                if (is_array($entries)) {
+                    foreach ($entries as $entry) {
+                        if (isset($entry['commitment_id']) && $entry['commitment_id'] == $this->id) {
+                            return (float) ($entry['amount'] ?? 0);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Fallback: try to get from payments relationship
         return $this->payments()
             ->whereNotNull('amount')
             ->sum('amount');
+    }
+
+    /**
+     * Check if payment has been made for this commitment.
+     */
+    public function hasPayment(): bool
+    {
+        return $this->getTotalPaidAmount() > 0;
     }
 
     /**

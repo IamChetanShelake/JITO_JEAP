@@ -81,14 +81,14 @@
         }
 
         .summary-label {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 500;
             margin-bottom: 0.5rem;
             opacity: 0.9;
         }
 
         .summary-value {
-            font-size: 1.5rem;
+            font-size: 15px;
             font-weight: 700;
         }
 
@@ -241,22 +241,51 @@
 
 @section('content')
     <div class="container">
-        <!-- Dashboard Header -->
-        <div class="dashboard-header">
-            <div>
-                <h1 class="dashboard-title">
-                    <i class="fas fa-money-bill-wave me-2"></i>
-                    Disbursement Details
-                </h1>
-                <p class="dashboard-subtitle">Accounts Department</p>
+        <div style="display: grid;grid-template-columns: 1fr 1.5fr;gap: 0.75rem;margin-bottom: 0.75rem;">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div>
+                    <h1 class="dashboard-title">
+                        <i class="fas fa-money-bill-wave me-2"></i>
+                        Disbursement Details
+                    </h1>
+                    <p class="dashboard-subtitle">Accounts Department</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('admin.disbursement.index') }}" class="change-country-btn">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Disbursement list
+                    </a>
+                    <a href="{{ route('admin.repayments.show', ['user' => $user->id]) }}" class="change-country-btn">
+                        <i class="fas fa-receipt me-1"></i> Repayments
+                    </a>
+                </div>
             </div>
-            <div class="d-flex gap-2">
-                <a href="{{ route('admin.disbursement.index') }}" class="change-country-btn">
-                    <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
-                </a>
-                <a href="{{ route('admin.repayments.show', ['user' => $user->id]) }}" class="change-country-btn">
-                    <i class="fas fa-receipt me-1"></i> Repayments
-                </a>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-4">
+                    <div class="summary-box">
+                        <div class="summary-label">Total Planned Amount</div>
+                        <div class="summary-value">
+                            ₹{{ number_format($allSchedules->sum('planned_amount'), 2) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="summary-box disbursed">
+                        <div class="summary-label">Disbursed Amount</div>
+                        <div class="summary-value">
+                            ₹{{ number_format($allDisbursements->sum('amount'), 2) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="summary-box remaining">
+                        <div class="summary-label">Remaining Amount</div>
+                        <div class="summary-value">
+                            ₹{{ number_format($allSchedules->sum('planned_amount') - $allDisbursements->sum('amount'), 2) }}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -298,32 +327,7 @@
             </div>
 
             <!-- Summary Cards -->
-            <div class="row g-3 mt-2">
-                <div class="col-md-4">
-                    <div class="summary-box">
-                        <div class="summary-label">Total Planned Amount</div>
-                        <div class="summary-value">
-                            ₹{{ number_format($allSchedules->sum('planned_amount'), 2) }}
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="summary-box disbursed">
-                        <div class="summary-label">Disbursed Amount</div>
-                        <div class="summary-value">
-                            ₹{{ number_format($allDisbursements->sum('amount'), 2) }}
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="summary-box remaining">
-                        <div class="summary-label">Remaining Amount</div>
-                        <div class="summary-value">
-                            ₹{{ number_format($allSchedules->sum('planned_amount') - $allDisbursements->sum('amount'), 2) }}
-                        </div>
-                    </div>
-                </div>
-            </div>
+
         </div>
 
         <!-- PDC/Cheque Details -->
@@ -394,7 +398,7 @@
                                 <th>Bank Account</th>
                                 <th>UTR Number</th>
                                 <th>Amount</th>
-                                {{-- <th>Remarks</th> --}}
+
                             </tr>
                         </thead>
                         <tbody>
@@ -416,8 +420,9 @@
                                         @endif
                                     </td>
                                     <td class="fw-bold">{{ $disbursement->utr_number }}</td>
-                                    <td class="fw-bold text-success">₹{{ number_format($disbursement->amount, 2) }}</td>
-                                    {{-- <td>{{ strip_tags($disbursement->remarks ?? '-') }}</td> --}}
+                                    <td class="fw-bold text-success">₹{{ number_format($disbursement->amount, 2) }}
+                                    </td>
+
                                 </tr>
                             @endforeach
                         </tbody>

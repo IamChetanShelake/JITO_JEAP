@@ -772,18 +772,38 @@
                 border-right-color: transparent;
             }
 
-            .document-grid {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px 24px;
-            }
+    }
 
-            .document-grid .form-row {
-                margin: 0;
-            }
-
+    .top-summary-layout {
+            display: grid;
+            grid-template-columns: 1fr 4fr;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
         }
-    </style>
+
+        .top-summary-layout .user-info-card {
+            margin-bottom: 0 !important;
+        }
+
+        .top-card-user {
+            order: 2;
+        }
+
+        .top-card-workflow {
+            order: 1;
+        }
+
+        @media (max-width: 991.98px) {
+            .top-summary-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .top-card-user,
+            .top-card-workflow {
+                order: unset;
+            }
+        }
+</style>
 @endsection
 
 @section('content')
@@ -838,50 +858,117 @@
                 <p>{{ $user->mobile }}</p>
             </div>
         </div>
-        <div class="user-info-footer">
-            <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}</p>
-            <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type ?? 'N/A' }}</p>
-            <p><strong>Financial Assistance For:</strong> {{ $user->financial_asset_for ?? 'N/A' }}</p>
+
+        <a href="{{ route('admin.home') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- User Info Card -->
+<div class="top-summary-layout">
+        <!-- User Info Card (Right) -->
+        <div class="user-info-card top-card-user">
+            <div class="user-info-header">
+                <div class="user-avatar">
+                    @if ($user->image)
+                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img">
+                    @else
+                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                    @endif
+                </div>
+                <div class="user-details">
+                    <h3>{{ $user->name }}</h3>
+                    <p>{{ $user->email }}</p>
+                    <p>{{ $user->phone }}</p>
+                </div>
+
+            </div>
+            <div style="text-align: right; margin-top: -2.5rem;">
+                <a href="{{ route('admin.user.logs', ['user' => $user->id]) }}" class="back-btn"
+                    style="background-color: var(--primary-blue); color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                    <i class="fas fa-history"></i> Logs
+                </a>
+            </div>
+            <div class="user-info-footer">
+                <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}</p>
+                <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type ?? 'N/A' }}</p>
+                <p><strong>Financial Assistance For:</strong> {{ $user->financial_asset_for ?? 'N/A' }}</p>
+            </div>
+        </div>
+
+        <!-- Workflow Status Card (Left) -->
+        <div class="user-info-card top-card-workflow">
+            <div class="workflow-status-header">
+                <div class="workflow-status-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="workflow-stage-info">
+                    <h3>Workflow Status</h3>
+                    <p><strong>Current Stage:</strong> <span
+                            class="status-highlight">{{ $user->workflowStatus ? ucfirst(str_replace('_', ' ', $user->workflowStatus->current_stage)) : 'N/A' }}</span>
+                    </p>
+                    <p><strong>Final Status:</strong> <span
+                            class="status-highlight">{{ $user->workflowStatus ? ucfirst($user->workflowStatus->final_status) : 'N/A' }}</span>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 
-    {{-- <!-- Workflow Status Card -->
-<div class="user-info-card">
-    <div class="user-info-header">
-        <div class="user-details">
-            <h3>Workflow Status</h3>
-            <p>Current Stage: {{ $user->workflowStatus ? ucfirst(str_replace('_', ' ', $user->workflowStatus->current_stage)) : 'N/A' }}</p>
-            <p>Final Status: {{ $user->workflowStatus ? $user->workflowStatus->final_status : 'N/A' }}</p>
+
+<!-- Steps Container -->
+<div class="steps-container">
+    <!-- Step Navigation -->
+    <div class="step-nav">
+        <div class="step-nav-item active step-1" onclick="showStep(1)">
+            <span class="step-number">1</span>
+            <span class="step-title">Personal Details</span>
         </div>
+        <div class="step-nav-item step-2" onclick="showStep(2)">
+            <span class="step-number">2</span>
+            <span class="step-title">Education Details</span>
+        </div>
+        <div class="step-nav-item step-3" onclick="showStep(3)">
+            <span class="step-number">3</span>
+            <span class="step-title">Family Details</span>
+        </div>
+        <div class="step-nav-item step-4" onclick="showStep(4)">
+            <span class="step-number">4</span>
+            <span class="step-title">Funding Details</span>
+        </div>
+        <div class="step-nav-item step-5" onclick="showStep(5)">
+            <span class="step-number">5</span>
+            <span class="step-title">Guarantor Details</span>
+        </div>
+        <div class="step-nav-item step-6" onclick="showStep(6)">
+            <span class="step-number">6</span>
+            <span class="step-title">Documents</span>
+        </div>
+        <div class="step-nav-item step-7" onclick="showStep(7)">
+            <span class="step-number">7</span>
+            <span class="step-title">Final Submission</span>
+        </div>
+        <div class="step-nav-item step-8" onclick="showStep(8)">
+            <span class="step-number">8</span>
+            <span class="step-title">PDC/Cheque Details</span>
+        </div>
+
     </div>
-    @if ($user->workflowStatus && $user->workflowStatus->current_stage == 'apex_1' && $user->workflowStatus->final_status == 'in_progress')
-    <div style="margin-top: 1rem; display: flex; gap: 1rem;">
-        <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
-            @csrf
-            <button type="submit" class="btn-approve">Approve Apex 1</button>
-        </form>
-        <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
-            @csrf
-            <textarea name="admin_remark" placeholder="Reject remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:20rem;box-sizing:border-box;"></textarea>
-            <button type="submit" class="btn-hold">Reject Apex 1</button>
-        </form>
-    </div>
-    @endif
-</div> --}}
-    <!-- Workflow Status Card -->
-    <div class="user-info-card">
-        <div class="workflow-status-header">
-            <div class="workflow-status-icon">
-                <i class="fas fa-tasks"></i>
-            </div>
-            <div class="workflow-stage-info">
-                <h3>Workflow Status</h3>
-                <p><strong>Current Stage:</strong> <span
-                        class="status-highlight">{{ $user->workflowStatus ? ucfirst(str_replace('_', ' ', $user->workflowStatus->current_stage)) : 'N/A' }}</span>
-                </p>
-                <p><strong>Final Status:</strong> <span
-                        class="status-highlight">{{ $user->workflowStatus ? ucfirst($user->workflowStatus->final_status) : 'N/A' }}</span>
-                </p>
+
+    <div class="content-area">
+
+    <!-- Step 1: Personal Details -->
+
+    <div class="step-content active" id="step-1">
+        <div class="step-header">
+            <h2 class="step-title-large">Step 1: Personal Details</h2>
+            <div class="step-status">
+                <span class="status-badge status-{{ $user->submit_status == 'approved' ? 'approved' : ($user->submit_status == 'resubmit' ? 'hold' : 'pending') }}">
+                    <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                    {{ ucfirst($user->submit_status ?? 'Pending') }}
+                </span>
+
             </div>
         </div>
 

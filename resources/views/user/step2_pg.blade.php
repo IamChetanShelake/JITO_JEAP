@@ -2219,6 +2219,51 @@
                     isValid = isValid && validateRequired('jc_cgpa_out_of', 'CGPA out of is required');
                 }
 
+                // Validate Total Expenses - should not be greater than 1 lakh
+                const totalExpensesInput = document.querySelector('input[name="group_4_total"]');
+                if (totalExpensesInput && totalExpensesInput.value) {
+                    const totalExpenses = parseFloat(totalExpensesInput.value);
+                    if (totalExpenses > 100000) {
+                        e.preventDefault();
+                        // Show modal with error message
+                        const modalHtml = `
+                            <div class="modal fade" id="totalExpensesErrorModal" tabindex="-1" role="dialog" aria-labelledby="totalExpensesErrorModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content" style="border:2px solid #dc3545;">
+                                        <div class="modal-header" style="border-bottom:1px solid #dc3545; background-color: #dc3545; color: white;">
+                                            <h5 class="modal-title" id="totalExpensesErrorModalLabel" style="color: white;">Not Eligible</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p style="color: #dc3545; font-weight: 600; font-size: 16px;">
+                                                Your Total Expenses (Rs. ${totalExpenses.toLocaleString()}) exceeds Rs. 1,00,000 (1 Lakh).<br><br>
+                                                You are not eligible for this financial assistance program.<br><br>
+                                                Please contact the administrator for more information.
+                                            </p>
+                                        </div>
+                                        <div class="modal-footer" style="border-top:1px solid #dc3545;">
+                                            <button type="button" class="btn btn-outline-danger" data-dismiss="modal" style="border-color: #dc3545; color: #dc3545;">OK</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        // Remove any existing modal
+                        const existingModal = document.getElementById('totalExpensesErrorModal');
+                        if (existingModal) {
+                            existingModal.remove();
+                        }
+                        // Add modal to body
+                        document.body.insertAdjacentHTML('beforeend', modalHtml);
+                        // Show the modal
+                        const modal = new bootstrap.Modal(document.getElementById('totalExpensesErrorModal'));
+                        modal.show();
+                        return false;
+                    }
+                }
+            
                 // Final check
                 if (!isValid) {
                     e.preventDefault();

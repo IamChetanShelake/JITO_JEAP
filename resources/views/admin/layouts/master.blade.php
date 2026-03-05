@@ -19,7 +19,7 @@
             --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             --border-radius: 15px;
             --sidebar-width: 280px;
-            --sidebar-collapsed-width: 70px;
+            --sidebar-collapsed-width: 90px;
         }
 
         body {
@@ -267,6 +267,34 @@
             transform: translateX(-10px);
             position: absolute;
             left: -9999px;
+        }
+
+        .nav-submenu {
+            list-style: none;
+            padding-left: 1.5rem;
+            margin: 0.25rem 0 0.5rem 0;
+        }
+
+        .nav-submenu .nav-link {
+            padding: 0.7rem 1rem;
+            font-size: 0.92rem;
+            margin: 0.15rem 0.5rem;
+        }
+
+        .nav-link .submenu-arrow {
+            margin-left: auto;
+            margin-right: 0;
+            font-size: 0.9rem;
+            width: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link[aria-expanded="true"] .submenu-arrow {
+            transform: rotate(180deg);
+        }
+
+        .sidebar.collapsed:not(:hover):not(.expanded) .nav-submenu {
+            display: none !important;
         }
 
         .main-content {
@@ -754,6 +782,50 @@
                                 <span class="nav-text">Subcast</span>
                             </a>
                         </li>
+                        @php
+                            $currentRoute = Route::currentRouteName() ?? '';
+                            $isDonorsMenuActive =
+                                str_contains($currentRoute, 'admin.donors.dashboard') ||
+                                str_contains($currentRoute, 'admin.general-donors') ||
+                                str_contains($currentRoute, 'admin.donors.index');
+                        @endphp
+                        <li class="nav-item">
+                            <a class="nav-link {{ $isDonorsMenuActive ? 'active' : '' }}" data-bs-toggle="collapse"
+                                href="#donorsSubmenu" role="button"
+                                aria-expanded="{{ $isDonorsMenuActive ? 'true' : 'false' }}"
+                                aria-controls="donorsSubmenu">
+                                <i class="fas fa-hand-holding-heart"></i>
+                                <span class="nav-text">Donors</span>
+                                <i class="fas fa-chevron-down submenu-arrow"></i>
+                            </a>
+                            <ul class="collapse nav-submenu {{ $isDonorsMenuActive ? 'show' : '' }}"
+                                id="donorsSubmenu">
+                                <li class="nav-item">
+                                    <a class="nav-link {{ str_contains($currentRoute, 'admin.donors.dashboard') ? 'active' : '' }}"
+                                        href="{{ route('admin.donors.dashboard') }}">
+                                        <i class="fas fa-hand-holding-heart"></i>
+                                        <span class="nav-text">Member Donors</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ str_contains($currentRoute, 'admin.general-donors') ? 'active' : '' }}"
+                                        href="{{ route('admin.general-donors.dashboard') }}">
+                                        <i class="fas fa-users"></i>
+                                        <span class="nav-text">General Donors</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ str_contains($currentRoute, 'admin.donors.index') ? 'active' : '' }}"
+                                        href="{{ route('admin.donors.index') }}">
+                                        <i class="fas fa-list"></i>
+                                        <span class="nav-text">All Donors</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endif
+
+                    @if ($activeGuard === 'accountant')
                         <li class="nav-item">
                             <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.donors.dashboard') ? 'active' : '' }}"
                                 href="{{ route('admin.donors.dashboard') }}">
@@ -767,14 +839,6 @@
                                 href="{{ route('admin.general-donors.dashboard') }}">
                                 <i class="fas fa-users"></i>
                                 <span class="nav-text">General Donors</span>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.donors.index') ? 'active' : '' }}"
-                                href="{{ route('admin.donors.index') }}">
-                                <i class="fas fa-list"></i>
-                                <span class="nav-text">All Donors</span>
                             </a>
                         </li>
                     @endif

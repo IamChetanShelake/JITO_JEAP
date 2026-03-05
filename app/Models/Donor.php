@@ -11,6 +11,7 @@ class Donor extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $connection = 'admin_panel';
+    protected $table = 'donors';
 
     protected $guarded = [];
 
@@ -76,6 +77,14 @@ class Donor extends Authenticatable
      * Get the donation commitments for this donor.
      */
     public function commitments()
+    {
+        return $this->hasMany(DonationCommitment::class);
+    }
+
+    /**
+     * Alias for commitments() - for backward compatibility
+     */
+    public function donationCommitments()
     {
         return $this->hasMany(DonationCommitment::class);
     }

@@ -418,6 +418,15 @@ class UserController extends Controller
         $request->validate($rules);
 
         $user_id = Auth::id();
+        $loanCategory = Loan_category::where('user_id', $user_id)->latest()->first();
+        $isBelowOneLakh = $loanCategory && $loanCategory->type === 'below';
+        $totalExpenses = (float) ($request->group_4_year1 ?: 0) + (float) ($request->group_4_year2 ?: 0) + (float) ($request->group_4_year3 ?: 0) + (float) ($request->group_4_year4 ?: 0) + (float) ($request->group_4_year5 ?: 0);
+
+        if ($isBelowOneLakh && $totalExpenses > 100000) {
+            return back()->withInput()->withErrors([
+                'group_4_total' => 'For Below 1,00,000 category, Total Expenses cannot exceed 1,00,000.'
+            ]);
+        }
 
         $isResubmission = $this->isStepResubmission('step2');
 
@@ -671,6 +680,15 @@ class UserController extends Controller
         $request->validate($rules);
 
         $user_id = Auth::id();
+        $loanCategory = Loan_category::where('user_id', $user_id)->latest()->first();
+        $isBelowOneLakh = $loanCategory && $loanCategory->type === 'below';
+        $totalExpenses = (float) ($request->group_4_year1 ?: 0) + (float) ($request->group_4_year2 ?: 0) + (float) ($request->group_4_year3 ?: 0) + (float) ($request->group_4_year4 ?: 0) + (float) ($request->group_4_year5 ?: 0);
+
+        if ($isBelowOneLakh && $totalExpenses > 100000) {
+            return back()->withInput()->withErrors([
+                'group_4_total' => 'For Below 1,00,000 category, Total Expenses cannot exceed 1,00,000.'
+            ]);
+        }
         $isResubmission = $this->isStepResubmission('step2');
 
         $data = [

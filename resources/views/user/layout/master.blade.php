@@ -454,8 +454,7 @@
             <div class="ms-auto d-flex align-items-center">
                 <!-- Print Options Dropdown -->
                 <div class="dropdown p-2" style="position: relative;">
-                    <button class="back-btn" style="background-color: #FFC107; color: #333;"
-                        onclick="toggleDropdown()">
+                    <button class="back-btn" style="background-color: #FFC107; color: #333;" onclick="toggleDropdown()">
                         <i class="fas fa-print"></i> Print Options <i class="fas fa-chevron-down"
                             style="margin-left: 0.5rem;"></i>
                     </button>
@@ -565,6 +564,11 @@
                         $guarantorDetail = \App\Models\GuarantorDetail::where('user_id', auth()->id())->first();
                         $document = \App\Models\Document::where('user_id', auth()->id())->first();
                         $reviewSubmit = \App\Models\ReviewSubmit::where('user_id', auth()->id())->first();
+                        // Get loan category type to determine if below 1 lakh
+                        $loanCategory = \App\Models\Loan_category::where('user_id', auth()->id())
+                            ->latest()
+                            ->first();
+                        $isBelowOneLakh = $loanCategory && $loanCategory->type === 'below';
                     @endphp
                     {{--
                     <li class="{{ request()->routeIs('user.step2') ? 'active' : '' }}">
@@ -707,6 +711,7 @@
                         </a>
                     </li>
 
+                    @if (!$isBelowOneLakh)
                     <li class="{{ request()->routeIs('user.step5') ? 'active' : '' }}">
                         <a href="{{ route('user.step5') }}">
                             <div
@@ -735,6 +740,7 @@
                             </div>
                         </a>
                     </li>
+                    @endif
 
                     <li class="{{ request()->routeIs('user.step6') ? 'active' : '' }}">
                         <a href="{{ route('user.step6') }}">
@@ -759,7 +765,7 @@
 
                             </div>
                             <div class="step-content">
-                                <div class="step-number">Step 6</div>
+                                <div class="step-number">{{ $isBelowOneLakh ? 'Step 5' : 'Step 6' }}</div>
                                 <div class="step-title">Documents Upload</div>
                             </div>
                         </a>
@@ -808,7 +814,7 @@
 
                             </div>
                             <div class="step-content">
-                                <div class="step-number">Step 7</div>
+                                <div class="step-number">{{ $isBelowOneLakh ? 'Step 6' : 'Step 7' }}</div>
                                 <div class="step-title">Review & Submit</div>
                             </div>
                         </a>

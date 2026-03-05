@@ -1494,9 +1494,12 @@
                     isValid = isValid && validateRequired('jc_cgpa_out_of', 'CGPA out of is required');
                 }
 
-                // Validate Total Expenses - should not be greater than 1 lakh
+                const selectedLoanCategory = @json($type ?? null);
+                const enforceOneLakhCap = selectedLoanCategory === 'below';
+
+                // Validate Total Expenses - should not be greater than 1 lakh for below category
                 const totalExpensesInput = document.querySelector('input[name="group_4_total"]');
-                if (totalExpensesInput && totalExpensesInput.value) {
+                if (enforceOneLakhCap && totalExpensesInput && totalExpensesInput.value) {
                     const totalExpenses = parseFloat(totalExpensesInput.value);
                     if (totalExpenses > 100000) {
                         e.preventDefault();

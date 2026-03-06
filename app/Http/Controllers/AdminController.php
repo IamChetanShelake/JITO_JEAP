@@ -11,6 +11,7 @@ use App\Models\ChapterInterviewAnswer;
 use App\Models\DisbursementSchedule;
 use App\Models\EducationDetail;
 use App\Models\Logs;
+use App\Models\Loan_category;
 use App\Models\PdcDetail;
 use App\Models\User;
 use App\Traits\LogsUserActivity;
@@ -30,6 +31,37 @@ use Illuminate\Support\Facades\Mail;
 class AdminController extends Controller
 {
     use LogsUserActivity;
+
+    private function attachLatestLoanCategoryType($users): void
+    {
+        $userIds = $users->pluck('id')->filter()->values();
+
+        if ($userIds->isEmpty()) {
+            return;
+        }
+
+        $loanCategoryTable = (new Loan_category())->getTable();
+
+        $loanCategoryByUser = Loan_category::query()
+            ->select('user_id', 'type')
+            ->whereIn('id', function ($query) use ($userIds, $loanCategoryTable) {
+                $query->from($loanCategoryTable)
+                    ->selectRaw('MAX(id)')
+                    ->whereIn('user_id', $userIds)
+                    ->groupBy('user_id');
+            })
+            ->get()
+            ->mapWithKeys(function ($loanCategory) {
+                return [
+                    $loanCategory->user_id => strtolower(trim((string) $loanCategory->type)),
+                ];
+            });
+
+        $users->each(function ($user) use ($loanCategoryByUser) {
+            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
+        });
+    }
+
     public function index(Request $request)
     {
         // Calculate disbursement counts for dashboard
@@ -302,6 +334,9 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
+
         return view('admin.apex.stage1.approved', compact('users'));
     }
 
@@ -314,6 +349,8 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
 
         return view('admin.apex.stage1.pending', compact('users'));
     }
@@ -328,6 +365,8 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.apex.stage1.hold', compact('users'));
     }
 
@@ -342,13 +381,16 @@ class AdminController extends Controller
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
+        $this->attachLatestLoanCategoryType($users);
+
         return view('admin.apex.stage1.pending', compact('users'));
     }
 
     public function apexStage1UserDetail(User $user)
     {
         $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
-        return view('admin.apex.stage1.user_detail', compact('user'));
+        $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
+        return view('admin.apex.stage1.user_detail', compact('user', 'loanCategory'));
     }
 
     public function approveStage(Request $request, User $user, $stage)
@@ -1232,6 +1274,8 @@ class AdminController extends Controller
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
+        $this->attachLatestLoanCategoryType($users);
+
         return view('admin.chapters.stage2.pending', compact('users'));
     }
 
@@ -1246,6 +1290,8 @@ class AdminController extends Controller
         }
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.approved', compact('users'));
     }
 
@@ -1260,6 +1306,9 @@ class AdminController extends Controller
         }
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.hold', compact('users'));
     }
 
@@ -1268,7 +1317,11 @@ class AdminController extends Controller
         $inter_date = ChapterInterviewAnswer::where('user_id', $user->id)->where('question_no', 1)->first();
         $data = EducationDetail::where('user_id', $user->id)->first();
         $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
-        return view('admin.chapters.stage2.user_detail', compact('user', 'data', 'inter_date'));
+        $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
+
+
+
+        return view('admin.chapters.stage2.user_detail', compact('user', 'data', 'inter_date', 'loanCategory'));
     }
 
     public function workingCommitteeApproved()
@@ -1279,6 +1332,8 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.working_committee.approved', compact('users'));
     }
 
@@ -1292,6 +1347,8 @@ class AdminController extends Controller
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
+        $this->attachLatestLoanCategoryType($users);
+
         return view('admin.working_committee.pending', compact('users'));
     }
 
@@ -1303,6 +1360,8 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.working_committee.hold', compact('users'));
     }
 
@@ -1314,6 +1373,16 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $loanCategoryByUser = Loan_category::whereIn('user_id', $users->pluck('id'))
+            ->orderByDesc('id')
+            ->get()
+            ->unique('user_id')
+            ->pluck('type', 'user_id');
+
+        $users->each(function ($user) use ($loanCategoryByUser) {
+            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
+        });
         return view('admin.working_committee.hold', compact('users'));
     }
 
@@ -1322,7 +1391,8 @@ class AdminController extends Controller
         $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
         $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
         // dd($workingCommitteeApproval);
-        return view('admin.working_committee.user_detail', compact('user', 'workingCommitteeApproval'));
+        $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
+        return view('admin.working_committee.user_detail', compact('user', 'workingCommitteeApproval', 'loanCategory'));
     }
 
     // Chapter Interview Methods
@@ -1526,6 +1596,8 @@ class AdminController extends Controller
             ->where('chapter_id', $chapter_id)
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.approved', compact('users')); // Reuse existing view
     }
 
@@ -1537,7 +1609,7 @@ class AdminController extends Controller
             ->where('application_status', 'draft')
             ->get();
 
-
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.pending', compact('users')); // Reuse existing view
     }
 
@@ -1552,6 +1624,8 @@ class AdminController extends Controller
                 $q->where('apex_1_status', 'pending');
             })
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.pending', compact('users')); // Reuse existing view
     }
 
@@ -1569,6 +1643,7 @@ class AdminController extends Controller
         }
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.pending', compact('users')); // Reuse existing view
     }
 
@@ -1586,6 +1661,8 @@ class AdminController extends Controller
         }
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.approved', compact('users')); // Reuse existing view
     }
 
@@ -1599,6 +1676,8 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.hold', compact('users')); // Reuse existing view
     }
 
@@ -1771,6 +1850,16 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $loanCategoryByUser = Loan_category::whereIn('user_id', $users->pluck('id'))
+            ->orderByDesc('id')
+            ->get()
+            ->unique('user_id')
+            ->pluck('type', 'user_id');
+
+        $users->each(function ($user) use ($loanCategoryByUser) {
+            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
+        });
         return view('admin.apex.stage2.approved', compact('users'));
     }
 
@@ -1783,6 +1872,16 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $loanCategoryByUser = Loan_category::whereIn('user_id', $users->pluck('id'))
+            ->orderByDesc('id')
+            ->get()
+            ->unique('user_id')
+            ->pluck('type', 'user_id');
+
+        $users->each(function ($user) use ($loanCategoryByUser) {
+            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
+        });
 
         return view('admin.apex.stage2.pending', compact('users'));
     }
@@ -1798,6 +1897,16 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $loanCategoryByUser = Loan_category::whereIn('user_id', $users->pluck('id'))
+            ->orderByDesc('id')
+            ->get()
+            ->unique('user_id')
+            ->pluck('type', 'user_id');
+
+        $users->each(function ($user) use ($loanCategoryByUser) {
+            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
+        });
         return view('admin.apex.stage2.hold', compact('users'));
     }
 
@@ -1813,6 +1922,16 @@ class AdminController extends Controller
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
+        $loanCategoryByUser = Loan_category::whereIn('user_id', $users->pluck('id'))
+            ->orderByDesc('id')
+            ->get()
+            ->unique('user_id')
+            ->pluck('type', 'user_id');
+
+        $users->each(function ($user) use ($loanCategoryByUser) {
+            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
+        });
+
         return view('admin.apex.stage2.pending', compact('users'));
     }
 
@@ -1822,11 +1941,9 @@ class AdminController extends Controller
 
         // Load PDC details
         $pdcDetail = \App\Models\PdcDetail::where('user_id', $user->id)->first();
+        $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
 
-        // Load Working Committee Approval details
-        $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
-
-        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'workingCommitteeApproval'));
+        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory'));
     }
 
     // =====================================================

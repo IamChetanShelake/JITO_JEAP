@@ -165,6 +165,33 @@
         transition: background-color 0.2s ease;
     }
 
+      .below-one-lakh-row {
+        background-color: #e8f1ff;
+    }
+
+    .below-one-lakh-row:hover {
+        background-color: #d7e8ff !important;
+    }
+
+    .loan-type-badge {
+        display: inline-block;
+        padding: 0.3rem 0.7rem;
+        border-radius: 14px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .loan-type-below {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .loan-type-above {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
     .status-badge {
         padding: 0.35rem 0.8rem;
         border-radius: 20px;
@@ -313,6 +340,7 @@
                         <th style="width: 18%;">Aadhar Number</th>
                         <th style="width: 12%;">Financial Assistance Type</th>
                         <th style="width: 12%;">Financial Assistance For</th>
+                        <th style="width: 12%;">Category</th>
                         <th style="width: 10%;">Approved Date</th>
                         <th style="width: 8%;">Status</th>
                         <th style="width: 10%;">Actions</th>
@@ -320,7 +348,7 @@
                 </thead>
                 <tbody>
                     @forelse($users as $index => $user)
-                    <tr>
+                    <tr class="{{ $user->loan_category_type === 'below' ? 'below-one-lakh-row' : '' }}">
                         <td>{{ $index + 1 }}</td>
                         <td>
                             <strong>{{ $user->name }}</strong>
@@ -328,6 +356,11 @@
                         <td>{{ $user->aadhar_card_number }}</td>
                         <td>{{ $user->financial_asset_type }}</td>
                         <td>{{ $user->financial_asset_for }}</td>
+                         <td>
+                            <span class="loan-type-badge {{ $user->loan_category_type === 'below' ? 'loan-type-below' : ($user->loan_category_type === 'above' ? 'loan-type-above' : '') }}">
+                                {{ $user->loan_category_type === 'below' ? 'Below 1 Lakh' : ($user->loan_category_type === 'above' ? 'Above 1 Lakh' : 'N/A') }}
+                            </span>
+                        </td>
                         <td>
                             @if($user->workflowStatus && $user->workflowStatus->working_committee_updated_at)
                                 {{ \Carbon\Carbon::parse($user->workflowStatus->working_committee_updated_at)->format('d M Y') }}

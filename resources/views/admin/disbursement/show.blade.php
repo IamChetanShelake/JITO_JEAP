@@ -63,6 +63,27 @@
             color: #333;
         }
 
+        .loan-type-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .loan-type-below {
+            background: #fff3cd;
+            color: #8a6d03;
+        }
+
+        .loan-type-above {
+            background: #e8f0ff;
+            color: #1f4aa8;
+        }
+
         .summary-box {
             background: linear-gradient(135deg, #393185 0%, #5b5ba8 100%);
             color: white;
@@ -322,6 +343,20 @@
                     <div class="info-card">
                         <div class="info-label">Financial Assistent For</div>
                         <div class="info-value">{{ $user->financial_asset_for ?? 'N/A' }}</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="info-card">
+                        <div class="info-label">Category</div>
+                        <div class="info-value">
+                            @if($user->loan_category_type)
+                                <span class="loan-type-badge {{ $user->loan_category_type === 'below' ? 'loan-type-below' : 'loan-type-above' }}">
+                                    {{ $user->loan_category_type === 'below' ? 'Below 1 Lakh' : 'Above 1 Lakh' }}
+                                </span>
+                            @else
+                                N/A
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>

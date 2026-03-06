@@ -1024,6 +1024,11 @@
 
     <!-- Success/Error Messages Display -->
 
+    @php
+        $isBelowLoan = $loanCategory && $loanCategory->type === 'below';
+    @endphp
+
+
 
     <!-- Steps Container -->
     <div class="steps-container">
@@ -1046,16 +1051,18 @@
                 <span class="step-number">4</span>
                 <span class="step-title">Funding Details</span>
             </div>
-            <div class="step-nav-item step-5" onclick="showStep(5)">
-                <span class="step-number">5</span>
-                <span class="step-title">Guarantor Details</span>
-            </div>
+            @if (!$isBelowLoan)
+                <div class="step-nav-item step-5" onclick="showStep(5)">
+                    <span class="step-number">5</span>
+                    <span class="step-title">Guarantor Details</span>
+                </div>
+            @endif
             <div class="step-nav-item step-6" onclick="showStep(6)">
-                <span class="step-number">6</span>
+                <span class="step-number">{{ $isBelowLoan ? 5 : 6 }}</span>
                 <span class="step-title">Documents</span>
             </div>
             <div class="step-nav-item step-7" onclick="showStep(7)">
-                <span class="step-number">7</span>
+                <span class="step-number">{{ $isBelowLoan ? 6 : 7 }}</span>
                 <span class="step-title">Final Submission</span>
             </div>
             <div class="step-nav-item step-interview" onclick="showStep('interview')">
@@ -1923,92 +1930,93 @@
             @if ($user->fundingDetail)
                 <div class="form-data">
                     <!-- Funding Sources Table -->
-                    <div class="data-group">
-                        <h4>Funding Sources</h4>
-                        <div class="table-container">
-                            <table class="custom-table">
-                                <thead>
-                                    <tr>
-                                        <th>Particulars</th>
-                                        <th>Status</th>
-                                        <th>Name of Trust/Institute</th>
-                                        <th>Name of Contact Person</th>
-                                        <th>Contact No</th>
-                                        <th>Amount (Rs)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Own family funding (Father + Mother)</td>
-                                        <td>{{ ucfirst($user->fundingDetail->family_funding_status) }}</td>
-                                        <td>{{ $user->fundingDetail->family_funding_trust ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->family_funding_contact ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->family_funding_mobile ?? '-' }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->fundingDetail->family_funding_amount ?? 0) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Bank Loan</td>
-                                        <td>{{ ucfirst($user->fundingDetail->bank_loan_status) }}</td>
-                                        <td>{{ $user->fundingDetail->bank_loan_trust ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->bank_loan_contact ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->bank_loan_mobile ?? '-' }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->fundingDetail->bank_loan_amount ?? 0) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Other Assistance (1)</td>
-                                        <td>{{ ucfirst($user->fundingDetail->other_assistance1_status) }}</td>
-                                        <td>{{ $user->fundingDetail->other_assistance1_trust ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->other_assistance1_contact ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->other_assistance1_mobile ?? '-' }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->fundingDetail->other_assistance1_amount ?? 0) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Other Assistance (2)</td>
-                                        <td>{{ ucfirst($user->fundingDetail->other_assistance2_status) }}</td>
-                                        <td>{{ $user->fundingDetail->other_assistance2_trust ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->other_assistance2_contact ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->other_assistance2_mobile ?? '-' }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->fundingDetail->other_assistance2_amount ?? 0) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Local Assistance</td>
-                                        <td>{{ ucfirst($user->fundingDetail->local_assistance_status) }}</td>
-                                        <td>{{ $user->fundingDetail->local_assistance_trust ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->local_assistance_contact ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->local_assistance_mobile ?? '-' }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->fundingDetail->local_assistance_amount ?? 0) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="5" style="text-align:right;font-weight:600">Total</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format((float) ($user->fundingDetail->family_funding_amount ?? 0) + (float) ($user->fundingDetail->bank_loan_amount ?? 0) + (float) ($user->fundingDetail->other_assistance1_amount ?? 0) + (float) ($user->fundingDetail->other_assistance2_amount ?? 0) + (float) ($user->fundingDetail->local_assistance_amount ?? 0)) }}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    @if (!($loanCategory && $loanCategory->type === 'below'))
+                        <div class="data-group">
+                            <h4>Funding Sources</h4>
+                            <div class="table-container">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Particulars</th>
+                                            <th>Status</th>
+                                            <th>Name of Trust/Institute</th>
+                                            <th>Name of Contact Person</th>
+                                            <th>Contact No</th>
+                                            <th>Amount (Rs)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Own family funding (Father + Mother)</td>
+                                            <td>{{ ucfirst($user->fundingDetail->family_funding_status) }}</td>
+                                            <td>{{ $user->fundingDetail->family_funding_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->family_funding_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->family_funding_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->family_funding_amount ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bank Loan</td>
+                                            <td>{{ ucfirst($user->fundingDetail->bank_loan_status) }}</td>
+                                            <td>{{ $user->fundingDetail->bank_loan_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->bank_loan_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->bank_loan_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->bank_loan_amount ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Other Assistance (1)</td>
+                                            <td>{{ ucfirst($user->fundingDetail->other_assistance1_status) }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance1_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance1_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance1_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->other_assistance1_amount ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Other Assistance (2)</td>
+                                            <td>{{ ucfirst($user->fundingDetail->other_assistance2_status) }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance2_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance2_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance2_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->other_assistance2_amount ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Local Assistance</td>
+                                            <td>{{ ucfirst($user->fundingDetail->local_assistance_status) }}</td>
+                                            <td>{{ $user->fundingDetail->local_assistance_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->local_assistance_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->local_assistance_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->local_assistance_amount ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="5" style="text-align:right;font-weight:600">Total</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format((float) ($user->fundingDetail->family_funding_amount ?? 0) + (float) ($user->fundingDetail->bank_loan_amount ?? 0) + (float) ($user->fundingDetail->other_assistance1_amount ?? 0) + (float) ($user->fundingDetail->other_assistance2_amount ?? 0) + (float) ($user->fundingDetail->local_assistance_amount ?? 0)) }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Total Funding -->
-                    <div class="data-group">
-                        <h4>Total Funding</h4>
-                        <div class="form-section">
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Total Amount (Rs)</label>
-                                    <input type="text" class="form-input"
-                                        value="₹{{ isset($user->fundingDetail->total_funding_amount) ? number_format($user->fundingDetail->total_funding_amount) : '0' }}"
-                                        readonly>
+                        <!-- Total Funding -->
+                        <div class="data-group">
+                            <h4>Total Funding</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Total Amount (Rs)</label>
+                                        <input type="text" class="form-input"
+                                            value="₹{{ isset($user->fundingDetail->total_funding_amount) ? number_format($user->fundingDetail->total_funding_amount) : '0' }}"
+                                            readonly>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
+                    @endif
                     <!-- Bank Details of Applicant -->
                     <div class="data-group">
                         <h4>Bank Details of Applicant</h4>
@@ -2057,222 +2065,224 @@
             @endif
         </div>
 
-        <!-- Step 5: Guarantor Details -->
-        <div class="step-content" id="step-5">
-            <div class="step-header">
-                <h2 class="step-title-large">Step 5: Guarantor Details</h2>
-                <div class="step-status">
-                    <span
-                        class="status-badge status-{{ $user->guarantorDetail ? ($user->guarantorDetail->submit_status == 'approved' ? 'approved' : ($user->guarantorDetail->submit_status == 'resubmit' ? 'hold' : 'pending')) : 'pending' }}">
-                        <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
-                        {{ $user->guarantorDetail ? ucfirst($user->guarantorDetail->submit_status) : 'Pending' }}
-                    </span>
-                    {{-- <div class="action-buttons">
-                    <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="btn-approve">Approve</button>
-                    </form>
-                    <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
-                        @csrf
-                        <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
-                        <button type="submit" class="btn-hold">Hold</button>
-                    </form>
+        @if (!$isBelowLoan)
+            <!-- Step 5: Guarantor Details -->
+            <div class="step-content" id="step-5">
+                <div class="step-header">
+                    <h2 class="step-title-large">Step 5: Guarantor Details</h2>
+                    <div class="step-status">
+                        <span
+                            class="status-badge status-{{ $user->guarantorDetail ? ($user->guarantorDetail->submit_status == 'approved' ? 'approved' : ($user->guarantorDetail->submit_status == 'resubmit' ? 'hold' : 'pending')) : 'pending' }}">
+                            <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                            {{ $user->guarantorDetail ? ucfirst($user->guarantorDetail->submit_status) : 'Pending' }}
+                        </span>
+                        {{-- <div class="action-buttons">
+                        <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="btn-approve">Approve</button>
+                        </form>
+                        <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
+                            @csrf
+                            <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
+                            <button type="submit" class="btn-hold">Hold</button>
+                        </form>
+                    </div> --}}
+                    </div>
+                </div>
+
+                @if ($user->guarantorDetail)
+                    <div class="form-data">
+                        <div class="data-group">
+                            <h4>Guarantor 1</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Gender</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ ucfirst($user->guarantorDetail->g_one_gender ?? 'N/A') }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Date of Birth</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ optional($user->guarantorDetail->g_one_d_o_b)->format ? $user->guarantorDetail->g_one_d_o_b : $user->guarantorDetail->g_one_d_o_b ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Relation</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_relation_with_student ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Phone</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_phone ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Email</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_email ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label">Permanent Address</label>
+                                        <textarea class="form-textarea" readonly>{{ $user->guarantorDetail->g_one_permanent_flat_no ?? '' }} {{ $user->guarantorDetail->g_one_permanent_address ?? '' }} {{ $user->guarantorDetail->g_one_permanent_city ?? '' }}, {{ $user->guarantorDetail->g_one_permanent_district ?? '' }} {{ $user->guarantorDetail->g_one_permanent_state ?? '' }} - {{ $user->guarantorDetail->g_one_permanent_pincode ?? '' }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Service / Business</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_srvice ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Annual Income</label>
+                                        <input type="text" class="form-input"
+                                            value="@if (is_numeric($user->guarantorDetail->g_one_income)) ₹{{ number_format($user->guarantorDetail->g_one_income) }} @else {{ $user->guarantorDetail->g_one_income ?? 'N/A' }} @endif"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Aadhaar</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_aadhar_card_number ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">PAN Card No</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_pan_card_no ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">PAN Upload</label>
+                                        <div class="form-input" style="padding:0.5rem; background:transparent; border:none;">
+                                            @if (!empty($user->guarantorDetail->g_one_pan_card_upload))
+                                                <a href="#"
+                                                    onclick="openModal('{{ asset($user->guarantorDetail->g_one_pan_card_upload) }}')">View
+                                                    PAN</a>
+                                            @else
+                                                <span style="color:#6c757d;">N/A</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="data-group">
+                            <h4>Guarantor 2</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Gender</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ ucfirst($user->guarantorDetail->g_two_gender ?? 'N/A') }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Date of Birth</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ optional($user->guarantorDetail->g_two_d_o_b)->format ? $user->guarantorDetail->g_two_d_o_b : $user->guarantorDetail->g_two_d_o_b ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Relation</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_relation_with_student ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Phone</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_phone ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Email</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_email ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label">Permanent Address</label>
+                                        <textarea class="form-textarea" readonly>{{ $user->guarantorDetail->g_two_permanent_flat_no ?? '' }} {{ $user->guarantorDetail->g_two_permanent_address ?? '' }} {{ $user->guarantorDetail->g_two_permanent_city ?? '' }}, {{ $user->guarantorDetail->g_two_permanent_district ?? '' }} {{ $user->guarantorDetail->g_two_permanent_state ?? '' }} - {{ $user->guarantorDetail->g_two_permanent_pincode ?? '' }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Service / Business</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_srvice ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Annual Income</label>
+                                        <input type="text" class="form-input"
+                                            value="@if (is_numeric($user->guarantorDetail->g_two_income)) ₹{{ number_format($user->guarantorDetail->g_two_income) }} @else {{ $user->guarantorDetail->g_two_income ?? 'N/A' }} @endif"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Aadhaar</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_aadhar_card_number ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">PAN Card No</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_pan_card_no ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">PAN Upload</label>
+                                        <div class="form-input" style="padding:0.5rem; background:transparent; border:none;">
+                                            @if (!empty($user->guarantorDetail->g_two_pan_card_upload))
+                                                <a href="#"
+                                                    onclick="openModal('{{ asset($user->guarantorDetail->g_two_pan_card_upload) }}')">View
+                                                    PAN</a>
+                                            @else
+                                                <span style="color:#6c757d;">N/A</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- <div class="data-group">
+                    <h4>Power of Attorney</h4>
+                    <div class="data-item"><div class="data-label">Name</div><div class="data-value">{{ $user->guarantorDetail->attorney_name ?? 'N/A' }}</div></div>
+                    <div class="data-item"><div class="data-label">Relation</div><div class="data-value">{{ $user->guarantorDetail->attorney_relation_with_student ?? 'N/A' }}</div></div>
+                    <div class="data-item"><div class="data-label">Phone</div><div class="data-value">{{ $user->guarantorDetail->attorney_phone ?? 'N/A' }}</div></div>
+                    <div class="data-item"><div class="data-label">Email</div><div class="data-value">{{ $user->guarantorDetail->attorney_email ?? 'N/A' }}</div></div>
+                    <div class="data-item"><div class="data-label">Address</div><div class="data-value">{{ $user->guarantorDetail->attorney_address ?? 'N/A' }}</div></div>
                 </div> --}}
-                </div>
+                    </div>
+                @else
+                    <div class="no-data">
+                        <p>Guarantor details not submitted yet.</p>
+                    </div>
+                @endif
             </div>
-
-            @if ($user->guarantorDetail)
-                <div class="form-data">
-                    <div class="data-group">
-                        <h4>Guarantor 1</h4>
-                        <div class="form-section">
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Name</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_one_name ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Gender</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ ucfirst($user->guarantorDetail->g_one_gender ?? 'N/A') }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Date of Birth</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ optional($user->guarantorDetail->g_one_d_o_b)->format ? $user->guarantorDetail->g_one_d_o_b : $user->guarantorDetail->g_one_d_o_b ?? 'N/A' }}"
-                                        readonly>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Relation</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_one_relation_with_student ?? 'N/A' }}"
-                                        readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Phone</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_one_phone ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Email</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_one_email ?? 'N/A' }}" readonly>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field form-field-full">
-                                    <label class="form-label">Permanent Address</label>
-                                    <textarea class="form-textarea" readonly>{{ $user->guarantorDetail->g_one_permanent_flat_no ?? '' }} {{ $user->guarantorDetail->g_one_permanent_address ?? '' }} {{ $user->guarantorDetail->g_one_permanent_city ?? '' }}, {{ $user->guarantorDetail->g_one_permanent_district ?? '' }} {{ $user->guarantorDetail->g_one_permanent_state ?? '' }} - {{ $user->guarantorDetail->g_one_permanent_pincode ?? '' }}</textarea>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Service / Business</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_one_srvice ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Annual Income</label>
-                                    <input type="text" class="form-input"
-                                        value="@if (is_numeric($user->guarantorDetail->g_one_income)) ₹{{ number_format($user->guarantorDetail->g_one_income) }} @else {{ $user->guarantorDetail->g_one_income ?? 'N/A' }} @endif"
-                                        readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Aadhaar</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_one_aadhar_card_number ?? 'N/A' }}" readonly>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">PAN Card No</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_one_pan_card_no ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">PAN Upload</label>
-                                    <div class="form-input" style="padding:0.5rem; background:transparent; border:none;">
-                                        @if (!empty($user->guarantorDetail->g_one_pan_card_upload))
-                                            <a href="#"
-                                                onclick="openModal('{{ asset($user->guarantorDetail->g_one_pan_card_upload) }}')">View
-                                                PAN</a>
-                                        @else
-                                            <span style="color:#6c757d;">N/A</span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="data-group">
-                        <h4>Guarantor 2</h4>
-                        <div class="form-section">
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Name</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_two_name ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Gender</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ ucfirst($user->guarantorDetail->g_two_gender ?? 'N/A') }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Date of Birth</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ optional($user->guarantorDetail->g_two_d_o_b)->format ? $user->guarantorDetail->g_two_d_o_b : $user->guarantorDetail->g_two_d_o_b ?? 'N/A' }}"
-                                        readonly>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Relation</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_two_relation_with_student ?? 'N/A' }}"
-                                        readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Phone</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_two_phone ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Email</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_two_email ?? 'N/A' }}" readonly>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field form-field-full">
-                                    <label class="form-label">Permanent Address</label>
-                                    <textarea class="form-textarea" readonly>{{ $user->guarantorDetail->g_two_permanent_flat_no ?? '' }} {{ $user->guarantorDetail->g_two_permanent_address ?? '' }} {{ $user->guarantorDetail->g_two_permanent_city ?? '' }}, {{ $user->guarantorDetail->g_two_permanent_district ?? '' }} {{ $user->guarantorDetail->g_two_permanent_state ?? '' }} - {{ $user->guarantorDetail->g_two_permanent_pincode ?? '' }}</textarea>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Service / Business</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_two_srvice ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Annual Income</label>
-                                    <input type="text" class="form-input"
-                                        value="@if (is_numeric($user->guarantorDetail->g_two_income)) ₹{{ number_format($user->guarantorDetail->g_two_income) }} @else {{ $user->guarantorDetail->g_two_income ?? 'N/A' }} @endif"
-                                        readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Aadhaar</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_two_aadhar_card_number ?? 'N/A' }}" readonly>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">PAN Card No</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_two_pan_card_no ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">PAN Upload</label>
-                                    <div class="form-input" style="padding:0.5rem; background:transparent; border:none;">
-                                        @if (!empty($user->guarantorDetail->g_two_pan_card_upload))
-                                            <a href="#"
-                                                onclick="openModal('{{ asset($user->guarantorDetail->g_two_pan_card_upload) }}')">View
-                                                PAN</a>
-                                        @else
-                                            <span style="color:#6c757d;">N/A</span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- <div class="data-group">
-                <h4>Power of Attorney</h4>
-                <div class="data-item"><div class="data-label">Name</div><div class="data-value">{{ $user->guarantorDetail->attorney_name ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Relation</div><div class="data-value">{{ $user->guarantorDetail->attorney_relation_with_student ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Phone</div><div class="data-value">{{ $user->guarantorDetail->attorney_phone ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Email</div><div class="data-value">{{ $user->guarantorDetail->attorney_email ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Address</div><div class="data-value">{{ $user->guarantorDetail->attorney_address ?? 'N/A' }}</div></div>
-            </div> --}}
-                </div>
-            @else
-                <div class="no-data">
-                    <p>Guarantor details not submitted yet.</p>
-                </div>
-            @endif
-        </div>
+        @endif
 
         <!-- Step 6: Documents -->
         <div class="step-content" id="step-6">
             <div class="step-header">
-                <h2 class="step-title-large">Step 6: Documents</h2>
+                <h2 class="step-title-large">Step {{ $isBelowLoan ? 5 : 6 }}: Documents</h2>
                 <div class="step-status">
                     <span
                         class="status-badge status-{{ $user->document ? ($user->document->submit_status == 'approved' ? 'approved' : ($user->document->submit_status == 'resubmit' ? 'hold' : 'pending')) : 'pending' }}">
@@ -2405,7 +2415,7 @@
         <!-- Step 7: Final Submission -->
         <div class="step-content" id="step-7">
             <div class="step-header">
-                <h2 class="step-title-large">Step 7: Final Submission</h2>
+                <h2 class="step-title-large">Step {{ $isBelowLoan ? 6 : 7 }}: Final Submission</h2>
                 <div class="step-status">
                     <span
                         class="status-badge status-{{ $user->document ? ($user->document->submit_status == 'approved' ? 'approved' : ($user->document->submit_status == 'resubmit' ? 'hold' : 'pending')) : 'pending' }}">

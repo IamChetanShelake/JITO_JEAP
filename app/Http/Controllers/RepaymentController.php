@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Traits\LogsUserActivity;
+use App\Models\Loan_category;
 use App\Models\PdcDetail;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -205,6 +206,10 @@ class RepaymentController extends Controller
         if (!$user) {
             abort(404, 'Student not found');
         }
+
+        $user->loan_category_type = Loan_category::where('user_id', $userId)
+            ->latest('id')
+            ->value('type');
 
         $totalLoanAmount = DB::connection('admin_panel')
             ->table('disbursement_schedules')
@@ -490,8 +495,13 @@ class RepaymentController extends Controller
 
         $userIds = $scheduleData->pluck('user_id')->unique()->toArray();
         $users = User::whereIn('id', $userIds)->get()->keyBy('id');
+        $loanCategoryByUser = Loan_category::whereIn('user_id', $userIds)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('user_id')
+            ->pluck('type', 'user_id');
 
-        $students = $scheduleData->map(function ($item) use ($disbursedData, $repaymentData, $users) {
+        $students = $scheduleData->map(function ($item) use ($disbursedData, $repaymentData, $users, $loanCategoryByUser) {
             $user = $users->get($item->user_id);
             $disbursed = $disbursedData->get($item->user_id);
             $repaid = $repaymentData->get($item->user_id);
@@ -517,6 +527,7 @@ class RepaymentController extends Controller
                 'total_disbursed_amount' => $totalDisbursedAmount,
                 'total_repaid_amount' => $totalRepaidAmount,
                 'outstanding_amount' => $outstandingAmount,
+                'loan_category_type' => $loanCategoryByUser[$item->user_id] ?? null,
                 'status' => $repaymentStatus,
             ];
         })->filter(function ($student) use ($status) {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Disbursement;
 use App\Models\DisbursementSchedule;
 use App\Models\JitoJeapBank;
+use App\Models\Loan_category;
 use App\Models\User;
 use App\Models\ApplicationWorkflowStatus;
 use App\Models\WorkingCommitteeApproval;
@@ -70,9 +71,14 @@ class DisbursementController extends Controller
         // Get user names from default database
         $userIds = $scheduleData->pluck('user_id')->unique()->toArray();
         $users = User::whereIn('id', $userIds)->get()->keyBy('id');
+        $loanCategoryByUser = Loan_category::whereIn('user_id', $userIds)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('user_id')
+            ->pluck('type', 'user_id');
 
         // Build student list
-        $students = $scheduleData->map(function ($item) use ($disbursedData, $statusData, $disbursementCounts, $users) {
+        $students = $scheduleData->map(function ($item) use ($disbursedData, $statusData, $disbursementCounts, $users, $loanCategoryByUser) {
             $user = $users->get($item->user_id);
             $disbursed = $disbursedData->get($item->user_id);
             $statusInfo = $statusData->get($item->user_id);
@@ -111,6 +117,7 @@ class DisbursementController extends Controller
                 'total_planned_amount' => $item->total_planned_amount,
                 'total_disbursed_amount' => $totalDisbursedAmount,
                 'remaining_amount' => $remainingAmount,
+                'loan_category_type' => $loanCategoryByUser[$item->user_id] ?? null,
                 'status' => $status,
                 'debug_total' => $totalCount,
                 'debug_completed' => $completedCount,
@@ -409,6 +416,9 @@ class DisbursementController extends Controller
 
         // Get PDC details for this user
         $pdcDetails = PdcDetail::where('user_id', $userId)->get();
+        $user->loan_category_type = Loan_category::where('user_id', $userId)
+            ->latest('id')
+            ->value('type');
 
         // Get bank accounts for dropdown
         $bankAccounts = JitoJeapBank::all();
@@ -838,9 +848,14 @@ class DisbursementController extends Controller
         // Get user names from default database
         $userIds = $scheduleData->pluck('user_id')->unique()->toArray();
         $users = User::whereIn('id', $userIds)->get()->keyBy('id');
+        $loanCategoryByUser = Loan_category::whereIn('user_id', $userIds)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('user_id')
+            ->pluck('type', 'user_id');
 
         // Build student list with status
-        $allStudents = $scheduleData->map(function ($item) use ($disbursedData, $statusData, $disbursementCounts, $users) {
+        $allStudents = $scheduleData->map(function ($item) use ($disbursedData, $statusData, $disbursementCounts, $users, $loanCategoryByUser) {
             $user = $users->get($item->user_id);
             $disbursed = $disbursedData->get($item->user_id);
             $statusInfo = $statusData->get($item->user_id);
@@ -868,6 +883,7 @@ class DisbursementController extends Controller
                 'total_planned_amount' => $item->total_planned_amount,
                 'total_disbursed_amount' => $totalDisbursedAmount,
                 'remaining_amount' => $remainingAmount,
+                'loan_category_type' => $loanCategoryByUser[$item->user_id] ?? null,
                 'status' => $studentStatus,
             ];
         });

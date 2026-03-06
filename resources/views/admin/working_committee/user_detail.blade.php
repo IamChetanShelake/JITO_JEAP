@@ -375,6 +375,11 @@
             min-width: 250px;
         }
 
+        .form-field2 {
+            flex: 1;
+            width: 33%;
+        }
+
         .form-field-full {
             width: 100%;
         }
@@ -737,6 +742,36 @@
                 border-right-color: transparent;
             }
         }
+
+        .top-summary-layout {
+            display: grid;
+            grid-template-columns: 1fr 4fr;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .top-summary-layout .user-info-card {
+            margin-bottom: 0 !important;
+        }
+
+        .top-card-user {
+            order: 2;
+        }
+
+        .top-card-workflow {
+            order: 1;
+        }
+
+        @media (max-width: 991.98px) {
+            .top-summary-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .top-card-user,
+            .top-card-workflow {
+                order: unset;
+            }
+        }
     </style>
 @endsection
 
@@ -781,35 +816,60 @@
     </div>
 
     <!-- User Info Card -->
-    <div class="user-info-card">
-        <div class="user-info-header">
-            <div class="user-avatar">
-                @if ($user->image)
-                    <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img">
-                @else
-                    {{ strtoupper(substr($user->name, 0, 1)) }}
-                @endif
-            </div>
-            <div class="user-details">
-                <h3>{{ $user->name }}</h3>
-                <p>{{ $user->email }}</p>
-                <p>{{ $user->phone }}</p>
-            </div>
+    <div class="top-summary-layout">
+        <!-- User Info Card (Right) -->
+        <div class="user-info-card top-card-user">
+            <div class="user-info-header">
+                <div class="user-avatar">
+                    @if ($user->image)
+                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img">
+                    @else
+                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                    @endif
+                </div>
+                <div class="user-details">
+                    <h3>{{ $user->name }}</h3>
+                    <p>{{ $user->email }}</p>
+                    <p>{{ $user->phone }}</p>
+                </div>
 
+            </div>
+            <div style="text-align: right; margin-top: -2.5rem;">
+                <a href="{{ route('admin.user.logs', ['user' => $user->id]) }}" class="back-btn"
+                    style="background-color: var(--primary-blue); color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                    <i class="fas fa-history"></i> Logs
+                </a>
+            </div>
+            <div class="user-info-footer">
+                <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}
+                </p>
+                <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type ?? 'N/A' }}</p>
+                <p><strong>Financial Assistance For:</strong> {{ $user->financial_asset_for ?? 'N/A' }}</p>
+            </div>
         </div>
-        <div style="text-align: right; margin-top: -2.5rem;">
-            <a href="{{ route('admin.user.logs', ['user' => $user->id]) }}" class="back-btn"
-                style="background-color: var(--primary-blue); color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
-                <i class="fas fa-history"></i> Logs
-            </a>
-        </div>
-        <div class="user-info-footer">
-            <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}</p>
-            <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type ?? 'N/A' }}</p>
-            <p><strong>Financial Assistance For:</strong> {{ $user->financial_asset_for ?? 'N/A' }}</p>
+
+        <!-- Workflow Status Card (Left) -->
+        <div class="user-info-card top-card-workflow">
+            <div class="workflow-status-header">
+                <div class="workflow-status-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="workflow-stage-info">
+                    <h3>Workflow Status</h3>
+                    <p><strong>Current Stage:</strong> <span
+                            class="status-highlight">{{ $user->workflowStatus ? ucfirst(str_replace('_', ' ', $user->workflowStatus->current_stage)) : 'N/A' }}</span>
+                    </p>
+                    <p><strong>Final Status:</strong> <span
+                            class="status-highlight">{{ $user->workflowStatus ? ucfirst($user->workflowStatus->final_status) : 'N/A' }}</span>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 
+    @php
+        $isBelowLoan = $loanCategory && $loanCategory->type === 'below';
+    @endphp
 
 
     <!-- Steps Container -->
@@ -832,20 +892,22 @@
                 <span class="step-number">4</span>
                 <span class="step-title">Funding Details</span>
             </div>
-            <div class="step-nav-item step-5" onclick="showStep(5)">
-                <span class="step-number">5</span>
-                <span class="step-title">Guarantor Details</span>
-            </div>
+             @if (!$isBelowLoan)
+                <div class="step-nav-item step-5" onclick="showStep(5)">
+                    <span class="step-number">5</span>
+                    <span class="step-title">Guarantor Details</span>
+                </div>
+            @endif
             <div class="step-nav-item step-6" onclick="showStep(6)">
-                <span class="step-number">6</span>
+                <span class="step-number">{{ $isBelowLoan ? 5 : 6 }}</span>
                 <span class="step-title">Documents</span>
             </div>
             <div class="step-nav-item step-7" onclick="showStep(7)">
-                <span class="step-number">7</span>
+                <span class="step-number">{{ $isBelowLoan ? 6 : 7 }}</span>
                 <span class="step-title">Final Submission</span>
             </div>
             <div class="step-nav-item step-8" onclick="showStep(8)">
-                <span class="step-number">8</span>
+                <span class="step-number">{{ $isBelowLoan ? 7 : 8 }}</span>
                 <span class="step-title">Working Committee Decision</span>
             </div>
         </div>
@@ -1511,91 +1573,93 @@
             @if ($user->fundingDetail)
                 <div class="form-data">
                     <!-- Funding Sources Table -->
-                    <div class="data-group">
-                        <h4>Funding Sources</h4>
-                        <div class="table-container">
-                            <table class="custom-table">
-                                <thead>
-                                    <tr>
-                                        <th>Particulars</th>
-                                        <th>Status</th>
-                                        <th>Name of Trust/Institute</th>
-                                        <th>Name of Contact Person</th>
-                                        <th>Contact No</th>
-                                        <th>Amount (Rs)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Own family funding (Father + Mother)</td>
-                                        <td>{{ ucfirst($user->fundingDetail->family_funding_status) }}</td>
-                                        <td>{{ $user->fundingDetail->family_funding_trust ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->family_funding_contact ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->family_funding_mobile ?? '-' }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->fundingDetail->family_funding_amount ?? 0) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Bank Loan</td>
-                                        <td>{{ ucfirst($user->fundingDetail->bank_loan_status) }}</td>
-                                        <td>{{ $user->fundingDetail->bank_loan_trust ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->bank_loan_contact ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->bank_loan_mobile ?? '-' }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->fundingDetail->bank_loan_amount ?? 0) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Other Assistance (1)</td>
-                                        <td>{{ ucfirst($user->fundingDetail->other_assistance1_status) }}</td>
-                                        <td>{{ $user->fundingDetail->other_assistance1_trust ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->other_assistance1_contact ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->other_assistance1_mobile ?? '-' }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->fundingDetail->other_assistance1_amount ?? 0) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Other Assistance (2)</td>
-                                        <td>{{ ucfirst($user->fundingDetail->other_assistance2_status) }}</td>
-                                        <td>{{ $user->fundingDetail->other_assistance2_trust ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->other_assistance2_contact ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->other_assistance2_mobile ?? '-' }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->fundingDetail->other_assistance2_amount ?? 0) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Local Assistance</td>
-                                        <td>{{ ucfirst($user->fundingDetail->local_assistance_status) }}</td>
-                                        <td>{{ $user->fundingDetail->local_assistance_trust ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->local_assistance_contact ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->local_assistance_mobile ?? '-' }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->fundingDetail->local_assistance_amount ?? 0) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="5" style="text-align:right;font-weight:600">Total</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format((float) ($user->fundingDetail->family_funding_amount ?? 0) + (float) ($user->fundingDetail->bank_loan_amount ?? 0) + (float) ($user->fundingDetail->other_assistance1_amount ?? 0) + (float) ($user->fundingDetail->other_assistance2_amount ?? 0) + (float) ($user->fundingDetail->local_assistance_amount ?? 0)) }}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    @if (!($loanCategory && $loanCategory->type === 'below'))
+                        <div class="data-group">
+                            <h4>Funding Sources</h4>
+                            <div class="table-container">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Particulars</th>
+                                            <th>Status</th>
+                                            <th>Name of Trust/Institute</th>
+                                            <th>Name of Contact Person</th>
+                                            <th>Contact No</th>
+                                            <th>Amount (Rs)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Own family funding (Father + Mother)</td>
+                                            <td>{{ ucfirst($user->fundingDetail->family_funding_status) }}</td>
+                                            <td>{{ $user->fundingDetail->family_funding_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->family_funding_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->family_funding_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->family_funding_amount ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bank Loan</td>
+                                            <td>{{ ucfirst($user->fundingDetail->bank_loan_status) }}</td>
+                                            <td>{{ $user->fundingDetail->bank_loan_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->bank_loan_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->bank_loan_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->bank_loan_amount ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Other Assistance (1)</td>
+                                            <td>{{ ucfirst($user->fundingDetail->other_assistance1_status) }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance1_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance1_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance1_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->other_assistance1_amount ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Other Assistance (2)</td>
+                                            <td>{{ ucfirst($user->fundingDetail->other_assistance2_status) }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance2_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance2_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance2_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->other_assistance2_amount ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Local Assistance</td>
+                                            <td>{{ ucfirst($user->fundingDetail->local_assistance_status) }}</td>
+                                            <td>{{ $user->fundingDetail->local_assistance_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->local_assistance_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->local_assistance_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->local_assistance_amount ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="5" style="text-align:right;font-weight:600">Total</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format((float) ($user->fundingDetail->family_funding_amount ?? 0) + (float) ($user->fundingDetail->bank_loan_amount ?? 0) + (float) ($user->fundingDetail->other_assistance1_amount ?? 0) + (float) ($user->fundingDetail->other_assistance2_amount ?? 0) + (float) ($user->fundingDetail->local_assistance_amount ?? 0)) }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Total Funding -->
-                    <div class="data-group">
-                        <h4>Total Funding</h4>
-                        <div class="form-section">
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Total Amount (Rs)</label>
-                                    <input type="text" class="form-input"
-                                        value="₹{{ isset($user->fundingDetail->total_funding_amount) ? number_format($user->fundingDetail->total_funding_amount) : '0' }}"
-                                        readonly>
+                        <!-- Total Funding -->
+                        <div class="data-group">
+                            <h4>Total Funding</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Total Amount (Rs)</label>
+                                        <input type="text" class="form-input"
+                                            value="₹{{ isset($user->fundingDetail->total_funding_amount) ? number_format($user->fundingDetail->total_funding_amount) : '0' }}"
+                                            readonly>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    @endif
 
                     <!-- Bank Details of Applicant -->
                     <div class="data-group">
@@ -1645,6 +1709,7 @@
             @endif
         </div>
 
+        @if (!$isBelowLoan)
         <!-- Step 5: Guarantor Details -->
         <div class="step-content" id="step-5">
             <div class="step-header">
@@ -1836,11 +1901,12 @@
                 </div>
             @endif
         </div>
+        @endif
 
         <!-- Step 6: Documents -->
         <div class="step-content" id="step-6">
             <div class="step-header">
-                <h2 class="step-title-large">Step 6: Documents</h2>
+                <h2 class="step-title-large">Step {{ $isBelowLoan ? 5 : 6 }}: Documents</h2>
                 <div class="step-status">
                     <span
                         class="status-badge status-{{ $user->document ? ($user->document->submit_status == 'approved' ? 'approved' : ($user->document->submit_status == 'resubmit' ? 'hold' : 'pending')) : 'pending' }}">
@@ -1973,7 +2039,7 @@
         <!-- Step 7: Final Submission -->
         <div class="step-content" id="step-7">
             <div class="step-header">
-                <h2 class="step-title-large">Step 7: Final Submission</h2>
+                <h2 class="step-title-large">Step {{ $isBelowLoan ? 6 : 7 }}: Final Submission</h2>
                 <div class="step-status">
                     <span
                         class="status-badge status-{{ $user->document ? ($user->document->submit_status == 'approved' ? 'approved' : ($user->document->submit_status == 'resubmit' ? 'hold' : 'pending')) : 'pending' }}">
@@ -2019,7 +2085,7 @@
         <!-- Step 8: Working Committee Decision -->
         <div class="step-content" id="step-8">
             <div class="step-header">
-                <h2 class="step-title-large">Step 8: Working Committee Decision</h2>
+                <h2 class="step-title-large">Step {{ $isBelowLoan ? 7 : 8 }}: Working Committee Decision</h2>
                 <div class="step-status">
                     <span class="status-badge status-approved">
                         <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
@@ -2027,6 +2093,17 @@
                     </span>
                 </div>
             </div>
+
+            <!-- Inside step-8 content-area, after the if conditions for approved/hold/rejected -->
+
+            {{-- @if ($user->workflowStatus && in_array($user->workflowStatus->working_committee_status, ['approved', 'hold', 'rejected']))
+                <div style="margin-top: 2rem; text-align: right;">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#editWorkingCommitteeModal">
+                        <i class="fas fa-edit"></i> Edit Working Committee Decision
+                    </button>
+                </div>
+            @endif --}}
 
             @if ($user->workflowStatus && $user->workflowStatus->working_committee_status === 'approved')
                 <!-- Display Submitted Working Committee Data -->
@@ -2067,13 +2144,45 @@
                                         value="₹{{ number_format($user->workingCommitteeApproval->approval_financial_assistance_amount ?? 0, 2) }}"
                                         readonly>
                                 </div>
-                                <div class="form-field">
-                                    <label class="form-label">Installment Amount</label>
-                                    <input type="text" class="form-input"
-                                        value="₹{{ number_format($user->workingCommitteeApproval->installment_amount ?? 0, 2) }}"
-                                        readonly>
-                                </div>
                             </div>
+
+                            <!-- Installment Details Table -->
+                            @if (
+                                $user->workingCommitteeApproval->installment_amount &&
+                                    is_array($user->workingCommitteeApproval->installment_amount))
+                                <div class="form-row">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label">Installment Details</label>
+                                        <div class="table-container">
+                                            <table class="custom-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Sr No</th>
+                                                        <th>Installment Amount</th>
+                                                        <th>No. of Months</th>
+                                                        <th>Total</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($user->workingCommitteeApproval->installment_amount as $index => $installmentAmount)
+                                                        <tr>
+                                                            <td>{{ $index + 1 }}</td>
+                                                            <td class="amount-cell">
+                                                                ₹{{ number_format($installmentAmount ?? 0, 2) }}</td>
+                                                            <td>{{ $user->workingCommitteeApproval->no_of_months[$index] ?? 'N/A' }}
+                                                            </td>
+                                                            <td class="amount-cell">
+                                                                ₹{{ number_format($user->workingCommitteeApproval->total[$index] ?? 0, 2) }}
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
                             <div class="form-row">
                                 <div class="form-field">
                                     <label class="form-label">Additional Installment Amount</label>
@@ -2229,7 +2338,7 @@
                                         <div class="form-row">
                                             <div class="form-field">
                                                 <label class="form-label">Chapter Approval Remark</label>
-                                                <textarea class="form-input" readonly>{{ strip_tags($user->workflowStatus->chapter_approval_remarks ?? 'N/A')  }}</textarea>
+                                                <textarea class="form-input" readonly>{{ strip_tags($user->workflowStatus->chapter_approval_remarks ?? 'N/A') }}</textarea>
                                             </div>
                                             <div class="form-field">
                                                 <label class="form-label">Chapter Approval Date</label>
@@ -2311,8 +2420,9 @@
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Held By</label>
-                                    <input type="text" class="form-input" value="{{ Auth::user()->name ?? 'N/A' }}"
-                                        readonly style="border-color: #ffc107;">
+                                    <input type="text" class="form-input"
+                                        value="{{ Auth::user()->name ?? 'N/A' }}" readonly
+                                        style="border-color: #ffc107;">
                                 </div>
                             </div>
                         </div>
@@ -2397,7 +2507,7 @@
                                             <div class="form-row">
                                                 <div class="form-field">
                                                     <label class="form-label">Chapter Approval Remark</label>
-                                                    <textarea class="form-input" readonly>{{ strip_tags($user->workflowStatus->chapter_approval_remarks ?? 'N/A')  }}</textarea>
+                                                    <textarea class="form-input" readonly>{{ strip_tags($user->workflowStatus->chapter_approval_remarks ?? 'N/A') }}</textarea>
                                                 </div>
                                                 <div class="form-field">
                                                     <label class="form-label">Chapter Approval Date</label>
@@ -2479,7 +2589,7 @@
                                                         <select name="disbursement_in_year" class="form-input"
                                                             id="disbursement-year-select">
                                                             <option value="">Select number of years</option>
-                                                            @for ($i = 1; $i <= 6; $i++)
+                                                            @for ($i = 1; $i <= 8; $i++)
                                                                 <option value="{{ $i }}">
                                                                     {{ $i }}</option>
                                                             @endfor
@@ -2505,22 +2615,61 @@
                                             </div> --}}
                                         </div>
 
-                                        <div class="form-row">
-                                            <div class="form-field">
+
+                                        <div id="installment-rows">
+
+                                            <div style="text-align: end;">
+                                                <button type="button" id="add-installment"
+                                                    class="btn btn-sm btn-secondary">
+                                                    + Add Installment
+                                                </button>
+                                            </div>
+                                            <div class="form-row installment-row">
+                                                <div class="form-field2">
+                                                    <label>Installment Amount</label>
+                                                    <input type="number" class="installment-amount form-input"
+                                                        name="installment_amount[]" step="0.01">
+                                                </div>
+
+                                                <div class="form-field2">
+                                                    <label>No of Months</label>
+                                                    <input type="number" name="no_of_months[]"
+                                                        class="installment-months form-input">
+                                                </div>
+
+                                                <div class="form-field2">
+                                                    <label>Total</label>
+                                                    <input type="number" name="total[]"
+                                                        class="installment-total form-input" readonly>
+                                                </div>
+                                            </div>
+
+
+                                            {{-- </div> --}}
+
+
+
+                                            {{-- <div class="form-row"> --}}
+                                            {{-- <div class="form-field">
                                                 <label class="form-label">Installment Amount</label>
                                                 <input type="number" name="installment_amount"
                                                     id="installment-amount" class="form-input" step="0.01">
-                                            </div>
-                                            <div class="form-field">
+                                            </div> --}}
+                                            {{-- <div class="form-field">
+                                                <label class="form-label">Additional Installment Amount</label>
+                                                <input type="number" name="additional_installment_amount"
+                                                    class="form-input" step="0.01">
+                                            </div> --}}
+
+                                        </div>
+
+                                        <div class="form-row " style="margin-top:20px;">
+                                            <div class="form-field ">
                                                 <label class="form-label">Additional Installment Amount</label>
                                                 <input type="number" name="additional_installment_amount"
                                                     class="form-input" step="0.01">
                                             </div>
-
-                                        </div>
-
-                                        <div class="form-row">
-                                            <div class="form-field">
+                                            <div class="form-field ">
                                                 <label class="form-label">No of Cheques to be Collected</label>
                                                 <input type="number" name="no_of_cheques_to_be_collected"
                                                     class="form-input" min="1">
@@ -2530,8 +2679,9 @@
                                                 <select name="repayment_type" class="form-input" required>
                                                     <option value="">Select repayment type</option>
                                                     <option value="yearly">Yearly</option>
-                                                    <option value="half_yearly">Half Yearly</option>
-                                                    <option value="quarterly">Quarterly</option>
+                                                    <option value="half_yearly">6 Months</option>
+                                                    <option value="quarterly">3 Months</option>
+                                                    <option value="quarterly">2 Months</option>
                                                     <option value="monthly">Monthly</option>
                                                 </select>
                                             </div>
@@ -2862,32 +3012,49 @@
                 });
             @endif
 
+
+
             const totalAmountInput = document.getElementById('total-amount');
-            const installmentInput = document.getElementById('installment-amount');
             const additionalInput = document.querySelector('input[name="additional_installment_amount"]');
             const chequesInput = document.querySelector('input[name="no_of_cheques_to_be_collected"]');
+            const rowsContainer = document.getElementById('installment-rows');
+            const addBtn = document.getElementById('add-installment');
 
-            installmentInput.addEventListener('input', function() {
+            function recalculate() {
+                let sanctionAmount = parseFloat(totalAmountInput.value) || 0;
+                let usedAmount = 0;
+                let totalMonths = 0;
 
-                const totalAmount = parseFloat(totalAmountInput.value) || 0;
-                const installmentAmount = parseFloat(this.value) || 0;
+                document.querySelectorAll('.installment-row').forEach(row => {
+                    const amount = parseFloat(row.querySelector('.installment-amount').value) || 0;
+                    const months = parseInt(row.querySelector('.installment-months').value) || 0;
 
-                if (totalAmount > 0 && installmentAmount > 0) {
+                    const rowTotal = amount * months;
+                    row.querySelector('.installment-total').value = rowTotal;
 
-                    const baseCheques = Math.floor(totalAmount / installmentAmount);
-                    const remainder = totalAmount % installmentAmount;
+                    usedAmount += rowTotal;
+                    totalMonths += months;
+                });
 
-                    // If additional installment exists, add 1 cheque
-                    const totalCheques = remainder > 0 ? baseCheques + 1 : baseCheques;
+                let remaining = sanctionAmount - usedAmount;
+                if (remaining < 0) remaining = 0;
 
-                    chequesInput.value = totalCheques;
-                    additionalInput.value = remainder.toFixed(2);
+                additionalInput.value = remaining.toFixed(2);
+                chequesInput.value = remaining > 0 ? totalMonths + 1 : totalMonths;
+            }
 
-                } else {
-                    chequesInput.value = '';
-                    additionalInput.value = '';
-                }
+            // Listen changes
+            rowsContainer.addEventListener('input', recalculate);
+
+            // Add new row
+            addBtn.addEventListener('click', () => {
+                const newRow = document.querySelector('.installment-row').cloneNode(true);
+                newRow.querySelectorAll('input').forEach(input => input.value = '');
+                rowsContainer.appendChild(newRow);
             });
+
+
+
 
         });
     </script>
@@ -2929,4 +3096,345 @@
                 style="max-width:100%; max-height:600px; display:none; object-fit:contain;" alt="Document Image">
         </div>
     </div>
+
+    <!-- Edit Working Committee Modal -->
+    <div class="modal fade" id="editWorkingCommitteeModal" tabindex="-1"
+        aria-labelledby="editWorkingCommitteeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                {{-- <div class="modal-header" style="background: var(--primary-purple); color: white;">
+                    <h5 class="modal-title" id="editWorkingCommitteeModalLabel">
+                        Edit Working Committee Decision
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div> --}}
+                <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
+
+                    <form action="{{ route('admin.working_committee.user.update', ['user' => $user]) }}"
+                        method="POST" id="edit-working-committee-form">
+                        @csrf
+                        @method('PATCH')
+
+                        <!-- Previous Approvals Info (read-only) -->
+                        <div
+                            style="background: rgba(76, 175, 80, 0.08); padding: 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; border: 1px solid rgba(76, 175, 80, 0.25);">
+                            <h6 style="color: #2E7D32; margin-bottom: 1rem;">Previous Approvals (Read-only)</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Apex Approval Remark</label>
+                                    <textarea class="form-control" readonly rows="2">{{ $user->workflowStatus->apex_1_approval_remarks ?? 'N/A' }}</textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Apex Approval Date</label>
+                                    <input type="text" class="form-control" readonly
+                                        value="{{ $user->workflowStatus->apex_1_updated_at ? $user->workflowStatus->apex_1_updated_at->format('d M Y') : 'N/A' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Chapter Approval Remark</label>
+                                    <textarea class="form-control" readonly rows="2">{{ strip_tags($user->workflowStatus->chapter_approval_remarks ?? 'N/A') }}</textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Chapter Approval Date</label>
+                                    <input type="text" class="form-control" readonly
+                                        value="{{ $user->workflowStatus->chapter_updated_at ? $user->workflowStatus->chapter_updated_at->format('d M Y') : 'N/A' }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Total Expenses</label>
+                                    <input type="text" class="form-control" readonly
+                                        value="₹{{ number_format($user->educationDetail->group_4_total ?? 0) }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Chapter Recommended Amount</label>
+                                    <input type="text" class="form-control" readonly
+                                        value="₹{{ number_format($user->workflowStatus->chapter_assistance_amount ?? 0) }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Main Decision Fields -->
+                        <div class="row g-3">
+
+                            <div class="col-md-4">
+                                <label class="form-label">Approval Date <span class="text-danger">*</span></label>
+                                <input type="date" name="w_c_approval_date" class="form-control" required
+                                    value="{{ old('w_c_approval_date', optional($user->workingCommitteeApproval)->w_c_approval_date?->format('Y-m-d') ?? '') }}">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Meeting Number <span class="text-danger">*</span></label>
+                                <input type="text" name="meeting_no" class="form-control" required
+                                    value="{{ old('meeting_no', $user->workingCommitteeApproval->meeting_no ?? '') }}">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Approved Amount (₹) <span class="text-danger">*</span></label>
+                                <input type="number" name="approval_financial_assistance_amount"
+                                    id="edit-total-amount" class="form-control" step="0.01" readonly
+                                    value="{{ old('approval_financial_assistance_amount', $user->workingCommitteeApproval->approval_financial_assistance_amount ?? 0) }}">
+                            </div>
+
+                            <!-- Disbursement System -->
+                            <div class="col-12">
+                                <label class="form-label">Disbursement System</label>
+                                <select name="disbursement_system" class="form-control" id="edit-disbursement-system">
+                                    <option value="yearly"
+                                        {{ old('disbursement_system', $user->workingCommitteeApproval->disbursement_system ?? '') == 'yearly' ? 'selected' : '' }}>
+                                        Yearly</option>
+                                    <option value="half_yearly"
+                                        {{ old('disbursement_system', $user->workingCommitteeApproval->disbursement_system ?? '') == 'half_yearly' ? 'selected' : '' }}>
+                                        Half-Yearly</option>
+                                </select>
+                            </div>
+
+                            <!-- Yearly Disbursement (dynamic) -->
+                            <div class="col-12" id="edit-yearly-section"
+                                style="{{ ($user->workingCommitteeApproval->disbursement_system ?? 'yearly') !== 'yearly' ? 'display:none;' : '' }}">
+                                <label class="form-label">Number of Years</label>
+                                <select name="disbursement_in_year" class="form-control" id="edit-year-count">
+                                    <option value="">Select</option>
+                                    @for ($i = 1; $i <= 8; $i++)
+                                        <option value="{{ $i }}"
+                                            {{ count($user->workingCommitteeApproval->yearly_dates ?? []) == $i ? 'selected' : '' }}>
+                                            {{ $i }} year{{ $i > 1 ? 's' : '' }}
+                                        </option>
+                                    @endfor
+                                </select>
+
+                                <div id="edit-yearly-fields" class="mt-3">
+                                    <!-- Dynamically filled by JS -->
+                                </div>
+                            </div>
+
+                            <!-- Installments -->
+                            <div class="col-12">
+                                <h6>Installment Planning</h6>
+                                <div id="edit-installment-rows">
+                                    @if ($user->workingCommitteeApproval && is_array($user->workingCommitteeApproval->installment_amount ?? []))
+                                        @foreach ($user->workingCommitteeApproval->installment_amount as $idx => $amt)
+                                            <div class="row g-3 installment-row mb-2">
+                                                <div class="col-md-4">
+                                                    <label>Amount (₹)</label>
+                                                    <input type="number" name="installment_amount[]"
+                                                        class="form-control installment-amount"
+                                                        value="{{ old("installment_amount.$idx", $amt) }}"
+                                                        step="0.01">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label>No. of Months</label>
+                                                    <input type="number" name="no_of_months[]"
+                                                        class="form-control installment-months"
+                                                        value="{{ old("no_of_months.$idx", $user->workingCommitteeApproval->no_of_months[$idx] ?? '') }}">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label>Total (₹)</label>
+                                                    <input type="number" class="form-control installment-total"
+                                                        readonly
+                                                        value="{{ old("total.$idx", $user->workingCommitteeApproval->total[$idx] ?? 0) }}">
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                </div>
+
+                                <button type="button" class="btn btn-sm btn-outline-secondary mt-2"
+                                    id="edit-add-installment">
+                                    + Add Installment
+                                </button>
+                            </div>
+
+                            <!-- Additional & Cheques -->
+                            <div class="col-md-4">
+                                <label class="form-label">Additional Amount (₹)</label>
+                                <input type="number" name="additional_installment_amount" id="edit-additional-amount"
+                                    class="form-control" step="0.01" readonly
+                                    value="{{ old('additional_installment_amount', $user->workingCommitteeApproval->additional_installment_amount ?? 0) }}">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">No. of Cheques</label>
+                                <input type="number" name="no_of_cheques_to_be_collected" class="form-control"
+                                    value="{{ old('no_of_cheques_to_be_collected', $user->workingCommitteeApproval->no_of_cheques_to_be_collected ?? '') }}">
+                            </div>
+
+                            <!-- Repayment -->
+                            <div class="col-md-4">
+                                <label class="form-label">Repayment Type</label>
+                                <select name="repayment_type" class="form-control">
+                                    <option value="yearly"
+                                        {{ old('repayment_type', $user->workingCommitteeApproval->repayment_type ?? '') == 'yearly' ? 'selected' : '' }}>
+                                        Yearly</option>
+                                    <option value="half_yearly"
+                                        {{ old('repayment_type', $user->workingCommitteeApproval->repayment_type ?? '') == 'half_yearly' ? 'selected' : '' }}>
+                                        Half-Yearly</option>
+                                    <option value="quarterly"
+                                        {{ old('repayment_type', $user->workingCommitteeApproval->repayment_type ?? '') == 'quarterly' ? 'selected' : '' }}>
+                                        Quarterly</option>
+                                    <option value="monthly"
+                                        {{ old('repayment_type', $user->workingCommitteeApproval->repayment_type ?? '') == 'monthly' ? 'selected' : '' }}>
+                                        Monthly</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Repayment Starting From</label>
+                                <input type="date" name="repayment_starting_from" class="form-control"
+                                    value="{{ old('repayment_starting_from', optional($user->workingCommitteeApproval->repayment_starting_from)->format('Y-m-d') ?? '') }}">
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Approval Remark</label>
+                                <textarea name="w_c_approval_remark" class="form-control" rows="3" required>{{ old('w_c_approval_remark', $user->workflowStatus->working_committee_approval_remarks ?? '') }}</textarea>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Remarks for Approval</label>
+                                <textarea name="remarks_for_approval" class="form-control" rows="4">{{ old('remarks_for_approval', $user->workingCommitteeApproval->remarks_for_approval ?? '') }}</textarea>
+                            </div>
+
+                        </div>
+
+                        <div class="modal-footer mt-4">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Edit modal logic
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const editModal = document.getElementById('editWorkingCommitteeModal');
+            if (!editModal) return;
+
+            // Trigger when modal is shown
+            editModal.addEventListener('shown.bs.modal', function() {
+
+                const yearCountSelect = document.getElementById('edit-year-count');
+                const yearlySection = document.getElementById('edit-yearly-section');
+                const yearlyFields = document.getElementById('edit-yearly-fields');
+
+                // Show yearly section by default (or based on saved value)
+                yearlySection.style.display = 'block';
+
+                // Generate yearly fields based on saved data or selection
+                function generateEditYearlyFields(count) {
+                    yearlyFields.innerHTML = '';
+                    if (!count || count < 1) return;
+
+                    const savedDates = @json($user->workingCommitteeApproval->yearly_dates ?? []);
+                    const savedAmounts = @json($user->workingCommitteeApproval->yearly_amounts ?? []);
+
+                    for (let i = 0; i < count; i++) {
+                        const div = document.createElement('div');
+                        div.className = 'row g-3 mb-3';
+                        div.innerHTML = `
+                    <div class="col-md-6">
+                        <label>Year ${i+1} Date</label>
+                        <input type="date" name="yearly_dates[]" class="form-control"
+                               value="${savedDates[i] ? new Date(savedDates[i]).toISOString().split('T')[0] : ''}">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Year ${i+1} Amount (₹)</label>
+                        <input type="number" name="yearly_amounts[]" class="form-control yearly-amount-edit"
+                               step="0.01" value="${savedAmounts[i] ?? ''}">
+                    </div>
+                `;
+                        yearlyFields.appendChild(div);
+                    }
+
+                    // Recalculate on change
+                    document.querySelectorAll('.yearly-amount-edit').forEach(el => {
+                        el.addEventListener('input', updateEditTotal);
+                    });
+                    updateEditTotal();
+                }
+
+                // Initial load
+                const initialCount = yearCountSelect.value || savedDates.length || 0;
+                if (initialCount > 0) {
+                    yearCountSelect.value = initialCount;
+                    generateEditYearlyFields(initialCount);
+                }
+
+                yearCountSelect.addEventListener('change', () => {
+                    generateEditYearlyFields(parseInt(yearCountSelect.value) || 0);
+                });
+
+                // Installment logic (similar to main form)
+                const addInstallmentBtn = document.getElementById('edit-add-installment');
+                const rowsContainer = document.getElementById('edit-installment-rows');
+
+                addInstallmentBtn.addEventListener('click', () => {
+                    const row = document.createElement('div');
+                    row.className = 'row g-3 installment-row mb-2';
+                    row.innerHTML = `
+                <div class="col-md-4">
+                    <label>Amount (₹)</label>
+                    <input type="number" name="installment_amount[]" class="form-control installment-amount" step="0.01">
+                </div>
+                <div class="col-md-4">
+                    <label>No. of Months</label>
+                    <input type="number" name="no_of_months[]" class="form-control installment-months">
+                </div>
+                <div class="col-md-4">
+                    <label>Total (₹)</label>
+                    <input type="number" class="form-control installment-total" readonly>
+                </div>
+            `;
+                    rowsContainer.appendChild(row);
+                    recalculateEditInstallments();
+                });
+
+                // Recalculate installments + additional
+                function recalculateEditInstallments() {
+                    let sanction = parseFloat(document.getElementById('edit-total-amount').value) || 0;
+                    let used = 0;
+                    let totalMonths = 0;
+
+                    document.querySelectorAll('#edit-installment-rows .installment-row').forEach(row => {
+                        const amt = parseFloat(row.querySelector('.installment-amount').value) || 0;
+                        const months = parseInt(row.querySelector('.installment-months').value) ||
+                            0;
+
+                        const rowTotal = amt * months;
+                        row.querySelector('.installment-total').value = rowTotal.toFixed(2);
+
+                        used += rowTotal;
+                        totalMonths += months;
+                    });
+
+                    let remaining = sanction - used;
+                    if (remaining < 0) remaining = 0;
+
+                    document.getElementById('edit-additional-amount').value = remaining.toFixed(2);
+
+                    // ✅ Add 1 cheque if additional amount > 1
+                    let extraCheque = remaining > 1 ? 1 : 0;
+
+                    document.querySelector('input[name="no_of_cheques_to_be_collected"]').value =
+                        totalMonths + extraCheque;
+                }
+
+                function updateEditTotal() {
+                    let total = 0;
+                    document.querySelectorAll('.yearly-amount-edit').forEach(input => {
+                        total += parseFloat(input.value) || 0;
+                    });
+                    document.getElementById('edit-total-amount').value = total.toFixed(2);
+                    recalculateEditInstallments();
+                }
+
+                // Listen to all changes
+                rowsContainer.addEventListener('input', recalculateEditInstallments);
+            });
+        });
+    </script>
 @endsection

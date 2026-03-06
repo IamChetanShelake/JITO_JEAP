@@ -40,7 +40,9 @@ class WorkingCommitteeApproval extends Model
         'half_yearly_dates' => 'array',
         'half_yearly_amounts' => 'array',
         'approval_financial_assistance_amount' => 'decimal:2',
-        'installment_amount' => 'decimal:2',
+        'installment_amount' => 'array',
+        'no_of_months' => 'array',
+        'total' => 'array',
         'additional_installment_amount' => 'decimal:2',
     ];
 

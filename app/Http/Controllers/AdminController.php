@@ -11,6 +11,7 @@ use App\Models\ChapterInterviewAnswer;
 use App\Models\DisbursementSchedule;
 use App\Models\EducationDetail;
 use App\Models\Logs;
+use App\Models\Loan_category;
 use App\Models\PdcDetail;
 use App\Models\User;
 use App\Traits\LogsUserActivity;
@@ -30,6 +31,37 @@ use Illuminate\Support\Facades\Mail;
 class AdminController extends Controller
 {
     use LogsUserActivity;
+
+    private function attachLatestLoanCategoryType($users): void
+    {
+        $userIds = $users->pluck('id')->filter()->values();
+
+        if ($userIds->isEmpty()) {
+            return;
+        }
+
+        $loanCategoryTable = (new Loan_category())->getTable();
+
+        $loanCategoryByUser = Loan_category::query()
+            ->select('user_id', 'type')
+            ->whereIn('id', function ($query) use ($userIds, $loanCategoryTable) {
+                $query->from($loanCategoryTable)
+                    ->selectRaw('MAX(id)')
+                    ->whereIn('user_id', $userIds)
+                    ->groupBy('user_id');
+            })
+            ->get()
+            ->mapWithKeys(function ($loanCategory) {
+                return [
+                    $loanCategory->user_id => strtolower(trim((string) $loanCategory->type)),
+                ];
+            });
+
+        $users->each(function ($user) use ($loanCategoryByUser) {
+            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
+        });
+    }
+
     public function index(Request $request)
     {
         // Calculate disbursement counts for dashboard
@@ -41,10 +73,16 @@ class AdminController extends Controller
             'disbursementCompleted' => $disbursementCounts['completed'],
             'disbursementInProgress' => $disbursementCounts['in_progress'],
             'disbursementPending' => $disbursementCounts['pending'],
+            'disbursementTodayPending' => $disbursementCounts['today_pending'],
+            'disbursementUpcoming' => $disbursementCounts['upcoming'],
+            'disbursementPast' => $disbursementCounts['past'],
             'disbursementTotal' => $disbursementCounts['total'],
             'repaymentCompleted' => $repaymentCounts['completed'],
             'repaymentInProgress' => $repaymentCounts['in_progress'],
             'repaymentReady' => $repaymentCounts['ready'],
+            'repaymentTodayPending' => $repaymentCounts['today_pending'],
+            'repaymentUpcoming' => $repaymentCounts['upcoming'],
+            'repaymentPast' => $repaymentCounts['past'],
             'repaymentTotal' => $repaymentCounts['total'],
         ]);
     }
@@ -97,6 +135,24 @@ class AdminController extends Controller
             $completed = 0;
             $inProgress = 0;
             $pending = 0;
+            $today = now()->toDateString();
+
+            $upcoming = DB::connection('admin_panel')
+                ->table('disbursement_schedules')
+                ->where('status', 'pending')
+                ->whereDate('planned_date', '>=', $today)
+                ->count();
+
+            $todayPending = DB::connection('admin_panel')
+                ->table('disbursement_schedules')
+                ->where('status', 'pending')
+                ->whereDate('planned_date', '=', $today)
+                ->count();
+
+            $past = DB::connection('admin_panel')
+                ->table('disbursement_schedules')
+                ->where('status', 'completed')
+                ->count();
 
             foreach ($scheduleData as $item) {
                 $disbursed = $disbursedData->get($item->user_id);
@@ -121,6 +177,9 @@ class AdminController extends Controller
                 'completed' => $completed,
                 'in_progress' => $inProgress,
                 'pending' => $pending,
+                'today_pending' => $todayPending,
+                'upcoming' => $upcoming,
+                'past' => $past,
                 'total' => $completed + $inProgress + $pending
             ];
         } catch (\Exception $e) {
@@ -128,6 +187,9 @@ class AdminController extends Controller
                 'completed' => 0,
                 'in_progress' => 0,
                 'pending' => 0,
+                'today_pending' => 0,
+                'upcoming' => 0,
+                'past' => 0,
                 'total' => 0
             ];
         }
@@ -188,10 +250,66 @@ class AdminController extends Controller
                 }
             }
 
+            // Keep these aligned with Repayment section buttons/routes:
+            // Upcoming => Pending repayment installments (from latest PDC cheques)
+            // Past => Completed repayment installments (from latest PDC cheques)
+            $upcoming = 0;
+            $past = 0;
+            $todayPending = 0;
+            $today = now()->toDateString();
+
+            $pdcDetailsByUser = PdcDetail::query()
+                ->orderByDesc('id')
+                ->get()
+                ->groupBy('user_id')
+                ->map(fn($items) => $items->first());
+
+            foreach ($pdcDetailsByUser as $userId => $pdcDetail) {
+                $chequeDetails = $pdcDetail->cheque_details;
+                if (is_string($chequeDetails)) {
+                    $decoded = json_decode($chequeDetails, true);
+                    $chequeDetails = is_array($decoded) ? $decoded : [];
+                }
+
+                if (!is_array($chequeDetails) || empty($chequeDetails)) {
+                    continue;
+                }
+
+                $installments = collect($chequeDetails)
+                    ->filter(fn($item) => is_array($item))
+                    ->map(function (array $item, int $index) {
+                        return (object) [
+                            'installment_no' => (int) ($item['row_number'] ?? ($index + 1)),
+                            'amount' => (float) ($item['amount'] ?? 0),
+                            'cheque_date' => $item['cheque_date'] ?? null,
+                        ];
+                    })
+                    ->sortBy('installment_no')
+                    ->values();
+
+                $remainingPaidAmount = (float) ($repaymentData->get($userId)->total_repaid_amount ?? 0);
+
+                foreach ($installments as $installment) {
+                    if ($remainingPaidAmount >= $installment->amount && $installment->amount > 0) {
+                        $past++;
+                        $remainingPaidAmount -= $installment->amount;
+                    } else {
+                        $upcoming++;
+                        $installmentDate = $installment->cheque_date ?? null;
+                        if (!empty($installmentDate) && $installmentDate === $today) {
+                            $todayPending++;
+                        }
+                    }
+                }
+            }
+
             return [
                 'completed' => $completed,
                 'in_progress' => $inProgress,
                 'ready' => $ready,
+                'today_pending' => $todayPending,
+                'upcoming' => $upcoming,
+                'past' => $past,
                 'total' => $completed + $inProgress + $ready,
             ];
         } catch (\Exception $e) {
@@ -199,6 +317,9 @@ class AdminController extends Controller
                 'completed' => 0,
                 'in_progress' => 0,
                 'ready' => 0,
+                'today_pending' => 0,
+                'upcoming' => 0,
+                'past' => 0,
                 'total' => 0,
             ];
         }
@@ -213,6 +334,9 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
+
         return view('admin.apex.stage1.approved', compact('users'));
     }
 
@@ -225,6 +349,8 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
 
         return view('admin.apex.stage1.pending', compact('users'));
     }
@@ -239,6 +365,8 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.apex.stage1.hold', compact('users'));
     }
 
@@ -253,13 +381,16 @@ class AdminController extends Controller
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
+        $this->attachLatestLoanCategoryType($users);
+
         return view('admin.apex.stage1.pending', compact('users'));
     }
 
     public function apexStage1UserDetail(User $user)
     {
         $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
-        return view('admin.apex.stage1.user_detail', compact('user'));
+        $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
+        return view('admin.apex.stage1.user_detail', compact('user', 'loanCategory'));
     }
 
     public function approveStage(Request $request, User $user, $stage)
@@ -386,39 +517,16 @@ class AdminController extends Controller
 
     public function approveWorkingCommittee(Request $request, User $user, $stage)
     {
-
-        // // Log the approval attempt
-        // $this->logUserActivity(
-        //     'Working_Committee_Approval',
-        //     'started',
-        //     'Admin started working committee approval process',
-        //     'admin_action',
-        //     null,
-        //     null,
-        //     [
-        //         'user_id' => $user->id,
-        //         'user_name' => $user->name,
-        //         'user_email' => $user->email,
-        //         'stage' => $stage,
-        //         'admin_id' => Auth::id(),
-        //         'admin_name' => Auth::user()->name,
-        //         'admin_email' => Auth::user()->email,
-        //         'request_data' => $request->except(['_token']), // Exclude sensitive data
-        //         'ip_address' => $request->ip(),
-        //         'user_agent' => $request->userAgent(),
-        //     ],
-        //     Auth::id()
-        // );
-
-        // Validation for working committee specific fields
-        //  dd($request->all());
+        //dd($request->all());
         $rules = [
             'w_c_approval_remark' => 'required|string',
             'w_c_approval_date' => 'required|date',
             'meeting_no' => 'required|string|max:255',
             'disbursement_system' => 'required|in:yearly,half_yearly',
             'approval_financial_assistance_amount' => 'required|numeric|min:0',
-            'installment_amount' => 'required|numeric|min:0',
+            'installment_amount' => 'required',
+            'no_of_months' => 'required',
+            'total' => 'required',
             'additional_installment_amount' => 'required|numeric|min:0',
             'repayment_type' => 'required|in:yearly,half_yearly,quarterly,monthly',
             'no_of_cheques_to_be_collected' => 'required|integer|min:1',
@@ -472,7 +580,12 @@ class AdminController extends Controller
             'meeting_no' => $request->meeting_no,
             'disbursement_system' => $request->disbursement_system,
             'approval_financial_assistance_amount' => $request->approval_financial_assistance_amount,
+            // 'installment_amount' => json_encode($request->installment_amount),
+            // 'no_of_months'=>json_encode($request->no_of_months),
+            // 'total'=>json_encode($request->total),
             'installment_amount' => $request->installment_amount,
+            'no_of_months' => $request->no_of_months,
+            'total' => $request->total,
             'additional_installment_amount' => $request->additional_installment_amount,
             'repayment_type' => $request->repayment_type,
             'no_of_cheques_to_be_collected' => $request->no_of_cheques_to_be_collected,
@@ -505,12 +618,14 @@ class AdminController extends Controller
                 'disbursement_system' => $request->disbursement_system,
                 'disbursement_in_year' => $request->disbursement_in_year ?? null,
                 'disbursement_in_half_year' => $request->disbursement_in_half_year ?? null,
-                'yearly_dates' => $request->yearly_dates ?? null,
-                'yearly_amounts' => $request->yearly_amounts ?? null,
-                'half_yearly_dates' => $request->half_yearly_dates ?? null,
-                'half_yearly_amounts' => $request->half_yearly_amounts ?? null,
+                'yearly_dates' => $request->yearly_dates,
+                'yearly_amounts' => $request->yearly_amounts,
+                'half_yearly_dates' => $request->half_yearly_dates,
+                'half_yearly_amounts' => $request->half_yearly_amounts ? json_encode($request->half_yearly_amounts) : null,
                 'approval_financial_assistance_amount' => $request->approval_financial_assistance_amount,
                 'installment_amount' => $request->installment_amount,
+                'no_of_months' => $request->no_of_months,
+                'total' => $request->total,
                 'additional_installment_amount' => $request->additional_installment_amount,
                 'repayment_type' => $request->repayment_type,
                 'no_of_cheques_to_be_collected' => $request->no_of_cheques_to_be_collected,
@@ -589,6 +704,46 @@ class AdminController extends Controller
 
             return back()->with('error', 'Failed to save working committee approval data: ' . $e->getMessage());
         }
+    }
+    public function updateWorkingCommittee(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'w_c_approval_date'                 => 'required|date',
+            'meeting_no'                        => 'required|string|max:50',
+            'approval_financial_assistance_amount' => 'required|numeric|min:0',
+            'disbursement_system'               => 'required|in:yearly,half_yearly',
+            'yearly_dates.*'                    => 'nullable|date',
+            'yearly_amounts.*'                  => 'nullable|numeric',
+            'installment_amount.*'              => 'nullable|numeric',
+            'no_of_months.*'                    => 'nullable|integer',
+            'total'                             => 'nullable|array',
+            'total.*'                           => 'nullable|numeric',
+            'additional_installment_amount'     => 'nullable|numeric',
+            'no_of_cheques_to_be_collected'     => 'nullable|integer',
+            'repayment_type'                    => 'nullable|string',
+            'repayment_starting_from'           => 'nullable|date',
+            'w_c_approval_remark'               => 'required|string',
+            'remarks_for_approval'              => 'nullable|string',
+        ]);
+
+        $totals = [];
+
+        foreach ($request->installment_amount as $index => $amount) {
+            $months = $request->no_of_months[$index] ?? 0;
+            $totals[] = $amount * $months;
+        }
+
+        $validated['total'] = $totals;
+
+        // Update workingCommitteeApproval model
+        $approval = $user->workingCommitteeApproval ?? new \App\Models\WorkingCommitteeApproval(['user_id' => $user->id]);
+
+        $approval->fill($validated);
+        $approval->save();
+
+        // Also update workflowStatus if needed (approval_remarks, updated_at, etc.)
+
+        return redirect()->back()->with('success', 'Working Committee decision updated successfully.');
     }
 
 
@@ -1119,6 +1274,8 @@ class AdminController extends Controller
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
+        $this->attachLatestLoanCategoryType($users);
+
         return view('admin.chapters.stage2.pending', compact('users'));
     }
 
@@ -1133,6 +1290,8 @@ class AdminController extends Controller
         }
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.approved', compact('users'));
     }
 
@@ -1147,6 +1306,9 @@ class AdminController extends Controller
         }
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.hold', compact('users'));
     }
 
@@ -1155,7 +1317,11 @@ class AdminController extends Controller
         $inter_date = ChapterInterviewAnswer::where('user_id', $user->id)->where('question_no', 1)->first();
         $data = EducationDetail::where('user_id', $user->id)->first();
         $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
-        return view('admin.chapters.stage2.user_detail', compact('user', 'data', 'inter_date'));
+        $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
+
+
+
+        return view('admin.chapters.stage2.user_detail', compact('user', 'data', 'inter_date', 'loanCategory'));
     }
 
     public function workingCommitteeApproved()
@@ -1166,6 +1332,8 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.working_committee.approved', compact('users'));
     }
 
@@ -1179,6 +1347,8 @@ class AdminController extends Controller
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
+        $this->attachLatestLoanCategoryType($users);
+
         return view('admin.working_committee.pending', compact('users'));
     }
 
@@ -1190,6 +1360,8 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.working_committee.hold', compact('users'));
     }
 
@@ -1201,6 +1373,16 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $loanCategoryByUser = Loan_category::whereIn('user_id', $users->pluck('id'))
+            ->orderByDesc('id')
+            ->get()
+            ->unique('user_id')
+            ->pluck('type', 'user_id');
+
+        $users->each(function ($user) use ($loanCategoryByUser) {
+            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
+        });
         return view('admin.working_committee.hold', compact('users'));
     }
 
@@ -1209,7 +1391,8 @@ class AdminController extends Controller
         $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
         $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
         // dd($workingCommitteeApproval);
-        return view('admin.working_committee.user_detail', compact('user', 'workingCommitteeApproval'));
+        $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
+        return view('admin.working_committee.user_detail', compact('user', 'workingCommitteeApproval', 'loanCategory'));
     }
 
     // Chapter Interview Methods
@@ -1413,6 +1596,8 @@ class AdminController extends Controller
             ->where('chapter_id', $chapter_id)
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.approved', compact('users')); // Reuse existing view
     }
 
@@ -1424,7 +1609,7 @@ class AdminController extends Controller
             ->where('application_status', 'draft')
             ->get();
 
-
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.pending', compact('users')); // Reuse existing view
     }
 
@@ -1439,6 +1624,8 @@ class AdminController extends Controller
                 $q->where('apex_1_status', 'pending');
             })
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.pending', compact('users')); // Reuse existing view
     }
 
@@ -1456,6 +1643,7 @@ class AdminController extends Controller
         }
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.pending', compact('users')); // Reuse existing view
     }
 
@@ -1473,6 +1661,8 @@ class AdminController extends Controller
         }
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.approved', compact('users')); // Reuse existing view
     }
 
@@ -1486,6 +1676,8 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.hold', compact('users')); // Reuse existing view
     }
 
@@ -1658,6 +1850,16 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $loanCategoryByUser = Loan_category::whereIn('user_id', $users->pluck('id'))
+            ->orderByDesc('id')
+            ->get()
+            ->unique('user_id')
+            ->pluck('type', 'user_id');
+
+        $users->each(function ($user) use ($loanCategoryByUser) {
+            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
+        });
         return view('admin.apex.stage2.approved', compact('users'));
     }
 
@@ -1670,6 +1872,16 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $loanCategoryByUser = Loan_category::whereIn('user_id', $users->pluck('id'))
+            ->orderByDesc('id')
+            ->get()
+            ->unique('user_id')
+            ->pluck('type', 'user_id');
+
+        $users->each(function ($user) use ($loanCategoryByUser) {
+            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
+        });
 
         return view('admin.apex.stage2.pending', compact('users'));
     }
@@ -1685,6 +1897,16 @@ class AdminController extends Controller
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
+
+        $loanCategoryByUser = Loan_category::whereIn('user_id', $users->pluck('id'))
+            ->orderByDesc('id')
+            ->get()
+            ->unique('user_id')
+            ->pluck('type', 'user_id');
+
+        $users->each(function ($user) use ($loanCategoryByUser) {
+            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
+        });
         return view('admin.apex.stage2.hold', compact('users'));
     }
 
@@ -1700,6 +1922,16 @@ class AdminController extends Controller
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
+        $loanCategoryByUser = Loan_category::whereIn('user_id', $users->pluck('id'))
+            ->orderByDesc('id')
+            ->get()
+            ->unique('user_id')
+            ->pluck('type', 'user_id');
+
+        $users->each(function ($user) use ($loanCategoryByUser) {
+            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
+        });
+
         return view('admin.apex.stage2.pending', compact('users'));
     }
 
@@ -1709,8 +1941,9 @@ class AdminController extends Controller
 
         // Load PDC details
         $pdcDetail = \App\Models\PdcDetail::where('user_id', $user->id)->first();
+        $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
 
-        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail'));
+        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory'));
     }
 
     // =====================================================

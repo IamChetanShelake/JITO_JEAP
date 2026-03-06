@@ -22,7 +22,8 @@
                 <div class="d-flex justify-content-between align-items-start gap-2">
                     <div style="min-width: 0;">
                         <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
-                        <p style="margin: 8px 0 4px 0; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        <p
+                            style="margin: 8px 0 4px 0; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                             {{ trim(preg_replace('/\s+/', ' ', strip_tags(auth()->user()->admin_remark))) }}
                         </p>
                         <button type="button" class="btn btn-link p-0" data-bs-toggle="modal"
@@ -68,9 +69,11 @@
                                     <option value="domestic"
                                         {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'domestic' ? 'selected' : '' }}>
                                         Domestic</option>
-                                    <option value="foreign_finance_assistant"
-                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'foreign_finance_assistant' ? 'selected' : '' }}>
-                                        Foreign Financial Assistance</option>
+                                    @if ($type !== 'below')
+                                        <option value="foreign_finance_assistant"
+                                            {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'foreign_finance_assistant' ? 'selected' : '' }}>
+                                            Foreign Financial Assistance</option>
+                                    @endif
                                 </select>
                                 <small class="text-danger">{{ $errors->first('financial_asset_type') }}</small>
                             </div>

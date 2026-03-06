@@ -131,7 +131,8 @@
                 <div class="d-flex justify-content-between align-items-start gap-2">
                     <div style="min-width: 0;">
                         <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
-                        <p style="margin: 8px 0 4px 0; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        <p
+                            style="margin: 8px 0 4px 0; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                             {{ trim(preg_replace('/\s+/', ' ', strip_tags($educationDetail->admin_remark))) }}
                         </p>
                         <button type="button" class="btn btn-link p-0" data-bs-toggle="modal"
@@ -276,7 +277,8 @@
                                                         style="color: red;">*</span></label>
                                                 <input type="text" id="country" class="form-control" name="country"
                                                     placeholder="Enter Country Name "
-                                                    value="{{ old('country', $educationDetail->country ?? '') }}" required>
+                                                    value="{{ old('country', $educationDetail->country ?? '') }}"
+                                                    required>
                                                 <small class="text-danger"
                                                     id="country_error">{{ $errors->first('country') }}</small>
                                             </div>
@@ -1244,6 +1246,68 @@
             populateTableWithSavedData();
         });
 
+        const selectedLoanCategory = @json($type ?? null);
+        const enforceOneLakhCap = selectedLoanCategory === 'below';
+        let hasShownTotalExpensesLimitModal = false;
+
+        function showTotalExpensesErrorModal(totalExpenses) {
+            const modalHtml = `
+                <div class="modal fade" id="totalExpensesErrorModal" tabindex="-1" aria-labelledby="totalExpensesErrorModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content" style="border:2px solid #dc3545;">
+                            <div class="modal-header" style="border-bottom:1px solid #dc3545; background-color: #dc3545; color: white;">
+                                <h5 class="modal-title" id="totalExpensesErrorModalLabel" style="color: white;">Not Eligible</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p style="color: #dc3545; font-weight: 600; font-size: 16px;">
+                                    Your Total Expenses (Rs. ${totalExpenses.toLocaleString()}) exceeds Rs. 1,00,000 (1 Lakh).<br><br>
+                                    You are not eligible for this financial assistance program.<br><br>
+                                    Please contact the administrator for more information.
+                                </p>
+                            </div>
+                            <div class="modal-footer" style="border-top:1px solid #dc3545;">
+                                <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal" style="border-color: #dc3545; color: #dc3545;">OK</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const existingModal = document.getElementById('totalExpensesErrorModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            const modalEl = document.getElementById('totalExpensesErrorModal');
+
+            if (window.bootstrap && bootstrap.Modal) {
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            }
+        }
+
+        function checkTotalExpensesLimit(showModalOnCross = false) {
+            if (!enforceOneLakhCap) return false;
+
+            const totalExpensesInput = document.querySelector('input[name="group_4_total"]');
+            const totalExpenses = parseFloat(totalExpensesInput?.value || 0);
+            const exceedsLimit = totalExpenses > 100000;
+
+            if (!exceedsLimit) {
+                hasShownTotalExpensesLimitModal = false;
+                return false;
+            }
+
+            if (showModalOnCross && !hasShownTotalExpensesLimitModal) {
+                showTotalExpensesErrorModal(totalExpenses);
+                hasShownTotalExpensesLimitModal = true;
+            }
+
+            return true;
+        }
+
         // Function to calculate row totals
         function calculateRowTotal(rowId) {
             const totalInput = document.querySelector(`input[name="group_${rowId}_total"]`);
@@ -1294,6 +1358,8 @@
             if (totalInput) {
                 totalInput.value = grandTotal;
             }
+
+            checkTotalExpensesLimit(true);
         }
 
         // Add event listeners to table inputs for calculating totals
@@ -1490,6 +1556,12 @@
                 } else if (jcCgpaRadio && jcCgpaRadio.checked) {
                     isValid = isValid && validateRequired('jc_CGPA', 'CGPA is required');
                     isValid = isValid && validateRequired('jc_cgpa_out_of', 'CGPA out of is required');
+                }
+
+                // Validate Total Expenses - should not be greater than 1 lakh for below category
+                if (checkTotalExpensesLimit(true)) {
+                    e.preventDefault();
+                    return false;
                 }
 
                 // Final check

@@ -165,6 +165,35 @@
             transition: background-color 0.2s ease;
         }
 
+
+
+        .below-one-lakh-row {
+            background-color: #e8f1ff;
+        }
+
+        .below-one-lakh-row:hover {
+            background-color: #d7e8ff !important;
+        }
+
+        .loan-type-badge {
+            display: inline-block;
+            padding: 0.3rem 0.7rem;
+            border-radius: 14px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .loan-type-below {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .loan-type-above {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
         .status-badge {
             padding: 0.35rem 0.8rem;
             border-radius: 20px;
@@ -236,7 +265,7 @@
             color: #e0e0e0;
         }
 
-        .actions-cell {
+        . {
             display: flex;
             justify-content: center;
             gap: 0.2rem;
@@ -318,13 +347,14 @@
                             <th style="width: 20%;">Email</th>
                             <th style="width: 15%;">Mobile</th>
                             <th style="width: 15%;">Register Date </th>
+                            <th style="width: 12%;">Category</th>
                             <th style="width: 15%;">Status</th>
                             <th style="width: 15%;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($users as $index => $user)
-                            <tr>
+                            <tr class="{{ $user->loan_category_type === 'below' ? 'below-one-lakh-row' : '' }}">
                                 <td>{{ $index + 1 }}</td>
                                 <td>
                                     <strong>{{ $user->name }}</strong>
@@ -332,30 +362,35 @@
                                 <td>{{ $user->email }}</td>
                                 <td>{{ $user->phone }}</td>
                                 <td>{{ $user->created_at->format('d M Y') }}</td>
-                                @if($user->workflowStatus->apex_1_reject_remarks != null)
                                 <td>
-                                    <span class="status-badge btn btn-warning">
-                                        <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
-                                        resubmitted
+                                    <span
+                                        class="loan-type-badge {{ $user->loan_category_type === 'below' ? 'loan-type-below' : 'loan-type-above' }}">
+                                        {{ $user->loan_category_type === 'below' ? 'Below 1 Lakh' : 'Above 1 Lakh' }}
                                     </span>
                                 </td>
+                                @if ($user->workflowStatus->apex_1_reject_remarks != null)
+                                    <td>
+                                        <span class="status-badge btn btn-warning">
+                                            <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
+                                            resubmitted
+                                        </span>
+                                    </td>
                                 @elseif($user->application_status == 'submitted')
-                                <td>
-                                    <span class="status-badge btn btn-info">
-                                        <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
-                                        Submitted
-                                    </span>
-                                </td>
+                                    <td>
+                                        <span class="status-badge btn btn-info">
+                                            <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
+                                            Submitted
+                                        </span>
+                                    </td>
                                 @elseif($user->application_status == 'draft')
-                                <td>
-                                    <span class="status-badge btn btn-secondary">
-                                        <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
-                                        Draft
-                                    </span>
-                                </td>
-                                
+                                    <td>
+                                        <span class="status-badge btn btn-secondary">
+                                            <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
+                                            Draft
+                                        </span>
+                                    </td>
                                 @endif
-                                <td class="actions-cell">
+                                <td class="">
                                     <a href="{{ route('admin.apex.stage1.user.detail', $user) }}"
                                         class="action-btn view-btn" title="View Details">
                                         <i class="fas fa-eye"></i>

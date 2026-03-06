@@ -20,6 +20,10 @@ use App\Http\Controllers\WorkingCommitteeController;
 use App\Http\Controllers\InitiativeController;
 use App\Http\Controllers\AccountantController;
 
+use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\WebsiteController;
+
+
 Route::get('/', function () {
     return view('auth.login');
 });
@@ -90,9 +94,15 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/working-committee/hold', [AdminController::class, 'workingCommitteeHold'])->name('working_committee.hold');
     Route::get('/working-committee/reject', [AdminController::class, 'workingCommitteeReject'])->name('working_committee.reject');
 
+
+
     Route::get('/working-committee/user/{user}', [AdminController::class, 'workingCommitteeUserDetail'])->name('working_committee.user.detail');
     Route::post('/working-committee/user/{user}/approve/{stage}', [AdminController::class, 'approveWorkingCommittee'])->name('working_committee.user.approve');
     Route::post('/working-committee/user/{user}/unhold', [AdminController::class, 'unholdWorkingCommittee'])->name('working_committee.user.unhold');
+
+    // NEW: Update (edit/save) Working Committee decision
+    Route::patch('admin/working-committee/users/{user}/update', [AdminController::class, 'updateWorkingCommittee'])
+        ->name('working_committee.user.update');
 
     // Approval workflow endpoints
     Route::post('/user/{user}/approve/{stage}', [AdminController::class, 'approveStage'])->name('user.approve');
@@ -188,6 +198,10 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/repayments/completed', [RepaymentController::class, 'completed'])->name('repayments.completed');
     Route::get('/repayments/in-progress', [RepaymentController::class, 'inProgress'])->name('repayments.in_progress');
     Route::get('/repayments/ready', [RepaymentController::class, 'ready'])->name('repayments.ready');
+    Route::get('/repayments/export', [RepaymentController::class, 'export'])->name('repayments.export');
+    Route::get('/repayments/upcoming', [RepaymentController::class, 'upcoming'])->name('repayments.upcoming');
+    Route::get('/repayments/past', [RepaymentController::class, 'past'])->name('repayments.past');
+    Route::get('/repayments/export/{period}', [RepaymentController::class, 'exportPeriod'])->name('repayments.export_period');
     Route::get('/repayments/user/{user}', [RepaymentController::class, 'show'])->name('repayments.show');
     Route::post('/repayments/user/{user}', [RepaymentController::class, 'store'])->name('repayments.store');
 
@@ -199,12 +213,24 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/donor-dashboard', [DonorController::class, 'dashboard'])->name('donors.dashboard');
     Route::get('/donor-dashboard/{donor}', [DonorController::class, 'dashboardShow'])->name('donors.dashboard.show');
 
+    // General Donors Routes
+    Route::get('/general-donor-dashboard', [DonorController::class, 'generalDonorsDashboard'])->name('general-donors.dashboard');
+    Route::get('/general-donor-dashboard/{donor}', [DonorController::class, 'generalDonorShow'])->name('general-donors.show');
+
     Route::put('/donor-dashboard-update/{donor}', [DonorController::class, 'updatedonor'])->name('donors.updatedonor');
+    Route::put('/donor-payment-update/{donor}', [DonorController::class, 'updatePayment'])->name('donors.updatepayment');
+
+    // Donor conversion routes
+    Route::post('/donors/{donor}/convert-to-general', [DonorController::class, 'convertToGeneral'])->name('donors.convertToGeneral');
+    Route::post('/donors/{donor}/create-commitment', [DonorController::class, 'createCommitment'])->name('donors.createCommitment');
 
     // Disbursement Filtered Routes
     Route::get('/disbursement/completed', [DisbursementController::class, 'completed'])->name('disbursement.completed');
     Route::get('/disbursement/in-progress', [DisbursementController::class, 'inProgress'])->name('disbursement.in_progress');
     Route::get('/disbursement/pending', [DisbursementController::class, 'pending'])->name('disbursement.pending');
+    Route::get('/disbursement/upcoming', [DisbursementController::class, 'upcoming'])->name('disbursement.upcoming');
+    Route::get('/disbursement/past', [DisbursementController::class, 'past'])->name('disbursement.past');
+    Route::get('/disbursement/export/{period}', [DisbursementController::class, 'exportSchedules'])->name('disbursement.export');
 
     // Subcast Routes
     Route::resource('subcasts', SubcastController::class);
@@ -320,3 +346,83 @@ Route::middleware(['auth', 'user'])
         // View Sanction Letter
         Route::get('/{user}/sanction-letter', [AdminController::class, 'viewSanctionLetter'])->name('sanction.letter');
     });
+
+
+
+
+
+
+
+
+// Website Route
+
+
+
+
+Route::get('/index', [WebsiteController::class, 'index'])->name('index');
+// Route::view('/index1','website.index')->name('index1');
+Route::get('/', function () {
+    return redirect()->route('index');
+});
+
+Route::prefix('about')->group(function () {
+    Route::get('/JITO', [WebsiteController::class, 'aboutJito'])->name('jito');
+    Route::get('/JEAP', [WebsiteController::class, 'aboutJeap'])->name('jeap');
+    Route::get('/Board-Of-Directors', [WebsiteController::class, 'boardOfDirectors'])->name('boardOfDirectors');
+    Route::get('/Zone-Chairmen', [WebsiteController::class, 'zoneChairmen'])->name('zoneChairmen');
+    Route::get('/testimonials-and-Success-Stories', [WebsiteController::class, 'testimonialSuccessStories'])->name('testimonial&Success');
+});
+Route::prefix('application')->group(function () {
+
+    Route::get('/document-checklist-1', [WebsiteController::class, 'documentchecklist1'])->name('documentchecklist1');
+    Route::get('/document-checklist-2', [WebsiteController::class, 'documentchecklist2'])->name('documentchecklist2');
+    Route::get('/document-checklist-3', [WebsiteController::class, 'documentchecklist3'])->name('documentchecklist3');
+    Route::get('/DOCUMENTS', [WebsiteController::class, 'documents'])->name('documents');
+    Route::get('/How-to-apply', [WebsiteController::class, 'howtoapply'])->name('howtoapply');
+    Route::get('/FAQ’s', [WebsiteController::class, 'faqs'])->name('faqs');
+});
+Route::prefix('donors')->group(function () {
+    Route::get('/be-a-donor', [WebsiteController::class, 'beDonor'])->name('beDonor');
+    Route::get('/our-donors', [WebsiteController::class, 'ourDonors'])->name('ourDonors');
+});
+
+Route::prefix('University')->group(function () {
+    Route::get('/domestic', [WebsiteController::class, 'domestic'])->name('domestic');
+    Route::get('/foreign', [WebsiteController::class, 'foreign'])->name('foreign');
+});
+
+Route::get('/Gallery', [WebsiteController::class, 'gallery'])->name('gallery');
+
+
+
+
+
+
+
+
+Route::get('/industrial', [WebsiteController::class, 'industrial'])->name('industrial_connect');
+
+
+Route::get('/contact', [WebsiteController::class, 'contact'])->name('contact');
+
+
+
+
+
+
+
+
+
+Route::get('/clean-cache', function () {
+    $exitCode = Artisan::call('cache:clear');
+    $exitCode = Artisan::call('route:cache');
+    $exitCode = Artisan::call('route:clear');
+    $exitCode = Artisan::call('view:cache');
+    $exitCode = Artisan::call('view:clear');
+    $exitCode = Artisan::call('config:cache');
+    $exitCode = Artisan::call('config:clear');
+    $exitCode = Artisan::call('event:cache');
+    $exitCode = Artisan::call('event:clear');
+    $exitCode = Artisan::call('optimize');
+    return '<h1>Cache facade value cleared</h1>';
+});

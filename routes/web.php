@@ -341,4 +341,8 @@ Route::middleware(['auth', 'user'])
 
         // View Sanction Letter
         Route::get('/{user}/sanction-letter', [AdminController::class, 'viewSanctionLetter'])->name('sanction.letter');
+
+        // Route for above 1 lakh application redirection
+        Route::get('/above-1-lakh-application', [UserController::class, 'above1LakhApplication'])
+            ->name('above.1.lakh.application');
     });

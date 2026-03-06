@@ -92,10 +92,21 @@ class UserController extends Controller
     {
         $user_id = Auth::id();
         // dd($type, $user_id);
-        $loancategory = new Loan_category();
-        $loancategory->user_id = $user_id;
-        $loancategory->type = $type;
-        $loancategory->save();
+        $loancategory = Loan_category::where('user_id', $user_id)->first();
+
+        if ($loancategory) {
+            $loancategory->type = $type;
+            $loancategory->save();
+        } else {
+            $loancategory = new Loan_category();
+            $loancategory->user_id = $user_id;
+            $loancategory->type = $type;
+            $loancategory->save();
+        }
+        // $loancategory = new Loan_category();
+        // $loancategory->user_id = $user_id;
+        // $loancategory->type = $type;
+        // $loancategory->save();
 
         // Log application submission
         $user = User::find($user_id);
@@ -3658,5 +3669,59 @@ class UserController extends Controller
         ));
 
         return $pdf->stream('sanction_letter_' . $user->id . '.pdf');
+    }
+
+    /**
+     * Handle redirection for above 1 lakh application
+     */
+    public function above1LakhApplication()
+    {
+        $user = Auth::user();
+        // dd($user);
+        // Check if user has a loan category
+        $loanCategory = Loan_category::where('user_id', $user->id)->latest()->first();
+        return view('user.home', compact('user', 'loanCategory'));
+
+        // if (!$loanCategory) {
+        //     return redirect()->route('user.home')->with('error', 'Please select a loan category first.');
+        // }
+
+        // // Check if user has completed step 1
+        // if (!$user || $user->submit_status !== 'submited') {
+        //     return redirect()->route('user.step1');
+        // }
+
+        // // Check if user has completed step 2
+        // $educationDetail = EducationDetail::where('user_id', $user->id)->first();
+        // if (!$educationDetail || $educationDetail->submit_status !== 'submited') {
+        //     return redirect()->route('user.step2');
+        // }
+
+        // // Check if user has completed step 3
+        // $familyDetail = Familydetail::where('user_id', $user->id)->first();
+        // if (!$familyDetail || $familyDetail->submit_status !== 'submited') {
+        //     return redirect()->route('user.step3');
+        // }
+
+        // // Check if user has completed step 4
+        // $fundingDetail = FundingDetail::where('user_id', $user->id)->first();
+        // if (!$fundingDetail || $fundingDetail->submit_status !== 'submited') {
+        //     return redirect()->route('user.step4');
+        // }
+
+        // // Check if user has completed step 5 (guarantor details)
+        // $guarantorDetail = GuarantorDetail::where('user_id', $user->id)->first();
+        // if (!$guarantorDetail || $guarantorDetail->submit_status !== 'submited') {
+        //     return redirect()->route('user.step5');
+        // }
+
+        // // Check if user has completed step 6 (document upload)
+        // $document = Document::where('user_id', $user->id)->first();
+        // if (!$document || $document->submit_status !== 'submited') {
+        //     return redirect()->route('user.step6');
+        // }
+
+        // // All steps completed, redirect to step 7 (Review & Submit)
+        // return redirect()->route('user.step7');
     }
 }

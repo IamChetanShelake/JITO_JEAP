@@ -867,6 +867,9 @@
         </div>
     </div>
 
+    @php
+        $isBelowLoan = $loanCategory && $loanCategory->type === 'below';
+    @endphp
 
 
     <!-- Steps Container -->
@@ -889,20 +892,22 @@
                 <span class="step-number">4</span>
                 <span class="step-title">Funding Details</span>
             </div>
-            <div class="step-nav-item step-5" onclick="showStep(5)">
-                <span class="step-number">5</span>
-                <span class="step-title">Guarantor Details</span>
-            </div>
+             @if (!$isBelowLoan)
+                <div class="step-nav-item step-5" onclick="showStep(5)">
+                    <span class="step-number">5</span>
+                    <span class="step-title">Guarantor Details</span>
+                </div>
+            @endif
             <div class="step-nav-item step-6" onclick="showStep(6)">
-                <span class="step-number">6</span>
+                <span class="step-number">{{ $isBelowLoan ? 5 : 6 }}</span>
                 <span class="step-title">Documents</span>
             </div>
             <div class="step-nav-item step-7" onclick="showStep(7)">
-                <span class="step-number">7</span>
+                <span class="step-number">{{ $isBelowLoan ? 6 : 7 }}</span>
                 <span class="step-title">Final Submission</span>
             </div>
             <div class="step-nav-item step-8" onclick="showStep(8)">
-                <span class="step-number">8</span>
+                <span class="step-number">{{ $isBelowLoan ? 7 : 8 }}</span>
                 <span class="step-title">Working Committee Decision</span>
             </div>
         </div>
@@ -1568,91 +1573,93 @@
             @if ($user->fundingDetail)
                 <div class="form-data">
                     <!-- Funding Sources Table -->
-                    <div class="data-group">
-                        <h4>Funding Sources</h4>
-                        <div class="table-container">
-                            <table class="custom-table">
-                                <thead>
-                                    <tr>
-                                        <th>Particulars</th>
-                                        <th>Status</th>
-                                        <th>Name of Trust/Institute</th>
-                                        <th>Name of Contact Person</th>
-                                        <th>Contact No</th>
-                                        <th>Amount (Rs)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Own family funding (Father + Mother)</td>
-                                        <td>{{ ucfirst($user->fundingDetail->family_funding_status) }}</td>
-                                        <td>{{ $user->fundingDetail->family_funding_trust ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->family_funding_contact ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->family_funding_mobile ?? '-' }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->fundingDetail->family_funding_amount ?? 0) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Bank Loan</td>
-                                        <td>{{ ucfirst($user->fundingDetail->bank_loan_status) }}</td>
-                                        <td>{{ $user->fundingDetail->bank_loan_trust ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->bank_loan_contact ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->bank_loan_mobile ?? '-' }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->fundingDetail->bank_loan_amount ?? 0) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Other Assistance (1)</td>
-                                        <td>{{ ucfirst($user->fundingDetail->other_assistance1_status) }}</td>
-                                        <td>{{ $user->fundingDetail->other_assistance1_trust ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->other_assistance1_contact ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->other_assistance1_mobile ?? '-' }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->fundingDetail->other_assistance1_amount ?? 0) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Other Assistance (2)</td>
-                                        <td>{{ ucfirst($user->fundingDetail->other_assistance2_status) }}</td>
-                                        <td>{{ $user->fundingDetail->other_assistance2_trust ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->other_assistance2_contact ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->other_assistance2_mobile ?? '-' }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->fundingDetail->other_assistance2_amount ?? 0) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Local Assistance</td>
-                                        <td>{{ ucfirst($user->fundingDetail->local_assistance_status) }}</td>
-                                        <td>{{ $user->fundingDetail->local_assistance_trust ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->local_assistance_contact ?? '-' }}</td>
-                                        <td>{{ $user->fundingDetail->local_assistance_mobile ?? '-' }}</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format($user->fundingDetail->local_assistance_amount ?? 0) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="5" style="text-align:right;font-weight:600">Total</td>
-                                        <td class="amount-cell">
-                                            ₹{{ number_format((float) ($user->fundingDetail->family_funding_amount ?? 0) + (float) ($user->fundingDetail->bank_loan_amount ?? 0) + (float) ($user->fundingDetail->other_assistance1_amount ?? 0) + (float) ($user->fundingDetail->other_assistance2_amount ?? 0) + (float) ($user->fundingDetail->local_assistance_amount ?? 0)) }}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    @if (!($loanCategory && $loanCategory->type === 'below'))
+                        <div class="data-group">
+                            <h4>Funding Sources</h4>
+                            <div class="table-container">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Particulars</th>
+                                            <th>Status</th>
+                                            <th>Name of Trust/Institute</th>
+                                            <th>Name of Contact Person</th>
+                                            <th>Contact No</th>
+                                            <th>Amount (Rs)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Own family funding (Father + Mother)</td>
+                                            <td>{{ ucfirst($user->fundingDetail->family_funding_status) }}</td>
+                                            <td>{{ $user->fundingDetail->family_funding_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->family_funding_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->family_funding_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->family_funding_amount ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bank Loan</td>
+                                            <td>{{ ucfirst($user->fundingDetail->bank_loan_status) }}</td>
+                                            <td>{{ $user->fundingDetail->bank_loan_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->bank_loan_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->bank_loan_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->bank_loan_amount ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Other Assistance (1)</td>
+                                            <td>{{ ucfirst($user->fundingDetail->other_assistance1_status) }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance1_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance1_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance1_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->other_assistance1_amount ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Other Assistance (2)</td>
+                                            <td>{{ ucfirst($user->fundingDetail->other_assistance2_status) }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance2_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance2_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance2_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->other_assistance2_amount ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Local Assistance</td>
+                                            <td>{{ ucfirst($user->fundingDetail->local_assistance_status) }}</td>
+                                            <td>{{ $user->fundingDetail->local_assistance_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->local_assistance_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->local_assistance_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->local_assistance_amount ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="5" style="text-align:right;font-weight:600">Total</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format((float) ($user->fundingDetail->family_funding_amount ?? 0) + (float) ($user->fundingDetail->bank_loan_amount ?? 0) + (float) ($user->fundingDetail->other_assistance1_amount ?? 0) + (float) ($user->fundingDetail->other_assistance2_amount ?? 0) + (float) ($user->fundingDetail->local_assistance_amount ?? 0)) }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Total Funding -->
-                    <div class="data-group">
-                        <h4>Total Funding</h4>
-                        <div class="form-section">
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Total Amount (Rs)</label>
-                                    <input type="text" class="form-input"
-                                        value="₹{{ isset($user->fundingDetail->total_funding_amount) ? number_format($user->fundingDetail->total_funding_amount) : '0' }}"
-                                        readonly>
+                        <!-- Total Funding -->
+                        <div class="data-group">
+                            <h4>Total Funding</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Total Amount (Rs)</label>
+                                        <input type="text" class="form-input"
+                                            value="₹{{ isset($user->fundingDetail->total_funding_amount) ? number_format($user->fundingDetail->total_funding_amount) : '0' }}"
+                                            readonly>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    @endif
 
                     <!-- Bank Details of Applicant -->
                     <div class="data-group">
@@ -1702,6 +1709,7 @@
             @endif
         </div>
 
+        @if (!$isBelowLoan)
         <!-- Step 5: Guarantor Details -->
         <div class="step-content" id="step-5">
             <div class="step-header">
@@ -1893,11 +1901,12 @@
                 </div>
             @endif
         </div>
+        @endif
 
         <!-- Step 6: Documents -->
         <div class="step-content" id="step-6">
             <div class="step-header">
-                <h2 class="step-title-large">Step 6: Documents</h2>
+                <h2 class="step-title-large">Step {{ $isBelowLoan ? 5 : 6 }}: Documents</h2>
                 <div class="step-status">
                     <span
                         class="status-badge status-{{ $user->document ? ($user->document->submit_status == 'approved' ? 'approved' : ($user->document->submit_status == 'resubmit' ? 'hold' : 'pending')) : 'pending' }}">
@@ -2030,7 +2039,7 @@
         <!-- Step 7: Final Submission -->
         <div class="step-content" id="step-7">
             <div class="step-header">
-                <h2 class="step-title-large">Step 7: Final Submission</h2>
+                <h2 class="step-title-large">Step {{ $isBelowLoan ? 6 : 7 }}: Final Submission</h2>
                 <div class="step-status">
                     <span
                         class="status-badge status-{{ $user->document ? ($user->document->submit_status == 'approved' ? 'approved' : ($user->document->submit_status == 'resubmit' ? 'hold' : 'pending')) : 'pending' }}">
@@ -2076,7 +2085,7 @@
         <!-- Step 8: Working Committee Decision -->
         <div class="step-content" id="step-8">
             <div class="step-header">
-                <h2 class="step-title-large">Step 8: Working Committee Decision</h2>
+                <h2 class="step-title-large">Step {{ $isBelowLoan ? 7 : 8 }}: Working Committee Decision</h2>
                 <div class="step-status">
                     <span class="status-badge status-approved">
                         <i class="fas fa-circle" style="font-size: 0.6rem;"></i>

@@ -96,6 +96,27 @@
         color: #1976d2;
     }
 
+    .loan-type-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .loan-type-below {
+        background: #fff3cd;
+        color: #8a6d03;
+    }
+
+    .loan-type-above {
+        background: #e8f0ff;
+        color: #1f4aa8;
+    }
+
     .btn-view {
         background: #393185;
         color: white;
@@ -215,6 +236,7 @@
                         <tr>
                             <th>Student ID</th>
                             <th>Student Name</th>
+                            <th>Category</th>
                             <th>Total Installments</th>
                             <th>Planned Amount</th>
                             <th>Disbursed Amount</th>
@@ -231,6 +253,15 @@
                             </td>
                             <td>
                                 <div class="fw-bold">{{ $student->name }}</div>
+                            </td>
+                            <td>
+                                @if($student->loan_category_type)
+                                    <span class="loan-type-badge {{ $student->loan_category_type === 'below' ? 'loan-type-below' : 'loan-type-above' }}">
+                                        {{ $student->loan_category_type === 'below' ? 'Below 1 Lakh' : 'Above 1 Lakh' }}
+                                    </span>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
                             </td>
                             <td>{{ $student->total_installments }}</td>
                             <td class="fw-bold">₹{{ number_format($student->total_planned_amount, 2) }}</td>

@@ -24,6 +24,7 @@
                             <th>Name</th>
                             <th>Email</th>
                             <th>Phone</th>
+                            <th>Membership Number</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -34,6 +35,7 @@
                                 <td>{{ $donor->name }}</td>
                                 <td>{{ $donor->email }}</td>
                                 <td>{{ $donor->phone ?? '-' }}</td>
+                                <td>{{ $donor->membership_number }}</td>
                                 <td>
                                     <a href="{{ route('admin.donors.show', $donor) }}" class="btn btn-custom btn-sm">
                                         <i class="fas fa-eye"></i>

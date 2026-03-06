@@ -111,6 +111,7 @@ class DonorController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:admin_panel.donors,email',
             'phone' => 'nullable|string|max:20',
+            'membership_number' => 'required|unique:admin_panel.donors',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
@@ -118,6 +119,7 @@ class DonorController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
+            'membership_number' => $request->membership_number,
             'password' => Hash::make($request->password),
         ]);
 
@@ -140,6 +142,7 @@ class DonorController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:admin_panel.donors,email,' . $donor->id,
             'phone' => 'nullable|string|max:20',
+            'membership_number' => 'nullable',
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
@@ -147,6 +150,7 @@ class DonorController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
+            'membership_number' => $request->membership_number,
         ];
 
         if ($request->filled('password')) {

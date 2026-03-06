@@ -24,6 +24,7 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
+                                <th>Membership Number</th>
                                 <th>Type</th>
                                 <th>Status</th>
                                 <th>Login</th>
@@ -37,6 +38,7 @@
                                     <td>{{ $donor->name }}</td>
                                     <td>{{ $donor->email }}</td>
                                     <td>{{ $donor->phone ?? '-' }}</td>
+                                    <td>{{ $donor->membership_number }}</td>
                                     <td>
                                         @if ($donor->donor_type === 'general')
                                             <span class="badge bg-secondary">General</span>

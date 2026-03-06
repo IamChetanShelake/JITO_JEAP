@@ -619,9 +619,9 @@ class AdminController extends Controller
                 'disbursement_in_year' => $request->disbursement_in_year ?? null,
                 'disbursement_in_half_year' => $request->disbursement_in_half_year ?? null,
                 'yearly_dates' => $request->yearly_dates,
-                'yearly_amounts' => $request->yearly_amounts,
-                'half_yearly_dates' => $request->half_yearly_dates,
-                'half_yearly_amounts' => $request->half_yearly_amounts ? json_encode($request->half_yearly_amounts) : null,
+                'yearly_amounts' => $request->yearly_amounts ,
+                'half_yearly_dates' => $request->half_yearly_dates ,
+                'half_yearly_amounts' => $request->half_yearly_amounts ,
                 'approval_financial_assistance_amount' => $request->approval_financial_assistance_amount,
                 'installment_amount' => $request->installment_amount,
                 'no_of_months' => $request->no_of_months,
@@ -2051,7 +2051,21 @@ class AdminController extends Controller
             return back()->with('error', 'PDC details not found');
         }
 
-        return view('admin.pdc.edit', compact('user'));
+        // Load Working Committee Approval details
+        $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
+
+        // Get bank details from fundingDetail for autofill
+        $bankDetails = null;
+        if ($user->fundingDetail) {
+            $bankDetails = [
+                'bank_name' => $user->fundingDetail->bank_name ?? '',
+                'ifsc' => $user->fundingDetail->ifsc_code ?? '',
+                'account_number' => $user->fundingDetail->account_number ?? '',
+                'branch_name' => $user->fundingDetail->branch_name ?? '',
+            ];
+        }
+
+        return view('admin.pdc.edit', compact('user', 'workingCommitteeApproval', 'bankDetails'));
     }
 
     /**

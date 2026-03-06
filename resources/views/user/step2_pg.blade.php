@@ -1801,12 +1801,12 @@
 
         function showTotalExpensesErrorModal(totalExpenses) {
             const modalHtml = `
-                <div class="modal fade" id="totalExpensesErrorModal" tabindex="-1" aria-labelledby="totalExpensesErrorModalLabel" aria-hidden="true">
+                <div class="modal fade" id="totalExpensesErrorModal" tabindex="-1" aria-labelledby="totalExpensesErrorModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content" style="border:2px solid #dc3545;">
                             <div class="modal-header" style="border-bottom:1px solid #dc3545; background-color: #dc3545; color: white;">
                                 <h5 class="modal-title" id="totalExpensesErrorModalLabel" style="color: white;">Not Eligible</h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" class="btn-close btn-close-white" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <p style="color: #dc3545; font-weight: 600; font-size: 16px;">
@@ -1815,8 +1815,9 @@
                                     Please contact the administrator for more information.
                                 </p>
                             </div>
-                            <div class="modal-footer" style="border-top:1px solid #dc3545;">
-                                <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal" style="border-color: #dc3545; color: #dc3545;">OK</button>
+                            <div class="modal-footer" style="border-top:1px solid #dc3545; display: flex; justify-content: space-between;">
+                                <button type="button" class="btn btn-outline-danger" onclick="clearTableValuesAndCloseModal()" style="border-color: #dc3545; color: #dc3545;">Cancel</button>
+                                <button type="button" class="btn btn-outline-primary" onclick="redirectToAbove1Lakh()" style="border-color: #007bff; color: #007bff;">Select Above 1 Lakh Application</button>
                             </div>
                         </div>
                     </div>
@@ -1832,9 +1833,73 @@
             const modalEl = document.getElementById('totalExpensesErrorModal');
 
             if (window.bootstrap && bootstrap.Modal) {
-                const modal = new bootstrap.Modal(modalEl);
+                const modal = new bootstrap.Modal(modalEl, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
                 modal.show();
             }
+        }
+
+        function clearTableValuesAndCloseModal() {
+            // Clear all input fields in the table
+            const tableInputs = document.querySelectorAll('#yearWiseTable input[type="number"]');
+            tableInputs.forEach(input => {
+                input.value = '';
+            });
+
+            // Recalculate totals after clearing
+            calculateTotalExpenses();
+
+            // Close the modal
+            const modalEl = document.getElementById('totalExpensesErrorModal');
+            if (modalEl) {
+                // Method 1: Try Bootstrap modal API
+                if (window.bootstrap && bootstrap.Modal) {
+                    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modal.hide();
+                }
+
+                // Method 2: Manual removal as fallback
+                setTimeout(() => {
+                    const modalBackdrop = document.querySelector('.modal-backdrop');
+                    if (modalBackdrop) {
+                        modalBackdrop.remove();
+                    }
+                    document.body.classList.remove('modal-open');
+                    document.body.style.paddingRight = '';
+
+                    // Remove the modal element after animation
+                    setTimeout(() => {
+                        if (modalEl.parentNode) {
+                            modalEl.parentNode.removeChild(modalEl);
+                        }
+                    }, 150);
+                }, 100);
+            }
+        }
+
+        function clearTableValues() {
+            // Clear all input fields in the table
+            const tableInputs = document.querySelectorAll('#yearWiseTable input[type="number"]');
+            tableInputs.forEach(input => {
+                input.value = '';
+            });
+
+            // Recalculate totals after clearing
+            calculateTotalExpenses();
+
+            // Close the modal
+            const modalEl = document.getElementById('totalExpensesErrorModal');
+            if (modalEl && window.bootstrap && bootstrap.Modal) {
+                const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                modal.hide();
+            }
+        }
+
+        function redirectToAbove1Lakh() {
+            // Redirect to above 1 lakh application route
+            window.location.href = '{{ route("user.above.1.lakh.application") }}';
         }
 
         function checkTotalExpensesLimit(showModalOnCross = false) {
@@ -2288,7 +2353,7 @@
                     e.preventDefault();
                     return false;
                 }
-            
+
                 // Final check
                 if (!isValid) {
                     e.preventDefault();

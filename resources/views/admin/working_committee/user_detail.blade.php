@@ -2130,6 +2130,47 @@
                                 </div>
                             </div>
 
+                            <!-- Disbursement Schedules -->
+                            @if (
+                                $user->workingCommitteeApproval->disbursement_system === 'yearly' &&
+                                    $user->workingCommitteeApproval->yearly_dates &&
+                                    is_array($user->workingCommitteeApproval->yearly_dates))
+                                @php
+                                    $yearlyDates = $user->workingCommitteeApproval->yearly_dates;
+                                    $yearlyAmounts = $user->workingCommitteeApproval->yearly_amounts;
+                                @endphp
+                                @if ($yearlyDates && $yearlyAmounts && is_array($yearlyDates) && is_array($yearlyAmounts))
+                                    <div class="form-row">
+                                        <div class="form-field form-field-full">
+                                            <label class="form-label">Yearly Disbursement Schedule</label>
+                                            <div class="table-container">
+                                                <table class="custom-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Year</th>
+                                                            <th>Disbursement Date</th>
+                                                            <th>Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($yearlyDates as $index => $date)
+                                                            <tr>
+                                                                <td>{{ $index + 1 }}</td>
+                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}
+                                                                </td>
+                                                                <td class="amount-cell">
+                                                                    ₹{{ number_format($yearlyAmounts[$index] ?? 0, 2) }}
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endif
+
                             <!-- Disbursement System and Financial Details -->
                             <div class="form-row">
                                 <div class="form-field">
@@ -2216,12 +2257,12 @@
                                         value="{{ $user->workingCommitteeApproval->processed_by_name ?? 'N/A' }}"
                                         readonly>
                                 </div>
-                                <div class="form-field">
+                                {{--  <div class="form-field">
                                     <label class="form-label">Approval Status</label>
                                     <input type="text" class="form-input"
                                         value="{{ ucfirst($user->workingCommitteeApproval->working_committee_status ?? 'N/A') }}"
                                         readonly>
-                                </div>
+                                </div>  --}}
                             </div>
 
                             <!-- Remarks for Approval -->
@@ -2234,46 +2275,7 @@
                                 </div>
                             @endif
 
-                            <!-- Disbursement Schedules -->
-                            @if (
-                                $user->workingCommitteeApproval->disbursement_system === 'yearly' &&
-                                    $user->workingCommitteeApproval->yearly_dates &&
-                                    is_array($user->workingCommitteeApproval->yearly_dates))
-                                @php
-                                    $yearlyDates = $user->workingCommitteeApproval->yearly_dates;
-                                    $yearlyAmounts = $user->workingCommitteeApproval->yearly_amounts;
-                                @endphp
-                                @if ($yearlyDates && $yearlyAmounts && is_array($yearlyDates) && is_array($yearlyAmounts))
-                                    <div class="form-row">
-                                        <div class="form-field form-field-full">
-                                            <label class="form-label">Yearly Disbursement Schedule</label>
-                                            <div class="table-container">
-                                                <table class="custom-table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Year</th>
-                                                            <th>Disbursement Date</th>
-                                                            <th>Amount</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach ($yearlyDates as $index => $date)
-                                                            <tr>
-                                                                <td>{{ $index + 1 }}</td>
-                                                                <td>{{ \Carbon\Carbon::parse($date)->format('d M Y') }}
-                                                                </td>
-                                                                <td class="amount-cell">
-                                                                    ₹{{ number_format($yearlyAmounts[$index] ?? 0, 2) }}
-                                                                </td>
-                                                            </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
-                            @endif
+
 
                             @if (
                                 $user->workingCommitteeApproval->disbursement_system === 'half_yearly' &&
@@ -2679,9 +2681,9 @@
                                                 <select name="repayment_type" class="form-input" required>
                                                     <option value="">Select repayment type</option>
                                                     <option value="yearly">Yearly</option>
-                                                    <option value="half_yearly">6 Months</option>
-                                                    <option value="quarterly">3 Months</option>
-                                                    <option value="quarterly">2 Months</option>
+                                                    <option value="6_months">6 Months</option>
+                                                    <option value="3_months">3 Months</option>
+                                                    <option value="2_months">2 Months</option>
                                                     <option value="monthly">Monthly</option>
                                                 </select>
                                             </div>

@@ -169,7 +169,7 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+        $user = User::create([
             'name' => $data['name'] ?? null,
             'd_o_b' => $data['d_o_b'] ?? null,
             'age' => $data['age'] ?? null,
@@ -179,5 +179,12 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+
+        // Generate application number: JITO-JEAP/2026/0010
+        $year = date('Y');
+        $applicationNo = 'JITO-JEAP/' . $year . '/' . str_pad($user->id, 4, '0', STR_PAD_LEFT);
+        $user->update(['application_no' => $applicationNo]);
+
+        return $user;
     }
 }

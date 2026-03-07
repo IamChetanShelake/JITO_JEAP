@@ -634,18 +634,7 @@
 
                                         <div class="form-group mb-3">
                                             <label for="bank_name">Bank Name <span style="color: red">*</span></label>
-                                            {{-- <select class="form-control" name="bank_name" required>
-                                                <option value=""
-                                                    {{ !old('bank_name') && !$fundingDetail ? 'selected' : '' }} disabled
-                                                    hidden>Select Bank </option>
-                                                @foreach ($banks as $bank)
-                                                    <option value="{{ $bank->name }}"
-                                                        {{ old('bank_name') == $bank->name || ($fundingDetail && $fundingDetail->bank_name === $bank->name) ? 'selected' : '' }}>
-                                                        {{ $bank->name }}
-                                                    </option>
 
-                                                @endforeach
-                                            </select> --}}
                                             <select class="form-control" name="bank_name" id="bank_name" required>
                                                 <option value="" hidden>Select Bank</option>
 
@@ -670,6 +659,13 @@
                                                 value="{{ old('account_holder_name', $fundingDetail->account_holder_name ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('account_holder_name') }}</small>
                                         </div> --}}
+                                        <div class="form-group mb-3">
+                                            <label for="ifsc_code">IFSC Code <span style="color: red">*</span></label>
+                                            <input type="text" class="form-control" name="ifsc_code" id="ifsc_code"
+                                                placeholder="IFSC Code "
+                                                value="{{ old('ifsc_code', $fundingDetail->ifsc_code ?? '') }}">
+                                            <small class="text-danger">{{ $errors->first('ifsc_code') }}</small>
+                                        </div>
 
 
                                         <div class="form-group mb-3">
@@ -680,13 +676,13 @@
                                                 value="{{ old('account_number', $fundingDetail->account_number ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('account_number') }}</small>
                                         </div>
-                                        <div class="form-group mb-3">
+                                        {{--  <div class="form-group mb-3">
                                             <label for="ifsc_code">IFSC Code <span style="color: red">*</span></label>
                                             <input type="text" class="form-control" name="ifsc_code" id="ifsc_code"
                                                 placeholder="IFSC Code "
                                                 value="{{ old('ifsc_code', $fundingDetail->ifsc_code ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('ifsc_code') }}</small>
-                                        </div>
+                                        </div>  --}}
                                     </div>
 
                                     <!-- Right Column -->

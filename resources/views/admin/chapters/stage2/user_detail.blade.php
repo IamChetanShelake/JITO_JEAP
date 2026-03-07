@@ -843,7 +843,7 @@
             <div class="user-info-header">
                 <div class="user-avatar">
                     @if ($user->image)
-                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img">
+                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img"  style="width:90px;">
                     @else
                         {{ strtoupper(substr($user->name, 0, 1)) }}
                     @endif
@@ -1718,6 +1718,16 @@
                                     <label class="form-label">Total Monthly EMI</label>
                                     <input type="text" class="form-input"
                                         value="₹{{ number_format($user->familyDetail->total_monthly_emi) }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Current Year ITR</label>
+                                    <input type="text" class="form-input"
+                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Last Year ITR</label>
+                                    <input type="text" class="form-input"
+                                        value="₹{{ number_format($user->familyDetail->last_year_itr ?? 0) }}" readonly>
                                 </div>
                             </div>
                         </div>

@@ -340,7 +340,7 @@
             background: linear-gradient(135deg, var(--primary-color) 0%, #4a3fa5 100%);
             border: none;
             color: white;
-            padding: 0.75rem 2rem;
+            
             border-radius: 25px;
             font-weight: 500;
             transition: all 0.3s ease;
@@ -357,7 +357,18 @@
             background: linear-gradient(135deg, var(--success-color) 0%, #00b855 100%);
             border: none;
             color: white;
-            padding: 0.75rem 2rem;
+            
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 152, 70, 0.3);
+        }
+
+        .btn-warning {
+            background: yellow;
+            border: none;
+            color: rgb(136, 128, 128);
+            
             border-radius: 25px;
             font-weight: 500;
             transition: all 0.3s ease;
@@ -374,7 +385,7 @@
             background: linear-gradient(135deg, var(--secondary-color) 0%, #f9282e 100%);
             border: none;
             color: white;
-            padding: 0.75rem 2rem;
+            
             border-radius: 25px;
             font-weight: 500;
             transition: all 0.3s ease;

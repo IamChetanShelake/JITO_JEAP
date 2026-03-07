@@ -3181,12 +3181,12 @@
                                     value="{{ old('meeting_no', $user->workingCommitteeApproval->meeting_no ?? '') }}">
                             </div>
 
-                            <div class="col-md-4">
+                            {{-- <div class="col-md-4">
                                 <label class="form-label">Approved Amount (₹) <span class="text-danger">*</span></label>
                                 <input type="number" name="approval_financial_assistance_amount"
                                     id="edit-total-amount" class="form-control" step="0.01" readonly
                                     value="{{ old('approval_financial_assistance_amount', $user->workingCommitteeApproval->approval_financial_assistance_amount ?? 0) }}">
-                            </div>
+                            </div> --}}
 
                             <!-- Disbursement System -->
                             <div class="col-12">
@@ -3218,6 +3218,13 @@
                                 <div id="edit-yearly-fields" class="mt-3">
                                     <!-- Dynamically filled by JS -->
                                 </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Approved Amount (₹) <span class="text-danger">*</span></label>
+                                <input type="number" name="approval_financial_assistance_amount"
+                                    id="edit-total-amount" class="form-control" step="0.01" readonly
+                                    value="{{ old('approval_financial_assistance_amount', $user->workingCommitteeApproval->approval_financial_assistance_amount ?? 0) }}">
                             </div>
 
                             <!-- Installments -->

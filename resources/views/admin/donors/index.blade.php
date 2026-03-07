@@ -38,7 +38,7 @@
                                     <td>{{ $donor->name }}</td>
                                     <td>{{ $donor->email }}</td>
                                     <td>{{ $donor->phone ?? '-' }}</td>
-                                    <td>{{ $donor->membership_number }}</td>
+                                    <td>{{ $donor->membership_number ?? 'N/A' }}</td>
                                     <td>
                                         @if ($donor->donor_type === 'general')
                                             <span class="badge bg-secondary">General</span>
@@ -87,7 +87,7 @@
                                                 @csrf
                                                 <button type="submit" class="btn btn-warning btn-sm"
                                                     onclick="return confirm('Are you sure you want to convert this member donor to a general donor?')">
-                                                    <i class="fas fa-user转换"></i> Convert
+                                                    <i class="fas fa-user"></i> Convert
                                                 </button>
                                             </form>
                                         @endif

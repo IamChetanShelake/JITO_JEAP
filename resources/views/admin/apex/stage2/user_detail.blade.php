@@ -859,9 +859,9 @@
             </div>
         </div>
 
-        <a href="{{ route('admin.home') }}" class="back-btn">
+        {{-- <a href="{{ route('admin.home') }}" class="back-btn">
             <i class="fas fa-arrow-left"></i> Back to Dashboard
-        </a>
+        </a> --}}
     </div>
     </div>
 

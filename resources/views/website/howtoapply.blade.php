@@ -254,6 +254,97 @@
                 </div>
             </div>
 
+
+            {{-- step 6  --}}
+            <div class="row p-3 jitoMember align-items-center">
+                <div class="col-4 p-0 d-flex justify-content-start jitoMember-item1">
+                    <p>Once you are ready with all your documents you have to fill ( Personal Details, Family Details, Education Details, Funding Details, Guarantor Details, Documents & Submit Section )</p>
+                </div>
+                <div class="col-4 p-0 d-flex justify-content-center align-items-center jitoMember-item2">
+                    <div class="col-1 p-0 d-flex justify-content-end align-items-center endDot">
+                        <div style="height: 15px;width: 15px;border-radius: 50%;background-color: #009846;">
+                        </div>
+                    </div>
+                    <div class="col-2 p-0 ">
+                        <div class="dashedLine" style="border:3px dashed #009846;">
+                        </div>
+                    </div>
+                    <div class="col-6 p-0 step-circle-container"
+                        style="background-color:white;height:80px;max-width:80px;border-radius:50%;box-shadow:0px 1px 10px 0px rgba(0, 0, 0, 0.1);display:flex;justify-content:center;align-items:center;">
+                        <div class="numbering" style="background-color:#009846;height:70px;width:70px;border-radius:50%;">
+                            <p>6</p>
+                        </div>
+                    </div>
+                    <div class="col-3"></div>
+
+
+                </div>
+               
+            </div>
+
+
+            {{-- step 7 --}}
+            <div class="row p-3 jitoMember align-items-center">
+                <div class="col-4 p-0 d-flex justify-content-start jitoMember-item1">
+
+                </div>
+                <div class="col-4 p-0 d-flex justify-content-center align-items-center jitoMember-item2">
+                    <div class="col-3"></div>
+                    <div class="col-6 p-0 step-circle-container"
+                        style="background-color:white;height:80px;max-width:80px;border-radius:50%;box-shadow:0px 1px 10px 0px rgba(0, 0, 0, 0.1);display:flex;justify-content:center;align-items:center;">
+                        <div class="numbering" style="background-color:#FFD800;height:70px;width:70px;border-radius:50%;">
+                            <p>7</p>
+                        </div>
+                    </div>
+                    <div class="col-2 p-0 ">
+                        <div class="dashedLine" style="border:3px dashed #FFD800;">
+                        </div>
+                    </div>
+                    <div class="col-1 p-0 align-items-center endDot">
+                        <div style="height: 15px;width: 15px;border-radius: 50%;background-color: #FFD800;">
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-4 jitoMember-item3">
+                    <p>For any queries do mail us on support.jitojeap@jito.org you'll get reply within 24 to 48 hours
+                    </p>
+
+                </div>
+            </div>
+
+            {{-- step 8  --}}
+            <div class="row p-3 jitoMember align-items-center">
+                <div class="col-4 p-0 d-flex justify-content-start jitoMember-item1">
+                    <p>You'll find List of documents according to the Financial Assistance you want to appear for i.e
+                        Foreign or Domestic</p>
+                </div>
+                <div class="col-4 p-0 d-flex justify-content-center align-items-center jitoMember-item2">
+                    <div class="col-1 p-0 d-flex justify-content-end align-items-center endDot">
+                        <div style="height: 15px;width: 15px;border-radius: 50%;background-color: #E31E24;">
+                        </div>
+                    </div>
+                    <div class="col-2 p-0 ">
+                        <div class="dashedLine" style="border:3px dashed #E31E24;">
+                        </div>
+                    </div>
+                    <div class="col-6 p-0 step-circle-container"
+                        style="background-color:white;height:80px;max-width:80px;border-radius:50%;box-shadow:0px 1px 10px 0px rgba(0, 0, 0, 0.1);display:flex;justify-content:center;align-items:center;">
+                        <div class="numbering" style="background-color:#E31E24;height:70px;width:70px;border-radius:50%;">
+                            <p>8</p>
+                        </div>
+                    </div>
+                    <div class="col-3"></div>
+
+
+                </div>
+                <div class="col-4 jitoMember-item3">
+                    <p>JEAP working hours are 9am to 5pm from MON - FRI.
+                    </p>
+
+                </div>
+            </div>
+
         </div>
     </section>
 @endsection

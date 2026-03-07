@@ -1,6 +1,5 @@
 @extends('website.layout.main')
 @section('content')
-
     <section style="padding: 288px 0 80px 0px; background: #ffffff;">
         <div class="container page-wrap">
             <div class="row">
@@ -20,17 +19,17 @@
                     </div>
 
                     <div class="pills">
-                        <div class="pill">
+                        <div class="pill active">
                             <a href="{{ route('documentchecklist') }}">
                                 Under 1 Lakh
                             </a>
                         </div>
-                        <div class="pill ">
+                        <div class="pill">
                             <a href="{{ route('documentchecklist1') }}">
                                 Domestic Documents(Graduation)
                             </a>
                         </div>
-                        <div class="pill active">
+                        <div class="pill">
                             <a href="{{ route('documentchecklist2') }}">
                                 Domestic Documents(Post Graduation)
                             </a>
@@ -52,47 +51,32 @@
                             <div class="doc-list">
                                 <ol
                                     style="list-style-type: decimal !important; list-style-position: outside !important; margin-left: 20px; padding-left: 0;">
-                                    <li>SSC Marksheet</li>
-                                    <li>HSC / Diploma Marksheet</li>
-                                    <li>Graduation Marksheet</li>
-                                    <li>Fee Structure</li>
-                                    <li>Student Main Bank account details and statement for last 6 months/ 1 year.</li>
-                                    <li>Aadhaar card - Applicant</li>
-                                    <li>Pancard - Applicant <span class="green-dot  align-items-center" title="verified"><i
-                                                class="bi bi-arrow-down"></i></span></li>
-                                    <li>Proof of Funds Arranged/ Taken/ Approved other than JITO JEAP</li>
-                                    <li>Student handwritten Stating reason for choosing course and Institutes.</li>
-                                    <li>Jain Sangh Certificate (Format attached)<span class="green-dot  align-items-center"
-                                            title="verified"><i class="bi bi-arrow-down"></i></span></li>
-                                    <li>Recommendation of JITO Member (Format attached) <span
-                                            class="green-dot  align-items-center" title="verified"><i
-                                                class="bi bi-arrow-down"></i></span></li>
-                                    <li>Aadhar card - Father</li>
-                                    <li>Pancard - Father</li>
+                                    <li>SSC Marksheet *</li>
+                                    <li>HSC / Diploma Marksheet *</li>
+                                    <li>Graduation Marksheet (Only for Post Graduation Applicant)  *</li>
+                                    <li>College - Fees Structure  *</li>
+                                    <li>Pancard - Applicant  *</li>
+                                    <li>Aadhaar card - Applicant  *</li>
+                                    <li>Jain Sangh Certificate of Applicant (If you have already then do send that Jain Sangh Certificate or take format from website in Document section and fill the same along with Sangh Stamp & Signature of Head Authority person compulsory)  *</li>
+                                   
+                                    <li>Recommendation of JITO Member (Take format from website in Document section and fill the same along with Jito member signature and UID number compulsory)  *</li>
+                                    
                                 </ol>
                             </div>
                         </div>
 
                         <div class="right-col" style="flex:1;min-width:260px">
                             <div class="doc-list">
-                                <ol start="14"
+                                <ol start="9"
                                     style="list-style-type: decimal !important; list-style-position: outside !important; margin-left: 20px; padding-left: 0;">
-                                    <li>Electricity Bill Latest</li>
-                                    <li>ITR Acknowledgement of Father of last 2 Years</li>
-                                    <li>ITR Computation of Income along with Profit and Loss & Balance sheet of Father of
-                                        last 2
-                                        years</li>
-                                    <li>ITR Computation of Income along with Form no.16 for Salary Income of Father of last
-                                        2
-                                        years</li>
-                                    <li>Bank Statement of Father of Last 2 years</li>
-                                    <li>Bank Statement of Mother of Last 2 years</li>
-                                    <li>Aadhar card - Guarantor 1 (Name, Address, Income bracket, Mobile no., Email-id)</li>
-                                    <li>Pancard - Guarantor 1</li>
-                                    <li>Aadhar card - Guarantor 2 (Name, Address, Income bracket, Mobile no., Email-id)</li>
-                                    <li>Pancard - Guarantor 2</li>
-                                    <li>Others documents (If any achievements)</li>
-                                    <li>Extra Curricular</li>
+                                    <li>Recommendation of JITO Member (Take format from website in Document section and fill the same along with Jito member signature and UID number compulsory)  *</li>
+                                    <li>Electricity Bill Latest  *</li>
+                                    <li>Aadhar card - Father / Mother / Guardian  *</li>
+                                    <li>Pancard - Father / Mother / Guardian  *</li>
+                                    <li>Form no.16 for Salary Income of Father of last 6 months (If getting Salary) / Salary Slip issued by organisation  (In which Father is working) *</li>
+                                    <li>Bank Statement of Father Last 1 year (If not bank statement then send Passbook copy of last 1 year)  *</li>
+                                    
+                                    <li>Others</li>
                                 </ol>
                             </div>
                         </div>

@@ -19,6 +19,11 @@
                     </div>
 
                     <div class="pills">
+                        <div class="pill">
+                            <a href="{{ route('documentchecklist') }}">
+                                Under 1 Lakh
+                            </a>
+                        </div>
                         <div class="pill active">
                             <a href="{{ route('documentchecklist1') }}">
                                 Domestic Documents(Graduation)

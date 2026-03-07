@@ -36,6 +36,10 @@ class WebsiteController extends Controller
     {
         return view('website.boardOfDirectors');
     }
+    public function documentchecklist()
+    {
+        return view('website.documentChecklist');
+    }
     public function documentchecklist1()
     {
         return view('website.documentChecklist1');

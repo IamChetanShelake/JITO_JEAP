@@ -76,7 +76,7 @@
                 <!-- Search Bar -->
                 <div style="min-width: 300px; max-width: 400px;width: 100%;">
                     <div style="position: relative;">
-                        <input type="text" placeholder="Search..."
+                        <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search..."
                             style="width: 100%; padding: 12px 45px 12px 15px; border: 2px solid #1a237e; border-radius: 15px; font-family: 'Poppins'; font-size: 16px; outline: none; background-color: #ffffff;">
                         <i class="fas fa-search"
                             style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #1a237e; font-size: 18px;"></i>
@@ -87,7 +87,19 @@
 
             <div class="row  " style="margin-top:0px;">
 
-
+                <!-- Entries Per Page Dropdown -->
+                <div class="col-12 mb-3">
+                    <div style="display: flex; align-items: center; gap: 10px; font-family: 'Poppins'; font-size: 16px; color: #5B5B5B;">
+                        <span>Entries per page:</span>
+                        <select id="entriesPerPage" onchange="updateEntries()" style="padding: 8px 35px 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-family: 'Poppins'; font-size: 15px; cursor: pointer;">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="all">All</option>
+                        </select>
+                    </div>
+                </div>
 
                 <div class="col-12 ">
                     <div style="overflow-x: auto;">
@@ -105,8 +117,8 @@
                                         State</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
+                            <tbody id="tableBody">
+                                <tr class="tableRow">
                                     <td
                                         style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
                                         1</td>
@@ -117,7 +129,7 @@
                                         style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
                                         Maharashtra</td>
                                 </tr>
-                                <tr>
+                                <tr class="tableRow">
                                     <td
                                         style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
                                         2</td>
@@ -128,7 +140,7 @@
                                         style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
                                         Delhi</td>
                                 </tr>
-                                <tr>
+                                <tr class="tableRow">
                                     <td
                                         style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
                                         3</td>
@@ -139,7 +151,7 @@
                                         style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
                                         Karnataka</td>
                                 </tr>
-                                <tr>
+                                <tr class="tableRow">
                                     <td
                                         style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
                                         1</td>
@@ -150,7 +162,7 @@
                                         style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
                                         Maharashtra</td>
                                 </tr>
-                                <tr>
+                                <tr class="tableRow">
                                     <td
                                         style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
                                         2</td>
@@ -161,7 +173,7 @@
                                         style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
                                         Delhi</td>
                                 </tr>
-                                <tr>
+                                <tr class="tableRow">
                                     <td
                                         style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
                                         3</td>
@@ -181,4 +193,42 @@
 
         </div>
     </section>
+    <script>
+        function updateEntries() {
+            var selectedValue = document.getElementById('entriesPerPage').value;
+            var rows = document.querySelectorAll('.tableRow');
+            var count = 0;
+            
+            rows.forEach(function(row) {
+                if (selectedValue === 'all') {
+                    row.style.display = '';
+                } else {
+                    if (count < selectedValue) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                    count++;
+                }
+            });
+        }
+
+        function searchTable() {
+            var input = document.getElementById('searchInput');
+            var filter = input.value.toLowerCase();
+            var rows = document.querySelectorAll('.tableRow');
+            
+            rows.forEach(function(row) {
+                var text = row.textContent || row.innerText;
+                if (text.toLowerCase().indexOf(filter) > -1) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize with 10 entries
+        updateEntries();
+    </script>
 @endsection

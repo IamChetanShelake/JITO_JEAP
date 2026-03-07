@@ -1,368 +1,138 @@
 @extends('website.layout.main')
+
 @section('content')
-    <script>
-        function removeElementsByClass(className) {
-            const elements = document.getElementsByClassName(className);
-            while (elements.length > 0) {
-                elements[0].parentNode.removeChild(elements[0]);
+    <style>
+        /* Adjusting margin for header */
+        @media (min-width: 768px) {
+            .reset-desktop-margin {
+                margin-top: 300px;
             }
         }
-        setTimeout(() => {
-            removeElementsByClass('decodeme');
-        }, 4000);
-    </script>
-    {{-- <!-- Breadcrumbs-->
-    <section class="breadcrumbs-custom bg-image context-dark"
-        style="background-image: url({{ asset('website/images/conbni.png') }});background-repeat: no-repeat; display: flex; justify-content: center; align-items: center;">
-        <div class="container" style="display: flex; justify-content: center; align-items: center;">
-            <img src="{{ asset('website/images/bninmd.png') }}" alt="BNI Logo" style="display: flex;">
-        </div>
-    </section>
-    <!--Google Map-->
-    <section class="section" style="padding: 0;">
-        <div class="google-map-container" data-center="Govind Nagar, Nashik, Maharashtra 422009, India" data-key="YOUR_API_KEY"
-            data-zoom="15" data-icon="images/gmap_marker.png" data-icon-active="images/gmap_marker_active.png"
-            data-styles='[{"featureType":"landscape","stylers":[{"saturation":-100},{"lightness":60}]},{"featureType":"road.local","stylers":[{"saturation":-100},{"lightness":40},{"visibility":"on"}]},{"featureType":"transit","stylers":[{"saturation":-100},{"visibility":"simplified"}]},{"featureType":"administrative.province","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"on"},{"lightness":30}]},{"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"color":"#ef8c25"},{"lightness":40}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"visibility":"off"}]},{"featureType":"poi.park","elementType":"geometry.fill","stylers":[{"color":"#b6c54c"},{"lightness":40},{"saturation":-40}]},{}]'>
-            <iframe
-                src="https://www.google.com/maps/embed?pb=!1m23!1m12!1m3!1d119989.42976415642!2d73.69624960475052!3d19.980389171570792!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m8!3e6!4m0!4m5!1s0x3bddeb77db3e836b%3A0x35f07b85dee5fa0!2sGovind%20Nagar%2C%20Nashik%2C%20Maharashtra%20422009!3m2!1d19.9804085!2d73.7786514!5e0!3m2!1sen!2sin!4v1727064221426!5m2!1sen!2sin"
-                width="100%" height="600" style="border:0;" allowfullscreen="" loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade">
-            </iframe>
-            <ul class="google-map-markers">
-                <li data-location="Govind Nagar, Nashik, Maharashtra, India" data-description="Govind Nagar, Nashik"></li>
-            </ul>
+    </style>
+
+    <section class="section reset-desktop-margin">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
+                        <a href="{{ route('index') }}"><i class='fas fa-angle-left' style='font-size:43px;color:#E31E25'></i></a>
+                        <span style="color: #FFD800;">contact</span> <span style="color: #393186;">us</span>
+                    </h2>
+                </div>
+            </div>
         </div>
     </section>
 
-    <!--Mailform-->
-    <section class="section section-lg bg-default">
+    <!-- Contact Section -->
+    <section style="padding: 60px 0; background-color: #f4f4f4;">
         <div class="container">
-            <x-session-message />
-            <div class="row row-30 justify-content-center">
-                <div class="col-xs-10 col-sm-9 col-md-6 col-lg-7 col-xl-8">
-                    <h6>Contact with us</h6>
-                    <h3>Have a question? Write a<br class="d-none d-xs-block"> message.
-                    </h3>
-                    <!--RD Mailform-->
-                    <form class="rd-mailform rd-form" data-form-output="form-output-global" data-form-type="contact"
-                        method="post" action="#">
-                        <div class="row row-10 row-narrow-xs">
-                            <div class="col-lg-6">
-                                <div class="form-wrap">
-                                    <label class="form-label" for="contact-name">Your Name</label>
-                                    <input class="form-input" id="contact-name" type="text" name="name">
-                                </div>
+            <div class="row no-gutters" style="box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                
+                <!-- Left Side: Contact Info (White Background) -->
+                <div class="col-lg-5" style="background-color: #ffffff; padding: 50px;">
+                    <h2 style="font-family: 'Times New Roman', Times, serif; font-weight: bold; font-size: 32px; margin-bottom: 10px;">
+                        <span style="color: #FFD800;">CONTACT</span> <span style="color: #393186;">US</span>
+                    </h2>
+                    <h4 style="font-family: 'Poppins', sans-serif; font-weight: 600; color: #393186; margin-bottom: 20px;">Get In Touch With Us</h4>
+                    
+                    <p style="font-size: 15px; color: #5B5B5B; line-height: 1.6; margin-bottom: 30px;">
+                        Welcome to JEAP! We are here to assist you with any questions, concerns, or feedback you may have. Whether you need help with the application process or want to learn more about our programs, our team is ready to support you.
+                    </p>
+
+                    <div style="margin-bottom: 20px;">
+                        <h5 style="font-family: 'Poppins', sans-serif; font-weight: 600; color: #333; font-size: 16px; display: flex; align-items: center;">
+                            <i class="fas fa-map-marker-alt" style="color: #FFD800; margin-right: 15px; font-size: 18px;"></i>
+                            Location
+                        </h5>
+                        <p style="margin-left: 33px; color: #5B5B5B; font-size: 14px; line-height: 1.5;">
+                            JITO HOUSE, Plot No. A-56, Road No. 1, MIDC MAROL, Near International by Tunga Hotel, Mulgaon, Andheri (East), Mumbai - 400 093.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <h5 style="font-family: 'Poppins', sans-serif; font-weight: 600; color: #333; font-size: 16px; display: flex; align-items: center;">
+                            <i class="fas fa-envelope" style="color: #FFD800; margin-right: 15px; font-size: 18px;"></i>
+                            Email
+                        </h5>
+                        <p style="margin-left: 33px; color: #5B5B5B; font-size: 14px;">
+                            <a href="mailto:support.jitojeap@jito.org" style="color: #5B5B5B; text-decoration: none;">support.jitojeap@jito.org</a><br>
+                            <a href="mailto:grievance.jitojeap@jito.org" style="color: #5B5B5B; text-decoration: none;">grievance.jitojeap@jito.org</a>
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <h5 style="font-family: 'Poppins', sans-serif; font-weight: 600; color: #333; font-size: 16px; display: flex; align-items: center;">
+                            <i class="fas fa-clock" style="color: #FFD800; margin-right: 15px; font-size: 18px;"></i>
+                            Business Hours
+                        </h5>
+                        <p style="margin-left: 33px; color: #5B5B5B; font-size: 14px;">
+                            MON - Fri 9 Am - 5 Pm
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right Side: Contact Form (Purple Background) -->
+                <div class="col-lg-7" style="background-color: #393186; padding: 50px;">
+                    <form action="" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <input type="text" name="name" class="form-control" placeholder="Name" required
+                                    style="background-color: #ffffff; border: none; border-radius: 0; padding: 15px; font-size: 14px; color: #333;">
                             </div>
-                            <div class="col-lg-6">
-                                <div class="form-wrap">
-                                    <label class="form-label" for="contact-email">Email Address</label>
-                                    <input class="form-input" id="contact-email" type="email" name="email">
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <input type="email" name="email" class="form-control" placeholder="Email" required
+                                    style="background-color: #ffffff; border: none; border-radius: 0; padding: 15px; font-size: 14px; color: #333;">
                             </div>
-                            <div class="col-lg-12">
-                                <div class="form-wrap">
-                                    <label class="form-label" for="contact-message">Write Message</label>
-                                    <textarea class="form-input" id="contact-message" name="message"></textarea>
-                                </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <input type="tel" name="phone" class="form-control" placeholder="Phone"
+                                    style="background-color: #ffffff; border: none; border-radius: 0; padding: 15px; font-size: 14px; color: #333;">
                             </div>
-                            <div class="col-lg-12">
-                                <div class="form-button">
-                                    <button class="button button-lg button-primary" type="submit"
-                                        data-triangle=".button-overlay"><span class="button-overlay"></span><span>Send
-                                            Message</span></button>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <input type="text" name="subject" class="form-control" placeholder="Subject"
+                                    style="background-color: #ffffff; border: none; border-radius: 0; padding: 15px; font-size: 14px; color: #333;">
                             </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <textarea name="message" class="form-control" rows="5" placeholder="Message" required
+                                style="background-color: #ffffff; border: none; border-radius: 0; padding: 15px; font-size: 14px; color: #333; resize: none;"></textarea>
+                        </div>
+
+                        <div class="text-right">
+                            <button type="submit" class="btn" style="background-color: #FFD800; color: #393186; padding: 12px 40px; font-weight: 600; border-radius: 0; border: none; font-size: 16px;">
+                                Send Message
+                            </button>
                         </div>
                     </form>
                 </div>
-                <div class="col-xs-10 col-sm-9 col-md-6 col-lg-5 col-xl-4" style="margin-top:50px;">
-                    <div class="block-address">
-                        <div class="block-address-item">
-                            <h5 class="block-address-title">Address</h5>
-                            <p class="block-address-text">Hotel Treat, Govind Nagar,<br class="d-none d-xs-block">
-                                Nashik, Maharashtra</p>
-                        </div>
-                        <div class="block-address-item">
-                            <h5 class="block-address-title">Phone</h5>
-                            <p class="block-address-text">
 
-                                <span>Mobile:</span> +91 93222 23279
-                            </p>
-                        </div>
-                        <div class="block-address-item">
-                            <h5 class="block-address-title">Email</h5>
-                            <p class="block-address-text"><a href="mailto:support@bninashik.in">support@bninashik.in</a><br>
-
-                            </p>
-                        </div>
-                        <div class="block-address-item">
-                            <h5 class="block-address-title">Follow</h5>
-                            <ul class="list-inline list-inline-xs">
-                                <li><a class="icon icon-rect icon-xs icon-white fa-instagram"
-                                        href="https://www.instagram.com/bni_nasik?igsh=MTUzOHg2bHpoOHRoYw=="
-                                        data-triangle=".icon-rect-overlay">
-                                        <div class="icon-rect-overlay"></div>
-                                    </a></li>
-
-                                <li><a class="icon icon-rect icon-xs icon-white fa-youtube-play"
-                                        href="https://youtube.com/@bni-i2x?si=79FV0_dO5H36Ld93"
-                                        data-triangle=".icon-rect-overlay">
-                                        <div class="icon-rect-overlay"></div>
-                                    </a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
-    </section> --}}
+    </section>
 
-    <style>
-        @media (min-width: 768px) {
-            .reset-desktop-margin {
-                margin-top: 300px
-            }
-        }
-    </style>
-    <section class="section reset-desktop-margin">
+    <!-- Map Section -->
+    <section style="padding: 0 0 80px 0; background-color: #f4f4f4;">
         <div class="container">
-
             <div class="row">
-                <div class="col-lg-12">
-                    {{-- <ul class="list-xl">
-                            <li> --}}
-
-                    <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
-                        <a href="{{ route('index') }}"><i class='fas fa-angle-left'
-                                style='font-size:43px;color:#E31E25'></i></a>
-                        <span style="color: #FFD800;">contact</span> <span style="color: #393186;">us</span>
-
-                    </h2>
-                    {{-- </li>
-                        </ul> --}}
+                <div class="col-12">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3770.989692387584!2d72.87641691490113!3d19.11339198708933!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c6306644edc1%3A0x5b3ed4ee8b16a4c6!2sJITO%20HOUSE!5e0!3m2!1sen!2sin!4v1645432000000!5m2!1sen!2sin" 
+                        width="100%" 
+                        height="450" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
                 </div>
-
             </div>
-    
         </div>
     </section>
 
-
-    {{-- <section style="position: relative; background-color: #f1f0f0; padding: 60px 20px; display: flex; justify-content: center;">
-            <div style="position: relative; max-width: 100%; width: 1200px; display: flex; justify-content: center;">
-
-                <!-- Get in Touch Form -->
-                <div style="width: 880px; height: 520px; background-color: white; padding: 40px 30px; border-radius: 10px;
-                            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); position: relative; z-index: 1;padding-left: 180px;">
-                    <h3 style="margin-bottom: 10px; font-weight: 600; font-size: 24px; color: #333;">Get In Touch</h3>
-                    <p style="margin-bottom: 25px;">Have a question? Write a message.</p>
-
-                    <input type="text" placeholder="Your name" style="width: 100%; padding: 15px; margin-bottom: 15px;
-                           border-radius: 6px; border: none; background-color: #f1f1f1; font-size: 16px;">
-
-                    <input type="email" placeholder="Email - ID" style="width: 100%; padding: 15px; margin-bottom: 15px;
-                           border-radius: 6px; border: none; background-color: #f1f1f1; font-size: 16px;">
-
-                    <textarea placeholder="Type your message here" rows="5" style="width: 100%; padding: 15px;
-                              border-radius: 6px; border: none; background-color: #f1f1f1; font-size: 16px;"></textarea>
-                </div>
-
-                <!-- Contact Us Box -->
-                <div style="width: 320px; height: 400px; background-color: #393186; color: white; padding: 30px;
-                            border-radius: 10px; position: absolute; left: 0px; top: 60px; z-index: 2;
-                            ">
-                    <h3 style="margin-bottom: 20px; font-weight: 600;">Contact us</h3>
-
-                    <p style="margin-bottom: 15px;"><i class="fas fa-map-marker-alt" style="margin-right: 10px;"></i>
-                        njdtdvh xxbg gfscnhm<br>vgfcxfa xb xgvc
-                    </p>
-
-                    <p style="margin-bottom: 15px;"><i class="fas fa-phone-alt" style="margin-right: 10px;"></i> +91</p>
-
-                    <p style="margin-bottom: 15px;"><i class="fas fa-envelope" style="margin-right: 10px;"></i>
-                        btfs5fttt@hughubjjn
-                    </p>
-
-                    <p style="margin-top: 20px;">To know more, Follow us here!</p>
-
-                    <div style="margin-top: 10px;">
-                        <i class="fab fa-instagram" style="font-size: 20px; margin-right: 15px;"></i>
-                        <i class="fab fa-youtube" style="font-size: 20px;"></i>
-                    </div>
-                </div>
-            </div>
-        </section> --}}
-
-    <!-- Outer White Background -->
-    <!-- Full white background -->
-    {{-- <section style="background-color: white; padding: 60px 20px; display: flex; justify-content: center;">
-        <!-- Outer grey container -->
-        <div
-            style="position: relative; background-color: #f1f0f0; width: 100%; max-width: 1200px; border-radius: 10px; padding: 60px 30px; display: flex; justify-content: center; padding-left: 165px;">
-
-            <!-- Contact form box -->
-            <div
-                style="background-color: white; width: 100%; max-width: 850px; padding: 40px 40px 40px 210px; border-radius: 10px; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); position: relative; ">
-                <p style="margin-bottom: 10px; font-weight: 600; font-size: 24px; color: #525252; font-family: Poppins;">Get In Touch</p>
-                <p style="margin-bottom: 25px; margin-top:5px; color: #525252;font-family: Poppins;">Have a question? Write a message.</p>
-
-                <input type="text" placeholder="Your name"
-                    style="width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 6px; border: none; background-color: #f1f1f1; font-size: 16px;">
-                <input type="email" placeholder="Email - ID"
-                    style="width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 6px; border: none; background-color: #f1f1f1; font-size: 16px;">
-                <textarea placeholder="Type your message here" rows="5"
-                    style="width: 100%; padding: 15px; border-radius: 6px; border: none; background-color: #f1f1f1; font-size: 16px;"></textarea>
-            </div>
-
-            <!-- Contact Info Overlap Box -->
-            <!-- Contact Info Overlap Box -->
-            <div
-                style="position: absolute; left: 90px; top: 50%; transform: translateY(-50%);
-                width: 320px; height: 370px; background-color: #393186; color: white;
-                padding: 55px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); overflow: hidden;">
-
-                <p style="margin-bottom: 20px; font-size: 24px; font-family: Poppins;">Contact us</p>
-
-                <p style="margin-bottom: 15px; text-align: justify;">
-                    <i class="fas fa-map-marker-alt" style="margin-right: 10px;"></i>
-                    njdtdvh xxbg gfscnhm<br>vgfcxfa xb xgvc
-                </p>
-
-                <p style="margin-bottom: 15px; text-align: justify;">
-                    <i class="fas fa-phone-alt" style="margin-right: 10px;"></i> +91 9898989898
-                </p>
-
-                <p style="margin-bottom: 15px;text-align: justify;">
-                    <i class="fas fa-envelope" style="margin-right: 10px;"></i>
-                    btfs5fttt@hughubjjn
-                </p>
-
-                <p style="margin-top: 20px;text-align: center;">To know more, Follow us here!</p>
-
-                <div style="margin-top: 10px; text-align: center;">
-                    <i class="fab fa-instagram" style="font-size: 20px; margin-right: 15px;"></i>
-                    <i class="fab fa-youtube" style="font-size: 20px;"></i>
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-
-
-
-    <!-- Font Awesome CDN for icons -->
+    <!-- Font Awesome CDN (Ensure this is in your head or layout, adding here just in case) -->
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-@endsection --}}
-
-
-    <section style="background-color: white; padding: 60px 20px; display: flex; justify-content: center;">
-        <!-- Outer grey container -->
-
-        <div class="contact-section"
-            style="position: relative; background-color: #f1f0f0; width: 100%; max-width: 1200px; border-radius: 10px; padding: 60px 30px; display: flex; justify-content: center; padding-left: 165px;">
-
-
-            <!-- Contact form box -->
-            <div class="form-box"
-                style="background-color: white; width: 100%; max-width: 850px; padding: 40px 40px 40px 210px; border-radius: 10px; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); position: relative;">
-
-                <p style="margin-bottom: 10px; font-weight: 600; font-size: 24px; color: #525252; font-family: Poppins;">Get
-                    In Touch</p>
-                <p style="margin-bottom: 25px; margin-top:5px; color: #525252; font-family: Poppins;">Have a question? Write
-                    a message.</p>
-
-                <form action="" method="POST" enctype="multipart/form-data"
-                    style="width: 100%;">
-                    @csrf
-                    <div class="mb-3">
-                        <input type="text" name="name" class="form-control" placeholder="Your Name"
-                            style="width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 6px; border: none; background-color: #f1f1f1; font-size: 16px;">
-
-                    </div>
-                    <div class="mb-3">
-                        <input type="email" class="form-control" name="email" placeholder="Email - ID"
-                            style="width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 6px; border: none; background-color: #f1f1f1; font-size: 16px;">
-                    </div>
-                    <div class="mb-3">
-                        <textarea placeholder="Type your message here" name="message" rows="5"
-                            style="width: 100%; padding: 15px; border-radius: 6px; border: none; background-color: #f1f1f1; font-size: 16px;"></textarea>
-                    </div>
-                    <div class="mb-3 text-center">
-                        <button type="submit" class="btn  px-4 py-2 "
-                            style="border-radius: 10px; background-color: #393186 !important;color:#ffff;">
-                            Submit
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Contact Info Overlap Box -->
-            <div class="contact-box mt-2"
-                style="position: absolute; left: 90px; top: 50%; transform: translateY(-50%);
-        width: 320px; height: 370px; background-color: #393186; color: white;
-        padding: 55px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); overflow: hidden;">
-
-                <p style="margin-bottom: 20px; font-size: 24px; font-family: Poppins;margin-top:-35px;">Contact us</p>
-                <p style="margin-bottom: 15px; text-align: start;">
-                    <i class="fas fa-map-marker-alt" style="margin-right: 10px;"></i>
-                    JITO HOUSE, Plot No. A-56, Road No. 1, MIDC MAROL, Near International by Tunga Hotel, Mulgaon, Andheri
-                    (East), Mumbai - 400 093.
-                </p>
-                <p style="margin-bottom: 15px; text-align: justify;">
-                    <i class="fas fa-phone-alt" style="margin-right: 10px;"></i>+91 86559 88411
-                </p>
-                <p style="margin-bottom: 15px;text-align: justify;">
-                    <i class="fas fa-envelope" style="margin-right: 10px;"></i>
-                    support.jitojeap@jito.org
-                </p>
-                {{-- <p style="margin-top: 20px;text-align: center;">To know more, Follow us here!</p> --}}
-                <div style="margin-top: 10px; text-align: center;">
-                    <a href="https://www.instagram.com/jito_rom_zone?igsh=MW12M2F3end5c2liNA==" target="blank"><i
-                            class="fab fa-instagram" style="font-size: 20px; margin-right: 15px;color:#ffff;"></i></a>
-                    <a href="https://youtube.com/@jitoromzone3554?si=95bNmKyQ1wvaxi0V" target="blank"> <i
-                            class="fab fa-youtube" style="font-size: 20px;color:#ffff;"></i></a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-    {{--  <form action="" method="post" style="display: flex; flex-direction: column; gap: 20px;">
-
-                    <input type="text" placeholder="Your name"
-                        style="width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 6px; border: none; background-color: #f1f1f1; font-size: 16px;">
-                    <input type="email" placeholder="Email - ID"
-                        style="width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 6px; border: none; background-color: #f1f1f1; font-size: 16px;">
-                    <textarea placeholder="Type your message here" rows="5"
-                        style="width: 100%; padding: 15px; border-radius: 6px; border: none; background-color: #f1f1f1; font-size: 16px;"></textarea>
-                          <button type="submit" class="btn  px-4 py-2 mb-2"
-                        style="border-radius: 10px; display: none;background-color: #393186 !important;color:#ffff;">
-                        Submit
-                    </button>
-
-                </form>  --}}
-    <style>
-        @media (max-width: 768px) {
-            .contact-section {
-                flex-direction: column !important;
-                padding-left: 20px !important;
-                padding-right: 20px !important;
-            }
-
-            .contact-box {
-                position: static !important;
-                transform: none !important;
-                margin-bottom: 20px;
-                width: 100% !important;
-                max-width: 100% !important;
-                height: auto !important;
-            }
-
-            .form-box {
-                padding-left: 20px !important;
-                padding-right: 20px !important;
-            }
-        }
-    </style>
 @endsection

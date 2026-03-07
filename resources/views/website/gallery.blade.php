@@ -19,38 +19,38 @@
 
                     <div class="row">
                         <div class="col-lg-3 col-md-6  col-sm-12 col-12">
-                            <img src="{{ asset('Images/gallery1.png') }}" class="image" alt="">
+                            <img src="{{ asset('website/images/gallery_img_1.png') }}" class="image" alt="">
                         </div>
                         <div class="col-lg-5 col-md-6  col-sm-12 col-12">
-                            <img src="{{ asset('Images/gallery2.png') }}" class="image" alt="">
+                            <img src="{{ asset('website/images/gallery_img_2.png') }}" class="image" alt="">
                         </div>
                         <div class="col-lg-4 col-md-6  col-sm-12 col-12">
-                            <img src="{{ asset('Images/gallery3.png') }}" class="image" alt="">
+                            <img src="{{ asset('website/images/gallery_img_3.png') }}" class="image" alt="">
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-lg-5 col-md-6  col-sm-12 col-12">
-                            <img src="{{ asset('Images/gallery2.png') }}" class="image" alt="">
+                            <img src="{{ asset('website/images/gallery_img_4.png') }}" class="image" alt="">
                         </div>
                         <div class="col-lg-4 col-md-6  col-sm-12 col-12">
-                            <img src="{{ asset('Images/gallery3.png') }}" class="image" alt="">
+                            <img src="{{ asset('website/images/gallery_img_5.png') }}" class="image" alt="">
 
                         </div>
                         <div class="col-lg-3 col-md-6  col-sm-12 col-12">
-                            <img src="{{ asset('Images/gallery1.png') }}" class="image" alt="">
+                            <img src="{{ asset('website/images/gallery_img_2.png') }}" class="image" alt="">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-lg-4 col-md-6  col-sm-12 col-12">
-                            <img src="{{ asset('Images/gallery3.png') }}" class="image" alt="">
+                            <img src="{{ asset('website/images/gallery_img_3.png') }}" class="image" alt="">
                         </div>
                         <div class="col-lg-3 col-md-6  col-sm-12 col-12">
-                            <img src="{{ asset('Images/gallery1.png') }}" class="image" alt="">
+                            <img src="{{ asset('website/images/gallery_img_4.png') }}" class="image" alt="">
 
                         </div>
                         <div class="col-lg-5 col-md-6  col-sm-12 col-12">
-                            <img src="{{ asset('Images/gallery2.png') }}" class="image" alt="">
+                            <img src="{{ asset('website/images/gallery_img_5.png') }}" class="image" alt="">
                         </div>
                     </div>
                 </div>

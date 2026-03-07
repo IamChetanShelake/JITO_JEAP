@@ -1,457 +1,213 @@
 @extends('website.layout.main')
 
 @section('content')
-    <style>
-        #testimonialContainer {
-            display: flex;
-            transition: transform 0.5s ease;
-            /* overflow: hidden; */
-        }
-
-        .testimonial-item {
-            flex: 0 0 33.333%;
-            box-sizing: border-box;
-            transition: transform 0.5s ease;
-        }
-    </style>
-
-    <style>
-        .video-carousel {
-            display: flex;
-            /* justify-content: center; */
-            cursor: grab;
-            transition: transform 0.5s ease;
-        }
-
-        .video-item {
-            flex-shrink: 0;
-            margin-right: 20px;
-            width: 280px;
-            height: 254px;
-        }
-    </style>
-    <section style="padding: 288px 0 80px 0px;background-color: #FFF9E6;max-width:100vw;">
-        <div class="container" style="display: flex; flex-direction: column; gap: 30px;    max-width: 90vw;">
-
-            <!-- About Us Section -->
-            <div class="text-image-wrapper align-items-center" style="overflow: hidden;background-color: #FFF9E6;">
-                <div class="row">
-                    <div class="col-12 mt-3 mb-5">
-
-                        <!-- Text -->
-                        <div style="flex: 1 1 50%; max-width: 700px;">
-                            <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
-                                <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
-                                <h2
-                                    style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
-                                    <span style="color: #FFD800;">Our</span> <span
-                                        style="color: #393186;">Testimonials</span>
-                                </h2>
-                            </div>
-
-                        </div>
-                    </div>
-                    <div class="col-12 my-5">
-                        <div class="row">
-                            <div class="col-lg-1 col-md-1 col-sm-2 col-2 d-flex justify-content-center align-items-center"
-                                style="background-color: #FFF9E6;z-index:10;">
-                                <img src="{{ asset('website/images/leftPointedArrow.png') }}" alt=""
-                                    style="width: 45px;height:45px;cursor:pointer;z-index:10;" id="leftArrow">
-                            </div>
-                            <div class="col-lg-10 col-md-10 col-sm-8 col-8" style="background-color: #FFF9E6;">
-                                <div id="testimonialContainer" class="testimonial-slider">
-
-                                    <div class="col-lg-4 col-md-6 col-sm-12 col-12">
-                                        <div class="testimonial-item d-flex justify-content-center align-items-center">
-                                            <div class="row position-relative"
-                                                style="background-color:#FFFFFF;border:2px solid #DCDCDC; padding: 15px;width: 80%;">
-                                                <div class="col-12 mb-2 d-flex align-items-center justify-content-center">
-                                                    <div class="testOwner position-absolute"
-                                                        style="height:115px;width:115px;border-radius:50%;background-color:#FFFFFF;border:2px solid #DCDCDC;    display: flex;align-items: center;justify-content: center;">
-                                                        <img src="{{ asset('website/images/t1.png') }}" alt=""
-                                                            class=""
-                                                            style="height:115px;width:115px;border-radius:50%;">
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="col-12 mb-2 mt-5 d-flex align-items-center justify-content-center">
-                                                    <p>“<span
-                                                            style="color:#393186;font-size:15px;font-weight:bold;font-family:Poppins;letter-spacing: 1px;">Life-Changing
-                                                            Support</span>”</p>
-                                                </div>
-                                                <div class="col-12 mb-2">
-                                                    <p>JEAP’s assistance helped me pursue my education without financial
-                                                        stress.</p>
-                                                </div>
-                                                <div class="col-12 mb-2">
-                                                    <p
-                                                        style="color:#5B5B5B;font-size:15px;font-weight:bold;font-family:Poppins;letter-spacing: 1px;">
-                                                        Sanyukta Shah </p>
-                                                </div>
-                                                <div class="col-12 mb-2">
-                                                    <p>24 Dec 2024</p>
-                                                </div>
-                                                <div class="col-12 mb-2 position-absolute" style="bottom: 15px;">
-                                                    <img src="{{ asset('website/images/endingQuotes.png') }}" alt=""
-                                                        style="width:48px;height:36px;position:absolute;right:43px">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4 col-md-6 col-sm-12 col-12">
-                                        <div class="testimonial-item d-flex justify-content-center align-items-center">
-                                            <div class="row position-relative"
-                                                style="background-color:#FFFFFF;border:2px solid #DCDCDC; padding: 15px;width: 80%;">
-                                                <div class="col-12 mb-2 d-flex align-items-center justify-content-center">
-                                                    <div class="testOwner position-absolute"
-                                                        style="height:115px;width:115px;border-radius:50%;background-color:#FFFFFF;border:2px solid #DCDCDC;    display: flex;align-items: center;justify-content: center;">
-                                                        <img src="{{ asset('website/images/t2.png') }}" alt=""
-                                                            class=""
-                                                            style="height:115px;width:115px;border-radius:50%;">
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="col-12 mb-2 mt-5 d-flex align-items-center justify-content-center">
-                                                    <p>“<span
-                                                            style="color:#393186;font-size:15px;font-weight:bold;font-family:Poppins;letter-spacing: 1px;">“A
-                                                            Dream Made Possible”</span>”</p>
-                                                </div>
-                                                <div class="col-12 mb-2">
-                                                    <p>Their support enabled me to study at my desired university with
-                                                        confidence.</p>
-                                                </div>
-                                                <div class="col-12 mb-2">
-                                                    <p
-                                                        style="color:#5B5B5B;font-size:15px;font-weight:bold;font-family:Poppins;letter-spacing: 1px;">
-                                                        Kunal Mehta </p>
-                                                </div>
-                                                <div class="col-12 mb-2">
-                                                    <p>24 Dec 2024</p>
-                                                </div>
-                                                <div class="col-12 mb-2 position-absolute" style="bottom: 15px;">
-                                                    <img src="{{ asset('website/images/endingQuotes.png') }}" alt=""
-                                                        style="width:48px;height:36px;position:absolute;right:43px">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4 col-md-6 col-sm-12 col-12">
-                                        <div class="testimonial-item d-flex justify-content-center align-items-center">
-                                            <div class="row position-relative"
-                                                style="background-color:#FFFFFF;border:2px solid #DCDCDC; padding: 15px;width: 80%;">
-                                                <div class="col-12 mb-2 d-flex align-items-center justify-content-center">
-                                                    <div class="testOwner position-absolute"
-                                                        style="height:115px;width:115px;border-radius:50%;background-color:#FFFFFF;border:2px solid #DCDCDC;    display: flex;align-items: center;justify-content: center;">
-                                                        <img src="{{ asset('website/images/t3.png') }}" alt=""
-                                                            class=""
-                                                            style="height:115px;width:115px;border-radius:50%;">
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="col-12 mb-2 mt-5 d-flex align-items-center justify-content-center">
-                                                    <p>“<span
-                                                            style="color:#393186;font-size:15px;font-weight:bold;font-family:Poppins;letter-spacing: 1px;">Life-Changing
-                                                            Support</span>”</p>
-                                                </div>
-                                                <div class="col-12 mb-2">
-                                                    <p>JEAP’s assistance helped me pursue my education without financial
-                                                        stress.</p>
-                                                </div>
-                                                <div class="col-12 mb-2">
-                                                    <p
-                                                        style="color:#5B5B5B;font-size:15px;font-weight:bold;font-family:Poppins;letter-spacing: 1px;">
-                                                        Sanyukta Shah </p>
-                                                </div>
-                                                <div class="col-12 mb-2">
-                                                    <p>24 Dec 2024</p>
-                                                </div>
-                                                <div class="col-12 mb-2 position-absolute" style="bottom: 15px;">
-                                                    <img src="{{ asset('website/images/endingQuotes.png') }}" alt=""
-                                                        style="width:48px;height:36px;position:absolute;right:43px">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-1 col-md-1 col-sm-2 col-2 d-flex justify-content-center align-items-center"
-                                style="background-color: #FFF9E6;z-index:10;">
-                                <img src="{{ asset('website/images/rightPointedArrow.png') }}" alt=""
-                                    style="width: 45px;height:45px;cursor:pointer;z-index:10;" id="rightArrow">
-                            </div>
-                        </div>
-                    </div>
+    
+    {{-- ============================= OUR TESTIMONIALS SECTION ============================= --}}
+    <section style="padding-top: 280px; position: relative; z-index: 1; background: #fff;" class="testimonial-section">
+        <style>
+            .testimonial-section {
+                padding-top: 280px;
+                position: relative;
+                z-index: 1;
+                background: #fff;
+            }
+            @media (max-width: 991px) {
+                .testimonial-section {
+                    padding-top: 250px;
+                }
+            }
+            @media (max-width: 576px) {
+                .testimonial-section {
+                    padding-top: 220px;
+                }
+            }
+        </style>
+        <div class="container mb-5">
+            <div style="flex: 1 1 50%; max-width: 700px;">
+                <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
+                    <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
+                    <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
+                        <span style="color: #FFD800;">OUR</span> <span style="color: #393186;">TESTIMONIALS</span>
+                    </h2>
                 </div>
-
-
-
             </div>
-
         </div>
     </section>
 
+    <section style="padding: 60px 0 80px 0; background-color: #FFF9E6;">
+        <div class="container">
+            <div class="row justify-content-center align-items-stretch">
+                
+                <!-- Testimonial 1 (Left - White Card) -->
+                <div class="col-lg-4 col-md-6 mb-4 d-flex align-items-stretch">
+                    <div class="card text-center p-4 w-100 h-100" style="background: #ffffff; border: 1px solid #D7D7D7; border-radius: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                        <div style="width: 120px; height: 120px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden; border: 4px solid #FFD800;">
+                            <img src="{{ asset('website/images/t1.png') }}" alt="Samyukta Shah" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <h5 style="color: #393186; font-weight: 700; font-family: 'Poppins', sans-serif; font-size: 18px;">Life - Changing Support</h5>
+                        <p style="color: #5B5B5B; font-size: 14px; margin-bottom: 20px;">JEAP’s assistance helped me pursue my education without financial stress.</p>
+                        <p style="color: #333; font-weight: 600; font-size: 15px; margin-bottom: 5px;">Samyukta Shah</p>
+                        <p style="color: #999; font-size: 13px; margin-bottom: 0;">24 Dec 2024</p>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 (Middle - Purple Card) -->
+                <div class="col-lg-4 col-md-6 mb-4 d-flex align-items-stretch">
+                    <div class="card text-center p-4 w-100 h-100" style="background: #393186; border: none; border-radius: 0; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
+                        <div style="width: 120px; height: 120px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden; border: 4px solid #ffffff;">
+                            <img src="{{ asset('website/images/t2.png') }}" alt="Kural Mehta" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <!-- Yellow Title for contrast on purple -->
+                        <h5 style="color: #FFD800; font-weight: 700; font-family: 'Poppins', sans-serif; font-size: 18px;">A Dream Made Possible</h5>
+                        <p style="color: #e0e0e0; font-size: 14px; margin-bottom: 20px;">Their support enabled me to study at my desired university with confidence.</p>
+                        <p style="color: #fff; font-weight: 600; font-size: 15px; margin-bottom: 5px;">Kural Mehta</p>
+                        <p style="color: #ccc; font-size: 13px; margin-bottom: 0;">24 Dec 2024</p>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 (Right - White Card) -->
+                <div class="col-lg-4 col-md-6 mb-4 d-flex align-items-stretch">
+                    <div class="card text-center p-4 w-100 h-100" style="background: #ffffff; border: 1px solid #D7D7D7; border-radius: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                        <div style="width: 120px; height: 120px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden; border: 4px solid #FFD800;">
+                            <img src="{{ asset('website/images/t3.png') }}" alt="Shreya Jain" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <h5 style="color: #393186; font-weight: 700; font-family: 'Poppins', sans-serif; font-size: 18px;">Life - Changing Support</h5>
+                        <p style="color: #5B5B5B; font-size: 14px; margin-bottom: 20px;">JEAP’s assistance helped me pursue my education without financial stress.</p>
+                        <p style="color: #333; font-weight: 600; font-size: 15px; margin-bottom: 5px;">Shreya Jain</p>
+                        <p style="color: #999; font-size: 13px; margin-bottom: 0;">24 Dec 2024</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    {{-- ============================= SUCCESS STORIES SECTION ============================= --}}
+    
     <section style="padding: 80px 0; background: #FFF;">
-        <div class="container" style="max-width: 1400px;">
-            <div class="text-image-wrapper align-items-center" style="overflow: hidden;">
-                <div class="row">
-                    <div class="col-12 mb-5">
-                        <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
-                            <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
-                            <h2
-                                style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
-                                <span style="color: #FFD800;">SUCCESS</span> <span style="color: #393186;">STORIES</span>
-                            </h2>
-                        </div>
-                    </div>
-
-                </div>
-                {{-- <div class="row">
-                    <div id="videoCarousel" class="video-carousel">
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex justify-content-center">
-                            <div class="video-item">
-                                <div class="p-3" style="width:280px;height:195px;border:1px solid #ccc;">
-                                    <div class="col-12" style="display:flex;align-items:center;justify-content:center;">
-                                        <iframe loading="lazy"
-                                            title="JIN Reflexology Feedback - Perfect Diagnosis at Jodhpur" width="240"
-                                            height="157" src="https://www.youtube.com/embed/fA8uEVODBVA?feature=oembed"
-                                            frameborder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowfullscreen>
-                                        </iframe>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex justify-content-center">
-                            <div class="video-item">
-                                <div class="p-3" style="width:280px;height:195px;border:1px solid #ccc;">
-                                    <div class="col-12" style="display:flex;align-items:center;justify-content:center;">
-                                        <iframe loading="lazy"
-                                            title="JIN Reflexology Feedback - Perfect Diagnosis at Jodhpur" width="240"
-                                            height="157" src="https://www.youtube.com/embed/fA8uEVODBVA?feature=oembed"
-                                            frameborder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowfullscreen>
-                                        </iframe>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex justify-content-center">
-                            <div class="video-item">
-                                <div class="p-3" style="width:280px;height:195px;border:1px solid #ccc;">
-                                    <div class="col-12" style="display:flex;align-items:center;justify-content:center;">
-                                        <iframe loading="lazy"
-                                            title="JIN Reflexology Feedback - Perfect Diagnosis at Jodhpur" width="240"
-                                            height="157" src="https://www.youtube.com/embed/fA8uEVODBVA?feature=oembed"
-                                            frameborder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowfullscreen>
-                                        </iframe>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex justify-content-center">
-                            <div class="video-item">
-                                <div class="p-3" style="width:280px;height:195px;border:1px solid #ccc;">
-                                    <div class="col-12" style="display:flex;align-items:center;justify-content:center;">
-                                        <iframe loading="lazy"
-                                            title="JIN Reflexology Feedback - Perfect Diagnosis at Jodhpur" width="240"
-                                            height="157" src="https://www.youtube.com/embed/fA8uEVODBVA?feature=oembed"
-                                            frameborder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowfullscreen>
-                                        </iframe>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> --}}
-                <div class="row">
-                    <div id="videoCarousel" class="video-carousel">
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex justify-content-center">
-                            <div class="video-item">
-                                <div class="p-3" style="width:280px;height:195px;border:1px solid #ccc;">
-                                    <div class="col-12" style="display:flex;align-items:center;justify-content:center;">
-                                        <iframe width="240" height="157"
-                                            src="https://www.youtube.com/embed/1U-8ReK0xn0" title="YouTube video player"
-                                            frameborder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowfullscreen>
-                                        </iframe>
-
-
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex justify-content-center">
-                            <div class="video-item">
-                                <div class="p-3" style="width:280px;height:195px;border:1px solid #ccc;">
-                                    <div class="col-12" style="display:flex;align-items:center;justify-content:center;">
-                                        <iframe width="240" height="157"
-                                            src="https://www.youtube.com/embed/yP2NEJVXg5M" title="YouTube video player"
-                                            frameborder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowfullscreen>
-                                        </iframe>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex justify-content-center">
-                            <div class="video-item">
-                                <div class="p-3" style="width:280px;height:195px;border:1px solid #ccc;">
-                                    <div class="col-12" style="display:flex;align-items:center;justify-content:center;">
-                                        <iframe width="240" height="157"
-                                            src="https://www.youtube.com/embed/53udO9kFcXQ" title="YouTube video player"
-                                            frameborder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowfullscreen>
-                                        </iframe>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex justify-content-center">
-                            <div class="video-item">
-                                <div class="p-3" style="width:280px;height:195px;border:1px solid #ccc;">
-                                    <div class="col-12" style="display:flex;align-items:center;justify-content:center;">
-                                        <iframe width="240" height="157"
-                                            src="https://www.youtube.com/embed/UxIcjz3bkTA" title="YouTube video player"
-                                            frameborder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowfullscreen>
-                                        </iframe>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <div class="container">
+            <div class="text-start mb-5">
+                <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
+                    <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
+                    <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
+                        <span style="color: #FFD800;">SUCCESS</span> <span style="color: #393186;">STORIES</span>
+                    </h2>
                 </div>
             </div>
-        </div>
+
+            {{-- Added ID 'videoCarousel' here so the script below works --}}
+            <div class="row" id="videoCarousel">
+                <!-- Video Item 1 -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+                    <div style="position: relative; overflow: hidden; border: 1px solid #e0e0e0;">
+                        <img src="{{ asset('website/images/gallery_img_1.png') }}" style="width: 100%; height: 200px; object-fit: cover; display: block;" alt="Success Story 1">
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="#" style="display: inline-flex; align-items: center; background-color: #393186; padding: 10px 25px; border-radius: 0px; text-decoration: none; color: #fff; font-family: 'Poppins', sans-serif; font-weight: 500; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            <span style="font-size: 16px;">Watch on</span>
+                            <div style="background-color: #FF0000; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; border-radius: 4px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                            <span style="font-size: 16px;">YouTube</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Video Item 2 -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+                    <div style="position: relative; overflow: hidden; border: 1px solid #e0e0e0;">
+                        <img src="{{ asset('website/images/gallery_img_2.png') }}" style="width: 100%; height: 200px; object-fit: cover; display: block;" alt="Success Story 2">
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="#" style="display: inline-flex; align-items: center; background-color: #393186; padding: 10px 25px; border-radius: 0px; text-decoration: none; color: #fff; font-family: 'Poppins', sans-serif; font-weight: 500; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            <span style="font-size: 16px;">Watch on</span>
+                            <div style="background-color: #FF0000; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; border-radius: 4px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                            <span style="font-size: 16px;">YouTube</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Video Item 3 -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+                    <div style="position: relative; overflow: hidden; border: 1px solid #e0e0e0;">
+                        <img src="{{ asset('website/images/gallery_img_3.png') }}" style="width: 100%; height: 200px; object-fit: cover; display: block;" alt="Success Story 3">
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="#" style="display: inline-flex; align-items: center; background-color: #393186; padding: 10px 25px; border-radius: 0px; text-decoration: none; color: #fff; font-family: 'Poppins', sans-serif; font-weight: 500; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            <span style="font-size: 16px;">Watch on</span>
+                            <div style="background-color: #FF0000; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; border-radius: 4px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                            <span style="font-size: 16px;">YouTube</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Video Item 4 -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+                    <div style="position: relative; overflow: hidden; border: 1px solid #e0e0e0;">
+                        <img src="{{ asset('website/images/gallery_img_4.png') }}" style="width: 100%; height: 200px; object-fit: cover; display: block;" alt="Success Story 4">
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="#" style="display: inline-flex; align-items: center; background-color: #393186; padding: 10px 25px; border-radius: 0px; text-decoration: none; color: #fff; font-family: 'Poppins', sans-serif; font-weight: 500; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            <span style="font-size: 16px;">Watch on</span>
+                            <div style="background-color: #FF0000; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; border-radius: 4px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                            <span style="font-size: 16px;">YouTube</span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </section>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const container = document.getElementById('testimonialContainer');
-            const items = container.querySelectorAll('.testimonial-item');
-            const totalItems = items.length; // 7
-            const visibleItems = 3;
-            const maxIndex = totalItems - visibleItems; // 4
-            let currentIndex = 0;
-
-            document.getElementById('rightArrow').addEventListener('click', function() {
-                currentIndex++;
-                if (currentIndex >= maxIndex) {
-                    setTimeout(function() {
-                        container.style.transition = 'none';
-                        currentIndex = 0;
-                        updateTransform();
-                        setTimeout(function() {
-                            container.style.transition = 'transform 0.5s ease';
-                        }, 50);
-                    }, 250);
-                } else {
-                    updateTransform();
-                }
-            });
-
-            document.getElementById('leftArrow').addEventListener('click', function() {
-                currentIndex--;
-                if (currentIndex < 0) {
-                    setTimeout(function() {
-                        container.style.transition = 'none';
-                        currentIndex = maxIndex - 1;
-                        updateTransform();
-                        setTimeout(function() {
-                            container.style.transition = 'transform 0.5s ease';
-                        }, 50);
-                    }, 250 casc);
-                } else {
-                    updateTransform();
-                }
-            });
-
-            function updateTransform() {
-                const transformValue = -(currentIndex * (100 / visibleItems)) + '%';
-                container.style.transform = 'translateX(' + transformValue + ')';
-                // Scale the middle testimonial
-                items.forEach((item, i) => {
-                    if (i === currentIndex + 1) {
-                        item.style.transform = 'scale(1.1)';
-                    } else {
-                        item.style.transform = 'scale(1)';
-                    }
-                });
-            }
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const container = document.getElementById('testimonialContainer');
-            const items = container.querySelectorAll('.testimonial-item');
-            const totalItems = items.length;
-            const visibleItems = 3;
-            let currentIndex = 0;
-
-            document.getElementById('rightArrow').addEventListener('click', function() {
-                currentIndex = (currentIndex + 1) % (totalItems - visibleItems + 1);
-                updateTransform();
-            });
-
-            document.getElementById('leftArrow').addEventListener('click', function() {
-                currentIndex = (currentIndex - 1 + (totalItems - visibleItems + 1)) % (totalItems -
-                    visibleItems + 1);
-                updateTransform();
-            });
-
-            function updateTransform() {
-                const transformValue = -(currentIndex * (100 / visibleItems)) + '%';
-                container.style.transform = 'translateX(' + transformValue + ')';
-            }
-        });
-    </script>
-
+    {{-- Script only for Video Carousel (Testimonials are static grid now) --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const carousel = document.getElementById('videoCarousel');
-            let isDown = false;
-            let startX;
-            let transformAmount = 0;
+            
+            // Only run if element exists
+            if(carousel) {
+                let isDown = false;
+                let startX;
+                let transformAmount = 0;
 
-            carousel.addEventListener('mousedown', (e) => {
-                isDown = true;
-                startX = e.clientX - transformAmount;
-                carousel.style.cursor = 'grabbing';
-            });
+                carousel.addEventListener('mousedown', (e) => {
+                    isDown = true;
+                    startX = e.clientX - transformAmount;
+                    carousel.style.cursor = 'grabbing';
+                });
 
-            carousel.addEventListener('mouseleave', () => {
-                isDown = false;
-                carousel.style.cursor = 'grab';
-            });
+                carousel.addEventListener('mouseleave', () => {
+                    isDown = false;
+                    carousel.style.cursor = 'grab';
+                });
 
-            carousel.addEventListener('mouseup', () => {
-                isDown = false;
-                carousel.style.cursor = 'grab';
-            });
+                carousel.addEventListener('mouseup', () => {
+                    isDown = false;
+                    carousel.style.cursor = 'grab';
+                });
 
-            carousel.addEventListener('mousemove', (e) => {
-                if (!isDown) return;
-                e.preventDefault();
-                const x = e.clientX;
-                transformAmount = x - startX;
-                // Limit drag: min - (totalWidth - visible) * .3 or something, but for simplicity, free
-                carousel.style.transform = `translateX(${transformAmount}px)`;
-            });
+                carousel.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const x = e.clientX;
+                    transformAmount = x - startX;
+                    carousel.style.transform = `translateX(${transformAmount}px)`;
+                });
+            }
         });
     </script>
 @endsection

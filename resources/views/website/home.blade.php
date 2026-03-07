@@ -496,11 +496,11 @@
         </div>
     </section>
 
-    {{-- =============================WORKING COMMITTEE SECTION================= --}}
-    <section style="padding: 0px 0 0 0;background:#FFFF !important;">
+           {{-- =============================WORKING COMMITTEE SECTION================= --}}
+    <section style="padding: 80px 0; background: #FFF9E6;">
         <div class="container">
             <!-- Header -->
-            <div class="text-start mb-5" style="background:#FFFF !important;">
+            <div class="text-start mb-5">
                 <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
                     <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
                     <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
@@ -508,149 +508,130 @@
                     </h2>
                 </div>
             </div>
-    </section>
-    <section style="padding: 80px 0;background:#FFF9E6 !important;">
-        <!-- Cards Container -->
-        <div class="carousel-outer" style="display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden;">
-            <!-- Left Arrow -->
-            <img src="{{ asset('website/images/leftPointedArrow.png') }}" class="left-arrow" style="width:45px; height:45px; cursor:pointer; position:absolute; left:100px; z-index:10;">
 
-            <!-- Carousel Container -->
-            <div class="carousel-container" style="overflow: hidden; flex: 4; max-width: calc(4 * 270px);">
-                <div class="carousel-track" style="display: flex; gap: 20px; transition: transform 0.5s ease;">
-                    <!-- Card 1 -->
-                    <div class="card" style="width: 250px; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px;border:1px solid #D7D7D7;">
-                        <div style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
-                            <img src="{{ asset('website/images/wc11.png') }}" alt="Photo" style="width: 100%; height: 100%; object-fit: cover;">
+            <!-- Custom Styling for Hover Effects -->
+            <style>
+                .committee-card-item {
+                    background-color: #393186; /* Default: Blue Background */
+                    border: 2px solid #FFD800; /* Default: Yellow Border */
+                    padding: 30px 20px;
+                    text-align: center;
+                    height: 100%;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                    transition: all 0.3s ease; /* Smooth transition for hover */
+                }
+
+                /* Hover State */
+                .committee-card-item:hover {
+                    background-color: #ffffff; /* Hover: White Background */
+                    border-color: #393186;      /* Hover: Blue Border */
+                }
+
+                /* Text Colors - Default (On Blue) */
+                .committee-card-item h3 {
+                    color: #ffffff; /* White Name */
+                    transition: color 0.3s ease;
+                }
+                .committee-card-item p {
+                    color: #e0e0e0; /* Light Grey Role */
+                    transition: color 0.3s ease;
+                }
+                .committee-card-item a {
+                    color: #FFD800; /* Yellow Link */
+                }
+
+                /* Text Colors - Hover (On White) */
+                .committee-card-item:hover h3 {
+                    color: #393186; /* Blue Name */
+                }
+                .committee-card-item:hover p {
+                    color: #666; /* Dark Grey Role */
+                }
+                .committee-card-item:hover a {
+                    color: #393186; /* Blue Link */
+                }
+
+                /* Image Circle Border Logic */
+                .committee-card-item .img-circle {
+                    border: 3px solid #ffffff; /* White border on Blue card */
+                    transition: border-color 0.3s ease;
+                }
+                .committee-card-item:hover .img-circle {
+                    border-color: #393186; /* Blue border on White card */
+                }
+            </style>
+
+            <!-- Cards Grid Layout -->
+            <div class="row">
+                
+                <!-- Card 1 -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+                    <div class="committee-card-item">
+                        <div class="img-circle" style="width: 150px; height: 150px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden;">
+                            <img src="{{ asset('website/images/wc11.png') }}" alt="Hilash Deshi" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
-                        <h3 style="font-size: 16px; font-weight: 600; color: #393186; margin-bottom: -4px;font-family: 'Poppins', sans-serif !important; text-transform: none !important;">
-                            Hitesh Doshi
+                        <h3 style="font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif; margin-bottom: 5px; text-transform: none;">
+                            Hilash Deshi
                         </h3>
-                        <p style="font-size: 16px; color: #4D4D4D;font-weight: 600; margin-bottom: -4px;">Chairman
+                        <p style="font-size: 16px; font-weight: 500; margin-bottom: 15px;">
+                            Chairman
                         </p>
-                        <a href="#" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">Show
-                            more</a>
+                        <a href="#" style="font-size: 16px; text-decoration: underline; font-weight: 500;">Show more</a>
                     </div>
+                </div>
 
-                    <!-- Card 2 -->
-                    <div class="card" style="width: 250px; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px;border:1px solid #D7D7D7;">
-                        <div style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
-                            <img src="{{ asset('website/images/wc001.png') }}" alt="Photo" style="width: 100%; height: 105%; object-fit: cover;">
+                <!-- Card 2 -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+                    <div class="committee-card-item">
+                        <div class="img-circle" style="width: 150px; height: 150px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden;">
+                            <img src="{{ asset('website/images/wc001.png') }}" alt="Dr. Lipin Doshi" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
-                        <h3 style="font-size: 16px; font-weight: 600; color: #393186; margin-bottom: -4px;font-family: 'Poppins', sans-serif !important; text-transform: none !important;">
-                            Dr. Bipin Doshi
+                        <h3 style="font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif; margin-bottom: 5px; text-transform: none;">
+                            Dr. Lipin Doshi
                         </h3>
-                        <p style="font-size: 16px; color: #4D4D4D;font-weight: 600; margin-bottom: -4px;">Vice Chairman
+                        <p style="font-size: 16px; font-weight: 500; margin-bottom: 15px;">
+                            Vice Chairman
                         </p>
-                        <a href="#" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">Show
-                            more</a>
+                        <a href="#" style="font-size: 16px; text-decoration: underline; font-weight: 500;">Show more</a>
                     </div>
+                </div>
 
-                    <!-- Card 3 -->
-                    <div class="card" style="width: 250px; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px;border:1px solid #D7D7D7;">
-                        <div style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
-                            <img src="{{ asset('website/images/wc002.png') }}" alt="Photo" style="width: 100%; height: 105%; object-fit: cover;">
+                <!-- Card 3 -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+                    <div class="committee-card-item">
+                        <div class="img-circle" style="width: 150px; height: 150px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden;">
+                            <img src="{{ asset('website/images/wc002.png') }}" alt="Mahaveer Singh Choudhary" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
-                        <h3 style="font-size: 16px; font-weight: 600; color: #393186; margin-bottom: -4px;font-family: 'Poppins', sans-serif !important; text-transform: none !important;">
+                        <h3 style="font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif; margin-bottom: 5px; text-transform: none;">
                             Mahaveer Singh Choudhary
                         </h3>
-                        <p style="font-size: 16px; color: #4D4D4D;font-weight: 600; margin-bottom: -4px;">Vice Chairman
+                        <p style="font-size: 16px; font-weight: 500; margin-bottom: 15px;">
+                            Vice Chairman
                         </p>
-                        <a href="#" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">Show
-                            more</a>
+                        <a href="#" style="font-size: 16px; text-decoration: underline; font-weight: 500;">Show more</a>
                     </div>
-
-                    <!-- Card 4 -->
-                    <div class="card" style="width: 250px; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px;border:1px solid #D7D7D7;">
-                        <div style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
-                            <img src="{{ asset('website/images/wc003.png') }}" alt="Photo" style="width: 100%; height: 105%; object-fit: cover;">
-                        </div>
-                        <h3 style="font-size: 16px; font-weight: 600; color: #393186; margin-bottom: -4px;font-family: 'Poppins', sans-serif !important; text-transform: none !important;">
-                            Hitesh Doshi
-                        </h3>
-                        <p style="font-size: 16px; color: #4D4D4D;font-weight: 600; margin-bottom: -4px;">CA Satish
-                            Hiran
-                        </p>
-                        <a href="#" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">Chief
-                            Secretary
-                            more</a>
-                    </div>
-
                 </div>
+
+                <!-- Card 4 -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+                    <div class="committee-card-item">
+                        <div class="img-circle" style="width: 150px; height: 150px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden;">
+                            <img src="{{ asset('website/images/wc003.png') }}" alt="CA Satish Hiran" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <h3 style="font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif; margin-bottom: 5px; text-transform: none;">
+                            CA Satish Hiran
+                        </h3>
+                        <p style="font-size: 16px; font-weight: 500; margin-bottom: 15px;">
+                            Chief Secretary
+                        </p>
+                        <a href="#" style="font-size: 16px; text-decoration: underline; font-weight: 500;">Show more</a>
+                    </div>
+                </div>
+
+                
+
             </div>
-
-            <!-- Right Arrow -->
-            <img src="{{ asset('website/images/rightPointedArrow.png') }}" class="right-arrow" style="width:45px; height:45px; cursor:pointer; position:absolute; right:100px; z-index:10;">
         </div>
-        </div>
-
-        <!-- CSS for responsiveness -->
-        <style>
-            @media (max-width: 768px) {
-                .carousel-outer {
-                    padding: 0 60px;
-                }
-
-                .carousel-container {
-                    max-width: calc(100vw - 120px);
-                }
-
-                .card {
-                    flex-shrink: 0;
-                    width: 225px;
-                }
-            }
-
-            @media (max-width: 576px) {
-                .card {
-                    width: 200px;
-                }
-            }
-        </style>
-
-        <!-- JavaScript for carousel functionality -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const track = document.querySelector('.carousel-track');
-                const cards = document.querySelectorAll('.card');
-                const leftBtn = document.querySelector('.left-arrow');
-                const rightBtn = document.querySelector('.right-arrow');
-                let currentIndex = 0;
-
-                function getCardsPerView() {
-                    const width = window.innerWidth;
-                    if (width <= 576) return 1;
-                    if (width <= 992) return 2;
-                    return 4;
-                }
-
-                function slide() {
-                    const cardsPerView = getCardsPerView();
-                    const cardWidth = cards[0].offsetWidth + 20; // 250 + gap
-                    const maxIndex = Math.max(0, cards.length - cardsPerView);
-                    currentIndex = Math.max(0, Math.min(currentIndex, maxIndex));
-                    track.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
-                }
-
-                leftBtn.addEventListener('click', function() {
-                    currentIndex--;
-                    slide();
-                });
-
-                rightBtn.addEventListener('click', function() {
-                    currentIndex++;
-                    slide();
-                });
-
-                window.addEventListener('resize', function() {
-                    currentIndex = 0;
-                    slide();
-                });
-
-                // Initial call
-                window.addEventListener('load', slide);
-            });
-        </script>
     </section>
     
     {{-- =============================ABOUT US SECTION================= --}}
@@ -769,7 +750,7 @@
         </div>
     </section>
 
-    {{-- Photo Gallery Section --}}
+       {{-- Photo Gallery Section --}}
     <section style="padding:80px 0; background: #fff;">
         <div class="container">
             <div class="text-start mb-5">
@@ -785,7 +766,7 @@
             <div class="gallery-slider-container" style="overflow-x: auto; position: relative; width: 100%; scroll-behavior: smooth;">
                 <div class="gallery-slider" style="display: flex; gap: 0; padding: 10px 0;">
                     
-                    <!-- Original Images with fixed width, no flex-grow -->
+                    <!-- Original Images -->
                     <img src="{{ asset('website/images/gallery_img_1.png') }}" class="gallery-img" style="width:350px; height: 250px; object-fit: cover; flex-shrink: 0;" alt="Gallery Image 1">
                     <img src="{{ asset('website/images/gallery_img_2.png') }}" class="gallery-img" style="width:350px; height: 250px; object-fit: cover; flex-shrink: 0;" alt="Gallery Image 2">
                     <img src="{{ asset('website/images/gallery_img_3.png') }}" class="gallery-img" style="width:350px; height: 250px; object-fit: cover; flex-shrink: 0;" alt="Gallery Image 3">
@@ -803,14 +784,17 @@
         </div>
     </section>
 
+    {{-- UPDATED STYLES TO HIDE SCROLLBAR --}}
     <style>
-        @keyframes slide {
-            0% {
-                transform: translateX(0);
-            }
-            100% {
-                transform: translateX(-50%); /* Moves exactly half (since content is duplicated) */
-            }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .gallery-slider-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .gallery-slider-container {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
         }
 
         .gallery-img {
@@ -822,34 +806,12 @@
             z-index: 1;
         }
     </style>
+    
+   
+    
+   
 
-    <style>
-        #testimonialContainer {
-            display: flex;
-            transition: transform 0.5s ease;
-        }
-
-        .testimonial-item {
-            flex: 0 0 33.333%;
-            box-sizing: border-box;
-            transition: transform 0.5s ease;
-        }
-    </style>
-
-    <style>
-        .video-carousel {
-            display: flex;
-            cursor: grab;
-            transition: transform 0.5s ease;
-        }
-
-        .video-item {
-            flex-shrink: 0;
-            margin-right: 20px;
-            width: 280px;
-            height: 254px;
-        }
-    </style>
+        {{-- ============================= OUR TESTIMONIALS SECTION ============================= --}}
     
     <section>
         <div class="container mt-5 mb-5">
@@ -857,167 +819,149 @@
                 <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
                     <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
                     <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
-                        <span style="color: #FFD800;">Our</span> <span style="color: #393186;">Testimonials</span>
+                        <span style="color: #FFD800;">OUR</span> <span style="color: #393186;">TESTIMONIALS</span>
                     </h2>
                 </div>
             </div>
         </div>
     </section>
-    
-    <section style="padding: 60px 0 60px 0px;background-color: #FFF9E6;max-width:100vw;">
-        <div class="container" style="display: flex; flex-direction: column; gap: 30px; max-width: 90vw;">
-            <div class="text-image-wrapper align-items-center" style="overflow: hidden;background-color: #FFF9E6;">
-                <div class="row">
-                    <div class="col-12 my-5">
-                        <div class="row">
-                            <div class="col-lg-1 col-md-1 col-sm-2 col-2 d-flex justify-content-center align-items-center" style="background-color: #FFF9E6;z-index:10;">
-                                <img src="{{ asset('website/images/leftPointedArrow.png') }}" alt="" style="width: 45px;height:45px;cursor:pointer;z-index:10;" id="leftArrow">
-                            </div>
-                            <div class="col-lg-10 col-md-10 col-sm-8 col-8" style="background-color: #FFF9E6;">
-                                <div id="testimonialContainer" class="testimonial-slider">
-                                    <div class="col-lg-4 col-md-6 col-sm-12 col-12">
-                                        <div class="testimonial-item d-flex justify-content-center align-items-center">
-                                            <div class="row position-relative" style="background-color:#FFFFFF;border:2px solid #DCDCDC; padding: 15px;width: 80%;">
-                                                <div class="col-12 mb-2 d-flex align-items-center justify-content-center">
-                                                    <div class="testOwner position-absolute" style="height:115px;width:115px;border-radius:50%;background-color:#FFFFFF;border:2px solid #DCDCDC; display: flex;align-items: center;justify-content: center;">
-                                                        <img src="{{ asset('website/images/t1.png') }}" alt="" class="" style="height:115px;width:115px;border-radius:50%;">
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 mb-2 mt-5 d-flex align-items-center justify-content-center">
-                                                    <p>“<span style="color:#393186;font-size:15px;font-weight:bold;font-family:Poppins;letter-spacing: 1px;">Life-Changing Support</span>”</p>
-                                                </div>
-                                                <div class="col-12 mb-2">
-                                                    <p>JEAP’s assistance helped me pursue my education without financial stress.</p>
-                                                </div>
-                                                <div class="col-12 mb-2">
-                                                    <p style="color:#5B5B5B;font-size:15px;font-weight:bold;font-family:Poppins;letter-spacing: 1px;">Sanyukta Shah </p>
-                                                </div>
-                                                <div class="col-12 mb-2">
-                                                    <p>24 Dec 2024</p>
-                                                </div>
-                                                <div class="col-12 mb-2 position-absolute" style="bottom: 15px;">
-                                                    <img src="{{ asset('website/images/endingQuotes.png') }}" alt="" style="width:48px;height:36px;position:absolute;right:43px">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4 col-md-6 col-sm-12 col-12">
-                                        <div class="testimonial-item d-flex justify-content-center align-items-center">
-                                            <div class="row position-relative" style="background-color:#FFFFFF;border:2px solid #DCDCDC; padding: 15px;width: 80%;">
-                                                <div class="col-12 mb-2 d-flex align-items-center justify-content-center">
-                                                    <div class="testOwner position-absolute" style="height:115px;width:115px;border-radius:50%;background-color:#FFFFFF;border:2px solid #DCDCDC; display: flex;align-items: center;justify-content: center;">
-                                                        <img src="{{ asset('website/images/t2.png') }}" alt="" class="" style="height:115px;width:115px;border-radius:50%;">
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 mb-2 mt-5 d-flex align-items-center justify-content-center">
-                                                    <p>“<span style="color:#393186;font-size:15px;font-weight:bold;font-family:Poppins;letter-spacing: 1px;">A Dream Made Possible</span>”</p>
-                                                </div>
-                                                <div class="col-12 mb-2">
-                                                    <p>Their support enabled me to study at my desired university with confidence.</p>
-                                                </div>
-                                                <div class="col-12 mb-2">
-                                                    <p style="color:#5B5B5B;font-size:15px;font-weight:bold;font-family:Poppins;letter-spacing: 1px;">Kunal Mehta </p>
-                                                </div>
-                                                <div class="col-12 mb-2">
-                                                    <p>24 Dec 2024</p>
-                                                </div>
-                                                <div class="col-12 mb-2 position-absolute" style="bottom: 15px;">
-                                                    <img src="{{ asset('website/images/endingQuotes.png') }}" alt="" style="width:48px;height:36px;position:absolute;right:43px">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4 col-md-6 col-sm-12 col-12">
-                                        <div class="testimonial-item d-flex justify-content-center align-items-center">
-                                            <div class="row position-relative" style="background-color:#FFFFFF;border:2px solid #DCDCDC; padding: 15px;width: 80%;">
-                                                <div class="col-12 mb-2 d-flex align-items-center justify-content-center">
-                                                    <div class="testOwner position-absolute" style="height:115px;width:115px;border-radius:50%;background-color:#FFFFFF;border:2px solid #DCDCDC; display: flex;align-items: center;justify-content: center;">
-                                                        <img src="{{ asset('website/images/t3.png') }}" alt="" class="" style="height:115px;width:115px;border-radius:50%;">
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 mb-2 mt-5 d-flex align-items-center justify-content-center">
-                                                    <p>“<span style="color:#393186;font-size:15px;font-weight:bold;font-family:Poppins;letter-spacing: 1px;">Life-Changing Support</span>”</p>
-                                                </div>
-                                                <div class="col-12 mb-2">
-                                                    <p>JEAP’s assistance helped me pursue my education without financial stress.</p>
-                                                </div>
-                                                <div class="col-12 mb-2">
-                                                    <p style="color:#5B5B5B;font-size:15px;font-weight:bold;font-family:Poppins;letter-spacing: 1px;">Sanyukta Shah </p>
-                                                </div>
-                                                <div class="col-12 mb-2">
-                                                    <p>24 Dec 2024</p>
-                                                </div>
-                                                <div class="col-12 mb-2 position-absolute" style="bottom: 15px;">
-                                                    <img src="{{ asset('website/images/endingQuotes.png') }}" alt="" style="width:48px;height:36px;position:absolute;right:43px">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-1 col-md-1 col-sm-2 col-2 d-flex justify-content-center align-items-center" style="background-color: #FFF9E6;z-index:10;">
-                                <img src="{{ asset('website/images/rightPointedArrow.png') }}" alt="" style="width: 45px;height:45px;cursor:pointer;z-index:10;" id="rightArrow">
-                            </div>
+
+    <section style="padding: 60px 0 80px 0; background-color: #FFF9E6;">
+        <div class="container">
+            <div class="row justify-content-center align-items-stretch">
+                
+                <!-- Testimonial 1 (Left - White Card) -->
+                <div class="col-lg-4 col-md-6 mb-4 d-flex align-items-stretch">
+                    <div class="card text-center p-4 w-100" style="background: #ffffff; border: 1px solid #D7D7D7; border-radius: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                        <div style="width: 100px; height: 100px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden; border: 3px solid #FFD800;">
+                            <img src="{{ asset('website/images/t1.png') }}" alt="Samyukta Shah" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
+                        <h5 style="color: #393186; font-weight: 700; font-family: 'Poppins', sans-serif; font-size: 18px;">Life - Changing Support</h5>
+                        <p style="color: #5B5B5B; font-size: 14px; margin-bottom: 20px;">JEAP’s assistance helped me pursue my education without financial stress.</p>
+                        <p style="color: #333; font-weight: 600; font-size: 15px; margin-bottom: 5px;">Samyukta Shah</p>
+                        <p style="color: #999; font-size: 13px; margin-bottom: 0;">24 Dec 2024</p>
                     </div>
                 </div>
+
+                <!-- Testimonial 2 (Middle - Purple Card) -->
+                <div class="col-lg-4 col-md-6 mb-4 d-flex align-items-stretch">
+                    <div class="card text-center p-4 w-100" style="background: #393186; border: none; border-radius: 0; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
+                        <div style="width: 100px; height: 100px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden; border: 3px solid #ffffff;">
+                            <img src="{{ asset('website/images/t2.png') }}" alt="Kural Mehta" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <!-- Yellow Title for contrast on purple -->
+                        <h5 style="color: #FFD800; font-weight: 700; font-family: 'Poppins', sans-serif; font-size: 18px;">A Dream Made Possible</h5>
+                        <p style="color: #e0e0e0; font-size: 14px; margin-bottom: 20px;">Their support enabled me to study at my desired university with confidence.</p>
+                        <p style="color: #fff; font-weight: 600; font-size: 15px; margin-bottom: 5px;">Kural Mehta</p>
+                        <p style="color: #ccc; font-size: 13px; margin-bottom: 0;">24 Dec 2024</p>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 (Right - White Card) -->
+                <div class="col-lg-4 col-md-6 mb-4 d-flex align-items-stretch">
+                    <div class="card text-center p-4 w-100" style="background: #ffffff; border: 1px solid #D7D7D7; border-radius: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                        <div style="width: 100px; height: 100px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden; border: 3px solid #FFD800;">
+                            <img src="{{ asset('website/images/t3.png') }}" alt="Shreya Jain" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <h5 style="color: #393186; font-weight: 700; font-family: 'Poppins', sans-serif; font-size: 18px;">Life - Changing Support</h5>
+                        <p style="color: #5B5B5B; font-size: 14px; margin-bottom: 20px;">JEAP’s assistance helped me pursue my education without financial stress.</p>
+                        <p style="color: #333; font-weight: 600; font-size: 15px; margin-bottom: 5px;">Shreya Jain</p>
+                        <p style="color: #999; font-size: 13px; margin-bottom: 0;">24 Dec 2024</p>
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>
 
+        {{-- ============================= SUCCESS STORIES SECTION ============================= --}}
+    
     <section style="padding: 80px 0; background: #FFF;">
-        <div class="container" style="max-width: 1400px;">
-            <div class="text-image-wrapper align-items-center" style="overflow: hidden;">
-                <div class="row">
-                    <div class="col-12 mb-5">
-                        <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
-                            <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
-                            <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
-                                <span style="color: #FFD800;">SUCCESS</span> <span style="color: #393186;">STORIES</span>
-                            </h2>
-                        </div>
+        <div class="container">
+            <div class="text-start mb-5">
+                <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
+                    <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
+                    <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
+                        <span style="color: #FFD800;">SUCCESS</span> <span style="color: #393186;">STORIES</span>
+                    </h2>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Video Item 1 -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+                    <!-- Video Thumbnail -->
+                    <div style="position: relative; overflow: hidden; border: 1px solid #e0e0e0;">
+                        <img src="{{ asset('website/images/gallery_img_1.png') }}" style="width: 100%; height: 200px; object-fit: cover; display: block;" alt="Success Story 1">
+                    </div>
+                    <!-- Custom Watch on YouTube Button -->
+                    <div class="text-center mt-3">
+                        <a href="#" style="display: inline-flex; align-items: center; background-color: #393186; padding: 10px 25px; border-radius: 0px; text-decoration: none; color: #fff; font-family: 'Poppins', sans-serif; font-weight: 500; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            <span style="font-size: 16px;">Watch on</span>
+                            <div style="background-color: #FF0000; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; border-radius: 4px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                            <span style="font-size: 16px;">YouTube</span>
+                        </a>
                     </div>
                 </div>
-                <div class="row">
-                    <div id="videoCarousel" class="video-carousel">
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex justify-content-center">
-                            <div class="video-item">
-                                <div class="p-3" style="width:280px;height:195px;border:1px solid #ccc;">
-                                    <div class="col-12" style="display:flex;align-items:center;justify-content:center;">
-                                        <iframe width="240" height="300" src="https://www.youtube.com/embed/1U-8ReK0xn0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                                    </div>
-                                </div>
+
+                <!-- Video Item 2 -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+                    <div style="position: relative; overflow: hidden; border: 1px solid #e0e0e0;">
+                        <img src="{{ asset('website/images/gallery_img_2.png') }}" style="width: 100%; height: 200px; object-fit: cover; display: block;" alt="Success Story 2">
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="#" style="display: inline-flex; align-items: center; background-color: #393186; padding: 10px 25px; border-radius: 0px; text-decoration: none; color: #fff; font-family: 'Poppins', sans-serif; font-weight: 500; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            <span style="font-size: 16px;">Watch on</span>
+                            <div style="background-color: #FF0000; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; border-radius: 4px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
                             </div>
-                        </div>
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex justify-content-center">
-                            <div class="video-item">
-                                <div class="p-3" style="width:280px;height:195px;border:1px solid #ccc;">
-                                    <div class="col-12" style="display:flex;align-items:center;justify-content:center;">
-                                        <iframe width="240" height="300" src="https://www.youtube.com/embed/yP2NEJVXg5M" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex justify-content-center">
-                            <div class="video-item">
-                                <div class="p-3" style="width:280px;height:195px;border:1px solid #ccc;">
-                                    <div class="col-12" style="display:flex;align-items:center;justify-content:center;">
-                                        <iframe width="240" height="300" src="https://www.youtube.com/embed/53udO9kFcXQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex justify-content-center">
-                            <div class="video-item">
-                                <div class="p-3" style="width:280px;height:195px;border:1px solid #ccc;">
-                                    <div class="col-12" style="display:flex;align-items:center;justify-content:center;">
-                                        <iframe width="240" height="300" src="https://www.youtube.com/embed/UxIcjz3bkTA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                            <span style="font-size: 16px;">YouTube</span>
+                        </a>
                     </div>
                 </div>
+
+                <!-- Video Item 3 -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+                    <div style="position: relative; overflow: hidden; border: 1px solid #e0e0e0;">
+                        <img src="{{ asset('website/images/gallery_img_3.png') }}" style="width: 100%; height: 200px; object-fit: cover; display: block;" alt="Success Story 3">
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="#" style="display: inline-flex; align-items: center; background-color: #393186; padding: 10px 25px; border-radius: 0px; text-decoration: none; color: #fff; font-family: 'Poppins', sans-serif; font-weight: 500; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            <span style="font-size: 16px;">Watch on</span>
+                            <div style="background-color: #FF0000; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; border-radius: 4px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                            <span style="font-size: 16px;">YouTube</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Video Item 4 -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+                    <div style="position: relative; overflow: hidden; border: 1px solid #e0e0e0;">
+                        <img src="{{ asset('website/images/gallery_img_4.png') }}" style="width: 100%; height: 200px; object-fit: cover; display: block;" alt="Success Story 4">
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="#" style="display: inline-flex; align-items: center; background-color: #393186; padding: 10px 25px; border-radius: 0px; text-decoration: none; color: #fff; font-family: 'Poppins', sans-serif; font-weight: 500; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            <span style="font-size: 16px;">Watch on</span>
+                            <div style="background-color: #FF0000; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; border-radius: 4px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                            <span style="font-size: 16px;">YouTube</span>
+                        </a>
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>

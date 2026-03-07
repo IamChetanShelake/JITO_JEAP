@@ -49,50 +49,50 @@
 
                                 <!-- Card 1 -->
                                 <a href="" style="text-decoration: none;">
-                                    <div style="background-color: #fff; padding: 20px; box-shadow: 0 4px 4px rgba(0,0,0,0.2); width: 200px; transition: 0.3s ease; cursor: pointer; text-align: center;"
-                                        onmouseover="this.style.backgroundColor='#fff'; this.querySelector('.icon').style.color='#fff'; this.querySelector('.label').style.color='#fff';"
-                                        onmouseout="this.style.backgroundColor='#fff'; this.querySelector('.icon').style.color='#000'; this.querySelector('.label').style.color='#000';">
+                                    <div style="background-color: #393186; padding: 20px; box-shadow: 0 4px 4px rgba(0,0,0,0.2); width: 200px; transition: 0.3s ease; cursor: pointer; text-align: center;"
+                                        onmouseover="this.style.backgroundColor='#393186'; this.querySelector('.icon').style.color='#fff'; this.querySelector('.label').style.color='#fff';"
+                                        onmouseout="this.style.backgroundColor='#393186'; this.querySelector('.icon').style.color='#000'; this.querySelector('.label').style.color='#000';">
                                         <div class=""
-                                            style="font-size: 30px; font-family:Poppins;font-weight:600; color: #393186;">
+                                            style="font-size: 30px; font-family:Poppins;font-weight:600; color: white;">
                                             78</div>
                                         <div class="label"
-                                            style="font-weight: 600; font-family:Poppins;font-size: 20px; color: #5B5B5B;">
+                                            style="font-weight: 600; font-family:Poppins;font-size: 20px; color: white;">
                                             Chapters</div>
                                     </div>
                                 </a>
                                 <a href="" style="text-decoration: none;">
-                                    <div style="background-color: #fff; padding: 20px; box-shadow: 0 4px 4px rgba(0,0,0,0.2); width: 200px; transition: 0.3s ease; cursor: pointer; text-align: center;"
-                                        onmouseover="this.style.backgroundColor='#fff'; this.querySelector('.icon').style.color='#fff'; this.querySelector('.label').style.color='#fff';"
-                                        onmouseout="this.style.backgroundColor='#fff'; this.querySelector('.icon').style.color='#000'; this.querySelector('.label').style.color='#000';">
+                                    <div style="background-color: #393186; padding: 20px; box-shadow: 0 4px 4px rgba(0,0,0,0.2); width: 200px; transition: 0.3s ease; cursor: pointer; text-align: center;"
+                                        onmouseover="this.style.backgroundColor='#393186'; this.querySelector('.icon').style.color='#fff'; this.querySelector('.label').style.color='#fff';"
+                                        onmouseout="this.style.backgroundColor='#393186'; this.querySelector('.icon').style.color='#000'; this.querySelector('.label').style.color='#000';">
                                         <div class=""
-                                            style="font-size: 30px; font-family:Poppins;font-weight:600; color: #393186;">
+                                            style="font-size: 30px; font-family:Poppins;font-weight:600; color: white;">
                                             9</div>
                                         <div class="label"
-                                            style="font-weight: 600; font-family:Poppins;font-size: 20px; color: #5B5B5B;">
+                                            style="font-weight: 600; font-family:Poppins;font-size: 20px; color: white;">
                                             Zones</div>
                                     </div>
                                 </a>
                                 <a href="" style="text-decoration: none;">
-                                    <div style="background-color: #fff; padding: 20px; box-shadow: 0 4px 4px rgba(0,0,0,0.2); width: 200px; transition: 0.3s ease; cursor: pointer; text-align: center;"
-                                        onmouseover="this.style.backgroundColor='#fff'; this.querySelector('.icon').style.color='#fff'; this.querySelector('.label').style.color='#fff';"
-                                        onmouseout="this.style.backgroundColor='#fff'; this.querySelector('.icon').style.color='#000'; this.querySelector('.label').style.color='#000';">
+                                    <div style="background-color: #393186; padding: 20px; box-shadow: 0 4px 4px rgba(0,0,0,0.2); width: 200px; transition: 0.3s ease; cursor: pointer; text-align: center;"
+                                        onmouseover="this.style.backgroundColor='#393186'; this.querySelector('.icon').style.color='#fff'; this.querySelector('.label').style.color='#fff';"
+                                        onmouseout="this.style.backgroundColor='#393186'; this.querySelector('.icon').style.color='#000'; this.querySelector('.label').style.color='#000';">
                                         <div class=""
-                                            style="font-size: 30px; font-family:Poppins;font-weight:600; color: #393186;">
+                                            style="font-size: 30px; font-family:Poppins;font-weight:600; color: white;">
                                             18,719+</div>
                                         <div class="label"
-                                            style="font-weight: 600; font-family:Poppins;font-size: 20px; color: #5B5B5B;">
+                                            style="font-weight: 600; font-family:Poppins;font-size: 20px; color: white;">
                                             Donors</div>
                                     </div>
                                 </a>
                                 <a href="" style="text-decoration: none;">
-                                    <div style="background-color: #fff; padding: 20px; box-shadow: 0 4px 4px rgba(0,0,0,0.2); width: 200px; transition: 0.3s ease; cursor: pointer; text-align: center;"
-                                        onmouseover="this.style.backgroundColor='#fff'; this.querySelector('.icon').style.color='#fff'; this.querySelector('.label').style.color='#fff';"
-                                        onmouseout="this.style.backgroundColor='#fff'; this.querySelector('.icon').style.color='#000'; this.querySelector('.label').style.color='#000';">
+                                    <div style="background-color: #393186; padding: 20px; box-shadow: 0 4px 4px rgba(0,0,0,0.2); width: 200px; transition: 0.3s ease; cursor: pointer; text-align: center;"
+                                        onmouseover="this.style.backgroundColor='#393186'; this.querySelector('.icon').style.color='#fff'; this.querySelector('.label').style.color='#fff';"
+                                        onmouseout="this.style.backgroundColor='#393186'; this.querySelector('.icon').style.color='#000'; this.querySelector('.label').style.color='#000';">
                                         <div class=""
-                                            style="font-size: 30px; font-family:Poppins;font-weight:600; color: #393186;">
+                                            style="font-size: 30px; font-family:Poppins;font-weight:600; color: white;">
                                             32</div>
                                         <div class="label"
-                                            style="font-weight: 600; font-family:Poppins;font-size: 20px; color: #5B5B5B;">
+                                            style="font-weight: 600; font-family:Poppins;font-size: 20px; color: white;">
                                             International</div>
                                     </div>
                                 </a>

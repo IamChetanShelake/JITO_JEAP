@@ -20,6 +20,11 @@
                     </div>
 
                     <div class="pills">
+                        <div class="pill">
+                            <a href="{{ route('documentchecklist') }}">
+                                Under 1 Lakh
+                            </a>
+                        </div>
                         <div class="pill ">
                             <a href="{{ route('documentchecklist1') }}">
                                 Domestic Documents(Graduation)
@@ -47,25 +52,16 @@
                             <div class="doc-list">
                                 <ol
                                     style="list-style-type: decimal !important; list-style-position: outside !important; margin-left: 20px; padding-left: 0;">
-                                    <li>SSC Marksheet</li>
-                                    <li>HSC / Diploma Marksheet</li>
-                                    <li>Fee Structure</li>
-                                    <li>Graduation Marksheet Mandatory</li>
-                                    <li>I-20 OR Admission Letter Mandatory</li>
-                                    <li>VISA copy Mandatory</li>
-                                    <li>Passport copy – Student Mandatory</li>
-                                    <li>Student Main Bank account details and statement for last 6 months/ 1 year.</li>
-                                    <li>Aadhaar card - Applicant</li>
-                                    <li>Pancard - Applicant Mandatory <span class="green-dot  align-items-center"
-                                            title="verified"><i class="bi bi-arrow-down"></i></span></li>
-                                    <li>Proof of Funds Arranged/ Taken/ Approved other than JITO JEAP</li>
-                                    <li>Student handwritten Stating reason for choosing course and Institutes.</li>
-                                    <li>Jain Sangh Certificate (Format attached) Mandatory <span
-                                            class="green-dot  align-items-center" title="verified"><i
-                                                class="bi bi-arrow-down"></i></span></li>
-                                    <li>Recommendation of JITO Member (Format attached) <span
-                                            class="green-dot  align-items-center" title="verified"><i
-                                                class="bi bi-arrow-down"></i></span></li>
+                                    <li>SSC Marksheet *</li>
+                                    <li>HSC / Diploma Marksheet *</li>
+                                    <li>Graduation Marksheet (Only for Post Graduation Applicant)  *</li>
+                                    <li>College - Fees Structure  *</li>
+                                    <li>Pancard - Applicant  *</li>
+                                    <li>Aadhaar card - Applicant  *</li>
+                                    <li>Jain Sangh Certificate of Applicant (If you have already then do send that Jain Sangh Certificate or take format from website in Document section and fill the same along with Sangh Stamp & Signature of Head Authority person compulsory)  *</li>
+                                   
+                                    <li>Recommendation of JITO Member (Take format from website in Document section and fill the same along with Jito member signature and UID number compulsory)  *</li>
+                                    
 
                                 </ol>
                             </div>
@@ -73,28 +69,16 @@
 
                         <div class="right-col" style="flex:1;min-width:260px">
                             <div class="doc-list">
-                                <ol start="15"
+                                <ol start="9"
                                     style="list-style-type: decimal !important; list-style-position: outside !important; margin-left: 20px; padding-left: 0;">
-                                    <li>Aadhar card - Father Mandatory</li>
-                                    <li>Pancard - Father Mandatory</li>
-                                    <li>Electricity Bill Latest Mandatory</li>
-                                    <li>ITR Acknowledgement of Father of last 2 Years</li>
-                                    <li>ITR Computation of Income along with Profit and Loss & Balance sheet of Father of
-                                        last 2
-                                        years</li>
-                                    <li>ITR Computation of Income along with Form no.16 for Salary Income of Father of last
-                                        2
-                                        years</li>
-                                    <li>Bank Statement of Father of Last 2 years</li>
-                                    <li>Bank Statement of Mother of Last 2 years</li>
-                                    <li>Aadhar card - Guarantor 1 (Name, Address, Income bracket, Mobile no., Email-id)
-                                        Mandatory</li>
-                                    <li>Pancard - Guarantor 1 Mandatory</li>
-                                    <li>Aadhar card - Guarantor 2 (Name, Address, Income bracket, Mobile no., Email-id)
-                                        Mandatory</li>
-                                    <li>Pancard - Guarantor 2 Mandatory</li>
-                                    <li>Others documents (If any achievements) Optional</li>
-                                    <li>Extra Curricular</li>
+                                    <li>Recommendation of JITO Member (Take format from website in Document section and fill the same along with Jito member signature and UID number compulsory)  *</li>
+                                    <li>Electricity Bill Latest  *</li>
+                                    <li>Aadhar card - Father / Mother / Guardian  *</li>
+                                    <li>Pancard - Father / Mother / Guardian  *</li>
+                                    <li>Form no.16 for Salary Income of Father of last 6 months (If getting Salary) / Salary Slip issued by organisation  (In which Father is working) *</li>
+                                    <li>Bank Statement of Father Last 1 year (If not bank statement then send Passbook copy of last 1 year)  *</li>
+                                    
+                                    <li>Others</li>
                                 </ol>
                             </div>
                         </div>

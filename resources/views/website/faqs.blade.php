@@ -514,6 +514,7 @@
                     item.style.display = 'none';
                 }
             });
+            
         }
     </script>
 @endsection

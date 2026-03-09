@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\WebsiteController;
 
 
-Route::get('/', function () {
+Route::get('/login', function () {
     return view('auth.login');
 });
 

@@ -2109,7 +2109,13 @@
             @if (
                 $user->workflowStatus &&
                     in_array($user->workflowStatus->working_committee_status, ['approved', 'hold', 'rejected']))
-                <div style="margin-top: 2rem; text-align: right;">
+                <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 0.75rem; flex-wrap: wrap;">
+                    @if ($user->workingCommitteeApproval)
+                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                            data-bs-target="#editDisbursementDatesModal">
+                            <i class="fas fa-calendar-alt"></i> Edit Disbursement Dates
+                        </button>
+                    @endif
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                         data-bs-target="#editWorkingCommitteeModal">
                         <i class="fas fa-edit"></i> Edit Working Committee Decision
@@ -3211,6 +3217,105 @@
         </div>
     </div>
 
+    @php
+        $completedScheduleMap = ($completedDisbursementSchedules ?? collect())->keyBy('installment_no');
+    @endphp
+
+    <div class="modal fade" id="editDisbursementDatesModal" tabindex="-1"
+        aria-labelledby="editDisbursementDatesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
+                    <form action="{{ route('admin.working_committee.user.update_disbursement_dates', ['user' => $user]) }}"
+                        method="POST" id="edit-disbursement-dates-form">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="date_update_mode" value="disbursement_dates">
+
+                        <div class="alert alert-info mb-3">
+                            Completed disbursement installments are locked. Only pending installment dates can be updated here.
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Disbursement System</label>
+                                <input type="text" class="form-control"
+                                    value="{{ ucfirst($user->workingCommitteeApproval->disbursement_system ?? 'N/A') }}" readonly>
+                            </div>
+
+                            @if (($user->workingCommitteeApproval->disbursement_system ?? null) === 'yearly')
+                                @foreach ((array) ($user->workingCommitteeApproval->yearly_dates ?? []) as $index => $date)
+                                    @php
+                                        $installmentNo = $index + 1;
+                                        $completedSchedule = $completedScheduleMap->get($installmentNo);
+                                        $resolvedDate = $completedSchedule
+                                            ? \Illuminate\Support\Str::of($completedSchedule->planned_date)->substr(0, 10)
+                                            : \Carbon\Carbon::parse($date)->format('Y-m-d');
+                                    @endphp
+                                    <div class="col-md-6">
+                                        <label class="form-label">Year {{ $installmentNo }} Date</label>
+                                        @if ($completedSchedule)
+                                            <input type="date" class="form-control"
+                                                value="{{ old("yearly_dates.$index", $resolvedDate) }}" disabled>
+                                            <input type="hidden" name="yearly_dates[]"
+                                                value="{{ old("yearly_dates.$index", $resolvedDate) }}">
+                                        @else
+                                            <input type="date" name="yearly_dates[]" class="form-control"
+                                                value="{{ old("yearly_dates.$index", $resolvedDate) }}" required>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Year {{ $installmentNo }} Amount</label>
+                                        <input type="text" class="form-control"
+                                            value="Rs. {{ number_format((float) ($user->workingCommitteeApproval->yearly_amounts[$index] ?? 0), 2) }}"
+                                            readonly>
+                                    </div>
+                                @endforeach
+                            @endif
+
+                            @if (($user->workingCommitteeApproval->disbursement_system ?? null) === 'half_yearly')
+                                @foreach ((array) ($user->workingCommitteeApproval->half_yearly_dates ?? []) as $index => $date)
+                                    @php
+                                        $installmentNo = $index + 1;
+                                        $completedSchedule = $completedScheduleMap->get($installmentNo);
+                                        $resolvedDate = $completedSchedule
+                                            ? \Illuminate\Support\Str::of($completedSchedule->planned_date)->substr(0, 10)
+                                            : \Carbon\Carbon::parse($date)->format('Y-m-d');
+                                    @endphp
+                                    <div class="col-md-6">
+                                        <label class="form-label">Half-Year {{ $installmentNo }} Date</label>
+                                        @if ($completedSchedule)
+                                            <input type="date" class="form-control"
+                                                value="{{ old("half_yearly_dates.$index", $resolvedDate) }}" disabled>
+                                            <input type="hidden" name="half_yearly_dates[]"
+                                                value="{{ old("half_yearly_dates.$index", $resolvedDate) }}">
+                                        @else
+                                            <input type="date" name="half_yearly_dates[]" class="form-control"
+                                                value="{{ old("half_yearly_dates.$index", $resolvedDate) }}" required>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Half-Year {{ $installmentNo }} Amount</label>
+                                        <input type="text" class="form-control"
+                                            value="Rs. {{ number_format((float) ($user->workingCommitteeApproval->half_yearly_amounts[$index] ?? 0), 2) }}"
+                                            readonly>
+                                    </div>
+                                @endforeach
+                            @endif
+                        </div>
+
+                        <div class="modal-footer mt-4">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Update Dates
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Edit Working Committee Modal -->
     <div class="modal fade" id="editWorkingCommitteeModal" tabindex="-1"
         aria-labelledby="editWorkingCommitteeModalLabel" aria-hidden="true">
@@ -3232,7 +3337,7 @@
 
                         <div class="alert alert-info mb-3" id="edit-disbursement-lock-note"
                             style="{{ isset($completedDisbursementSchedules) && $completedDisbursementSchedules->isNotEmpty() ? '' : 'display:none;' }}">
-                            Completed disbursement installments are locked. Only pending installments can be changed here.
+                            Only disbursement dates can be updated here. Completed installments stay locked.
                         </div>
 
                         <!-- Previous Approvals Info (read-only) -->
@@ -3296,7 +3401,9 @@
                             <!-- Disbursement System -->
                             <div class="col-12">
                                 <label class="form-label">Disbursement System</label>
-                                <select name="disbursement_system" class="form-control" id="edit-disbursement-system">
+                                <input type="hidden" name="disbursement_system"
+                                    value="{{ old('disbursement_system', $user->workingCommitteeApproval->disbursement_system ?? '') }}">
+                                <select name="disbursement_system_display" class="form-control" id="edit-disbursement-system" disabled>
                                     <option value="yearly"
                                         {{ old('disbursement_system', $user->workingCommitteeApproval->disbursement_system ?? '') == 'yearly' ? 'selected' : '' }}>
                                         Yearly</option>
@@ -3310,7 +3417,9 @@
                             <div class="col-12" id="edit-yearly-section"
                                 style="{{ ($user->workingCommitteeApproval->disbursement_system ?? 'yearly') !== 'yearly' ? 'display:none;' : '' }}">
                                 <label class="form-label">Number of Years</label>
-                                <select name="disbursement_in_year" class="form-control" id="edit-year-count">
+                                <input type="hidden" name="disbursement_in_year"
+                                    value="{{ old('disbursement_in_year', count($user->workingCommitteeApproval->yearly_dates ?? [])) }}">
+                                <select name="disbursement_in_year_display" class="form-control" id="edit-year-count" disabled>
                                     <option value="">Select</option>
                                     @for ($i = 1; $i <= 8; $i++)
                                         <option value="{{ $i }}"
@@ -3328,7 +3437,9 @@
                             <div class="col-12" id="edit-half-yearly-section"
                                 style="{{ ($user->workingCommitteeApproval->disbursement_system ?? 'yearly') !== 'half_yearly' ? 'display:none;' : '' }}">
                                 <label class="form-label">Number of Half-Yearly Installments</label>
-                                <select name="disbursement_in_half_year" class="form-control" id="edit-half-year-count">
+                                <input type="hidden" name="disbursement_in_half_year"
+                                    value="{{ old('disbursement_in_half_year', count($user->workingCommitteeApproval->half_yearly_dates ?? [])) }}">
+                                <select name="disbursement_in_half_year_display" class="form-control" id="edit-half-year-count" disabled>
                                     <option value="">Select</option>
                                     @for ($i = 1; $i <= 16; $i++)
                                         <option value="{{ $i }}"
@@ -3803,6 +3914,18 @@
                     recalculateEditInstallments();
                 }
 
+                function lockEditableDisbursementAmounts() {
+                    yearlyFields.querySelectorAll('input[name="yearly_amounts[]"]').forEach((input) => {
+                        input.readOnly = true;
+                        input.classList.add('bg-light');
+                    });
+
+                    halfYearlyFields.querySelectorAll('input[name="half_yearly_amounts[]"]').forEach((input) => {
+                        input.readOnly = true;
+                        input.classList.add('bg-light');
+                    });
+                }
+
                 // Listen to all changes
                 rowsContainer.addEventListener('input', recalculateEditInstallments);
                 rowsContainer.addEventListener('click', (event) => {
@@ -3820,6 +3943,7 @@
                     enforceLockedCount(disbursementSystemSelect.value === 'yearly' ? yearCountSelect : halfYearCountSelect);
                 }
                 toggleEditDisbursementSections();
+                lockEditableDisbursementAmounts();
                 toggleEditExtraFields();
                 toggleEditRemoveButtons();
                 recalculateEditInstallments();
@@ -3834,6 +3958,18 @@
                 if (!editModal || typeof bootstrap === 'undefined') return;
 
                 const modalInstance = new bootstrap.Modal(editModal);
+                modalInstance.show();
+            });
+        </script>
+    @endif
+
+    @if ($errors->has('date_update_mode') || $errors->has('yearly_dates') || $errors->has('half_yearly_dates'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const editDatesModal = document.getElementById('editDisbursementDatesModal');
+                if (!editDatesModal || typeof bootstrap === 'undefined') return;
+
+                const modalInstance = new bootstrap.Modal(editDatesModal);
                 modalInstance.show();
             });
         </script>

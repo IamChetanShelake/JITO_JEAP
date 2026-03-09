@@ -759,6 +759,38 @@ class AdminController extends Controller
         $validated['total'] = $totals;
         $validated['jito_member_date'] = ($request->can_be_jito_member === 'yes') ? $request->jito_member_date : null;
         $validated['jeap_donor_date'] = ($request->can_be_jeap_donor === 'yes') ? $request->jeap_donor_date : null;
+        $existingApproval = $user->workingCommitteeApproval;
+
+        if ($existingApproval) {
+            $validated['disbursement_system'] = $existingApproval->disbursement_system;
+            $validated['disbursement_in_year'] = $existingApproval->disbursement_in_year;
+            $validated['disbursement_in_half_year'] = $existingApproval->disbursement_in_half_year;
+            $validated['yearly_amounts'] = (array) $existingApproval->yearly_amounts;
+            $validated['half_yearly_amounts'] = (array) $existingApproval->half_yearly_amounts;
+            $validated['approval_financial_assistance_amount'] = $existingApproval->approval_financial_assistance_amount;
+
+            if ($existingApproval->disbursement_system === 'yearly') {
+                $validated['yearly_dates'] = array_values($request->input('yearly_dates', (array) $existingApproval->yearly_dates));
+                $validated['half_yearly_dates'] = (array) $existingApproval->half_yearly_dates;
+
+                if (count($validated['yearly_dates']) !== count((array) $existingApproval->yearly_dates)) {
+                    throw ValidationException::withMessages([
+                        'yearly_dates' => 'Only the existing disbursement dates can be updated here.',
+                    ]);
+                }
+            }
+
+            if ($existingApproval->disbursement_system === 'half_yearly') {
+                $validated['half_yearly_dates'] = array_values($request->input('half_yearly_dates', (array) $existingApproval->half_yearly_dates));
+                $validated['yearly_dates'] = (array) $existingApproval->yearly_dates;
+
+                if (count($validated['half_yearly_dates']) !== count((array) $existingApproval->half_yearly_dates)) {
+                    throw ValidationException::withMessages([
+                        'half_yearly_dates' => 'Only the existing disbursement dates can be updated here.',
+                    ]);
+                }
+            }
+        }
 
         $this->validateCompletedDisbursementSchedules($user, $validated);
 
@@ -787,6 +819,82 @@ class AdminController extends Controller
         // Also update workflowStatus if needed (approval_remarks, updated_at, etc.)
 
         return redirect()->back()->with('success', 'Working Committee decision updated successfully.');
+    }
+
+    public function updateWorkingCommitteeDisbursementDates(Request $request, User $user)
+    {
+        $approval = $user->workingCommitteeApproval;
+
+        if (!$approval) {
+            return redirect()->back()->with('error', 'Working Committee approval not found.');
+        }
+
+        $validated = $request->validate([
+            'date_update_mode' => 'required|in:disbursement_dates',
+            'yearly_dates' => 'nullable|array|min:1',
+            'yearly_dates.*' => 'nullable|date',
+            'half_yearly_dates' => 'nullable|array|min:1',
+            'half_yearly_dates.*' => 'nullable|date',
+        ]);
+
+        if ($approval->disbursement_system === 'yearly') {
+            $validated['yearly_dates'] = array_values($request->input('yearly_dates', []));
+
+            if (count($validated['yearly_dates']) !== count((array) $approval->yearly_dates)) {
+                throw ValidationException::withMessages([
+                    'yearly_dates' => 'Only the existing disbursement dates can be updated here.',
+                ]);
+            }
+        }
+
+        if ($approval->disbursement_system === 'half_yearly') {
+            $validated['half_yearly_dates'] = array_values($request->input('half_yearly_dates', []));
+
+            if (count($validated['half_yearly_dates']) !== count((array) $approval->half_yearly_dates)) {
+                throw ValidationException::withMessages([
+                    'half_yearly_dates' => 'Only the existing disbursement dates can be updated here.',
+                ]);
+            }
+        }
+
+        DB::connection('admin_panel')->transaction(function () use ($user, $approval, $validated) {
+            $originalSnapshot = $this->buildWorkingCommitteeApprovalHistorySnapshot($approval);
+
+            $proposedApproval = new \App\Models\WorkingCommitteeApproval($approval->toArray());
+            $proposedApproval->yearly_dates = $approval->disbursement_system === 'yearly'
+                ? ($validated['yearly_dates'] ?? [])
+                : $approval->yearly_dates;
+            $proposedApproval->half_yearly_dates = $approval->disbursement_system === 'half_yearly'
+                ? ($validated['half_yearly_dates'] ?? [])
+                : $approval->half_yearly_dates;
+
+            $this->validateCompletedDisbursementSchedules($user, $proposedApproval);
+
+            $approval->fill([
+                'yearly_dates' => $approval->disbursement_system === 'yearly'
+                    ? ($validated['yearly_dates'] ?? [])
+                    : $approval->yearly_dates,
+                'half_yearly_dates' => $approval->disbursement_system === 'half_yearly'
+                    ? ($validated['half_yearly_dates'] ?? [])
+                    : $approval->half_yearly_dates,
+            ]);
+
+            $changedFields = array_keys($approval->getDirty());
+            $approval->save();
+
+            if (!empty($changedFields)) {
+                WorkingCommitteeApprovalHistory::create(array_merge($originalSnapshot, [
+                    'user_id' => $user->id,
+                    'working_committee_approval_id' => $approval->id,
+                    'edited_by' => Auth::id(),
+                    'changed_fields' => $changedFields,
+                ]));
+            }
+
+            $this->syncWorkingCommitteeDisbursementSchedules($user, $approval);
+        });
+
+        return redirect()->back()->with('success', 'Disbursement dates updated successfully.');
     }
 
     private function syncWorkingCommitteeDisbursementSchedules(User $user, \App\Models\WorkingCommitteeApproval $approval): void
@@ -865,7 +973,7 @@ class AdminController extends Controller
         }
     }
 
-    private function validateCompletedDisbursementSchedules(User $user, array $validated): void
+    private function validateCompletedDisbursementSchedules(User $user, $approvalData): void
     {
         $completedSchedules = DB::connection('admin_panel')
             ->table('disbursement_schedules')
@@ -878,9 +986,11 @@ class AdminController extends Controller
             return;
         }
 
-        $proposedSchedules = $this->buildWorkingCommitteePlannedSchedules(
-            new \App\Models\WorkingCommitteeApproval($validated)
-        );
+        $approval = $approvalData instanceof \App\Models\WorkingCommitteeApproval
+            ? $approvalData
+            : new \App\Models\WorkingCommitteeApproval($approvalData);
+
+        $proposedSchedules = $this->buildWorkingCommitteePlannedSchedules($approval);
 
         foreach ($completedSchedules as $completedSchedule) {
             $index = ((int) $completedSchedule->installment_no) - 1;

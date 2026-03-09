@@ -100,6 +100,8 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // NEW: Update (edit/save) Working Committee decision
     Route::patch('admin/working-committee/users/{user}/update', [AdminController::class, 'updateWorkingCommittee'])
         ->name('working_committee.user.update');
+    Route::patch('admin/working-committee/users/{user}/update-disbursement-dates', [AdminController::class, 'updateWorkingCommitteeDisbursementDates'])
+        ->name('working_committee.user.update_disbursement_dates');
 
     // Approval workflow endpoints
     Route::post('/user/{user}/approve/{stage}', [AdminController::class, 'approveStage'])->name('user.approve');

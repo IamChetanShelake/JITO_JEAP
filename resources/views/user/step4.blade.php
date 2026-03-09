@@ -1032,7 +1032,7 @@
                     const modal = new bootstrap.Modal(document.getElementById('otherBankModal'));
                     modal.show();
 
-                    // Clear auto-filled fields
+                    // Clear auto-filled fields - user will fill manually
                     document.getElementById('account_holder_name').value = '';
                     document.getElementById('branch_name').value = '';
                     document.getElementById('bank_address').value = '';
@@ -1044,9 +1044,9 @@
 
             function validateIFSCWithSelectedBank() {
 
+                // For OTHER bank, skip IFSC validation and allow manual entry
                 if (isOtherBank) {
-                    // ❌ Other bank असल्यास API call नाही
-                    return false;
+                    return true;
                 }
 
                 const selectedOption = bankSelect.options[bankSelect.selectedIndex];
@@ -1060,7 +1060,7 @@
                 if (bankIfscPrefix !== userIfsc) {
 
                     showBankError(
-                        'The IFSC code you entered does not match the selected registered bank. Please check and enter a valid IFSC code.'
+                        'IFSC code format does not match. The first 4 digits of your IFSC code must match the selected bank.'
                     );
 
 
@@ -1082,18 +1082,27 @@
             // IFSC blur event
             ifscInput.addEventListener('blur', function() {
 
+                // For OTHER bank - don't hit API, user fills manually
+                if (isOtherBank) {
+                    return;
+                }
+
+                // Validate IFSC format for dynamic banks
                 if (!validateIFSCWithSelectedBank()) {
                     return;
                 }
 
-                // ✅ IFSC match झाला तरच API hit होईल
-                validateBankAccount(); // तुझा existing function
+                // If IFSC matches for dynamic bank, hit the API
+                validateBankAccount();
             });
 
             accountInput.addEventListener('blur', function() {
-                if (!isOtherBank) {
-                    validateBankAccount();
+                // For OTHER bank - don't hit API, user fills manually
+                if (isOtherBank) {
+                    return;
                 }
+                // For dynamic banks - hit bank validation API
+                validateBankAccount();
             });
 
         });

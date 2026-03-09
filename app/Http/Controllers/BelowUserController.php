@@ -28,7 +28,7 @@ use App\Models\ApplicationWorkflowStatus;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 
-class UserController extends Controller
+class BelowUserController extends Controller
 {
     use LogsUserActivity;
     public function index()
@@ -45,13 +45,14 @@ class UserController extends Controller
             $guarantorDetail = GuarantorDetail::where('user_id', $user_id)->first();
             $document = Document::where('user_id', $user_id)->first();
 
-            // Check if loan category is below 1 lakh
-            $isBelowOneLakh = $existingLoan->type === 'below';
-
             // Check progression and redirect to next incomplete step
             // Step 1 - Personal Details
             if (!$user || $user->submit_status !== 'submited') {
-                return redirect()->route('user.step1');
+                if ($user->loan->type == 'above') {
+                    return redirect()->route('user.step1');
+                } else {
+                    return redirect()->route('user.below.step1');
+                }
             }
 
             // Step 2 - Education Details (for Postgrad) or Family Details (for others)
@@ -64,25 +65,13 @@ class UserController extends Controller
                 return redirect()->route('user.step3');
             }
 
-            // Step 4 - Funding Details
-            if (!$fundingDetail || $fundingDetail->submit_status !== 'submited') {
+            // Step 4 - Document Upload (was step 6)
+            if (!$document || $document->submit_status !== 'submited') {
                 return redirect()->route('user.step4');
             }
 
-            // Step 5 - Guarantor Details (skip for below 1 lakh)
-            if (!$isBelowOneLakh) {
-                if (!$guarantorDetail || $guarantorDetail->submit_status !== 'submited') {
-                    return redirect()->route('user.step5');
-                }
-            }
-
-            // Step 6 - Document Upload
-            if (!$document || $document->submit_status !== 'submited') {
-                return redirect()->route('user.step6');
-            }
-
-            // All steps completed - redirect to Step 7 (Review & Submit)
-            return redirect()->route('user.step7');
+            // Step 5 - Review & Submit (was step 7)
+            return redirect()->route('user.step5');
         }
         $user = Auth::user();
         return view('user.home', compact('user'));
@@ -92,21 +81,10 @@ class UserController extends Controller
     {
         $user_id = Auth::id();
         // dd($type, $user_id);
-        $loancategory = Loan_category::where('user_id', $user_id)->first();
-
-        if ($loancategory) {
-            $loancategory->type = $type;
-            $loancategory->save();
-        } else {
-            $loancategory = new Loan_category();
-            $loancategory->user_id = $user_id;
-            $loancategory->type = $type;
-            $loancategory->save();
-        }
-        // $loancategory = new Loan_category();
-        // $loancategory->user_id = $user_id;
-        // $loancategory->type = $type;
-        // $loancategory->save();
+        $loancategory = new Loan_category();
+        $loancategory->user_id = $user_id;
+        $loancategory->type = $type;
+        $loancategory->save();
 
         // Log application submission
         $user = User::find($user_id);
@@ -374,70 +352,61 @@ class UserController extends Controller
             'group_1_year1' => 'nullable|numeric|min:0',
             'group_1_year2' => 'nullable|numeric|min:0',
             'group_1_year3' => 'nullable|numeric|min:0',
-            'group_1_year4' => 'nullable|numeric|min:0',
-            'group_1_year5' => 'nullable|numeric|min:0',
-            'group_2_year1' => 'nullable|numeric|min:0',
-            'group_2_year2' => 'nullable|numeric|min:0',
-            'group_2_year3' => 'nullable|numeric|min:0',
-            'group_2_year4' => 'nullable|numeric|min:0',
-            'group_2_year5' => 'nullable|numeric|min:0',
-            'group_3_year1' => 'nullable|numeric|min:0',
-            'group_3_year2' => 'nullable|numeric|min:0',
-            'group_3_year3' => 'nullable|numeric|min:0',
-            'group_3_year4' => 'nullable|numeric|min:0',
-            'group_3_year5' => 'nullable|numeric|min:0',
-            'group_4_year1' => 'nullable|numeric|min:0',
-            'group_4_year2' => 'nullable|numeric|min:0',
-            'group_4_year3' => 'nullable|numeric|min:0',
-            'group_4_year4' => 'nullable|numeric|min:0',
-            'group_4_year5' => 'nullable|numeric|min:0',
+            'group_1_year4' => 'nullable|numeric/min:0',
+            'group_1_year5' => 'nullable|numeric/min:0',
+            'group_2_year1' => 'nullable|numeric/min:0',
+            'group_2_year2' => 'nullable|numeric/min:0',
+            'group_2_year3' => 'nullable|numeric/min:0',
+            'group_2_year4' => 'nullable|numeric/min:0',
+            'group_2_year5' => 'nullable|numeric/min:0',
+            'group_3_year1' => 'nullable|numeric/min:0',
+            'group_3_year2' => 'nullable|numeric/min:0',
+            'group_3_year3' => 'nullable|numeric/min:0',
+            'group_3_year4' => 'nullable|numeric/min:0',
+            'group_3_year5' => 'nullable|numeric/min:0',
+            'group_4_year1' => 'nullable|numeric/min:0',
+            'group_4_year2' => 'nullable|numeric/min:0',
+            'group_4_year3' => 'nullable|numeric/min:0',
+            'group_4_year4' => 'nullable|numeric/min:0',
+            'group_4_year5' => 'nullable|numeric/min:0',
 
             // School / 10th Grade Information
-            'school_name' => 'required|string|max:255',
-            'school_board' => 'required|string|max:100',
-            'school_completion_year' => 'required|string|max:50',
+            'school_name' => 'required|string/max:255',
+            'school_board' => 'required|string/max:100',
+            'school_completion_year' => 'required|string/max:50',
             'school_grade_system' => 'required',
 
             // Junior College (12th Grade)
-            'jc_college_name' => 'required|string|max:255',
-            'jc_stream' => 'required|string|max:100',
-            'jc_board' => 'required|string|max:100',
-            'jc_completion_year' => 'required|string|max:50',
+            'jc_college_name' => 'required|string/max:255',
+            'jc_stream' => 'required|string/max:100',
+            'jc_board' => 'required|string/max:100',
+            'jc_completion_year' => 'required|string/max:50',
             'jc_grade_system' => 'required',
         ];
 
         // Conditional validation based on school_grade_system
         if ($request->school_grade_system == 'percentage') {
-            $rules['10th_mark_obtained'] = 'required|integer|min:0';
-            $rules['10th_mark_out_of'] = 'required|integer|min:0';
-            $rules['school_percentage'] = 'required|string|max:50';
+            $rules['10th_mark_obtained'] = 'required|integer/min:0';
+            $rules['10th_mark_out_of'] = 'required|integer/min:0';
+            $rules['school_percentage'] = 'required|string/max:50';
         } elseif ($request->school_grade_system == 'cgpa') {
             $rules['school_cgpa_out_of'] = 'required';
-            $rules['school_CGPA'] = 'required|string|max:50';
+            $rules['school_CGPA'] = 'required|string/max:50';
         }
 
         // Conditional validation based on jc_grade_system
         if ($request->jc_grade_system == 'percentage') {
-            $rules['12th_mark_obtained'] = 'required|integer|min:0';
-            $rules['12th_mark_out_of'] = 'required|integer|min:0';
-            $rules['jc_percentage'] = 'required|string|max:50';
+            $rules['12th_mark_obtained'] = 'required|integer/min:0';
+            $rules['12th_mark_out_of'] = 'required|integer/min:0';
+            $rules['jc_percentage'] = 'required|string/max:50';
         } elseif ($request->jc_grade_system == 'cgpa') {
             $rules['jc_cgpa_out_of'] = 'required';
-            $rules['jc_CGPA'] = 'required|string|max:50';
+            $rules['jc_CGPA'] = 'required|string/max:50';
         }
 
         $request->validate($rules);
 
         $user_id = Auth::id();
-        $loanCategory = Loan_category::where('user_id', $user_id)->latest()->first();
-        $isBelowOneLakh = $loanCategory && $loanCategory->type === 'below';
-        $totalExpenses = (float) ($request->group_4_year1 ?: 0) + (float) ($request->group_4_year2 ?: 0) + (float) ($request->group_4_year3 ?: 0) + (float) ($request->group_4_year4 ?: 0) + (float) ($request->group_4_year5 ?: 0);
-
-        if ($isBelowOneLakh && $totalExpenses > 100000) {
-            return back()->withInput()->withErrors([
-                'group_4_total' => 'For Below 1,00,000 category, Total Expenses cannot exceed 1,00,000.'
-            ]);
-        }
 
         $isResubmission = $this->isStepResubmission('step2');
 
@@ -691,15 +660,6 @@ class UserController extends Controller
         $request->validate($rules);
 
         $user_id = Auth::id();
-        $loanCategory = Loan_category::where('user_id', $user_id)->latest()->first();
-        $isBelowOneLakh = $loanCategory && $loanCategory->type === 'below';
-        $totalExpenses = (float) ($request->group_4_year1 ?: 0) + (float) ($request->group_4_year2 ?: 0) + (float) ($request->group_4_year3 ?: 0) + (float) ($request->group_4_year4 ?: 0) + (float) ($request->group_4_year5 ?: 0);
-
-        if ($isBelowOneLakh && $totalExpenses > 100000) {
-            return back()->withInput()->withErrors([
-                'group_4_total' => 'For Below 1,00,000 category, Total Expenses cannot exceed 1,00,000.'
-            ]);
-        }
         $isResubmission = $this->isStepResubmission('step2');
 
         $data = [
@@ -1276,8 +1236,6 @@ class UserController extends Controller
             'recent_electricity_amount' => $request->recent_electricity_amount,
             'total_monthly_emi' => $request->total_monthly_emi,
             'mediclaim_insurance_amount' => $request->mediclaim_insurance_amount,
-            'current_year_itr' => $request->current_year_itr,
-            'last_year_itr' => $request->last_year_itr,
             'additional_family_members' => json_encode($additional_family_members),
             // Relatives
             'paternal_uncle_name' => $request->paternal_uncle_name,
@@ -1372,9 +1330,6 @@ class UserController extends Controller
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
         $banks = Bank::all();
 
-        // Check if loan category is below 1 lakh
-        $isBelowOneLakh = $type === 'below';
-
         // Get existing funding data from database if they exist
         $existingFundingData = [];
         if ($fundingDetail) {
@@ -1417,7 +1372,7 @@ class UserController extends Controller
             ];
         }
 
-        return view('user.step4', compact('type', 'familyDetail', 'fundingDetail', 'existingFundingData', 'user', 'banks', 'isBelowOneLakh'));
+        return view('user.step4', compact('type', 'familyDetail', 'fundingDetail', 'existingFundingData', 'user', 'banks'));
     }
 
 
@@ -1427,42 +1382,34 @@ class UserController extends Controller
     public function step4store(Request $request)
     {
         //dd($request->all());
-        $user_id = Auth::id();
-        $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
-        $isBelowOneLakh = $type === 'below';
+        $request->validate([
+            'funding' => 'nullable|array',
 
-        // Build validation rules based on loan category
-        $rules = [
-            // Bank Details (always required)
+            'funding.*.status' => 'nullable|in:applied,approved,received,pending',
+            'funding.*.institute_name' => 'nullable|string|max:255',
+            'funding.*.contact_person' => 'nullable|string|max:255',
+            'funding.*.contact_no' => 'nullable|string|max:15',
+            'funding.*.amount' => 'nullable|numeric|min:0',
+
+            // Sibling Assistance
+            'sibling_assistance' => 'required|in:yes,no',
+
+            'sibling_name' => 'nullable|required_if:sibling_assistance,yes|string|max:255',
+            'sibling_number' => 'nullable|required_if:sibling_assistance,yes|string|max:255',
+            'sibling_ngo_name' => 'nullable|required_if:sibling_assistance,yes|string|max:255',
+            'ngo_number' => 'nullable|required_if:sibling_assistance,yes|string|max:15',
+            'sibling_loan_status' => 'nullable|required_if:sibling_assistance,yes|string|max:255',
+            'sibling_applied_year' => 'nullable|required_if:sibling_assistance,yes|string|max:255',
+            'sibling_applied_amount' => 'nullable|required_if:sibling_assistance,yes|numeric|min:0',
+
+            // Bank Details
             'bank_name' => 'required|string|max:255',
             'account_holder_name' => 'required|string|max:255',
             'account_number' => 'required|string|max:50',
             'branch_name' => 'required|string|max:255',
             'ifsc_code' => 'required|string|max:20',
             'bank_address' => 'required|string|max:500',
-        ];
-
-        // Only validate funding details and sibling assistance for loans above 1 lakh
-        if (!$isBelowOneLakh) {
-            $rules['funding'] = 'nullable|array';
-            $rules['funding.*.status'] = 'nullable|in:applied,approved,received,pending';
-            $rules['funding.*.institute_name'] = 'nullable|string|max:255';
-            $rules['funding.*.contact_person'] = 'nullable|string|max:255';
-            $rules['funding.*.contact_no'] = 'nullable|string|max:15';
-            $rules['funding.*.amount'] = 'nullable|numeric|min:0';
-
-            // Sibling Assistance
-            $rules['sibling_assistance'] = 'required|in:yes,no';
-            $rules['sibling_name'] = 'nullable|required_if:sibling_assistance,yes|string|max:255';
-            $rules['sibling_number'] = 'nullable|required_if:sibling_assistance,yes|string|max:255';
-            $rules['sibling_ngo_name'] = 'nullable|required_if:sibling_assistance,yes|string|max:255';
-            $rules['ngo_number'] = 'nullable|required_if:sibling_assistance,yes|string|max:15';
-            $rules['sibling_loan_status'] = 'nullable|required_if:sibling_assistance,yes|string|max:255';
-            $rules['sibling_applied_year'] = 'nullable|required_if:sibling_assistance,yes|string|max:255';
-            $rules['sibling_applied_amount'] = 'nullable|required_if:sibling_assistance,yes|numeric|min:0';
-        }
-
-        $request->validate($rules);
+        ]);
         // dd($request->all());
         $funding = $request->funding ?? [];
 
@@ -1476,7 +1423,54 @@ class UserController extends Controller
         $data = [
             'user_id' => $user_id,
 
-            // Bank Details (always required)
+            // Own Family Funding (Row 0)
+            'family_funding_status'  => $funding[0]['status'] ?? null,
+            'family_funding_trust'   => $funding[0]['institute_name'] ?? null,
+            'family_funding_contact' => $funding[0]['contact_person'] ?? null,
+            'family_funding_mobile'  => $funding[0]['contact_no'] ?? null,
+            'family_funding_amount'  => $funding[0]['amount'] ?? null,
+
+            // Bank Loan (Row 1)
+            'bank_loan_status'  => $funding[1]['status'] ?? null,
+            'bank_loan_trust'   => $funding[1]['institute_name'] ?? null,
+            'bank_loan_contact' => $funding[1]['contact_person'] ?? null,
+            'bank_loan_mobile'  => $funding[1]['contact_no'] ?? null,
+            'bank_loan_amount'  => $funding[1]['amount'] ?? null,
+
+            // Other Assistance 1 (Row 2)
+            'other_assistance1_status'  => $funding[2]['status'] ?? null,
+            'other_assistance1_trust'   => $funding[2]['institute_name'] ?? null,
+            'other_assistance1_contact' => $funding[2]['contact_person'] ?? null,
+            'other_assistance1_mobile'  => $funding[2]['contact_no'] ?? null,
+            'other_assistance1_amount'  => $funding[2]['amount'] ?? null,
+
+            // Other Assistance 2 (Row 3)
+            'other_assistance2_status'  => $funding[3]['status'] ?? null,
+            'other_assistance2_trust'   => $funding[3]['institute_name'] ?? null,
+            'other_assistance2_contact' => $funding[3]['contact_person'] ?? null,
+            'other_assistance2_mobile'  => $funding[3]['contact_no'] ?? null,
+            'other_assistance2_amount'  => $funding[3]['amount'] ?? null,
+
+            // Local Assistance (Row 4)
+            'local_assistance_status'  => $funding[4]['status'] ?? null,
+            'local_assistance_trust'   => $funding[4]['institute_name'] ?? null,
+            'local_assistance_contact' => $funding[4]['contact_person'] ?? null,
+            'local_assistance_mobile'  => $funding[4]['contact_no'] ?? null,
+            'local_assistance_amount'  => $funding[4]['amount'] ?? null,
+
+            'total_funding_amount' => $total_funding_amount,
+
+            // Sibling Assistance
+            'sibling_assistance' => $request->sibling_assistance,
+            'sibling_name' => $request->sibling_name,
+            'sibling_number' => $request->sibling_number,
+            'sibling_ngo_name' => $request->sibling_ngo_name,
+            'ngo_number' => $request->ngo_number,
+            'sibling_loan_status' => $request->sibling_loan_status,
+            'sibling_applied_year' => $request->sibling_applied_year,
+            'sibling_applied_amount' => $request->sibling_applied_amount,
+
+            // Bank Details
             'bank_name' => $request->bank_name,
             'account_holder_name' => $request->account_holder_name,
             'account_number' => $request->account_number,
@@ -1487,58 +1481,6 @@ class UserController extends Controller
             'status' => 'step4_completed',
             'submit_status' => 'submited',
         ];
-
-        // Only save funding details and sibling assistance for loans above 1 lakh
-        if (!$isBelowOneLakh) {
-            $data = array_merge($data, [
-                // Own Family Funding (Row 0)
-                'family_funding_status'  => $funding[0]['status'] ?? null,
-                'family_funding_trust'   => $funding[0]['institute_name'] ?? null,
-                'family_funding_contact' => $funding[0]['contact_person'] ?? null,
-                'family_funding_mobile'  => $funding[0]['contact_no'] ?? null,
-                'family_funding_amount'  => $funding[0]['amount'] ?? null,
-
-                // Bank Loan (Row 1)
-                'bank_loan_status'  => $funding[1]['status'] ?? null,
-                'bank_loan_trust'   => $funding[1]['institute_name'] ?? null,
-                'bank_loan_contact' => $funding[1]['contact_person'] ?? null,
-                'bank_loan_mobile'  => $funding[1]['contact_no'] ?? null,
-                'bank_loan_amount'  => $funding[1]['amount'] ?? null,
-
-                // Other Assistance 1 (Row 2)
-                'other_assistance1_status'  => $funding[2]['status'] ?? null,
-                'other_assistance1_trust'   => $funding[2]['institute_name'] ?? null,
-                'other_assistance1_contact' => $funding[2]['contact_person'] ?? null,
-                'other_assistance1_mobile'  => $funding[2]['contact_no'] ?? null,
-                'other_assistance1_amount'  => $funding[2]['amount'] ?? null,
-
-                // Other Assistance 2 (Row 3)
-                'other_assistance2_status'  => $funding[3]['status'] ?? null,
-                'other_assistance2_trust'   => $funding[3]['institute_name'] ?? null,
-                'other_assistance2_contact' => $funding[3]['contact_person'] ?? null,
-                'other_assistance2_mobile'  => $funding[3]['contact_no'] ?? null,
-                'other_assistance2_amount'  => $funding[3]['amount'] ?? null,
-
-                // Local Assistance (Row 4)
-                'local_assistance_status'  => $funding[4]['status'] ?? null,
-                'local_assistance_trust'   => $funding[4]['institute_name'] ?? null,
-                'local_assistance_contact' => $funding[4]['contact_person'] ?? null,
-                'local_assistance_mobile'  => $funding[4]['contact_no'] ?? null,
-                'local_assistance_amount'  => $funding[4]['amount'] ?? null,
-
-                'total_funding_amount' => $total_funding_amount,
-
-                // Sibling Assistance
-                'sibling_assistance' => $request->sibling_assistance,
-                'sibling_name' => $request->sibling_name,
-                'sibling_number' => $request->sibling_number,
-                'sibling_ngo_name' => $request->sibling_ngo_name,
-                'ngo_number' => $request->ngo_number,
-                'sibling_loan_status' => $request->sibling_loan_status,
-                'sibling_applied_year' => $request->sibling_applied_year,
-                'sibling_applied_amount' => $request->sibling_applied_amount,
-            ]);
-        }
 
         $isResubmission = $this->isStepResubmission('step4');
 
@@ -1603,10 +1545,7 @@ class UserController extends Controller
 
         // Check if all steps are submitted (no resubmit remaining)
         $this->checkAndUpdateWorkflowStatus();
-
-        // Redirect to step5 for loans above 1 lakh, or step6 for below 1 lakh
-        $redirectRoute = $isBelowOneLakh ? 'user.step6' : 'user.step5';
-        return redirect()->route($redirectRoute)
+        return redirect()->route('user.step5')
             ->with('success', $message);
     }
 
@@ -1909,22 +1848,6 @@ class UserController extends Controller
         $user_id = Auth::id();
         $user = User::find($user_id);
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
-
-        // Check if loan category is below 1 lakh - skip guarantor details
-        if ($type === 'below') {
-            // Auto-create guarantor detail record with skipped status
-            $guarantorDetail = GuarantorDetail::where('user_id', $user_id)->first();
-            if (!$guarantorDetail) {
-                GuarantorDetail::create([
-                    'user_id' => $user_id,
-                    'submit_status' => 'skipped',
-                    'status' => 'step5_skipped',
-                ]);
-            }
-            // Redirect to step6 (Document Upload)
-            return redirect()->route('user.step6');
-        }
-
         $familyDetail = Familydetail::where('user_id', $user_id)->first();
         $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
         $guarantorDetail = GuarantorDetail::where('user_id', $user_id)->first();
@@ -3489,11 +3412,11 @@ class UserController extends Controller
         // Check all steps for resubmit status
         $steps = [
             Auth::user()->submit_status,
-            EducationDetail::where('user_id', $userId)->first()?->submit_status,
-            Familydetail::where('user_id', $userId)->first()?->submit_status,
-            FundingDetail::where('user_id', $userId)->first()?->submit_status,
-            GuarantorDetail::where('user_id', $userId)->first()?->submit_status,
-            Document::where('user_id', $userId)->first()?->submit_status,
+            EducationDetail::where('user_id', $userId)->first()->submit_status,
+            Familydetail::where('user_id', $userId)->first()->submit_status,
+            FundingDetail::where('user_id', $userId)->first()->submit_status,
+            GuarantorDetail::where('user_id', $userId)->first()->submit_status,
+            Document::where('user_id', $userId)->first()->submit_status,
         ];
 
         $hasResubmit = in_array('resubmit', $steps);
@@ -3671,59 +3594,5 @@ class UserController extends Controller
         ));
 
         return $pdf->stream('sanction_letter_' . $user->id . '.pdf');
-    }
-
-    /**
-     * Handle redirection for above 1 lakh application
-     */
-    public function above1LakhApplication()
-    {
-        $user = Auth::user();
-        // dd($user);
-        // Check if user has a loan category
-        $loanCategory = Loan_category::where('user_id', $user->id)->latest()->first();
-        return view('user.home', compact('user', 'loanCategory'));
-
-        // if (!$loanCategory) {
-        //     return redirect()->route('user.home')->with('error', 'Please select a loan category first.');
-        // }
-
-        // // Check if user has completed step 1
-        // if (!$user || $user->submit_status !== 'submited') {
-        //     return redirect()->route('user.step1');
-        // }
-
-        // // Check if user has completed step 2
-        // $educationDetail = EducationDetail::where('user_id', $user->id)->first();
-        // if (!$educationDetail || $educationDetail->submit_status !== 'submited') {
-        //     return redirect()->route('user.step2');
-        // }
-
-        // // Check if user has completed step 3
-        // $familyDetail = Familydetail::where('user_id', $user->id)->first();
-        // if (!$familyDetail || $familyDetail->submit_status !== 'submited') {
-        //     return redirect()->route('user.step3');
-        // }
-
-        // // Check if user has completed step 4
-        // $fundingDetail = FundingDetail::where('user_id', $user->id)->first();
-        // if (!$fundingDetail || $fundingDetail->submit_status !== 'submited') {
-        //     return redirect()->route('user.step4');
-        // }
-
-        // // Check if user has completed step 5 (guarantor details)
-        // $guarantorDetail = GuarantorDetail::where('user_id', $user->id)->first();
-        // if (!$guarantorDetail || $guarantorDetail->submit_status !== 'submited') {
-        //     return redirect()->route('user.step5');
-        // }
-
-        // // Check if user has completed step 6 (document upload)
-        // $document = Document::where('user_id', $user->id)->first();
-        // if (!$document || $document->submit_status !== 'submited') {
-        //     return redirect()->route('user.step6');
-        // }
-
-        // // All steps completed, redirect to step 7 (Review & Submit)
-        // return redirect()->route('user.step7');
     }
 }

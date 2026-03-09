@@ -8,12 +8,16 @@ use App\Mail\WorkingCommitteeApprovedMail;
 use App\Models\ApplicationWorkflowStatus;
 use App\Models\Chapter;
 use App\Models\ChapterInterviewAnswer;
+use App\Models\AdminNotification;
+use App\Models\AdminUser;
+use App\Models\ApexLeadership;
 use App\Models\DisbursementSchedule;
 use App\Models\EducationDetail;
 use App\Models\Logs;
 use App\Models\Loan_category;
 use App\Models\PdcDetail;
 use App\Models\User;
+use App\Models\WorkingCommitteeApprovalHistory;
 use App\Traits\LogsUserActivity;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -26,6 +30,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 
 
 class AdminController extends Controller
@@ -532,6 +537,10 @@ class AdminController extends Controller
             'no_of_cheques_to_be_collected' => 'required|integer|min:1',
             'repayment_starting_from' => 'required|date',
             'remarks_for_approval' => 'required|string|max:2000',
+            'can_be_jito_member' => 'nullable|in:yes,no',
+            'jito_member_date' => 'nullable|date',
+            'can_be_jeap_donor' => 'nullable|in:yes,no',
+            'jeap_donor_date' => 'nullable|date',
             'disbursement_in_year' => 'required|integer|min:1|max:6',
         ];
 
@@ -591,6 +600,10 @@ class AdminController extends Controller
             'no_of_cheques_to_be_collected' => $request->no_of_cheques_to_be_collected,
             'repayment_starting_from' => $request->repayment_starting_from,
             'remarks_for_approval' => $request->remarks_for_approval,
+            'can_be_jito_member' => $request->can_be_jito_member,
+            'jito_member_date' => $request->can_be_jito_member === 'yes' ? $request->jito_member_date : null,
+            'can_be_jeap_donor' => $request->can_be_jeap_donor,
+            'jeap_donor_date' => $request->can_be_jeap_donor === 'yes' ? $request->jeap_donor_date : null,
             'processed_by_name' => Auth::user()->name,
         ];
 
@@ -619,9 +632,9 @@ class AdminController extends Controller
                 'disbursement_in_year' => $request->disbursement_in_year ?? null,
                 'disbursement_in_half_year' => $request->disbursement_in_half_year ?? null,
                 'yearly_dates' => $request->yearly_dates,
-                'yearly_amounts' => $request->yearly_amounts,
-                'half_yearly_dates' => $request->half_yearly_dates,
-                'half_yearly_amounts' => $request->half_yearly_amounts ? json_encode($request->half_yearly_amounts) : null,
+                'yearly_amounts' => $request->yearly_amounts ,
+                'half_yearly_dates' => $request->half_yearly_dates ,
+                'half_yearly_amounts' => $request->half_yearly_amounts ,
                 'approval_financial_assistance_amount' => $request->approval_financial_assistance_amount,
                 'installment_amount' => $request->installment_amount,
                 'no_of_months' => $request->no_of_months,
@@ -631,6 +644,10 @@ class AdminController extends Controller
                 'no_of_cheques_to_be_collected' => $request->no_of_cheques_to_be_collected,
                 'repayment_starting_from' => $request->repayment_starting_from,
                 'remarks_for_approval' => $request->remarks_for_approval,
+                'can_be_jito_member' => $request->can_be_jito_member,
+                'jito_member_date' => $request->can_be_jito_member === 'yes' ? $request->jito_member_date : null,
+                'can_be_jeap_donor' => $request->can_be_jeap_donor,
+                'jeap_donor_date' => $request->can_be_jeap_donor === 'yes' ? $request->jeap_donor_date : null,
                 'processed_by_name' => Auth::user()->name,
                 'processed_by' => Auth::user()->id,
                 'approval_status' => 'approved',
@@ -714,6 +731,8 @@ class AdminController extends Controller
             'disbursement_system'               => 'required|in:yearly,half_yearly',
             'yearly_dates.*'                    => 'nullable|date',
             'yearly_amounts.*'                  => 'nullable|numeric',
+            'half_yearly_dates.*'               => 'nullable|date',
+            'half_yearly_amounts.*'             => 'nullable|numeric',
             'installment_amount.*'              => 'nullable|numeric',
             'no_of_months.*'                    => 'nullable|integer',
             'total'                             => 'nullable|array',
@@ -724,26 +743,329 @@ class AdminController extends Controller
             'repayment_starting_from'           => 'nullable|date',
             'w_c_approval_remark'               => 'required|string',
             'remarks_for_approval'              => 'nullable|string',
+            'can_be_jito_member'               => 'nullable|in:yes,no',
+            'jito_member_date'                 => 'nullable|date',
+            'can_be_jeap_donor'                => 'nullable|in:yes,no',
+            'jeap_donor_date'                  => 'nullable|date',
         ]);
 
         $totals = [];
 
-        foreach ($request->installment_amount as $index => $amount) {
-            $months = $request->no_of_months[$index] ?? 0;
+        foreach ($request->input('installment_amount', []) as $index => $amount) {
+            $months = $request->input("no_of_months.$index", 0);
             $totals[] = $amount * $months;
         }
 
         $validated['total'] = $totals;
+        $validated['jito_member_date'] = ($request->can_be_jito_member === 'yes') ? $request->jito_member_date : null;
+        $validated['jeap_donor_date'] = ($request->can_be_jeap_donor === 'yes') ? $request->jeap_donor_date : null;
 
-        // Update workingCommitteeApproval model
-        $approval = $user->workingCommitteeApproval ?? new \App\Models\WorkingCommitteeApproval(['user_id' => $user->id]);
+        $this->validateCompletedDisbursementSchedules($user, $validated);
 
-        $approval->fill($validated);
-        $approval->save();
+        DB::connection('admin_panel')->transaction(function () use ($user, $validated) {
+            $approval = $user->workingCommitteeApproval ?? new \App\Models\WorkingCommitteeApproval(['user_id' => $user->id]);
+            $originalSnapshot = $approval->exists ? $this->buildWorkingCommitteeApprovalHistorySnapshot($approval) : null;
+
+            $approval->fill($validated);
+            $changedFields = $approval->exists ? array_keys($approval->getDirty()) : [];
+            $approval->save();
+
+            if ($approval->wasRecentlyCreated === false && !empty($changedFields) && $originalSnapshot !== null) {
+                $history = WorkingCommitteeApprovalHistory::create(array_merge($originalSnapshot, [
+                    'user_id' => $user->id,
+                    'working_committee_approval_id' => $approval->id,
+                    'edited_by' => Auth::id(),
+                    'changed_fields' => $changedFields,
+                ]));
+
+                $this->createWorkingCommitteeUpdateNotifications($user, $approval, $history);
+            }
+
+            $this->syncWorkingCommitteeDisbursementSchedules($user, $approval);
+        });
 
         // Also update workflowStatus if needed (approval_remarks, updated_at, etc.)
 
         return redirect()->back()->with('success', 'Working Committee decision updated successfully.');
+    }
+
+    private function syncWorkingCommitteeDisbursementSchedules(User $user, \App\Models\WorkingCommitteeApproval $approval): void
+    {
+        $workflowStatus = ApplicationWorkflowStatus::where('user_id', $user->id)->first();
+
+        if (!$workflowStatus) {
+            return;
+        }
+
+        $plannedSchedules = $this->buildWorkingCommitteePlannedSchedules($approval);
+
+        if (empty($plannedSchedules)) {
+            return;
+        }
+
+        $scheduleQuery = DB::connection('admin_panel')
+            ->table('disbursement_schedules')
+            ->where('user_id', $user->id);
+
+        $existingSchedules = (clone $scheduleQuery)
+            ->orderBy('installment_no')
+            ->get()
+            ->values();
+
+        $completedInstallmentNumbers = DB::connection('admin_panel')
+            ->table('disbursement_schedules')
+            ->where('user_id', $user->id)
+            ->where('status', 'completed')
+            ->pluck('installment_no')
+            ->map(fn ($installmentNo) => (int) $installmentNo)
+            ->all();
+
+        $pendingInstallmentNumbers = [];
+
+        foreach ($plannedSchedules as $index => $plannedSchedule) {
+            $installmentNo = $index + 1;
+
+            if (in_array($installmentNo, $completedInstallmentNumbers, true)) {
+                continue;
+            }
+
+            $pendingInstallmentNumbers[] = $installmentNo;
+
+            DB::connection('admin_panel')
+                ->table('disbursement_schedules')
+                ->updateOrInsert(
+                    [
+                        'user_id' => $user->id,
+                        'installment_no' => $installmentNo,
+                    ],
+                    [
+                        'workflow_status_id' => $workflowStatus->id,
+                        'planned_date' => $plannedSchedule['planned_date'],
+                        'planned_amount' => $plannedSchedule['planned_amount'],
+                        'status' => 'pending',
+                        'updated_at' => now(),
+                        'created_at' => now(),
+                    ]
+                );
+        }
+
+        if (!empty($pendingInstallmentNumbers)) {
+            DB::connection('admin_panel')
+                ->table('disbursement_schedules')
+                ->where('user_id', $user->id)
+                ->whereNotIn('installment_no', $completedInstallmentNumbers)
+                ->whereNotIn('installment_no', $pendingInstallmentNumbers)
+                ->delete();
+        } else {
+            DB::connection('admin_panel')
+                ->table('disbursement_schedules')
+                ->where('user_id', $user->id)
+                ->whereNotIn('installment_no', $completedInstallmentNumbers)
+                ->delete();
+        }
+    }
+
+    private function validateCompletedDisbursementSchedules(User $user, array $validated): void
+    {
+        $completedSchedules = DB::connection('admin_panel')
+            ->table('disbursement_schedules')
+            ->where('user_id', $user->id)
+            ->where('status', 'completed')
+            ->orderBy('installment_no')
+            ->get();
+
+        if ($completedSchedules->isEmpty()) {
+            return;
+        }
+
+        $proposedSchedules = $this->buildWorkingCommitteePlannedSchedules(
+            new \App\Models\WorkingCommitteeApproval($validated)
+        );
+
+        foreach ($completedSchedules as $completedSchedule) {
+            $index = ((int) $completedSchedule->installment_no) - 1;
+            $proposedSchedule = $proposedSchedules[$index] ?? null;
+
+            if (!$proposedSchedule) {
+                throw ValidationException::withMessages([
+                    'disbursement_system' => 'Completed disbursement installments cannot be removed from the approval.',
+                ]);
+            }
+
+            $sameDate = (string) $completedSchedule->planned_date === (string) $proposedSchedule['planned_date'];
+            $sameAmount = round((float) $completedSchedule->planned_amount, 2) === round((float) $proposedSchedule['planned_amount'], 2);
+
+            if (!$sameDate || !$sameAmount) {
+                throw ValidationException::withMessages([
+                    'disbursement_system' => 'This disbursement is already disbursed, so its completed installment row cannot be changed.',
+                ]);
+            }
+        }
+    }
+
+    private function buildWorkingCommitteePlannedSchedules(\App\Models\WorkingCommitteeApproval $approval): array
+    {
+        $schedules = [];
+
+        if ($approval->disbursement_system === 'yearly') {
+            $yearlyAmounts = (array) $approval->yearly_amounts;
+
+            foreach ((array) $approval->yearly_dates as $index => $plannedDate) {
+                $plannedAmount = (float) ($yearlyAmounts[$index] ?? 0);
+
+                if (!$plannedDate || $plannedAmount <= 0) {
+                    continue;
+                }
+
+                $schedules[] = [
+                    'planned_date' => $plannedDate,
+                    'planned_amount' => $plannedAmount,
+                ];
+            }
+        } elseif ($approval->disbursement_system === 'half_yearly') {
+            $halfYearlyAmounts = (array) $approval->half_yearly_amounts;
+
+            foreach ((array) $approval->half_yearly_dates as $index => $plannedDate) {
+                $plannedAmount = (float) ($halfYearlyAmounts[$index] ?? 0);
+
+                if (!$plannedDate || $plannedAmount <= 0) {
+                    continue;
+                }
+
+                $schedules[] = [
+                    'planned_date' => $plannedDate,
+                    'planned_amount' => $plannedAmount,
+                ];
+            }
+        }
+
+        if (!empty($schedules)) {
+            return $schedules;
+        }
+
+        if ($approval->repayment_starting_from && (float) $approval->approval_financial_assistance_amount > 0) {
+            return [[
+                'planned_date' => $approval->repayment_starting_from->format('Y-m-d'),
+                'planned_amount' => (float) $approval->approval_financial_assistance_amount,
+            ]];
+        }
+
+        return [];
+    }
+
+    private function buildWorkingCommitteeApprovalHistorySnapshot(\App\Models\WorkingCommitteeApproval $approval): array
+    {
+        return [
+            'old_approval_financial_assistance_amount' => $approval->approval_financial_assistance_amount,
+            'old_meeting_no' => $approval->meeting_no,
+            'old_w_c_approval_date' => optional($approval->w_c_approval_date)->format('Y-m-d'),
+            'old_disbursement_system' => $approval->disbursement_system,
+            'old_disbursement_in_year' => $approval->disbursement_in_year,
+            'old_disbursement_in_half_year' => $approval->disbursement_in_half_year,
+            'old_yearly_dates' => $approval->yearly_dates,
+            'old_yearly_amounts' => $approval->yearly_amounts,
+            'old_half_yearly_dates' => $approval->half_yearly_dates,
+            'old_half_yearly_amounts' => $approval->half_yearly_amounts,
+            'old_installment_amount' => $approval->installment_amount,
+            'old_no_of_months' => $approval->no_of_months,
+            'old_total' => $approval->total,
+            'old_additional_installment_amount' => $approval->additional_installment_amount,
+            'old_repayment_type' => $approval->repayment_type,
+            'old_repayment_starting_from' => optional($approval->repayment_starting_from)->format('Y-m-d'),
+            'old_no_of_cheques_to_be_collected' => $approval->no_of_cheques_to_be_collected,
+            'old_w_c_approval_remark' => $approval->w_c_approval_remark,
+            'old_remarks_for_approval' => $approval->remarks_for_approval,
+            'old_can_be_jito_member' => $approval->can_be_jito_member,
+            'old_jito_member_date' => optional($approval->jito_member_date)->format('Y-m-d'),
+            'old_can_be_jeap_donor' => $approval->can_be_jeap_donor,
+            'old_jeap_donor_date' => optional($approval->jeap_donor_date)->format('Y-m-d'),
+        ];
+    }
+
+    private function createWorkingCommitteeUpdateNotifications(
+        User $user,
+        \App\Models\WorkingCommitteeApproval $approval,
+        WorkingCommitteeApprovalHistory $history
+    ): void {
+        $title = 'Working Committee amount updated';
+        $message = sprintf(
+            '%s working committee new amount has been sanctioned. Old amount: Rs. %s. New amount: Rs. %s. Please check.',
+            $user->name,
+            number_format((float) ($history->old_approval_financial_assistance_amount ?? 0), 2, '.', ''),
+            number_format((float) ($approval->approval_financial_assistance_amount ?? 0), 2, '.', '')
+        );
+
+        $actionUrl = route('admin.working_committee.user.detail', ['user' => $user->id]);
+        $createdBy = Auth::id();
+        $rows = [];
+
+        foreach (AdminUser::query()->select('id')->get() as $recipient) {
+            $rows[] = [
+                'recipient_role' => 'admin',
+                'recipient_id' => $recipient->id,
+                'user_id' => $user->id,
+                'working_committee_approval_id' => $approval->id,
+                'history_id' => $history->id,
+                'title' => $title,
+                'message' => $message,
+                'action_url' => $actionUrl,
+                'created_by' => $createdBy,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        foreach (
+            ApexLeadership::query()
+                ->where('status', true)
+                ->where('show_hide', true)
+                ->select('id')
+                ->get() as $recipient
+        ) {
+            $rows[] = [
+                'recipient_role' => 'apex',
+                'recipient_id' => $recipient->id,
+                'user_id' => $user->id,
+                'working_committee_approval_id' => $approval->id,
+                'history_id' => $history->id,
+                'title' => $title,
+                'message' => $message,
+                'action_url' => $actionUrl,
+                'created_by' => $createdBy,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        if (!empty($rows)) {
+            AdminNotification::insert($rows);
+        }
+    }
+
+    private function insertDisbursementSchedules(int $userId, int $workflowStatusId, array $plannedSchedules): void
+    {
+        if (empty($plannedSchedules)) {
+            return;
+        }
+
+        $rows = [];
+
+        foreach ($plannedSchedules as $index => $plannedSchedule) {
+            $rows[] = [
+                'user_id' => $userId,
+                'workflow_status_id' => $workflowStatusId,
+                'installment_no' => $plannedSchedule['installment_no'] ?? ($index + 1),
+                'planned_date' => $plannedSchedule['planned_date'],
+                'planned_amount' => $plannedSchedule['planned_amount'],
+                'status' => 'pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        DB::connection('admin_panel')
+            ->table('disbursement_schedules')
+            ->insert($rows);
     }
 
 
@@ -1390,9 +1712,15 @@ class AdminController extends Controller
     {
         $user->load(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
         $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
+        $completedDisbursementSchedules = DB::connection('admin_panel')
+            ->table('disbursement_schedules')
+            ->where('user_id', $user->id)
+            ->where('status', 'completed')
+            ->orderBy('installment_no')
+            ->get(['installment_no', 'planned_date', 'planned_amount', 'status']);
         // dd($workingCommitteeApproval);
         $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
-        return view('admin.working_committee.user_detail', compact('user', 'workingCommitteeApproval', 'loanCategory'));
+        return view('admin.working_committee.user_detail', compact('user', 'workingCommitteeApproval', 'loanCategory', 'completedDisbursementSchedules'));
     }
 
     // Chapter Interview Methods
@@ -2051,7 +2379,23 @@ class AdminController extends Controller
             return back()->with('error', 'PDC details not found');
         }
 
-        return view('admin.pdc.edit', compact('user'));
+        // Load Working Committee Approval details
+        $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
+
+        // Get bank details from fundingDetail for autofill
+        $bankDetails = null;
+        if ($user->fundingDetail) {
+            $bankDetails = [
+                'bank_name' => $user->fundingDetail->bank_name ?? '',
+                'ifsc' => $user->fundingDetail->ifsc_code ?? '',
+                'account_number' => $user->fundingDetail->account_number ?? '',
+                'branch_name' => $user->fundingDetail->branch_name ?? '',
+            ];
+        }
+
+        $lockedPdcInstallments = $this->getLockedPdcInstallments($user);
+
+        return view('admin.pdc.edit', compact('user', 'workingCommitteeApproval', 'bankDetails', 'lockedPdcInstallments'));
     }
 
     /**
@@ -2077,6 +2421,20 @@ class AdminController extends Controller
             return back()->with('error', 'PDC details not found');
         }
 
+        $normalizedChequeDetails = collect($request->cheque_details)
+            ->values()
+            ->map(function ($cheque, $index) {
+                $cheque['row_number'] = $index + 1;
+                return $cheque;
+            })
+            ->all();
+
+        $this->validateLockedPdcChequeDetails(
+            $pdcDetail->cheque_details,
+            $normalizedChequeDetails,
+            $this->getLockedPdcInstallments($user)
+        );
+
         // Handle file upload if new image is provided
         $chequeImagePath = $pdcDetail->first_cheque_image;
 
@@ -2096,13 +2454,135 @@ class AdminController extends Controller
         // Update PDC details
         $pdcDetail->update([
             'first_cheque_image' => $chequeImagePath,
-            'cheque_details' => json_encode($request->cheque_details),
+            'cheque_details' => json_encode($normalizedChequeDetails),
             'status' => 'submitted', // Reset status to submitted for review
             'processed_by' => Auth::id(),
         ]);
 
         return redirect()->route('admin.apex.stage2.user.detail', $user)
             ->with('success', 'PDC details updated successfully');
+    }
+
+    private function getLockedPdcInstallments(User $user)
+    {
+        $pdcDetail = PdcDetail::query()
+            ->where('user_id', $user->id)
+            ->latest('id')
+            ->first();
+
+        if (!$pdcDetail) {
+            return collect();
+        }
+
+        $chequeDetails = $pdcDetail->cheque_details;
+
+        if (is_string($chequeDetails)) {
+            $decoded = json_decode($chequeDetails, true);
+            $chequeDetails = is_array($decoded) ? $decoded : [];
+        }
+
+        if (!is_array($chequeDetails)) {
+            return collect();
+        }
+
+        $installments = collect($chequeDetails)
+            ->filter(fn($item) => is_array($item))
+            ->map(function (array $item, int $index) {
+                return (object) [
+                    'installment_no' => (int) ($item['row_number'] ?? ($index + 1)),
+                    'parents_jnt_ac_name' => $item['parents_jnt_ac_name'] ?? null,
+                    'cheque_date' => $item['cheque_date'] ?? null,
+                    'amount' => (float) ($item['amount'] ?? 0),
+                    'bank_name' => $item['bank_name'] ?? null,
+                    'ifsc' => $item['ifsc'] ?? null,
+                    'account_number' => $item['account_number'] ?? null,
+                    'cheque_number' => $item['cheque_number'] ?? null,
+                ];
+            })
+            ->sortBy('installment_no')
+            ->values();
+
+        $remainingPaidAmount = (float) DB::connection('admin_panel')
+            ->table('repayments')
+            ->where('user_id', $user->id)
+            ->where('status', '!=', 'bounced')
+            ->sum('amount');
+
+        return $installments
+            ->map(function ($installment) use (&$remainingPaidAmount) {
+                if ($remainingPaidAmount >= $installment->amount && $installment->amount > 0) {
+                    $installment->status = 'paid';
+                    $remainingPaidAmount -= $installment->amount;
+                } elseif ($remainingPaidAmount > 0 && $installment->amount > 0) {
+                    $installment->status = 'partial';
+                    $remainingPaidAmount = 0;
+                } else {
+                    $installment->status = 'pending';
+                }
+
+                return $installment;
+            })
+            ->whereIn('status', ['paid', 'partial'])
+            ->values();
+    }
+
+    private function validateLockedPdcChequeDetails($existingChequeDetails, array $proposedChequeDetails, $lockedInstallments): void
+    {
+        if ($lockedInstallments->isEmpty()) {
+            return;
+        }
+
+        if (is_string($existingChequeDetails)) {
+            $decoded = json_decode($existingChequeDetails, true);
+            $existingChequeDetails = is_array($decoded) ? $decoded : [];
+        }
+
+        $existingByInstallment = collect($existingChequeDetails)
+            ->filter(fn($item) => is_array($item))
+            ->mapWithKeys(function (array $item, int $index) {
+                $installmentNo = (int) ($item['row_number'] ?? ($index + 1));
+                return [$installmentNo => $item];
+            });
+
+        $proposedByInstallment = collect($proposedChequeDetails)
+            ->mapWithKeys(function (array $item, int $index) {
+                return [($index + 1) => $item];
+            });
+
+        foreach ($lockedInstallments as $lockedInstallment) {
+            $installmentNo = (int) $lockedInstallment->installment_no;
+            $existing = $existingByInstallment->get($installmentNo);
+            $proposed = $proposedByInstallment->get($installmentNo);
+
+            if (!$existing || !$proposed) {
+                throw ValidationException::withMessages([
+                    'cheque_details' => "Repayment already exists for installment {$installmentNo}, so that cheque entry cannot be removed.",
+                ]);
+            }
+
+            $fieldsToCompare = [
+                'parents_jnt_ac_name',
+                'cheque_date',
+                'bank_name',
+                'ifsc',
+                'account_number',
+                'cheque_number',
+            ];
+
+            foreach ($fieldsToCompare as $field) {
+                if ((string) ($existing[$field] ?? '') !== (string) ($proposed[$field] ?? '')) {
+                    throw ValidationException::withMessages([
+                        'cheque_details' => "Repayment already exists for installment {$installmentNo}, so that cheque entry cannot be edited.",
+                    ]);
+                }
+            }
+
+            if (round((float) ($existing['amount'] ?? 0), 2) !== round((float) ($proposed['amount'] ?? 0), 2)) {
+                throw ValidationException::withMessages([
+                    'cheque_details' => "Repayment already exists for installment {$installmentNo}, so that cheque amount cannot be edited.",
+                ]);
+            }
+        }
     }
 
     /**

@@ -534,6 +534,7 @@
                 <h3>{{ $user->name }}</h3>
                 <p>{{ $user->email }}</p>
                 <p>{{ $user->mobile }}</p>
+                <p><strong>Application No.:</strong> {{ $user->application_no ?? 'N/A' }}</p>
             </div>
         </div>
     </div>
@@ -543,6 +544,42 @@
         <form action="{{ route('admin.pdc.update', $user) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
+
+            <!-- Approval Details Section -->
+            @if (isset($workingCommitteeApproval) && $workingCommitteeApproval)
+                <div class="data-group">
+                    <h4>Approval Details</h4>
+                    <div class="form-section">
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label class="form-label">Approved Financial Assistance Amount</label>
+                                <input type="text" class="form-input"
+                                    value="{{ $workingCommitteeApproval->approval_financial_assistance_amount ? '₹' . number_format($workingCommitteeApproval->approval_financial_assistance_amount) : 'N/A' }}"
+                                    readonly>
+                            </div>
+                            <div class="form-field">
+                                <label class="form-label">Repayment Type</label>
+                                <input type="text" class="form-input"
+                                    value="{{ ucfirst($workingCommitteeApproval->repayment_type ?? 'N/A') }}" readonly>
+                            </div>
+                            <div class="form-field">
+                                <label class="form-label">No. of Cheques to be Collected</label>
+                                <input type="text" class="form-input"
+                                    value="{{ $workingCommitteeApproval->no_of_cheques_to_be_collected ?? 'N/A' }}"
+                                    readonly>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label class="form-label">Repayment Starting From</label>
+                                <input type="text" class="form-input"
+                                    value="{{ $workingCommitteeApproval->repayment_starting_from ? \Carbon\Carbon::parse($workingCommitteeApproval->repayment_starting_from)->format('d M Y') : 'N/A' }}"
+                                    readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             <!-- First Cheque Image Section -->
             <div class="data-group">
@@ -588,52 +625,125 @@
             <div class="data-group">
                 <h4>Cheque Details</h4>
                 <div class="form-section">
+                    @if (isset($lockedPdcInstallments) && $lockedPdcInstallments->isNotEmpty())
+                        <div class="alert alert-info mb-3">
+                            Repayment already exists for some installments. Those cheque entries are locked and cannot be edited or removed.
+                        </div>
+                    @endif
+
+                    <!-- Student Info Display -->
+                    <div
+                        style="display: flex; gap: 2rem; margin-bottom: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 6px; border: 1px solid #e9ecef;">
+                        <div class="cheque-form-field" style="flex: 1;">
+                            <label class="form-label">Student Name</label>
+                            <input type="text" value="{{ $user->name ?? 'N/A' }}" readonly style="background: white;">
+                        </div>
+                        <div class="cheque-form-field" style="flex: 1;">
+                            <label class="form-label">Application No.</label>
+                            <input type="text" value="{{ $user->application_no ?? 'N/A' }}" readonly
+                                style="background: white;">
+                        </div>
+                    </div>
+
                     <div id="cheque-details-container">
                         @php
                             $chequeDetails = json_decode($user->pdcDetail->cheque_details, true);
+                            $lockedInstallmentMap = collect($lockedPdcInstallments ?? [])->keyBy('installment_no');
                         @endphp
 
                         @if ($chequeDetails && count($chequeDetails) > 0)
                             @foreach ($chequeDetails as $index => $cheque)
+                                @php
+                                    $installmentNo = $index + 1;
+                                    $isLocked = $lockedInstallmentMap->has($installmentNo);
+                                @endphp
                                 <div class="cheque-form-row" data-cheque-index="{{ $index }}">
                                     <div class="cheque-form-field">
                                         <label class="form-label">Parents JNT A/C Name</label>
                                         <input type="text"
-                                            name="cheque_details[{{ $index }}][parents_jnt_ac_name]"
-                                            value="{{ $cheque['parents_jnt_ac_name'] ?? '' }}" required>
+                                            @if (!$isLocked) name="cheque_details[{{ $index }}][parents_jnt_ac_name]" @endif
+                                            value="{{ $cheque['parents_jnt_ac_name'] ?? '' }}"
+                                            @if ($isLocked) disabled @else required @endif>
+                                        @if ($isLocked)
+                                            <input type="hidden" name="cheque_details[{{ $index }}][parents_jnt_ac_name]"
+                                                value="{{ $cheque['parents_jnt_ac_name'] ?? '' }}">
+                                        @endif
                                     </div>
                                     <div class="cheque-form-field">
                                         <label class="form-label">Cheque Date</label>
-                                        <input type="date" name="cheque_details[{{ $index }}][cheque_date]"
-                                            value="{{ $cheque['cheque_date'] ?? '' }}" required>
+                                        <input type="date"
+                                            @if (!$isLocked) name="cheque_details[{{ $index }}][cheque_date]" @endif
+                                            value="{{ $cheque['cheque_date'] ?? '' }}"
+                                            @if ($isLocked) disabled @else required @endif>
+                                        @if ($isLocked)
+                                            <input type="hidden" name="cheque_details[{{ $index }}][cheque_date]"
+                                                value="{{ $cheque['cheque_date'] ?? '' }}">
+                                        @endif
                                     </div>
                                     <div class="cheque-form-field">
                                         <label class="form-label">Amount (₹)</label>
-                                        <input type="number" name="cheque_details[{{ $index }}][amount]"
-                                            value="{{ $cheque['amount'] ?? '' }}" min="0" step="0.01" required>
+                                        <input type="number"
+                                            @if (!$isLocked) name="cheque_details[{{ $index }}][amount]" @endif
+                                            value="{{ $cheque['amount'] ?? '' }}" min="0" step="0.01"
+                                            @if ($isLocked) disabled @else required @endif>
+                                        @if ($isLocked)
+                                            <input type="hidden" name="cheque_details[{{ $index }}][amount]"
+                                                value="{{ $cheque['amount'] ?? '' }}">
+                                        @endif
                                     </div>
                                     <div class="cheque-form-field">
                                         <label class="form-label">Bank Name</label>
-                                        <input type="text" name="cheque_details[{{ $index }}][bank_name]"
-                                            value="{{ $cheque['bank_name'] ?? '' }}" required>
+                                        <input type="text"
+                                            @if (!$isLocked) name="cheque_details[{{ $index }}][bank_name]" @endif
+                                            value="{{ $cheque['bank_name'] ?? ($bankDetails['bank_name'] ?? '') }}"
+                                            @if ($isLocked) disabled @else required @endif>
+                                        @if ($isLocked)
+                                            <input type="hidden" name="cheque_details[{{ $index }}][bank_name]"
+                                                value="{{ $cheque['bank_name'] ?? ($bankDetails['bank_name'] ?? '') }}">
+                                        @endif
                                     </div>
                                     <div class="cheque-form-field">
                                         <label class="form-label">IFSC Code</label>
-                                        <input type="text" name="cheque_details[{{ $index }}][ifsc]"
-                                            value="{{ $cheque['ifsc'] ?? '' }}" required>
+                                        <input type="text"
+                                            @if (!$isLocked) name="cheque_details[{{ $index }}][ifsc]" @endif
+                                            value="{{ $cheque['ifsc'] ?? ($bankDetails['ifsc'] ?? '') }}"
+                                            @if ($isLocked) disabled @else required @endif>
+                                        @if ($isLocked)
+                                            <input type="hidden" name="cheque_details[{{ $index }}][ifsc]"
+                                                value="{{ $cheque['ifsc'] ?? ($bankDetails['ifsc'] ?? '') }}">
+                                        @endif
                                     </div>
                                     <div class="cheque-form-field">
                                         <label class="form-label">Account Number</label>
-                                        <input type="text" name="cheque_details[{{ $index }}][account_number]"
-                                            value="{{ $cheque['account_number'] ?? '' }}" required>
+                                        <input type="text"
+                                            @if (!$isLocked) name="cheque_details[{{ $index }}][account_number]" @endif
+                                            value="{{ $cheque['account_number'] ?? ($bankDetails['account_number'] ?? '') }}"
+                                            @if ($isLocked) disabled @else required @endif>
+                                        @if ($isLocked)
+                                            <input type="hidden" name="cheque_details[{{ $index }}][account_number]"
+                                                value="{{ $cheque['account_number'] ?? ($bankDetails['account_number'] ?? '') }}">
+                                        @endif
                                     </div>
                                     <div class="cheque-form-field">
                                         <label class="form-label">Cheque Number</label>
-                                        <input type="text" name="cheque_details[{{ $index }}][cheque_number]"
-                                            value="{{ $cheque['cheque_number'] ?? '' }}" required>
+                                        <input type="text"
+                                            @if (!$isLocked) name="cheque_details[{{ $index }}][cheque_number]" @endif
+                                            value="{{ $cheque['cheque_number'] ?? '' }}"
+                                            @if ($isLocked) disabled @else required @endif>
+                                        @if ($isLocked)
+                                            <input type="hidden" name="cheque_details[{{ $index }}][cheque_number]"
+                                                value="{{ $cheque['cheque_number'] ?? '' }}">
+                                        @endif
                                     </div>
                                     <div class="cheque-form-actions">
-                                        @if ($loop->first)
+                                        @if ($isLocked)
+                                            <span class="badge bg-secondary">Repaid - Locked</span>
+                                            @if ($loop->first)
+                                                <button type="button" class="btn-add-cheque" onclick="addChequeRow()">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            @endif
+                                        @elseif ($loop->first)
                                             <button type="button" class="btn-add-cheque" onclick="addChequeRow()">
                                                 <i class="fas fa-plus"></i>
                                             </button>
@@ -663,15 +773,18 @@
                                 </div>
                                 <div class="cheque-form-field">
                                     <label class="form-label">Bank Name</label>
-                                    <input type="text" name="cheque_details[0][bank_name]" required>
+                                    <input type="text" name="cheque_details[0][bank_name]"
+                                        value="{{ $bankDetails['bank_name'] ?? '' }}" required>
                                 </div>
                                 <div class="cheque-form-field">
                                     <label class="form-label">IFSC Code</label>
-                                    <input type="text" name="cheque_details[0][ifsc]" required>
+                                    <input type="text" name="cheque_details[0][ifsc]"
+                                        value="{{ $bankDetails['ifsc'] ?? '' }}" required>
                                 </div>
                                 <div class="cheque-form-field">
                                     <label class="form-label">Account Number</label>
-                                    <input type="text" name="cheque_details[0][account_number]" required>
+                                    <input type="text" name="cheque_details[0][account_number]"
+                                        value="{{ $bankDetails['account_number'] ?? '' }}" required>
                                 </div>
                                 <div class="cheque-form-field">
                                     <label class="form-label">Cheque Number</label>
@@ -712,6 +825,11 @@
         newRow.className = 'cheque-form-row';
         newRow.setAttribute('data-cheque-index', chequeIndex);
 
+        // Get bank details from PHP variables
+        const bankName = '{{ $bankDetails['bank_name'] ?? '' }}';
+        const ifscCode = '{{ $bankDetails['ifsc'] ?? '' }}';
+        const accountNumber = '{{ $bankDetails['account_number'] ?? '' }}';
+
         newRow.innerHTML = `
             <div class="cheque-form-field">
                 <label class="form-label">Parents JNT A/C Name</label>
@@ -727,15 +845,15 @@
             </div>
             <div class="cheque-form-field">
                 <label class="form-label">Bank Name</label>
-                <input type="text" name="cheque_details[${chequeIndex}][bank_name]" required>
+                <input type="text" name="cheque_details[${chequeIndex}][bank_name]" value="${bankName}" required>
             </div>
             <div class="cheque-form-field">
                 <label class="form-label">IFSC Code</label>
-                <input type="text" name="cheque_details[${chequeIndex}][ifsc]" required>
+                <input type="text" name="cheque_details[${chequeIndex}][ifsc]" value="${ifscCode}" required>
             </div>
             <div class="cheque-form-field">
                 <label class="form-label">Account Number</label>
-                <input type="text" name="cheque_details[${chequeIndex}][account_number]" required>
+                <input type="text" name="cheque_details[${chequeIndex}][account_number]" value="${accountNumber}" required>
             </div>
             <div class="cheque-form-field">
                 <label class="form-label">Cheque Number</label>
@@ -772,4 +890,5 @@
             fileNameDisplay.style.color = 'var(--text-light)';
         }
     });
+
 </script>

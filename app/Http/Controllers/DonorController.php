@@ -155,6 +155,7 @@ class DonorController extends Controller
             'email' => 'required|email|max:255|unique:admin_panel.donors,email',
             'phone' => 'nullable|string|max:20',
             'donor_type' => 'nullable|in:member,general',
+            'membership_number' => 'required|unique:admin_panel.donors',
         ];
 
         // Only require password for member donors
@@ -173,6 +174,7 @@ class DonorController extends Controller
             'donor_type' => $request->donor_type ?? 'member',
             'can_login' => $request->donor_type === 'general' ? false : true,
             'status' => 'active',
+            'membership_number' => $request->membership_number,
         ];
 
         // Only set password for member donors
@@ -203,6 +205,7 @@ class DonorController extends Controller
             'phone' => 'nullable|string|max:20',
             'membership_number' => 'nullable',
             'password' => 'nullable|string|min:8|confirmed',
+            'membership_number' => 'required|unique:admin_panel.donors',
         ]);
 
         $updateData = [

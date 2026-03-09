@@ -308,6 +308,127 @@
             padding: 0;
         }
 
+        .topbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .notification-dropdown {
+            position: relative;
+        }
+
+        .notification-bell {
+            width: 52px;
+            height: 52px;
+            border: none;
+            border-radius: 50%;
+            background: white;
+            color: var(--primary-color);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+            position: relative;
+        }
+
+        .notification-bell:hover {
+            background: #f8f9ff;
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: #E31E24;
+            border: 2px solid white;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -4px;
+            right: -2px;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            background: #E31E24;
+            color: white;
+            font-size: 0.72rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 6px;
+        }
+
+        .notification-menu {
+            width: 360px;
+            max-width: calc(100vw - 2rem);
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.16);
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .notification-header {
+            padding: 1rem 1.25rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #4a3fa5 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .notification-list {
+            max-height: 420px;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .notification-item {
+            display: block;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #eef1f5;
+            color: inherit;
+            text-decoration: none;
+            background: white;
+        }
+
+        .notification-item:hover {
+            background: #f8f9ff;
+            color: inherit;
+        }
+
+        .notification-item.unread {
+            background: #fff8e8;
+        }
+
+        .notification-item-title {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.35rem;
+        }
+
+        .notification-item-text {
+            font-size: 0.86rem;
+            color: #5b6472;
+            margin-bottom: 0.35rem;
+            line-height: 1.4;
+        }
+
+        .notification-item-time {
+            font-size: 0.76rem;
+            color: #8b94a3;
+        }
+
+        .notification-empty {
+            padding: 1.25rem;
+            text-align: center;
+            color: #7b8592;
+            background: white;
+        }
+
         .section-card {
             background: white;
             border-radius: var(--border-radius);
@@ -340,7 +461,7 @@
             background: linear-gradient(135deg, var(--primary-color) 0%, #4a3fa5 100%);
             border: none;
             color: white;
-            padding: 0.75rem 2rem;
+            
             border-radius: 25px;
             font-weight: 500;
             transition: all 0.3s ease;
@@ -357,7 +478,18 @@
             background: linear-gradient(135deg, var(--success-color) 0%, #00b855 100%);
             border: none;
             color: white;
-            padding: 0.75rem 2rem;
+            
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 152, 70, 0.3);
+        }
+
+        .btn-warning {
+            background: yellow;
+            border: none;
+            color: rgb(136, 128, 128);
+            
             border-radius: 25px;
             font-weight: 500;
             transition: all 0.3s ease;
@@ -374,7 +506,7 @@
             background: linear-gradient(135deg, var(--secondary-color) 0%, #f9282e 100%);
             border: none;
             color: white;
-            padding: 0.75rem 2rem;
+            
             border-radius: 25px;
             font-weight: 500;
             transition: all 0.3s ease;
@@ -867,6 +999,37 @@
 
     <div class="main-content">
         <div class="dashboard-container">
+            @if (($layoutNotificationActor->role ?? null) && in_array($layoutNotificationActor->role, ['admin', 'apex']))
+                <div class="topbar">
+                    <div class="dropdown notification-dropdown">
+                        <button class="notification-bell dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <i class="fas fa-bell"></i>
+                            @if (($layoutUnreadNotificationCount ?? 0) > 0)
+                                <span class="notification-dot"></span>
+                                <span class="notification-count">{{ min($layoutUnreadNotificationCount, 99) }}</span>
+                            @endif
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end notification-menu">
+                            <div class="notification-header">Notifications</div>
+                            <div class="notification-list">
+                                @forelse ($layoutNotifications ?? [] as $notification)
+                                    <a href="{{ $notification->action_url ?: '#' }}"
+                                        class="notification-item {{ $notification->is_read ? '' : 'unread' }}"
+                                        data-notification-id="{{ $notification->id }}"
+                                        data-read-url="{{ route('admin.notifications.read', $notification->id) }}">
+                                        <div class="notification-item-title">{{ $notification->title }}</div>
+                                        <div class="notification-item-text">{{ $notification->message }}</div>
+                                        <div class="notification-item-time">{{ $notification->created_at?->diffForHumans() }}</div>
+                                    </a>
+                                @empty
+                                    <div class="notification-empty">No notifications found.</div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
             @yield('content')
         </div>
     </div>
@@ -895,6 +1058,31 @@
             </script>
         @endif
         <script>
+            document.querySelectorAll('.notification-item[data-read-url]').forEach((item) => {
+                item.addEventListener('click', function(event) {
+                    const readUrl = this.dataset.readUrl;
+                    const targetUrl = this.getAttribute('href');
+
+                    if (!readUrl || !targetUrl || targetUrl === '#') {
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    fetch(readUrl, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json',
+                            },
+                        })
+                        .finally(() => {
+                            window.location.href = targetUrl;
+                        });
+                });
+            });
+
             // Sidebar toggle functionality
             function toggleSidebar() {
                 const sidebar = document.getElementById('sidebar');

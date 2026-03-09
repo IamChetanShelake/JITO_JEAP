@@ -19,12 +19,13 @@ use App\Http\Controllers\ApexLeadershipController;
 use App\Http\Controllers\WorkingCommitteeController;
 use App\Http\Controllers\InitiativeController;
 use App\Http\Controllers\AccountantController;
+use App\Http\Controllers\AdminNotificationController;
 
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\WebsiteController;
 
 
-Route::get('/', function () {
+Route::get('/login', function () {
     return view('auth.login');
 });
 
@@ -238,6 +239,7 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // Logs Routes
     Route::get('/logs/', [AdminController::class, 'showUserLogs'])->name('logs');
     Route::get('/logs/user/{user}', [AdminController::class, 'showUserLogs'])->name('user.logs');
+    Route::post('/notifications/{notification}/read', [AdminNotificationController::class, 'read'])->name('notifications.read');
 });
 
 // User Routes - Protected by auth and user middleware
@@ -345,6 +347,10 @@ Route::middleware(['auth', 'user'])
 
         // View Sanction Letter
         Route::get('/{user}/sanction-letter', [AdminController::class, 'viewSanctionLetter'])->name('sanction.letter');
+
+        // Route for above 1 lakh application redirection
+        Route::get('/above-1-lakh-application', [UserController::class, 'above1LakhApplication'])
+            ->name('above.1.lakh.application');
     });
 
 

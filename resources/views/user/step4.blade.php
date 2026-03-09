@@ -634,18 +634,7 @@
 
                                         <div class="form-group mb-3">
                                             <label for="bank_name">Bank Name <span style="color: red">*</span></label>
-                                            {{-- <select class="form-control" name="bank_name" required>
-                                                <option value=""
-                                                    {{ !old('bank_name') && !$fundingDetail ? 'selected' : '' }} disabled
-                                                    hidden>Select Bank </option>
-                                                @foreach ($banks as $bank)
-                                                    <option value="{{ $bank->name }}"
-                                                        {{ old('bank_name') == $bank->name || ($fundingDetail && $fundingDetail->bank_name === $bank->name) ? 'selected' : '' }}>
-                                                        {{ $bank->name }}
-                                                    </option>
 
-                                                @endforeach
-                                            </select> --}}
                                             <select class="form-control" name="bank_name" id="bank_name" required>
                                                 <option value="" hidden>Select Bank</option>
 
@@ -670,6 +659,13 @@
                                                 value="{{ old('account_holder_name', $fundingDetail->account_holder_name ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('account_holder_name') }}</small>
                                         </div> --}}
+                                        <div class="form-group mb-3">
+                                            <label for="ifsc_code">IFSC Code <span style="color: red">*</span></label>
+                                            <input type="text" class="form-control" name="ifsc_code" id="ifsc_code"
+                                                placeholder="IFSC Code "
+                                                value="{{ old('ifsc_code', $fundingDetail->ifsc_code ?? '') }}">
+                                            <small class="text-danger">{{ $errors->first('ifsc_code') }}</small>
+                                        </div>
 
 
                                         <div class="form-group mb-3">
@@ -680,13 +676,13 @@
                                                 value="{{ old('account_number', $fundingDetail->account_number ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('account_number') }}</small>
                                         </div>
-                                        <div class="form-group mb-3">
+                                        {{--  <div class="form-group mb-3">
                                             <label for="ifsc_code">IFSC Code <span style="color: red">*</span></label>
                                             <input type="text" class="form-control" name="ifsc_code" id="ifsc_code"
                                                 placeholder="IFSC Code "
                                                 value="{{ old('ifsc_code', $fundingDetail->ifsc_code ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('ifsc_code') }}</small>
-                                        </div>
+                                        </div>  --}}
                                     </div>
 
                                     <!-- Right Column -->
@@ -1036,7 +1032,7 @@
                     const modal = new bootstrap.Modal(document.getElementById('otherBankModal'));
                     modal.show();
 
-                    // Clear auto-filled fields
+                    // Clear auto-filled fields - user will fill manually
                     document.getElementById('account_holder_name').value = '';
                     document.getElementById('branch_name').value = '';
                     document.getElementById('bank_address').value = '';
@@ -1048,9 +1044,9 @@
 
             function validateIFSCWithSelectedBank() {
 
+                // For OTHER bank, skip IFSC validation and allow manual entry
                 if (isOtherBank) {
-                    // ❌ Other bank असल्यास API call नाही
-                    return false;
+                    return true;
                 }
 
                 const selectedOption = bankSelect.options[bankSelect.selectedIndex];
@@ -1064,7 +1060,7 @@
                 if (bankIfscPrefix !== userIfsc) {
 
                     showBankError(
-                        'The IFSC code you entered does not match the selected registered bank. Please check and enter a valid IFSC code.'
+                        'IFSC code format does not match. The first 4 digits of your IFSC code must match the selected bank.'
                     );
 
 
@@ -1086,18 +1082,27 @@
             // IFSC blur event
             ifscInput.addEventListener('blur', function() {
 
+                // For OTHER bank - don't hit API, user fills manually
+                if (isOtherBank) {
+                    return;
+                }
+
+                // Validate IFSC format for dynamic banks
                 if (!validateIFSCWithSelectedBank()) {
                     return;
                 }
 
-                // ✅ IFSC match झाला तरच API hit होईल
-                validateBankAccount(); // तुझा existing function
+                // If IFSC matches for dynamic bank, hit the API
+                validateBankAccount();
             });
 
             accountInput.addEventListener('blur', function() {
-                if (!isOtherBank) {
-                    validateBankAccount();
+                // For OTHER bank - don't hit API, user fills manually
+                if (isOtherBank) {
+                    return;
                 }
+                // For dynamic banks - hit bank validation API
+                validateBankAccount();
             });
 
         });

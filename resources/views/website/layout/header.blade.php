@@ -805,7 +805,7 @@
                                                                 style="padding: 6px 14px; border-radius: 6px; font-weight: 500; width: 100%;">Login</a> --}}
                                                             <a class="btn btn-success btn-sm"
                                                                 href=""
-                                                                style="padding: 6px 14px; border-radius: 6px; font-weight: 500; width: 100%;">Register</a>
+                                                                style="padding: 6px 14px; border-radius: 6px; font-weight: 500; width: 100%;">Login</a>
                                                         </div>
                                                     @else
                                                         <div class="px-3 py-2">
@@ -852,7 +852,7 @@
                                             href="{{ route('login') }}"
                                             style="padding: 6px 14px; border-radius: 6px ; border-color: gray; font-weight: 500; width: 140px; height: 40px;">Login</a> --}}
                                         <a class="btn btn-success" href=""
-                                            style="padding: 6px 14px; border-radius: 6px; font-weight: 500;width: 140px; height: 40px;margin-right:20px;">Register</a>
+                                            style="padding: 6px 14px; border-radius: 6px; font-weight: 500;width: 140px; height: 40px;margin-right:20px;">Login</a>
                                     </div>
                                 @else
                                     <div class="">

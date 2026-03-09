@@ -305,7 +305,7 @@
             color: #e0e0e0;
         }
 
-        .actions-cell {
+        . {
             display: flex;
             justify-content: center;
             gap: 0.2rem;
@@ -407,7 +407,7 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td><span class="badge badge-light">{{ $bank->name }}</span></td>
                                 <td><span class="badge badge-light">{{ $bank->ifsc_code ?? 'N/A' }}</span></td>
-                                <td class="actions-cell">
+                                <td class="">
                                     <a href="{{ route('admin.banks.edit', $bank) }}" class="action-btn edit-btn">
                                         <i class="fas fa-edit"></i>
                                     </a>

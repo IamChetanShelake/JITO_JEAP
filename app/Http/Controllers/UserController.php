@@ -1276,6 +1276,8 @@ class UserController extends Controller
             'recent_electricity_amount' => $request->recent_electricity_amount,
             'total_monthly_emi' => $request->total_monthly_emi,
             'mediclaim_insurance_amount' => $request->mediclaim_insurance_amount,
+            'current_year_itr' => $request->current_year_itr,
+            'last_year_itr' => $request->last_year_itr,
             'additional_family_members' => json_encode($additional_family_members),
             // Relatives
             'paternal_uncle_name' => $request->paternal_uncle_name,

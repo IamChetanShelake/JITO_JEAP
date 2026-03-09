@@ -822,7 +822,7 @@
             <div class="user-info-header">
                 <div class="user-avatar">
                     @if ($user->image)
-                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img">
+                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img"  style="width:90px;">
                     @else
                         {{ strtoupper(substr($user->name, 0, 1)) }}
                     @endif
@@ -892,7 +892,7 @@
                 <span class="step-number">4</span>
                 <span class="step-title">Funding Details</span>
             </div>
-             @if (!$isBelowLoan)
+            @if (!$isBelowLoan)
                 <div class="step-nav-item step-5" onclick="showStep(5)">
                     <span class="step-number">5</span>
                     <span class="step-title">Guarantor Details</span>
@@ -1470,6 +1470,16 @@
                                     <input type="text" class="form-input"
                                         value="₹{{ number_format($user->familyDetail->total_monthly_emi) }}" readonly>
                                 </div>
+                                <div class="form-field">
+                                    <label class="form-label">Current Year ITR</label>
+                                    <input type="text" class="form-input"
+                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Last Year ITR</label>
+                                    <input type="text" class="form-input"
+                                        value="₹{{ number_format($user->familyDetail->last_year_itr ?? 0) }}" readonly>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1596,7 +1606,8 @@
                                             <td>{{ $user->fundingDetail->family_funding_contact ?? '-' }}</td>
                                             <td>{{ $user->fundingDetail->family_funding_mobile ?? '-' }}</td>
                                             <td class="amount-cell">
-                                                ₹{{ number_format($user->fundingDetail->family_funding_amount ?? 0) }}</td>
+                                                ₹{{ number_format($user->fundingDetail->family_funding_amount ?? 0) }}
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td>Bank Loan</td>
@@ -1614,7 +1625,8 @@
                                             <td>{{ $user->fundingDetail->other_assistance1_contact ?? '-' }}</td>
                                             <td>{{ $user->fundingDetail->other_assistance1_mobile ?? '-' }}</td>
                                             <td class="amount-cell">
-                                                ₹{{ number_format($user->fundingDetail->other_assistance1_amount ?? 0) }}</td>
+                                                ₹{{ number_format($user->fundingDetail->other_assistance1_amount ?? 0) }}
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td>Other Assistance (2)</td>
@@ -1623,7 +1635,8 @@
                                             <td>{{ $user->fundingDetail->other_assistance2_contact ?? '-' }}</td>
                                             <td>{{ $user->fundingDetail->other_assistance2_mobile ?? '-' }}</td>
                                             <td class="amount-cell">
-                                                ₹{{ number_format($user->fundingDetail->other_assistance2_amount ?? 0) }}</td>
+                                                ₹{{ number_format($user->fundingDetail->other_assistance2_amount ?? 0) }}
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td>Local Assistance</td>
@@ -1632,7 +1645,8 @@
                                             <td>{{ $user->fundingDetail->local_assistance_contact ?? '-' }}</td>
                                             <td>{{ $user->fundingDetail->local_assistance_mobile ?? '-' }}</td>
                                             <td class="amount-cell">
-                                                ₹{{ number_format($user->fundingDetail->local_assistance_amount ?? 0) }}</td>
+                                                ₹{{ number_format($user->fundingDetail->local_assistance_amount ?? 0) }}
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td colspan="5" style="text-align:right;font-weight:600">Total</td>
@@ -1710,197 +1724,203 @@
         </div>
 
         @if (!$isBelowLoan)
-        <!-- Step 5: Guarantor Details -->
-        <div class="step-content" id="step-5">
-            <div class="step-header">
-                <h2 class="step-title-large">Step 5: Guarantor Details</h2>
-                <div class="step-status">
-                    <span
-                        class="status-badge status-{{ $user->guarantorDetail ? ($user->guarantorDetail->submit_status == 'approved' ? 'approved' : ($user->guarantorDetail->submit_status == 'resubmit' ? 'hold' : 'pending')) : 'pending' }}">
-                        <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
-                        {{ $user->guarantorDetail ? ucfirst($user->guarantorDetail->submit_status) : 'Pending' }}
-                    </span>
+            <!-- Step 5: Guarantor Details -->
+            <div class="step-content" id="step-5">
+                <div class="step-header">
+                    <h2 class="step-title-large">Step 5: Guarantor Details</h2>
+                    <div class="step-status">
+                        <span
+                            class="status-badge status-{{ $user->guarantorDetail ? ($user->guarantorDetail->submit_status == 'approved' ? 'approved' : ($user->guarantorDetail->submit_status == 'resubmit' ? 'hold' : 'pending')) : 'pending' }}">
+                            <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                            {{ $user->guarantorDetail ? ucfirst($user->guarantorDetail->submit_status) : 'Pending' }}
+                        </span>
+                    </div>
                 </div>
+
+                @if ($user->guarantorDetail)
+                    <div class="form-data">
+                        <div class="data-group">
+                            <h4>Guarantor 1</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Gender</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ ucfirst($user->guarantorDetail->g_one_gender ?? 'N/A') }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Date of Birth</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ optional($user->guarantorDetail->g_one_d_o_b)->format ? $user->guarantorDetail->g_one_d_o_b : $user->guarantorDetail->g_one_d_o_b ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Relation</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_relation_with_student ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Phone</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_phone ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Email</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_email ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label">Permanent Address</label>
+                                        <textarea class="form-textarea" readonly>{{ $user->guarantorDetail->g_one_permanent_flat_no ?? '' }} {{ $user->guarantorDetail->g_one_permanent_address ?? '' }} {{ $user->guarantorDetail->g_one_permanent_city ?? '' }}, {{ $user->guarantorDetail->g_one_permanent_district ?? '' }} {{ $user->guarantorDetail->g_one_permanent_state ?? '' }} - {{ $user->guarantorDetail->g_one_permanent_pincode ?? '' }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Service / Business</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_srvice ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Annual Income</label>
+                                        <input type="text" class="form-input"
+                                            value="@if (is_numeric($user->guarantorDetail->g_one_income)) ₹{{ number_format($user->guarantorDetail->g_one_income) }} @else {{ $user->guarantorDetail->g_one_income ?? 'N/A' }} @endif"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Aadhaar</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_aadhar_card_number ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">PAN Card No</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_pan_card_no ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">PAN Upload</label>
+                                        <div class="form-input"
+                                            style="padding:0.5rem; background:transparent; border:none;">
+                                            @if (!empty($user->guarantorDetail->g_one_pan_card_upload))
+                                                <a href="#"
+                                                    onclick="openModal('{{ asset($user->guarantorDetail->g_one_pan_card_upload) }}')">View
+                                                    PAN</a>
+                                            @else
+                                                <span style="color:#6c757d;">N/A</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="data-group">
+                            <h4>Guarantor 2</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Gender</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ ucfirst($user->guarantorDetail->g_two_gender ?? 'N/A') }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Date of Birth</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ optional($user->guarantorDetail->g_two_d_o_b)->format ? $user->guarantorDetail->g_two_d_o_b : $user->guarantorDetail->g_two_d_o_b ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Relation</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_relation_with_student ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Phone</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_phone ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Email</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_email ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label">Permanent Address</label>
+                                        <textarea class="form-textarea" readonly>{{ $user->guarantorDetail->g_two_permanent_flat_no ?? '' }} {{ $user->guarantorDetail->g_two_permanent_address ?? '' }} {{ $user->guarantorDetail->g_two_permanent_city ?? '' }}, {{ $user->guarantorDetail->g_two_permanent_district ?? '' }} {{ $user->guarantorDetail->g_two_permanent_state ?? '' }} - {{ $user->guarantorDetail->g_two_permanent_pincode ?? '' }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Service / Business</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_srvice ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Annual Income</label>
+                                        <input type="text" class="form-input"
+                                            value="@if (is_numeric($user->guarantorDetail->g_two_income)) ₹{{ number_format($user->guarantorDetail->g_two_income) }} @else {{ $user->guarantorDetail->g_two_income ?? 'N/A' }} @endif"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Aadhaar</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_aadhar_card_number ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">PAN Card No</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_pan_card_no ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">PAN Upload</label>
+                                        <div class="form-input"
+                                            style="padding:0.5rem; background:transparent; border:none;">
+                                            @if (!empty($user->guarantorDetail->g_two_pan_card_upload))
+                                                <a href="#"
+                                                    onclick="openModal('{{ asset($user->guarantorDetail->g_two_pan_card_upload) }}')">View
+                                                    PAN</a>
+                                            @else
+                                                <span style="color:#6c757d;">N/A</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <div class="no-data">
+                        <p>Guarantor details not submitted yet.</p>
+                    </div>
+                @endif
             </div>
-
-            @if ($user->guarantorDetail)
-                <div class="form-data">
-                    <div class="data-group">
-                        <h4>Guarantor 1</h4>
-                        <div class="form-section">
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Name</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_one_name ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Gender</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ ucfirst($user->guarantorDetail->g_one_gender ?? 'N/A') }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Date of Birth</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ optional($user->guarantorDetail->g_one_d_o_b)->format ? $user->guarantorDetail->g_one_d_o_b : $user->guarantorDetail->g_one_d_o_b ?? 'N/A' }}"
-                                        readonly>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Relation</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_one_relation_with_student ?? 'N/A' }}"
-                                        readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Phone</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_one_phone ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Email</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_one_email ?? 'N/A' }}" readonly>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field form-field-full">
-                                    <label class="form-label">Permanent Address</label>
-                                    <textarea class="form-textarea" readonly>{{ $user->guarantorDetail->g_one_permanent_flat_no ?? '' }} {{ $user->guarantorDetail->g_one_permanent_address ?? '' }} {{ $user->guarantorDetail->g_one_permanent_city ?? '' }}, {{ $user->guarantorDetail->g_one_permanent_district ?? '' }} {{ $user->guarantorDetail->g_one_permanent_state ?? '' }} - {{ $user->guarantorDetail->g_one_permanent_pincode ?? '' }}</textarea>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Service / Business</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_one_srvice ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Annual Income</label>
-                                    <input type="text" class="form-input"
-                                        value="@if (is_numeric($user->guarantorDetail->g_one_income)) ₹{{ number_format($user->guarantorDetail->g_one_income) }} @else {{ $user->guarantorDetail->g_one_income ?? 'N/A' }} @endif"
-                                        readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Aadhaar</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_one_aadhar_card_number ?? 'N/A' }}" readonly>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">PAN Card No</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_one_pan_card_no ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">PAN Upload</label>
-                                    <div class="form-input" style="padding:0.5rem; background:transparent; border:none;">
-                                        @if (!empty($user->guarantorDetail->g_one_pan_card_upload))
-                                            <a href="#"
-                                                onclick="openModal('{{ asset($user->guarantorDetail->g_one_pan_card_upload) }}')">View
-                                                PAN</a>
-                                        @else
-                                            <span style="color:#6c757d;">N/A</span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="data-group">
-                        <h4>Guarantor 2</h4>
-                        <div class="form-section">
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Name</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_two_name ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Gender</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ ucfirst($user->guarantorDetail->g_two_gender ?? 'N/A') }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Date of Birth</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ optional($user->guarantorDetail->g_two_d_o_b)->format ? $user->guarantorDetail->g_two_d_o_b : $user->guarantorDetail->g_two_d_o_b ?? 'N/A' }}"
-                                        readonly>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Relation</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_two_relation_with_student ?? 'N/A' }}"
-                                        readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Phone</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_two_phone ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Email</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_two_email ?? 'N/A' }}" readonly>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field form-field-full">
-                                    <label class="form-label">Permanent Address</label>
-                                    <textarea class="form-textarea" readonly>{{ $user->guarantorDetail->g_two_permanent_flat_no ?? '' }} {{ $user->guarantorDetail->g_two_permanent_address ?? '' }} {{ $user->guarantorDetail->g_two_permanent_city ?? '' }}, {{ $user->guarantorDetail->g_two_permanent_district ?? '' }} {{ $user->guarantorDetail->g_two_permanent_state ?? '' }} - {{ $user->guarantorDetail->g_two_permanent_pincode ?? '' }}</textarea>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">Service / Business</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_two_srvice ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Annual Income</label>
-                                    <input type="text" class="form-input"
-                                        value="@if (is_numeric($user->guarantorDetail->g_two_income)) ₹{{ number_format($user->guarantorDetail->g_two_income) }} @else {{ $user->guarantorDetail->g_two_income ?? 'N/A' }} @endif"
-                                        readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Aadhaar</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_two_aadhar_card_number ?? 'N/A' }}" readonly>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label class="form-label">PAN Card No</label>
-                                    <input type="text" class="form-input"
-                                        value="{{ $user->guarantorDetail->g_two_pan_card_no ?? 'N/A' }}" readonly>
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">PAN Upload</label>
-                                    <div class="form-input" style="padding:0.5rem; background:transparent; border:none;">
-                                        @if (!empty($user->guarantorDetail->g_two_pan_card_upload))
-                                            <a href="#"
-                                                onclick="openModal('{{ asset($user->guarantorDetail->g_two_pan_card_upload) }}')">View
-                                                PAN</a>
-                                        @else
-                                            <span style="color:#6c757d;">N/A</span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @else
-                <div class="no-data">
-                    <p>Guarantor details not submitted yet.</p>
-                </div>
-            @endif
-        </div>
         @endif
 
         <!-- Step 6: Documents -->
@@ -2096,14 +2116,16 @@
 
             <!-- Inside step-8 content-area, after the if conditions for approved/hold/rejected -->
 
-            {{-- @if ($user->workflowStatus && in_array($user->workflowStatus->working_committee_status, ['approved', 'hold', 'rejected']))
+            @if (
+                $user->workflowStatus &&
+                    in_array($user->workflowStatus->working_committee_status, ['approved', 'hold', 'rejected']))
                 <div style="margin-top: 2rem; text-align: right;">
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                         data-bs-target="#editWorkingCommitteeModal">
                         <i class="fas fa-edit"></i> Edit Working Committee Decision
                     </button>
                 </div>
-            @endif --}}
+            @endif
 
             @if ($user->workflowStatus && $user->workflowStatus->working_committee_status === 'approved')
                 <!-- Display Submitted Working Committee Data -->
@@ -2255,6 +2277,32 @@
                                     <label class="form-label">Processed By</label>
                                     <input type="text" class="form-input"
                                         value="{{ $user->workingCommitteeApproval->processed_by_name ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Can he/she be JITO Member?</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ ucfirst($user->workingCommitteeApproval->can_be_jito_member ?? 'N/A') }}"
+                                        readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">JITO Member Date</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->workingCommitteeApproval->jito_member_date ? \Carbon\Carbon::parse($user->workingCommitteeApproval->jito_member_date)->format('d M Y') : 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Can he/she be Donor for JEAP?</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ ucfirst($user->workingCommitteeApproval->can_be_jeap_donor ?? 'N/A') }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">JEAP Donor Date</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->workingCommitteeApproval->jeap_donor_date ? \Carbon\Carbon::parse($user->workingCommitteeApproval->jeap_donor_date)->format('d M Y') : 'N/A' }}"
                                         readonly>
                                 </div>
                                 {{--  <div class="form-field">
@@ -2644,6 +2692,12 @@
                                                     <input type="number" name="total[]"
                                                         class="installment-total form-input" readonly>
                                                 </div>
+                                                <div class="form-field2" style="display:flex; align-items:end;">
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-outline-danger remove-installment">
+                                                        Remove
+                                                    </button>
+                                                </div>
                                             </div>
 
 
@@ -2687,16 +2741,40 @@
                                                     <option value="monthly">Monthly</option>
                                                 </select>
                                             </div>
-                                            <div class="form-field">
-                                                <label class="form-label">Repayment Starting From</label>
-                                                <input type="date" name="repayment_starting_from"
-                                                    class="form-input">
-                                            </div>
-                                            <div class="form-field">
-                                                <label class="form-label">Processed By</label>
-                                                <input type="text" name="processed_by_name" class="form-input"
-                                                    value="{{ Auth::user()->name ?? 'N/A' }}" readonly>
-                                            </div>
+                            <div class="form-field">
+                                <label class="form-label">Repayment Starting From</label>
+                                <input type="date" name="repayment_starting_from"
+                                    class="form-input">
+                            </div>
+                            <div class="form-field">
+                                <label class="form-label">Can he/she be JITO Member?</label>
+                                <select name="can_be_jito_member" class="form-input" id="can-be-jito-member">
+                                    <option value="">Select</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                            <div class="form-field" id="jito-member-date-field" style="display:none;">
+                                <label class="form-label">JITO Member Date</label>
+                                <input type="date" name="jito_member_date" class="form-input">
+                            </div>
+                            <div class="form-field">
+                                <label class="form-label">Can he/she be Donor for JEAP?</label>
+                                <select name="can_be_jeap_donor" class="form-input" id="can-be-jeap-donor">
+                                    <option value="">Select</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                            <div class="form-field" id="jeap-donor-date-field" style="display:none;">
+                                <label class="form-label">JEAP Donor Date</label>
+                                <input type="date" name="jeap_donor_date" class="form-input">
+                            </div>
+                            <div class="form-field">
+                                <label class="form-label">Processed By</label>
+                                <input type="text" name="processed_by_name" class="form-input"
+                                    value="{{ Auth::user()->name ?? 'N/A' }}" readonly>
+                            </div>
                                         </div>
 
 
@@ -2849,6 +2927,24 @@
                     generateYearlyFields(this.value);
                 });
             }
+
+            const canBeJitoMemberSelect = document.getElementById('can-be-jito-member');
+            const jitoMemberDateField = document.getElementById('jito-member-date-field');
+            const canBeJeapDonorSelect = document.getElementById('can-be-jeap-donor');
+            const jeapDonorDateField = document.getElementById('jeap-donor-date-field');
+
+            function toggleCreateExtraFields() {
+                if (jitoMemberDateField) {
+                    jitoMemberDateField.style.display = canBeJitoMemberSelect?.value === 'yes' ? 'block' : 'none';
+                }
+                if (jeapDonorDateField) {
+                    jeapDonorDateField.style.display = canBeJeapDonorSelect?.value === 'yes' ? 'block' : 'none';
+                }
+            }
+
+            canBeJitoMemberSelect?.addEventListener('change', toggleCreateExtraFields);
+            canBeJeapDonorSelect?.addEventListener('change', toggleCreateExtraFields);
+            toggleCreateExtraFields();
         });
 
         function clearYearlyFields() {
@@ -3022,6 +3118,16 @@
             const rowsContainer = document.getElementById('installment-rows');
             const addBtn = document.getElementById('add-installment');
 
+            function toggleCreateRemoveButtons() {
+                const rows = rowsContainer.querySelectorAll('.installment-row');
+                rows.forEach((row, index) => {
+                    const removeBtn = row.querySelector('.remove-installment');
+                    if (!removeBtn) return;
+                    removeBtn.disabled = rows.length === 1;
+                    removeBtn.style.visibility = rows.length === 1 ? 'hidden' : 'visible';
+                });
+            }
+
             function recalculate() {
                 let sanctionAmount = parseFloat(totalAmountInput.value) || 0;
                 let usedAmount = 0;
@@ -3053,8 +3159,24 @@
                 const newRow = document.querySelector('.installment-row').cloneNode(true);
                 newRow.querySelectorAll('input').forEach(input => input.value = '');
                 rowsContainer.appendChild(newRow);
+                toggleCreateRemoveButtons();
+                recalculate();
             });
 
+            rowsContainer.addEventListener('click', (event) => {
+                const removeBtn = event.target.closest('.remove-installment');
+                if (!removeBtn) return;
+
+                const rows = rowsContainer.querySelectorAll('.installment-row');
+                if (rows.length === 1) return;
+
+                removeBtn.closest('.installment-row')?.remove();
+                toggleCreateRemoveButtons();
+                recalculate();
+            });
+
+            toggleCreateRemoveButtons();
+            recalculate();
 
 
 
@@ -3118,6 +3240,11 @@
                         @csrf
                         @method('PATCH')
 
+                        <div class="alert alert-info mb-3" id="edit-disbursement-lock-note"
+                            style="{{ isset($completedDisbursementSchedules) && $completedDisbursementSchedules->isNotEmpty() ? '' : 'display:none;' }}">
+                            Completed disbursement installments are locked. Only pending installments can be changed here.
+                        </div>
+
                         <!-- Previous Approvals Info (read-only) -->
                         <div
                             style="background: rgba(76, 175, 80, 0.08); padding: 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; border: 1px solid rgba(76, 175, 80, 0.25);">
@@ -3169,12 +3296,12 @@
                                     value="{{ old('meeting_no', $user->workingCommitteeApproval->meeting_no ?? '') }}">
                             </div>
 
-                            <div class="col-md-4">
+                            {{-- <div class="col-md-4">
                                 <label class="form-label">Approved Amount (₹) <span class="text-danger">*</span></label>
                                 <input type="number" name="approval_financial_assistance_amount"
                                     id="edit-total-amount" class="form-control" step="0.01" readonly
                                     value="{{ old('approval_financial_assistance_amount', $user->workingCommitteeApproval->approval_financial_assistance_amount ?? 0) }}">
-                            </div>
+                            </div> --}}
 
                             <!-- Disbursement System -->
                             <div class="col-12">
@@ -3208,6 +3335,31 @@
                                 </div>
                             </div>
 
+                            <div class="col-12" id="edit-half-yearly-section"
+                                style="{{ ($user->workingCommitteeApproval->disbursement_system ?? 'yearly') !== 'half_yearly' ? 'display:none;' : '' }}">
+                                <label class="form-label">Number of Half-Yearly Installments</label>
+                                <select name="disbursement_in_half_year" class="form-control" id="edit-half-year-count">
+                                    <option value="">Select</option>
+                                    @for ($i = 1; $i <= 16; $i++)
+                                        <option value="{{ $i }}"
+                                            {{ count($user->workingCommitteeApproval->half_yearly_dates ?? []) == $i ? 'selected' : '' }}>
+                                            {{ $i }} installment{{ $i > 1 ? 's' : '' }}
+                                        </option>
+                                    @endfor
+                                </select>
+
+                                <div id="edit-half-yearly-fields" class="mt-3">
+                                    <!-- Dynamically filled by JS -->
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Approved Amount (₹) <span class="text-danger">*</span></label>
+                                <input type="number" name="approval_financial_assistance_amount"
+                                    id="edit-total-amount" class="form-control" step="0.01" readonly
+                                    value="{{ old('approval_financial_assistance_amount', $user->workingCommitteeApproval->approval_financial_assistance_amount ?? 0) }}">
+                            </div>
+
                             <!-- Installments -->
                             <div class="col-12">
                                 <h6>Installment Planning</h6>
@@ -3233,6 +3385,12 @@
                                                     <input type="number" class="form-control installment-total"
                                                         readonly
                                                         value="{{ old("total.$idx", $user->workingCommitteeApproval->total[$idx] ?? 0) }}">
+                                                </div>
+                                                <div class="col-md-12 text-end">
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-outline-danger remove-edit-installment">
+                                                        Remove
+                                                    </button>
                                                 </div>
                                             </div>
                                         @endforeach
@@ -3284,6 +3442,46 @@
                                     value="{{ old('repayment_starting_from', optional($user->workingCommitteeApproval->repayment_starting_from)->format('Y-m-d') ?? '') }}">
                             </div>
 
+                            <div class="col-md-3">
+                                <label class="form-label">Can he/she be JITO Member?</label>
+                                <select name="can_be_jito_member" class="form-control" id="edit-can-be-jito-member">
+                                    <option value="">Select</option>
+                                    <option value="yes"
+                                        {{ old('can_be_jito_member', $user->workingCommitteeApproval->can_be_jito_member ?? '') == 'yes' ? 'selected' : '' }}>
+                                        Yes</option>
+                                    <option value="no"
+                                        {{ old('can_be_jito_member', $user->workingCommitteeApproval->can_be_jito_member ?? '') == 'no' ? 'selected' : '' }}>
+                                        No</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3" id="edit-jito-member-date-field"
+                                style="{{ old('can_be_jito_member', $user->workingCommitteeApproval->can_be_jito_member ?? '') === 'yes' ? '' : 'display:none;' }}">
+                                <label class="form-label">JITO Member Date</label>
+                                <input type="date" name="jito_member_date" class="form-control"
+                                    value="{{ old('jito_member_date', optional($user->workingCommitteeApproval->jito_member_date)->format('Y-m-d') ?? '') }}">
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">Can he/she be Donor for JEAP?</label>
+                                <select name="can_be_jeap_donor" class="form-control" id="edit-can-be-jeap-donor">
+                                    <option value="">Select</option>
+                                    <option value="yes"
+                                        {{ old('can_be_jeap_donor', $user->workingCommitteeApproval->can_be_jeap_donor ?? '') == 'yes' ? 'selected' : '' }}>
+                                        Yes</option>
+                                    <option value="no"
+                                        {{ old('can_be_jeap_donor', $user->workingCommitteeApproval->can_be_jeap_donor ?? '') == 'no' ? 'selected' : '' }}>
+                                        No</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3" id="edit-jeap-donor-date-field"
+                                style="{{ old('can_be_jeap_donor', $user->workingCommitteeApproval->can_be_jeap_donor ?? '') === 'yes' ? '' : 'display:none;' }}">
+                                <label class="form-label">JEAP Donor Date</label>
+                                <input type="date" name="jeap_donor_date" class="form-control"
+                                    value="{{ old('jeap_donor_date', optional($user->workingCommitteeApproval->jeap_donor_date)->format('Y-m-d') ?? '') }}">
+                            </div>
+
                             <div class="col-12">
                                 <label class="form-label">Approval Remark</label>
                                 <textarea name="w_c_approval_remark" class="form-control" rows="3" required>{{ old('w_c_approval_remark', $user->workflowStatus->working_committee_approval_remarks ?? '') }}</textarea>
@@ -3316,23 +3514,110 @@
             const editModal = document.getElementById('editWorkingCommitteeModal');
             if (!editModal) return;
 
+            const savedYearlyDates = @json(old('yearly_dates', $user->workingCommitteeApproval->yearly_dates ?? []));
+            const savedYearlyAmounts = @json(old('yearly_amounts', $user->workingCommitteeApproval->yearly_amounts ?? []));
+            const savedHalfYearlyDates = @json(old('half_yearly_dates', $user->workingCommitteeApproval->half_yearly_dates ?? []));
+            const savedHalfYearlyAmounts = @json(old('half_yearly_amounts', $user->workingCommitteeApproval->half_yearly_amounts ?? []));
+            const completedSchedules = @json(($completedDisbursementSchedules ?? collect())->values());
+            const maxLockedInstallmentNo = completedSchedules.length ? Math.max(...completedSchedules.map(item => Number(item.installment_no))) : 0;
+
             // Trigger when modal is shown
             editModal.addEventListener('shown.bs.modal', function() {
 
+                const disbursementSystemSelect = document.getElementById('edit-disbursement-system');
                 const yearCountSelect = document.getElementById('edit-year-count');
                 const yearlySection = document.getElementById('edit-yearly-section');
                 const yearlyFields = document.getElementById('edit-yearly-fields');
+                const halfYearCountSelect = document.getElementById('edit-half-year-count');
+                const halfYearlySection = document.getElementById('edit-half-yearly-section');
+                const halfYearlyFields = document.getElementById('edit-half-yearly-fields');
+                const lockNote = document.getElementById('edit-disbursement-lock-note');
+                const editCanBeJitoMemberSelect = document.getElementById('edit-can-be-jito-member');
+                const editJitoMemberDateField = document.getElementById('edit-jito-member-date-field');
+                const editCanBeJeapDonorSelect = document.getElementById('edit-can-be-jeap-donor');
+                const editJeapDonorDateField = document.getElementById('edit-jeap-donor-date-field');
 
-                // Show yearly section by default (or based on saved value)
-                yearlySection.style.display = 'block';
+                function toggleEditExtraFields() {
+                    if (editJitoMemberDateField) {
+                        editJitoMemberDateField.style.display = editCanBeJitoMemberSelect?.value === 'yes' ? '' : 'none';
+                    }
+                    if (editJeapDonorDateField) {
+                        editJeapDonorDateField.style.display = editCanBeJeapDonorSelect?.value === 'yes' ? '' : 'none';
+                    }
+                }
+
+                function normalizeDate(value) {
+                    return value ? String(value).slice(0, 10) : '';
+                }
+
+                function getCompletedSchedule(installmentNo) {
+                    return completedSchedules.find(item => Number(item.installment_no) === installmentNo) || null;
+                }
+
+                function enforceLockedCount(selectElement) {
+                    const selectedCount = parseInt(selectElement.value || '0', 10);
+
+                    if (maxLockedInstallmentNo > 0 && selectedCount > 0 && selectedCount < maxLockedInstallmentNo) {
+                        selectElement.value = String(maxLockedInstallmentNo);
+
+                        if (lockNote) {
+                            lockNote.classList.remove('alert-info');
+                            lockNote.classList.add('alert-warning');
+                            lockNote.textContent =
+                                `Completed installments 1 to ${maxLockedInstallmentNo} are locked. The plan cannot be reduced below that.`;
+                        }
+                    } else if (lockNote && completedSchedules.length > 0) {
+                        lockNote.classList.remove('alert-warning');
+                        lockNote.classList.add('alert-info');
+                        lockNote.textContent =
+                            'Completed disbursement installments are locked. Only pending installments can be changed here.';
+                    }
+                }
+
+                function buildLockedScheduleFields(type, installmentNo, dateValue, amountValue, label) {
+                    const dateName = `${type}_dates[]`;
+                    const amountName = `${type}_amounts[]`;
+
+                    return `
+                    <div class="col-md-6">
+                        <label>${label} Date <span class="badge bg-secondary ms-1">Disbursed</span></label>
+                        <input type="date" class="form-control" value="${normalizeDate(dateValue)}" disabled>
+                        <input type="hidden" name="${dateName}" value="${normalizeDate(dateValue)}">
+                    </div>
+                    <div class="col-md-6">
+                        <label>${label} Amount <span class="badge bg-secondary ms-1">Locked</span></label>
+                        <input type="number" class="form-control" step="0.01" value="${amountValue ?? ''}" disabled>
+                        <input type="hidden" name="${amountName}" value="${amountValue ?? ''}">
+                    </div>
+                `;
+                }
+
+                function lockCompletedScheduleRows(container, type) {
+                    container.querySelectorAll('.row.g-3.mb-3').forEach((row, index) => {
+                        const installmentNo = index + 1;
+                        const completedSchedule = getCompletedSchedule(installmentNo);
+
+                        if (!completedSchedule) {
+                            return;
+                        }
+
+                        row.innerHTML = buildLockedScheduleFields(
+                            type,
+                            installmentNo,
+                            completedSchedule.planned_date,
+                            completedSchedule.planned_amount,
+                            type === 'yearly' ? `Year ${installmentNo}` : `Half-Year ${installmentNo}`
+                        );
+                    });
+                }
 
                 // Generate yearly fields based on saved data or selection
                 function generateEditYearlyFields(count) {
                     yearlyFields.innerHTML = '';
-                    if (!count || count < 1) return;
-
-                    const savedDates = @json($user->workingCommitteeApproval->yearly_dates ?? []);
-                    const savedAmounts = @json($user->workingCommitteeApproval->yearly_amounts ?? []);
+                    if (!count || count < 1) {
+                        updateEditTotal();
+                        return;
+                    }
 
                     for (let i = 0; i < count; i++) {
                         const div = document.createElement('div');
@@ -3341,16 +3626,18 @@
                     <div class="col-md-6">
                         <label>Year ${i+1} Date</label>
                         <input type="date" name="yearly_dates[]" class="form-control"
-                               value="${savedDates[i] ? new Date(savedDates[i]).toISOString().split('T')[0] : ''}">
+                               value="${savedYearlyDates[i] || ''}">
                     </div>
                     <div class="col-md-6">
                         <label>Year ${i+1} Amount (₹)</label>
                         <input type="number" name="yearly_amounts[]" class="form-control yearly-amount-edit"
-                               step="0.01" value="${savedAmounts[i] ?? ''}">
+                               step="0.01" value="${savedYearlyAmounts[i] ?? ''}">
                     </div>
                 `;
                         yearlyFields.appendChild(div);
                     }
+
+                    lockCompletedScheduleRows(yearlyFields, 'yearly');
 
                     // Recalculate on change
                     document.querySelectorAll('.yearly-amount-edit').forEach(el => {
@@ -3359,20 +3646,103 @@
                     updateEditTotal();
                 }
 
-                // Initial load
-                const initialCount = yearCountSelect.value || savedDates.length || 0;
-                if (initialCount > 0) {
-                    yearCountSelect.value = initialCount;
-                    generateEditYearlyFields(initialCount);
+                yearCountSelect.addEventListener('change', () => {
+                    enforceLockedCount(yearCountSelect);
+                    generateEditYearlyFields(parseInt(yearCountSelect.value) || 0);
+                });
+
+                function generateEditHalfYearlyFields(count) {
+                    halfYearlyFields.innerHTML = '';
+                    if (!count || count < 1) {
+                        updateEditTotal();
+                        return;
+                    }
+
+                    for (let i = 0; i < count; i++) {
+                        const div = document.createElement('div');
+                        div.className = 'row g-3 mb-3';
+                        div.innerHTML = `
+                    <div class="col-md-6">
+                        <label>Half-Year ${i+1} Date</label>
+                        <input type="date" name="half_yearly_dates[]" class="form-control"
+                               value="${savedHalfYearlyDates[i] || ''}">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Half-Year ${i+1} Amount </label>
+                        <input type="number" name="half_yearly_amounts[]" class="form-control half-yearly-amount-edit"
+                               step="0.01" value="${savedHalfYearlyAmounts[i] ?? ''}">
+                    </div>
+                `;
+                        halfYearlyFields.appendChild(div);
+                    }
+
+                    lockCompletedScheduleRows(halfYearlyFields, 'half_yearly');
+
+                    document.querySelectorAll('.half-yearly-amount-edit').forEach(el => {
+                        el.addEventListener('input', updateEditTotal);
+                    });
+                    updateEditTotal();
                 }
 
-                yearCountSelect.addEventListener('change', () => {
-                    generateEditYearlyFields(parseInt(yearCountSelect.value) || 0);
+                halfYearCountSelect.addEventListener('change', () => {
+                    enforceLockedCount(halfYearCountSelect);
+                    generateEditHalfYearlyFields(parseInt(halfYearCountSelect.value) || 0);
+                });
+
+                function toggleEditDisbursementSections() {
+                    const selectedSystem = disbursementSystemSelect.value;
+                    const isYearly = selectedSystem === 'yearly';
+
+                    yearlySection.style.display = isYearly ? 'block' : 'none';
+                    halfYearlySection.style.display = isYearly ? 'none' : 'block';
+
+                    if (isYearly) {
+                        const initialYearCount = parseInt(yearCountSelect.value, 10) || savedYearlyDates.length || 0;
+                        if (initialYearCount > 0) {
+                            yearCountSelect.value = initialYearCount;
+                        }
+                        generateEditYearlyFields(initialYearCount);
+                        halfYearlyFields.innerHTML = '';
+                    } else {
+                        const initialHalfYearCount = parseInt(halfYearCountSelect.value, 10) || savedHalfYearlyDates.length || 0;
+                        if (initialHalfYearCount > 0) {
+                            halfYearCountSelect.value = initialHalfYearCount;
+                        }
+                        generateEditHalfYearlyFields(initialHalfYearCount);
+                        yearlyFields.innerHTML = '';
+                    }
+                }
+
+                if (completedSchedules.length > 0) {
+                    disbursementSystemSelect.dataset.originalValue = disbursementSystemSelect.value;
+                }
+
+                editCanBeJitoMemberSelect?.addEventListener('change', toggleEditExtraFields);
+                editCanBeJeapDonorSelect?.addEventListener('change', toggleEditExtraFields);
+
+                disbursementSystemSelect.addEventListener('change', () => {
+                    if (completedSchedules.length > 0) {
+                        disbursementSystemSelect.value = disbursementSystemSelect.dataset.originalValue || disbursementSystemSelect.value;
+                        enforceLockedCount(disbursementSystemSelect.value === 'yearly' ? yearCountSelect : halfYearCountSelect);
+                        return;
+                    }
+
+                    toggleEditDisbursementSections();
                 });
 
                 // Installment logic (similar to main form)
                 const addInstallmentBtn = document.getElementById('edit-add-installment');
                 const rowsContainer = document.getElementById('edit-installment-rows');
+
+                function toggleEditRemoveButtons() {
+                    const rows = rowsContainer.querySelectorAll('.installment-row');
+                    rows.forEach((row) => {
+                        const removeBtn = row.querySelector('.remove-edit-installment');
+                        if (!removeBtn) return;
+                        removeBtn.disabled = rows.length === 1;
+                        removeBtn.style.visibility = rows.length === 1 ? 'hidden' : 'visible';
+                    });
+                }
 
                 addInstallmentBtn.addEventListener('click', () => {
                     const row = document.createElement('div');
@@ -3390,8 +3760,14 @@
                     <label>Total (₹)</label>
                     <input type="number" class="form-control installment-total" readonly>
                 </div>
+                <div class="col-md-12 text-end">
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-edit-installment">
+                        Remove
+                    </button>
+                </div>
             `;
                     rowsContainer.appendChild(row);
+                    toggleEditRemoveButtons();
                     recalculateEditInstallments();
                 });
 
@@ -3427,7 +3803,10 @@
 
                 function updateEditTotal() {
                     let total = 0;
-                    document.querySelectorAll('.yearly-amount-edit').forEach(input => {
+                    yearlyFields.querySelectorAll('input[name="yearly_amounts[]"]').forEach(input => {
+                        total += parseFloat(input.value) || 0;
+                    });
+                    halfYearlyFields.querySelectorAll('input[name="half_yearly_amounts[]"]').forEach(input => {
                         total += parseFloat(input.value) || 0;
                     });
                     document.getElementById('edit-total-amount').value = total.toFixed(2);
@@ -3436,7 +3815,37 @@
 
                 // Listen to all changes
                 rowsContainer.addEventListener('input', recalculateEditInstallments);
+                rowsContainer.addEventListener('click', (event) => {
+                    const removeBtn = event.target.closest('.remove-edit-installment');
+                    if (!removeBtn) return;
+
+                    const rows = rowsContainer.querySelectorAll('.installment-row');
+                    if (rows.length === 1) return;
+
+                    removeBtn.closest('.installment-row')?.remove();
+                    toggleEditRemoveButtons();
+                    recalculateEditInstallments();
+                });
+                if (completedSchedules.length > 0) {
+                    enforceLockedCount(disbursementSystemSelect.value === 'yearly' ? yearCountSelect : halfYearCountSelect);
+                }
+                toggleEditDisbursementSections();
+                toggleEditExtraFields();
+                toggleEditRemoveButtons();
+                recalculateEditInstallments();
             });
         });
     </script>
+
+    @if ($errors->has('disbursement_system') || $errors->has('approval_financial_assistance_amount'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const editModal = document.getElementById('editWorkingCommitteeModal');
+                if (!editModal || typeof bootstrap === 'undefined') return;
+
+                const modalInstance = new bootstrap.Modal(editModal);
+                modalInstance.show();
+            });
+        </script>
+    @endif
 @endsection

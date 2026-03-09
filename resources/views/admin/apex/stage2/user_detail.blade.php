@@ -859,9 +859,9 @@
             </div>
         </div>
 
-        <a href="{{ route('admin.home') }}" class="back-btn">
+        {{-- <a href="{{ route('admin.home') }}" class="back-btn">
             <i class="fas fa-arrow-left"></i> Back to Dashboard
-        </a>
+        </a> --}}
     </div>
     </div>
 
@@ -1534,6 +1534,16 @@
                                     <label class="form-label">Total Monthly EMI</label>
                                     <input type="text" class="form-input"
                                         value="₹{{ number_format($user->familyDetail->total_monthly_emi) }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Current Year ITR</label>
+                                    <input type="text" class="form-input"
+                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Last Year ITR</label>
+                                    <input type="text" class="form-input"
+                                        value="₹{{ number_format($user->familyDetail->last_year_itr ?? 0) }}" readonly>
                                 </div>
                             </div>
                         </div>

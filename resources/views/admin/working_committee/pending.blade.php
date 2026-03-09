@@ -165,32 +165,32 @@
             transition: background-color 0.2s ease;
         }
 
-          .below-one-lakh-row {
-        background-color: #e8f1ff;
-    }
+        .below-one-lakh-row {
+            background-color: #e8f1ff;
+        }
 
-    .below-one-lakh-row:hover {
-        background-color: #d7e8ff !important;
-    }
+        .below-one-lakh-row:hover {
+            background-color: #d7e8ff !important;
+        }
 
-    .loan-type-badge {
-        display: inline-block;
-        padding: 0.3rem 0.7rem;
-        border-radius: 14px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        white-space: nowrap;
-    }
+        .loan-type-badge {
+            display: inline-block;
+            padding: 0.3rem 0.7rem;
+            border-radius: 14px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
 
-    .loan-type-below {
-        background: #dbeafe;
-        color: #1d4ed8;
-    }
+        .loan-type-below {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
 
-    .loan-type-above {
-        background: #f3f4f6;
-        color: #374151;
-    }
+        .loan-type-above {
+            background: #f3f4f6;
+            color: #374151;
+        }
 
         .status-badge {
             padding: 0.35rem 0.8rem;
@@ -278,7 +278,7 @@
             color: #e0e0e0;
         }
 
-        .actions-cell {
+        . {
             display: flex;
             justify-content: center;
             gap: 0.2rem;
@@ -376,8 +376,9 @@
                                 <td>{{ $user->aadhar_card_number }}</td>
                                 <td>{{ $user->financial_asset_type }}</td>
                                 <td>{{ $user->financial_asset_for }}</td>
-                                 <td>
-                                    <span class="loan-type-badge {{ $user->loan_category_type === 'below' ? 'loan-type-below' : ($user->loan_category_type === 'above' ? 'loan-type-above' : '') }}">
+                                <td>
+                                    <span
+                                        class="loan-type-badge {{ $user->loan_category_type === 'below' ? 'loan-type-below' : ($user->loan_category_type === 'above' ? 'loan-type-above' : '') }}">
                                         {{ $user->loan_category_type === 'below' ? 'Below 1 Lakh' : ($user->loan_category_type === 'above' ? 'Above 1 Lakh' : 'N/A') }}
                                     </span>
                                 </td>
@@ -469,7 +470,7 @@
                                         {{ $status }}
                                     </span>
                                 </td>
-                                <td class="actions-cell">
+                                <td class="">
                                     <a href="{{ route('admin.working_committee.user.detail', $user) }}"
                                         class="action-btn view-btn" title="View Details">
                                         <i class="fas fa-eye"></i>

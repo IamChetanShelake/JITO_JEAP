@@ -35,6 +35,8 @@ class WorkingCommitteeApproval extends Model
     protected $casts = [
         'w_c_approval_date' => 'date',
         'repayment_starting_from' => 'date',
+        'jito_member_date' => 'date',
+        'jeap_donor_date' => 'date',
         'yearly_dates' => 'array',
         'yearly_amounts' => 'array',
         'half_yearly_dates' => 'array',

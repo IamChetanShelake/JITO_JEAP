@@ -279,7 +279,7 @@
             color: #e0e0e0;
         }
 
-        .actions-cell {
+        . {
             display: flex;
             justify-content: center;
             gap: 0.2rem;
@@ -477,7 +477,7 @@
                                         {{ $status }}
                                     </span>
                                 </td>
-                                <td class="actions-cell">
+                                <td class="">
                                     <a href="{{ route('admin.chapter.user.detail', $user) }}" class="action-btn view-btn"
                                         title="View Details">
                                         <i class="fas fa-eye"></i>

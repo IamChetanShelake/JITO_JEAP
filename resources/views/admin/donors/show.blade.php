@@ -28,6 +28,10 @@
                     <div class="fw-bold">{{ $donor->phone ?? '-' }}</div>
                 </div>
                 <div class="col-md-6">
+                    <div class="info-label">Membership Number</div>
+                    <div class="fw-bold">{{ $donor->membership_number}}</div>
+                </div>
+                <div class="col-md-6">
                     <div class="info-label">Created At</div>
                     <div class="fw-bold">{{ $donor->created_at ? $donor->created_at->format('d/m/Y') : '-' }}</div>
                 </div>

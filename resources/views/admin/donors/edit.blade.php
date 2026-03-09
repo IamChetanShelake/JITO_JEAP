@@ -37,6 +37,12 @@
                 </div>
 
                 <div class="mb-3">
+                    <label class="form-label">Membership Number</label>
+                    <input type="number" name="membership_number" class="form-control" value="{{ old('membership_number', $donor->membership_number) }}">
+                    @error('membership_number') <small class="text-danger">{{ $message }}</small> @enderror
+                </div>
+
+                <div class="mb-3">
                     <label class="form-label">New Password (optional)</label>
                     <input type="password" name="password" class="form-control">
                     @error('password') <small class="text-danger">{{ $message }}</small> @enderror

@@ -19,6 +19,7 @@ use App\Http\Controllers\ApexLeadershipController;
 use App\Http\Controllers\WorkingCommitteeController;
 use App\Http\Controllers\InitiativeController;
 use App\Http\Controllers\AccountantController;
+use App\Http\Controllers\AdminNotificationController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -234,6 +235,7 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // Logs Routes
     Route::get('/logs/', [AdminController::class, 'showUserLogs'])->name('logs');
     Route::get('/logs/user/{user}', [AdminController::class, 'showUserLogs'])->name('user.logs');
+    Route::post('/notifications/{notification}/read', [AdminNotificationController::class, 'read'])->name('notifications.read');
 });
 
 // User Routes - Protected by auth and user middleware

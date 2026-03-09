@@ -21,6 +21,10 @@ use App\Http\Controllers\InitiativeController;
 use App\Http\Controllers\AccountantController;
 use App\Http\Controllers\AdminNotificationController;
 
+use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\WebsiteController;
+
+
 Route::get('/', function () {
     return view('auth.login');
 });
@@ -348,3 +352,83 @@ Route::middleware(['auth', 'user'])
         Route::get('/above-1-lakh-application', [UserController::class, 'above1LakhApplication'])
             ->name('above.1.lakh.application');
     });
+
+
+
+
+
+
+
+
+// Website Route
+
+
+
+
+Route::get('/index', [WebsiteController::class, 'index'])->name('index');
+// Route::view('/index1','website.index')->name('index1');
+Route::get('/', function () {
+    return redirect()->route('index');
+});
+
+Route::prefix('about')->group(function () {
+    Route::get('/JITO', [WebsiteController::class, 'aboutJito'])->name('jito');
+    Route::get('/JEAP', [WebsiteController::class, 'aboutJeap'])->name('jeap');
+    Route::get('/Board-Of-Directors', [WebsiteController::class, 'boardOfDirectors'])->name('boardOfDirectors');
+    Route::get('/Zone-Chairmen', [WebsiteController::class, 'zoneChairmen'])->name('zoneChairmen');
+    Route::get('/testimonials-and-Success-Stories', [WebsiteController::class, 'testimonialSuccessStories'])->name('testimonial&Success');
+});
+Route::prefix('application')->group(function () {
+    Route::get('/document-checklist', [WebsiteController::class, 'documentchecklist'])->name('documentchecklist');
+    Route::get('/document-checklist-1', [WebsiteController::class, 'documentchecklist1'])->name('documentchecklist1');
+    Route::get('/document-checklist-2', [WebsiteController::class, 'documentchecklist2'])->name('documentchecklist2');
+    Route::get('/document-checklist-3', [WebsiteController::class, 'documentchecklist3'])->name('documentchecklist3');
+    Route::get('/DOCUMENTS', [WebsiteController::class, 'documents'])->name('documents');
+    Route::get('/How-to-apply', [WebsiteController::class, 'howtoapply'])->name('howtoapply');
+    Route::get('/FAQ’s', [WebsiteController::class, 'faqs'])->name('faqs');
+});
+Route::prefix('donors')->group(function () {
+    Route::get('/be-a-donor', [WebsiteController::class, 'beDonor'])->name('beDonor');
+    Route::get('/our-donors', [WebsiteController::class, 'ourDonors'])->name('ourDonors');
+});
+
+Route::prefix('University')->group(function () {
+    Route::get('/domestic', [WebsiteController::class, 'domestic'])->name('domestic');
+    Route::get('/foreign', [WebsiteController::class, 'foreign'])->name('foreign');
+});
+
+Route::get('/Gallery', [WebsiteController::class, 'gallery'])->name('gallery');
+
+
+
+
+
+
+
+
+Route::get('/industrial', [WebsiteController::class, 'industrial'])->name('industrial_connect');
+
+
+Route::get('/contact', [WebsiteController::class, 'contact'])->name('contact');
+
+
+
+
+
+
+
+
+
+Route::get('/clean-cache', function () {
+    $exitCode = Artisan::call('cache:clear');
+    $exitCode = Artisan::call('route:cache');
+    $exitCode = Artisan::call('route:clear');
+    $exitCode = Artisan::call('view:cache');
+    $exitCode = Artisan::call('view:clear');
+    $exitCode = Artisan::call('config:cache');
+    $exitCode = Artisan::call('config:clear');
+    $exitCode = Artisan::call('event:cache');
+    $exitCode = Artisan::call('event:clear');
+    $exitCode = Artisan::call('optimize');
+    return '<h1>Cache facade value cleared</h1>';
+});

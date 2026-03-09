@@ -203,6 +203,7 @@ class DonorController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:admin_panel.donors,email,' . $donor->id,
             'phone' => 'nullable|string|max:20',
+            'membership_number' => 'nullable',
             'password' => 'nullable|string|min:8|confirmed',
             'membership_number' => 'required|unique:admin_panel.donors',
         ]);

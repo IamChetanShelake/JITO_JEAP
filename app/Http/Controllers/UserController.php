@@ -3514,6 +3514,7 @@ class UserController extends Controller
 
         // Get funding detail and update
         $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
+        $editbankdetail = EditBankDetailRequest::where('user_id', $user_id)->first();
 
         if ($fundingDetail) {
             $fundingDetail->update([
@@ -3523,6 +3524,9 @@ class UserController extends Controller
                 'branch_name' => $request->branch_name,
                 'ifsc_code' => $request->ifsc_code,
                 'bank_address' => $request->bank_address,
+            ]);
+            $editbankdetail->update([
+                'bank_update_status' => 'submitted',
             ]);
         } else {
             FundingDetail::create([

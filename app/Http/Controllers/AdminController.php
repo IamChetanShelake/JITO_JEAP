@@ -2380,8 +2380,124 @@ class AdminController extends Controller
         // Load PDC details
         $pdcDetail = \App\Models\PdcDetail::where('user_id', $user->id)->first();
         $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
+        $courierDocumentChecklist = $this->getUploadedCourierDocumentChecklist($user, $loanCategory);
 
-        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory'));
+        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory', 'courierDocumentChecklist'));
+    }
+
+    public function storeCourierReceive(Request $request, User $user)
+    {
+        $request->validate([
+            'courier_received_by' => 'required|string|max:255',
+            'courier_received_date' => 'required|date',
+        ]);
+
+        $pdcDetail = PdcDetail::where('user_id', $user->id)->first();
+
+        if (!$pdcDetail) {
+            return back()->with('error', 'PDC details not found.');
+        }
+
+        $pdcDetail->update([
+            'courier_received_by' => $request->courier_received_by,
+            'courier_received_date' => $request->courier_received_date,
+            'courier_receive_status' => 'pending',
+            'courier_receive_hold_remark' => null,
+            'courier_receive_processed_by' => null,
+            'courier_receive_processed_at' => null,
+            'courier_receive_verified_documents' => null,
+            'status' => 'submitted',
+            'admin_reject_remark' => null,
+        ]);
+
+        return back()->with('success', 'Courier receive details saved successfully.');
+    }
+
+    public function reviewCourierReceive(Request $request, User $user)
+    {
+        $request->validate([
+            'courier_action' => 'required|in:approve,hold',
+            'courier_receive_hold_remark' => 'nullable|string|max:2000',
+        ]);
+
+        $pdcDetail = PdcDetail::where('user_id', $user->id)->first();
+
+        if (!$pdcDetail) {
+            return back()->with('error', 'PDC details not found.');
+        }
+
+        if (!$pdcDetail->courier_received_by || !$pdcDetail->courier_received_date) {
+            return back()->with('error', 'Please save courier receive details before approval or hold.');
+        }
+
+        if ($request->courier_action === 'hold') {
+            $request->validate([
+                'courier_receive_hold_remark' => 'required|string|max:2000',
+            ]);
+
+            $pdcDetail->update([
+                'courier_receive_status' => 'hold',
+                'courier_receive_hold_remark' => $request->courier_receive_hold_remark,
+                'courier_receive_processed_by' => Auth::id(),
+                'courier_receive_processed_at' => now(),
+                'courier_receive_verified_documents' => null,
+                'status' => 'correction_required',
+                'admin_reject_remark' => $request->courier_receive_hold_remark,
+            ]);
+
+            try {
+                Mail::to($user->email)->send(new SendBackForCorrectionMail($user, $request->courier_receive_hold_remark));
+                Log::info("Courier receive hold email sent to user {$user->id} ({$user->email})");
+            } catch (\Exception $e) {
+                Log::error("Failed to send courier receive hold email to user {$user->id}: " . $e->getMessage());
+            }
+
+            return back()->with('success', 'Courier receive marked as hold and mail sent to the student.');
+        }
+
+        $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
+        $uploadedDocuments = $this->getUploadedCourierDocumentChecklist($user->loadMissing('document'), $loanCategory);
+        $expectedDocuments = collect($uploadedDocuments)->pluck('label')->values()->all();
+        $approvedDocuments = collect($request->input('courier_verified_documents', []))
+            ->filter(fn($value) => is_string($value) && $value !== '')
+            ->values()
+            ->all();
+
+        if (empty($expectedDocuments)) {
+            throw ValidationException::withMessages([
+                'courier_verified_documents' => 'No uploaded documents were found for courier approval.',
+            ]);
+        }
+
+        sort($expectedDocuments);
+        sort($approvedDocuments);
+
+        // Filter out 'Other' from expected documents (it's optional for approval)
+        $requiredDocuments = array_filter($expectedDocuments, function($doc) {
+            return strtolower(trim($doc)) !== 'other';
+        });
+        $requiredDocuments = array_values($requiredDocuments);
+
+        // Check if all required documents (except 'Other') are selected
+        $missingDocuments = array_diff($requiredDocuments, $approvedDocuments);
+
+        if (!empty($missingDocuments)) {
+            throw ValidationException::withMessages([
+                'courier_verified_documents' => 'Please select all documents except "Other" for approving. Missing: ' . implode(', ', $missingDocuments),
+            ]);
+        }
+
+        $pdcDetail->update([
+            'courier_receive_status' => 'approved',
+            'courier_receive_hold_remark' => null,
+            'courier_receive_processed_by' => Auth::id(),
+            'courier_receive_processed_at' => now(),
+            'courier_receive_verified_documents' => $approvedDocuments,
+            'status' => $pdcDetail->status === 'approved' ? 'approved' : 'submitted',
+            'admin_reject_remark' => null,
+        ]);
+
+        return back()->with('success', 'Courier receive approved successfully.');
     }
 
     // =====================================================
@@ -2392,7 +2508,8 @@ class AdminController extends Controller
     {
         $users = User::where('role', 'user')
             ->whereHas('pdcDetail', function ($q) {
-                $q->where('status', 'submitted');
+                $q->where('status', 'submitted')
+                    ->where('courier_receive_status', 'approved');
             })
             ->with(['pdcDetail', 'workflowStatus'])
             ->get();
@@ -2439,6 +2556,10 @@ class AdminController extends Controller
             return back()->with('error', 'PDC details not found');
         }
 
+        if (!$this->isCourierReceiveApproved($pdcDetail)) {
+            return back()->with('error', 'Courier receive approval is required before processing PDC details.');
+        }
+
         $pdcDetail->update([
             'status' => 'approved',
             'admin_remark' => $request->admin_remark,
@@ -2469,6 +2590,10 @@ class AdminController extends Controller
             return back()->with('error', 'PDC details not found');
         }
 
+        if (!$this->isCourierReceiveApproved($pdcDetail)) {
+            return back()->with('error', 'Courier receive approval is required before processing PDC details.');
+        }
+
         $pdcDetail->update([
             'status' => 'correction_required',
             'admin_remark' => $request->admin_remark,
@@ -2487,6 +2612,10 @@ class AdminController extends Controller
 
         if (!$user->pdcDetail) {
             return back()->with('error', 'PDC details not found');
+        }
+
+        if (!$this->isCourierReceiveApproved($user->pdcDetail)) {
+            return back()->with('error', 'Courier receive approval is required before editing PDC details.');
         }
 
         // Load Working Committee Approval details
@@ -2529,6 +2658,10 @@ class AdminController extends Controller
 
         if (!$pdcDetail) {
             return back()->with('error', 'PDC details not found');
+        }
+
+        if (!$this->isCourierReceiveApproved($pdcDetail)) {
+            return back()->with('error', 'Courier receive approval is required before updating PDC details.');
         }
 
         $normalizedChequeDetails = collect($request->cheque_details)
@@ -2634,6 +2767,141 @@ class AdminController extends Controller
             })
             ->whereIn('status', ['paid', 'partial'])
             ->values();
+    }
+
+    private function isCourierReceiveApproved(?PdcDetail $pdcDetail): bool
+    {
+        return $pdcDetail && $pdcDetail->courier_receive_status === 'approved';
+    }
+
+    private function getUploadedCourierDocumentChecklist(User $user, ?Loan_category $loanCategory = null): array
+    {
+        $document = $user->document;
+
+        if (!$document) {
+            return [];
+        }
+
+        $applicableDocuments = $this->getCourierDocumentDefinitions($user, $loanCategory);
+
+        return array_values(array_filter($applicableDocuments, function (array $item) use ($document) {
+            $field = $item['field'];
+            return !empty($document->{$field});
+        }));
+    }
+
+    private function getCourierDocumentDefinitions(User $user, ?Loan_category $loanCategory = null): array
+    {
+        $loanCategory = $loanCategory ?: Loan_category::where('user_id', $user->id)->latest()->first();
+        $isBelowOneLakh = $loanCategory && $loanCategory->type === 'below';
+
+        if ($isBelowOneLakh) {
+            return [
+                ['field' => 'ssc_cbse_icse_ib_igcse', 'label' => 'SSC Marksheet'],
+                ['field' => 'hsc_diploma_marksheet', 'label' => 'HSC / Diploma Marksheet'],
+                ['field' => 'graduate_post_graduate_marksheet', 'label' => 'Graduation Marksheet (Only for Post Graduation Applicant)'],
+                ['field' => 'admission_letter_fees_structure', 'label' => 'College - Fees Structure'],
+                ['field' => 'pan_applicant', 'label' => 'Pancard - Applicant'],
+                ['field' => 'aadhaar_applicant', 'label' => 'Aadhaar card - Applicant'],
+                ['field' => 'jain_sangh_certificate', 'label' => 'Jain Sangh Certificate of Applicant'],
+                ['field' => 'jito_group_recommendation', 'label' => 'Recommendation of JITO Member'],
+                ['field' => 'electricity_bill', 'label' => 'Electricity Bill Latest'],
+                ['field' => 'aadhaar_father_mother', 'label' => 'Aadhar card - Father / Mother / Guardian'],
+                ['field' => 'pan_father_mother', 'label' => 'Pancard - Father / Mother / Guardian'],
+                ['field' => 'form16_salary_income_father', 'label' => 'Form no.16 / Salary Slip of Father'],
+                ['field' => 'bank_statement_father_12months', 'label' => 'Bank Statement of Father Last 1 year'],
+                ['field' => 'other_documents', 'label' => 'Others'],
+            ];
+        }
+
+        if ($user->financial_asset_type === 'foreign_finance_assistant' && $user->financial_asset_for === 'post_graduation') {
+            return [
+                ['field' => 'ssc_cbse_icse_ib_igcse', 'label' => 'SSC / CBSE / ICSE / IB / IGCSE Marksheet'],
+                ['field' => 'hsc_diploma_marksheet', 'label' => 'HSC / Diploma Marksheet'],
+                ['field' => 'graduate_post_graduate_marksheet', 'label' => 'Graduation Marksheet'],
+                ['field' => 'admission_letter_fees_structure', 'label' => 'Admission Letter / Fees Structure'],
+                ['field' => 'passport_applicant', 'label' => 'Passport - Applicant'],
+                ['field' => 'visa_applicant', 'label' => 'Visa - Applicant'],
+                ['field' => 'aadhaar_applicant', 'label' => 'Aadhaar card - Applicant'],
+                ['field' => 'pan_applicant', 'label' => 'PAN card - Applicant'],
+                ['field' => 'student_bank_details_statement', 'label' => 'Student Bank Details / Statement'],
+                ['field' => 'jito_group_recommendation', 'label' => 'JITO Group Recommendation'],
+                ['field' => 'jain_sangh_certificate', 'label' => 'Jain Sangh Certificate'],
+                ['field' => 'electricity_bill', 'label' => 'Electricity Bill'],
+                ['field' => 'itr_acknowledgement_father', 'label' => 'ITR Acknowledgement - Father'],
+                ['field' => 'itr_computation_father', 'label' => 'ITR Computation - Father'],
+                ['field' => 'form16_salary_income_father', 'label' => 'Form 16 / Salary Income - Father'],
+                ['field' => 'bank_statement_father_12months', 'label' => 'Bank Statement - Father (12 months)'],
+                ['field' => 'bank_statement_mother_12months', 'label' => 'Bank Statement - Mother (12 months)'],
+                ['field' => 'aadhaar_father_mother', 'label' => 'Aadhaar - Father / Mother'],
+                ['field' => 'pan_father_mother', 'label' => 'PAN - Father / Mother'],
+                ['field' => 'guarantor1_aadhaar', 'label' => 'Guarantor 1 Aadhaar'],
+                ['field' => 'guarantor1_pan', 'label' => 'Guarantor 1 PAN'],
+                ['field' => 'guarantor2_aadhaar', 'label' => 'Guarantor 2 Aadhaar'],
+                ['field' => 'guarantor2_pan', 'label' => 'Guarantor 2 PAN'],
+                ['field' => 'student_handwritten_statement', 'label' => 'Student Handwritten Statement'],
+                ['field' => 'proof_funds_arranged', 'label' => 'Proof of Funds Arranged'],
+                ['field' => 'other_documents', 'label' => 'Other Documents'],
+                ['field' => 'extra_curricular', 'label' => 'Extra Curricular Documents'],
+            ];
+        }
+
+        if ($user->financial_asset_type === 'domestic' && $user->financial_asset_for === 'post_graduation') {
+            return [
+                ['field' => 'ssc_cbse_icse_ib_igcse', 'label' => 'SSC / CBSE / ICSE / IB / IGCSE Marksheet'],
+                ['field' => 'hsc_diploma_marksheet', 'label' => 'HSC / Diploma Marksheet'],
+                ['field' => 'graduate_post_graduate_marksheet', 'label' => 'Graduation Marksheet'],
+                ['field' => 'admission_letter_fees_structure', 'label' => 'Admission Letter / Fees Structure'],
+                ['field' => 'aadhaar_applicant', 'label' => 'Aadhaar card - Applicant'],
+                ['field' => 'pan_applicant', 'label' => 'PAN card - Applicant'],
+                ['field' => 'student_bank_details_statement', 'label' => 'Student Bank Details / Statement'],
+                ['field' => 'jito_group_recommendation', 'label' => 'JITO Group Recommendation'],
+                ['field' => 'jain_sangh_certificate', 'label' => 'Jain Sangh Certificate'],
+                ['field' => 'electricity_bill', 'label' => 'Electricity Bill'],
+                ['field' => 'itr_acknowledgement_father', 'label' => 'ITR Acknowledgement - Father'],
+                ['field' => 'itr_computation_father', 'label' => 'ITR Computation - Father'],
+                ['field' => 'form16_salary_income_father', 'label' => 'Form 16 / Salary Income - Father'],
+                ['field' => 'bank_statement_father_12months', 'label' => 'Bank Statement - Father (12 months)'],
+                ['field' => 'bank_statement_mother_12months', 'label' => 'Bank Statement - Mother (12 months)'],
+                ['field' => 'aadhaar_father_mother', 'label' => 'Aadhaar - Father / Mother'],
+                ['field' => 'pan_father_mother', 'label' => 'PAN - Father / Mother'],
+                ['field' => 'guarantor1_aadhaar', 'label' => 'Guarantor 1 Aadhaar'],
+                ['field' => 'guarantor1_pan', 'label' => 'Guarantor 1 PAN'],
+                ['field' => 'guarantor2_aadhaar', 'label' => 'Guarantor 2 Aadhaar'],
+                ['field' => 'guarantor2_pan', 'label' => 'Guarantor 2 PAN'],
+                ['field' => 'student_handwritten_statement', 'label' => 'Student Handwritten Statement'],
+                ['field' => 'proof_funds_arranged', 'label' => 'Proof of Funds Arranged'],
+                ['field' => 'other_documents', 'label' => 'Other Documents'],
+                ['field' => 'extra_curricular', 'label' => 'Extra Curricular Documents'],
+            ];
+        }
+
+        return [
+            ['field' => 'ssc_cbse_icse_ib_igcse', 'label' => 'SSC / CBSE / ICSE / IB / IGCSE Marksheet'],
+            ['field' => 'hsc_diploma_marksheet', 'label' => 'HSC / Diploma Marksheet'],
+            ['field' => 'admission_letter_fees_structure', 'label' => 'Admission Letter / Fees Structure'],
+            ['field' => 'aadhaar_applicant', 'label' => 'Aadhaar card - Applicant'],
+            ['field' => 'pan_applicant', 'label' => 'PAN card - Applicant'],
+            ['field' => 'student_bank_details_statement', 'label' => 'Student Bank Details / Statement'],
+            ['field' => 'jito_group_recommendation', 'label' => 'JITO Group Recommendation'],
+            ['field' => 'jain_sangh_certificate', 'label' => 'Jain Sangh Certificate'],
+            ['field' => 'electricity_bill', 'label' => 'Electricity Bill'],
+            ['field' => 'itr_acknowledgement_father', 'label' => 'ITR Acknowledgement - Father'],
+            ['field' => 'itr_computation_father', 'label' => 'ITR Computation - Father'],
+            ['field' => 'form16_salary_income_father', 'label' => 'Form 16 / Salary Income - Father'],
+            ['field' => 'bank_statement_father_12months', 'label' => 'Bank Statement - Father (12 months)'],
+            ['field' => 'bank_statement_mother_12months', 'label' => 'Bank Statement - Mother (12 months)'],
+            ['field' => 'aadhaar_father_mother', 'label' => 'Aadhaar - Father / Mother'],
+            ['field' => 'pan_father_mother', 'label' => 'PAN - Father / Mother'],
+            ['field' => 'guarantor1_aadhaar', 'label' => 'Guarantor 1 Aadhaar'],
+            ['field' => 'guarantor1_pan', 'label' => 'Guarantor 1 PAN'],
+            ['field' => 'guarantor2_aadhaar', 'label' => 'Guarantor 2 Aadhaar'],
+            ['field' => 'guarantor2_pan', 'label' => 'Guarantor 2 PAN'],
+            ['field' => 'student_handwritten_statement', 'label' => 'Student Handwritten Statement'],
+            ['field' => 'proof_funds_arranged', 'label' => 'Proof of Funds Arranged'],
+            ['field' => 'other_documents', 'label' => 'Other Documents'],
+            ['field' => 'extra_curricular', 'label' => 'Extra Curricular Documents'],
+        ];
     }
 
     private function validateLockedPdcChequeDetails($existingChequeDetails, array $proposedChequeDetails, $lockedInstallments): void

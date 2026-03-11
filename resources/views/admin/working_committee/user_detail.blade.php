@@ -772,6 +772,18 @@
                 order: unset;
             }
         }
+
+        /* Document button highlighting styles */
+        .doc-button {
+            transition: all 0.3s ease;
+        }
+
+        .doc-button.active {
+            background: var(--primary-purple) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            border-color: var(--primary-purple) !important;
+        }
     </style>
 @endsection
 
@@ -2002,10 +2014,8 @@
                                                     }
                                                 }
                                             @endphp
-                                            <button onclick="openModal('{{ $href }}', '{{ $label }}')"
-                                                style="text-align: left; padding: 0.75rem 1rem; background: {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'white' }}; color: {{ request()->session()->get('selected_document') == $href ? 'white' : 'var(--text-dark)' }}; border: 1px solid {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--border-color)' }}; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: {{ request()->session()->get('selected_document') == $href ? '600' : '400' }};"
-                                                onmouseover="this.style.background = '{{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--bg-light)' }}'"
-                                                onmouseout="this.style.background = '{{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'white' }}'">
+                                            <button class="doc-button" onclick="selectDocument(event, '{{ $href }}', '{{ $label }}')"
+                                                style="text-align: left; padding: 0.75rem 1rem; background: white; color: var(--text-dark); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 400;">
                                                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                                                     <i class="fas fa-file-alt" style="font-size: 0.8rem;"></i>
                                                     {{ $label }}
@@ -2024,7 +2034,13 @@
 
                             <!-- Document Preview -->
                             <div style="padding-left: 1rem; display: flex; flex-direction: column;">
-                                <h5 style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1rem;">Document Preview
+                                <h5
+                                    style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                                    Document Preview
+                                    <button id="docDownloadBtn" onclick="downloadCurrentDoc()"
+                                        style="display: none; padding: 0.4rem 0.8rem; background: var(--primary-purple); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                        <i class="fas fa-download"></i> Download
+                                    </button>
                                 </h5>
                                 <div id="documentPreview"
                                     style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--bg-light); border-radius: 8px; border: 1px solid var(--border-color); padding: 2rem;">
@@ -2436,8 +2452,9 @@
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Rejected By</label>
-                                    <input type="text" class="form-input" value="{{ Auth::user()->name ?? 'N/A' }}"
-                                        readonly style="border-color: #f44336;">
+                                    <input type="text" class="form-input"
+                                        value="{{ Auth::user()->name ?? 'N/A' }}" readonly
+                                        style="border-color: #f44336;">
                                 </div>
                             </div>
                         </div>
@@ -2737,40 +2754,42 @@
                                                     <option value="monthly">Monthly</option>
                                                 </select>
                                             </div>
-                            <div class="form-field">
-                                <label class="form-label">Repayment Starting From</label>
-                                <input type="date" name="repayment_starting_from"
-                                    class="form-input">
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Can he/she be JITO Member?</label>
-                                <select name="can_be_jito_member" class="form-input" id="can-be-jito-member">
-                                    <option value="">Select</option>
-                                    <option value="yes">Yes</option>
-                                    <option value="no">No</option>
-                                </select>
-                            </div>
-                            <div class="form-field" id="jito-member-date-field" style="display:none;">
-                                <label class="form-label">JITO Member Date</label>
-                                <input type="date" name="jito_member_date" class="form-input">
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Can he/she be Donor for JEAP?</label>
-                                <select name="can_be_jeap_donor" class="form-input" id="can-be-jeap-donor">
-                                    <option value="">Select</option>
-                                    <option value="yes">Yes</option>
-                                    <option value="no">No</option>
-                                </select>
-                            </div>
-                            <div class="form-field" id="jeap-donor-date-field" style="display:none;">
-                                <label class="form-label">JEAP Donor Date</label>
-                                <input type="date" name="jeap_donor_date" class="form-input">
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Processed By</label>
-                                <input type="text" name="processed_by_name" class="form-input"
-                                    value="{{ Auth::user()->name ?? 'N/A' }}" readonly>
-                            </div>
+                                            <div class="form-field">
+                                                <label class="form-label">Repayment Starting From</label>
+                                                <input type="date" name="repayment_starting_from"
+                                                    class="form-input">
+                                            </div>
+                                            <div class="form-field">
+                                                <label class="form-label">Can he/she be JITO Member?</label>
+                                                <select name="can_be_jito_member" class="form-input"
+                                                    id="can-be-jito-member">
+                                                    <option value="">Select</option>
+                                                    <option value="yes">Yes</option>
+                                                    <option value="no">No</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-field" id="jito-member-date-field" style="display:none;">
+                                                <label class="form-label">JITO Member Date</label>
+                                                <input type="date" name="jito_member_date" class="form-input">
+                                            </div>
+                                            <div class="form-field">
+                                                <label class="form-label">Can he/she be Donor for JEAP?</label>
+                                                <select name="can_be_jeap_donor" class="form-input"
+                                                    id="can-be-jeap-donor">
+                                                    <option value="">Select</option>
+                                                    <option value="yes">Yes</option>
+                                                    <option value="no">No</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-field" id="jeap-donor-date-field" style="display:none;">
+                                                <label class="form-label">JEAP Donor Date</label>
+                                                <input type="date" name="jeap_donor_date" class="form-input">
+                                            </div>
+                                            <div class="form-field">
+                                                <label class="form-label">Processed By</label>
+                                                <input type="text" name="processed_by_name" class="form-input"
+                                                    value="{{ Auth::user()->name ?? 'N/A' }}" readonly>
+                                            </div>
                                         </div>
 
 
@@ -3010,34 +3029,43 @@
             // }
         }
 
+        // Select document and highlight it
+        function selectDocument(event, url, title) {
+            event.preventDefault();
+
+            // Remove active class from all buttons (CSS will handle styling)
+            document.querySelectorAll('.doc-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Add active class to clicked button
+            const clickedBtn = event.target.closest('.doc-button');
+            if (clickedBtn) {
+                clickedBtn.classList.add('active');
+            }
+
+            // Open the modal/preview
+            openModal(url, title);
+        }
+
         // Modal functions for document viewing
+        let currentDocUrl = '';
+
         function openModal(url, title = 'Document Preview') {
             const previewContainer = document.getElementById('documentPreview');
+            const downloadBtn = document.getElementById('docDownloadBtn');
             const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|ico)$/i.test(url);
+
+            // Store current URL for download
+            currentDocUrl = url;
 
             // Clear existing preview content
             previewContainer.innerHTML = '';
 
-            // Create preview title
-            const previewTitle = document.createElement('div');
-            previewTitle.style.cssText =
-                'margin-bottom: 1rem; padding: 0.5rem; background: var(--primary-purple); color: white; border-radius: 6px; font-weight: 600; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center;';
-            previewTitle.textContent = title;
-
-            // Add close button to preview
-            const closeBtn = document.createElement('button');
-            closeBtn.innerHTML = '<i class="fas fa-times"></i>';
-            closeBtn.style.cssText =
-                'background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;';
-            closeBtn.onclick = function() {
-                previewContainer.innerHTML = `
-                    <i class="fas fa-file-image" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
-                    <p style="color: var(--text-light); font-size: 1rem;">Select a document from the left to preview</p>
-                    <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Click on any document name to view its content</p>
-                `;
-            };
-            previewTitle.appendChild(closeBtn);
-            previewContainer.appendChild(previewTitle);
+            // Show download button in header
+            if (downloadBtn) {
+                downloadBtn.style.display = 'inline-flex';
+            }
 
             // Create preview content
             if (isImage) {
@@ -3052,22 +3080,32 @@
                 iframe.style.cssText = 'width: 100%; height: 400px; border: none; border-radius: 6px;';
                 previewContainer.appendChild(iframe);
             }
+        }
 
-            // Add download button
-            const downloadBtn = document.createElement('button');
-            downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';
-            downloadBtn.style.cssText =
-                'margin-top: 1rem; padding: 0.5rem 1rem; background: var(--primary-purple); color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;';
-            downloadBtn.onclick = function() {
-                window.open(url, '_blank');
-            };
-            downloadBtn.onmouseover = function() {
-                this.style.background = '#4a40a8';
-            };
-            downloadBtn.onmouseout = function() {
-                this.style.background = 'var(--primary-purple)';
-            };
-            previewContainer.appendChild(downloadBtn);
+        // Reset preview to initial state
+        function resetPreview() {
+            const previewContainer = document.getElementById('documentPreview');
+            const downloadBtn = document.getElementById('docDownloadBtn');
+
+            previewContainer.innerHTML = `
+                <i class="fas fa-file-image" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+                <p style="color: var(--text-light); font-size: 1rem;">Select a document from the left to preview</p>
+                <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Click on any document name to view its content</p>
+            `;
+
+            // Hide download button
+            if (downloadBtn) {
+                downloadBtn.style.display = 'none';
+            }
+
+            currentDocUrl = '';
+        }
+
+        // Download current document
+        function downloadCurrentDoc() {
+            if (currentDocUrl) {
+                window.open(currentDocUrl, '_blank');
+            }
         }
 
         // Close modal when clicking outside
@@ -3226,21 +3264,24 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
-                    <form action="{{ route('admin.working_committee.user.update_disbursement_dates', ['user' => $user]) }}"
+                    <form
+                        action="{{ route('admin.working_committee.user.update_disbursement_dates', ['user' => $user]) }}"
                         method="POST" id="edit-disbursement-dates-form">
                         @csrf
                         @method('PATCH')
                         <input type="hidden" name="date_update_mode" value="disbursement_dates">
 
                         <div class="alert alert-info mb-3">
-                            Completed disbursement installments are locked. Only pending installment dates can be updated here.
+                            Completed disbursement installments are locked. Only pending installment dates can be updated
+                            here.
                         </div>
 
                         <div class="row g-3">
                             <div class="col-12">
                                 <label class="form-label">Disbursement System</label>
                                 <input type="text" class="form-control"
-                                    value="{{ ucfirst($user->workingCommitteeApproval->disbursement_system ?? 'N/A') }}" readonly>
+                                    value="{{ ucfirst($user->workingCommitteeApproval->disbursement_system ?? 'N/A') }}"
+                                    readonly>
                             </div>
 
                             @if (($user->workingCommitteeApproval->disbursement_system ?? null) === 'yearly')
@@ -3249,7 +3290,10 @@
                                         $installmentNo = $index + 1;
                                         $completedSchedule = $completedScheduleMap->get($installmentNo);
                                         $resolvedDate = $completedSchedule
-                                            ? \Illuminate\Support\Str::of($completedSchedule->planned_date)->substr(0, 10)
+                                            ? \Illuminate\Support\Str::of($completedSchedule->planned_date)->substr(
+                                                0,
+                                                10,
+                                            )
                                             : \Carbon\Carbon::parse($date)->format('Y-m-d');
                                     @endphp
                                     <div class="col-md-6">
@@ -3279,7 +3323,10 @@
                                         $installmentNo = $index + 1;
                                         $completedSchedule = $completedScheduleMap->get($installmentNo);
                                         $resolvedDate = $completedSchedule
-                                            ? \Illuminate\Support\Str::of($completedSchedule->planned_date)->substr(0, 10)
+                                            ? \Illuminate\Support\Str::of($completedSchedule->planned_date)->substr(
+                                                0,
+                                                10,
+                                            )
                                             : \Carbon\Carbon::parse($date)->format('Y-m-d');
                                     @endphp
                                     <div class="col-md-6">
@@ -3403,7 +3450,8 @@
                                 <label class="form-label">Disbursement System</label>
                                 <input type="hidden" name="disbursement_system"
                                     value="{{ old('disbursement_system', $user->workingCommitteeApproval->disbursement_system ?? '') }}">
-                                <select name="disbursement_system_display" class="form-control" id="edit-disbursement-system" disabled>
+                                <select name="disbursement_system_display" class="form-control"
+                                    id="edit-disbursement-system" disabled>
                                     <option value="yearly"
                                         {{ old('disbursement_system', $user->workingCommitteeApproval->disbursement_system ?? '') == 'yearly' ? 'selected' : '' }}>
                                         Yearly</option>
@@ -3419,7 +3467,8 @@
                                 <label class="form-label">Number of Years</label>
                                 <input type="hidden" name="disbursement_in_year"
                                     value="{{ old('disbursement_in_year', count($user->workingCommitteeApproval->yearly_dates ?? [])) }}">
-                                <select name="disbursement_in_year_display" class="form-control" id="edit-year-count" disabled>
+                                <select name="disbursement_in_year_display" class="form-control" id="edit-year-count"
+                                    disabled>
                                     <option value="">Select</option>
                                     @for ($i = 1; $i <= 8; $i++)
                                         <option value="{{ $i }}"
@@ -3439,7 +3488,8 @@
                                 <label class="form-label">Number of Half-Yearly Installments</label>
                                 <input type="hidden" name="disbursement_in_half_year"
                                     value="{{ old('disbursement_in_half_year', count($user->workingCommitteeApproval->half_yearly_dates ?? [])) }}">
-                                <select name="disbursement_in_half_year_display" class="form-control" id="edit-half-year-count" disabled>
+                                <select name="disbursement_in_half_year_display" class="form-control"
+                                    id="edit-half-year-count" disabled>
                                     <option value="">Select</option>
                                     @for ($i = 1; $i <= 16; $i++)
                                         <option value="{{ $i }}"
@@ -3620,7 +3670,8 @@
             const savedHalfYearlyDates = @json(old('half_yearly_dates', $user->workingCommitteeApproval->half_yearly_dates ?? []));
             const savedHalfYearlyAmounts = @json(old('half_yearly_amounts', $user->workingCommitteeApproval->half_yearly_amounts ?? []));
             const completedSchedules = @json(($completedDisbursementSchedules ?? collect())->values());
-            const maxLockedInstallmentNo = completedSchedules.length ? Math.max(...completedSchedules.map(item => Number(item.installment_no))) : 0;
+            const maxLockedInstallmentNo = completedSchedules.length ? Math.max(...completedSchedules.map(item =>
+                Number(item.installment_no))) : 0;
 
             // Trigger when modal is shown
             editModal.addEventListener('shown.bs.modal', function() {
@@ -3640,10 +3691,12 @@
 
                 function toggleEditExtraFields() {
                     if (editJitoMemberDateField) {
-                        editJitoMemberDateField.style.display = editCanBeJitoMemberSelect?.value === 'yes' ? '' : 'none';
+                        editJitoMemberDateField.style.display = editCanBeJitoMemberSelect?.value === 'yes' ?
+                            '' : 'none';
                     }
                     if (editJeapDonorDateField) {
-                        editJeapDonorDateField.style.display = editCanBeJeapDonorSelect?.value === 'yes' ? '' : 'none';
+                        editJeapDonorDateField.style.display = editCanBeJeapDonorSelect?.value === 'yes' ?
+                            '' : 'none';
                     }
                 }
 
@@ -3652,13 +3705,15 @@
                 }
 
                 function getCompletedSchedule(installmentNo) {
-                    return completedSchedules.find(item => Number(item.installment_no) === installmentNo) || null;
+                    return completedSchedules.find(item => Number(item.installment_no) === installmentNo) ||
+                        null;
                 }
 
                 function enforceLockedCount(selectElement) {
                     const selectedCount = parseInt(selectElement.value || '0', 10);
 
-                    if (maxLockedInstallmentNo > 0 && selectedCount > 0 && selectedCount < maxLockedInstallmentNo) {
+                    if (maxLockedInstallmentNo > 0 && selectedCount > 0 && selectedCount <
+                        maxLockedInstallmentNo) {
                         selectElement.value = String(maxLockedInstallmentNo);
 
                         if (lockNote) {
@@ -3707,7 +3762,8 @@
                             installmentNo,
                             completedSchedule.planned_date,
                             completedSchedule.planned_amount,
-                            type === 'yearly' ? `Year ${installmentNo}` : `Half-Year ${installmentNo}`
+                            type === 'yearly' ? `Year ${installmentNo}` :
+                            `Half-Year ${installmentNo}`
                         );
                     });
                 }
@@ -3798,14 +3854,16 @@
                     halfYearlySection.style.display = isYearly ? 'none' : 'block';
 
                     if (isYearly) {
-                        const initialYearCount = parseInt(yearCountSelect.value, 10) || savedYearlyDates.length || 0;
+                        const initialYearCount = parseInt(yearCountSelect.value, 10) || savedYearlyDates
+                            .length || 0;
                         if (initialYearCount > 0) {
                             yearCountSelect.value = initialYearCount;
                         }
                         generateEditYearlyFields(initialYearCount);
                         halfYearlyFields.innerHTML = '';
                     } else {
-                        const initialHalfYearCount = parseInt(halfYearCountSelect.value, 10) || savedHalfYearlyDates.length || 0;
+                        const initialHalfYearCount = parseInt(halfYearCountSelect.value, 10) ||
+                            savedHalfYearlyDates.length || 0;
                         if (initialHalfYearCount > 0) {
                             halfYearCountSelect.value = initialHalfYearCount;
                         }
@@ -3823,8 +3881,10 @@
 
                 disbursementSystemSelect.addEventListener('change', () => {
                     if (completedSchedules.length > 0) {
-                        disbursementSystemSelect.value = disbursementSystemSelect.dataset.originalValue || disbursementSystemSelect.value;
-                        enforceLockedCount(disbursementSystemSelect.value === 'yearly' ? yearCountSelect : halfYearCountSelect);
+                        disbursementSystemSelect.value = disbursementSystemSelect.dataset
+                            .originalValue || disbursementSystemSelect.value;
+                        enforceLockedCount(disbursementSystemSelect.value === 'yearly' ?
+                            yearCountSelect : halfYearCountSelect);
                         return;
                     }
 
@@ -3907,9 +3967,10 @@
                     yearlyFields.querySelectorAll('input[name="yearly_amounts[]"]').forEach(input => {
                         total += parseFloat(input.value) || 0;
                     });
-                    halfYearlyFields.querySelectorAll('input[name="half_yearly_amounts[]"]').forEach(input => {
-                        total += parseFloat(input.value) || 0;
-                    });
+                    halfYearlyFields.querySelectorAll('input[name="half_yearly_amounts[]"]').forEach(
+                        input => {
+                            total += parseFloat(input.value) || 0;
+                        });
                     document.getElementById('edit-total-amount').value = total.toFixed(2);
                     recalculateEditInstallments();
                 }
@@ -3920,10 +3981,11 @@
                         input.classList.add('bg-light');
                     });
 
-                    halfYearlyFields.querySelectorAll('input[name="half_yearly_amounts[]"]').forEach((input) => {
-                        input.readOnly = true;
-                        input.classList.add('bg-light');
-                    });
+                    halfYearlyFields.querySelectorAll('input[name="half_yearly_amounts[]"]').forEach((
+                        input) => {
+                            input.readOnly = true;
+                            input.classList.add('bg-light');
+                        });
                 }
 
                 // Listen to all changes
@@ -3940,7 +4002,8 @@
                     recalculateEditInstallments();
                 });
                 if (completedSchedules.length > 0) {
-                    enforceLockedCount(disbursementSystemSelect.value === 'yearly' ? yearCountSelect : halfYearCountSelect);
+                    enforceLockedCount(disbursementSystemSelect.value === 'yearly' ? yearCountSelect :
+                        halfYearCountSelect);
                 }
                 toggleEditDisbursementSections();
                 lockEditableDisbursementAmounts();

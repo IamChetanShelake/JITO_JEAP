@@ -144,6 +144,8 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/apex-stage2/hold', [AdminController::class, 'apexStage2Hold'])->name('apex.stage2.hold');
     Route::get('/apex-stage2/user/{user}', [AdminController::class, 'apexStage2UserDetail'])->name('apex.stage2.user.detail');
     Route::get('/apex-stage2/resubmitted', [AdminController::class, 'apexStage2Resubmitted'])->name('apex.stage2.resubmitted');
+    Route::post('/apex-stage2/user/{user}/courier-receive', [AdminController::class, 'storeCourierReceive'])->name('apex.stage2.courier_receive.store');
+    Route::post('/apex-stage2/user/{user}/courier-review', [AdminController::class, 'reviewCourierReceive'])->name('apex.stage2.courier_receive.review');
 
     // PDC/Cheque Details Forms
     Route::get('/pdc/pending', [AdminController::class, 'pdcPending'])->name('pdc.pending');

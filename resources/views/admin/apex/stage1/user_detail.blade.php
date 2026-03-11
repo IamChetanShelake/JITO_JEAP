@@ -803,6 +803,18 @@
             order: 1;
         }
 
+        /* Document button highlighting styles */
+        .doc-button {
+            transition: all 0.3s ease;
+        }
+
+        .doc-button.active {
+            background: var(--primary-purple) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            border-color: var(--primary-purple) !important;
+        }
+
         @media (max-width: 991.98px) {
             .top-summary-layout {
                 grid-template-columns: 1fr;
@@ -2183,10 +2195,11 @@
                                                     }
                                                 }
                                             @endphp
-                                            <button onclick="openModal('{{ $href }}', '{{ $label }}')"
-                                                style="text-align: left; padding: 0.75rem 1rem; background: {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'white' }}; color: {{ request()->session()->get('selected_document') == $href ? 'white' : 'var(--text-dark)' }}; border: 1px solid {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--border-color)' }}; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: {{ request()->session()->get('selected_document') == $href ? '600' : '400' }};"
-                                                onmouseover="this.style.background = '{{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--bg-light)' }}'"
-                                                onmouseout="this.style.background = '{{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'white' }}'">
+                                            <button class="doc-button"
+                                                onclick="selectDocument(event, '{{ $href }}', '{{ $label }}')"
+                                                style="text-align: left; padding: 0.75rem 1rem; background: white; color: var(--text-dark); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 400;"
+                                                onmouseover="if (!this.classList.contains('active')) this.style.background = 'var(--bg-light)'"
+                                                onmouseout="if (!this.classList.contains('active')) this.style.background = 'white'">
                                                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                                                     <i class="fas fa-file-alt" style="font-size: 0.8rem;"></i>
                                                     {{ $label }}
@@ -2205,7 +2218,13 @@
 
                             <!-- Document Preview -->
                             <div style="padding-left: 1rem; display: flex; flex-direction: column;">
-                                <h5 style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1rem;">Document Preview
+                                <h5
+                                    style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                                    Document Preview
+                                    <button id="docDownloadBtn" onclick="downloadCurrentDoc()"
+                                        style="display: none; padding: 0.4rem 0.8rem; background: var(--primary-purple); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                        <i class="fas fa-download"></i> Download
+                                    </button>
                                 </h5>
                                 <div id="documentPreview"
                                     style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--bg-light); border-radius: 8px; border: 1px solid var(--border-color); padding: 2rem;">
@@ -2568,34 +2587,43 @@
         }
     });
 
+    // Select document and highlight it
+    function selectDocument(event, url, title) {
+        event.preventDefault();
+
+        // Remove active class from all buttons (CSS will handle styling)
+        document.querySelectorAll('.doc-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Add active class to clicked button
+        const clickedBtn = event.target.closest('.doc-button');
+        if (clickedBtn) {
+            clickedBtn.classList.add('active');
+        }
+
+        // Open the modal/preview
+        openModal(url, title);
+    }
+
     // Document preview function for right-side display
+    let currentDocUrl = '';
+
     function openModal(url, title = 'Document Preview') {
         const previewContainer = document.getElementById('documentPreview');
+        const downloadBtn = document.getElementById('docDownloadBtn');
         const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|ico)$/i.test(url);
+
+        // Store current URL for download
+        currentDocUrl = url;
 
         // Clear existing preview content
         previewContainer.innerHTML = '';
 
-        // Create preview title
-        const previewTitle = document.createElement('div');
-        previewTitle.style.cssText =
-            'margin-bottom: 1rem; padding: 0.5rem; background: var(--primary-purple); color: white; border-radius: 6px; font-weight: 600; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center;';
-        previewTitle.textContent = title;
-
-        // Add close button to preview
-        const closeBtn = document.createElement('button');
-        closeBtn.innerHTML = '<i class="fas fa-times"></i>';
-        closeBtn.style.cssText =
-            'background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;';
-        closeBtn.onclick = function() {
-            previewContainer.innerHTML = `
-            <i class="fas fa-file-image" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
-            <p style="color: var(--text-light); font-size: 1rem;">Select a document from the left to preview</p>
-            <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Click on any document name to view its content</p>
-        `;
-        };
-        previewTitle.appendChild(closeBtn);
-        previewContainer.appendChild(previewTitle);
+        // Show download button in header
+        if (downloadBtn) {
+            downloadBtn.style.display = 'inline-flex';
+        }
 
         // Create preview content
         if (isImage) {
@@ -2610,22 +2638,32 @@
             iframe.style.cssText = 'width: 100%; height: 400px; border: none; border-radius: 6px;';
             previewContainer.appendChild(iframe);
         }
+    }
 
-        // Add download button
-        const downloadBtn = document.createElement('button');
-        downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';
-        downloadBtn.style.cssText =
-            'margin-top: 1rem; padding: 0.5rem 1rem; background: var(--primary-purple); color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;';
-        downloadBtn.onclick = function() {
-            window.open(url, '_blank');
-        };
-        downloadBtn.onmouseover = function() {
-            this.style.background = '#4a40a8';
-        };
-        downloadBtn.onmouseout = function() {
-            this.style.background = 'var(--primary-purple)';
-        };
-        previewContainer.appendChild(downloadBtn);
+    // Reset preview to initial state
+    function resetPreview() {
+        const previewContainer = document.getElementById('documentPreview');
+        const downloadBtn = document.getElementById('docDownloadBtn');
+
+        previewContainer.innerHTML = `
+            <i class="fas fa-file-image" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+            <p style="color: var(--text-light); font-size: 1rem;">Select a document from the left to preview</p>
+            <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Click on any document name to view its content</p>
+        `;
+
+        // Hide download button
+        if (downloadBtn) {
+            downloadBtn.style.display = 'none';
+        }
+
+        currentDocUrl = '';
+    }
+
+    // Download current document
+    function downloadCurrentDoc() {
+        if (currentDocUrl) {
+            window.open(currentDocUrl, '_blank');
+        }
     }
 
     // Dropdown toggle function

@@ -34,7 +34,85 @@
                                         <p class="card-subtitle">Upload your first cheque and add all cheque details for the
                                             financial assistance.</p>
                                     </div>
+                                    <div class="ms-auto">
+                                        @php
+                                            $workflow = $user->workflowStatus;
+                                            $isPdcApproved = $workflow && $workflow->apex_2_status === 'approved';
+                                            $hasPendingRequest =
+                                                isset($editBankDetailRequest) &&
+                                                $editBankDetailRequest &&
+                                                $editBankDetailRequest->status === 'pending';
+                                            $hasApprovedRequest =
+                                                isset($editBankDetailRequest) &&
+                                                $editBankDetailRequest &&
+                                                $editBankDetailRequest->status === 'approved';
+                                            $hasRejectedRequest =
+                                                isset($editBankDetailRequest) &&
+                                                $editBankDetailRequest &&
+                                                $editBankDetailRequest->status === 'rejected';
+                                        @endphp
+
+                                        {{-- Edit Bank Detail Request Button - Only visible until Apex Stage 2 approves PDC --}}
+                                        @if (!$isPdcApproved && !$hasApprovedRequest)
+                                            <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                                data-bs-target="#editBankDetailRequestModal"
+                                                {{ $hasPendingRequest ? 'disabled' : '' }}>
+                                                <i class="bi bi-pencil-square me-1"></i>
+                                                {{ $hasPendingRequest ? 'Request Pending' : 'Edit Bank Detail Request' }}
+                                            </button>
+                                        @endif
+
+                                        {{-- Edit Bank Details Button - Only visible when request is approved --}}
+                                        @if ($hasApprovedRequest)
+                                            <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                                                data-bs-target="#editBankDetailsModal">
+                                                <i class="bi bi-pencil me-1"></i>
+                                                Edit Bank Details
+                                            </button>
+                                        @endif
+                                    </div>
                                 </div>
+
+                                <!-- Rejection Alert - Show if request was rejected -->
+                                @if ($hasRejectedRequest && $editBankDetailRequest->admin_remark)
+                                    <div class="alert alert-danger mt-3"
+                                        style="border: 2px solid #dc3545; border-radius: 10px; background-color: #f8d7da;">
+                                        <div class="d-flex align-items-start justify-content-between gap-2">
+                                            <i class="fas fa-times-circle me-2"
+                                                style="font-size: 1.2rem; color: #dc3545;"></i>
+                                            <div style="min-width: 0;">
+                                                <h5 class="mb-1" style="color: #721c24; font-weight: 600;">Request
+                                                    Rejected</h5>
+                                                <p style="margin: 0 0 4px 0; color: #721c24; font-size: 14px;">
+                                                    <strong>Admin Remark:</strong>
+                                                    {{ trim(preg_replace('/\s+/', ' ', strip_tags($editBankDetailRequest->admin_remark))) }}
+                                                </p>
+                                                <button type="button" class="btn btn-link p-0 text-danger"
+                                                    data-bs-toggle="modal" data-bs-target="#rejectedRemarkModal">
+                                                    View More
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal fade" id="rejectedRemarkModal" tabindex="-1"
+                                        aria-labelledby="rejectedRemarkModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                                            <div class="modal-content">
+                                                <div class="modal-header bg-danger text-white">
+                                                    <h5 class="modal-title" id="rejectedRemarkModalLabel">Rejection Remarks
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <strong>Admin Remark:</strong>
+                                                    {!! $editBankDetailRequest->admin_remark !!}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
 
                                 <!-- Send Back for Correction Notice -->
                                 @if (isset($user->workflowStatus) &&
@@ -82,7 +160,7 @@
                                 @endif
 
 
-                                <!-- Approval Details Section - Displayed before Note -->
+                                <!-- Rejection Alert - Show if request was rejected -->
                                 @if (isset($workingCommitteeApproval) && $workingCommitteeApproval)
                                     <div class="card mb-4" style="border: 2px solid #009846; border-radius: 15px;">
                                         <div class="card-header bg-success text-white"
@@ -330,11 +408,15 @@
                                 @endif
 
                                 <!-- Bank Details Check Modal - Show if bank_name is OTHER -->
-                                @if(isset($fundingDetail) && $fundingDetail && strtoupper($fundingDetail->bank_name) === 'OTHER')
-                                    <div class="modal fade" id="bankDetailsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bankDetailsModalLabel" aria-hidden="true" style="pointer-events: none;">
+                                @if (isset($fundingDetail) && $fundingDetail && strtoupper($fundingDetail->bank_name) === 'OTHER')
+                                    <div class="modal fade" id="bankDetailsModal" data-bs-backdrop="static"
+                                        data-bs-keyboard="false" tabindex="-1" aria-labelledby="bankDetailsModalLabel"
+                                        aria-hidden="true" style="pointer-events: none;">
                                         <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content" style="border-radius: 15px; border: 3px solid #dc3545;">
-                                                <div class="modal-header bg-danger text-white" style="border-radius: 12px 12px 0 0;">
+                                            <div class="modal-content"
+                                                style="border-radius: 15px; border: 3px solid #dc3545;">
+                                                <div class="modal-header bg-danger text-white"
+                                                    style="border-radius: 12px 12px 0 0;">
                                                     <h5 class="modal-title" id="bankDetailsModalLabel">
                                                         <i class="bi bi-exclamation-triangle-fill me-2"></i>
                                                         Action Required
@@ -343,15 +425,20 @@
                                                 </div>
                                                 <div class="modal-body text-center py-4">
                                                     <div class="mb-3">
-                                                        <i class="bi bi-bank" style="font-size: 4rem; color: #dc3545;"></i>
+                                                        <i class="bi bi-bank"
+                                                            style="font-size: 4rem; color: #dc3545;"></i>
                                                     </div>
                                                     <h4 class="text-danger mb-3">Please Update Bank Details</h4>
                                                     <p class="text-dark fs-5">
-                                                        Your bank name is marked as "OTHER". Please update the bank details according to JITO JEAP registered bank.
+                                                        Your bank name is marked as "OTHER". Please update the bank details
+                                                        according to JITO JEAP registered bank.
                                                     </p>
                                                 </div>
-                                                <div class="modal-footer justify-content-center" style="border-top: none;">
-                                                    <a href="{{ route('user.step4') }}" class="btn btn-danger btn-lg px-5" style="border-radius: 10px; font-weight: 600;">
+                                                <div class="modal-footer justify-content-center"
+                                                    style="border-top: none;">
+                                                    <a href="{{ route('user.step4') }}"
+                                                        class="btn btn-danger btn-lg px-5"
+                                                        style="border-radius: 10px; font-weight: 600;">
                                                         <i class="bi bi-arrow-right-circle me-2"></i>
                                                         Go to Step 4
                                                     </a>
@@ -569,7 +656,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Check if bank_name is "OTHER" and show modal
-            const isBankOther = {{ isset($fundingDetail) && $fundingDetail && strtoupper($fundingDetail->bank_name) === 'OTHER' ? 'true' : 'false' }};
+            const isBankOther =
+                {{ isset($fundingDetail) && $fundingDetail && strtoupper($fundingDetail->bank_name) === 'OTHER' ? 'true' : 'false' }};
 
             if (isBankOther) {
                 // Show the modal automatically
@@ -682,13 +770,13 @@
                     </td>
                     <td class="text-center">
                         ${index > 0 ? `
-                                                                                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"
-                                                                                    style="border-radius: 8px; font-weight: 600;">
-                                                                                    Remove
-                                                                                </button>
-                                                                            ` : `
-                                                                                <span class="text-muted"></span>
-                                                                            `}
+                                                                                                        <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"
+                                                                                                            style="border-radius: 8px; font-weight: 600;">
+                                                                                                            Remove
+                                                                                                        </button>
+                                                                                                    ` : `
+                                                                                                        <span class="text-muted"></span>
+                                                                                                    `}
                     </td>
                 `;
 
@@ -863,5 +951,309 @@
                 }
             });
         });
+    </script>
+
+    <!-- Edit Bank Detail Request Modal -->
+    <div class="modal fade" id="editBankDetailRequestModal" tabindex="-1"
+        aria-labelledby="editBankDetailRequestModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 15px;">
+                <div class="modal-header" style="background-color: #393185; color: white; border-radius: 13px 13px 0 0;">
+                    <h5 class="modal-title" id="editBankDetailRequestModalLabel">
+                        <i class="bi bi-pencil-square me-2"></i>
+                        Edit Bank Detail Request
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <form id="editBankDetailRequestForm">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="reason" class="form-label" style="font-weight: 600; color: #393185;">
+                                Reason <span style="color: red;">*</span>
+                            </label>
+                            <textarea class="form-control" id="reason" name="reason" rows="4"
+                                placeholder="Please provide a reason for editing bank details..." required
+                                style="border: 2px solid #393185; border-radius: 10px;"></textarea>
+                            <small class="text-muted">Explain why you need to edit your bank details.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: none;">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                            style="border-radius: 10px;">Cancel</button>
+                        <button type="submit" class="btn"
+                            style="background-color: #393185; color: white; border-radius: 10px;">
+                            <i class="bi bi-send me-1"></i> Submit Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Bank Details Modal (for approved request) -->
+    <div class="modal fade" id="editBankDetailsModal" tabindex="-1" aria-labelledby="editBankDetailsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-radius: 15px;">
+                <div class="modal-header" style="background-color: #009846; color: white; border-radius: 13px 13px 0 0;">
+                    <h5 class="modal-title" id="editBankDetailsModalLabel">
+                        <i class="bi bi-bank me-2"></i>
+                        Edit Bank Details
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <form id="editBankDetailsForm">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_bank_name" class="form-label" style="font-weight: 600; color: #393185;">
+                                    Bank Name <span style="color: red;">*</span>
+                                </label>
+                                <select class="form-control" name="bank_name" id="edit_bank_name" required
+                                    style="border: 2px solid #393185; border-radius: 10px;">
+                                    <option value="" hidden>Select Bank</option>
+                                    @foreach ($banks as $bank)
+                                        @if (strtoupper($bank->name) !== 'OTHER')
+                                            <option value="{{ $bank->name }}"
+                                                data-ifsc="{{ strtoupper(substr($bank->ifsc_code, 0, 4)) }}"
+                                                {{ old('bank_name', $fundingDetail->bank_name ?? '') == $bank->name ? 'selected' : '' }}>
+                                                {{ $bank->name }}
+                                            </option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_account_holder_name" class="form-label"
+                                    style="font-weight: 600; color: #393185;">
+                                    Account Holder Name <span style="color: red;">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="account_holder_name"
+                                    id="edit_account_holder_name" value="{{ $fundingDetail->account_holder_name ?? '' }}"
+                                    required style="border: 2px solid #393185; border-radius: 10px;">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_account_number" class="form-label"
+                                    style="font-weight: 600; color: #393185;">
+                                    Account Number <span style="color: red;">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="account_number"
+                                    id="edit_account_number" value="{{ $fundingDetail->account_number ?? '' }}" required
+                                    style="border: 2px solid #393185; border-radius: 10px;">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_branch_name" class="form-label"
+                                    style="font-weight: 600; color: #393185;">
+                                    Branch Name <span style="color: red;">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="branch_name" id="edit_branch_name"
+                                    value="{{ $fundingDetail->branch_name ?? '' }}" required
+                                    style="border: 2px solid #393185; border-radius: 10px;">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_ifsc_code" class="form-label" style="font-weight: 600; color: #393185;">
+                                    IFSC Code <span style="color: red;">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="ifsc_code" id="edit_ifsc_code"
+                                    value="{{ $fundingDetail->ifsc_code ?? '' }}" required
+                                    style="border: 2px solid #393185; border-radius: 10px;">
+                                <div id="editBankValidationMessage" class="mt-2"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_bank_address" class="form-label"
+                                    style="font-weight: 600; color: #393185;">
+                                    Bank Address <span style="color: red;">*</span>
+                                </label>
+                                <textarea class="form-control" name="bank_address" id="edit_bank_address" rows="2" required
+                                    style="border: 2px solid #393185; border-radius: 10px;">{{ $fundingDetail->bank_address ?? '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: none;">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                            style="border-radius: 10px;">Cancel</button>
+                        <button type="submit" class="btn"
+                            style="background-color: #009846; color: white; border-radius: 10px;">
+                            <i class="bi bi-check-lg me-1"></i> Update Bank Details
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Edit Bank Detail Request Form Submit
+        document.getElementById('editBankDetailRequestForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Submitting...';
+
+            fetch('{{ route('user.submit.edit.bank.detail.request') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    return response.json().catch(err => {
+                        // If JSON parsing fails, check response status
+                        if (response.ok) {
+                            return { success: true, message: 'Request submitted successfully!' };
+                        }
+                        throw err;
+                    });
+                })
+                .then(data => {
+                    // Close modal first
+                    const modalElement = document.getElementById('editBankDetailRequestModal');
+                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
+
+                    // Also try to hide using jQuery if Bootstrap 4 compatibility is needed
+                    if (typeof $ !== 'undefined') {
+                        $('#editBankDetailRequestModal').modal('hide');
+                    }
+
+                    if (data.success) {
+                        // Show success message
+                        alert(data.message);
+                        // Reset form
+                        document.getElementById('editBankDetailRequestForm').reset();
+                        // Reload page to show updated status
+                        location.reload();
+                    } else {
+                        alert(data.message || 'An error occurred. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Try to close modal even on error
+                    const modalElement = document.getElementById('editBankDetailRequestModal');
+                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
+
+                    if (error.message) {
+                        alert(error.message);
+                    } else {
+                        alert('An error occurred. Please try again.');
+                    }
+                    // Reload page anyway to show current state
+                    location.reload();
+                })
+                .finally(() => {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                });
+        });
+
+        // Edit Bank Details Form Submit
+        document.getElementById('editBankDetailsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('{{ route('user.update.bank.details') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Close modal
+                        bootstrap.Modal.getInstance(document.getElementById('editBankDetailsModal')).hide();
+                        // Show success message
+                        alert(data.message);
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+        });
+
+        // Bank Validation for Edit Bank Details Modal
+        const editAccountNumberInput = document.getElementById('edit_account_number');
+        const editIfscCodeInput = document.getElementById('edit_ifsc_code');
+        const editValidationMessageDiv = document.getElementById('editBankValidationMessage');
+
+        if (editAccountNumberInput && editIfscCodeInput) {
+            editIfscCodeInput.addEventListener('change', function() {
+                const ifsc = this.value.trim();
+                const account = editAccountNumberInput.value.trim();
+
+                if (ifsc.length >= 11 && account.length >= 9) {
+                    verifyBankDetailsEdit(account, ifsc);
+                }
+            });
+
+            editAccountNumberInput.addEventListener('keyup', function() {
+                const account = this.value.trim();
+                const ifsc = editIfscCodeInput.value.trim();
+
+                if (account.length >= 9 && ifsc.length >= 11) {
+                    verifyBankDetailsEdit(account, ifsc);
+                }
+            });
+
+            function verifyBankDetailsEdit(account, ifsc) {
+                editValidationMessageDiv.innerHTML = '<span class="text-info">Verifying bank details...</span>';
+
+                fetch('{{ route('user.verify.bank.details') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            account_number: account,
+                            ifsc_code: ifsc
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            if (data.valid) {
+                                editValidationMessageDiv.innerHTML =
+                                    '<span class="text-success" style="font-weight: 600;">✓ ' + data.message +
+                                    '</span>';
+                            } else {
+                                editValidationMessageDiv.innerHTML =
+                                    '<span class="text-danger" style="font-weight: 600;">✗ ' + data.message + '</span>';
+                            }
+                        } else {
+                            editValidationMessageDiv.innerHTML =
+                                '<span class="text-danger" style="font-weight: 600;">✗ Verification failed</span>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        editValidationMessageDiv.innerHTML = '';
+                    });
+            }
+        }
     </script>
 @endsection

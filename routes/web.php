@@ -147,6 +147,12 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/apex-stage2/user/{user}', [AdminController::class, 'apexStage2UserDetail'])->name('apex.stage2.user.detail');
     Route::get('/apex-stage2/resubmitted', [AdminController::class, 'apexStage2Resubmitted'])->name('apex.stage2.resubmitted');
 
+    // Edit Bank Detail Request Routes
+    Route::post('/apex-stage2/approve-edit-bank-request', [AdminController::class, 'approveEditBankDetailRequest'])
+        ->name('apex.stage2.approve.edit.bank.request');
+    Route::post('/apex-stage2/reject-edit-bank-request', [AdminController::class, 'rejectEditBankDetailRequest'])
+        ->name('apex.stage2.reject.edit.bank.request');
+
     // PDC/Cheque Details Forms
     Route::get('/pdc/pending', [AdminController::class, 'pdcPending'])->name('pdc.pending');
     Route::get('/pdc/approved', [AdminController::class, 'pdcApproved'])->name('pdc.approved');
@@ -320,6 +326,18 @@ Route::middleware(['auth', 'user'])
             ->name('step8');
         Route::post('/Step8Store/', [UserController::class, 'step8store'])
             ->name('step8.store');
+
+        // Edit Bank Detail Request
+        Route::post('/submit-edit-bank-detail-request', [UserController::class, 'submitEditBankDetailRequest'])
+            ->name('submit.edit.bank.detail.request');
+
+        // Update Bank Details (after request is approved)
+        Route::post('/update-bank-details', [UserController::class, 'updateBankDetails'])
+            ->name('update.bank.details');
+
+        // Bank verification route
+        Route::post('/verify-bank-details', [UserController::class, 'verifyBankDetails'])
+            ->name('verify.bank.details');
 
         // API route for fetching chapters by pincode
         Route::get('/get-chapters/{pincode}', [UserController::class, 'getChapters'])

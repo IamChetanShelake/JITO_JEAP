@@ -2271,7 +2271,73 @@ class AdminController extends Controller
         $pdcDetail = \App\Models\PdcDetail::where('user_id', $user->id)->first();
         $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
 
-        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory'));
+        // Load edit bank detail request if exists
+        $editBankDetailRequest = \App\Models\EditBankDetailRequest::where('user_id', $user->id)->latest()->first();
+
+        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory', 'editBankDetailRequest'));
+    }
+
+    /**
+     * Approve Edit Bank Detail Request
+     */
+    public function approveEditBankDetailRequest(Request $request, User $user)
+    {
+        $editRequest = \App\Models\EditBankDetailRequest::where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->latest()
+            ->first();
+
+        if (!$editRequest) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No pending request found'
+            ], 404);
+        }
+
+        $editRequest->update([
+            'status' => 'approved',
+            'processed_by' => Auth::id(),
+            'processed_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Request approved successfully! User can now edit bank details.'
+        ]);
+    }
+
+    /**
+     * Reject Edit Bank Detail Request
+     */
+    public function rejectEditBankDetailRequest(Request $request, User $user)
+    {
+        $request->validate([
+            'admin_remark' => 'required|string|max:2000',
+        ]);
+
+        $editRequest = \App\Models\EditBankDetailRequest::where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->latest()
+            ->first();
+
+        if (!$editRequest) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No pending request found'
+            ], 404);
+        }
+
+        $editRequest->update([
+            'status' => 'rejected',
+            'admin_remark' => $request->admin_remark,
+            'processed_by' => Auth::id(),
+            'processed_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Request rejected successfully!'
+        ]);
     }
 
     // =====================================================

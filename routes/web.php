@@ -104,6 +104,8 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // NEW: Update (edit/save) Working Committee decision
     Route::patch('admin/working-committee/users/{user}/update', [AdminController::class, 'updateWorkingCommittee'])
         ->name('working_committee.user.update');
+    Route::patch('admin/working-committee/users/{user}/update-disbursement-dates', [AdminController::class, 'updateWorkingCommitteeDisbursementDates'])
+        ->name('working_committee.user.update_disbursement_dates');
 
     // Approval workflow endpoints
     Route::post('/user/{user}/approve/{stage}', [AdminController::class, 'approveStage'])->name('user.approve');
@@ -146,6 +148,8 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/apex-stage2/hold', [AdminController::class, 'apexStage2Hold'])->name('apex.stage2.hold');
     Route::get('/apex-stage2/user/{user}', [AdminController::class, 'apexStage2UserDetail'])->name('apex.stage2.user.detail');
     Route::get('/apex-stage2/resubmitted', [AdminController::class, 'apexStage2Resubmitted'])->name('apex.stage2.resubmitted');
+    Route::post('/apex-stage2/user/{user}/courier-receive', [AdminController::class, 'storeCourierReceive'])->name('apex.stage2.courier_receive.store');
+    Route::post('/apex-stage2/user/{user}/courier-review', [AdminController::class, 'reviewCourierReceive'])->name('apex.stage2.courier_receive.review');
 
     // Edit Bank Detail Request Routes
     Route::post('/apex-stage2/approve-edit-bank-request', [AdminController::class, 'approveEditBankDetailRequest'])

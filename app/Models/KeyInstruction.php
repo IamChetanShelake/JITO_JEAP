@@ -11,7 +11,7 @@ class KeyInstruction extends Model
 
     protected $connection = 'admin_panel';
 
-    protected $table = 'key_instructions';
+    protected $table = 'key_instrctions';
 
     protected $fillable = [
         'icon',

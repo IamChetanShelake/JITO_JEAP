@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\KeyInstruction;
 use App\Models\User;
 use App\Models\Image;
 use App\Models\Chapter;
@@ -13,6 +14,8 @@ use App\Models\UserBought;
 use App\Helpers\AppHelpers;
 use App\Models\ContactEnquiry;
 use App\Models\RomChapterLeader;
+use App\Models\EmpoweringDream;
+use App\Models\WorkingCommittee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -21,8 +24,10 @@ class WebsiteController extends Controller
 {
     public function index()
     {
-        
-        return view('website.home');
+        $empoweringDreams = EmpoweringDream::where('status', true)->orderBy('order', 'asc')->get();
+        $keyInstructions = KeyInstruction::where('is_active', true)->orderBy('display_order', 'asc')->get();
+        $workingCommittee = WorkingCommittee::where('status', true)->orderBy('display_order', 'asc')->get();
+        return view('website.home', compact('empoweringDreams', 'keyInstructions', 'workingCommittee'));
     }
     public function aboutJito()
     {

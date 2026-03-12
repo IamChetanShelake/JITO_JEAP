@@ -169,6 +169,20 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/pdc/edit/{user}', [AdminController::class, 'editPdc'])->name('pdc.edit');
     Route::put('/pdc/update/{user}', [AdminController::class, 'updatePdc'])->name('pdc.update');
 
+    // Third Stage Documents
+    Route::get('/third-stage-documents/pending', [AdminController::class, 'thirdStageDocumentPending'])
+        ->name('third_stage_documents.pending');
+    Route::get('/third-stage-documents/submitted', [AdminController::class, 'thirdStageDocumentSubmitted'])
+        ->name('third_stage_documents.submitted');
+    Route::get('/third-stage-documents/approved', [AdminController::class, 'thirdStageDocumentApproved'])
+        ->name('third_stage_documents.approved');
+    Route::get('/third-stage-documents/user/{user}', [AdminController::class, 'thirdStageDocumentUserDetail'])
+        ->name('third_stage_documents.user.detail');
+    Route::post('/third-stage-documents/user/{user}/approve', [AdminController::class, 'approveThirdStageDocument'])
+        ->name('third_stage_documents.approve');
+    Route::post('/third-stage-documents/user/{user}/send-back', [AdminController::class, 'sendBackThirdStageDocument'])
+        ->name('third_stage_documents.send_back');
+
 
     Route::get('/chapters/resubmit', [AdminController::class, 'chapterResubmit'])->name('chapter.resubmit');
 
@@ -330,6 +344,12 @@ Route::middleware(['auth', 'user'])
             ->name('step8');
         Route::post('/Step8Store/', [UserController::class, 'step8store'])
             ->name('step8.store');
+
+        // Step 9 - Third Stage Documents
+        Route::get('/Step9', [UserController::class, 'step9'])
+            ->name('step9');
+        Route::post('/Step9Store/', [UserController::class, 'step9store'])
+            ->name('step9.store');
 
         // Edit Bank Detail Request
         Route::post('/submit-edit-bank-detail-request', [UserController::class, 'submitEditBankDetailRequest'])

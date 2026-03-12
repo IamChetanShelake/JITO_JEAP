@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Subcast;
 use App\Models\Document;
 use App\Models\PdcDetail;
+use App\Models\ThirdStageDocument;
 use App\Models\Familydetail;
 use App\Models\ReviewSubmit;
 use App\Models\EditBankDetailRequest;
@@ -26,6 +27,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use App\Models\ApplicationWorkflowStatus;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -3364,6 +3367,126 @@ class UserController extends Controller
         }
 
         return redirect()->route('user.step8')->with('success', $message);
+    }
+
+    /**
+     * Step 9 - Third Stage Documents
+     */
+    public function step9(Request $request)
+    {
+        $user_id = Auth::id();
+        $user = User::find($user_id);
+        $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
+        $thirdStageDocument = ThirdStageDocument::where('user_id', $user_id)->first();
+        $eligibility = $this->getThirdStageEligibility($user_id);
+
+        if (!$eligibility['eligible']) {
+            return redirect()->route('user.home')
+                ->with('error', '3rd Stage Documents are not available yet.');
+        }
+
+        return view('user.step9', compact('type', 'user', 'thirdStageDocument', 'eligibility'));
+    }
+
+    /**
+     * Store Step 9 - Third Stage Documents
+     */
+    public function step9store(Request $request)
+    {
+        $user_id = Auth::id();
+        $eligibility = $this->getThirdStageEligibility($user_id);
+
+        if (!$eligibility['eligible']) {
+            return back()->with('error', '3rd Stage Documents are not available yet.');
+        }
+
+        $thirdStageDocument = ThirdStageDocument::where('user_id', $user_id)->first();
+        if ($thirdStageDocument && in_array($thirdStageDocument->status, ['submitted', 'approved'])) {
+            return back()->with('error', '3rd Stage Documents are already submitted. You cannot update them until reviewed.');
+        }
+
+        $rules = [
+            'documents' => $thirdStageDocument && !empty($thirdStageDocument->documents) ? 'nullable|array' : 'required|array',
+            'documents.*' => 'file|mimes:pdf,jpg,jpeg,png|max:5120',
+        ];
+
+        $request->validate($rules);
+
+        $documents = $thirdStageDocument?->documents ?? [];
+
+        if ($request->hasFile('documents')) {
+            $uploadDir = public_path('third_stage_documents/' . $user_id);
+            if (!File::exists($uploadDir)) {
+                File::makeDirectory($uploadDir, 0755, true);
+            }
+
+            foreach ($request->file('documents') as $index => $file) {
+                if (!$file) {
+                    continue;
+                }
+
+                $safeName = time() . '_' . $index . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+                $file->move($uploadDir, $safeName);
+                $documents[] = 'third_stage_documents/' . $user_id . '/' . $safeName;
+            }
+        }
+
+        if (empty($documents)) {
+            return back()->with('error', 'Please upload at least one document.');
+        }
+
+        $data = [
+            'user_id' => $user_id,
+            'documents' => $documents,
+            'status' => 'submitted',
+            'submitted_at' => now(),
+            'admin_remark' => null,
+            'processed_by' => null,
+        ];
+
+        if ($thirdStageDocument) {
+            $thirdStageDocument->update($data);
+        } else {
+            ThirdStageDocument::create($data);
+        }
+
+        return redirect()->route('user.step9')->with('success', 'Third Stage Documents submitted successfully.');
+    }
+
+    private function getThirdStageEligibility(int $userId): array
+    {
+        $firstCompleted = DB::connection('admin_panel')
+            ->table('disbursement_schedules')
+            ->where('user_id', $userId)
+            ->where('installment_no', 1)
+            ->where('status', 'completed')
+            ->exists();
+
+        $secondSchedule = DB::connection('admin_panel')
+            ->table('disbursement_schedules')
+            ->where('user_id', $userId)
+            ->where('installment_no', 2)
+            ->first();
+
+        if (!$secondSchedule || empty($secondSchedule->planned_date)) {
+            return [
+                'eligible' => false,
+                'first_completed' => $firstCompleted,
+                'second_date' => null,
+                'open_date' => null,
+            ];
+        }
+
+        $secondDate = Carbon::parse($secondSchedule->planned_date)->startOfDay();
+        $openDate = $secondDate->copy()->subMonth()->startOfDay();
+        $eligible = $firstCompleted && now()->startOfDay()->gte($openDate);
+
+        return [
+            'eligible' => $eligible,
+            'first_completed' => $firstCompleted,
+            'second_date' => $secondDate,
+            'open_date' => $openDate,
+        ];
     }
 
     /**

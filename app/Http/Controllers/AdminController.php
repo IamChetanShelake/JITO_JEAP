@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SendBackForCorrectionMail;
+use App\Mail\ThirdStageDocumentCorrectionMail;
 use App\Mail\WorkingCommitteeApprovedMail;
 use App\Models\ApplicationWorkflowStatus;
 use App\Models\Chapter;
@@ -18,6 +19,7 @@ use App\Models\Loan_category;
 use App\Models\PdcDetail;
 use App\Models\User;
 use App\Models\WorkingCommitteeApprovalHistory;
+use App\Models\ThirdStageDocument;
 use App\Traits\LogsUserActivity;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -72,6 +74,7 @@ class AdminController extends Controller
         // Calculate disbursement counts for dashboard
         $disbursementCounts = $this->getDisbursementCounts();
         $repaymentCounts = $this->getRepaymentCounts();
+        $thirdStageCounts = $this->getThirdStageDocumentCounts();
 
         return view('admin.home', [
             'activeGuard' => $request->active_guard,
@@ -89,6 +92,10 @@ class AdminController extends Controller
             'repaymentUpcoming' => $repaymentCounts['upcoming'],
             'repaymentPast' => $repaymentCounts['past'],
             'repaymentTotal' => $repaymentCounts['total'],
+            'thirdStagePending' => $thirdStageCounts['pending'],
+            'thirdStageSubmitted' => $thirdStageCounts['submitted'],
+            'thirdStageApproved' => $thirdStageCounts['approved'],
+            'thirdStageTotal' => $thirdStageCounts['total'],
         ]);
     }
 
@@ -325,6 +332,29 @@ class AdminController extends Controller
                 'today_pending' => 0,
                 'upcoming' => 0,
                 'past' => 0,
+                'total' => 0,
+            ];
+        }
+    }
+
+    private function getThirdStageDocumentCounts(): array
+    {
+        try {
+            $pending = ThirdStageDocument::whereIn('status', ['pending', 'rejected'])->count();
+            $submitted = ThirdStageDocument::where('status', 'submitted')->count();
+            $approved = ThirdStageDocument::where('status', 'approved')->count();
+
+            return [
+                'pending' => $pending,
+                'submitted' => $submitted,
+                'approved' => $approved,
+                'total' => $pending + $submitted + $approved,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'pending' => 0,
+                'submitted' => 0,
+                'approved' => 0,
                 'total' => 0,
             ];
         }
@@ -2565,6 +2595,107 @@ class AdminController extends Controller
         ]);
 
         return back()->with('success', 'Courier receive approved successfully.');
+    }
+
+    // =====================================================
+    // Third Stage Document Methods
+    // =====================================================
+
+    public function thirdStageDocumentPending()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('thirdStageDocument', function ($q) {
+                $q->whereIn('status', ['pending', 'rejected']);
+            })
+            ->with(['thirdStageDocument', 'workflowStatus'])
+            ->get();
+
+        return view('admin.third_stage_documents.pending', compact('users'));
+    }
+
+    public function thirdStageDocumentSubmitted()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('thirdStageDocument', function ($q) {
+                $q->where('status', 'submitted');
+            })
+            ->with(['thirdStageDocument', 'workflowStatus'])
+            ->get();
+
+        return view('admin.third_stage_documents.submitted', compact('users'));
+    }
+
+    public function thirdStageDocumentApproved()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('thirdStageDocument', function ($q) {
+                $q->where('status', 'approved');
+            })
+            ->with(['thirdStageDocument', 'workflowStatus'])
+            ->get();
+
+        return view('admin.third_stage_documents.approved', compact('users'));
+    }
+
+    public function thirdStageDocumentUserDetail(User $user)
+    {
+        $user->load(['thirdStageDocument', 'workflowStatus']);
+        return view('admin.third_stage_documents.user_detail', compact('user'));
+    }
+
+    public function approveThirdStageDocument(Request $request, User $user)
+    {
+        $request->validate([
+            'admin_remark' => 'nullable|string|max:2000',
+        ]);
+
+        $thirdStageDocument = ThirdStageDocument::where('user_id', $user->id)->first();
+        if (!$thirdStageDocument) {
+            return back()->with('error', 'Third stage documents not found.');
+        }
+
+        if ($thirdStageDocument->status !== 'submitted') {
+            return back()->with('error', 'Only submitted documents can be approved.');
+        }
+
+        $thirdStageDocument->update([
+            'status' => 'approved',
+            'admin_remark' => $request->admin_remark,
+            'approved_at' => now(),
+            'processed_by' => Auth::id(),
+        ]);
+
+        return back()->with('success', 'Third stage documents approved successfully.');
+    }
+
+    public function sendBackThirdStageDocument(Request $request, User $user)
+    {
+        $request->validate([
+            'admin_remark' => 'required|string|max:2000',
+        ]);
+
+        $thirdStageDocument = ThirdStageDocument::where('user_id', $user->id)->first();
+        if (!$thirdStageDocument) {
+            return back()->with('error', 'Third stage documents not found.');
+        }
+
+        $thirdStageDocument->update([
+            'status' => 'rejected',
+            'admin_remark' => $request->admin_remark,
+            'rejected_at' => now(),
+            'processed_by' => Auth::id(),
+        ]);
+
+        try {
+            Mail::to($user->email)->send(new ThirdStageDocumentCorrectionMail($user, $request->admin_remark));
+        } catch (\Throwable $e) {
+            Log::error('Third stage correction email failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return back()->with('success', 'Third stage documents sent back for correction.');
     }
 
     // =====================================================

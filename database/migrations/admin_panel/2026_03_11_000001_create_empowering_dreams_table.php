@@ -6,20 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    protected $connection = 'admin_panel';
+    
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::connection('admin_panel')->create('working_committee', function (Blueprint $table) {
+        Schema::create('empowering_dreams', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('department')->nullable();
-            $table->string('designation');
-            $table->string('email')->unique();
-            $table->string('contact');
+            $table->string('title');
+            $table->text('description');
+            $table->string('features'); // Store as JSON or comma-separated
+            $table->string('image')->nullable();
+            $table->integer('order')->default(0);
             $table->boolean('status')->default(true);
-            $table->boolean('show_hide')->default(true);
             $table->timestamps();
         });
     }
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('admin_panel')->dropIfExists('working_committee');
+        Schema::dropIfExists('empowering_dreams');
     }
 };

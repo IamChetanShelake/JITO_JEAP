@@ -1,4 +1,5 @@
 @extends('website.layout.main')
+
 @section('content')
     <section>
         <div class="desktop-margin" style="position: relative; background-color: #393186; padding: 80px 0;">
@@ -98,18 +99,22 @@
 
                         <h2 class=" mb-3"
                             style="font-family: Times New Roman;font-size:48px; line-height: 1.3;color:#ffff;font-weight:400;text-transform:none !important;">
-                            Empowering Your <br>Dreams
+                            @if(isset($empoweringDreams) && $empoweringDreams->count() > 0) {{ $empoweringDreams->first()->title }} @else Empowering Your <br>Dreams @endif
                         </h2>
 
-                        <p class="mb-4" style="font-size: 18px; color: #ffff;font-family:'Poppins', sans-serif; ">
-                            JEAP’s mission is to empower deserving students to pursue their
-                            academic aspirations and reach their highest potential.
-                        </p>
+                        <p class="mb-4" style="font-size: 18px; color: #ffff;font-family:'Poppins', sans-serif; ">@if(isset($empoweringDreams) && $empoweringDreams->count() > 0) {{ $empoweringDreams->first()->description }} @else JEAP's mission is to empower deserving students to pursue their academic aspirations and reach their highest potential. @endif</p>
 
                         <!-- ICON ROW -->
                         <div class="icons-container" style="position: relative;">
                             <div class="row text-center">
-
+                                @php
+                                    $features = [];
+                                    $firstDream = $empoweringDreams->first();
+                                    if ($firstDream && $firstDream->features) {
+                                        $features = array_map('trim', explode(',', $firstDream->features));
+                                    }
+                                @endphp
+                                @foreach($features as $feature)
                                 <div class="col-6 col-md-3 mb-4">
                                     <div class="p-3 bg-white rounded-circle mx-auto"
                                         style="width:80px;height:80px; display:flex; justify-content:center; align-items:center;    z-index: 9;
@@ -124,72 +129,10 @@
                                     <div class="dotted-connector"></div>
                                     <p class="mt-2 text-white"
                                         style="font-family:'Poppins', sans-serif;font-size:18px;font-weight:400;">
-                                        Student
-                                        <br>
-                                        Empowerment
+                                        {{ $feature }}
                                     </p>
                                 </div>
-
-                                <div class="col-6 col-md-3 mb-4">
-                                    <div class="p-3 bg-white rounded-circle mx-auto"
-                                        style="width:80px;height:80px; display:flex; justify-content:center; align-items:center;    z-index: 9;
-                                    position: relative;">
-                                        <svg width="35" height="43" viewBox="0 0 35 43" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M17.4305 19.863C15.1026 18.1548 11.6137 15.1677 1.61102 15.1677V36.5562C11.6137 36.5562 15.1026 39.5433 17.4305 41.2515M17.4305 19.863V41.2515M17.4305 19.863C19.7585 18.1548 23.2473 15.1677 33.25 15.1677V36.5562C23.2473 36.5562 19.7585 39.5433 17.4305 41.2515M23.6114 1.41834V8.93088M29.1418 1.25153H8.36146C7.78088 1.25083 7.21169 1.41133 6.7182 1.71488L1.25 5.0943L6.7182 8.46753C7.21169 8.77109 7.78088 8.93159 8.36146 8.93088H29.1418C29.6589 8.94545 30.1736 8.85694 30.6556 8.67061C31.1376 8.48427 31.577 8.20389 31.9479 7.84605C32.3188 7.4882 32.6137 7.06016 32.815 6.58725C33.0163 6.11434 33.1201 5.60615 33.1201 5.09275C33.1201 4.57935 33.0163 4.07117 32.815 3.59825C32.6137 3.12534 32.3188 2.6973 31.9479 2.33946C31.577 1.98161 31.1376 1.70123 30.6556 1.5149C30.1736 1.32856 29.6589 1.23697 29.1418 1.25153Z"
-                                                stroke="#FFD800" stroke-width="2.5" stroke-linecap="round"
-                                                stroke-linejoin="round" />
-                                        </svg>
-                                    </div>
-                                    <div class="dotted-connector"></div>
-                                    <p class="mt-2 text-white"
-                                        style="font-family:'Poppins', sans-serif;font-size:18px;font-weight:400;">
-                                        Educational
-                                        <br> Access
-                                    </p>
-                                </div>
-
-                                <div class="col-6 col-md-3 mb-4">
-                                    <div class="p-3 bg-white rounded-circle mx-auto"
-                                        style="width:80px;height:80px; display:flex; justify-content:center; align-items:center;    z-index: 9;
-                                    position: relative;">
-                                        <svg width="36" height="41" viewBox="0 0 36 41" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M32.2143 41H29.2857V36.6071C29.2834 34.6661 28.5113 32.8052 27.1388 31.4327C25.7662 30.0601 23.9053 29.288 21.9643 29.2857H13.1786C11.2375 29.288 9.37664 30.0601 8.00411 31.4327C6.63158 32.8052 5.85947 34.6661 5.85714 36.6071V41H2.92857V36.6071C2.93245 33.8898 4.0136 31.285 5.935 29.3636C7.85641 27.4421 10.4613 26.361 13.1786 26.3571H21.9643C24.6816 26.361 27.2864 27.4421 29.2079 29.3636C31.1293 31.285 32.2104 33.8898 32.2143 36.6071V41ZM1.46429 5.85712C1.07593 5.85712 0.703487 6.01139 0.42888 6.286C0.154273 6.5606 0 6.93305 0 7.3214V20.5H2.92857V7.3214C2.92857 6.93305 2.7743 6.5606 2.49969 6.286C2.22509 6.01139 1.85264 5.85712 1.46429 5.85712Z"
-                                                fill="#FFD800" />
-                                            <path
-                                                d="M0 0V2.92857H7.32143V13.1786C7.32143 15.897 8.40134 18.5042 10.3236 20.4264C12.2458 22.3487 14.853 23.4286 17.5714 23.4286C20.2899 23.4286 22.897 22.3487 24.8193 20.4264C26.7415 18.5042 27.8214 15.897 27.8214 13.1786V2.92857H35.1429V0H0ZM10.25 2.92857H24.8929V7.32143H10.25V2.92857ZM17.5714 20.5C15.6297 20.5 13.7674 19.7286 12.3944 18.3556C11.0214 16.9826 10.25 15.1203 10.25 13.1786V10.25H24.8929V13.1786C24.8929 15.1203 24.1215 16.9826 22.7485 18.3556C21.3754 19.7286 19.5132 20.5 17.5714 20.5Z"
-                                                fill="#FFD800" />
-                                        </svg>
-                                    </div>
-                                    <div class="dotted-connector"></div>
-                                    <p class="mt-2 text-white"
-                                        style="font-family:'Poppins', sans-serif;font-size:18px;font-weight:400;">
-                                        Financial
-                                        <br>
-                                        Support
-                                    </p>
-                                </div>
-
-                                <div class="col-6 col-md-3 mb-4">
-                                    <div class="p-3 bg-white rounded-circle mx-auto"
-                                        style="width:80px;height:80px; display:flex; justify-content:center; align-items:center;    z-index: 9;
-                                    position: relative;">
-                                        <svg width="37" height="39" viewBox="0 0 37 39" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M1.46289 29.75C1.7172 29.7501 1.96153 29.851 2.1416 30.0312C2.3218 30.2117 2.42285 30.4574 2.42285 30.7129V37.5371C2.42285 37.7926 2.3218 38.0383 2.1416 38.2188C1.96153 38.399 1.7172 38.4999 1.46289 38.5C1.20839 38.5 0.963375 38.3992 0.783203 38.2188C0.60301 38.0383 0.501953 37.7926 0.501953 37.5371V30.7129C0.501953 30.4574 0.603009 30.2117 0.783203 30.0312C0.963375 29.8508 1.20839 29.75 1.46289 29.75ZM11.1992 21.9502C11.4536 21.9503 11.6979 22.0511 11.8779 22.2314C12.058 22.4118 12.1591 22.6568 12.1592 22.9121V37.5371C12.1592 37.7926 12.0581 38.0383 11.8779 38.2188C11.6979 38.399 11.4535 38.4999 11.1992 38.5C10.9447 38.5 10.6997 38.3992 10.5195 38.2188C10.3393 38.0383 10.2383 37.7926 10.2383 37.5371V22.9121C10.2384 22.6568 10.3395 22.4118 10.5195 22.2314C10.6997 22.051 10.9447 21.9502 11.1992 21.9502ZM20.9355 25.8496C21.1899 25.8497 21.4342 25.9515 21.6143 26.1318C21.7943 26.3123 21.8955 26.5571 21.8955 26.8125V37.5371C21.8955 37.7926 21.7945 38.0383 21.6143 38.2188C21.4342 38.399 21.1899 38.4999 20.9355 38.5C20.6811 38.5 20.436 38.3992 20.2559 38.2188C20.0757 38.0383 19.9746 37.7926 19.9746 37.5371V26.8125C19.9746 26.5571 20.0758 26.3123 20.2559 26.1318C20.436 25.9514 20.681 25.8496 20.9355 25.8496ZM30.6719 16.0996C30.9262 16.0997 31.1705 16.2015 31.3506 16.3818C31.5306 16.5623 31.6318 16.8071 31.6318 17.0625V37.5371C31.6318 37.7926 31.5308 38.0383 31.3506 38.2188C31.1705 38.399 30.9262 38.4999 30.6719 38.5C30.4174 38.5 30.1724 38.3991 29.9922 38.2188C29.812 38.0383 29.7109 37.7926 29.7109 37.5371V17.0625C29.7109 16.8071 29.8121 16.5623 29.9922 16.3818C30.1724 16.2014 30.4174 16.0996 30.6719 16.0996ZM35.6084 0.5L35.7314 0.516602L35.8584 0.552734L35.9482 0.59082C36.0416 0.63135 36.1309 0.691329 36.2168 0.775391L36.2656 0.829102L36.3262 0.908203L36.3975 1.0293L36.4463 1.14355L36.4707 1.22266L36.4863 1.29492L36.5 1.43359V10.2451C36.4999 10.4892 36.4074 10.7242 36.2412 10.9023C36.075 11.0805 35.847 11.1885 35.6045 11.2051C35.3622 11.2215 35.1222 11.1458 34.9336 10.9922C34.7481 10.841 34.6256 10.6255 34.5898 10.3887L34.5791 10.2246V3.78223L33.7256 4.63672L21.1846 17.1943C21.0219 17.3573 20.8063 17.4565 20.5771 17.4736C20.3515 17.4904 20.1277 17.4266 19.9443 17.2939L19.8115 17.1797L13.9209 11.5146L13.5674 11.1748L13.2207 11.5225L2.14062 22.6152V22.6162C1.9692 22.7884 1.73841 22.8893 1.49609 22.8984C1.25396 22.9074 1.01769 22.8236 0.833984 22.665C0.650141 22.5063 0.532547 22.2839 0.505859 22.042C0.479621 21.8039 0.542559 21.5647 0.682617 21.3711L0.794922 21.2412L12.8955 9.125C13.0583 8.96225 13.2747 8.86361 13.5039 8.84668C13.729 8.83014 13.9527 8.89319 14.1357 9.02539L14.2588 9.13184H14.2598L20.1602 14.8057L20.5137 15.1465L20.8604 14.7988L32.3652 3.27832L33.2168 2.4248H26.7734L26.6875 2.4209C26.487 2.40252 26.2965 2.32122 26.1436 2.1875C25.9724 2.0378 25.8594 1.83237 25.8252 1.60742L25.8145 1.4502C25.8174 1.22182 25.9018 1.00224 26.0518 0.830078C26.2014 0.658275 26.4064 0.544866 26.6309 0.510742L26.7949 0.5H35.6084Z"
-                                                fill="#FFD800" stroke="#FFD800" />
-                                        </svg>
-                                    </div>
-                                    <p class="mt-2 text-white"
-                                        style="font-family:'Poppins', sans-serif;font-size:18px;font-weight:400;">Future
-                                        <br>
-                                        Growth
-                                    </p>
-                                </div>
+                                @endforeach
 
                             </div>
                         </div>
@@ -197,7 +140,11 @@
 
                     <!-- RIGHT SIDE IMAGE -->
                     <div class="col-lg-5 col-md-12 text-center">
-                        <img src="{{ asset('website/images/books.png') }}" alt="" class="img-fluid" style="">
+                        @if($firstDream && $firstDream->image && file_exists(public_path($firstDream->image)))
+                            <img src="{{ asset($firstDream->image) }}" alt="{{ $firstDream->title }}" class="img-fluid">
+                        @else
+                            <img src="{{ asset('website/images/books.png') }}" alt="" class="img-fluid">
+                        @endif
                     </div>
 
                 </div>
@@ -276,7 +223,7 @@
     </style>
 
     {{-- =============================KEY INSTRUCTIONS SECTION================= --}}
-    <section class="key-instructions-section" style="background:#ffffff;  padding:80px 0;">
+    <section class="key-instructions-section" style="background:#ffffff; padding:80px 0; overflow-x: hidden;">
         <div class="container">
             <!-- Title -->
             <div class="text-start mb-5">
@@ -288,215 +235,272 @@
                 </div>
             </div>
 
-            <!-- Cards Row -->
-            <div class="row justify-content-center mt-4" id="keyInstructionsRow">
-                
-                <!-- Styles for Hover Effect -->
-                <style>
-                    .key-card {
-                        transition: all 0.3s ease;
-                    }
-                    
-                    /* Hover effects using data attributes */
-                    .key-card[data-color="blue"]:hover {
-                        background-color: #00008B !important;
-                        border-color: #00008B !important;
-                    }
-                    .key-card[data-color="blue"]:hover .card-title,
-                    .key-card[data-color="blue"]:hover .card-text {
-                        color: #fff !important;
-                    }
-                    
-                    .key-card[data-color="green"]:hover {
-                        background-color: #009846 !important;
-                        border-color: #009846 !important;
-                    }
-                    .key-card[data-color="green"]:hover .card-title,
-                    .key-card[data-color="green"]:hover .card-text {
-                        color: #fff !important;
-                    }
-                    
-                    .key-card[data-color="yellow"]:hover {
-                        background-color: #FFD800 !important;
-                        border-color: #FFD800 !important;
-                    }
-                    .key-card[data-color="yellow"]:hover .card-title,
-                    .key-card[data-color="yellow"]:hover .card-text {
-                        color: #000 !important;
-                    }
-                    
-                    .key-card[data-color="red"]:hover {
-                        background-color: #E31E25 !important;
-                        border-color: #E31E25 !important;
-                    }
-                    .key-card[data-color="red"]:hover .card-title,
-                    .key-card[data-color="red"]:hover .card-text {
-                        color: #fff !important;
-                    }
-                    
-                    .key-card[data-color="purple"]:hover {
-                        background-color: #393186 !important;
-                        border-color: #393186 !important;
-                    }
-                    .key-card[data-color="purple"]:hover .card-title,
-                    .key-card[data-color="purple"]:hover .card-text {
-                        color: #fff !important;
-                    }
-                </style>
+            <!-- Carousel Container -->
+            <div class="key-instructions-carousel position-relative" style="padding: 100px 20px 50px; overflow: visible;">
+                <!-- Navigation Buttons -->
+                <button class="carousel-btn prev-btn" id="prevBtn" 
+                    style="position: absolute; left: -20px; top: 50%; transform: translateY(-50%); z-index: 10; background: #393186; border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 18L9 12L15 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <button class="carousel-btn next-btn" id="nextBtn" 
+                    style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); z-index: 10; background: #393186; border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
 
-                <!-- Card 1 -->
-                <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12 mb-4">
-                    <div class="key-card" data-color="blue"
-                        style="position: relative; background: #ffffff; border-radius: 0px;
-                                border: 2px solid #00008B; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px 25px 30px; height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; ">
-                        <div class="icon-circle"
-                            style="position: absolute; top: -40px; left: 50%; transform: translateX(-50%); background: #00008B; border-radius: 50%; border: 5px solid #ffff;
-                                width: 45%;
-                                height: 45%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M35.4167 1.5H4.58333C2.88046 1.5 1.5 2.88046 1.5 4.58333V27.1944C1.5 28.8973 2.88046 30.2778 4.58333 30.2778H35.4167C37.1195 30.2778 38.5 28.8973 38.5 27.1944V4.58333C38.5 2.88046 37.1195 1.5 35.4167 1.5Z"
-                                    stroke="white" stroke-width="3" stroke-linejoin="round" />
-                                <path d="M9.72266 38.5H30.2782M20.0004 30.2778V38.5" stroke="white" stroke-width="3"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
+                <!-- Carousel Track -->
+                <div class="carousel-track-container" style="overflow: hidden; margin: 0 40px; width: calc(100% - 80px);">
+                    <div class="carousel-track" id="keyInstructionsTrack" style="display: flex; transition: transform 0.5s ease-in-out; gap: 20px; justify-content: center;">
+                        
+                        <!-- Styles for Hover Effect -->
+                        <style>
+                            .key-card {
+                                transition: all 0.3s ease;
+                            }
+                            
+                            .key-card[data-color="blue"]:hover {
+                                background-color: #00008B !important;
+                                border-color: #00008B !important;
+                            }
+                            .key-card[data-color="blue"]:hover .card-title,
+                            .key-card[data-color="blue"]:hover .card-text {
+                                color: #fff !important;
+                            }
+                            
+                            .key-card[data-color="green"]:hover {
+                                background-color: #009846 !important;
+                                border-color: #009846 !important;
+                            }
+                            .key-card[data-color="green"]:hover .card-title,
+                            .key-card[data-color="green"]:hover .card-text {
+                                color: #fff !important;
+                            }
+                            
+                            .key-card[data-color="yellow"]:hover {
+                                background-color: #FFD800 !important;
+                                border-color: #FFD800 !important;
+                            }
+                            .key-card[data-color="yellow"]:hover .card-title,
+                            .key-card[data-color="yellow"]:hover .card-text {
+                                color: #000 !important;
+                            }
+                            
+                            .key-card[data-color="red"]:hover {
+                                background-color: #E31E25 !important;
+                                border-color: #E31E25 !important;
+                            }
+                            .key-card[data-color="red"]:hover .card-title,
+                            .key-card[data-color="red"]:hover .card-text {
+                                color: #fff !important;
+                            }
+                            
+                            .key-card[data-color="purple"]:hover {
+                                background-color: #393186 !important;
+                                border-color: #393186 !important;
+                            }
+                            .key-card[data-color="purple"]:hover .card-title,
+                            .key-card[data-color="purple"]:hover .card-text {
+                                color: #fff !important;
+                            }
+
+                            /* Button hover effects */
+                            .carousel-btn:hover {
+                                background: #E31E25 !important;
+                                transform: translateY(-50%) scale(1.1);
+                            }
+
+                            /* Hide buttons on mobile */
+                            @media (max-width: 768px) {
+                                .carousel-btn {
+                                    width: 40px;
+                                    height: 40px;
+                                }
+                                .key-instructions-carousel .carousel-track-container {
+                                    margin: 0 30px;
+                                }
+                                .key-card-wrapper {
+                                    width: calc(50% - 10px) !important;
+                                }
+                            }
+                            
+                            @media (max-width: 576px) {
+                                .key-card-wrapper {
+                                    width: calc(100% - 20px) !important;
+                                }
+                                .key-instructions-carousel .carousel-track-container {
+                                    margin: 0 35px;
+                                }
+                            }
+                        </style>
+
+                    <!-- Dynamic Key Instructions Cards from Database -->
+                    @forelse($keyInstructions as $instruction)
+                    @php
+                        // Use the exact color from database or default to purple
+                        $borderColor = $instruction->color ?? '#393186';
+                        
+                        // Get count of all instructions
+                        $totalCount = $keyInstructions->count();
+                        
+                        // Calculate responsive width based on number of items
+                        if ($totalCount >= 6) {
+                            $cardWidth = '16.666%';
+                        } elseif ($totalCount == 5) {
+                            $cardWidth = '20%';
+                        } elseif ($totalCount == 4) {
+                            $cardWidth = '25%';
+                        } elseif ($totalCount == 3) {
+                            $cardWidth = '33.333%';
+                        } else {
+                            // For 1-2 items, use a wider width so they look balanced when centered
+                            $cardWidth = '25%';
+                        }
+                        
+                        // Use custom SVG from database if available, otherwise use default icon
+                        $iconSvg = '';
+                        if (!empty($instruction->icon_svg)) {
+                            // Modify SVG to ensure white stroke color
+                            $iconSvg = preg_replace('/(<svg)/i', '$1 width="40" height="40"', $instruction->icon_svg);
+                            $iconSvg = preg_replace('/stroke="[^"]*"/i', 'stroke="white"', $iconSvg);
+                        } else {
+                            // Fallback to default icon based on icon name
+                            switch($instruction->icon) {
+                                case 'info':
+                                    $iconSvg = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="white" stroke-width="2"/><path d="M12 16V12M12 8H12.01" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>';
+                                    break;
+                                case 'check':
+                                    $iconSvg = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="white" stroke-width="2"/><path d="M8 12L11 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+                                    break;
+                                case 'money':
+                                    $iconSvg = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="white" stroke-width="2"/><path d="M12 6V18M15 9H9M15 12H9M15 15H9" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>';
+                                    break;
+                                default:
+                                    $iconSvg = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="white" stroke-width="2"/><path d="M12 16V12M12 8H12.01" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>';
+                            }
+                        }
+                    @endphp
+                    <div class="key-card-wrapper" style="flex: 0 0 auto; width: calc({{ $cardWidth }} - 17px); min-width: 180px;">
+                        <div class="key-card" data-color="{{ $borderColor }}"
+                            style="position: relative; background: #ffffff; border-radius: 0px;
+                                    border: 2px solid {{ $borderColor }}; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px 25px 30px; height: 240px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: all 0.3s ease; cursor: pointer;"
+                            onmouseover="this.style.background='{{ $borderColor }}'; this.style.borderColor='{{ $borderColor }}'; this.querySelector('.card-title').style.color='#ffffff'; this.querySelector('.card-text').style.color='#ffffff'; var iconCircle = this.querySelector('.icon-circle'); iconCircle.style.background='#ffffff'; iconCircle.style.borderColor='{{ $borderColor }}'; var svg = iconCircle.querySelector('svg'); if(svg) { svg.querySelector('circle').setAttribute('stroke', '{{ $borderColor }}'); var paths = svg.querySelectorAll('path'); paths.forEach(function(p) { p.setAttribute('stroke', '{{ $borderColor }}'); }); }",
+                            onmouseout="this.style.background='#ffffff'; this.style.borderColor='{{ $borderColor }}'; this.querySelector('.card-title').style.color='#3E3E3E'; this.querySelector('.card-text').style.color='#5B5B5B'; var iconCircle = this.querySelector('.icon-circle'); iconCircle.style.background='{{ $borderColor }}'; iconCircle.style.borderColor='#ffff'; var svg = iconCircle.querySelector('svg'); if(svg) { svg.querySelector('circle').setAttribute('stroke', 'white'); var paths = svg.querySelectorAll('path'); paths.forEach(function(p) { p.setAttribute('stroke', 'white'); }); }">
+                            <div class="icon-circle"
+                                style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); background: {{ $borderColor }}; border-radius: 50%; border: 5px solid #ffff;
+                                    width: 45%;
+                                    height: 45%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+                                {!! $iconSvg !!}
+                            </div>
+                            <h5 class="card-title" style="font-family:'Poppins', sans-serif;font-size: 16px; font-weight: 600; color: #3E3E3E; text-align: center; margin-top: 45px; margin-bottom: 6px; transition: color 0.3s ease;">
+                                {{ $instruction->title }}</h5>
+                            <p class="card-text" style="font-size: 13px; color: #5B5B5B; text-align: center; line-height: 1.5; transition: color 0.3s ease;">
+                                {{ $instruction->description }}</p>
                         </div>
-                        <h5 class="card-title" style="font-family:'Poppins', sans-serif;font-size: 16px; font-weight: 600; color: #3E3E3E; text-align: center; margin-top: 45px; margin-bottom: 6px;">
-                            Use a Computer</h5>
-                        <p class="card-text" style="font-size: 13px; color: #5B5B5B; text-align: center; line-height: 1.5;">
-                            Use a laptop or desktop to complete the application (not a mobile device).</p>
                     </div>
+                    @empty
+                        <!-- Fallback content if no instructions exist -->
+                        <p class="text-center w-100">No key instructions available at the moment.</p>
+                    @endforelse
+
+                    </div>
+
                 </div>
 
-                <!-- Card 2 -->
-                <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12 mb-4">
-                    <div class="key-card" data-color="green"
-                        style="position: relative; background: #ffffff; border-radius: 0px;
-                        border: 2px solid #009846; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px 25px 30px; height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; ">
-                        <div class="icon-circle"
-                            style="position: absolute; top: -40px; left: 50%; transform: translateX(-50%); background: #009846; border-radius: 50%; border: 5px solid #ffff;
-                            width: 45%;
-                            height: 45%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-                            <svg width="38" height="42" viewBox="0 0 38 42" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M23.375 18.8333V31.8333M14.625 18.8333V31.8333M5.875 10.1667V36.1667C5.875 37.3159 6.33594 38.4181 7.15641 39.2308C7.97688 40.0435 9.08968 40.5 10.25 40.5H27.75C28.9103 40.5 30.0231 40.0435 30.8436 39.2308C31.6641 38.4181 32.125 37.3159 32.125 36.1667V10.1667M1.5 10.1667H36.5M8.0625 10.1667L12.4375 1.5H25.5625L29.9375 10.1667"
-                                    stroke="white" stroke-width="3" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </svg>
-                        </div>
-                        <h5 class="card-title" style="font-family:'Poppins', sans-serif;font-size: 16px; font-weight: 600; color: #3E3E3E; text-align: center; margin-top: 45px; margin-bottom: 6px;">
-                            Clear Browser Cache</h5>
-                        <p class="card-text" style="font-size: 13px; color: #5B5B5B; text-align: center; line-height: 1.5;">
-                            Clear your browser cache and history before beginning.</p>
-                    </div>
-                </div>
-
-                <!-- Card 3 -->
-                <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12 mb-4">
-                    <div class="key-card" data-color="yellow"
-                        style="position: relative; background: #ffffff; border-radius: 0px;
-                        border: 2px solid #FFD800; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px 25px 30px; height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; ">
-                        <div class="icon-circle"
-                            style="position: absolute; top: -40px; left: 50%; transform: translateX(-50%); background: #FFD800; border-radius: 50%; border: 5px solid #ffff;
-                            width: 45%;
-                            height: 45%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-                            <svg width="41" height="41" viewBox="0 0 41 41" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M28.5 0.25C28.8315 0.25 29.1494 0.381791 29.3838 0.616211C29.6182 0.850632 29.75 1.16848 29.75 1.5V4.25H35.5C36.8924 4.25 38.2273 4.80352 39.2119 5.78809C40.1965 6.77265 40.75 8.10761 40.75 9.5V35.5C40.75 36.8924 40.1965 38.2273 39.2119 39.2119C38.2273 40.1965 36.8924 40.75 35.5 40.75H5.5C4.1082 40.7483 2.77321 40.1951 1.78906 39.2109C0.804914 38.2268 0.251667 36.8918 0.25 35.5V9.5L0.256836 9.23926C0.32269 7.94234 0.866478 6.71165 1.78906 5.78906C2.77321 4.80491 4.1082 4.25167 5.5 4.25H11.25V1.5C11.25 1.16848 11.3818 0.850631 11.6162 0.616211C11.8506 0.381791 12.1685 0.25 12.5 0.25C12.8315 0.25 13.1494 0.381791 13.3838 0.616211C13.6182 0.850632 13.75 1.16848 13.75 1.5V4.25H27.25V1.5C27.25 1.16848 27.3818 0.850632 27.6162 0.616211C27.8506 0.381791 28.1685 0.25 28.5 0.25ZM2.75 35.5C2.75 36.2293 3.03994 36.9286 3.55566 37.4443C4.07139 37.9601 4.77065 38.25 5.5 38.25H35.5C36.2293 38.25 36.9286 37.9601 37.4443 37.4443C37.9601 36.9286 38.25 36.2293 38.25 35.5V18.75H2.75V35.5ZM5.5 6.75C3.97829 6.75 2.75 7.98185 2.75 9.5V16.25H38.25V9.5C38.25 8.77065 37.9601 8.07139 37.4443 7.55566C36.9286 7.03994 36.2293 6.75 35.5 6.75H29.75V9.5C29.75 9.83152 29.6182 10.1494 29.3838 10.3838C29.1494 10.6182 28.8315 10.75 28.5 10.75C28.1685 10.75 27.8506 10.6182 27.6162 10.3838C27.3818 10.1494 27.25 9.83152 27.25 9.5V6.75H13.75V9.5C13.75 9.83152 13.6182 10.1494 13.3838 10.3838C13.1494 10.6182 12.8315 10.75 12.5 10.75C12.1685 10.75 11.8506 10.6182 11.6162 10.3838C11.3818 10.1494 11.25 9.83152 11.25 9.5V6.75H5.5Z"
-                                    fill="white" stroke="white" stroke-width="0.5" />
-                            </svg>
-                        </div>
-                        <h5 class="card-title" style="font-family:'Poppins', sans-serif;font-size: 16px; font-weight: 600; color: #3E3E3E; text-align: center; margin-top: 45px; margin-bottom: 6px;">
-                            Application Deadline</h5>
-                        <p class="card-text" style="font-size: 13px; color: #5B5B5B; text-align: center; line-height: 1.5;">
-                            Apply at least 90 days before your course start date.</p>
-                    </div>
-                </div>
-
-                <!-- Card 4 -->
-                <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12 mb-4">
-                    <div class="key-card" data-color="red"
-                        style="position: relative; background: #ffffff; border-radius: 0px;
-                        border: 2px solid #E31E25; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px 25px 30px; height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; ">
-                        <div class="icon-circle"
-                            style="position: absolute; top: -40px; left: 50%; transform: translateX(-50%); background: #E31E25; border-radius: 50%; border: 5px solid #ffff;
-                            width: 45%;
-                            height: 45%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-                            <svg width="44" height="42" viewBox="0 0 44 42" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M21.9289 40.5C32.1856 40.5 40.5003 32.1853 40.5003 21.9285C40.5003 11.6718 32.1856 3.35712 21.9289 3.35712C11.6721 3.35712 3.35742 11.6718 3.35742 21.9285C3.35742 32.1853 11.6721 40.5 21.9289 40.5Z"
-                                    stroke="white" stroke-width="3" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                                <path
-                                    d="M21.9286 12.6429V21.9286L27.5 27.5M1.5 7.07143L7.07143 1.5M36.7857 1.5L42.3571 7.07143"
-                                    stroke="white" stroke-width="3" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </svg>
-                        </div>
-                        <h5 class="card-title" style="font-family:'Poppins', sans-serif;font-size: 16px; font-weight: 600; color: #3E3E3E; text-align: center; margin-top: 45px; margin-bottom: 6px;">
-                            Submission Validity</h5>
-                        <p class="card-text" style="font-size: 13px; color: #5B5B5B; text-align: center; line-height: 1.5;">
-                            Submit your form within 30 days of creation or it will be disabled.</p>
-                    </div>
-                </div>
-
-                <!-- Card 5 -->
-                <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12 mb-4">
-                    <div class="key-card" data-color="purple"
-                        style="position: relative; background: #ffffff; border-radius: 0px;
-                        border: 2px solid #393186; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px 25px 30px; height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; ">
-                        <div class="icon-circle"
-                            style="position: absolute; top: -40px; left: 50%; transform: translateX(-50%); background: #393186; border-radius: 50%; border: 5px solid #ffff;
-                            width: 45%;
-                            height: 45%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-                            <svg width="38" height="42" viewBox="0 0 38 42" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M23.375 18.8333V31.8333M14.625 18.8333V31.8333M5.875 10.1667V36.1667C5.875 37.3159 6.33594 38.4181 7.15641 39.2308C7.97688 40.0435 9.08968 40.5 10.25 40.5H27.75C28.9103 40.5 30.0231 40.0435 30.8436 39.2308C31.6641 38.4181 32.125 37.3159 32.125 36.1667V10.1667M1.5 10.1667H36.5M8.0625 10.1667L12.4375 1.5H25.5625L29.9375 10.1667"
-                                    stroke="white" stroke-width="3" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </svg>
-                        </div>
-                        <h5 class="card-title" style="font-family:'Poppins', sans-serif;font-size: 16px; font-weight: 600; color: #3E3E3E; text-align: center; margin-top: 45px; margin-bottom: 6px;">
-                            Required Documents</h5>
-                        <p class="card-text" style="font-size: 13px; color: #5B5B5B; text-align: center; line-height: 1.5;">
-                            Keep all required documents ready before starting.<br>Checklist on JEAP website.</p>
-                    </div>
-                </div>
-
-                <!-- Card 6 -->
-                <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12 mb-4">
-                    <div class="key-card" data-color="green"
-                        style="position: relative; background: #ffffff; border-radius: 0px;
-                        border: 2px solid #009846; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px 25px 30px; height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; ">
-                        <div class="icon-circle"
-                            style="position: absolute; top: -40px; left: 50%; transform: translateX(-50%); background: #009846; border-radius: 50%; border: 5px solid #ffff;
-                            width: 45%;
-                            height: 45%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-                            <svg width="38" height="42" viewBox="0 0 38 42" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M23.375 18.8333V31.8333M14.625 18.8333V31.8333M5.875 10.1667V36.1667C5.875 37.3159 6.33594 38.4181 7.15641 39.2308C7.97688 40.0435 9.08968 40.5 10.25 40.5H27.75C28.9103 40.5 30.0231 40.0435 30.8436 39.2308C31.6641 38.4181 32.125 37.3159 32.125 36.1667V10.1667M1.5 10.1667H36.5M8.0625 10.1667L12.4375 1.5H25.5625L29.9375 10.1667"
-                                    stroke="white" stroke-width="3" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </svg>
-                        </div>
-                        <h5 class="card-title" style="font-family:'Poppins', sans-serif;font-size: 16px; font-weight: 600; color: #3E3E3E; text-align: center; margin-top: 45px; margin-bottom: 6px;">
-                            Clear Browser Cache</h5>
-                        <p class="card-text" style="font-size: 13px; color: #5B5B5B; text-align: center; line-height: 1.5;">
-                            Clear your browser cache and history before beginning.</p>
-                    </div>
-                </div>
-
+                <!-- End Carousel Track -->
             </div>
+            <!-- End Carousel Container -->
         </div>
     </section>
 
-           {{-- =============================WORKING COMMITTEE SECTION================= --}}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const track = document.getElementById('keyInstructionsTrack');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        if (!track || !prevBtn || !nextBtn) return;
+        
+        const cards = track.querySelectorAll('.key-card-wrapper');
+        let currentIndex = 0;
+        
+        // Calculate how many cards to show based on screen width
+        function getCardsPerView() {
+            const width = window.innerWidth;
+            if (width >= 1200) return 6;  // Desktop - 6 cards
+            if (width >= 992) return 5;   // Laptop - 5 cards
+            if (width >= 768) return 3;   // Tablet - 3 cards
+            if (width >= 576) return 2;  // Large mobile - 2 cards
+            return 1;  // Small mobile - 1 card
+        }
+        
+        function updateCarousel() {
+            const cardsPerView = getCardsPerView();
+            
+            // Get the actual width of the first card
+            const firstCard = cards[0];
+            if (!firstCard) return;
+            
+            const cardStyle = window.getComputedStyle(track);
+            const gap = 20; // gap in the flex container
+            const cardWidth = firstCard.offsetWidth + gap;
+            
+            // Calculate maximum index
+            const maxIndex = Math.max(0, cards.length - cardsPerView);
+            
+            // Clamp current index
+            if (currentIndex > maxIndex) currentIndex = maxIndex;
+            if (currentIndex < 0) currentIndex = 0;
+            
+            // LOGIC: Check if total cards fit within the view
+            if (cards.length <= cardsPerView) {
+                // Items fit, so center them and remove transform
+                track.style.justifyContent = 'center';
+                track.style.transform = 'translateX(0px)';
+            } else {
+                // Items overflow, align left and apply transform for sliding
+                track.style.justifyContent = 'flex-start';
+                const translateX = -(currentIndex * cardWidth);
+                track.style.transform = 'translateX(' + translateX + 'px)';
+            }
+            
+            // Update button states
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex >= maxIndex;
+            prevBtn.style.opacity = currentIndex === 0 ? '0.5' : '1';
+            nextBtn.style.opacity = currentIndex >= maxIndex ? '0.5' : '1';
+        }
+        
+        // Previous button click
+        prevBtn.addEventListener('click', function() {
+            const cardsPerView = getCardsPerView();
+            if (currentIndex > 0) {
+                currentIndex -= cardsPerView;
+                updateCarousel();
+            }
+        });
+        
+        // Next button click
+        nextBtn.addEventListener('click', function() {
+            const cardsPerView = getCardsPerView();
+            const maxIndex = Math.max(0, cards.length - cardsPerView);
+            if (currentIndex < maxIndex) {
+                currentIndex += cardsPerView;
+                updateCarousel();
+            }
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', updateCarousel);
+        
+        // Initialize
+        updateCarousel();
+    });
+    </script>
+
+    {{-- =============================WORKING COMMITTEE SECTION================= --}}
     <section style="padding: 80px 0; background: #FFF9E6;">
         <div class="container">
             <!-- Header -->
@@ -564,6 +568,29 @@
             <!-- Cards Grid Layout -->
             <div class="row">
                 
+                @forelse($workingCommittee as $member)
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+                    <div class="committee-card-item">
+                        <div class="img-circle" style="width: 150px; height: 150px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden;">
+                            @if($member->photo && file_exists(public_path($member->photo)))
+                                <img src="{{ asset($member->photo) }}" alt="{{ $member->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            @else
+                                <img src="{{ asset('website/images/wc11.png') }}" alt="{{ $member->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            @endif
+                        </div>
+                        <h3 style="font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif; margin-bottom: 5px; text-transform: none;">
+                            {{ $member->name }}
+                        </h3>
+                        <p style="font-size: 16px; font-weight: 500; margin-bottom: 15px;">
+                            {{ $member->designation }}
+                        </p>
+                        @if($member->description)
+                            <a href="#" style="font-size: 16px; text-decoration: underline; font-weight: 500;">Show more</a>
+                        @endif
+                    </div>
+                </div>
+                @empty
+                <!-- Fallback static content if no data in database -->
                 <!-- Card 1 -->
                 <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
                     <div class="committee-card-item">
@@ -628,7 +655,54 @@
                     </div>
                 </div>
 
-                
+                <!-- Card 5 -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+                    <div class="committee-card-item">
+                        <div class="img-circle" style="width: 150px; height: 150px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden;">
+                            <img src="{{ asset('website/images/d005.png') }}" alt="Dr. Bipin Doshi" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <h3 style="font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif; margin-bottom: 5px; text-transform: none;">
+                            Dr. Bipin Doshi 
+                        </h3>
+                        <p style="font-size: 16px; font-weight: 500; margin-bottom: 15px;">
+                            Secretary
+                        </p>
+                        <a href="#" style="font-size: 16px; text-decoration: underline; font-weight: 500;">Show more</a>
+                    </div>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+                    <div class="committee-card-item">
+                        <div class="img-circle" style="width: 150px; height: 150px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden;">
+                            <img src="{{ asset('website/images/d006.png') }}" alt="Dilip Nabera" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <h3 style="font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif; margin-bottom: 5px; text-transform: none;">
+                            Dilip Nabera
+                        </h3>
+                        <p style="font-size: 16px; font-weight: 500; margin-bottom: 15px;">
+                            Treasurer
+                        </p>
+                        <a href="#" style="font-size: 16px; text-decoration: underline; font-weight: 500;">Show more</a>
+                    </div>
+                </div>
+
+                <!-- Card 7 -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+                    <div class="committee-card-item">
+                        <div class="img-circle" style="width: 150px; height: 150px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden;">
+                            <img src="{{ asset('website/images/d007.png') }}" alt="Shilpin Tater" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <h3 style="font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif; margin-bottom: 5px; text-transform: none;">
+                            Shilpin Tater
+                        </h3>
+                        <p style="font-size: 16px; font-weight: 500; margin-bottom: 15px;">
+                            Joint Treasurer
+                        </p>
+                        <a href="#" style="font-size: 16px; text-decoration: underline; font-weight: 500;">Show more</a>
+                    </div>
+                </div>
+                @endforelse
 
             </div>
         </div>
@@ -807,11 +881,7 @@
         }
     </style>
     
-   
-    
-   
-
-        {{-- ============================= OUR TESTIMONIALS SECTION ============================= --}}
+    {{-- ============================= OUR TESTIMONIALS SECTION ============================= --}}
     
     <section>
         <div class="container mt-5 mb-5">
@@ -874,7 +944,7 @@
         </div>
     </section>
 
-        {{-- ============================= SUCCESS STORIES SECTION ============================= --}}
+    {{-- ============================= SUCCESS STORIES SECTION ============================= --}}
     
     <section style="padding: 80px 0; background: #FFF;">
         <div class="container">
@@ -969,54 +1039,65 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const container = document.getElementById('testimonialContainer');
-            const items = container.querySelectorAll('.testimonial-item');
-            const totalItems = items.length;
-            const visibleItems = 3;
-            const maxIndex = totalItems - visibleItems;
-            let currentIndex = 0;
+            // Check if container exists to avoid errors
+            if (container) {
+                const items = container.querySelectorAll('.testimonial-item');
+                const totalItems = items.length;
+                const visibleItems = 3;
+                const maxIndex = totalItems - visibleItems;
+                let currentIndex = 0;
+                
+                // Ensure arrows exist before adding listeners
+                const leftArrow = document.getElementById('leftArrow');
+                const rightArrow = document.getElementById('rightArrow');
 
-            document.getElementById('rightArrow').addEventListener('click', function() {
-                currentIndex++;
-                if (currentIndex >= maxIndex) {
-                    setTimeout(function() {
-                        container.style.transition = 'none';
-                        currentIndex = 0;
-                        updateTransform();
-                        setTimeout(function() {
-                            container.style.transition = 'transform 0.5s ease';
-                        }, 50);
-                    }, 250);
-                } else {
-                    updateTransform();
+                if (rightArrow) {
+                    rightArrow.addEventListener('click', function() {
+                        currentIndex++;
+                        if (currentIndex >= maxIndex) {
+                            setTimeout(function() {
+                                container.style.transition = 'none';
+                                currentIndex = 0;
+                                updateTransform();
+                                setTimeout(function() {
+                                    container.style.transition = 'transform 0.5s ease';
+                                }, 50);
+                            }, 250);
+                        } else {
+                            updateTransform();
+                        }
+                    });
                 }
-            });
 
-            document.getElementById('leftArrow').addEventListener('click', function() {
-                currentIndex--;
-                if (currentIndex < 0) {
-                    setTimeout(function() {
-                        container.style.transition = 'none';
-                        currentIndex = maxIndex - 1;
-                        updateTransform();
-                        setTimeout(function() {
-                            container.style.transition = 'transform 0.5s ease';
-                        }, 50);
-                    }, 250);
-                } else {
-                    updateTransform();
+                if (leftArrow) {
+                    leftArrow.addEventListener('click', function() {
+                        currentIndex--;
+                        if (currentIndex < 0) {
+                            setTimeout(function() {
+                                container.style.transition = 'none';
+                                currentIndex = maxIndex - 1;
+                                updateTransform();
+                                setTimeout(function() {
+                                    container.style.transition = 'transform 0.5s ease';
+                                }, 50);
+                            }, 250);
+                        } else {
+                            updateTransform();
+                        }
+                    });
                 }
-            });
 
-            function updateTransform() {
-                const transformValue = -(currentIndex * (100 / visibleItems)) + '%';
-                container.style.transform = 'translateX(' + transformValue + ')';
-                items.forEach((item, i) => {
-                    if (i === currentIndex + 1) {
-                        item.style.transform = 'scale(1.1)';
-                    } else {
-                        item.style.transform = 'scale(1)';
-                    }
-                });
+                function updateTransform() {
+                    const transformValue = -(currentIndex * (100 / visibleItems)) + '%';
+                    container.style.transform = 'translateX(' + transformValue + ')';
+                    items.forEach((item, i) => {
+                        if (i === currentIndex + 1) {
+                            item.style.transform = 'scale(1.1)';
+                        } else {
+                            item.style.transform = 'scale(1)';
+                        }
+                    });
+                }
             }
         });
     </script>
@@ -1024,33 +1105,36 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const carousel = document.getElementById('videoCarousel');
-            let isDown = false;
-            let startX;
-            let transformAmount = 0;
+            if (carousel) {
+                let isDown = false;
+                let startX;
+                let transformAmount = 0;
 
-            carousel.addEventListener('mousedown', (e) => {
-                isDown = true;
-                startX = e.clientX - transformAmount;
-                carousel.style.cursor = 'grabbing';
-            });
+                carousel.addEventListener('mousedown', (e) => {
+                    isDown = true;
+                    startX = e.clientX - transformAmount;
+                    carousel.style.cursor = 'grabbing';
+                });
 
-            carousel.addEventListener('mouseleave', () => {
-                isDown = false;
-                carousel.style.cursor = 'grab';
-            });
+                carousel.addEventListener('mouseleave', () => {
+                    isDown = false;
+                    carousel.style.cursor = 'grab';
+                });
 
-            carousel.addEventListener('mouseup', () => {
-                isDown = false;
-                carousel.style.cursor = 'grab';
-            });
+                carousel.addEventListener('mouseup', () => {
+                    isDown = false;
+                    carousel.style.cursor = 'grab';
+                });
 
-            carousel.addEventListener('mousemove', (e) => {
-                if (!isDown) return;
-                e.preventDefault();
-                const x = e.clientX;
-                transformAmount = x - startX;
-                carousel.style.transform = `translateX(${transformAmount}px)`;
-            });
+                carousel.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const x = e.clientX;
+                    transformAmount = x - startX;
+                    carousel.style.transform = `translateX(${transformAmount}px)`;
+                });
+            }
         });
     </script>
+
 @endsection

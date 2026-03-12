@@ -81,4 +81,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(WorkingCommitteeApproval::class);
     }
+
+    public function thirdStageDocument()
+    {
+        return $this->hasOne(ThirdStageDocument::class);
+    }
 }

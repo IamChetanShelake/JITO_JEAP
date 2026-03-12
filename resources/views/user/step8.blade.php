@@ -1,7 +1,7 @@
 @extends('user.layout.master')
 @section('step')
     <button class="btn btn-purple me-2" style="background-color: #393185; color: white;">Step 8 of
-        8</button>
+        9</button>
 @endsection
 @section('content')
     <!-- Main Content -->
@@ -34,7 +34,89 @@
                                         <p class="card-subtitle">Upload your first cheque and add all cheque details for the
                                             financial assistance.</p>
                                     </div>
+                                    <div class="ms-auto">
+                                        @php
+                                            $workflow = $user->workflowStatus;
+                                            $isPdcApproved = $workflow && $workflow->apex_2_status === 'approved';
+                                            $hasPendingRequest =
+                                                isset($editBankDetailRequest) &&
+                                                $editBankDetailRequest &&
+                                                $editBankDetailRequest->status === 'pending';
+                                            $hasApprovedRequest =
+                                                isset($editBankDetailRequest) &&
+                                                $editBankDetailRequest &&
+                                                $editBankDetailRequest->status === 'approved';
+                                            $isbankdetailsubmitted =
+                                                isset($editBankDetailRequest) &&
+                                                $editBankDetailRequest &&
+                                                $editBankDetailRequest->bank_update_status === 'pending';
+                                            $hasRejectedRequest =
+                                                isset($editBankDetailRequest) &&
+                                                $editBankDetailRequest &&
+                                                $editBankDetailRequest->status === 'rejected';
+                                        @endphp
+
+                                        {{-- Edit Bank Detail Request Button - Only visible until Apex Stage 2 approves PDC --}}
+                                        @if (!$isPdcApproved && !$hasApprovedRequest)
+                                            <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                                data-bs-target="#editBankDetailRequestModal"
+                                                {{ $hasPendingRequest ? 'disabled' : '' }}>
+                                                <i class="bi bi-pencil-square me-1"></i>
+                                                {{ $hasPendingRequest ? 'Request Pending' : 'Edit Bank Detail Request' }}
+                                            </button>
+                                        @endif
+
+                                        {{-- Edit Bank Details Button - Only visible when request is approved --}}
+                                        @if ($hasApprovedRequest && $isbankdetailsubmitted)
+                                            <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                                                data-bs-target="#editBankDetailsModal">
+                                                <i class="bi bi-pencil me-1"></i>
+                                                Edit Bank Details
+                                            </button>
+                                        @endif
+                                    </div>
                                 </div>
+
+                                <!-- Rejection Alert - Show if request was rejected -->
+                                @if ($hasRejectedRequest && $editBankDetailRequest->admin_remark)
+                                    <div class="alert alert-danger mt-3"
+                                        style="border: 2px solid #dc3545; border-radius: 10px; background-color: #f8d7da;">
+                                        <div class="d-flex align-items-start justify-content-between gap-2">
+                                            <i class="fas fa-times-circle me-2"
+                                                style="font-size: 1.2rem; color: #dc3545;"></i>
+                                            <div style="min-width: 0;">
+                                                <h5 class="mb-1" style="color: #721c24; font-weight: 600;">Request
+                                                    Rejected</h5>
+                                                <p style="margin: 0 0 4px 0; color: #721c24; font-size: 14px;">
+                                                    <strong>Admin Remark:</strong>
+                                                    {{ trim(preg_replace('/\s+/', ' ', strip_tags($editBankDetailRequest->admin_remark))) }}
+                                                </p>
+                                                <button type="button" class="btn btn-link p-0 text-danger"
+                                                    data-bs-toggle="modal" data-bs-target="#rejectedRemarkModal">
+                                                    View More
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal fade" id="rejectedRemarkModal" tabindex="-1"
+                                        aria-labelledby="rejectedRemarkModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                                            <div class="modal-content">
+                                                <div class="modal-header bg-danger text-white">
+                                                    <h5 class="modal-title" id="rejectedRemarkModalLabel">Rejection Remarks
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <strong>Admin Remark:</strong>
+                                                    {!! $editBankDetailRequest->admin_remark !!}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
 
                                 <!-- Send Back for Correction Notice -->
                                 @if (isset($user->workflowStatus) &&
@@ -82,7 +164,7 @@
                                 @endif
 
 
-                                <!-- Approval Details Section - Displayed before Note -->
+                                <!-- Rejection Alert - Show if request was rejected -->
                                 @if (isset($workingCommitteeApproval) && $workingCommitteeApproval)
                                     <div class="card mb-4" style="border: 2px solid #009846; border-radius: 15px;">
                                         <div class="card-header bg-success text-white"
@@ -330,11 +412,15 @@
                                 @endif
 
                                 <!-- Bank Details Check Modal - Show if bank_name is OTHER -->
-                                @if(isset($fundingDetail) && $fundingDetail && strtoupper($fundingDetail->bank_name) === 'OTHER')
-                                    <div class="modal fade" id="bankDetailsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bankDetailsModalLabel" aria-hidden="true" style="pointer-events: none;">
+                                @if (isset($fundingDetail) && $fundingDetail && strtoupper($fundingDetail->bank_name) === 'OTHER')
+                                    <div class="modal fade" id="bankDetailsModal" data-bs-backdrop="static"
+                                        data-bs-keyboard="false" tabindex="-1" aria-labelledby="bankDetailsModalLabel"
+                                        aria-hidden="true" style="pointer-events: none;">
                                         <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content" style="border-radius: 15px; border: 3px solid #dc3545;">
-                                                <div class="modal-header bg-danger text-white" style="border-radius: 12px 12px 0 0;">
+                                            <div class="modal-content"
+                                                style="border-radius: 15px; border: 3px solid #dc3545;">
+                                                <div class="modal-header bg-danger text-white"
+                                                    style="border-radius: 12px 12px 0 0;">
                                                     <h5 class="modal-title" id="bankDetailsModalLabel">
                                                         <i class="bi bi-exclamation-triangle-fill me-2"></i>
                                                         Action Required
@@ -343,15 +429,20 @@
                                                 </div>
                                                 <div class="modal-body text-center py-4">
                                                     <div class="mb-3">
-                                                        <i class="bi bi-bank" style="font-size: 4rem; color: #dc3545;"></i>
+                                                        <i class="bi bi-bank"
+                                                            style="font-size: 4rem; color: #dc3545;"></i>
                                                     </div>
                                                     <h4 class="text-danger mb-3">Please Update Bank Details</h4>
                                                     <p class="text-dark fs-5">
-                                                        Your bank name is marked as "OTHER". Please update the bank details according to JITO JEAP registered bank.
+                                                        Your bank name is marked as "OTHER". Please update the bank details
+                                                        according to JITO JEAP registered bank.
                                                     </p>
                                                 </div>
-                                                <div class="modal-footer justify-content-center" style="border-top: none;">
-                                                    <a href="{{ route('user.step4') }}" class="btn btn-danger btn-lg px-5" style="border-radius: 10px; font-weight: 600;">
+                                                <div class="modal-footer justify-content-center"
+                                                    style="border-top: none;">
+                                                    <a href="{{ route('user.step4') }}"
+                                                        class="btn btn-danger btn-lg px-5"
+                                                        style="border-radius: 10px; font-weight: 600;">
                                                         <i class="bi bi-arrow-right-circle me-2"></i>
                                                         Go to Step 4
                                                     </a>
@@ -569,7 +660,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Check if bank_name is "OTHER" and show modal
-            const isBankOther = {{ isset($fundingDetail) && $fundingDetail && strtoupper($fundingDetail->bank_name) === 'OTHER' ? 'true' : 'false' }};
+            const isBankOther =
+                {{ isset($fundingDetail) && $fundingDetail && strtoupper($fundingDetail->bank_name) === 'OTHER' ? 'true' : 'false' }};
 
             if (isBankOther) {
                 // Show the modal automatically
@@ -682,13 +774,13 @@
                     </td>
                     <td class="text-center">
                         ${index > 0 ? `
-                                                                                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"
-                                                                                    style="border-radius: 8px; font-weight: 600;">
-                                                                                    Remove
-                                                                                </button>
-                                                                            ` : `
-                                                                                <span class="text-muted"></span>
-                                                                            `}
+                                                                                                                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"
+                                                                                                                    style="border-radius: 8px; font-weight: 600;">
+                                                                                                                    Remove
+                                                                                                                </button>
+                                                                                                            ` : `
+                                                                                                                <span class="text-muted"></span>
+                                                                                                            `}
                     </td>
                 `;
 
@@ -863,5 +955,544 @@
                 }
             });
         });
+    </script>
+
+    <!-- Edit Bank Detail Request Modal -->
+    <div class="modal fade" id="editBankDetailRequestModal" tabindex="-1"
+        aria-labelledby="editBankDetailRequestModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 15px;">
+                <div class="modal-header" style="background-color: #393185; color: white; border-radius: 13px 13px 0 0;">
+                    <h5 class="modal-title" id="editBankDetailRequestModalLabel">
+                        <i class="bi bi-pencil-square me-2"></i>
+                        Edit Bank Detail Request
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <form id="editBankDetailRequestForm">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="reason" class="form-label" style="font-weight: 600; color: #393185;">
+                                Reason <span style="color: red;">*</span>
+                            </label>
+                            <textarea class="form-control" id="reason" name="reason" rows="4"
+                                placeholder="Please provide a reason for editing bank details..." required
+                                style="border: 2px solid #393185; border-radius: 10px;"></textarea>
+                            <small class="text-muted">Explain why you need to edit your bank details.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: none;">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                            style="border-radius: 10px;">Cancel</button>
+                        <button type="submit" class="btn"
+                            style="background-color: #393185; color: white; border-radius: 10px;">
+                            <i class="bi bi-send me-1"></i> Submit Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Bank Details Modal (for approved request) -->
+    <div class="modal fade" id="editBankDetailsModal" tabindex="-1" aria-labelledby="editBankDetailsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-radius: 15px;">
+                <div class="modal-header" style="background-color: #009846; color: white; border-radius: 13px 13px 0 0;">
+                    <h5 class="modal-title" id="editBankDetailsModalLabel">
+                        <i class="bi bi-bank me-2"></i>
+                        Edit Bank Details
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <form id="editBankDetailsForm" novalidate>
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row">
+                            <div id="editBankValidationMessage" class="mt-2"></div>
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_bank_name" class="form-label" style="font-weight: 600; color: #393185;">
+                                    Bank Name <span style="color: red;">*</span>
+                                </label>
+                                <select class="form-control" name="bank_name" id="edit_bank_name" required
+                                    style="border: 2px solid #393185; border-radius: 10px;">
+                                    <option value="" hidden>Select Bank</option>
+                                    @foreach ($banks as $bank)
+                                        @if (strtoupper($bank->name) !== 'OTHER')
+                                            <option value="{{ $bank->name }}"
+                                                data-ifsc="{{ strtoupper(substr($bank->ifsc_code, 0, 4)) }}">
+                                                {{ $bank->name }}
+                                            </option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_account_holder_name" class="form-label"
+                                    style="font-weight: 600; color: #393185;">
+                                    Account Holder Name <span style="color: red;">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="account_holder_name"
+                                    id="edit_account_holder_name" value="" readonly required
+                                    style="border: 2px solid #393185; border-radius: 10px;">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_ifsc_code" class="form-label" style="font-weight: 600; color: #393185;">
+                                    IFSC Code <span style="color: red;">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="ifsc_code" id="edit_ifsc_code"
+                                    value="" required style="border: 2px solid #393185; border-radius: 10px;">
+                                {{--  <div id="editBankValidationMessage" class="mt-2"></div>  --}}
+                            </div>
+                            {{--  <div class="col-md-6 mb-3">
+                                <label for="edit_account_number" class="form-label"
+                                    style="font-weight: 600; color: #393185;">
+                                    Account Number <span style="color: red;">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="account_number"
+                                    id="edit_account_number" value="{{ $fundingDetail->account_number ?? '' }}" required
+                                    style="border: 2px solid #393185; border-radius: 10px;">
+                            </div>  --}}
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_branch_name" class="form-label"
+                                    style="font-weight: 600; color: #393185;">
+                                    Branch Name <span style="color: red;">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="branch_name" id="edit_branch_name"
+                                    value="" readonly required
+                                    style="border: 2px solid #393185; border-radius: 10px;">
+                            </div>
+                        </div>
+                        <div class="row">
+                            {{--  <div class="col-md-6 mb-3">
+                                <label for="edit_ifsc_code" class="form-label" style="font-weight: 600; color: #393185;">
+                                    IFSC Code <span style="color: red;">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="ifsc_code" id="edit_ifsc_code"
+                                    value="{{ $fundingDetail->ifsc_code ?? '' }}" required
+                                    style="border: 2px solid #393185; border-radius: 10px;">
+                                <div id="editBankValidationMessage" class="mt-2"></div>
+                            </div>  --}}
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_account_number" class="form-label"
+                                    style="font-weight: 600; color: #393185;">
+                                    Account Number <span style="color: red;">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="account_number"
+                                    id="edit_account_number" value="" readonly required
+                                    style="border: 2px solid #393185; border-radius: 10px;">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="edit_bank_address" class="form-label"
+                                    style="font-weight: 600; color: #393185;">
+                                    Bank Address <span style="color: red;">*</span>
+                                </label>
+                                <textarea class="form-control" name="bank_address" id="edit_bank_address" rows="2" readonly required
+                                    style="border: 2px solid #393185; border-radius: 10px;"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: none;">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                            style="border-radius: 10px;">Cancel</button>
+                        <button type="submit" id="editBankDetailsSubmit" class="btn"
+                            style="background-color: #009846; color: white; border-radius: 10px;">
+                            <i class="bi bi-check-lg me-1"></i> Update Bank Details
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function hideModalById(modalId) {
+            const modalElement = document.getElementById(modalId);
+            if (!modalElement) return;
+
+            // Bootstrap 5
+            if (window.bootstrap && bootstrap.Modal) {
+                let instance = null;
+                if (typeof bootstrap.Modal.getInstance === 'function') {
+                    instance = bootstrap.Modal.getInstance(modalElement);
+                }
+                if (!instance) {
+                    instance = new bootstrap.Modal(modalElement);
+                }
+                if (instance && typeof instance.hide === 'function') {
+                    instance.hide();
+                }
+                return;
+            }
+
+            // Bootstrap 4 / jQuery fallback
+            if (typeof $ !== 'undefined') {
+                $('#' + modalId).modal('hide');
+            }
+        }
+
+        function forceCloseModalById(modalId) {
+            hideModalById(modalId);
+
+            const modalElement = document.getElementById(modalId);
+            if (!modalElement) return;
+
+            modalElement.classList.remove('show');
+            modalElement.setAttribute('aria-hidden', 'true');
+            modalElement.style.display = 'none';
+
+            const backdrops = document.querySelectorAll('.modal-backdrop');
+            backdrops.forEach(backdrop => backdrop.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style.removeProperty('padding-right');
+        }
+
+        // Edit Bank Detail Request Form Submit
+        document.getElementById('editBankDetailRequestForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML =
+                '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Submitting...';
+
+            fetch('{{ route('user.submit.edit.bank.detail.request') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    return response.json().catch(err => {
+                        // If JSON parsing fails, check response status
+                        if (response.ok) {
+                            return {
+                                success: true,
+                                message: 'Request submitted successfully!'
+                            };
+                        }
+                        throw err;
+                    });
+                })
+                .then(data => {
+                    // Close modal first
+                    forceCloseModalById('editBankDetailRequestModal');
+
+                    if (data.success) {
+                        // Show success message
+                        alert(data.message);
+                        // Reset form
+                        document.getElementById('editBankDetailRequestForm').reset();
+                        // Reload page to show updated status
+                        location.reload();
+                    } else {
+                        alert(data.message || 'An error occurred. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Try to close modal even on error
+                    forceCloseModalById('editBankDetailRequestModal');
+
+                    if (error.message) {
+                        alert(error.message);
+                    } else {
+                        alert('An error occurred. Please try again.');
+                    }
+                    // Reload page anyway to show current state
+                    location.reload();
+                })
+                .finally(() => {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                });
+        });
+
+        // Edit Bank Details Form Submit
+        document.getElementById('editBankDetailsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!editBankSelect.value) {
+                setEditValidationMessage('danger', 'Please select a bank.');
+                return;
+            }
+
+            if (!isIfscMatchedToSelectedBank()) {
+                setEditValidationMessage('danger', 'IFSC does not match the selected bank.');
+                return;
+            }
+
+            if (!editAccountNumberInput.value.trim()) {
+                setEditValidationMessage('danger', 'Please enter account number.');
+                return;
+            }
+
+            if (!editAccountHolderInput.value.trim() || !editBranchNameInput.value.trim() || !editBankAddressInput
+                .value.trim()) {
+                setEditValidationMessage('danger', 'Please verify bank details to auto-fill required fields.');
+                return;
+            }
+
+            forceCloseModalById('editBankDetailsModal');
+
+            const formData = new FormData(this);
+
+            fetch('{{ route('user.update.bank.details') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(async response => {
+                    const text = await response.text();
+                    const contentType = response.headers.get('content-type') || '';
+                    let data = null;
+
+                    if (contentType.includes('application/json')) {
+                        try {
+                            data = JSON.parse(text);
+                        } catch (e) {
+                            data = null;
+                        }
+                    }
+
+                    if (!response.ok) {
+                        throw {
+                            status: response.status,
+                            data,
+                            raw: text
+                        };
+                    }
+
+                    if (data === null) {
+                        throw {
+                            status: response.status,
+                            message: 'Unexpected response format.',
+                            raw: text
+                        };
+                    }
+
+                    return data;
+                })
+                .then(data => {
+                    if (data.success) {
+                        forceCloseModalById('editBankDetailsModal');
+                        alert(data.message);
+                    } else {
+                        alert(data.message || 'Update failed.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    let message = null;
+
+                    if (error?.data) {
+                        message =
+                            error.data.message ||
+                            error.data.error ||
+                            (error.data.errors ? Object.values(error.data.errors).flat().join('\n') : null);
+                    }
+
+                    if (!message && error?.raw) {
+                        const titleMatch = error.raw.match(/<title>(.*?)<\/title>/i);
+                        if (titleMatch && titleMatch[1]) {
+                            message = titleMatch[1];
+                        } else {
+                            message = error.raw.replace(/<[^>]*>/g, '').trim();
+                            if (message.length > 200) {
+                                message = message.slice(0, 200) + '...';
+                            }
+                        }
+                    }
+
+                    if (!message && error?.message) {
+                        message = error.message;
+                    }
+
+                    if (!message) {
+                        message = 'An error occurred. Please try again.';
+                    }
+
+                    if (error?.status) {
+                        message = `Request failed (${error.status}). ${message}`;
+                    }
+
+                    alert(message);
+                });
+        });
+
+        const editBankDetailsSubmit = document.getElementById('editBankDetailsSubmit');
+        if (editBankDetailsSubmit) {
+            editBankDetailsSubmit.addEventListener('click', function() {
+                forceCloseModalById('editBankDetailsModal');
+            });
+        }
+
+        // Bank Validation for Edit Bank Details Modal (match IFSC with selected bank, then verify)
+        const editBankModal = document.getElementById('editBankDetailsModal');
+        const editBankSelect = document.getElementById('edit_bank_name');
+        const editIfscCodeInput = document.getElementById('edit_ifsc_code');
+        const editAccountNumberInput = document.getElementById('edit_account_number');
+        const editAccountHolderInput = document.getElementById('edit_account_holder_name');
+        const editBranchNameInput = document.getElementById('edit_branch_name');
+        const editBankAddressInput = document.getElementById('edit_bank_address');
+        const editValidationMessageDiv = document.getElementById('editBankValidationMessage');
+
+        const EDIT_API_ENDPOINT = 'https://kyc-api.surepass.io/api/v1/bank-verification/';
+        const EDIT_API_TOKEN =
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc2Nzc3MjYwNCwianRpIjoiMTBjODNjNTktZTY3ZC00ZGNhLTgyZDktZTc1ZWQ4YmVmOGZiIiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LnNsdW5hd2F0ZmluQHN1cmVwYXNzLmlvIiwibmJmIjoxNzY3NzcyNjA0LCJleHAiOjIzOTg0OTI2MDQsImVtYWlsIjoic2x1bmF3YXRmaW5Ac3VyZXBhc3MuaW8iLCJ0ZW5hbnRfaWQiOiJtYWluIiwidXNlcl9jbGFpbXMiOnsic2NvcGVzIjpbInVzZXIiXX19.4PUIOM6lMXFUKqUxsNi1ZYIW5BLJ3A63LxZqiYB9a3c';
+
+        function resetEditBankModalFields() {
+            if (!editBankSelect) return;
+            editBankSelect.value = '';
+            editIfscCodeInput.value = '';
+            editAccountNumberInput.value = '';
+            editAccountHolderInput.value = '';
+            editBranchNameInput.value = '';
+            editBankAddressInput.value = '';
+            editAccountNumberInput.readOnly = true;
+            editValidationMessageDiv.innerHTML = '';
+        }
+
+        function setEditValidationMessage(type, message) {
+            const classMap = {
+                info: 'text-info',
+                success: 'text-success',
+                danger: 'text-danger'
+            };
+            const cssClass = classMap[type] || 'text-info';
+            editValidationMessageDiv.innerHTML =
+                `<span class="${cssClass}" style="font-weight: 600;">${message}</span>`;
+        }
+
+        function clearEditAutoFillFields() {
+            editAccountHolderInput.value = '';
+            editBranchNameInput.value = '';
+            editBankAddressInput.value = '';
+        }
+
+        function getSelectedBankIfscPrefix() {
+            if (!editBankSelect) return '';
+            const option = editBankSelect.options[editBankSelect.selectedIndex];
+            return option ? (option.getAttribute('data-ifsc') || '').toUpperCase() : '';
+        }
+
+        function isIfscMatchedToSelectedBank() {
+            const bankIfscPrefix = getSelectedBankIfscPrefix();
+            const userIfscPrefix = editIfscCodeInput.value.trim().toUpperCase().substring(0, 4);
+            return bankIfscPrefix && userIfscPrefix.length === 4 && bankIfscPrefix === userIfscPrefix;
+        }
+
+        function updateAccountNumberState() {
+            clearEditAutoFillFields();
+
+            if (!editBankSelect.value) {
+                editAccountNumberInput.readOnly = true;
+                setEditValidationMessage('danger', 'Please select a bank first.');
+                return;
+            }
+
+            editIfscCodeInput.value = editIfscCodeInput.value.toUpperCase();
+            const userIfsc = editIfscCodeInput.value.trim();
+            if (userIfsc.length < 4) {
+                editAccountNumberInput.readOnly = true;
+                setEditValidationMessage('info', 'Enter IFSC code to validate bank match.');
+                return;
+            }
+
+            if (!isIfscMatchedToSelectedBank()) {
+                editAccountNumberInput.readOnly = true;
+                setEditValidationMessage(
+                    'danger',
+                    'IFSC code does not match the selected bank. Please enter a valid IFSC.'
+                );
+                return;
+            }
+
+            editAccountNumberInput.readOnly = false;
+            setEditValidationMessage('success', 'IFSC matched. You can enter account number.');
+        }
+
+        function validateBankAccountEdit() {
+            const accountNumber = editAccountNumberInput.value.trim();
+            const ifscCode = editIfscCodeInput.value.trim().toUpperCase();
+
+            if (!accountNumber || !ifscCode || !isIfscMatchedToSelectedBank()) {
+                return;
+            }
+
+            setEditValidationMessage('info', 'Validating bank details...');
+
+            fetch(EDIT_API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + EDIT_API_TOKEN
+                    },
+                    body: JSON.stringify({
+                        id_number: accountNumber,
+                        ifsc: ifscCode,
+                        ifsc_details: true
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data && data.data.account_exists) {
+                        const responseData = data.data;
+                        const ifscDetails = responseData.ifsc_details || {};
+
+                        editAccountHolderInput.value = responseData.full_name || '';
+                        editBranchNameInput.value = ifscDetails.branch || '';
+                        editBankAddressInput.value = ifscDetails.address || '';
+
+                        setEditValidationMessage(
+                            'success',
+                            `Verification Successful. Account Holder: ${responseData.full_name || 'N/A'}`
+                        );
+                    } else {
+                        clearEditAutoFillFields();
+                        setEditValidationMessage(
+                            'danger',
+                            `Verification Failed. ${data.message || 'Please check account number and IFSC code.'}`
+                        );
+                    }
+                })
+                .catch(error => {
+                    console.error('Bank validation error:', error);
+                    clearEditAutoFillFields();
+                    setEditValidationMessage('danger', 'Error validating bank details. Please try again.');
+                });
+        }
+
+        if (editBankModal) {
+            editBankModal.addEventListener('show.bs.modal', resetEditBankModalFields);
+        }
+
+        if (editBankSelect && editIfscCodeInput && editAccountNumberInput) {
+            editBankSelect.addEventListener('change', updateAccountNumberState);
+            editIfscCodeInput.addEventListener('input', updateAccountNumberState);
+
+            let editTimer = null;
+            editAccountNumberInput.addEventListener('input', function() {
+                clearTimeout(editTimer);
+                editTimer = setTimeout(function() {
+                    if (editAccountNumberInput.value.trim().length >= 6) {
+                        validateBankAccountEdit();
+                    }
+                }, 800);
+            });
+        }
     </script>
 @endsection

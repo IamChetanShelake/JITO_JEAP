@@ -104,6 +104,8 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // NEW: Update (edit/save) Working Committee decision
     Route::patch('admin/working-committee/users/{user}/update', [AdminController::class, 'updateWorkingCommittee'])
         ->name('working_committee.user.update');
+    Route::patch('admin/working-committee/users/{user}/update-disbursement-dates', [AdminController::class, 'updateWorkingCommitteeDisbursementDates'])
+        ->name('working_committee.user.update_disbursement_dates');
 
     // Approval workflow endpoints
     Route::post('/user/{user}/approve/{stage}', [AdminController::class, 'approveStage'])->name('user.approve');
@@ -146,6 +148,14 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/apex-stage2/hold', [AdminController::class, 'apexStage2Hold'])->name('apex.stage2.hold');
     Route::get('/apex-stage2/user/{user}', [AdminController::class, 'apexStage2UserDetail'])->name('apex.stage2.user.detail');
     Route::get('/apex-stage2/resubmitted', [AdminController::class, 'apexStage2Resubmitted'])->name('apex.stage2.resubmitted');
+    Route::post('/apex-stage2/user/{user}/courier-receive', [AdminController::class, 'storeCourierReceive'])->name('apex.stage2.courier_receive.store');
+    Route::post('/apex-stage2/user/{user}/courier-review', [AdminController::class, 'reviewCourierReceive'])->name('apex.stage2.courier_receive.review');
+
+    // Edit Bank Detail Request Routes
+    Route::post('/apex-stage2/approve-edit-bank-request', [AdminController::class, 'approveEditBankDetailRequest'])
+        ->name('apex.stage2.approve.edit.bank.request');
+    Route::post('/apex-stage2/reject-edit-bank-request', [AdminController::class, 'rejectEditBankDetailRequest'])
+        ->name('apex.stage2.reject.edit.bank.request');
 
     // PDC/Cheque Details Forms
     Route::get('/pdc/pending', [AdminController::class, 'pdcPending'])->name('pdc.pending');
@@ -158,6 +168,20 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // PDC Edit functionality
     Route::get('/pdc/edit/{user}', [AdminController::class, 'editPdc'])->name('pdc.edit');
     Route::put('/pdc/update/{user}', [AdminController::class, 'updatePdc'])->name('pdc.update');
+
+    // Third Stage Documents
+    Route::get('/third-stage-documents/pending', [AdminController::class, 'thirdStageDocumentPending'])
+        ->name('third_stage_documents.pending');
+    Route::get('/third-stage-documents/submitted', [AdminController::class, 'thirdStageDocumentSubmitted'])
+        ->name('third_stage_documents.submitted');
+    Route::get('/third-stage-documents/approved', [AdminController::class, 'thirdStageDocumentApproved'])
+        ->name('third_stage_documents.approved');
+    Route::get('/third-stage-documents/user/{user}', [AdminController::class, 'thirdStageDocumentUserDetail'])
+        ->name('third_stage_documents.user.detail');
+    Route::post('/third-stage-documents/user/{user}/approve', [AdminController::class, 'approveThirdStageDocument'])
+        ->name('third_stage_documents.approve');
+    Route::post('/third-stage-documents/user/{user}/send-back', [AdminController::class, 'sendBackThirdStageDocument'])
+        ->name('third_stage_documents.send_back');
 
 
     Route::get('/chapters/resubmit', [AdminController::class, 'chapterResubmit'])->name('chapter.resubmit');
@@ -320,6 +344,24 @@ Route::middleware(['auth', 'user'])
             ->name('step8');
         Route::post('/Step8Store/', [UserController::class, 'step8store'])
             ->name('step8.store');
+
+        // Step 9 - Third Stage Documents
+        Route::get('/Step9', [UserController::class, 'step9'])
+            ->name('step9');
+        Route::post('/Step9Store/', [UserController::class, 'step9store'])
+            ->name('step9.store');
+
+        // Edit Bank Detail Request
+        Route::post('/submit-edit-bank-detail-request', [UserController::class, 'submitEditBankDetailRequest'])
+            ->name('submit.edit.bank.detail.request');
+
+        // Update Bank Details (after request is approved)
+        Route::post('/update-bank-details', [UserController::class, 'updateBankDetails'])
+            ->name('update.bank.details');
+
+        // Bank verification route
+        Route::post('/verify-bank-details', [UserController::class, 'verifyBankDetails'])
+            ->name('verify.bank.details');
 
         // API route for fetching chapters by pincode
         Route::get('/get-chapters/{pincode}', [UserController::class, 'getChapters'])

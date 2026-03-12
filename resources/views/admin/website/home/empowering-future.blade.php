@@ -24,6 +24,17 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     @endif
+
+    @if($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <ul class="mb-0">
+            @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
     
     <div class="table-responsive">
         <table class="table table-hover table-bordered" style="width: 100%; table-layout: fixed;">
@@ -59,12 +70,12 @@
                     </td>
                     <td class="align-middle">
                         <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            {{ Str::limit($dream->vision_description ?? 'No vision', 50) }}
+                            {{ Str::limit($dream->vision ?? 'No vision', 50) }}
                         </div>
                     </td>
                     <td class="align-middle">
                         <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            {{ Str::limit($dream->mission_description ?? 'No mission', 50) }}
+                            {{ Str::limit($dream->mission ?? 'No mission', 50) }}
                         </div>
                     </td>
                     <td class="text-center align-middle">{{ $dream->order ?? 0 }}</td>
@@ -145,7 +156,8 @@
                                 <h5 class="modal-title" id="editModalLabel{{ $dream->id }}">Edit - {{ $dream->title }}</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form action="{{ route('admin.website.home.empowering-dreams.update', $dream->id) }}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ route('admin.website.home.empowering-future.update', $dream->id) }}" method="POST" enctype="multipart/form-data">
+                                @csrf
                                 @method('PUT')
                                 <div class="modal-body">
                                     <div class="row mb-3">
@@ -199,6 +211,14 @@
                                     </div>
                                     
                                     <div class="row mb-3">
+                                        <div class="col-md-12">
+                                            <label for="features{{ $dream->id }}" class="form-label">Features</label>
+                                            <textarea class="form-control" id="features{{ $dream->id }}" name="features" rows="2" placeholder="Enter features separated by commas">{{ $dream->features }}</textarea>
+                                            <small class="text-muted">Enter features separated by commas (e.g., Feature 1, Feature 2, Feature 3)</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label for="order{{ $dream->id }}" class="form-label">Display Order</label>
                                             <input type="number" class="form-control" id="order{{ $dream->id }}" name="order" value="{{ $dream->order ?? 0 }}" min="0">
@@ -235,7 +255,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <form action="{{ route('admin.website.home.empowering-dreams.delete', $dream->id) }}" method="POST" style="display: inline;">
+                                <form action="{{ route('admin.website.home.empowering-future.delete', $dream->id) }}" method="POST" style="display: inline;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger">Delete</button>
@@ -266,7 +286,7 @@
                 <h5 class="modal-title" id="addEmpoweringDreamModalLabel">Add Empowering Dream</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{ route('admin.website.home.empowering-dreams.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.website.home.empowering-future.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
                     <div class="row mb-3">
@@ -286,6 +306,13 @@
                         <div class="col-md-12">
                             <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
                             <textarea class="form-control" id="description" name="description" rows="3" required placeholder="Enter description"></textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="features" class="form-label">Features</label>
+                            <textarea class="form-control" id="features" name="features" rows="2" placeholder="Enter features separated by commas"></textarea>
+                            <small class="text-muted">Enter features separated by commas (e.g., Feature 1, Feature 2, Feature 3)</small>
                         </div>
                     </div>
                     <div class="row mb-3">

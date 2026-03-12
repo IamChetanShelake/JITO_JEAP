@@ -735,7 +735,7 @@
                     <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;margin-top:30px;">
                         <div style="width: 10px; height: 10px; background-color: #FFD800;border-radius:50%"></div>
                         <h2 style="font-size: 20px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
-                            <span style="color: #FFD800;">Vision</span> <span style="color: #393186;">of JEAP</span>
+                            <span style="color: #FFD800;">Vision</span> <span style="color: #393186;">@if($firstDream && $firstDream->vision) of {{ $firstDream->vision }} @else of JEAP @endif</span>
                         </h2>
                     </div>
                     <p style="font-size: 16px; line-height: 1.6; margin-top: 10px; font-family: Arial; color: #5B5B5B; text-align: justify;">
@@ -746,7 +746,7 @@
                     <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;margin-top:30px;">
                         <div style="width: 10px; height: 10px; background-color: #FFD800;border-radius:50%"></div>
                         <h2 style="font-size: 20px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
-                            <span style="color: #FFD800;">Mission</span> <span style="color: #393186;">of JEAP</span>
+                            <span style="color: #FFD800;">Mission</span> <span style="color: #393186;">@if($firstDream && $firstDream->mission) of {{ $firstDream->mission }} @else of JEAP @endif</span>
                         </h2>
                     </div>
                     <p style="font-size: 16px; line-height: 1.6; margin-top: 10px; font-family: Arial; color: #5B5B5B; text-align: justify;">

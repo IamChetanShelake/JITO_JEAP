@@ -146,6 +146,9 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::put('/website/home/working-committee/{id}', [AdminController::class, 'updateWebsiteWorkingCommittee'])->name('website.home.working-committee.update');
     Route::delete('/website/home/working-committee/{id}', [AdminController::class, 'deleteWebsiteWorkingCommittee'])->name('website.home.working-committee.delete');
     Route::get('/website/home/empowering-future', [AdminController::class, 'websiteHomeEmpoweringFuture'])->name('website.home.empowering-future');
+    Route::post('/website/home/empowering-future', [AdminController::class, 'storeEmpoweringFuture'])->name('website.home.empowering-future.store');
+    Route::put('/website/home/empowering-future/{id}', [AdminController::class, 'updateEmpoweringFuture'])->name('website.home.empowering-future.update');
+    Route::delete('/website/home/empowering-future/{id}', [AdminController::class, 'deleteEmpoweringFuture'])->name('website.home.empowering-future.delete');
     Route::get('/website/home/achievement-impact', [AdminController::class, 'websiteHomeAchievementImpact'])->name('website.home.achievement-impact');
     Route::get('/website/home/photo-gallery', [AdminController::class, 'websiteHomePhotoGallery'])->name('website.home.photo-gallery');
     Route::get('/website/home/our-testimonial', [AdminController::class, 'websiteHomeOurTestimonial'])->name('website.home.our-testimonial');

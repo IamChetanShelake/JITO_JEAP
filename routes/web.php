@@ -130,6 +130,36 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // Zone Routes
     Route::resource('zones', ZoneController::class);
 
+    // Website Management Routes
+    Route::get('/website', [AdminController::class, 'websiteIndex'])->name('website.index');
+    Route::get('/website/home', [AdminController::class, 'websiteHome'])->name('website.home');
+    
+    // Home Sub-Pages Routes
+    Route::get('/website/home/empowering-dreams', [AdminController::class, 'websiteHomeEmpoweringDreams'])->name('website.home.empowering-dreams');
+    Route::post('/website/home/empowering-dreams', [AdminController::class, 'storeEmpoweringDream'])->name('website.home.empowering-dreams.store');
+    Route::put('/website/home/empowering-dreams/{id}', [AdminController::class, 'updateEmpoweringDream'])->name('website.home.empowering-dreams.update');
+    Route::delete('/website/home/empowering-dreams/{id}', [AdminController::class, 'deleteEmpoweringDream'])->name('website.home.empowering-dreams.delete');
+    Route::get('/website/home/key-instruction', [AdminController::class, 'websiteHomeKeyInstruction'])->name('website.home.key-instruction');
+    Route::post('/website/home/key-instruction', [AdminController::class, 'storeKeyInstruction'])->name('website.home.key-instructions.store');
+    Route::put('/website/home/key-instruction/{id}', [AdminController::class, 'updateKeyInstruction'])->name('website.home.key-instructions.update');
+    Route::delete('/website/home/key-instruction/{id}', [AdminController::class, 'deleteKeyInstruction'])->name('website.home.key-instructions.delete');
+    Route::get('/website/home/working-committee', [AdminController::class, 'websiteHomeWorkingCommittee'])->name('website.home.working-committee');
+    Route::post('/website/home/working-committee', [AdminController::class, 'storeWebsiteWorkingCommittee'])->name('website.home.working-committee.store');
+    Route::put('/website/home/working-committee/{id}', [AdminController::class, 'updateWebsiteWorkingCommittee'])->name('website.home.working-committee.update');
+    Route::delete('/website/home/working-committee/{id}', [AdminController::class, 'deleteWebsiteWorkingCommittee'])->name('website.home.working-committee.delete');
+    Route::get('/website/home/empowering-future', [AdminController::class, 'websiteHomeEmpoweringFuture'])->name('website.home.empowering-future');
+    Route::get('/website/home/achievement-impact', [AdminController::class, 'websiteHomeAchievementImpact'])->name('website.home.achievement-impact');
+    Route::get('/website/home/photo-gallery', [AdminController::class, 'websiteHomePhotoGallery'])->name('website.home.photo-gallery');
+    Route::get('/website/home/our-testimonial', [AdminController::class, 'websiteHomeOurTestimonial'])->name('website.home.our-testimonial');
+    Route::get('/website/home/success-stories', [AdminController::class, 'websiteHomeSuccessStories'])->name('website.home.success-stories');
+    
+    Route::get('/website/about', [AdminController::class, 'websiteAbout'])->name('website.about');
+    Route::get('/website/application', [AdminController::class, 'websiteApplication'])->name('website.application');
+    Route::get('/website/contact', [AdminController::class, 'websiteContact'])->name('website.contact');
+    Route::get('/website/donor', [AdminController::class, 'websiteDonor'])->name('website.donor');
+    Route::get('/website/gallery', [AdminController::class, 'websiteGallery'])->name('website.gallery');
+    Route::get('/website/university', [AdminController::class, 'websiteUniversity'])->name('website.university');
+
     // Chapter Statistics
     Route::get('/chapters/stats', [AdminController::class, 'chapterStats'])->name('chapters.stats');
     Route::get('/working-committee/stats', [AdminController::class, 'workingCommitteeStats'])->name('working_committee.stats');

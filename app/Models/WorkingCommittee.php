@@ -29,8 +29,12 @@ class WorkingCommittee extends Authenticatable implements AuthenticatableContrac
      */
     protected $fillable = [
         'name',
+        'photo',
         'department',
         'designation',
+        'position',
+        'description',
+        'display_order',
         'email',
         'contact',
         'password',

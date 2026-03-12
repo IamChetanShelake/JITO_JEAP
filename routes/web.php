@@ -240,6 +240,9 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/logs/', [AdminController::class, 'showUserLogs'])->name('logs');
     Route::get('/logs/user/{user}', [AdminController::class, 'showUserLogs'])->name('user.logs');
     Route::post('/notifications/{notification}/read', [AdminNotificationController::class, 'read'])->name('notifications.read');
+
+    // Reports Routes
+    Route::get('/reports/jeap-disbursement', [App\Http\Controllers\ReportController::class, 'jeapDisbursement'])->name('reports.jeap_disbursement');
 });
 
 // User Routes - Protected by auth and user middleware

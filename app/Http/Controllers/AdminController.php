@@ -472,7 +472,114 @@ class AdminController extends Controller
     public function websiteHomeEmpoweringFuture()
     {
         $empoweringDreams = EmpoweringDream::orderBy('order')->get();
-        return view('admin.website.home.empowering-future', compact('empoweringDreams'));
+        $response = response()->view('admin.website.home.empowering-future', compact('empoweringDreams'));
+        $response->header('Cache-Control', 'no-cache, no-store, must-revalidate');
+        $response->header('Pragma', 'no-cache');
+        $response->header('Expires', '0');
+        return $response;
+    }
+
+    /**
+     * Store Empowering Future Data
+     */
+    public function storeEmpoweringFuture(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'vision' => 'nullable|string',
+            'vision_description' => 'nullable|string',
+            'mission' => 'nullable|string',
+            'mission_description' => 'nullable|string',
+            'features' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/empowering-dreams'), $imageName);
+            $imagePath = 'uploads/empowering-dreams/' . $imageName;
+        }
+
+        EmpoweringDream::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'vision' => $request->input('vision', ''),
+            'vision_description' => $request->input('vision_description', ''),
+            'mission' => $request->input('mission', ''),
+            'mission_description' => $request->input('mission_description', ''),
+            'features' => $request->input('features', ''),
+            'image' => $imagePath,
+            'order' => EmpoweringDream::max('order') + 1,
+            'status' => true,
+        ]);
+
+        return redirect()->route('admin.website.home.empowering-future')->with('success', 'Data added successfully!')->withHeaders(['Cache-Control' => 'no-cache, no-store, must-revalidate', 'Pragma' => 'no-cache', 'Expires' => '0']);
+    }
+
+    /**
+     * Update Empowering Future Data
+     */
+    public function updateEmpoweringFuture(Request $request, $id)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'vision' => 'nullable|string',
+            'vision_description' => 'nullable|string',
+            'mission' => 'nullable|string',
+            'mission_description' => 'nullable|string',
+            'features' => 'nullable|string',
+            'order' => 'nullable|integer|min:0',
+            'status' => 'nullable|boolean',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $dream = EmpoweringDream::findOrFail($id);
+
+        $imagePath = $dream->image;
+        if ($request->hasFile('image')) {
+            if ($dream->image && file_exists(public_path($dream->image))) {
+                unlink(public_path($dream->image));
+            }
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/empowering-dreams'), $imageName);
+            $imagePath = 'uploads/empowering-dreams/' . $imageName;
+        }
+
+        $dream->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'vision' => $request->input('vision', ''),
+            'vision_description' => $request->input('vision_description', ''),
+            'mission' => $request->input('mission', ''),
+            'mission_description' => $request->input('mission_description', ''),
+            'features' => $request->input('features', ''),
+            'image' => $imagePath,
+            'order' => $request->input('order', 0),
+            'status' => $request->input('status', 1) == '1' ? true : false,
+        ]);
+
+        return redirect()->route('admin.website.home.empowering-future')->with('success', 'Data updated successfully!')->withHeaders(['Cache-Control' => 'no-cache, no-store, must-revalidate', 'Pragma' => 'no-cache', 'Expires' => '0']);
+    }
+
+    /**
+     * Delete Empowering Future Data
+     */
+    public function deleteEmpoweringFuture($id)
+    {
+        $dream = EmpoweringDream::findOrFail($id);
+        
+        if ($dream->image && file_exists(public_path($dream->image))) {
+            unlink(public_path($dream->image));
+        }
+        
+        $dream->delete();
+
+        return redirect()->route('admin.website.home.empowering-future')->with('success', 'Data deleted successfully!');
     }
 
     /**

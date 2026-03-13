@@ -81,4 +81,14 @@ class User extends Authenticatable
     {
         return $this->hasOne(WorkingCommitteeApproval::class);
     }
+
+    public function chapterMaster()
+    {
+        return $this->belongsTo(Chapter::class, 'chapter_id');
+    }
+
+    public function loanCategory()
+    {
+        return $this->hasOne(Loan_category::class)->latestOfMany();
+    }
 }

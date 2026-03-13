@@ -458,22 +458,72 @@
 
                         // Show error message
                         let errorMessage = 'An error occurred while generating the report.';
-                        try {
-                            let response = JSON.parse(xhr.responseText);
-                            if (response.message) {
-                                errorMessage = response.message;
+
+                        const handleErrorText = function(text) {
+                            if (typeof text !== 'string') {
+                                text = String(text || '');
                             }
-                            if (response.errors) {
-                                errorMessage = Object.values(response.errors).flat().join(', ');
+                            try {
+                                let response = JSON.parse(text);
+                                if (response.message) {
+                                    errorMessage = response.message;
+                                }
+                                if (response.errors) {
+                                    errorMessage = Object.values(response.errors).flat().join(', ');
+                                }
+                            } catch (e) {
+                                // If response is not JSON, try to get status text
+                                if (xhr.status === 422) {
+                                    errorMessage = 'Validation error: Please select at least one field.';
+                                } else if (text) {
+                                    errorMessage = text;
+                                } else if (xhr.statusText) {
+                                    errorMessage = xhr.statusText;
+                                }
                             }
-                        } catch (e) {
-                            // If response is not JSON, try to get status text
-                            if (xhr.status === 422) {
-                                errorMessage =
-                                    'Validation error: Please select at least one field.';
+                            alert('Error: ' + errorMessage);
+                        };
+
+                        const isBlobLike = function(obj) {
+                            return obj && typeof obj === 'object' && typeof obj.size === 'number' &&
+                                typeof obj.type === 'string' && (typeof obj.arrayBuffer === 'function' || typeof obj.text === 'function');
+                        };
+
+                        const readBlobAsText = function(blob) {
+                            // Prefer Blob.text() when available (simpler than FileReader).
+                            if (blob && typeof blob.text === 'function') {
+                                blob.text().then(function(t) {
+                                    handleErrorText(t || '');
+                                }).catch(function() {
+                                    handleErrorText('');
+                                });
+                                return;
                             }
+
+                            const reader = new FileReader();
+                            reader.onload = function() {
+                                handleErrorText(reader.result || '');
+                            };
+                            reader.onerror = function() {
+                                handleErrorText('');
+                            };
+                            reader.readAsText(blob);
+                        };
+
+                        // When `responseType: blob` is used, error responses can come back as a Blob
+                        // and jQuery may put it in either `response` or `responseText`.
+                        const blobCandidate = (isBlobLike(xhr.response) ? xhr.response : (isBlobLike(xhr.responseText) ? xhr.responseText : null));
+                        if (blobCandidate) {
+                            readBlobAsText(blobCandidate);
+                            return;
                         }
-                        alert('Error: ' + errorMessage);
+
+                        if (xhr.responseJSON) {
+                            handleErrorText(JSON.stringify(xhr.responseJSON));
+                            return;
+                        }
+
+                        handleErrorText(xhr.responseText || '');
                     }
                 });
             });

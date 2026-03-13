@@ -111,6 +111,11 @@
             background: #009846;
         }
 
+        /* Reports - Blue */
+        .nav-tabs-custom .nav-link.tab-reports {
+            background: #2196F3;
+        }
+
         .stat-card {
             background: white;
             border-radius: 15px;
@@ -626,6 +631,11 @@
             <li class="nav-item">
                 <a class="nav-link tab-initiatives" href="{{ route('admin.initiatives.index') }}">
                     <i class="fas fa-lightbulb"></i> Initiatives
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link tab-reports" href="{{ route('admin.reports.index') }}">
+                    <i class="fas fa-chart-bar"></i> Reports
                 </a>
             </li>
         </ul>

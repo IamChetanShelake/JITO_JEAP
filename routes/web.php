@@ -242,6 +242,13 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::post('/notifications/{notification}/read', [AdminNotificationController::class, 'read'])->name('notifications.read');
 
     // Reports Routes
+    Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/fields', [App\Http\Controllers\ReportController::class, 'getAvailableFields'])->name('reports.fields');
+    Route::post('/reports/generate', [App\Http\Controllers\ReportController::class, 'generateDynamicReport'])->name('reports.generate');
+    Route::post('/reports/templates', [App\Http\Controllers\ReportController::class, 'saveTemplate'])->name('reports.templates.save');
+    Route::get('/reports/templates/{id}', [App\Http\Controllers\ReportController::class, 'loadTemplate'])->name('reports.templates.load');
+    Route::get('/reports/templates/{id}/export', [App\Http\Controllers\ReportController::class, 'exportFromTemplate'])->name('reports.templates.export');
+    Route::delete('/reports/templates/{id}', [App\Http\Controllers\ReportController::class, 'deleteTemplate'])->name('reports.templates.delete');
     Route::get('/reports/jeap-disbursement', [App\Http\Controllers\ReportController::class, 'jeapDisbursement'])->name('reports.jeap_disbursement');
 });
 

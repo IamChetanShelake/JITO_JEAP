@@ -20,6 +20,7 @@ use App\Http\Controllers\WorkingCommitteeController;
 use App\Http\Controllers\InitiativeController;
 use App\Http\Controllers\AccountantController;
 use App\Http\Controllers\AdminNotificationController;
+use App\Http\Controllers\ApplicationViewController;
 
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\WebsiteController;
@@ -70,6 +71,16 @@ Route::prefix('donor')->name('donor.')->group(function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+// Dynamic view system for applications (protected by admin middleware)
+Route::middleware(['admin', 'auth.active'])->group(function () {
+    Route::get('/applications/view', [ApplicationViewController::class, 'view'])->name('applications.view');
+    Route::post('/applications/group', [ApplicationViewController::class, 'group'])->name('applications.group');
+    Route::post('/applications/export', [ApplicationViewController::class, 'export'])->name('applications.export');
+    Route::post('/views/save', [ApplicationViewController::class, 'saveView'])->name('views.save');
+    Route::get('/views', [ApplicationViewController::class, 'listViews'])->name('views.list');
+    Route::get('/views/{id}', [ApplicationViewController::class, 'getView'])->name('views.get');
+});
 
 // Admin Routes - Protected by admin middleware
 Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->group(function () {

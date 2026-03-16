@@ -109,6 +109,16 @@ class DynamicReportExport implements FromCollection, WithHeadings, WithMapping, 
         return array_unique($relationships);
     }
 
+    /**
+     * Expose required relationships for external consumers.
+     *
+     * @return array
+     */
+    public function requiredRelationships(): array
+    {
+        return $this->getRequiredRelationships();
+    }
+
     protected function resolveFamilyColumnAlias(string $column): string
     {
         return [
@@ -368,6 +378,18 @@ class DynamicReportExport implements FromCollection, WithHeadings, WithMapping, 
             'third_stage.status' => 'Third Stage Status',
             'third_stage.admin_remark' => 'Admin Remark',
         ];
+    }
+
+    /**
+     * Resolve a field value for a given user.
+     *
+     * @param User $user
+     * @param string $field
+     * @return mixed
+     */
+    public function resolveFieldValue(User $user, string $field)
+    {
+        return $this->getFieldValue($user, $field);
     }
 
     /**

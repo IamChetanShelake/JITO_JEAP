@@ -116,6 +116,11 @@
             background: #2196F3;
         }
 
+        /* Dynamic View - Teal */
+        .nav-tabs-custom .nav-link.tab-dynamic {
+            background: #00897B;
+        }
+
         .stat-card {
             background: white;
             border-radius: 15px;
@@ -636,6 +641,11 @@
             <li class="nav-item">
                 <a class="nav-link tab-reports" href="{{ route('admin.reports.index') }}">
                     <i class="fas fa-chart-bar"></i> Reports
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link tab-dynamic" href="{{ route('applications.view') }}">
+                    <i class="fas fa-layer-group"></i> Dynamic View
                 </a>
             </li>
         </ul>

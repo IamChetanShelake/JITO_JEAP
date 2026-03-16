@@ -3433,6 +3433,8 @@ class UserController extends Controller
     public function step9store(Request $request)
     {
         $user_id = Auth::id();
+        $user = Auth::user();
+        $financialAssetType = $user?->financial_asset_type;
         $eligibility = $this->getThirdStageEligibility($user_id);
 
         if (!$eligibility['eligible']) {
@@ -3444,44 +3446,113 @@ class UserController extends Controller
             return back()->with('error', '3rd Stage Documents are already submitted. You cannot update them until reviewed.');
         }
 
-        $rules = [
-            'documents' => $thirdStageDocument && !empty($thirdStageDocument->documents) ? 'nullable|array' : 'required|array',
-            'documents.*' => 'file|mimes:pdf,jpg,jpeg,png|max:5120',
-        ];
+        $baseFileRule = 'file|mimes:pdf,jpg,jpeg,png|max:5120';
+        $rules = [];
+
+        if ($financialAssetType === 'domestic') {
+            $hasMarksheets = $thirdStageDocument && !empty($thirdStageDocument->domestic_marksheets);
+            $rules['domestic_marksheets'] = $hasMarksheets ? 'nullable|array' : 'required|array';
+            $rules['domestic_marksheets.*'] = $baseFileRule;
+            $rules['domestic_paid_fees_receipt'] = ($thirdStageDocument && $thirdStageDocument->domestic_paid_fees_receipt)
+                ? 'nullable|' . $baseFileRule
+                : 'required|' . $baseFileRule;
+            $rules['domestic_cancelled_cheque'] = ($thirdStageDocument && $thirdStageDocument->domestic_cancelled_cheque)
+                ? 'nullable|' . $baseFileRule
+                : 'required|' . $baseFileRule;
+        } elseif ($financialAssetType === 'foreign_finance_assistant') {
+            $rules = [
+                'foreign_address' => 'required|string|max:1000',
+                'foreign_contact_number' => 'required|string|max:30',
+                'foreign_ssn_or_country_id' => 'required|string|max:50',
+                'foreign_bank_name' => 'required|string|max:255',
+                'foreign_bank_account_number' => 'required|string|max:50',
+                'foreign_immigration_copy' => ($thirdStageDocument && $thirdStageDocument->foreign_immigration_copy)
+                    ? 'nullable|' . $baseFileRule
+                    : 'required|' . $baseFileRule,
+                'foreign_paid_fees_receipt' => ($thirdStageDocument && $thirdStageDocument->foreign_paid_fees_receipt)
+                    ? 'nullable|' . $baseFileRule
+                    : 'required|' . $baseFileRule,
+            ];
+        }
 
         $request->validate($rules);
 
-        $documents = $thirdStageDocument?->documents ?? [];
+        $uploadDir = public_path('third_stage_documents/' . $user_id);
+        if (!File::exists($uploadDir)) {
+            File::makeDirectory($uploadDir, 0755, true);
+        }
 
-        if ($request->hasFile('documents')) {
-            $uploadDir = public_path('third_stage_documents/' . $user_id);
-            if (!File::exists($uploadDir)) {
-                File::makeDirectory($uploadDir, 0755, true);
-            }
+        $storeFile = function ($file, string $prefix) use ($uploadDir, $user_id) {
+            $safeName = time() . '_' . $prefix . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+            $file->move($uploadDir, $safeName);
+            return 'third_stage_documents/' . $user_id . '/' . $safeName;
+        };
 
-            foreach ($request->file('documents') as $index => $file) {
+        $storeMultiple = function ($files, string $prefix) use ($storeFile) {
+            $paths = [];
+            foreach ($files as $index => $file) {
                 if (!$file) {
                     continue;
                 }
-
-                $safeName = time() . '_' . $index . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-                $file->move($uploadDir, $safeName);
-                $documents[] = 'third_stage_documents/' . $user_id . '/' . $safeName;
+                $paths[] = $storeFile($file, $prefix . '_' . $index);
             }
-        }
-
-        if (empty($documents)) {
-            return back()->with('error', 'Please upload at least one document.');
-        }
+            return $paths;
+        };
 
         $data = [
             'user_id' => $user_id,
-            'documents' => $documents,
             'status' => 'submitted',
             'submitted_at' => now(),
             'admin_remark' => null,
             'processed_by' => null,
         ];
+
+        if ($financialAssetType === 'domestic') {
+            $marksheets = $thirdStageDocument?->domestic_marksheets ?? [];
+            if ($request->hasFile('domestic_marksheets')) {
+                $marksheets = $storeMultiple($request->file('domestic_marksheets'), 'marksheet');
+            }
+
+            $data['domestic_marksheets'] = $marksheets;
+
+            $data['domestic_paid_fees_receipt'] = $thirdStageDocument?->domestic_paid_fees_receipt;
+            if ($request->hasFile('domestic_paid_fees_receipt')) {
+                $data['domestic_paid_fees_receipt'] = $storeFile($request->file('domestic_paid_fees_receipt'), 'paid_fees_receipt');
+            }
+
+            $data['domestic_cancelled_cheque'] = $thirdStageDocument?->domestic_cancelled_cheque;
+            if ($request->hasFile('domestic_cancelled_cheque')) {
+                $data['domestic_cancelled_cheque'] = $storeFile($request->file('domestic_cancelled_cheque'), 'cancelled_cheque');
+            }
+
+            $data['foreign_address'] = null;
+            $data['foreign_contact_number'] = null;
+            $data['foreign_ssn_or_country_id'] = null;
+            $data['foreign_immigration_copy'] = null;
+            $data['foreign_paid_fees_receipt'] = null;
+            $data['foreign_bank_name'] = null;
+            $data['foreign_bank_account_number'] = null;
+        } elseif ($financialAssetType === 'foreign_finance_assistant') {
+            $data['foreign_address'] = $request->foreign_address;
+            $data['foreign_contact_number'] = $request->foreign_contact_number;
+            $data['foreign_ssn_or_country_id'] = $request->foreign_ssn_or_country_id;
+            $data['foreign_bank_name'] = $request->foreign_bank_name;
+            $data['foreign_bank_account_number'] = $request->foreign_bank_account_number;
+
+            $data['foreign_immigration_copy'] = $thirdStageDocument?->foreign_immigration_copy;
+            if ($request->hasFile('foreign_immigration_copy')) {
+                $data['foreign_immigration_copy'] = $storeFile($request->file('foreign_immigration_copy'), 'immigration_copy');
+            }
+
+            $data['foreign_paid_fees_receipt'] = $thirdStageDocument?->foreign_paid_fees_receipt;
+            if ($request->hasFile('foreign_paid_fees_receipt')) {
+                $data['foreign_paid_fees_receipt'] = $storeFile($request->file('foreign_paid_fees_receipt'), 'paid_fees_receipt');
+            }
+
+            $data['domestic_marksheets'] = null;
+            $data['domestic_paid_fees_receipt'] = null;
+            $data['domestic_cancelled_cheque'] = null;
+        }
 
         if ($thirdStageDocument) {
             $thirdStageDocument->update($data);

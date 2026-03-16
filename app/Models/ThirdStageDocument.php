@@ -10,6 +10,7 @@ class ThirdStageDocument extends Model
 
     protected $casts = [
         'documents' => 'array',
+        'domestic_marksheets' => 'array',
         'notification_sent_at' => 'datetime',
         'submitted_at' => 'datetime',
         'approved_at' => 'datetime',

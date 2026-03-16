@@ -27,16 +27,85 @@
                         </div>
                     @endif
 
+                    @if($user->thirdStageDocument)
+                        @if($user->financial_asset_type === 'domestic')
+                            <h5 class="mt-4">Domestic Details</h5>
+                            <div class="text-muted mb-3">Document fields for domestic applicants.</div>
+                        @elseif($user->financial_asset_type === 'foreign_finance_assistant')
+                            <h5 class="mt-4">Foreign Finance Assistant Details</h5>
+                            <div class="row mb-3">
+                                <div class="col-md-6"><strong>Overseas Address:</strong> {{ $user->thirdStageDocument->foreign_address ?? 'N/A' }}</div>
+                                <div class="col-md-6"><strong>Foreign Contact Number:</strong> {{ $user->thirdStageDocument->foreign_contact_number ?? 'N/A' }}</div>
+                                <div class="col-md-6"><strong>SSN / Country ID:</strong> {{ $user->thirdStageDocument->foreign_ssn_or_country_id ?? 'N/A' }}</div>
+                                <div class="col-md-6"><strong>Foreign Bank Name:</strong> {{ $user->thirdStageDocument->foreign_bank_name ?? 'N/A' }}</div>
+                                <div class="col-md-6"><strong>Foreign Bank Account Number:</strong> {{ $user->thirdStageDocument->foreign_bank_account_number ?? 'N/A' }}</div>
+                            </div>
+                        @endif
+                    @endif
+
                     <h5 class="mt-4">Uploaded Documents</h5>
-                    @if($user->thirdStageDocument && !empty($user->thirdStageDocument->documents))
-                        <ul class="list-group">
-                            @foreach($user->thirdStageDocument->documents as $doc)
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span>{{ basename($doc) }}</span>
-                                    <a href="{{ asset($doc) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
-                                </li>
-                            @endforeach
-                        </ul>
+                    @if($user->thirdStageDocument)
+                        @php
+                            $hasUploads =
+                                !empty($user->thirdStageDocument->documents) ||
+                                !empty($user->thirdStageDocument->domestic_marksheets) ||
+                                !empty($user->thirdStageDocument->domestic_paid_fees_receipt) ||
+                                !empty($user->thirdStageDocument->domestic_cancelled_cheque) ||
+                                !empty($user->thirdStageDocument->foreign_immigration_copy) ||
+                                !empty($user->thirdStageDocument->foreign_paid_fees_receipt);
+                        @endphp
+
+                        @if($hasUploads)
+                            <ul class="list-group">
+                                @if(!empty($user->thirdStageDocument->domestic_marksheets))
+                                    @foreach($user->thirdStageDocument->domestic_marksheets as $doc)
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span>{{ basename($doc) }}</span>
+                                            <a href="{{ asset($doc) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                        </li>
+                                    @endforeach
+                                @endif
+
+                                @if(!empty($user->thirdStageDocument->domestic_paid_fees_receipt))
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>{{ basename($user->thirdStageDocument->domestic_paid_fees_receipt) }}</span>
+                                        <a href="{{ asset($user->thirdStageDocument->domestic_paid_fees_receipt) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                    </li>
+                                @endif
+
+                                @if(!empty($user->thirdStageDocument->domestic_cancelled_cheque))
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>{{ basename($user->thirdStageDocument->domestic_cancelled_cheque) }}</span>
+                                        <a href="{{ asset($user->thirdStageDocument->domestic_cancelled_cheque) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                    </li>
+                                @endif
+
+                                @if(!empty($user->thirdStageDocument->foreign_immigration_copy))
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>{{ basename($user->thirdStageDocument->foreign_immigration_copy) }}</span>
+                                        <a href="{{ asset($user->thirdStageDocument->foreign_immigration_copy) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                    </li>
+                                @endif
+
+                                @if(!empty($user->thirdStageDocument->foreign_paid_fees_receipt))
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>{{ basename($user->thirdStageDocument->foreign_paid_fees_receipt) }}</span>
+                                        <a href="{{ asset($user->thirdStageDocument->foreign_paid_fees_receipt) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                    </li>
+                                @endif
+
+                                @if(!empty($user->thirdStageDocument->documents))
+                                    @foreach($user->thirdStageDocument->documents as $doc)
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span>{{ basename($doc) }}</span>
+                                            <a href="{{ asset($doc) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                        </li>
+                                    @endforeach
+                                @endif
+                            </ul>
+                        @else
+                            <p class="text-muted">No documents uploaded yet.</p>
+                        @endif
                     @else
                         <p class="text-muted">No documents uploaded yet.</p>
                     @endif

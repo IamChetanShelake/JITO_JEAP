@@ -1,4 +1,4 @@
-@extends('user.layout.master')
+﻿@extends('user.layout.master')
 @section('step')
     <button class="btn btn-purple me-2" style="background-color: #393185; color: white;">Step 4 of
         7</button>
@@ -457,7 +457,7 @@
                                                     <tr>
                                                         <td colspan="5"
                                                             style="font-weight: 600; border: none; text-align: right; color: #393185;">
-                                                            Total ₹</td>
+                                                            Total â‚¹</td>
                                                         <td style="border: none;"><input type="number"
                                                                 class="form-control form-control-sm"
                                                                 style="font-weight: 600;" placeholder="00" min="0"
@@ -602,6 +602,7 @@
 
                             </div>
 
+                            @if (false)
                             <!-- Section Divider -->
                             <div class="section-divider"></div>
 
@@ -614,8 +615,8 @@
                                 <div
                                     style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 12px; margin-bottom: 20px;">
                                     <p class="mb-0" style="color: #E31E24; font-size: 15px;">
-                                        <b>Note </b>: Kindly share the student’s bank details. Please ensure the account is
-                                        a major account in the student’s name, as minor accounts are not valid. If the
+                                        <b>Note </b>: Kindly share the studentâ€™s bank details. Please ensure the account is
+                                        a major account in the studentâ€™s name, as minor accounts are not valid. If the
                                         application is sanctioned, post-dated cheques (PDCs) will be required and the
                                         details will be verified. Any mismatch may lead to action by management. So, request
                                         you to provide correct details.
@@ -722,8 +723,6 @@
                             </div>
                         </div>
                 </div>
-
-
                 <div class="modal fade" id="otherBankModal" tabindex="-1">
                     <div class="modal-dialog modal-lg modal-dialog-centered">
                         <div class="modal-content">
@@ -760,6 +759,7 @@
                         </div>
                     </div>
                 </div>
+                            @endif
 
                 <div class="d-flex justify-content-between mt-4 mb-4">
                     <button type="button" class="btn " style="background:#988DFF1F;color:gray;"><svg
@@ -863,160 +863,6 @@
             // Initialize total on page load
             calculateTotal();
 
-            // Bank Validation AJAX Functionality
-            const accountNumberInput = document.getElementById('account_number');
-            const ifscCodeInput = document.getElementById('ifsc_code');
-            const validationMessageDiv = document.getElementById('bankValidationMessage');
-            const validationText = document.getElementById('bankValidationText');
-
-            const API_ENDPOINT = 'https://kyc-api.surepass.io/api/v1/bank-verification/';
-            const API_TOKEN =
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc2Nzc3MjYwNCwianRpIjoiMTBjODNjNTktZTY3ZC00ZGNhLTgyZDktZTc1ZWQ4YmVmOGZiIiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LnNsdW5hd2F0ZmluQHN1cmVwYXNzLmlvIiwibmJmIjoxNzY3NzcyNjA0LCJleHAiOjIzOTg0OTI2MDQsImVtYWlsIjoic2x1bmF3YXRmaW5Ac3VyZXBhc3MuaW8iLCJ0ZW5hbnRfaWQiOiJtYWluIiwidXNlcl9jbGFpbXMiOnsic2NvcGVzIjpbInVzZXIiXX19.4PUIOM6lMXFUKqUxsNi1ZYIW5BLJ3A63LxZqiYB9a3c';
-
-            function validateBankAccount() {
-
-
-                const bankName = document.getElementById('bank_name').value;
-
-                if (bankName === 'OTHER') {
-                    validationMessageDiv.style.display = 'none';
-                    return;
-                }
-                const accountNumber = accountNumberInput.value.trim();
-                const ifscCode = ifscCodeInput.value.trim().toUpperCase();
-
-                // Hide message and reset if either field is empty
-                if (!accountNumber || !ifscCode) {
-                    validationMessageDiv.style.display = 'none';
-                    return;
-                }
-
-                // Show loading state
-                validationMessageDiv.className = 'alert alert-info alert-dismissible fade show';
-                validationMessageDiv.style.display = 'block';
-                validationText.innerHTML =
-                    '<strong>Validating...</strong> Please wait while we verify your bank account details.';
-
-                // Prepare request body
-                const requestBody = {
-                    id_number: accountNumber,
-                    ifsc: ifscCode,
-                    ifsc_details: true
-                };
-
-                // Make AJAX request
-                fetch(API_ENDPOINT, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + API_TOKEN
-                        },
-                        body: JSON.stringify(requestBody)
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success && data.data.account_exists) {
-                            // Success - populate fields
-                            const responseData = data.data;
-                            const ifscDetails = responseData.ifsc_details;
-
-                            // Populate fields
-                            document.querySelector('input[name="account_holder_name"]').value = responseData
-                                .full_name || '';
-                            document.querySelector('input[name="branch_name"]').value = ifscDetails.branch ||
-                                '';
-                            document.querySelector('textarea[name="bank_address"]').value = ifscDetails
-                                .address || '';
-
-                            // Show success message
-                            validationMessageDiv.className = 'alert alert-success alert-dismissible fade show';
-                            validationText.innerHTML =
-                                `<strong>✓ Verification Successful!</strong><br>Account Holder: ${responseData.full_name}<br>Branch: ${ifscDetails.branch}<br>Bank: ${ifscDetails.bank_name}`;
-                        } else {
-                            // Failed validation
-                            validationMessageDiv.className = 'alert alert-danger alert-dismissible fade show';
-                            validationText.innerHTML =
-                                `<strong>✗ Verification Failed!</strong><br>${data.message || 'The account details could not be verified. Please check your account number and IFSC code.'}`;
-
-                            // Clear populated fields
-                            document.querySelector('input[name="account_holder_name"]').value = '';
-                            document.querySelector('input[name="branch_name"]').value = '';
-                            document.querySelector('textarea[name="bank_address"]').value = '';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Bank validation error:', error);
-                        validationMessageDiv.className = 'alert alert-danger alert-dismissible fade show';
-                        validationText.innerHTML =
-                            `<strong>✗ Error!</strong><br>An error occurred while validating your bank account. Please try again.`;
-
-                        // Clear populated fields
-                        document.querySelector('input[name="account_holder_name"]').value = '';
-                        document.querySelector('input[name="branch_name"]').value = '';
-                        document.querySelector('textarea[name="bank_address"]').value = '';
-                    });
-            }
-
-            // Add event listeners for account number and IFSC code
-            accountNumberInput.addEventListener('blur', validateBankAccount);
-            ifscCodeInput.addEventListener('blur', validateBankAccount);
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
-
-            let timer = null;
-
-            $('#account_number, #ifsc_code').on('keyup change', function() {
-
-                clearTimeout(timer);
-
-                timer = setTimeout(function() {
-
-                    let account = $('#account_number').val().trim();
-                    let ifsc = $('#ifsc_code').val().trim();
-
-                    if (account.length < 6 || ifsc.length < 6) {
-                        return;
-                    }
-
-                    $('#bank-verify-msg').html(
-                        '<span class="text-info">Verifying bank details...</span>');
-
-                    $.ajax({
-                        url: "{{ route('user.bank.verify') }}",
-                        type: "POST",
-                        data: {
-                            _token: "{{ csrf_token() }}",
-                            account_number: account,
-                            ifsc_code: ifsc
-                        },
-                        success: function(res) {
-
-                            if (res.success) {
-                                $('#bank-verify-msg').html(
-                                    `<span class="text-success">✔ Bank verified successfully</span>`
-                                );
-
-                                $('#account_holder_name').val(res.full_name);
-                                $('#branch_name').val(res.branch);
-                                $('#bank_address').val(res.address);
-                            } else {
-                                $('#bank-verify-msg').html(
-                                    `<span class="text-danger">✖ ${res.message}</span>`
-                                );
-                            }
-                        },
-                        error: function() {
-                            $('#bank-verify-msg').html(
-                                `<span class="text-danger">✖ Verification failed</span>`
-                            );
-                        }
-                    });
-
-                }, 800); // debounce
-            });
-
         });
     </script>
     {{--  <script>
@@ -1052,7 +898,7 @@
             function validateIFSCWithSelectedBank() {
 
                 if (isOtherBank) {
-                    // ❌ Other bank असल्यास API call नाही
+                    // âŒ Other bank à¤…à¤¸à¤²à¥à¤¯à¤¾à¤¸ API call à¤¨à¤¾à¤¹à¥€
                     return false;
                 }
 
@@ -1093,8 +939,8 @@
                     return;
                 }
 
-                // ✅ IFSC match झाला तरच API hit होईल
-                validateBankAccount(); // तुझा existing function
+                // âœ… IFSC match à¤à¤¾à¤²à¤¾ à¤¤à¤°à¤š API hit à¤¹à¥‹à¤ˆà¤²
+                validateBankAccount(); // à¤¤à¥à¤à¤¾ existing function
             });
 
             accountInput.addEventListener('blur', function() {
@@ -1187,7 +1033,7 @@
             // IFSC blur
             ifscInput.addEventListener('blur', function() {
 
-                // OTHER bank select असेल तर IFSC validation करू नका
+                // OTHER bank select à¤…à¤¸à¥‡à¤² à¤¤à¤° IFSC validation à¤•à¤°à¥‚ à¤¨à¤•à¤¾
                 if (isOtherBank) {
                     return;
                 }
@@ -1207,7 +1053,7 @@
                     return;
                 }
 
-                // ✅ IFSC match झाला आणि dynamic bank असेल तरच API call
+                // âœ… IFSC match à¤à¤¾à¤²à¤¾ à¤†à¤£à¤¿ dynamic bank à¤…à¤¸à¥‡à¤² à¤¤à¤°à¤š API call
                 validateBankAccount();
 
             });
@@ -1222,7 +1068,7 @@
 
                 isOtherBank = true;
 
-                // user manually fill करू शकतो
+                // user manually fill à¤•à¤°à¥‚ à¤¶à¤•à¤¤à¥‹
                 document.getElementById('account_holder_name').removeAttribute('readonly');
                 document.getElementById('branch_name').removeAttribute('readonly');
                 document.getElementById('bank_address').removeAttribute('readonly');
@@ -1231,7 +1077,7 @@
 
                 isOtherBank = false;
 
-                // dynamic bank असल्यास user edit करू शकणार नाही
+                // dynamic bank à¤…à¤¸à¤²à¥à¤¯à¤¾à¤¸ user edit à¤•à¤°à¥‚ à¤¶à¤•à¤£à¤¾à¤° à¤¨à¤¾à¤¹à¥€
                 document.getElementById('account_holder_name').setAttribute('readonly', true);
                 document.getElementById('branch_name').setAttribute('readonly', true);
                 document.getElementById('bank_address').setAttribute('readonly', true);
@@ -1239,112 +1085,8 @@
 
         });
     </script>  --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-
-            const bankSelect = document.getElementById('bank_name');
-            const ifscInput = document.getElementById('ifsc_code');
-            const accountInput = document.getElementById('account_number');
-
-            let isOtherBank = false;
-            let ifscMatched = false;
-
-            bankSelect.addEventListener('change', function() {
-
-                const selectedValue = this.value;
-
-                if (selectedValue === 'OTHER') {
-
-                    isOtherBank = true;
-                    ifscMatched = false;
-
-                    const modal = new bootstrap.Modal(document.getElementById('otherBankModal'));
-                    modal.show();
-
-                    // user manually fill करू शकतो
-                    document.getElementById('account_holder_name').removeAttribute('readonly');
-                    document.getElementById('branch_name').removeAttribute('readonly');
-                    document.getElementById('bank_address').removeAttribute('readonly');
-
-                } else {
-
-                    isOtherBank = false;
-
-                    // dynamic bank असल्यास user edit करू शकणार नाही
-                    document.getElementById('account_holder_name').setAttribute('readonly', true);
-                    document.getElementById('branch_name').setAttribute('readonly', true);
-                    document.getElementById('bank_address').setAttribute('readonly', true);
-                }
-
-            });
-
-            function validateIFSCWithSelectedBank() {
-
-                if (isOtherBank) {
-                    return false;
-                }
-
-                const selectedOption = bankSelect.options[bankSelect.selectedIndex];
-                const bankIfscPrefix = selectedOption.getAttribute('data-ifsc');
-
-                const userIfsc = ifscInput.value.trim().toUpperCase().substring(0, 4);
-
-                if (!bankIfscPrefix || userIfsc.length < 4) {
-                    return false;
-                }
-
-                if (bankIfscPrefix !== userIfsc) {
-
-                    ifscMatched = false;
-
-                    showBankError(
-                        'The IFSC code you entered does not match the selected registered bank.'
-                    );
-
-                    return false;
-                }
-
-                ifscMatched = true;
-
-                return true;
-            }
-
-            function showBankError(message) {
-
-                const msgDiv = document.getElementById('bankValidationMessage');
-                const msgText = document.getElementById('bankValidationText');
-
-                msgDiv.className = 'alert alert-danger alert-dismissible fade show';
-                msgDiv.style.display = 'block';
-
-                msgText.innerHTML = `<strong>Error:</strong> ${message}`;
-            }
-
-            ifscInput.addEventListener('blur', function() {
-
-                if (isOtherBank) {
-                    return;
-                }
-
-                validateIFSCWithSelectedBank();
-
-            });
-
-            accountInput.addEventListener('blur', function() {
-
-                if (isOtherBank) {
-                    return;
-                }
-
-                if (!ifscMatched) {
-                    return;
-                }
-
-                validateBankAccount();
-
-            });
-
-        });
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 @endsection
+
+
+

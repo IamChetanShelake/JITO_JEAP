@@ -375,6 +375,8 @@ Route::middleware(['auth', 'user'])
         // Step 8 - PDC/Cheque Details
         Route::get('/Step8', [UserController::class, 'step8'])
             ->name('step8');
+        Route::post('/Step8BankDetailsStore/', [UserController::class, 'step8BankDetailsStore'])
+            ->name('step8.bank.store');
         Route::post('/Step8Store/', [UserController::class, 'step8store'])
             ->name('step8.store');
 

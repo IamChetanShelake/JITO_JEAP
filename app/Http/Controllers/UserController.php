@@ -1437,15 +1437,7 @@ class UserController extends Controller
         $isBelowOneLakh = $type === 'below';
 
         // Build validation rules based on loan category
-        $rules = [
-            // Bank Details (always required)
-            'bank_name' => 'required|string|max:255',
-            'account_holder_name' => 'required|string|max:255',
-            'account_number' => 'required|string|max:50',
-            'branch_name' => 'required|string|max:255',
-            'ifsc_code' => 'required|string|max:20',
-            'bank_address' => 'required|string|max:500',
-        ];
+        $rules = [];
 
         // Only validate funding details and sibling assistance for loans above 1 lakh
         if (!$isBelowOneLakh) {
@@ -1480,15 +1472,6 @@ class UserController extends Controller
 
         $data = [
             'user_id' => $user_id,
-
-            // Bank Details (always required)
-            'bank_name' => $request->bank_name,
-            'account_holder_name' => $request->account_holder_name,
-            'account_number' => $request->account_number,
-            'branch_name' => $request->branch_name,
-            'ifsc_code' => $request->ifsc_code,
-            'bank_address' => $request->bank_address,
-
             'status' => 'step4_completed',
             'submit_status' => 'submited',
         ];
@@ -3283,12 +3266,68 @@ class UserController extends Controller
     }
 
     /**
+     * Store Bank Details from Step 8
+     */
+    public function step8BankDetailsStore(Request $request)
+    {
+        $user_id = Auth::id();
+
+        $request->validate([
+            'bank_name' => 'required|string|max:255',
+            'account_holder_name' => 'required|string|max:255',
+            'account_number' => 'required|string|max:50',
+            'branch_name' => 'required|string|max:255',
+            'ifsc_code' => 'required|string|max:20',
+            'bank_address' => 'required|string|max:500',
+        ]);
+
+        $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
+
+        $bankData = [
+            'bank_name' => $request->bank_name,
+            'account_holder_name' => $request->account_holder_name,
+            'account_number' => $request->account_number,
+            'branch_name' => $request->branch_name,
+            'ifsc_code' => $request->ifsc_code,
+            'bank_address' => $request->bank_address,
+        ];
+
+        if ($fundingDetail) {
+            $fundingDetail->update($bankData);
+            $message = 'Bank details updated successfully!';
+        } else {
+            FundingDetail::create(array_merge([
+                'user_id' => $user_id,
+                'status' => 'step4_completed',
+                'submit_status' => 'submited',
+            ], $bankData));
+            $message = 'Bank details saved successfully!';
+        }
+
+        return redirect()->route('user.step8')->with('bank_success', $message);
+    }
+
+    /**
      * Store Step 8 - PDC/Cheque Details
      */
     public function step8store(Request $request)
     {
         $user_id = Auth::id();
         // dd($request->all());
+
+        $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
+        if (
+            !$fundingDetail ||
+            !$fundingDetail->bank_name ||
+            !$fundingDetail->account_holder_name ||
+            !$fundingDetail->account_number ||
+            !$fundingDetail->branch_name ||
+            !$fundingDetail->ifsc_code ||
+            !$fundingDetail->bank_address
+        ) {
+            return redirect()->route('user.step8')
+                ->withErrors(['bank_details' => 'Please submit your bank details before submitting PDC details.']);
+        }
 
         // Check if PDC details already exist for this user
         $pdcDetail = PdcDetail::where('user_id', $user_id)->first();

@@ -4,11 +4,205 @@
         9</button>
 @endsection
 @section('content')
+    @php
+        $hasBankDetails =
+            isset($fundingDetail) &&
+            $fundingDetail &&
+            $fundingDetail->bank_name &&
+            $fundingDetail->account_holder_name &&
+            $fundingDetail->account_number &&
+            $fundingDetail->branch_name &&
+            $fundingDetail->ifsc_code &&
+            $fundingDetail->bank_address;
+    @endphp
+    <style>
+        .section-divider {
+            height: 1px;
+            background: #e9ecef;
+            margin: 30px 0;
+        }
+
+        input[readonly],
+        textarea[readonly] {
+            background: #f1f1f1;
+            cursor: not-allowed;
+        }
+    </style>
     <!-- Main Content -->
     <div class="col-lg-9 main-content">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
+                    @if (!$hasBankDetails)
+                        <form method="POST" action="{{ route('user.step8.bank.store') }}" enctype="multipart/form-data"
+                            novalidate>
+                            @csrf
+                            @if (session('bank_success'))
+                                <div class="alert alert-warning alert-dismissible fade show position-relative"
+                                    role="alert" id="bankSuccessAlert">
+                                    {{ session('bank_success') }}
+                                    <button type="button" class="close custom-close" data-dismiss="alert"
+                                        aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            @endif
+
+                            <div class="card form-card mb-4">
+                                <div class="card-body">
+                                    <div class="step-card">
+                                        <div class="card-icon">
+                                            <i class="bi bi-bank"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="card-title">Bank Details</h3>
+                                            <p class="card-subtitle">Submit your bank details before proceeding.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Important Note Box -->
+                                    <div
+                                        style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 12px; margin-bottom: 20px;">
+                                        <p class="mb-0" style="color: #E31E24; font-size: 15px;">
+                                            <b>Note </b>: Kindly share the studentâ€™s bank details. Please ensure the
+                                            account is a major account in the studentâ€™s name, as minor accounts are not
+                                            valid. If the application is sanctioned, post-dated cheques (PDCs) will be
+                                            required and the details will be verified. Any mismatch may lead to action by
+                                            management. So, request you to provide correct details.
+                                            <br><br>
+                                            We only accept cheques of Government Nationalized bank and Private banks (HDFC
+                                            Bank, ICICI Bank, Kotak Mahindra Bank, Axis Bank, IndusInd Bank, IDBI Bank, Yes
+                                            Bank, IDFC First Bank, etc).
+                                        </p>
+                                    </div>
+
+                                    <div class="row">
+                                        <!-- Validation Messages Container -->
+                                        <div id="bankValidationMessage" class="alert alert-dismissible fade show"
+                                            role="alert" style="display: none; margin-bottom: 20px;">
+                                            <span id="bankValidationText"></span>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                aria-label="Close"></button>
+                                        </div>
+
+                                        <!-- Left Column -->
+                                        <div class="col-md-6">
+
+                                            <div class="form-group mb-3">
+                                                <label for="bank_name">Bank Name <span
+                                                        style="color: red">*</span></label>
+
+                                                <select class="form-control" name="bank_name" id="bank_name" required>
+                                                    <option value="" hidden>Select Bank</option>
+
+                                                    @foreach ($banks as $bank)
+                                                        <option value="{{ $bank->name }}"
+                                                            data-ifsc="{{ strtoupper(substr($bank->ifsc_code, 0, 4)) }}"
+                                                            {{ old('bank_name') == $bank->name || ($fundingDetail && $fundingDetail->bank_name === $bank->name) ? 'selected' : '' }}>
+                                                            {{ $bank->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+
+                                                <small class="text-danger">{{ $errors->first('bank_name') }}</small>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="ifsc_code">IFSC Code <span
+                                                        style="color: red">*</span></label>
+                                                <input type="text" class="form-control" name="ifsc_code" id="ifsc_code"
+                                                    placeholder="IFSC Code "
+                                                    value="{{ old('ifsc_code', $fundingDetail->ifsc_code ?? '') }}">
+                                                <small class="text-danger">{{ $errors->first('ifsc_code') }}</small>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label for="account_number">Account Number <span
+                                                        style="color: red">*</span></label>
+                                                <input type="text" class="form-control" name="account_number"
+                                                    id="account_number" placeholder="Account Number "
+                                                    value="{{ old('account_number', $fundingDetail->account_number ?? '') }}">
+                                                <small class="text-danger">{{ $errors->first('account_number') }}</small>
+                                            </div>
+
+                                        </div>
+
+                                        <!-- Right Column -->
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label for="account_holder_name">Account Holder's Name <span
+                                                        style="color: red">*</span></label>
+                                                <input type="text" class="form-control" name="account_holder_name"
+                                                    id="account_holder_name" placeholder="Account Holder's Name "
+                                                    value="{{ old('account_holder_name', $fundingDetail->account_holder_name ?? '') }}">
+                                                <small
+                                                    class="text-danger">{{ $errors->first('account_holder_name') }}</small>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="branch_name">Branch Name <span
+                                                        style="color: red">*</span></label>
+                                                <input type="text" class="form-control" name="branch_name" id="branch_name"
+                                                    placeholder="Branch Name "
+                                                    value="{{ old('branch_name', $fundingDetail->branch_name ?? '') }}">
+                                                <small class="text-danger">{{ $errors->first('branch_name') }}</small>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label for="bank_address">Bank Address <span
+                                                        style="color: red">*</span></label>
+                                                <textarea class="form-control" name="bank_address" id="bank_address" rows="3"
+                                                    placeholder="Bank Address " style="resize: vertical;">{{ old('bank_address', $fundingDetail->bank_address ?? '') }}</textarea>
+                                                <small class="text-danger">{{ $errors->first('bank_address') }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-4 mb-4">
+                                <button type="submit" class="btn"
+                                    style="background:#393185;color:white;border-radius:10px;">
+                                    Submit Bank Details
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="modal fade" id="otherBankModal" tabindex="-1">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content">
+
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Important Information</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <p class="text-danger fw-bold">
+                                            Currently, we will accept the bank details you have provided.
+                                            However, <b>before the loan is sanctioned</b>, you will be required
+                                            to open a bank account with one of our registered banks listed below.
+                                        </p>
+
+                                        <hr>
+
+                                        <h6>Our Registered Banks:</h6>
+                                        <ul>
+                                            @foreach ($banks as $bank)
+                                                <li>{{ $bank->name }}</li>
+                                            @endforeach
+                                        </ul>
+
+                                        <p class="mt-3 text-muted">
+                                            Note: If you select <b>Other Bank</b>, bank verification and auto-fill
+                                            will not be available. All bank details must be entered manually.
+                                        </p>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                     <form method="POST" action="{{ route('user.step8.store') }}" enctype="multipart/form-data">
                         @csrf
                         @if (session('success'))
@@ -18,6 +212,18 @@
                                 <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
+                            </div>
+                        @endif
+                        @if ($errors->has('bank_details'))
+                            <div class="alert alert-danger"
+                                style="border: 2px solid #dc3545; border-radius: 10px; background-color: #f8d7da;">
+                                {{ $errors->first('bank_details') }}
+                            </div>
+                        @endif
+                        @if (!$hasBankDetails)
+                            <div class="alert alert-warning"
+                                style="border: 2px solid #dc3545; border-radius: 10px; background-color: #fff3cd; color: #856404;">
+                                Please submit your bank details above before saving PDC/Cheque details.
                             </div>
                         @endif
 
@@ -440,11 +646,11 @@
                                                 </div>
                                                 <div class="modal-footer justify-content-center"
                                                     style="border-top: none;">
-                                                    <a href="{{ route('user.step4') }}"
+                                                    <a href="{{ route('user.step8') }}"
                                                         class="btn btn-danger btn-lg px-5"
                                                         style="border-radius: 10px; font-weight: 600;">
                                                         <i class="bi bi-arrow-right-circle me-2"></i>
-                                                        Go to Step 4
+                                                        Update Bank Details
                                                     </a>
                                                 </div>
                                             </div>
@@ -646,7 +852,7 @@
                             </a>
                             <button type="submit" class="btn"
                                 style="background: #F0FDF4; color: #009846; border: 2px solid #009846; border-radius: 10px; font-weight: 600;"
-                                id="submitBtn">
+                                id="submitBtn" {{ $hasBankDetails ? '' : 'disabled' }}>
                                 <i class="bi bi-check-lg" style="color: green; font-size: 24px;"></i>
                                 Save PDC Details
                             </button>
@@ -657,6 +863,288 @@
         </div>
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Bank Validation AJAX Functionality
+            const accountNumberInput = document.getElementById('account_number');
+            const ifscCodeInput = document.getElementById('ifsc_code');
+            const validationMessageDiv = document.getElementById('bankValidationMessage');
+            const validationText = document.getElementById('bankValidationText');
+            const bankSelect = document.getElementById('bank_name');
+
+            if (!accountNumberInput || !ifscCodeInput || !validationMessageDiv || !validationText || !bankSelect) {
+                return;
+            }
+
+            const API_ENDPOINT = 'https://kyc-api.surepass.io/api/v1/bank-verification/';
+            const API_TOKEN =
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc2Nzc3MjYwNCwianRpIjoiMTBjODNjNTktZTY3ZC00ZGNhLTgyZDktZTc1ZWQ4YmVmOGZiIiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LnNsdW5hd2F0ZmluQHN1cmVwYXNzLmlvIiwibmJmIjoxNzY3NzcyNjA0LCJleHAiOjIzOTg0OTI2MDQsImVtYWlsIjoic2x1bmF3YXRmaW5Ac3VyZXBhc3MuaW8iLCJ0ZW5hbnRfaWQiOiJtYWluIiwidXNlcl9jbGFpbXMiOnsic2NvcGVzIjpbInVzZXIiXX19.4PUIOM6lMXFUKqUxsNi1ZYIW5BLJ3A63LxZqiYB9a3c';
+
+            function validateBankAccount() {
+
+
+                const bankName = document.getElementById('bank_name').value;
+
+                if (bankName === 'OTHER') {
+                    validationMessageDiv.style.display = 'none';
+                    return;
+                }
+                const accountNumber = accountNumberInput.value.trim();
+                const ifscCode = ifscCodeInput.value.trim().toUpperCase();
+
+                // Hide message and reset if either field is empty
+                if (!accountNumber || !ifscCode) {
+                    validationMessageDiv.style.display = 'none';
+                    return;
+                }
+
+                // Show loading state
+                validationMessageDiv.className = 'alert alert-info alert-dismissible fade show';
+                validationMessageDiv.style.display = 'block';
+                validationText.innerHTML =
+                    '<strong>Validating...</strong> Please wait while we verify your bank account details.';
+
+                // Prepare request body
+                const requestBody = {
+                    id_number: accountNumber,
+                    ifsc: ifscCode,
+                    ifsc_details: true
+                };
+
+                // Make AJAX request
+                fetch(API_ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + API_TOKEN
+                        },
+                        body: JSON.stringify(requestBody)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.data.account_exists) {
+                            // Success - populate fields
+                            const responseData = data.data;
+                            const ifscDetails = responseData.ifsc_details;
+
+                            // Populate fields
+                            document.querySelector('input[name="account_holder_name"]').value = responseData
+                                .full_name || '';
+                            document.querySelector('input[name="branch_name"]').value = ifscDetails.branch ||
+                                '';
+                            document.querySelector('textarea[name="bank_address"]').value = ifscDetails
+                                .address || '';
+
+                            // Show success message
+                            validationMessageDiv.className = 'alert alert-success alert-dismissible fade show';
+                            validationText.innerHTML =
+                                `<strong>âœ“ Verification Successful!</strong><br>Account Holder: ${responseData.full_name}<br>Branch: ${ifscDetails.branch}<br>Bank: ${ifscDetails.bank_name}`;
+                        } else {
+                            // Failed validation
+                            validationMessageDiv.className = 'alert alert-danger alert-dismissible fade show';
+                            validationText.innerHTML =
+                                `<strong>âœ— Verification Failed!</strong><br>${data.message || 'The account details could not be verified. Please check your account number and IFSC code.'}`;
+
+                            // Clear populated fields
+                            document.querySelector('input[name="account_holder_name"]').value = '';
+                            document.querySelector('input[name="branch_name"]').value = '';
+                            document.querySelector('textarea[name="bank_address"]').value = '';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Bank validation error:', error);
+                        validationMessageDiv.className = 'alert alert-danger alert-dismissible fade show';
+                        validationText.innerHTML =
+                            `<strong>âœ— Error!</strong><br>An error occurred while validating your bank account. Please try again.`;
+
+                        // Clear populated fields
+                        document.querySelector('input[name="account_holder_name"]').value = '';
+                        document.querySelector('input[name="branch_name"]').value = '';
+                        document.querySelector('textarea[name="bank_address"]').value = '';
+                    });
+            }
+
+            window.validateBankAccount = validateBankAccount;
+
+            // Add event listeners for account number and IFSC code
+            accountNumberInput.addEventListener('blur', validateBankAccount);
+            ifscCodeInput.addEventListener('blur', validateBankAccount);
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+
+            if (!$('#account_number').length || !$('#ifsc_code').length) {
+                return;
+            }
+
+            let timer = null;
+
+            $('#account_number, #ifsc_code').on('keyup change', function() {
+
+                clearTimeout(timer);
+
+                timer = setTimeout(function() {
+
+                    let account = $('#account_number').val().trim();
+                    let ifsc = $('#ifsc_code').val().trim();
+
+                    if (account.length < 6 || ifsc.length < 6) {
+                        return;
+                    }
+
+                    $('#bank-verify-msg').html(
+                        '<span class="text-info">Verifying bank details...</span>');
+
+                    $.ajax({
+                        url: "{{ route('user.bank.verify') }}",
+                        type: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            account_number: account,
+                            ifsc_code: ifsc
+                        },
+                        success: function(res) {
+
+                            if (res.success) {
+                                $('#bank-verify-msg').html(
+                                    `<span class="text-success">âœ” Bank verified successfully</span>`
+                                );
+
+                                $('#account_holder_name').val(res.full_name);
+                                $('#branch_name').val(res.branch);
+                                $('#bank_address').val(res.address);
+                            } else {
+                                $('#bank-verify-msg').html(
+                                    `<span class="text-danger">âœ– ${res.message}</span>`
+                                );
+                            }
+                        },
+                        error: function() {
+                            $('#bank-verify-msg').html(
+                                `<span class="text-danger">âœ– Verification failed</span>`
+                            );
+                        }
+                    });
+
+                }, 800); // debounce
+            });
+
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const bankSelect = document.getElementById('bank_name');
+            const ifscInput = document.getElementById('ifsc_code');
+            const accountInput = document.getElementById('account_number');
+
+            if (!bankSelect || !ifscInput || !accountInput) {
+                return;
+            }
+
+            let isOtherBank = false;
+            let ifscMatched = false;
+
+            bankSelect.addEventListener('change', function() {
+
+                const selectedValue = this.value;
+
+                if (selectedValue === 'OTHER') {
+
+                    isOtherBank = true;
+                    ifscMatched = false;
+
+                    const modal = new bootstrap.Modal(document.getElementById('otherBankModal'));
+                    modal.show();
+
+                    // user manually fill
+                    document.getElementById('account_holder_name').removeAttribute('readonly');
+                    document.getElementById('branch_name').removeAttribute('readonly');
+                    document.getElementById('bank_address').removeAttribute('readonly');
+
+                } else {
+
+                    isOtherBank = false;
+
+                    // dynamic bank
+                    document.getElementById('account_holder_name').setAttribute('readonly', true);
+                    document.getElementById('branch_name').setAttribute('readonly', true);
+                    document.getElementById('bank_address').setAttribute('readonly', true);
+                }
+
+            });
+
+            function validateIFSCWithSelectedBank() {
+
+                if (isOtherBank) {
+                    return false;
+                }
+
+                const selectedOption = bankSelect.options[bankSelect.selectedIndex];
+                const bankIfscPrefix = selectedOption.getAttribute('data-ifsc');
+
+                const userIfsc = ifscInput.value.trim().toUpperCase().substring(0, 4);
+
+                if (!bankIfscPrefix || userIfsc.length < 4) {
+                    return false;
+                }
+
+                if (bankIfscPrefix !== userIfsc) {
+
+                    ifscMatched = false;
+
+                    showBankError(
+                        'The IFSC code you entered does not match the selected registered bank.'
+                    );
+
+                    return false;
+                }
+
+                ifscMatched = true;
+
+                return true;
+            }
+
+            function showBankError(message) {
+
+                const msgDiv = document.getElementById('bankValidationMessage');
+                const msgText = document.getElementById('bankValidationText');
+
+                msgDiv.className = 'alert alert-danger alert-dismissible fade show';
+                msgDiv.style.display = 'block';
+
+                msgText.innerHTML = `<strong>Error:</strong> ${message}`;
+            }
+
+            ifscInput.addEventListener('blur', function() {
+
+                if (isOtherBank) {
+                    return;
+                }
+
+                validateIFSCWithSelectedBank();
+
+            });
+
+            accountInput.addEventListener('blur', function() {
+
+                if (isOtherBank) {
+                    return;
+                }
+
+                if (!ifscMatched) {
+                    return;
+                }
+
+                if (typeof window.validateBankAccount === 'function') {
+                    window.validateBankAccount();
+                }
+
+            });
+
+        });
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Check if bank_name is "OTHER" and show modal

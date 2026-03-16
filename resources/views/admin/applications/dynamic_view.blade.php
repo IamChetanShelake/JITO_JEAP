@@ -56,7 +56,7 @@
                         </thead>
                         <tbody id="table-body">
                             @foreach ($records as $record)
-                                <tr>
+                                <tr class="record-row" data-url="{{ $record['detail_url'] ?? '' }}">
                                     @foreach ($defaultColumns as $col)
                                         <td>{{ $record[$col] ?? '' }}</td>
                                     @endforeach
@@ -87,6 +87,7 @@
 
         .record-row {
             background: #fff;
+            cursor: pointer;
         }
 
         .group-field-category {
@@ -217,7 +218,9 @@
             const renderFlatRows = (records, columns) => {
                 const body = document.getElementById('table-body');
                 body.innerHTML = records.map((row) => {
-                    return `<tr class="record-row">` + columns.map((col) => `<td>${row[col] ?? ''}</td>`).join('') +
+                    const url = row.detail_url || '';
+                    return `<tr class="record-row" data-url="${url}">` +
+                        columns.map((col) => `<td>${row[col] ?? ''}</td>`).join('') +
                         `</tr>`;
                 }).join('');
             };
@@ -253,7 +256,7 @@
                     } else if (node.records && node.records.length) {
                         node.records.forEach((record) => {
                             html += `
-                                <tr class="record-row" data-parent-id="${groupId}" style="display:none;">
+                                <tr class="record-row" data-parent-id="${groupId}" data-url="${record.detail_url || ''}" style="display:none;">
                                     ${columns.map((col) => `<td>${record[col] ?? ''}</td>`).join('')}
                                 </tr>
                             `;
@@ -492,6 +495,15 @@
             });
 
             document.getElementById('table-body').addEventListener('click', (e) => {
+                const recordRow = e.target.closest('.record-row');
+                if (recordRow) {
+                    const url = recordRow.getAttribute('data-url');
+                    if (url) {
+                        window.location.href = url;
+                    }
+                    return;
+                }
+
                 if (!e.target.classList.contains('group-toggle')) {
                     return;
                 }

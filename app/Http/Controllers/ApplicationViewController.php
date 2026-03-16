@@ -183,6 +183,7 @@ class ApplicationViewController extends Controller
             foreach ($fields as $column) {
                 $row[$column] = $this->resolveColumnValue($user, $column, $paidMap, $resolver);
             }
+            $row['detail_url'] = $this->resolveDetailUrl($user);
             return $row;
         });
     }
@@ -212,6 +213,23 @@ class ApplicationViewController extends Controller
         }
 
         return $resolver->resolveFieldValue($user, $column);
+    }
+
+    protected function resolveDetailUrl(User $user): string
+    {
+        $stage = $user->workflowStatus?->current_stage;
+
+        return match ($stage) {
+            'apex_1' => route('admin.apex.stage1.user.detail', $user->id),
+            'chapter' => route('admin.chapter.user.detail', $user->id),
+            'working_committee' => route('admin.working_committee.user.detail', $user->id),
+            'apex_2' => route('admin.apex.stage2.user.detail', $user->id),
+            'pdc' => route('admin.pdc.user.detail', $user->id),
+            'third_stage', 'third_stage_documents' => route('admin.third_stage_documents.user.detail', $user->id),
+            'disbursement' => route('admin.disbursement.show', $user->id),
+            'repayment' => route('admin.repayments.show', $user->id),
+            default => route('admin.apex.stage1.user.detail', $user->id),
+        };
     }
 
     protected function getPaidAmounts(array $userIds): array

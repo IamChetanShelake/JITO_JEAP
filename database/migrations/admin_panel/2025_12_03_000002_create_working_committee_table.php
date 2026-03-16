@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::connection('admin_panel')->create('working_committee', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('department');
+            $table->string('department')->nullable();
             $table->string('designation');
             $table->string('email')->unique();
             $table->string('contact');

@@ -91,4 +91,8 @@ class User extends Authenticatable
     {
         return $this->hasOne(Loan_category::class)->latestOfMany();
     }
+    public function thirdStageDocument()
+    {
+        return $this->hasOne(ThirdStageDocument::class);
+    }
 }

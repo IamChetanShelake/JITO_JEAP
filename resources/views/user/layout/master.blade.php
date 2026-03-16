@@ -867,6 +867,61 @@
                         </li>
                     @endif
 
+                    @php
+                        $thirdStageDocument = auth()->user()?->thirdStageDocument;
+                        $thirdStageEligible = false;
+                        if (auth()->check()) {
+                            $userId = auth()->id();
+                            $firstDisbursementCompleted = DB::connection('admin_panel')
+                                ->table('disbursement_schedules')
+                                ->where('user_id', $userId)
+                                ->where('installment_no', 1)
+                                ->where('status', 'completed')
+                                ->exists();
+                            $secondSchedule = DB::connection('admin_panel')
+                                ->table('disbursement_schedules')
+                                ->where('user_id', $userId)
+                                ->where('installment_no', 2)
+                                ->first();
+                            if ($firstDisbursementCompleted && $secondSchedule && !empty($secondSchedule->planned_date)) {
+                                $openDate = \Carbon\Carbon::parse($secondSchedule->planned_date)->subMonth()->startOfDay();
+                                $thirdStageEligible = now()->startOfDay()->gte($openDate);
+                            }
+                        }
+                    @endphp
+
+                    @if ($thirdStageEligible)
+                        <li class="{{ request()->routeIs('user.step9') ? 'active' : '' }}">
+                            <a href="{{ route('user.step9') }}">
+                                <div
+                                    class="step-icon
+                                    @if ($thirdStageDocument &&
+                                            in_array($thirdStageDocument->status, ['submitted', 'approved'])) completed-step @endif
+                                    @if ($thirdStageDocument && $thirdStageDocument->status === 'rejected') resubmit-step @endif
+                                    @if (request()->routeIs('user.step9')) active-step @endif">
+
+                                    @if ($thirdStageDocument && in_array($thirdStageDocument->status, ['submitted', 'approved']))
+                                        <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
+                                                fill="white" />
+                                        </svg>
+                                    @elseif ($thirdStageDocument && $thirdStageDocument->status === 'rejected')
+                                        <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
+                                            title="{{ $thirdStageDocument->admin_remark ?? 'Correction Required' }}"></i>
+                                    @else
+                                        <i class="bi bi-file-earmark-text"></i>
+                                    @endif
+                                </div>
+                                <div class="step-content">
+                                    <div class="step-number">Step 9</div>
+                                    <div class="step-title">3rd Stage Document</div>
+                                </div>
+                            </a>
+                        </li>
+                    @endif
+
                 </ul>
             </div>
 

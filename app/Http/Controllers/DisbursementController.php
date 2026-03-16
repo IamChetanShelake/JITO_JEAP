@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\ApplicationWorkflowStatus;
 use App\Models\WorkingCommitteeApproval;
 use App\Models\PdcDetail;
+use App\Models\ThirdStageDocument;
 use App\Traits\LogsUserActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -292,6 +293,13 @@ class DisbursementController extends Controller
 
                 if (!$schedule) {
                     throw new \Exception('Disbursement schedule not found');
+                }
+
+                if ((int) $schedule->installment_no === 2) {
+                    $thirdStageDocument = ThirdStageDocument::where('user_id', $schedule->user_id)->latest('id')->first();
+                    if (!$thirdStageDocument || $thirdStageDocument->status !== 'approved') {
+                        throw new \Exception('Third Stage Documents must be approved before the second disbursement.');
+                    }
                 }
 
                 // Check if disbursement already exists for this schedule

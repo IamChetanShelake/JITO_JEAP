@@ -547,6 +547,9 @@
                                                             class="btn btn-sm btn-info text-white">
                                                             <i class="fas fa-eye"></i> View
                                                         </a>
+                                                        <a href="{{ resolveFileUrl($file) }}" download class="btn btn-sm btn-success">
+                                                            <i class="fas fa-download"></i> Download
+                                                        </a>
                                                         <div class="form-check mb-0">
                                                             <input class="form-check-input" type="checkbox"
                                                                 name="delete_birth_photo[]" value="{{ $file }}"
@@ -595,6 +598,9 @@
                                                         <a href="{{ resolveFileUrl($file) }}" target="_blank"
                                                             class="btn btn-sm btn-info text-white">
                                                             <i class="fas fa-eye"></i> View
+                                                        </a>
+                                                        <a href="{{ resolveFileUrl($file) }}" download class="btn btn-sm btn-success">
+                                                            <i class="fas fa-download"></i> Download
                                                         </a>
                                                         <div class="form-check mb-0">
                                                             <input class="form-check-input" type="checkbox"

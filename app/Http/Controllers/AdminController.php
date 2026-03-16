@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SendBackForCorrectionMail;
+use App\Mail\ThirdStageDocumentCorrectionMail;
 use App\Mail\WorkingCommitteeApprovedMail;
 use App\Models\ApplicationWorkflowStatus;
 use App\Models\Chapter;
@@ -13,11 +14,13 @@ use App\Models\AdminUser;
 use App\Models\ApexLeadership;
 use App\Models\DisbursementSchedule;
 use App\Models\EducationDetail;
+use App\Models\EmpoweringDream;
 use App\Models\Logs;
 use App\Models\Loan_category;
 use App\Models\PdcDetail;
 use App\Models\User;
 use App\Models\WorkingCommitteeApprovalHistory;
+use App\Models\ThirdStageDocument;
 use App\Traits\LogsUserActivity;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -72,6 +75,7 @@ class AdminController extends Controller
         // Calculate disbursement counts for dashboard
         $disbursementCounts = $this->getDisbursementCounts();
         $repaymentCounts = $this->getRepaymentCounts();
+        $thirdStageCounts = $this->getThirdStageDocumentCounts();
 
         return view('admin.home', [
             'activeGuard' => $request->active_guard,
@@ -89,7 +93,573 @@ class AdminController extends Controller
             'repaymentUpcoming' => $repaymentCounts['upcoming'],
             'repaymentPast' => $repaymentCounts['past'],
             'repaymentTotal' => $repaymentCounts['total'],
+            'thirdStagePending' => $thirdStageCounts['pending'],
+            'thirdStageSubmitted' => $thirdStageCounts['submitted'],
+            'thirdStageApproved' => $thirdStageCounts['approved'],
+            'thirdStageTotal' => $thirdStageCounts['total'],
         ]);
+    }
+
+    /**
+     * Website Management Index
+     */
+    public function websiteIndex()
+    {
+        return view('admin.website.index');
+    }
+
+    /**
+     * Website Home Page Management
+     */
+    public function websiteHome()
+    {
+        return view('admin.website.home');
+    }
+
+    /**
+     * Website Home - Empowering Dreams Page
+     */
+    public function websiteHomeEmpoweringDreams()
+    {
+        $empoweringDreams = EmpoweringDream::orderBy('order', 'asc')->get();
+        return view('admin.website.home.empowering-dreams', compact('empoweringDreams'));
+    }
+
+    /**
+     * Store Empowering Dreams Data
+     */
+    public function storeEmpoweringDream(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'vision' => 'nullable|string',
+            'vision_description' => 'nullable|string',
+            'mission' => 'nullable|string',
+            'mission_description' => 'nullable|string',
+            'features' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/empowering-dreams'), $imageName);
+            $imagePath = 'uploads/empowering-dreams/' . $imageName;
+        }
+
+        EmpoweringDream::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'vision' => $request->vision,
+            'vision_description' => $request->vision_description,
+            'mission' => $request->mission,
+            'mission_description' => $request->mission_description,
+            'features' => $request->features,
+            'image' => $imagePath,
+            'order' => EmpoweringDream::max('order') + 1,
+            'status' => true,
+        ]);
+
+        return redirect()->back()->with('success', 'Data added successfully!');
+    }
+
+    /**
+     * Update Empowering Dreams Data
+     */
+    public function updateEmpoweringDream(Request $request, $id)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'vision' => 'nullable|string',
+            'vision_description' => 'nullable|string',
+            'mission' => 'nullable|string',
+            'mission_description' => 'nullable|string',
+            'features' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $dream = EmpoweringDream::findOrFail($id);
+
+        $imagePath = $dream->image;
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($dream->image && file_exists(public_path($dream->image))) {
+                unlink(public_path($dream->image));
+            }
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/empowering-dreams'), $imageName);
+            $imagePath = 'uploads/empowering-dreams/' . $imageName;
+        }
+
+        $dream->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'vision' => $request->vision,
+            'vision_description' => $request->vision_description,
+            'mission' => $request->mission,
+            'mission_description' => $request->mission_description,
+            'features' => $request->features,
+            'image' => $imagePath,
+        ]);
+
+        return redirect()->back()->with('success', 'Data updated successfully!');
+    }
+
+    /**
+     * Delete Empowering Dreams Data
+     */
+    public function deleteEmpoweringDream($id)
+    {
+        $dream = EmpoweringDream::findOrFail($id);
+        
+        // Delete image if exists
+        if ($dream->image && file_exists(public_path($dream->image))) {
+            unlink(public_path($dream->image));
+        }
+        
+        $dream->delete();
+
+        return redirect()->back()->with('success', 'Data deleted successfully!');
+    }
+
+    /**
+     * Website Home - Key Instruction Page
+     */
+    public function websiteHomeKeyInstruction()
+    {
+        $keyInstructions = \App\Models\KeyInstruction::orderBy('display_order')->get();
+        return view('admin.website.home.key-instruction', compact('keyInstructions'));
+    }
+
+    /**
+     * Store Key Instruction
+     */
+    public function storeKeyInstruction(\Illuminate\Http\Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'icon' => 'nullable|file|mimes:svg,xml',
+                'title' => 'required|string|max:255',
+                'description' => 'required|string',
+                'color' => 'required|string|max:20',
+                'display_order' => 'nullable|integer|min:0',
+            ]);
+
+            // Handle SVG file upload
+            $iconSvg = '';
+            if ($request->hasFile('icon') && $request->file('icon')->isValid()) {
+                try {
+                    $file = $request->file('icon');
+                    $iconSvg = file_get_contents($file->getRealPath());
+                    
+                    // Modify SVG to set proper sizing
+                    $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
+                    $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
+                    $iconSvg = preg_replace('/(<svg)/i', '$1 width="40" height="40"', $iconSvg);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Error processing icon: ' . $e->getMessage());
+                    $iconSvg = '';
+                }
+            } else {
+                // Use a default SVG icon
+                $iconSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+            }
+
+            if (!isset($validated['display_order']) || $validated['display_order'] == 0) {
+                $validated['display_order'] = (\App\Models\KeyInstruction::max('display_order') ?? 0) + 1;
+            }
+
+            $keyInstruction = \App\Models\KeyInstruction::create([
+                'icon' => 'custom',
+                'icon_svg' => $iconSvg,
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'color' => $validated['color'],
+                'display_order' => $validated['display_order'],
+                'is_active' => 1,
+            ]);
+
+            \Illuminate\Support\Facades\Log::info('Key Instruction created successfully: ' . $keyInstruction->id);
+
+            return redirect()->route('admin.website.home.key-instruction')->with('success', 'Key Instruction added successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error storing key instruction: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Update Key Instruction
+     */
+    public function updateKeyInstruction(\Illuminate\Http\Request $request, $id)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'color' => 'required|string|max:20',
+            'display_order' => 'nullable|integer|min:0',
+        ]);
+
+        $keyInstruction = \App\Models\KeyInstruction::findOrFail($id);
+
+        // Handle SVG file upload if a new file is uploaded
+        if ($request->hasFile('icon') && $request->file('icon')->isValid()) {
+            try {
+                $file = $request->file('icon');
+                $iconSvg = file_get_contents($file->getRealPath());
+                
+                // Modify SVG to set proper sizing
+                $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
+                $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
+                $iconSvg = preg_replace('/(<svg)/i', '$1 width="40" height="40"', $iconSvg);
+                
+                $keyInstruction->icon_svg = $iconSvg;
+                $keyInstruction->icon = 'custom';
+            } catch (\Exception $e) {
+                // If there's an error, keep the existing icon
+                if ($request->has('existing_icon_svg')) {
+                    $keyInstruction->icon_svg = $request->input('existing_icon_svg');
+                }
+            }
+        } elseif ($request->has('existing_icon_svg')) {
+            // Keep existing icon SVG
+            $keyInstruction->icon_svg = $request->input('existing_icon_svg');
+        }
+
+        $keyInstruction->title = $validated['title'];
+        $keyInstruction->description = $validated['description'];
+        $keyInstruction->color = $validated['color'];
+        $keyInstruction->display_order = $validated['display_order'] ?? 0;
+        $keyInstruction->save();
+
+        return redirect()->route('admin.website.home.key-instruction')->with('success', 'Key Instruction updated successfully!');
+    }
+
+    /**
+     * Delete Key Instruction
+     */
+    public function deleteKeyInstruction($id)
+    {
+        $keyInstruction = \App\Models\KeyInstruction::findOrFail($id);
+        $keyInstruction->delete();
+
+        return redirect()->route('admin.website.home.key-instruction')->with('success', 'Key Instruction deleted successfully!');
+    }
+
+    /**
+     * Website Home - Working Committee Page
+     */
+    public function websiteHomeWorkingCommittee()
+    {
+        $workingCommittee = \App\Models\WorkingCommittee::orderBy('display_order')->get();
+        return view('admin.website.home.working-committee', compact('workingCommittee'));
+    }
+
+    /**
+     * Store Working Committee Member (Website)
+     */
+    public function storeWebsiteWorkingCommittee(\Illuminate\Http\Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'designation' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'display_order' => 'nullable|integer|min:0',
+                'status' => 'nullable|boolean',
+            ]);
+
+            $photoPath = null;
+            if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
+                $photo = $request->file('photo');
+                $photoName = time() . '_' . $photo->getClientOriginalName();
+                $photo->move(public_path('uploads/working-committee'), $photoName);
+                $photoPath = 'uploads/working-committee/' . $photoName;
+            }
+
+            if (!isset($validated['display_order']) || $validated['display_order'] == 0) {
+                $validated['display_order'] = (\App\Models\WorkingCommittee::max('display_order') ?? 0) + 1;
+            }
+
+            \App\Models\WorkingCommittee::create([
+                'name' => $validated['name'],
+                'photo' => $photoPath,
+                'designation' => $validated['designation'],
+                'description' => $validated['description'] ?? '',
+                'display_order' => $validated['display_order'],
+                'status' => $validated['status'] ?? true,
+                'show_hide' => true,
+            ]);
+
+            return redirect()->route('admin.website.home.working-committee')->with('success', 'Working Committee member added successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error storing working committee: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Update Working Committee Member (Website)
+     */
+    public function updateWebsiteWorkingCommittee(\Illuminate\Http\Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'designation' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'display_order' => 'nullable|integer|min:0',
+                'status' => 'nullable|boolean',
+            ]);
+
+            $member = \App\Models\WorkingCommittee::findOrFail($id);
+
+            if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
+                // Delete old photo if exists
+                if ($member->photo && file_exists(public_path($member->photo))) {
+                    unlink(public_path($member->photo));
+                }
+                $photo = $request->file('photo');
+                $photoName = time() . '_' . $photo->getClientOriginalName();
+                $photo->move(public_path('uploads/working-committee'), $photoName);
+                $member->photo = 'uploads/working-committee/' . $photoName;
+            }
+
+            $member->name = $validated['name'];
+            $member->designation = $validated['designation'];
+            $member->description = $validated['description'] ?? '';
+            $member->display_order = $validated['display_order'] ?? 0;
+            $member->status = $validated['status'] ?? true;
+            $member->save();
+
+            return redirect()->route('admin.website.home.working-committee')->with('success', 'Working Committee member updated successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error updating working committee: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Delete Working Committee Member (Website)
+     */
+    public function deleteWebsiteWorkingCommittee($id)
+    {
+        try {
+            $member = \App\Models\WorkingCommittee::findOrFail($id);
+            
+            // Delete photo if exists
+            if ($member->photo && file_exists(public_path($member->photo))) {
+                unlink(public_path($member->photo));
+            }
+            
+            $member->delete();
+
+            return redirect()->route('admin.website.home.working-committee')->with('success', 'Working Committee member deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Website Home - Empowering Future Page
+     */
+    public function websiteHomeEmpoweringFuture()
+    {
+        $empoweringDreams = EmpoweringDream::orderBy('order')->get();
+        $response = response()->view('admin.website.home.empowering-future', compact('empoweringDreams'));
+        $response->header('Cache-Control', 'no-cache, no-store, must-revalidate');
+        $response->header('Pragma', 'no-cache');
+        $response->header('Expires', '0');
+        return $response;
+    }
+
+    /**
+     * Store Empowering Future Data
+     */
+    public function storeEmpoweringFuture(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'vision' => 'nullable|string',
+            'vision_description' => 'nullable|string',
+            'mission' => 'nullable|string',
+            'mission_description' => 'nullable|string',
+            'features' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/empowering-dreams'), $imageName);
+            $imagePath = 'uploads/empowering-dreams/' . $imageName;
+        }
+
+        EmpoweringDream::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'vision' => $request->input('vision', ''),
+            'vision_description' => $request->input('vision_description', ''),
+            'mission' => $request->input('mission', ''),
+            'mission_description' => $request->input('mission_description', ''),
+            'features' => $request->input('features', ''),
+            'image' => $imagePath,
+            'order' => EmpoweringDream::max('order') + 1,
+            'status' => true,
+        ]);
+
+        return redirect()->route('admin.website.home.empowering-future')->with('success', 'Data added successfully!')->withHeaders(['Cache-Control' => 'no-cache, no-store, must-revalidate', 'Pragma' => 'no-cache', 'Expires' => '0']);
+    }
+
+    /**
+     * Update Empowering Future Data
+     */
+    public function updateEmpoweringFuture(Request $request, $id)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'vision' => 'nullable|string',
+            'vision_description' => 'nullable|string',
+            'mission' => 'nullable|string',
+            'mission_description' => 'nullable|string',
+            'features' => 'nullable|string',
+            'order' => 'nullable|integer|min:0',
+            'status' => 'nullable|boolean',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $dream = EmpoweringDream::findOrFail($id);
+
+        $imagePath = $dream->image;
+        if ($request->hasFile('image')) {
+            if ($dream->image && file_exists(public_path($dream->image))) {
+                unlink(public_path($dream->image));
+            }
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/empowering-dreams'), $imageName);
+            $imagePath = 'uploads/empowering-dreams/' . $imageName;
+        }
+
+        $dream->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'vision' => $request->input('vision', ''),
+            'vision_description' => $request->input('vision_description', ''),
+            'mission' => $request->input('mission', ''),
+            'mission_description' => $request->input('mission_description', ''),
+            'features' => $request->input('features', ''),
+            'image' => $imagePath,
+            'order' => $request->input('order', 0),
+            'status' => $request->input('status', 1) == '1' ? true : false,
+        ]);
+
+        return redirect()->route('admin.website.home.empowering-future')->with('success', 'Data updated successfully!')->withHeaders(['Cache-Control' => 'no-cache, no-store, must-revalidate', 'Pragma' => 'no-cache', 'Expires' => '0']);
+    }
+
+    /**
+     * Delete Empowering Future Data
+     */
+    public function deleteEmpoweringFuture($id)
+    {
+        $dream = EmpoweringDream::findOrFail($id);
+        
+        if ($dream->image && file_exists(public_path($dream->image))) {
+            unlink(public_path($dream->image));
+        }
+        
+        $dream->delete();
+
+        return redirect()->route('admin.website.home.empowering-future')->with('success', 'Data deleted successfully!');
+    }
+
+    /**
+     * Website Home - Achievement and Impact Page
+     */
+    public function websiteHomeAchievementImpact()
+    {
+        return view('admin.website.home.achievement-impact');
+    }
+
+    /**
+     * Website Home - Photo Gallery Page
+     */
+    public function websiteHomePhotoGallery()
+    {
+        return view('admin.website.home.photo-gallery');
+    }
+
+    /**
+     * Website Home - Our Testimonial Page
+     */
+    public function websiteHomeOurTestimonial()
+    {
+        return view('admin.website.home.our-testimonial');
+    }
+
+    /**
+     * Website Home - Success Stories Page
+     */
+    public function websiteHomeSuccessStories()
+    {
+        return view('admin.website.home.success-stories');
+    }
+
+    /**
+     * Website About Page Management
+     */
+    public function websiteAbout()
+    {
+        return view('admin.website.about');
+    }
+
+    /**
+     * Website Application Page Management
+     */
+    public function websiteApplication()
+    {
+        return view('admin.website.application');
+    }
+
+    /**
+     * Website Contact Page Management
+     */
+    public function websiteContact()
+    {
+        return view('admin.website.contact');
+    }
+
+    /**
+     * Website Donor Page Management
+     */
+    public function websiteDonor()
+    {
+        return view('admin.website.donor');
+    }
+
+    /**
+     * Website Gallery Page Management
+     */
+    public function websiteGallery()
+    {
+        return view('admin.website.gallery');
+    }
+
+    /**
+     * Website University Page Management
+     */
+    public function websiteUniversity()
+    {
+        return view('admin.website.university');
     }
 
     /**
@@ -325,6 +895,29 @@ class AdminController extends Controller
                 'today_pending' => 0,
                 'upcoming' => 0,
                 'past' => 0,
+                'total' => 0,
+            ];
+        }
+    }
+
+    private function getThirdStageDocumentCounts(): array
+    {
+        try {
+            $pending = ThirdStageDocument::whereIn('status', ['pending', 'rejected'])->count();
+            $submitted = ThirdStageDocument::where('status', 'submitted')->count();
+            $approved = ThirdStageDocument::where('status', 'approved')->count();
+
+            return [
+                'pending' => $pending,
+                'submitted' => $submitted,
+                'approved' => $approved,
+                'total' => $pending + $submitted + $approved,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'pending' => 0,
+                'submitted' => 0,
+                'approved' => 0,
                 'total' => 0,
             ];
         }
@@ -2382,6 +2975,73 @@ class AdminController extends Controller
         $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
         $courierDocumentChecklist = $this->getUploadedCourierDocumentChecklist($user, $loanCategory);
 
+        // Load edit bank detail request if exists
+        $editBankDetailRequest = \App\Models\EditBankDetailRequest::where('user_id', $user->id)->latest()->first();
+
+        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory', 'editBankDetailRequest'));
+    }
+
+    /**
+     * Approve Edit Bank Detail Request
+     */
+    public function approveEditBankDetailRequest(Request $request, User $user)
+    {
+        $editRequest = \App\Models\EditBankDetailRequest::where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->latest()
+            ->first();
+
+        if (!$editRequest) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No pending request found'
+            ], 404);
+        }
+
+        $editRequest->update([
+            'status' => 'approved',
+            'processed_by' => Auth::id(),
+            'processed_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Request approved successfully! User can now edit bank details.'
+        ]);
+    }
+
+    /**
+     * Reject Edit Bank Detail Request
+     */
+    public function rejectEditBankDetailRequest(Request $request, User $user)
+    {
+        $request->validate([
+            'admin_remark' => 'required|string|max:2000',
+        ]);
+
+        $editRequest = \App\Models\EditBankDetailRequest::where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->latest()
+            ->first();
+
+        if (!$editRequest) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No pending request found'
+            ], 404);
+        }
+
+        $editRequest->update([
+            'status' => 'rejected',
+            'admin_remark' => $request->admin_remark,
+            'processed_by' => Auth::id(),
+            'processed_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Request rejected successfully!'
+        ]);
         return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory', 'courierDocumentChecklist'));
     }
 
@@ -2498,6 +3158,107 @@ class AdminController extends Controller
         ]);
 
         return back()->with('success', 'Courier receive approved successfully.');
+    }
+
+    // =====================================================
+    // Third Stage Document Methods
+    // =====================================================
+
+    public function thirdStageDocumentPending()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('thirdStageDocument', function ($q) {
+                $q->whereIn('status', ['pending', 'rejected']);
+            })
+            ->with(['thirdStageDocument', 'workflowStatus'])
+            ->get();
+
+        return view('admin.third_stage_documents.pending', compact('users'));
+    }
+
+    public function thirdStageDocumentSubmitted()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('thirdStageDocument', function ($q) {
+                $q->where('status', 'submitted');
+            })
+            ->with(['thirdStageDocument', 'workflowStatus'])
+            ->get();
+
+        return view('admin.third_stage_documents.submitted', compact('users'));
+    }
+
+    public function thirdStageDocumentApproved()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('thirdStageDocument', function ($q) {
+                $q->where('status', 'approved');
+            })
+            ->with(['thirdStageDocument', 'workflowStatus'])
+            ->get();
+
+        return view('admin.third_stage_documents.approved', compact('users'));
+    }
+
+    public function thirdStageDocumentUserDetail(User $user)
+    {
+        $user->load(['thirdStageDocument', 'workflowStatus']);
+        return view('admin.third_stage_documents.user_detail', compact('user'));
+    }
+
+    public function approveThirdStageDocument(Request $request, User $user)
+    {
+        $request->validate([
+            'admin_remark' => 'nullable|string|max:2000',
+        ]);
+
+        $thirdStageDocument = ThirdStageDocument::where('user_id', $user->id)->first();
+        if (!$thirdStageDocument) {
+            return back()->with('error', 'Third stage documents not found.');
+        }
+
+        if ($thirdStageDocument->status !== 'submitted') {
+            return back()->with('error', 'Only submitted documents can be approved.');
+        }
+
+        $thirdStageDocument->update([
+            'status' => 'approved',
+            'admin_remark' => $request->admin_remark,
+            'approved_at' => now(),
+            'processed_by' => Auth::id(),
+        ]);
+
+        return back()->with('success', 'Third stage documents approved successfully.');
+    }
+
+    public function sendBackThirdStageDocument(Request $request, User $user)
+    {
+        $request->validate([
+            'admin_remark' => 'required|string|max:2000',
+        ]);
+
+        $thirdStageDocument = ThirdStageDocument::where('user_id', $user->id)->first();
+        if (!$thirdStageDocument) {
+            return back()->with('error', 'Third stage documents not found.');
+        }
+
+        $thirdStageDocument->update([
+            'status' => 'rejected',
+            'admin_remark' => $request->admin_remark,
+            'rejected_at' => now(),
+            'processed_by' => Auth::id(),
+        ]);
+
+        try {
+            Mail::to($user->email)->send(new ThirdStageDocumentCorrectionMail($user, $request->admin_remark));
+        } catch (\Throwable $e) {
+            Log::error('Third stage correction email failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return back()->with('success', 'Third stage documents sent back for correction.');
     }
 
     // =====================================================
@@ -3006,3 +3767,4 @@ class AdminController extends Controller
         ]);
     }
 }
+

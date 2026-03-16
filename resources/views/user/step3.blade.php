@@ -624,34 +624,34 @@ function calculateTotalFamilyIncome() {
                                                     Applicant <span style="color: red;">*</span></label>
                                                 <select class="form-control" name="diksha_member_relation" required>
                                                     <option value=""
-                                                        {{ !old('diksha_member_relation') ? 'selected' : '' }} disabled
+                                                        {{ old('diksha_member_relation', $familyDetail->diksha_member_relation ?? '') == '' ? 'selected' : '' }} disabled
                                                         hidden>Select Relation</option>
                                                     <option value="grandparent"
-                                                        {{ old('diksha_member_relation') == 'grandfather' ? 'selected' : '' }}>
+                                                        {{ old('diksha_member_relation', $familyDetail->diksha_member_relation ?? '') == 'grandparent' ? 'selected' : '' }}>
                                                         GrandFather</option>
                                                     <option value="grandparent"
-                                                        {{ old('diksha_member_relation') == 'grandmother' ? 'selected' : '' }}>
+                                                        {{ old('diksha_member_relation', $familyDetail->diksha_member_relation ?? '') == 'grandparent' ? 'selected' : '' }}>
                                                         GrandMother</option>
                                                     <option value="parents"
-                                                        {{ old('diksha_member_relation') == 'father' ? 'selected' : '' }}>
+                                                        {{ old('diksha_member_relation', $familyDetail->diksha_member_relation ?? '') == 'parents' ? 'selected' : '' }}>
                                                         Father</option>
                                                     <option value="parents"
-                                                        {{ old('diksha_member_relation') == 'mother' ? 'selected' : '' }}>
+                                                        {{ old('diksha_member_relation', $familyDetail->diksha_member_relation ?? '') == 'parents' ? 'selected' : '' }}>
                                                         Mother</option>
                                                     <option value="uncle and aunt"
-                                                        {{ old('diksha_member_relation') == 'uncle' ? 'selected' : '' }}>
+                                                        {{ old('diksha_member_relation', $familyDetail->diksha_member_relation ?? '') == 'uncle and aunt' ? 'selected' : '' }}>
                                                         Uncle </option>
                                                     <option value="uncle and aunt"
-                                                        {{ old('diksha_member_relation') == 'aunt' ? 'selected' : '' }}>
+                                                        {{ old('diksha_member_relation', $familyDetail->diksha_member_relation ?? '') == 'uncle and aunt' ? 'selected' : '' }}>
                                                         Aunt</option>
                                                     <option value="brother"
-                                                        {{ old('diksha_member_relation') == 'brother' ? 'selected' : '' }}>
+                                                        {{ old('diksha_member_relation', $familyDetail->diksha_member_relation ?? '') == 'brother' ? 'selected' : '' }}>
                                                         Brother </option>
                                                     <option value="sister"
-                                                        {{ old('diksha_member_relation') == 'sister' ? 'selected' : '' }}>
+                                                        {{ old('diksha_member_relation', $familyDetail->diksha_member_relation ?? '') == 'sister' ? 'selected' : '' }}>
                                                         Sister</option>
                                                     <option value="other"
-                                                        {{ old('diksha_member_relation') == 'other' ? 'selected' : '' }}>
+                                                        {{ old('diksha_member_relation', $familyDetail->diksha_member_relation ?? '') == 'other' ? 'selected' : '' }}>
                                                         Other</option>
                                                 </select>
                                                 <small
@@ -716,6 +716,22 @@ function calculateTotalFamilyIncome() {
                                                 required>
                                             <small
                                                 class="text-danger">{{ $errors->first('mediclaim_insurance_amount') }}</small>
+                                        </div>
+                                        <div class="form-group mb-3">
+                                            <label for="current_year_itr" class="form-label">Current Year ITR
+                                                Amount</label>
+                                            <input type="number" class="form-control" name="current_year_itr"
+                                                placeholder="Current Year ITR Amount"
+                                                value="{{ old('current_year_itr', $familyDetail->current_year_itr ?? '') }}">
+                                            <small class="text-danger">{{ $errors->first('current_year_itr') }}</small>
+                                        </div>
+                                        <div class="form-group mb-3">
+                                            <label for="last_year_itr" class="form-label">Last Year ITR
+                                                Amount</label>
+                                            <input type="number" class="form-control" name="last_year_itr"
+                                                placeholder="Last Year ITR Amount"
+                                                value="{{ old('last_year_itr', $familyDetail->last_year_itr ?? '') }}">
+                                            <small class="text-danger">{{ $errors->first('last_year_itr') }}</small>
                                         </div>
                                     </div>
                                 </div>

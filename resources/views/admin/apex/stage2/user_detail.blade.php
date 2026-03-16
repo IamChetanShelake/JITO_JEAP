@@ -1551,6 +1551,17 @@
                                     <input type="text" class="form-input"
                                         value="₹{{ number_format($user->familyDetail->total_monthly_emi) }}" readonly>
                                 </div>
+                                <div class="form-field">
+                                    <label class="form-label">Current Year ITR</label>
+                                    <input type="text" class="form-input"
+                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Last Year ITR</label>
+                                    <input type="text" class="form-input"
+                                        value="₹{{ number_format($user->familyDetail->last_year_itr ?? 0) }}" readonly>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2695,6 +2706,86 @@
                 </div>
             @endif
 
+            <!-- Edit Bank Detail Request Section -->
+            @if (isset($editBankDetailRequest) && $editBankDetailRequest)
+                <div class="form-data mt-4" style="border: 2px solid #FBBA00; border-radius: 15px; padding: 1.5rem;">
+                    <div class="data-group">
+                        <h4 style="color: white;">
+                            <i class="bi bi-pencil-square me-2"></i>
+                            Edit Bank Detail Request
+                        </h4>
+
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Status</label>
+                                    @if ($editBankDetailRequest->status === 'pending')
+                                        <span class="status-badge status-pending">
+                                            <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                                            Pending
+                                        </span>
+                                    @elseif($editBankDetailRequest->status === 'approved')
+                                        <span class="status-badge status-approved">
+                                            <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
+                                            Approved
+                                        </span>
+                                    @elseif($editBankDetailRequest->status === 'rejected')
+                                        <span class="status-badge status-hold">
+                                            <i class="fas fa-times-circle" style="font-size: 0.6rem;"></i>
+                                            Rejected
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="form-field text-end">
+                                    <label class="form-label">Submitted On</label>
+                                    <div class="data-value">
+                                        {{ $editBankDetailRequest->created_at ? \Carbon\Carbon::parse($editBankDetailRequest->created_at)->format('d M Y H:i') : 'N/A' }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if ($editBankDetailRequest->reason)
+                                <div class="form-field mt-3">
+                                    <label class="form-label">User's Reason</label>
+                                    <div class="data-value"
+                                        style="background: #f8f9fa; padding: 1rem; border-radius: 8px;text-align: justify;">
+                                        {{ $editBankDetailRequest->reason }}
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if ($editBankDetailRequest->status === 'approved')
+                                <div class="alert alert-success mt-3" style="border-radius: 10px;">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    Request approved. User can now edit bank details.
+                                </div>
+                            @elseif($editBankDetailRequest->status === 'rejected')
+                                <div class="form-field mt-3">
+                                    <label class="form-label">Admin Remark</label>
+                                    <div class="data-value"
+                                        style="background: #f8d7da; padding: 1rem; border-radius: 8px; color: #721c24;">
+                                        {!! $editBankDetailRequest->admin_remark !!}
+                                    </div>
+                                </div>
+                            @elseif($editBankDetailRequest->status === 'pending')
+                                <div class="mt-4">
+                                    <div class="d-flex gap-3">
+                                        <button type="button" class="btn btn-approve"
+                                            onclick="approveEditBankRequest({{ $user->id }})">
+                                            <i class="fas fa-check me-1"></i> Approve Request
+                                        </button>
+                                        <button type="button" class="btn btn-reject"
+                                            onclick="showRejectModal({{ $user->id }})">
+                                            <i class="fas fa-times me-1"></i> Reject Request
+                                        </button>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
+
 
             <div class="step-header">
                 {{-- <h2 class="step-title-large">Step 9: Apex Decision</h2> --}}
@@ -3052,6 +3143,69 @@
                 printWindow.print();
             };
         }
+    }
+
+    // Edit Bank Detail Request Functions
+    function approveEditBankRequest(userId) {
+        if (confirm(
+                'Are you sure you want to approve this edit bank detail request? The user will be able to edit their bank details.'
+            )) {
+            fetch('{{ route('admin.apex.stage2.approve.edit.bank.request') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Error approving request');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+        }
+    }
+
+    function showRejectModal(userId) {
+        const remark = prompt('Please enter the reason for rejection:');
+        if (remark === null || remark.trim() === '') {
+            return;
+        }
+
+        fetch('{{ route('admin.apex.stage2.reject.edit.bank.request') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    admin_remark: remark
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message || 'Error rejecting request');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
     }
 </script>
 

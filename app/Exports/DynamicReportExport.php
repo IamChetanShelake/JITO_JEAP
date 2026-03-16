@@ -101,6 +101,8 @@ class DynamicReportExport implements FromCollection, WithHeadings, WithMapping, 
                 $relationships[] = 'chapterMaster.zone';
             } elseif ($field === 'funding.loan_category') {
                 $relationships[] = 'loanCategory';
+            } elseif (strpos($field, 'third_stage.') === 0) {
+                $relationships[] = 'thirdStageDocument';
             }
         }
 
@@ -188,6 +190,7 @@ class DynamicReportExport implements FromCollection, WithHeadings, WithMapping, 
                     'workflow' => 'workflowStatus',
                     'pdc' => 'pdcDetail',
                     'approval' => 'workingCommitteeApproval',
+                    'third_stage' => 'thirdStageDocument',
                 ];
 
                 if (isset($relationMap[$relation])) {
@@ -355,6 +358,15 @@ class DynamicReportExport implements FromCollection, WithHeadings, WithMapping, 
             // Chapter fields
             'chapter.name' => 'Chapter Name',
             'chapter.zone' => 'Zone',
+
+            // Third stage document fields
+            'third_stage.foreign_address' => 'Foreign Address',
+            'third_stage.foreign_contact_number' => 'Foreign Contact Number',
+            'third_stage.foreign_ssn_or_country_id' => 'Foreign SSN / Country ID',
+            'third_stage.foreign_bank_name' => 'Foreign Bank Name',
+            'third_stage.foreign_bank_account_number' => 'Foreign Bank Account Number',
+            'third_stage.status' => 'Third Stage Status',
+            'third_stage.admin_remark' => 'Admin Remark',
         ];
     }
 
@@ -433,6 +445,7 @@ class DynamicReportExport implements FromCollection, WithHeadings, WithMapping, 
                 'pdc' => 'pdcDetail',
                 'approval' => 'workingCommitteeApproval',
                 'chapter' => 'chapterMaster',
+                'third_stage' => 'thirdStageDocument',
             ];
 
         if (!isset($relationMap[$relation])) {

@@ -13,6 +13,7 @@ class ApplicationWorkflowStatus extends Model
         'chapter_updated_at' => 'datetime',
         'working_committee_updated_at' => 'datetime',
         'apex_2_updated_at' => 'datetime',
+        'third_stage_notification_sent_at' => 'datetime',
     ];
 
     public function user()

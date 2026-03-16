@@ -385,6 +385,15 @@ class ReportController extends Controller
                 'chapter.email' => 'Chapter Email',
                 'chapter.contact' => 'Chapter Contact',
             ],
+            'Third Stage Documents' => [
+                'third_stage.foreign_address' => 'Foreign Address',
+                'third_stage.foreign_contact_number' => 'Foreign Contact Number',
+                'third_stage.foreign_ssn_or_country_id' => 'Foreign SSN / Country ID',
+                'third_stage.foreign_bank_name' => 'Foreign Bank Name',
+                'third_stage.foreign_bank_account_number' => 'Foreign Bank Account Number',
+                'third_stage.status' => 'Third Stage Status',
+                'third_stage.admin_remark' => 'Admin Remark',
+            ],
         ];
 
         return response()->json($fields);

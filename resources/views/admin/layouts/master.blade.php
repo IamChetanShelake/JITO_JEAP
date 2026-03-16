@@ -975,6 +975,13 @@
                         </li>
                     @endif
                     <li class="nav-item">
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'website') ? 'active' : '' }}"
+                                href="{{ route('admin.website.index') }}">
+                                <i class="fas fa-globe"></i>
+                                <span class="nav-text">Jito Jeap Website</span>
+                            </a>
+                        </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="#" style="margin-bottom: 20px;"
                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             <i class="fas fa-sign-out-alt"></i>

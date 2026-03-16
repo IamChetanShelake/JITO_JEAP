@@ -1234,5 +1234,65 @@
                 @endif
             </div>
         </div>
+
+        <!-- Row 4: 3rd Stage Document -->
+        <div class="row g-3 mt-1">
+            <div class="col-lg-12">
+                @if (in_array($activeGuard, ['admin', 'accountant']))
+                    <div class="approval-section">
+                        <div class="approval-header">
+                            <div class="approval-title initiatives-title">
+                                <i class="fas fa-file-alt"></i>
+                                3rd Stage Document
+                            </div>
+                            <div class="approval-total">Total - {{ $thirdStageTotal ?? 0 }}</div>
+                        </div>
+                        <div class="approval-rate">
+                            <span>Submission Progress</span>
+                            <span>
+                                {{ $thirdStageTotal > 0 ? round((($thirdStageApproved ?? 0) / $thirdStageTotal) * 100) : 0 }}%
+                            </span>
+                        </div>
+                        <div class="progress-custom">
+                            <div class="progress-bar-custom"
+                                style="width: {{ $thirdStageTotal > 0 ? (($thirdStageApproved ?? 0) / $thirdStageTotal) * 100 : 0 }}%; background: linear-gradient(90deg, #393185, #5a52b1);">
+                            </div>
+                        </div>
+                        <div class="status-badges" style="grid-template-columns: repeat(3, 1fr);">
+                            <a href="{{ route('admin.third_stage_documents.pending') }}" class="status-badge pending"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon pending">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Pending</div>
+                                    <div class="status-value">{{ $thirdStagePending ?? 0 }}</div>
+                                </div>
+                            </a>
+                            <a href="{{ route('admin.third_stage_documents.submitted') }}" class="status-badge ready"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon ready">
+                                    <i class="fas fa-inbox"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Submitted</div>
+                                    <div class="status-value">{{ $thirdStageSubmitted ?? 0 }}</div>
+                                </div>
+                            </a>
+                            <a href="{{ route('admin.third_stage_documents.approved') }}" class="status-badge approved"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon approved">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Approved</div>
+                                    <div class="status-value">{{ $thirdStageApproved ?? 0 }}</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
     </div>
 @endsection

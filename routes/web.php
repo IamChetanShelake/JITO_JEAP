@@ -21,7 +21,11 @@ use App\Http\Controllers\InitiativeController;
 use App\Http\Controllers\AccountantController;
 use App\Http\Controllers\AdminNotificationController;
 
-Route::get('/', function () {
+use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\WebsiteController;
+
+
+Route::get('/login', function () {
     return view('auth.login');
 });
 
@@ -126,6 +130,39 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // Zone Routes
     Route::resource('zones', ZoneController::class);
 
+    // Website Management Routes
+    Route::get('/website', [AdminController::class, 'websiteIndex'])->name('website.index');
+    Route::get('/website/home', [AdminController::class, 'websiteHome'])->name('website.home');
+    
+    // Home Sub-Pages Routes
+    Route::get('/website/home/empowering-dreams', [AdminController::class, 'websiteHomeEmpoweringDreams'])->name('website.home.empowering-dreams');
+    Route::post('/website/home/empowering-dreams', [AdminController::class, 'storeEmpoweringDream'])->name('website.home.empowering-dreams.store');
+    Route::put('/website/home/empowering-dreams/{id}', [AdminController::class, 'updateEmpoweringDream'])->name('website.home.empowering-dreams.update');
+    Route::delete('/website/home/empowering-dreams/{id}', [AdminController::class, 'deleteEmpoweringDream'])->name('website.home.empowering-dreams.delete');
+    Route::get('/website/home/key-instruction', [AdminController::class, 'websiteHomeKeyInstruction'])->name('website.home.key-instruction');
+    Route::post('/website/home/key-instruction', [AdminController::class, 'storeKeyInstruction'])->name('website.home.key-instructions.store');
+    Route::put('/website/home/key-instruction/{id}', [AdminController::class, 'updateKeyInstruction'])->name('website.home.key-instructions.update');
+    Route::delete('/website/home/key-instruction/{id}', [AdminController::class, 'deleteKeyInstruction'])->name('website.home.key-instructions.delete');
+    Route::get('/website/home/working-committee', [AdminController::class, 'websiteHomeWorkingCommittee'])->name('website.home.working-committee');
+    Route::post('/website/home/working-committee', [AdminController::class, 'storeWebsiteWorkingCommittee'])->name('website.home.working-committee.store');
+    Route::put('/website/home/working-committee/{id}', [AdminController::class, 'updateWebsiteWorkingCommittee'])->name('website.home.working-committee.update');
+    Route::delete('/website/home/working-committee/{id}', [AdminController::class, 'deleteWebsiteWorkingCommittee'])->name('website.home.working-committee.delete');
+    Route::get('/website/home/empowering-future', [AdminController::class, 'websiteHomeEmpoweringFuture'])->name('website.home.empowering-future');
+    Route::post('/website/home/empowering-future', [AdminController::class, 'storeEmpoweringFuture'])->name('website.home.empowering-future.store');
+    Route::put('/website/home/empowering-future/{id}', [AdminController::class, 'updateEmpoweringFuture'])->name('website.home.empowering-future.update');
+    Route::delete('/website/home/empowering-future/{id}', [AdminController::class, 'deleteEmpoweringFuture'])->name('website.home.empowering-future.delete');
+    Route::get('/website/home/achievement-impact', [AdminController::class, 'websiteHomeAchievementImpact'])->name('website.home.achievement-impact');
+    Route::get('/website/home/photo-gallery', [AdminController::class, 'websiteHomePhotoGallery'])->name('website.home.photo-gallery');
+    Route::get('/website/home/our-testimonial', [AdminController::class, 'websiteHomeOurTestimonial'])->name('website.home.our-testimonial');
+    Route::get('/website/home/success-stories', [AdminController::class, 'websiteHomeSuccessStories'])->name('website.home.success-stories');
+    
+    Route::get('/website/about', [AdminController::class, 'websiteAbout'])->name('website.about');
+    Route::get('/website/application', [AdminController::class, 'websiteApplication'])->name('website.application');
+    Route::get('/website/contact', [AdminController::class, 'websiteContact'])->name('website.contact');
+    Route::get('/website/donor', [AdminController::class, 'websiteDonor'])->name('website.donor');
+    Route::get('/website/gallery', [AdminController::class, 'websiteGallery'])->name('website.gallery');
+    Route::get('/website/university', [AdminController::class, 'websiteUniversity'])->name('website.university');
+
     // Chapter Statistics
     Route::get('/chapters/stats', [AdminController::class, 'chapterStats'])->name('chapters.stats');
     Route::get('/working-committee/stats', [AdminController::class, 'workingCommitteeStats'])->name('working_committee.stats');
@@ -147,6 +184,12 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::post('/apex-stage2/user/{user}/courier-receive', [AdminController::class, 'storeCourierReceive'])->name('apex.stage2.courier_receive.store');
     Route::post('/apex-stage2/user/{user}/courier-review', [AdminController::class, 'reviewCourierReceive'])->name('apex.stage2.courier_receive.review');
 
+    // Edit Bank Detail Request Routes
+    Route::post('/apex-stage2/approve-edit-bank-request', [AdminController::class, 'approveEditBankDetailRequest'])
+        ->name('apex.stage2.approve.edit.bank.request');
+    Route::post('/apex-stage2/reject-edit-bank-request', [AdminController::class, 'rejectEditBankDetailRequest'])
+        ->name('apex.stage2.reject.edit.bank.request');
+
     // PDC/Cheque Details Forms
     Route::get('/pdc/pending', [AdminController::class, 'pdcPending'])->name('pdc.pending');
     Route::get('/pdc/approved', [AdminController::class, 'pdcApproved'])->name('pdc.approved');
@@ -158,6 +201,20 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // PDC Edit functionality
     Route::get('/pdc/edit/{user}', [AdminController::class, 'editPdc'])->name('pdc.edit');
     Route::put('/pdc/update/{user}', [AdminController::class, 'updatePdc'])->name('pdc.update');
+
+    // Third Stage Documents
+    Route::get('/third-stage-documents/pending', [AdminController::class, 'thirdStageDocumentPending'])
+        ->name('third_stage_documents.pending');
+    Route::get('/third-stage-documents/submitted', [AdminController::class, 'thirdStageDocumentSubmitted'])
+        ->name('third_stage_documents.submitted');
+    Route::get('/third-stage-documents/approved', [AdminController::class, 'thirdStageDocumentApproved'])
+        ->name('third_stage_documents.approved');
+    Route::get('/third-stage-documents/user/{user}', [AdminController::class, 'thirdStageDocumentUserDetail'])
+        ->name('third_stage_documents.user.detail');
+    Route::post('/third-stage-documents/user/{user}/approve', [AdminController::class, 'approveThirdStageDocument'])
+        ->name('third_stage_documents.approve');
+    Route::post('/third-stage-documents/user/{user}/send-back', [AdminController::class, 'sendBackThirdStageDocument'])
+        ->name('third_stage_documents.send_back');
 
 
     Route::get('/chapters/resubmit', [AdminController::class, 'chapterResubmit'])->name('chapter.resubmit');
@@ -328,8 +385,28 @@ Route::middleware(['auth', 'user'])
         // Step 8 - PDC/Cheque Details
         Route::get('/Step8', [UserController::class, 'step8'])
             ->name('step8');
+        Route::post('/Step8BankDetailsStore/', [UserController::class, 'step8BankDetailsStore'])
+            ->name('step8.bank.store');
         Route::post('/Step8Store/', [UserController::class, 'step8store'])
             ->name('step8.store');
+
+        // Step 9 - Third Stage Documents
+        Route::get('/Step9', [UserController::class, 'step9'])
+            ->name('step9');
+        Route::post('/Step9Store/', [UserController::class, 'step9store'])
+            ->name('step9.store');
+
+        // Edit Bank Detail Request
+        Route::post('/submit-edit-bank-detail-request', [UserController::class, 'submitEditBankDetailRequest'])
+            ->name('submit.edit.bank.detail.request');
+
+        // Update Bank Details (after request is approved)
+        Route::post('/update-bank-details', [UserController::class, 'updateBankDetails'])
+            ->name('update.bank.details');
+
+        // Bank verification route
+        Route::post('/verify-bank-details', [UserController::class, 'verifyBankDetails'])
+            ->name('verify.bank.details');
 
         // API route for fetching chapters by pincode
         Route::get('/get-chapters/{pincode}', [UserController::class, 'getChapters'])
@@ -362,3 +439,83 @@ Route::middleware(['auth', 'user'])
         Route::get('/above-1-lakh-application', [UserController::class, 'above1LakhApplication'])
             ->name('above.1.lakh.application');
     });
+
+
+
+
+
+
+
+
+// Website Route
+
+
+
+
+Route::get('/index', [WebsiteController::class, 'index'])->name('index');
+// Route::view('/index1','website.index')->name('index1');
+Route::get('/', function () {
+    return redirect()->route('index');
+});
+
+Route::prefix('about')->group(function () {
+    Route::get('/JITO', [WebsiteController::class, 'aboutJito'])->name('jito');
+    Route::get('/JEAP', [WebsiteController::class, 'aboutJeap'])->name('jeap');
+    Route::get('/Board-Of-Directors', [WebsiteController::class, 'boardOfDirectors'])->name('boardOfDirectors');
+    Route::get('/Zone-Chairmen', [WebsiteController::class, 'zoneChairmen'])->name('zoneChairmen');
+    Route::get('/testimonials-and-Success-Stories', [WebsiteController::class, 'testimonialSuccessStories'])->name('testimonial&Success');
+});
+Route::prefix('application')->group(function () {
+    Route::get('/document-checklist', [WebsiteController::class, 'documentchecklist'])->name('documentchecklist');
+    Route::get('/document-checklist-1', [WebsiteController::class, 'documentchecklist1'])->name('documentchecklist1');
+    Route::get('/document-checklist-2', [WebsiteController::class, 'documentchecklist2'])->name('documentchecklist2');
+    Route::get('/document-checklist-3', [WebsiteController::class, 'documentchecklist3'])->name('documentchecklist3');
+    Route::get('/DOCUMENTS', [WebsiteController::class, 'documents'])->name('documents');
+    Route::get('/How-to-apply', [WebsiteController::class, 'howtoapply'])->name('howtoapply');
+    Route::get('/FAQ’s', [WebsiteController::class, 'faqs'])->name('faqs');
+});
+Route::prefix('donors')->group(function () {
+    Route::get('/be-a-donor', [WebsiteController::class, 'beDonor'])->name('beDonor');
+    Route::get('/our-donors', [WebsiteController::class, 'ourDonors'])->name('ourDonors');
+});
+
+Route::prefix('University')->group(function () {
+    Route::get('/domestic', [WebsiteController::class, 'domestic'])->name('domestic');
+    Route::get('/foreign', [WebsiteController::class, 'foreign'])->name('foreign');
+});
+
+Route::get('/Gallery', [WebsiteController::class, 'gallery'])->name('gallery');
+
+
+
+
+
+
+
+
+Route::get('/industrial', [WebsiteController::class, 'industrial'])->name('industrial_connect');
+
+
+Route::get('/contact', [WebsiteController::class, 'contact'])->name('contact');
+
+
+
+
+
+
+
+
+
+Route::get('/clean-cache', function () {
+    $exitCode = Artisan::call('cache:clear');
+    $exitCode = Artisan::call('route:cache');
+    $exitCode = Artisan::call('route:clear');
+    $exitCode = Artisan::call('view:cache');
+    $exitCode = Artisan::call('view:clear');
+    $exitCode = Artisan::call('config:cache');
+    $exitCode = Artisan::call('config:clear');
+    $exitCode = Artisan::call('event:cache');
+    $exitCode = Artisan::call('event:clear');
+    $exitCode = Artisan::call('optimize');
+    return '<h1>Cache facade value cleared</h1>';
+});

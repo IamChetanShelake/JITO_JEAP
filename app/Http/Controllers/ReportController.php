@@ -12,6 +12,7 @@ use App\Models\User;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Spatie\Browsershot\Browsershot;
 use Illuminate\Support\Facades\Log;
@@ -596,15 +597,45 @@ class ReportController extends Controller
             return (float) ($user->workingCommitteeApproval?->approval_financial_assistance_amount ?? 0);
         });
 
-        $totalDisbursed = (float) \App\Models\Repayment::query()
-            ->whereNotNull('payment_date')
-            ->whereBetween('payment_date', [$startDate, $endDate])
-            ->sum('amount');
+        $totalDisbursed = (float) DB::connection('admin_panel')
+            ->table('disbursement_schedules')
+            ->where('status', 'completed')
+            ->whereBetween('planned_date', [$startDate, $endDate])
+            ->sum('planned_amount');
 
-        $totalDonations = (float) \App\Models\DonorPaymentDetail::query()
-            ->whereNotNull('payment_date')
-            ->whereBetween('payment_date', [$startDate, $endDate])
-            ->sum('amount');
+        $totalDonations = (float) DonorPaymentDetail::query()
+            ->whereNotNull('payment_entries')
+            ->get(['payment_entries'])
+            ->sum(function ($detail) use ($startDate, $endDate) {
+                $entries = $detail->payment_entries;
+                if (!is_array($entries)) {
+                    $entries = json_decode($entries, true);
+                }
+
+                if (!is_array($entries)) {
+                    return 0;
+                }
+
+                $sum = 0;
+                foreach ($entries as $entry) {
+                    $dateValue = $entry['cheque_date'] ?? null;
+                    if (!$dateValue) {
+                        continue;
+                    }
+
+                    try {
+                        $date = Carbon::parse($dateValue);
+                    } catch (\Exception $e) {
+                        continue;
+                    }
+
+                    if ($date->between($startDate, $endDate)) {
+                        $sum += (float) ($entry['amount'] ?? 0);
+                    }
+                }
+
+                return $sum;
+            });
 
         $financialSummary = [
             'donations'  => $totalDonations,

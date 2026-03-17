@@ -612,20 +612,31 @@ class ReportController extends Controller
             'disbursed'  => $totalDisbursed,
         ];
 
-        $committeeMembers = \App\Models\Donor::with('personalDetail')
-            ->where('donor_type', \App\Models\Donor::TYPE_MEMBER)
-            ->orderBy('id', 'desc')
+        $committeeMembers = \App\Models\Donor::query()
+            ->leftJoin('donor_personal_details as dpd', 'dpd.donor_id', '=', 'donors.id')
+            ->where('donors.donor_type', \App\Models\Donor::TYPE_MEMBER)
+            ->orderBy('donors.id', 'desc')
             ->take(15)
-            ->get()
+            ->get([
+                'donors.id',
+                'donors.name',
+                'dpd.title',
+                'dpd.first_name',
+                'dpd.middle_name',
+                'dpd.surname',
+                'dpd.zone',
+            ])
             ->map(function ($donor) {
-                $p    = $donor->personalDetail;
                 $name = trim(implode(' ', array_filter([
-                    $p->title ?? null,
-                    $p->first_name ?? null,
-                    $p->middle_name ?? null,
-                    $p->surname ?? null,
+                    $donor->title ?? null,
+                    $donor->first_name ?? null,
+                    $donor->middle_name ?? null,
+                    $donor->surname ?? null,
                 ])));
-                return ['name' => $name ?: ($donor->name ?? 'Member'), 'zone' => $p->zone ?? 'N/A'];
+                return [
+                    'name' => $name ?: ($donor->name ?? 'Member'),
+                    'zone' => $donor->zone ?: 'N/A',
+                ];
             });
 
         // Pass raw ISO dates to avoid Carbon re-parsing formatted strings

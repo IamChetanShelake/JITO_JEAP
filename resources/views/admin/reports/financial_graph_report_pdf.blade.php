@@ -33,30 +33,35 @@
         }
 
         .brand-bar {
-            display: table;
             width: 100%;
             background: #fff;
             border-bottom: 1px solid #ddd;
             padding: 5px 8px;
+            height: 58px;
         }
 
-        .brand-bar-left {
-            display: table-cell;
+        .brand-bar-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            height: 58px;
+        }
+
+        .brand-cell-left {
             width: 15%;
-            vertical-align: middle;
+            vertical-align: top;
+            text-align: left;
         }
 
-        .brand-bar-mid {
-            display: table-cell;
+        .brand-cell-mid {
             width: 70%;
             vertical-align: middle;
             text-align: center;
         }
 
-        .brand-bar-right {
-            display: table-cell;
+        .brand-cell-right {
             width: 15%;
-            vertical-align: middle;
+            vertical-align: top;
             text-align: right;
         }
 
@@ -65,6 +70,12 @@
             font-weight: bold;
             color: #1f497d;
             letter-spacing: 0.5px;
+        }
+
+        .brand-logo-img {
+            height: 45px;
+            width: auto;
+            display: block;
         }
 
         .jito-logo {
@@ -89,12 +100,6 @@
 
         .jito-o {
             color: #70ad47;
-        }
-
-        .brand-logo-img {
-            height: 35px;
-            max-width: 100px;
-            vertical-align: middle;
         }
 
         .card-body {
@@ -178,15 +183,21 @@
     {{-- DONORS CARD --}}
     <div class="card">
         <div class="brand-bar">
-            <div class="brand-bar-left"><img src="{{ public_path('image 1.png') }}" alt="Logo" class="brand-logo-img">
-            </div>
-            <div class="brand-bar-mid">
-                <span class="brand-name">JITO EDUCATION ASSISTANCE FOUNDATION</span><br>
-                <span style="font-size:9px; color:#1f497d; font-weight:bold;">FULLY PAID JEAP DONORS WHO CONTRIBUTED 54
-                    LACS</span>
-            </div>
-            <div class="brand-bar-right"><img src="{{ public_path('jitojeaplogo.png') }}" alt="Logo"
-                    class="brand-logo-img"></div>
+            <table class="brand-bar-table">
+                <tr>
+                    <td class="brand-cell-left">
+                        <img src="{{ public_path('image 1.png') }}" alt="Logo" class="brand-logo-img">
+                    </td>
+                    <td class="brand-cell-mid">
+                        <span class="brand-name">JITO EDUCATION ASSISTANCE FOUNDATION</span><br>
+                        <span style="font-size:9px; color:#1f497d; font-weight:bold;">FULLY PAID JEAP DONORS WHO CONTRIBUTED 54
+                            LACS</span>
+                    </td>
+                    <td class="brand-cell-right">
+                        <img src="{{ public_path('jitojeaplogo.png') }}" alt="Logo" class="brand-logo-img">
+                    </td>
+                </tr>
+            </table>
         </div>
         <div class="card-body">
             <table>
@@ -239,11 +250,19 @@
     @endphp
     <div class="card">
         <div class="brand-bar">
-            <div class="brand-bar-left"><img src="{{ public_path('image 1.png') }}" alt="Logo"
-                    class="brand-logo-img"></div>
-            <div class="brand-bar-mid"><span class="brand-name">JITO EDUCATION ASSISTANCE FOUNDATION</span></div>
-            <div class="brand-bar-right"><img src="{{ public_path('jitojeaplogo.png') }}" alt="Logo"
-                    class="brand-logo-img"></div>
+            <table class="brand-bar-table">
+                <tr>
+                    <td class="brand-cell-left">
+                        <img src="{{ public_path('image 1.png') }}" alt="Logo" class="brand-logo-img">
+                    </td>
+                    <td class="brand-cell-mid">
+                        <span class="brand-name">JITO EDUCATION ASSISTANCE FOUNDATION</span>
+                    </td>
+                    <td class="brand-cell-right">
+                        <img src="{{ public_path('jitojeaplogo.png') }}" alt="Logo" class="brand-logo-img">
+                    </td>
+                </tr>
+            </table>
         </div>
         <div class="card-body" style="background:#70ad47;">
             <div class="chart-title-white">COURSE TYPE DISTRIBUTION OF SANCTIONED FA APPLICATIONS</div>
@@ -293,10 +312,10 @@
                     @endforeach
                 @endforeach
                 <rect x="{{ $pL }}" y="{{ $cH - 16 }}" width="12" height="12" fill="#ed7d31" />
-                <text x="{{ $pL + 15 }}" y="{{ $cH - 6 }}" font-size="9" fill="#fff"
+                <text x="{{ $pL + 15 }}" y="{{ $cH - 6 }}" font-size="9" fill="#0000"
                     font-weight="bold">DOMESTIC FA</text>
                 <rect x="{{ $pL + 105 }}" y="{{ $cH - 16 }}" width="12" height="12" fill="#ffc000" />
-                <text x="{{ $pL + 120 }}" y="{{ $cH - 6 }}" font-size="9" fill="#fff"
+                <text x="{{ $pL + 120 }}" y="{{ $cH - 6 }}" font-size="9" fill="#0000"
                     font-weight="bold">FOREIGN FA</text>
             </svg>
             <table style="background:#fff; margin-top:8px;">
@@ -355,11 +374,19 @@
     @endphp
     <div class="card">
         <div class="brand-bar">
-            <div class="brand-bar-left"><img src="{{ public_path('image 1.png') }}" alt="Logo"
-                    class="brand-logo-img"></div>
-            <div class="brand-bar-mid"><span class="brand-name">JITO EDUCATION ASSISTANCE FOUNDATION</span></div>
-            <div class="brand-bar-right"><img src="{{ public_path('jitojeaplogo.png') }}" alt="Logo"
-                    class="brand-logo-img"></div>
+            <table class="brand-bar-table">
+                <tr>
+                    <td class="brand-cell-left">
+                        <img src="{{ public_path('image 1.png') }}" alt="Logo" class="brand-logo-img">
+                    </td>
+                    <td class="brand-cell-mid">
+                        <span class="brand-name">JITO EDUCATION ASSISTANCE FOUNDATION</span>
+                    </td>
+                    <td class="brand-cell-right">
+                        <img src="{{ public_path('jitojeaplogo.png') }}" alt="Logo" class="brand-logo-img">
+                    </td>
+                </tr>
+            </table>
         </div>
         <div class="card-body" style="background:#e2efda;">
             <svg width="{{ $zCW }}" height="{{ $zCH }}"
@@ -417,11 +444,19 @@
     @endphp
     <div class="card">
         <div class="brand-bar">
-            <div class="brand-bar-left"><img src="{{ public_path('image 1.png') }}" alt="Logo"
-                    class="brand-logo-img"></div>
-            <div class="brand-bar-mid"><span class="brand-name">CHAPTERWISE APPLICATIONS SANCTIONED</span></div>
-            <div class="brand-bar-right"><img src="{{ public_path('jitojeaplogo.png') }}" alt="Logo"
-                    class="brand-logo-img"></div>
+            <table class="brand-bar-table">
+                <tr>
+                    <td class="brand-cell-left">
+                        <img src="{{ public_path('image 1.png') }}" alt="Logo" class="brand-logo-img">
+                    </td>
+                    <td class="brand-cell-mid">
+                        <span class="brand-name">CHAPTERWISE APPLICATIONS SANCTIONED</span>
+                    </td>
+                    <td class="brand-cell-right">
+                        <img src="{{ public_path('jitojeaplogo.png') }}" alt="Logo" class="brand-logo-img">
+                    </td>
+                </tr>
+            </table>
         </div>
         <div class="card-body">
             <svg width="{{ $cCW }}" height="{{ $cCH }}"
@@ -478,15 +513,21 @@
     @endphp
     <div class="card">
         <div class="brand-bar">
-            <div class="brand-bar-left"><img src="{{ public_path('image 1.png') }}" alt="Logo"
-                    class="brand-logo-img"></div>
-            <div class="brand-bar-mid">
-                <span class="brand-name">JITO EDUCATION ASSISTANCE FOUNDATION</span><br>
-                <span style="font-size:9px; color:#c00; font-weight:bold;">APPLICATIONS REJECTED
-                    -{{ $rTotal }}</span>
-            </div>
-            <div class="brand-bar-right"><img src="{{ public_path('jitojeaplogo.png') }}" alt="Logo"
-                    class="brand-logo-img"></div>
+            <table class="brand-bar-table">
+                <tr>
+                    <td class="brand-cell-left">
+                        <img src="{{ public_path('image 1.png') }}" alt="Logo" class="brand-logo-img">
+                    </td>
+                    <td class="brand-cell-mid">
+                        <span class="brand-name">JITO EDUCATION ASSISTANCE FOUNDATION</span><br>
+                        <span style="font-size:9px; color:#c00; font-weight:bold;">APPLICATIONS REJECTED
+                            -{{ $rTotal }}</span>
+                    </td>
+                    <td class="brand-cell-right">
+                        <img src="{{ public_path('jitojeaplogo.png') }}" alt="Logo" class="brand-logo-img">
+                    </td>
+                </tr>
+            </table>
         </div>
         <div class="card-body">
             @if ($rTotal > 0)
@@ -568,14 +609,20 @@
     @endphp
     <div class="card">
         <div class="brand-bar">
-            <div class="brand-bar-left"><img src="{{ public_path('image 1.png') }}" alt="Logo"
-                    class="brand-logo-img"></div>
-            <div class="brand-bar-mid">
-                <span class="brand-name">JITO EDUCATION ASSISTANCE FOUNDATION</span><br>
-                <span style="font-size:9px; color:#ed7d31; font-weight:bold;">AMOUNT (RS. IN CRORES)</span>
-            </div>
-            <div class="brand-bar-right"><img src="{{ public_path('jitojeaplogo.png') }}" alt="Logo"
-                    class="brand-logo-img"></div>
+            <table class="brand-bar-table">
+                <tr>
+                    <td class="brand-cell-left">
+                        <img src="{{ public_path('image 1.png') }}" alt="Logo" class="brand-logo-img">
+                    </td>
+                    <td class="brand-cell-mid">
+                        <span class="brand-name">JITO EDUCATION ASSISTANCE FOUNDATION</span><br>
+                        <span style="font-size:9px; color:#ed7d31; font-weight:bold;">AMOUNT (RS. IN CRORES)</span>
+                    </td>
+                    <td class="brand-cell-right">
+                        <img src="{{ public_path('jitojeaplogo.png') }}" alt="Logo" class="brand-logo-img">
+                    </td>
+                </tr>
+            </table>
         </div>
         <div class="card-body">
             <svg width="{{ $fCW }}" height="{{ $fCH }}"

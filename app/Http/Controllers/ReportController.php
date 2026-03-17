@@ -12,6 +12,7 @@ use App\Models\User;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Spatie\Browsershot\Browsershot;
 use Illuminate\Support\Facades\Log;
@@ -596,15 +597,45 @@ class ReportController extends Controller
             return (float) ($user->workingCommitteeApproval?->approval_financial_assistance_amount ?? 0);
         });
 
-        $totalDisbursed = (float) \App\Models\Repayment::query()
-            ->whereNotNull('payment_date')
-            ->whereBetween('payment_date', [$startDate, $endDate])
-            ->sum('amount');
+        $totalDisbursed = (float) DB::connection('admin_panel')
+            ->table('disbursement_schedules')
+            ->where('status', 'completed')
+            ->whereBetween('planned_date', [$startDate, $endDate])
+            ->sum('planned_amount');
 
-        $totalDonations = (float) \App\Models\DonorPaymentDetail::query()
-            ->whereNotNull('payment_date')
-            ->whereBetween('payment_date', [$startDate, $endDate])
-            ->sum('amount');
+        $totalDonations = (float) DonorPaymentDetail::query()
+            ->whereNotNull('payment_entries')
+            ->get(['payment_entries'])
+            ->sum(function ($detail) use ($startDate, $endDate) {
+                $entries = $detail->payment_entries;
+                if (!is_array($entries)) {
+                    $entries = json_decode($entries, true);
+                }
+
+                if (!is_array($entries)) {
+                    return 0;
+                }
+
+                $sum = 0;
+                foreach ($entries as $entry) {
+                    $dateValue = $entry['cheque_date'] ?? null;
+                    if (!$dateValue) {
+                        continue;
+                    }
+
+                    try {
+                        $date = Carbon::parse($dateValue);
+                    } catch (\Exception $e) {
+                        continue;
+                    }
+
+                    if ($date->between($startDate, $endDate)) {
+                        $sum += (float) ($entry['amount'] ?? 0);
+                    }
+                }
+
+                return $sum;
+            });
 
         $financialSummary = [
             'donations'  => $totalDonations,
@@ -612,30 +643,30 @@ class ReportController extends Controller
             'disbursed'  => $totalDisbursed,
         ];
 
+        $fullyPaidLimit = 5400000;
         $committeeMembers = \App\Models\Donor::query()
-            ->leftJoin('donor_personal_details as dpd', 'dpd.donor_id', '=', 'donors.id')
-            ->where('donors.donor_type', \App\Models\Donor::TYPE_MEMBER)
-            ->orderBy('donors.id', 'desc')
-            ->take(15)
-            ->get([
-                'donors.id',
-                'donors.name',
-                'dpd.title',
-                'dpd.first_name',
-                'dpd.middle_name',
-                'dpd.surname',
-                'dpd.zone',
-            ])
+            ->with(['personalDetail', 'commitments', 'paymentDetail'])
+            ->where('donor_type', \App\Models\Donor::TYPE_MEMBER)
+            ->orderBy('id', 'desc')
+            ->get()
+            ->filter(function ($donor) use ($fullyPaidLimit) {
+                $totalPaid = $donor->commitments->sum(function ($commitment) {
+                    return $commitment->getTotalPaidAmount();
+                });
+                return $totalPaid >= $fullyPaidLimit;
+            })
+            ->values()
             ->map(function ($donor) {
+                $personal = $donor->personalDetail;
                 $name = trim(implode(' ', array_filter([
-                    $donor->title ?? null,
-                    $donor->first_name ?? null,
-                    $donor->middle_name ?? null,
-                    $donor->surname ?? null,
+                    $personal->title ?? null,
+                    $personal->first_name ?? null,
+                    $personal->middle_name ?? null,
+                    $personal->surname ?? null,
                 ])));
                 return [
                     'name' => $name ?: ($donor->name ?? 'Member'),
-                    'zone' => $donor->zone ?: 'N/A',
+                    'zone' => $personal->zone ?? 'N/A',
                 ];
             });
 

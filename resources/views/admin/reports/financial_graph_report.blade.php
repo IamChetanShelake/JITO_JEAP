@@ -11,10 +11,24 @@
                     <p class="text-muted">Financial Assistance Management Report</p>
                 </div>
                 @if (!$renderForPdf)
-                    <a class="btn btn-sm btn-primary"
-                        href="{{ route('admin.reports.financial_graph_report', ['format' => 'pdf', 'start_date' => $startDate, 'end_date' => $endDate]) }}">
-                        Download PDF
-                    </a>
+                    <div class="report-actions">
+                        <form class="date-filter" method="GET"
+                            action="{{ route('admin.reports.financial_graph_report') }}">
+                            <label>
+                                <span>From</span>
+                                <input type="date" name="start_date" value="{{ $startDate }}" required>
+                            </label>
+                            <label>
+                                <span>To</span>
+                                <input type="date" name="end_date" value="{{ $endDate }}" required>
+                            </label>
+                            <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+                        </form>
+                        <a class="btn btn-sm btn-primary"
+                            href="{{ route('admin.reports.financial_graph_report', ['format' => 'pdf', 'start_date' => $startDate, 'end_date' => $endDate]) }}">
+                            Download PDF
+                        </a>
+                    </div>
                 @endif
             </div>
 
@@ -193,6 +207,36 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
+        }
+
+        .report-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .date-filter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .date-filter label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: #444;
+        }
+
+        .date-filter input[type="date"] {
+            height: 30px;
+            padding: 2px 6px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.85rem;
         }
 
         .report-meta {

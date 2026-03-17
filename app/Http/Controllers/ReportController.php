@@ -612,30 +612,30 @@ class ReportController extends Controller
             'disbursed'  => $totalDisbursed,
         ];
 
+        $fullyPaidLimit = 5400000;
         $committeeMembers = \App\Models\Donor::query()
-            ->leftJoin('donor_personal_details as dpd', 'dpd.donor_id', '=', 'donors.id')
-            ->where('donors.donor_type', \App\Models\Donor::TYPE_MEMBER)
-            ->orderBy('donors.id', 'desc')
-            ->take(15)
-            ->get([
-                'donors.id',
-                'donors.name',
-                'dpd.title',
-                'dpd.first_name',
-                'dpd.middle_name',
-                'dpd.surname',
-                'dpd.zone',
-            ])
+            ->with(['personalDetail', 'commitments', 'paymentDetail'])
+            ->where('donor_type', \App\Models\Donor::TYPE_MEMBER)
+            ->orderBy('id', 'desc')
+            ->get()
+            ->filter(function ($donor) use ($fullyPaidLimit) {
+                $totalPaid = $donor->commitments->sum(function ($commitment) {
+                    return $commitment->getTotalPaidAmount();
+                });
+                return $totalPaid >= $fullyPaidLimit;
+            })
+            ->values()
             ->map(function ($donor) {
+                $personal = $donor->personalDetail;
                 $name = trim(implode(' ', array_filter([
-                    $donor->title ?? null,
-                    $donor->first_name ?? null,
-                    $donor->middle_name ?? null,
-                    $donor->surname ?? null,
+                    $personal->title ?? null,
+                    $personal->first_name ?? null,
+                    $personal->middle_name ?? null,
+                    $personal->surname ?? null,
                 ])));
                 return [
                     'name' => $name ?: ($donor->name ?? 'Member'),
-                    'zone' => $donor->zone ?: 'N/A',
+                    'zone' => $personal->zone ?? 'N/A',
                 ];
             });
 

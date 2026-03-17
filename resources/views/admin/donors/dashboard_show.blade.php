@@ -1108,6 +1108,9 @@
                             @php
                                 $donorCommitments = $donor->commitments ?? collect();
                                 $activeCommitment = $donorCommitments->where('status', 'active')->first();
+                                $commitmentLimit = 5400000;
+                                $totalCommittedAmount = $donorCommitments->sum('committed_amount');
+                                $remainingCommitmentAmount = max($commitmentLimit - $totalCommittedAmount, 0);
                             @endphp
 
                             <!-- Show all active commitments with progress -->
@@ -1222,7 +1225,9 @@
 
                     <!-- Add Commitment Modal -->
                     <div class="modal fade" id="addCommitmentModal" tabindex="-1"
-                        aria-labelledby="addCommitmentModalLabel" aria-hidden="true">
+                        aria-labelledby="addCommitmentModalLabel" aria-hidden="true"
+                        data-commitment-limit="{{ $commitmentLimit }}"
+                        data-total-committed="{{ $totalCommittedAmount }}">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header" style="background: #393185; color: white;">
@@ -1239,8 +1244,13 @@
                                         <div class="input-group">
                                             <span class="input-group-text">₹</span>
                                             <input type="number" class="form-control" id="committedAmount"
-                                                placeholder="Enter amount" min="1" step="0.01">
+                                                placeholder="Enter amount" min="1" step="0.01"
+                                                max="{{ $remainingCommitmentAmount }}">
                                         </div>
+                                        <small class="text-muted d-block mt-2" id="commitmentLimitHelp">
+                                            Total commitment limit: â‚¹5,400,000.00.
+                                            Remaining: â‚¹{{ number_format($remainingCommitmentAmount, 2) }}
+                                        </small>
                                     </div>
                                     <div class="row mb-3">
                                         <div class="col-md-6">
@@ -1854,6 +1864,8 @@
                     goToStep(step);
                 });
             });
+
+            applyCommitmentLimitUI();
         });
 
         function goToStep(step) {
@@ -1935,6 +1947,50 @@
         }, true);
 
         // === AJAX Submission for Donation Commitment ===
+        function getCommitmentLimitInfo() {
+            const modal = document.getElementById('addCommitmentModal');
+            if (!modal) return null;
+
+            const limit = parseFloat(modal.dataset.commitmentLimit || '0');
+            const total = parseFloat(modal.dataset.totalCommitted || '0');
+            const remaining = Math.max(limit - total, 0);
+
+            return {
+                limit,
+                total,
+                remaining
+            };
+        }
+
+        function formatINR(value) {
+            return Number(value || 0).toLocaleString('en-IN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function applyCommitmentLimitUI() {
+            const limitInfo = getCommitmentLimitInfo();
+            if (!limitInfo) return;
+
+            const amountInput = document.getElementById('committedAmount');
+            const addBtn = document.getElementById('addCommitmentBtn');
+            const helpText = document.getElementById('commitmentLimitHelp');
+
+            if (amountInput) {
+                amountInput.max = limitInfo.remaining;
+                amountInput.disabled = limitInfo.remaining <= 0;
+            }
+
+            if (addBtn) {
+                addBtn.disabled = limitInfo.remaining <= 0;
+            }
+
+            if (helpText) {
+                helpText.textContent = `Total commitment limit: ₹5,400,000.00. Remaining: ₹${formatINR(limitInfo.remaining)}`;
+            }
+        }
+
         function submitCommitmentAJAX() {
             const committedAmount = document.getElementById('committedAmount').value;
             const startDate = document.getElementById('startDate').value;
@@ -1945,6 +2001,18 @@
             if (!committedAmount || committedAmount <= 0) {
                 alert('Please enter a valid committed amount');
                 return;
+            }
+
+            const limitInfo = getCommitmentLimitInfo();
+            if (limitInfo && limitInfo.limit > 0) {
+                const newTotal = parseFloat(committedAmount) + limitInfo.total;
+                if (newTotal > limitInfo.limit) {
+                    showAlert(
+                        `Total commitments cannot exceed ₹5,400,000.00. Remaining amount: ₹${formatINR(limitInfo.remaining)}`,
+                        'error'
+                    );
+                    return;
+                }
             }
 
             if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
@@ -2016,19 +2084,27 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>`;
 
-            // Insert alert at the top of the commitment section
+            // Prefer showing alerts inside the modal (so validation is visible there)
+            const modal = document.getElementById('addCommitmentModal');
+            const modalBody = modal ? modal.querySelector('.modal-body') : null;
             const commitmentSection = document.querySelector('.mb-4.p-3.border.rounded.bg-light');
-            if (commitmentSection) {
-                commitmentSection.insertAdjacentHTML('afterbegin', alertHtml);
 
-                // Auto-remove alert after 5 seconds
-                setTimeout(function() {
-                    const alert = commitmentSection.querySelector('.alert');
-                    if (alert) {
-                        alert.remove();
-                    }
-                }, 5000);
-            }
+            const target = modalBody || commitmentSection;
+            if (!target) return;
+
+            // Remove existing alert in target to avoid stacking
+            const existingAlert = target.querySelector('.alert');
+            if (existingAlert) existingAlert.remove();
+
+            target.insertAdjacentHTML('afterbegin', alertHtml);
+
+            // Auto-remove alert after 5 seconds
+            setTimeout(function() {
+                const alert = target.querySelector('.alert');
+                if (alert) {
+                    alert.remove();
+                }
+            }, 5000);
         }
     </script>
 @endsection

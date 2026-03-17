@@ -1439,6 +1439,9 @@ class UserController extends Controller
         // Build validation rules based on loan category
         $rules = [];
 
+        // Bank cheque declaration is required for all loan types
+        $rules['bank_cheque_declaration'] = 'required|accepted';
+
         // Only validate funding details and sibling assistance for loans above 1 lakh
         if (!$isBelowOneLakh) {
             $rules['funding'] = 'nullable|array';

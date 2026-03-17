@@ -32,7 +32,8 @@
                 <div class="d-flex justify-content-between align-items-start gap-2">
                     <div style="min-width: 0;">
                         <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
-                        <p style="margin: 8px 0 4px 0; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        <p
+                            style="margin: 8px 0 4px 0; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                             {{ trim(preg_replace('/\s+/', ' ', strip_tags($documents->admin_remark))) }}
                         </p>
                         <button type="button" class="btn btn-link p-0" data-bs-toggle="modal"
@@ -676,13 +677,26 @@
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">Recommendation from Members of JITO
-                                                                Group *&nbsp;&nbsp;<svg width="25" height="25"
+                                                                {{--  Group *&nbsp;&nbsp;<svg width="25" height="25"
                                                                     viewBox="0 0 19 19" fill="none"
                                                                     xmlns="http://www.w3.org/2000/svg">
                                                                     <path fill-rule="evenodd" clip-rule="evenodd"
                                                                         d="M9.5 19C12.0196 19 14.4359 17.9991 16.2175 16.2175C17.9991 14.4359 19 12.0196 19 9.5C19 6.98044 17.9991 4.56408 16.2175 2.78249C14.4359 1.00089 12.0196 0 9.5 0C6.98044 0 4.56408 1.00089 2.78249 2.78249C1.00089 4.56408 0 6.98044 0 9.5C0 12.0196 1.00089 14.4359 2.78249 16.2175C4.56408 17.9991 6.98044 19 9.5 19ZM13.7696 11.2779L9.97907 15.0684C9.85182 15.1956 9.67925 15.267 9.49932 15.267C9.31939 15.267 9.14682 15.1956 9.01957 15.0684L5.23043 11.2779C5.13583 11.183 5.07144 11.0622 5.04538 10.9308C5.01933 10.7993 5.03276 10.6631 5.084 10.5393C5.13523 10.4155 5.22198 10.3096 5.33329 10.2351C5.44461 10.1605 5.57551 10.1205 5.7095 10.1202H8.14286V5.08929C8.14286 4.72935 8.28584 4.38415 8.54035 4.12964C8.79487 3.87513 9.14006 3.73214 9.5 3.73214C9.85994 3.73214 10.2051 3.87513 10.4596 4.12964C10.7142 4.38415 10.8571 4.72935 10.8571 5.08929V10.1202H13.2905C13.4245 10.1205 13.5554 10.1605 13.6667 10.2351C13.778 10.3096 13.8648 10.4155 13.916 10.5393C13.9672 10.6631 13.9807 10.7993 13.9546 10.9308C13.9286 11.0622 13.8642 11.183 13.7696 11.2779Z"
                                                                         fill="#009846" />
-                                                                </svg></span>
+                                                                </svg>  --}}
+                                                                <a href="{{ asset('NEW_JITO RECOMMENDATION FORM FORMAT_20122025.pdf') }}"
+                                                                    download>
+                                                                    <svg width="25" height="25"
+                                                                        viewBox="0 0 19 19" fill="none"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        style="cursor:pointer;">
+
+                                                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                            d="M9.5 19C12.0196 19 14.4359 17.9991 16.2175 16.2175C17.9991 14.4359 19 12.0196 19 9.5C19 6.98044 17.9991 4.56408 16.2175 2.78249C14.4359 1.00089 12.0196 0 9.5 0C6.98044 0 4.56408 1.00089 2.78249 2.78249C1.00089 4.56408 0 6.98044 0 9.5C0 12.0196 1.00089 14.4359 2.78249 16.2175C4.56408 17.9991 6.98044 19 9.5 19ZM13.7696 11.2779L9.97907 15.0684C9.85182 15.1956 9.67925 15.267 9.49932 15.267C9.31939 15.267 9.14682 15.1956 9.01957 15.0684L5.23043 11.2779C5.13583 11.183 5.07144 11.0622 5.04538 10.9308C5.01933 10.7993 5.03276 10.6631 5.084 10.5393C5.13523 10.4155 5.22198 10.3096 5.33329 10.2351C5.44461 10.1605 5.57551 10.1205 5.7095 10.1202H8.14286V5.08929C8.14286 4.72935 8.28584 4.38415 8.54035 4.12964C8.79487 3.87513 9.14006 3.73214 9.5 3.73214C9.85994 3.73214 10.2051 3.87513 10.4596 4.12964C10.7142 4.38415 10.8571 4.72935 10.8571 5.08929V10.1202H13.2905C13.4245 10.1205 13.5554 10.1605 13.6667 10.2351C13.778 10.3096 13.8648 10.4155 13.916 10.5393C13.9672 10.6631 13.9807 10.7993 13.9546 10.9308C13.9286 11.0622 13.8642 11.183 13.7696 11.2779Z"
+                                                                            fill="#009846" />
+                                                                    </svg>
+                                                                </a>
+                                                            </span>
                                                             <input type="file" id="jito_group_recommendation"
                                                                 name="jito_group_recommendation" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required
@@ -735,13 +749,28 @@
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">Jain Sangh Certificate
-                                                                *&nbsp;&nbsp;<svg width="25" height="25"
+                                                                *&nbsp;&nbsp;
+                                                                {{--  <svg width="25" height="25"
                                                                     viewBox="0 0 19 19" fill="none"
                                                                     xmlns="http://www.w3.org/2000/svg">
                                                                     <path fill-rule="evenodd" clip-rule="evenodd"
                                                                         d="M9.5 19C12.0196 19 14.4359 17.9991 16.2175 16.2175C17.9991 14.4359 19 12.0196 19 9.5C19 6.98044 17.9991 4.56408 16.2175 2.78249C14.4359 1.00089 12.0196 0 9.5 0C6.98044 0 4.56408 1.00089 2.78249 2.78249C1.00089 4.56408 0 6.98044 0 9.5C0 12.0196 1.00089 14.4359 2.78249 16.2175C4.56408 17.9991 6.98044 19 9.5 19ZM13.7696 11.2779L9.97907 15.0684C9.85182 15.1956 9.67925 15.267 9.49932 15.267C9.31939 15.267 9.14682 15.1956 9.01957 15.0684L5.23043 11.2779C5.13583 11.183 5.07144 11.0622 5.04538 10.9308C5.01933 10.7993 5.03276 10.6631 5.084 10.5393C5.13523 10.4155 5.22198 10.3096 5.33329 10.2351C5.44461 10.1605 5.57551 10.1205 5.7095 10.1202H8.14286V5.08929C8.14286 4.72935 8.28584 4.38415 8.54035 4.12964C8.79487 3.87513 9.14006 3.73214 9.5 3.73214C9.85994 3.73214 10.2051 3.87513 10.4596 4.12964C10.7142 4.38415 10.8571 4.72935 10.8571 5.08929V10.1202H13.2905C13.4245 10.1205 13.5554 10.1605 13.6667 10.2351C13.778 10.3096 13.8648 10.4155 13.916 10.5393C13.9672 10.6631 13.9807 10.7993 13.9546 10.9308C13.9286 11.0622 13.8642 11.183 13.7696 11.2779Z"
                                                                         fill="#009846" />
-                                                                </svg> <br></span>
+                                                                </svg>  --}}
+
+                                                                <a href="{{ asset('SANGH-CERTIFICATE-FORM.pdf') }}"
+                                                                    download>
+                                                                    <svg width="25" height="25"
+                                                                        viewBox="0 0 19 19" fill="none"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        style="cursor: pointer;">
+
+                                                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                            d="M9.5 19C12.0196 19 14.4359 17.9991 16.2175 16.2175C17.9991 14.4359 19 12.0196 19 9.5C19 6.98044 17.9991 4.56408 16.2175 2.78249C14.4359 1.00089 12.0196 0 9.5 0C6.98044 0 4.56408 1.00089 2.78249 2.78249C1.00089 4.56408 0 6.98044 0 9.5C0 12.0196 1.00089 14.4359 2.78249 16.2175C4.56408 17.9991 6.98044 19 9.5 19ZM13.7696 11.2779L9.97907 15.0684C9.85182 15.1956 9.67925 15.267 9.49932 15.267C9.31939 15.267 9.14682 15.1956 9.01957 15.0684L5.23043 11.2779C5.13583 11.183 5.07144 11.0622 5.04538 10.9308C5.01933 10.7993 5.03276 10.6631 5.084 10.5393C5.13523 10.4155 5.22198 10.3096 5.33329 10.2351C5.44461 10.1605 5.57551 10.1205 5.7095 10.1202H8.14286V5.08929C8.14286 4.72935 8.28584 4.38415 8.54035 4.12964C8.79487 3.87513 9.14006 3.73214 9.5 3.73214C9.85994 3.73214 10.2051 3.87513 10.4596 4.12964C10.7142 4.38415 10.8571 4.72935 10.8571 5.08929V10.1202H13.2905C13.4245 10.1205 13.5554 10.1605 13.6667 10.2351C13.778 10.3096 13.8648 10.4155 13.916 10.5393C13.9672 10.6631 13.9807 10.7993 13.9546 10.9308C13.9286 11.0622 13.8642 11.183 13.7696 11.2779Z"
+                                                                            fill="#009846" />
+                                                                    </svg>
+                                                                </a>
+                                                                <br></span>
                                                             <span class="photo-label" style="color:gray;font-size:12px;">
                                                                 We accept only last 1 year Jain sang Certificate
                                                             </span>
@@ -1678,18 +1707,20 @@
                                 Previous
                             </a>
                             @if ($documents && $user->workflowStatus->apex_1_status == 'approved')
-                                <button type="button" class="btn" style="background:#F0FDF4;color:#009846;border:1px solid #009846" disabled>
+                                <button type="button" class="btn"
+                                    style="background:#F0FDF4;color:#009846;border:1px solid #009846" disabled>
                                     <i class="bi bi-check-lg" style="color: green; font-size: 24px;"></i>
                                     Step 6 Approved
                                 </button>
                             @elseif ($documents && $documents->submit_status == 'resubmit')
-                                <button type="submit" class="btn" style="background:#F0FDF4;color:red;border:1px solid red">
+                                <button type="submit" class="btn"
+                                    style="background:#F0FDF4;color:red;border:1px solid red">
                                     <i class="bi bi-arrow-clockwise" style="color: red; font-size: 24px;"></i>
                                     Resubmit Step 6
                                 </button>
                             @else
-                                <button type="submit" class="btn" style="background:#393185;color:white;">Next Step <svg
-                                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                <button type="submit" class="btn" style="background:#393185;color:white;">Next Step
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
                                         stroke="white" stroke-width="2" viewBox="0 0 24 24">
                                         <path d="M9 6l6 6-6 6" />
                                     </svg>

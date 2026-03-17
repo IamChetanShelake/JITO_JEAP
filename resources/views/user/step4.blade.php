@@ -1,4 +1,4 @@
-﻿@extends('user.layout.master')
+@extends('user.layout.master')
 @section('step')
     <button class="btn btn-purple me-2" style="background-color: #393185; color: white;">Step 4 of
         7</button>
@@ -599,6 +599,30 @@
                                     </div>
                                 @endif
 
+                                <!-- Declaration Section -->
+                                <div class="education-section"
+                                    style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid red;">
+                                    <h4 class="title" style="color:#4C4C4C;font-size:18px;">Declaration</h4>
+                                    <div class="form-group">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="bank_cheque_declaration"
+                                                name="bank_cheque_declaration" value="1"
+                                                {{ old('bank_cheque_declaration') ? 'checked' : '' }} required>
+                                            <label class="form-check-label" for="bank_cheque_declaration"
+                                                style="color:red">
+                                                I confirm that if I receive a sanction from JITO-JEAP in the future, I will
+                                                submit the required number of bank cheques as informed to me. I have also
+                                                read and reviewed the attached list of approved banks from JEAP.
+                                            </label>
+                                            <!-- Download Icon -->
+                                            <a href="{{ asset('Bank_List.pdf') }}" download class="ms-2">
+                                                <i class="bi bi-download" style="color:green; font-size:20px;"></i>
+                                            </a>
+                                        </div>
+                                        <small class="text-danger">{{ $errors->first('bank_cheque_declaration') }}</small>
+                                    </div>
+                                </div>
+
 
                             </div>
 
@@ -1112,4 +1136,5 @@
         });
     </script>  --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 @endsection

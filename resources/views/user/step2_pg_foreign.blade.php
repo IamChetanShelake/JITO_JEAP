@@ -1435,7 +1435,7 @@
                     @elseif ($educationDetail && $educationDetail->submit_status == 'resubmit')
                         <button type="submit" class="btn" style="background:#F0FDF4;color:red;border:1px solid red">
                             <i class="bi bi-arrow-clockwise" style="color: red; font-size: 24px;"></i>
-                            Resubmit 
+                            Resubmit
                         </button>
                     @else
                         <button type="submit" class="btn" style="background:#393185;color:white;">Next Step <svg

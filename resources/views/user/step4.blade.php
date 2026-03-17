@@ -603,62 +603,66 @@
                             </div>
 
                             @if (false)
-                            <!-- Section Divider -->
-                            <div class="section-divider"></div>
+                                <!-- Section Divider -->
+                                <div class="section-divider"></div>
 
-                            <!-- Section 4: Bank Details -->
-                            <div class="education-section">
-                                <h4 class="title" style="color:#4C4C4C;font-size:18px;">Bank Details of Applicant
-                                </h4>
+                                <!-- Section 4: Bank Details -->
+                                <div class="education-section">
+                                    <h4 class="title" style="color:#4C4C4C;font-size:18px;">Bank Details of Applicant
+                                    </h4>
 
-                                <!-- Important Note Box -->
-                                <div
-                                    style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 12px; margin-bottom: 20px;">
-                                    <p class="mb-0" style="color: #E31E24; font-size: 15px;">
-                                        <b>Note </b>: Kindly share the studentâ€™s bank details. Please ensure the account is
-                                        a major account in the studentâ€™s name, as minor accounts are not valid. If the
-                                        application is sanctioned, post-dated cheques (PDCs) will be required and the
-                                        details will be verified. Any mismatch may lead to action by management. So, request
-                                        you to provide correct details.
-                                        <br><br>
-                                        We only accept cheques of Government Nationalized bank and Private banks (HDFC Bank,
-                                        ICICI Bank, Kotak Mahindra Bank, Axis Bank, IndusInd Bank, IDBI Bank, Yes Bank, IDFC
-                                        First Bank, etc).
-                                    </p>
-                                </div>
-
-                                <div class="row">
-                                    <!-- Validation Messages Container -->
-                                    <div id="bankValidationMessage" class="alert alert-dismissible fade show"
-                                        role="alert" style="display: none; margin-bottom: 20px;">
-                                        <span id="bankValidationText"></span>
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                            aria-label="Close"></button>
+                                    <!-- Important Note Box -->
+                                    <div
+                                        style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 12px; margin-bottom: 20px;">
+                                        <p class="mb-0" style="color: #E31E24; font-size: 15px;">
+                                            <b>Note </b>: Kindly share the studentâ€™s bank details. Please ensure the
+                                            account is
+                                            a major account in the studentâ€™s name, as minor accounts are not valid. If the
+                                            application is sanctioned, post-dated cheques (PDCs) will be required and the
+                                            details will be verified. Any mismatch may lead to action by management. So,
+                                            request
+                                            you to provide correct details.
+                                            <br><br>
+                                            We only accept cheques of Government Nationalized bank and Private banks (HDFC
+                                            Bank,
+                                            ICICI Bank, Kotak Mahindra Bank, Axis Bank, IndusInd Bank, IDBI Bank, Yes Bank,
+                                            IDFC
+                                            First Bank, etc).
+                                        </p>
                                     </div>
 
-                                    <!-- Left Column -->
-                                    <div class="col-md-6">
-
-                                        <div class="form-group mb-3">
-                                            <label for="bank_name">Bank Name <span style="color: red">*</span></label>
-
-                                            <select class="form-control" name="bank_name" id="bank_name" required>
-                                                <option value="" hidden>Select Bank</option>
-
-                                                @foreach ($banks as $bank)
-                                                    <option value="{{ $bank->name }}"
-                                                        data-ifsc="{{ strtoupper(substr($bank->ifsc_code, 0, 4)) }}"
-                                                        {{ old('bank_name') == $bank->name || ($fundingDetail && $fundingDetail->bank_name === $bank->name) ? 'selected' : '' }}>
-                                                        {{ $bank->name }}
-                                                    </option>
-                                                @endforeach
-
-                                                <option value="OTHER">Other</option>
-                                            </select>
-
-                                            <small class="text-danger">{{ $errors->first('bank_name') }}</small>
+                                    <div class="row">
+                                        <!-- Validation Messages Container -->
+                                        <div id="bankValidationMessage" class="alert alert-dismissible fade show"
+                                            role="alert" style="display: none; margin-bottom: 20px;">
+                                            <span id="bankValidationText"></span>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                aria-label="Close"></button>
                                         </div>
-                                        {{-- <div class="form-group mb-3">
+
+                                        <!-- Left Column -->
+                                        <div class="col-md-6">
+
+                                            <div class="form-group mb-3">
+                                                <label for="bank_name">Bank Name <span style="color: red">*</span></label>
+
+                                                <select class="form-control" name="bank_name" id="bank_name" required>
+                                                    <option value="" hidden>Select Bank</option>
+
+                                                    @foreach ($banks as $bank)
+                                                        <option value="{{ $bank->name }}"
+                                                            data-ifsc="{{ strtoupper(substr($bank->ifsc_code, 0, 4)) }}"
+                                                            {{ old('bank_name') == $bank->name || ($fundingDetail && $fundingDetail->bank_name === $bank->name) ? 'selected' : '' }}>
+                                                            {{ $bank->name }}
+                                                        </option>
+                                                    @endforeach
+
+                                                    <option value="OTHER">Other</option>
+                                                </select>
+
+                                                <small class="text-danger">{{ $errors->first('bank_name') }}</small>
+                                            </div>
+                                            {{-- <div class="form-group mb-3">
                                             <label for="account_holder_name">Account Holder's Name <span
                                                     style="color: red">*</span></label>
                                             <input type="text" class="form-control" name="account_holder_name"
@@ -666,44 +670,46 @@
                                                 value="{{ old('account_holder_name', $fundingDetail->account_holder_name ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('account_holder_name') }}</small>
                                         </div> --}}
-                                        <div class="form-group mb-3">
-                                            <label for="ifsc_code">IFSC Code <span style="color: red">*</span></label>
-                                            <input type="text" class="form-control" name="ifsc_code" id="ifsc_code"
-                                                placeholder="IFSC Code "
-                                                value="{{ old('ifsc_code', $fundingDetail->ifsc_code ?? '') }}">
-                                            <small class="text-danger">{{ $errors->first('ifsc_code') }}</small>
+                                            <div class="form-group mb-3">
+                                                <label for="ifsc_code">IFSC Code <span style="color: red">*</span></label>
+                                                <input type="text" class="form-control" name="ifsc_code"
+                                                    id="ifsc_code" placeholder="IFSC Code "
+                                                    value="{{ old('ifsc_code', $fundingDetail->ifsc_code ?? '') }}">
+                                                <small class="text-danger">{{ $errors->first('ifsc_code') }}</small>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label for="account_number">Account Number <span
+                                                        style="color: red">*</span></label>
+                                                <input type="text" class="form-control" name="account_number"
+                                                    id="account_number" placeholder="Account Number "
+                                                    value="{{ old('account_number', $fundingDetail->account_number ?? '') }}">
+                                                <small class="text-danger">{{ $errors->first('account_number') }}</small>
+                                            </div>
+
                                         </div>
 
-                                        <div class="form-group mb-3">
-                                            <label for="account_number">Account Number <span
-                                                    style="color: red">*</span></label>
-                                            <input type="text" class="form-control" name="account_number"
-                                                id="account_number" placeholder="Account Number "
-                                                value="{{ old('account_number', $fundingDetail->account_number ?? '') }}">
-                                            <small class="text-danger">{{ $errors->first('account_number') }}</small>
-                                        </div>
+                                        <!-- Right Column -->
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label for="account_holder_name">Account Holder's Name <span
+                                                        style="color: red">*</span></label>
+                                                <input type="text" class="form-control" name="account_holder_name"
+                                                    id="account_holder_name" placeholder="Account Holder's Name "
+                                                    value="{{ old('account_holder_name', $fundingDetail->account_holder_name ?? '') }}">
+                                                <small
+                                                    class="text-danger">{{ $errors->first('account_holder_name') }}</small>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="branch_name">Branch Name <span
+                                                        style="color: red">*</span></label>
+                                                <input type="text" class="form-control" name="branch_name"
+                                                    id="branch_name" placeholder="Branch Name "
+                                                    value="{{ old('branch_name', $fundingDetail->branch_name ?? '') }}">
+                                                <small class="text-danger">{{ $errors->first('branch_name') }}</small>
+                                            </div>
 
-                                    </div>
-
-                                    <!-- Right Column -->
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="account_holder_name">Account Holder's Name <span
-                                                    style="color: red">*</span></label>
-                                            <input type="text" class="form-control" name="account_holder_name"
-                                                id="account_holder_name" placeholder="Account Holder's Name "
-                                                value="{{ old('account_holder_name', $fundingDetail->account_holder_name ?? '') }}">
-                                            <small class="text-danger">{{ $errors->first('account_holder_name') }}</small>
-                                        </div>
-                                        <div class="form-group mb-3">
-                                            <label for="branch_name">Branch Name <span style="color: red">*</span></label>
-                                            <input type="text" class="form-control" name="branch_name"
-                                                id="branch_name" placeholder="Branch Name "
-                                                value="{{ old('branch_name', $fundingDetail->branch_name ?? '') }}">
-                                            <small class="text-danger">{{ $errors->first('branch_name') }}</small>
-                                        </div>
-
-                                        {{-- <div class="form-group mb-3">
+                                            {{-- <div class="form-group mb-3">
                                             <label for="ifsc_code">IFSC Code <span style="color: red">*</span></label>
                                             <input type="text" class="form-control" name="ifsc_code"
                                                 placeholder="IFSC Code "
@@ -711,16 +717,16 @@
                                             <small class="text-danger">{{ $errors->first('ifsc_code') }}</small>
                                         </div> --}}
 
-                                        <div class="form-group mb-3">
-                                            <label for="bank_address">Bank Address <span
-                                                    style="color: red">*</span></label>
-                                            <textarea class="form-control" name="bank_address" id="bank_address" rows="3" placeholder="Bank Address "
-                                                style="resize: vertical;">{{ old('bank_address', $fundingDetail->bank_address ?? '') }}</textarea>
-                                            <small class="text-danger">{{ $errors->first('bank_address') }}</small>
+                                            <div class="form-group mb-3">
+                                                <label for="bank_address">Bank Address <span
+                                                        style="color: red">*</span></label>
+                                                <textarea class="form-control" name="bank_address" id="bank_address" rows="3" placeholder="Bank Address "
+                                                    style="resize: vertical;">{{ old('bank_address', $fundingDetail->bank_address ?? '') }}</textarea>
+                                                <small class="text-danger">{{ $errors->first('bank_address') }}</small>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
                         </div>
                 </div>
                 <div class="modal fade" id="otherBankModal" tabindex="-1">
@@ -759,23 +765,43 @@
                         </div>
                     </div>
                 </div>
-                            @endif
+                @endif
 
                 <div class="d-flex justify-content-between mt-4 mb-4">
-                    <button type="button" class="btn " style="background:#988DFF1F;color:gray;"><svg
+                    {{--  <button type="button" class="btn " style="background:#988DFF1F;color:gray;"><svg
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
                             stroke="gray" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M15 18l-6-6 6-6" />
                         </svg>
 
-                        Previous</button>
-                    <button type="submit" class="btn" style="background:#393185;color:white;">Next Step
+                        Previous</button>  --}}
+                    <a href="{{ route('user.step3') }}" class="btn"
+                        style="background:#988DFF1F;color:gray;border:1px solid #393185;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                            stroke="white" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M9 6l6 6-6 6" />
+                            stroke="gray" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M15 18l-6-6 6-6" />
                         </svg>
-
-                    </button>
+                        Previous
+                    </a>
+                    @if ($user->fundingDetail && $user->workflowStatus->apex_1_status == 'approved')
+                        <button type="button" class="btn"
+                            style="background:#F0FDF4;color:#009846;border:1px solid #009846" disabled>
+                            <i class="bi bi-check-lg" style="color: green; font-size: 24px;"></i>
+                            Approved
+                        </button>
+                    @elseif ($user->fundingDetail && $user->fundingDetail->submit_status == 'resubmit')
+                        <button type="submit" class="btn" style="background:#F0FDF4;color:red;border:1px solid red">
+                            <i class="bi bi-arrow-clockwise" style="color: red; font-size: 24px;"></i>
+                            Resubmit
+                        </button>
+                    @else
+                        <button type="submit" class="btn" style="background:#393185;color:white;">Next Step <svg
+                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                stroke="white" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M9 6l6 6-6 6" />
+                            </svg>
+                        </button>
+                    @endif
                 </div>
                 </form>
             </div>
@@ -1087,6 +1113,3 @@
     </script>  --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 @endsection
-
-
-

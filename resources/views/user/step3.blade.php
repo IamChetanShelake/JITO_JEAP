@@ -181,7 +181,7 @@
         }
 
         // Function to calculate total family income
-function calculateTotalFamilyIncome() {
+        function calculateTotalFamilyIncome() {
             const applicantIncome = parseFloat(@json($user->applicant_yearly_income ?? 0)) || 0;
             const yearlyGrossIncome = parseFloat(@json($user->educationDetail->yearly_gross_income ?? 0)) || 0;
             let total = applicantIncome + yearlyGrossIncome;
@@ -398,7 +398,8 @@ function calculateTotalFamilyIncome() {
                 <div class="d-flex justify-content-between align-items-start gap-2">
                     <div style="min-width: 0;">
                         <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
-                        <p style="margin: 8px 0 4px 0; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        <p
+                            style="margin: 8px 0 4px 0; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                             {{ trim(preg_replace('/\s+/', ' ', strip_tags($familyDetail->admin_remark))) }}
                         </p>
                         <button type="button" class="btn btn-link p-0" data-bs-toggle="modal"
@@ -624,8 +625,8 @@ function calculateTotalFamilyIncome() {
                                                     Applicant <span style="color: red;">*</span></label>
                                                 <select class="form-control" name="diksha_member_relation" required>
                                                     <option value=""
-                                                        {{ old('diksha_member_relation', $familyDetail->diksha_member_relation ?? '') == '' ? 'selected' : '' }} disabled
-                                                        hidden>Select Relation</option>
+                                                        {{ old('diksha_member_relation', $familyDetail->diksha_member_relation ?? '') == '' ? 'selected' : '' }}
+                                                        disabled hidden>Select Relation</option>
                                                     <option value="grandparent"
                                                         {{ old('diksha_member_relation', $familyDetail->diksha_member_relation ?? '') == 'grandparent' ? 'selected' : '' }}>
                                                         GrandFather</option>
@@ -895,7 +896,7 @@ function calculateTotalFamilyIncome() {
                                 </svg>
                                 Previous
                             </button> --}}
-                            <a href="{{ route('user.step1') }}" class="btn"
+                            <a href="{{ route('user.step2') }}" class="btn"
                                 style="background:#988DFF1F;color:gray;border:1px solid #393185;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
                                     stroke="gray" stroke-width="2" viewBox="0 0 24 24">
@@ -904,13 +905,27 @@ function calculateTotalFamilyIncome() {
                                 Previous
                             </a>
 
-                            <button type="submit" class="btn" style="background:#393185;color:white;">
-                                Next Step
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                    stroke="white" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M9 6l6 6-6 6" />
-                                </svg>
-                            </button>
+                            @if ($familyDetail && $familyDetail->user->workflowStatus->apex_1_status == 'approved')
+                                <button type="button" class="btn"
+                                    style="background:#F0FDF4;color:#009846;border:1px solid #009846" disabled>
+                                    <i class="bi bi-check-lg" style="color: green; font-size: 24px;"></i>
+                                    Approved
+                                </button>
+                            @elseif ($user->familyDetail && $user->familyDetail->submit_status == 'resubmit')
+                                <button type="submit" class="btn"
+                                    style="background:#F0FDF4;color:red;border:1px solid red">
+                                    <i class="bi bi-arrow-clockwise" style="color: red; font-size: 24px;"></i>
+                                    Resubmit
+                                </button>
+                            @else
+                                <button type="submit" class="btn" style="background:#393185;color:white;">
+                                    Next Step
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                        stroke="white" stroke-width="2" viewBox="0 0 24 24">
+                                        <path d="M9 6l6 6-6 6" />
+                                    </svg>
+                                </button>
+                            @endif
                         </div>
                     </form>
                 </div>

@@ -133,7 +133,7 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // Website Management Routes
     Route::get('/website', [AdminController::class, 'websiteIndex'])->name('website.index');
     Route::get('/website/home', [AdminController::class, 'websiteHome'])->name('website.home');
-    
+
     // Home Sub-Pages Routes
     Route::get('/website/home/empowering-dreams', [AdminController::class, 'websiteHomeEmpoweringDreams'])->name('website.home.empowering-dreams');
     Route::post('/website/home/empowering-dreams', [AdminController::class, 'storeEmpoweringDream'])->name('website.home.empowering-dreams.store');
@@ -155,7 +155,7 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/website/home/photo-gallery', [AdminController::class, 'websiteHomePhotoGallery'])->name('website.home.photo-gallery');
     Route::get('/website/home/our-testimonial', [AdminController::class, 'websiteHomeOurTestimonial'])->name('website.home.our-testimonial');
     Route::get('/website/home/success-stories', [AdminController::class, 'websiteHomeSuccessStories'])->name('website.home.success-stories');
-    
+
     Route::get('/website/about', [AdminController::class, 'websiteAbout'])->name('website.about');
     Route::get('/website/application', [AdminController::class, 'websiteApplication'])->name('website.application');
     Route::get('/website/contact', [AdminController::class, 'websiteContact'])->name('website.contact');
@@ -205,6 +205,10 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // Third Stage Documents
     Route::get('/third-stage-documents/pending', [AdminController::class, 'thirdStageDocumentPending'])
         ->name('third_stage_documents.pending');
+    Route::get('/third-stage-documents/send-back', [AdminController::class, 'thirdStageDocumentSendBack'])
+        ->name('third_stage_documents.send_back');
+    Route::get('/third-stage-documents/resubmitted', [AdminController::class, 'thirdStageDocumentResubmitted'])
+        ->name('third_stage_documents.resubmitted');
     Route::get('/third-stage-documents/submitted', [AdminController::class, 'thirdStageDocumentSubmitted'])
         ->name('third_stage_documents.submitted');
     Route::get('/third-stage-documents/approved', [AdminController::class, 'thirdStageDocumentApproved'])
@@ -214,7 +218,7 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::post('/third-stage-documents/user/{user}/approve', [AdminController::class, 'approveThirdStageDocument'])
         ->name('third_stage_documents.approve');
     Route::post('/third-stage-documents/user/{user}/send-back', [AdminController::class, 'sendBackThirdStageDocument'])
-        ->name('third_stage_documents.send_back');
+        ->name('third_stage_documents.sendback');
 
 
     Route::get('/chapters/resubmit', [AdminController::class, 'chapterResubmit'])->name('chapter.resubmit');

@@ -1227,7 +1227,7 @@
 
         <!-- Row 4: 3rd Stage Document -->
         <div class="row g-3 mt-1">
-            <div class="col-lg-12">
+            <div class="col-lg-6">
                 @if (in_array($activeGuard, ['admin', 'accountant']))
                     <div class="approval-section">
                         <div class="approval-header">
@@ -1259,6 +1259,16 @@
                                     <div class="status-value">{{ $thirdStagePending ?? 0 }}</div>
                                 </div>
                             </a>
+                            <a href="{{ route('admin.third_stage_documents.send_back') }}" class="status-badge hold"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon hold">
+                                    <i class="fas fa-exclamation"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Send back for Correction</div>
+                                    <div class="status-value">{{ $thirdStageSendBack ?? 0 }}</div>
+                                </div>
+                            </a>
                             <a href="{{ route('admin.third_stage_documents.submitted') }}" class="status-badge ready"
                                 style="text-decoration: none; color: inherit;">
                                 <div class="status-icon ready">
@@ -1267,6 +1277,16 @@
                                 <div>
                                     <div class="status-label">Submitted</div>
                                     <div class="status-value">{{ $thirdStageSubmitted ?? 0 }}</div>
+                                </div>
+                            </a>
+                            <a href="{{ route('admin.third_stage_documents.resubmitted') }}" class="status-badge hold"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon hold">
+                                    <i class="fas fa-redo"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Resubmitted</div>
+                                    <div class="status-value">{{ $thirdStageResubmitted ?? 0 }}</div>
                                 </div>
                             </a>
                             <a href="{{ route('admin.third_stage_documents.approved') }}" class="status-badge approved"

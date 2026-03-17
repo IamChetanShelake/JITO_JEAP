@@ -878,7 +878,7 @@ class UserController extends Controller
     public function step2_foreign_pg_store(Request $request)
     {
         // Validation for education details
-        dd($request->all());
+       // dd($request->all());
 
         // Add workflow update here for simplicity
         $rules = [
@@ -3315,6 +3315,12 @@ class UserController extends Controller
         $user_id = Auth::id();
         // dd($request->all());
 
+        $workflow = ApplicationWorkflowStatus::where('user_id', $user_id)->first();
+        if ($workflow && $workflow->apex_2_status === 'approved') {
+            return redirect()->route('user.step8')
+                ->with('error', 'PDC details are already approved. You cannot update them.');
+        }
+
         $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
         if (
             !$fundingDetail ||
@@ -3385,7 +3391,6 @@ class UserController extends Controller
             'status' => 'submitted',
         ];
 
-        $workflow = ApplicationWorkflowStatus::where('user_id', $user_id)->first();
         if ($workflow) {
             $workflow->update([
                 'apex_2_status' => 'pending'

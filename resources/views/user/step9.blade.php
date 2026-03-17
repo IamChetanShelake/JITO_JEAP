@@ -81,6 +81,33 @@
                                     <div class="alert alert-success" style="border-radius: 10px;">
                                         Your 3rd Stage Documents are approved. You can no longer update them.
                                     </div>
+                                @elseif ($thirdStageDocument && $thirdStageDocument->status === 'rejected')
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6">
+                                            <div class="card border-danger h-100">
+                                                <div class="card-body">
+                                                    <h5 class="card-title text-danger">Send Back for Correction</h5>
+                                                    <p class="card-text mb-2">Your submission needs correction. Please review the remarks below.</p>
+                                                    @if ($thirdStageDocument->admin_remark)
+                                                        <div class="alert alert-danger mb-0" style="border-radius: 10px;">
+                                                            {!! $thirdStageDocument->admin_remark !!}
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card border-warning h-100">
+                                                <div class="card-body">
+                                                    <h5 class="card-title text-warning">Resubmit Documents</h5>
+                                                    <p class="card-text">
+                                                        Update the required fields/documents and resubmit for review.
+                                                    </p>
+                                                    <span class="text-muted">Once resubmitted, you will not be able to edit until admin review.</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 @endif
 
                                 @php

@@ -96,6 +96,8 @@ class AdminController extends Controller
             'thirdStagePending' => $thirdStageCounts['pending'],
             'thirdStageSubmitted' => $thirdStageCounts['submitted'],
             'thirdStageApproved' => $thirdStageCounts['approved'],
+            'thirdStageSendBack' => $thirdStageCounts['send_back'],
+            'thirdStageResubmitted' => $thirdStageCounts['resubmitted'],
             'thirdStageTotal' => $thirdStageCounts['total'],
         ]);
     }
@@ -903,21 +905,31 @@ class AdminController extends Controller
     private function getThirdStageDocumentCounts(): array
     {
         try {
-            $pending = ThirdStageDocument::whereIn('status', ['pending', 'rejected'])->count();
-            $submitted = ThirdStageDocument::where('status', 'submitted')->count();
+            $pending = ThirdStageDocument::where('status', 'pending')->count();
+            $sendBack = ThirdStageDocument::where('status', 'rejected')->count();
+            $resubmitted = ThirdStageDocument::where('status', 'submitted')
+                ->whereNotNull('rejected_at')
+                ->count();
+            $submitted = ThirdStageDocument::where('status', 'submitted')
+                ->whereNull('rejected_at')
+                ->count();
             $approved = ThirdStageDocument::where('status', 'approved')->count();
 
             return [
                 'pending' => $pending,
                 'submitted' => $submitted,
                 'approved' => $approved,
-                'total' => $pending + $submitted + $approved,
+                'send_back' => $sendBack,
+                'resubmitted' => $resubmitted,
+                'total' => $pending + $submitted + $approved + $sendBack + $resubmitted,
             ];
         } catch (\Exception $e) {
             return [
                 'pending' => 0,
                 'submitted' => 0,
                 'approved' => 0,
+                'send_back' => 0,
+                'resubmitted' => 0,
                 'total' => 0,
             ];
         }
@@ -3168,7 +3180,7 @@ class AdminController extends Controller
     {
         $users = User::where('role', 'user')
             ->whereHas('thirdStageDocument', function ($q) {
-                $q->whereIn('status', ['pending', 'rejected']);
+                $q->where('status', 'pending');
             })
             ->with(['thirdStageDocument', 'workflowStatus'])
             ->get();
@@ -3180,12 +3192,38 @@ class AdminController extends Controller
     {
         $users = User::where('role', 'user')
             ->whereHas('thirdStageDocument', function ($q) {
-                $q->where('status', 'submitted');
+                $q->where('status', 'submitted')
+                    ->whereNull('rejected_at');
             })
             ->with(['thirdStageDocument', 'workflowStatus'])
             ->get();
 
         return view('admin.third_stage_documents.submitted', compact('users'));
+    }
+
+    public function thirdStageDocumentSendBack()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('thirdStageDocument', function ($q) {
+                $q->where('status', 'rejected');
+            })
+            ->with(['thirdStageDocument', 'workflowStatus'])
+            ->get();
+
+        return view('admin.third_stage_documents.send_back', compact('users'));
+    }
+
+    public function thirdStageDocumentResubmitted()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('thirdStageDocument', function ($q) {
+                $q->where('status', 'submitted')
+                    ->whereNotNull('rejected_at');
+            })
+            ->with(['thirdStageDocument', 'workflowStatus'])
+            ->get();
+
+        return view('admin.third_stage_documents.resubmitted', compact('users'));
     }
 
     public function thirdStageDocumentApproved()

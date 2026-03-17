@@ -214,6 +214,15 @@
                                 </button>
                             </div>
                         @endif
+                        @if (session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show position-relative" role="alert"
+                                id="errorAlert">
+                                {{ session('error') }}
+                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
                         @if ($errors->has('bank_details'))
                             <div class="alert alert-danger"
                                 style="border: 2px solid #dc3545; border-radius: 10px; background-color: #f8d7da;">
@@ -775,10 +784,12 @@
                                     <div class="   d-flex justify-content-between align-items-center"
                                         style="border-radius: 13px 13px 0 0; background-color: none !important; color:#393185">
                                         <h4 class="mb-0" style="font-weight: 600;">Cheque Details Table</h4>
-                                        <button type="button" class="btn btn-sm" id="addRowBtn"
-                                            style="border-radius: 8px;background:#393185; color:white; font-weight: 600;">
-                                            + Add Row
-                                        </button>
+                                        @if (!$isPdcApproved)
+                                            <button type="button" class="btn btn-sm" id="addRowBtn"
+                                                style="border-radius: 8px;background:#393185; color:white; font-weight: 600;">
+                                                + Add Row
+                                            </button>
+                                        @endif
                                     </div>
                                     {{-- <div class="card-body"> --}}
                                     <div class="table-responsive mt-4"
@@ -801,26 +812,28 @@
                                                         style="width: 10%; background-color: #393185; color: white; font-weight: 700;">
                                                         Repayment Date</th>
                                                     <th scope="col"
-                                                        style="width: 15%; background-color: #393185; color: white; font-weight: 700;">
+                                                        style="width: 12%; background-color: #393185; color: white; font-weight: 700;">
                                                         Amount (₹)</th>
-                                                    <th scope="col"
-                                                        style="width: 20%; background-color: #393185; color: white; font-weight: 700;">
-                                                        Bank Name</th>
-                                                    <th scope="col"
-                                                        style="width: 20%; background-color: #393185; color: white; font-weight: 700;">
-                                                        Bank IFSC Code</th>
-                                                    <th scope="col"
-                                                        style="width: 25%; background-color: #393185; color: white; font-weight: 700;">
-                                                        Account Number</th>
                                                     <th scope="col"
                                                         style="width: 12%; background-color: #393185; color: white; font-weight: 700;">
                                                         Cheque Number</th>
                                                     <th scope="col"
-                                                        style="width: 30%; background-color: #393185; color: white; font-weight: 700;">
-                                                        Application NO.</th>
+                                                        style="width: 18%; background-color: #393185; color: white; font-weight: 700;">
+                                                        Bank Name</th>
                                                     <th scope="col"
-                                                        style="width: 10%; background-color: #393185; color: white; font-weight: 700;">
-                                                        Actions</th>
+                                                        style="width: 18%; background-color: #393185; color: white; font-weight: 700;">
+                                                        Bank IFSC Code</th>
+                                                    <th scope="col"
+                                                        style="width: 20%; background-color: #393185; color: white; font-weight: 700;">
+                                                        Account Number</th>
+                                                    <th scope="col"
+                                                        style="width: 25%; background-color: #393185; color: white; font-weight: 700;">
+                                                        Application NO.</th>
+                                                    @if (!$isPdcApproved)
+                                                        <th scope="col"
+                                                            style="width: 10%; background-color: #393185; color: white; font-weight: 700;">
+                                                            Actions</th>
+                                                    @endif
                                                 </tr>
                                             </thead>
                                             <tbody id="chequeRows">
@@ -850,12 +863,14 @@
                                 </svg>
                                 Previous
                             </a>
-                            <button type="submit" class="btn"
-                                style="background: #F0FDF4; color: #009846; border: 2px solid #009846; border-radius: 10px; font-weight: 600;"
-                                id="submitBtn" {{ $hasBankDetails ? '' : 'disabled' }}>
-                                <i class="bi bi-check-lg" style="color: green; font-size: 24px;"></i>
-                                Save PDC Details
-                            </button>
+                            @if (!$isPdcApproved)
+                                <button type="submit" class="btn"
+                                    style="background: #F0FDF4; color: #009846; border: 2px solid #009846; border-radius: 10px; font-weight: 600;"
+                                    id="submitBtn" {{ $hasBankDetails ? '' : 'disabled' }}>
+                                    <i class="bi bi-check-lg" style="color: green; font-size: 24px;"></i>
+                                    Save PDC Details
+                                </button>
+                            @endif
                         </div>
                     </form>
                 </div>
@@ -1147,6 +1162,19 @@
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const todayIso = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+                .toISOString()
+                .slice(0, 10);
+            const isPdcApproved = {{ $isPdcApproved ? 'true' : 'false' }};
+            const repaymentStartRaw = "{{ $workingCommitteeApproval->repayment_starting_from ?? '' }}";
+            const repaymentStartDate = repaymentStartRaw
+                ? new Date(repaymentStartRaw + 'T00:00:00')
+                : null;
+            const minChequeDate = repaymentStartDate && repaymentStartDate > new Date(todayIso + 'T00:00:00')
+                ? toIsoDate(repaymentStartDate)
+                : todayIso;
+
             // Check if bank_name is "OTHER" and show modal
             const isBankOther =
                 {{ isset($fundingDetail) && $fundingDetail && strtoupper($fundingDetail->bank_name) === 'OTHER' ? 'true' : 'false' }};
@@ -1195,6 +1223,22 @@
             }
 
             // Function to create a cheque row
+            function addMonths(dateObj, months) {
+                const d = new Date(dateObj.getTime());
+                const day = d.getDate();
+                d.setMonth(d.getMonth() + months);
+                if (d.getDate() < day) {
+                    d.setDate(0);
+                }
+                return d;
+            }
+
+            function toIsoDate(dateObj) {
+                return new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate())
+                    .toISOString()
+                    .slice(0, 10);
+            }
+
             function createChequeRow(index, data = null) {
                 const row = document.createElement('tr');
                 row.className = 'cheque-row';
@@ -1202,7 +1246,10 @@
 
                 const studentName = "{{ $user->name ?? '' }}";
                 const applicationNo = "{{ $user->application_no ?? '' }}";
-                const chequeDate = data ? data.cheque_date : '';
+                const defaultChequeDate = repaymentStartDate
+                    ? toIsoDate(addMonths(repaymentStartDate, index))
+                    : '';
+                const chequeDate = data ? data.cheque_date : defaultChequeDate;
                 const amount = data ? data.amount : '';
                 // Pre-populate from funding details if no existing data and bank is not "OTHER"
                 const bankName = data ? data.bank_name : (isBankOther ? '' : fundingBankName);
@@ -1227,50 +1274,60 @@
                     <td>
                         <input type="date" class="form-control"
                                name="cheque_details[${index}][cheque_date]" value="${chequeDate}" required
-                               min="{{ date('Y-m-d') }}"
+                               min="${todayIso}"
                                style="border: 2px solid #393185; border-radius: 10px; background-color: white;width:160px !important;">
                     </td>
                     <td>
                         <input type="number" class="form-control"
                                name="cheque_details[${index}][amount]" value="${amount}" step="0.01" min="0" required
-                               style="border: 2px solid #393185; border-radius: 10px;width:120px !important;">
-                    </td>
-                    <td>
-                        <input type="text" class="form-control"
-                               name="cheque_details[${index}][bank_name]" value="${bankName}" placeholder="Enter bank name" required
-                               style="border: 2px solid #393185; border-radius: 10px;width:180px !important;">
-                    </td>
-                    <td>
-                        <input type="text" class="form-control"
-                               name="cheque_details[${index}][ifsc]" value="${ifsc}" placeholder="e.g., SBIN0001234" required
-                               style="border: 2px solid #393185; border-radius: 10px;width:150px !important;">
-                    </td>
-                    <td>
-                        <input type="text" class="form-control"
-                               name="cheque_details[${index}][account_number]" value="${accountNumber}" placeholder="Enter account number" required
-                               style="border: 2px solid #393185; border-radius: 10px;width:170px !important;">
+                               style="border: 2px solid #393185; border-radius: 10px;width:110px !important;">
                     </td>
                     <td>
                         <input type="text" class="form-control"
                                name="cheque_details[${index}][cheque_number]" value="${chequeNumber}" placeholder="Enter cheque number" required
-                               style="border: 2px solid #393185; border-radius: 10px;width:100px !important;">
+                               style="border: 2px solid #393185; border-radius: 10px;width:110px !important;">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control"
+                               name="cheque_details[${index}][bank_name]" value="${bankName}" placeholder="Enter bank name" required
+                               style="border: 2px solid #393185; border-radius: 10px;width:160px !important;">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control"
+                               name="cheque_details[${index}][ifsc]" value="${ifsc}" placeholder="e.g., SBIN0001234" required
+                               style="border: 2px solid #393185; border-radius: 10px;width:140px !important;">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control"
+                               name="cheque_details[${index}][account_number]" value="${accountNumber}" placeholder="Enter account number" required
+                               style="border: 2px solid #393185; border-radius: 10px;width:160px !important;">
                     </td>
                     <td>
                         <input type="text" class="form-control"
                                name="cheque_details[${index}][application_no]" value="${applicationNo}" readonly
                                style="border: 2px solid #393185; border-radius: 10px;width:200px !important; background-color: #f8f9fa;">
                     </td>
-                    <td class="text-center">
-                        ${index > 0 ? `
-                                                                                                                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"
-                                                                                                                    style="border-radius: 8px; font-weight: 600;">
-                                                                                                                    Remove
-                                                                                                                </button>
-                                                                                                            ` : `
-                                                                                                                <span class="text-muted"></span>
-                                                                                                            `}
-                    </td>
+                    ${!isPdcApproved ? `
+                        <td class="text-center">
+                            ${index > 0 ? `
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"
+                                    style="border-radius: 8px; font-weight: 600;">
+                                    Remove
+                                </button>
+                            ` : `
+                                <span class="text-muted"></span>
+                            `}
+                        </td>
+                    ` : ``}
                 `;
+
+                const chequeDateInput = row.querySelector('input[name*="[cheque_date]"]');
+                if (chequeDateInput) {
+                    chequeDateInput.min = minChequeDate;
+                    if (chequeDateInput.value && chequeDateInput.value < minChequeDate) {
+                        chequeDateInput.value = minChequeDate;
+                    }
+                }
 
                 // Add event listener for amount input to update alert
                 const amountInput = row.querySelector('input[name*="[amount]"]');
@@ -1294,11 +1351,13 @@
             }
 
             // Add row button functionality
-            addRowBtn.addEventListener('click', function() {
-                const currentRows = chequeRowsContainer.querySelectorAll('.cheque-row');
-                const newIndex = currentRows.length;
-                chequeRowsContainer.appendChild(createChequeRow(newIndex));
-            });
+            if (addRowBtn) {
+                addRowBtn.addEventListener('click', function() {
+                    const currentRows = chequeRowsContainer.querySelectorAll('.cheque-row');
+                    const newIndex = currentRows.length;
+                    chequeRowsContainer.appendChild(createChequeRow(newIndex));
+                });
+            }
 
             // Make removeRow globally accessible
             window.removeRow = function(button) {
@@ -1398,50 +1457,52 @@
             });
 
             // Also validate on button click
-            submitBtn.addEventListener('click', function(e) {
-                const isValid = validateAmounts();
+            if (submitBtn) {
+                submitBtn.addEventListener('click', function(e) {
+                    const isValid = validateAmounts();
 
-                if (!isValid) {
-                    e.preventDefault(); // Prevent submission
+                    if (!isValid) {
+                        e.preventDefault(); // Prevent submission
 
-                    // Show error message
-                    const rows = chequeRowsContainer.querySelectorAll('.cheque-row');
-                    let total = 0;
-                    rows.forEach(row => {
-                        const amountInput = row.querySelector('input[name*="[amount]"]');
-                        if (amountInput && amountInput.value) {
-                            total += parseFloat(amountInput.value) || 0;
-                        }
-                    });
+                        // Show error message
+                        const rows = chequeRowsContainer.querySelectorAll('.cheque-row');
+                        let total = 0;
+                        rows.forEach(row => {
+                            const amountInput = row.querySelector('input[name*="[amount]"]');
+                            if (amountInput && amountInput.value) {
+                                total += parseFloat(amountInput.value) || 0;
+                            }
+                        });
 
-                    const requiredAmount = formatCurrency(approvalAmount);
-                    const currentTotal = formatCurrency(total);
+                        const requiredAmount = formatCurrency(approvalAmount);
+                        const currentTotal = formatCurrency(total);
 
-                    amountMismatchAlert.classList.remove('d-none');
-                    currentTotalSpan.textContent = currentTotal;
-                    differenceAmountSpan.textContent = formatCurrency(Math.abs(total - approvalAmount));
+                        amountMismatchAlert.classList.remove('d-none');
+                        currentTotalSpan.textContent = currentTotal;
+                        differenceAmountSpan.textContent = formatCurrency(Math.abs(total - approvalAmount));
 
-                    amountMismatchAlert.innerHTML = `
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-exclamation-triangle me-2" style="font-size: 1.2rem; color: #FBBA00;"></i>
-                            <div>
-                                <h5 class="mb-1" style="color: #E31E24; font-weight: 600;">Amount Mismatch - Cannot Submit</h5>
-                                <p class="mb-0" style="color: #E31E24; font-size: 14px;">
-                                    <strong>Approved Amount:</strong> ${requiredAmount}<br>
-                                    <strong>Current Total:</strong> ${currentTotal}<br>
-                                    <strong>Difference:</strong> ${formatCurrency(Math.abs(total - approvalAmount))}<br><br>
-                                    <strong>Form submission is blocked until amounts match exactly.</strong>
-                                </p>
+                        amountMismatchAlert.innerHTML = `
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-exclamation-triangle me-2" style="font-size: 1.2rem; color: #FBBA00;"></i>
+                                <div>
+                                    <h5 class="mb-1" style="color: #E31E24; font-weight: 600;">Amount Mismatch - Cannot Submit</h5>
+                                    <p class="mb-0" style="color: #E31E24; font-size: 14px;">
+                                        <strong>Approved Amount:</strong> ${requiredAmount}<br>
+                                        <strong>Current Total:</strong> ${currentTotal}<br>
+                                        <strong>Difference:</strong> ${formatCurrency(Math.abs(total - approvalAmount))}<br><br>
+                                        <strong>Form submission is blocked until amounts match exactly.</strong>
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                    `;
+                        `;
 
-                    amountMismatchAlert.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                }
-            });
+                        amountMismatchAlert.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    }
+                });
+            }
         });
     </script>
 
@@ -1984,3 +2045,7 @@
         }
     </script>
 @endsection
+
+
+
+

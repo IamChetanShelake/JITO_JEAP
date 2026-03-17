@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('third-stage-documents:send-reminder')->daily();
+        $schedule->command('third-stage-documents:send-reminder')->everyMinute();
     }
 
     protected function commands(): void

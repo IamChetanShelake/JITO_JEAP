@@ -1669,20 +1669,32 @@
                             </div>
                         </div>
                         <div class="d-flex justify-content-between mt-4 mb-4">
-                            <button type="button" class="btn " style="background:#988DFF1F;color:gray;"><svg
-                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                            <a href="{{ route('user.step5') }}" class="btn"
+                                style="background:#988DFF1F;color:gray;border:1px solid lightgray;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
                                     stroke="gray" stroke-width="2" viewBox="0 0 24 24">
                                     <path d="M15 18l-6-6 6-6" />
                                 </svg>
-
-                                Previous</button>
-                            <button type="submit" class="btn" style="background:#393185;color:white;">Next Step <svg
-                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                    stroke="white" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M9 6l6 6-6 6" />
-                                </svg>
-
-                            </button>
+                                Previous
+                            </a>
+                            @if ($documents && $user->workflowStatus->apex_1_status == 'approved')
+                                <button type="button" class="btn" style="background:#F0FDF4;color:#009846;border:1px solid #009846" disabled>
+                                    <i class="bi bi-check-lg" style="color: green; font-size: 24px;"></i>
+                                    Step 6 Approved
+                                </button>
+                            @elseif ($documents && $documents->submit_status == 'resubmit')
+                                <button type="submit" class="btn" style="background:#F0FDF4;color:red;border:1px solid red">
+                                    <i class="bi bi-arrow-clockwise" style="color: red; font-size: 24px;"></i>
+                                    Resubmit Step 6
+                                </button>
+                            @else
+                                <button type="submit" class="btn" style="background:#393185;color:white;">Next Step <svg
+                                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                        stroke="white" stroke-width="2" viewBox="0 0 24 24">
+                                        <path d="M9 6l6 6-6 6" />
+                                    </svg>
+                                </button>
+                            @endif
                         </div>
                     </form>
                 </div>

@@ -27,6 +27,35 @@
                         </div>
                     @endif
 
+                    @if($user->thirdStageDocument && $user->thirdStageDocument->status === 'rejected')
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="card border-danger h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-danger">Send Back for Correction</h5>
+                                        <p class="card-text mb-2">This submission was sent back for correction.</p>
+                                        @if ($user->thirdStageDocument->admin_remark)
+                                            <div class="alert alert-danger mb-0" style="border-radius: 10px;">
+                                                {!! $user->thirdStageDocument->admin_remark !!}
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-warning h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-warning">Resubmit Documents</h5>
+                                        <p class="card-text">
+                                            The applicant must update the required fields/documents and resubmit.
+                                        </p>
+                                        <span class="text-muted">Once resubmitted, it will return to admin review.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     @if($user->thirdStageDocument)
                         @if($user->financial_asset_type === 'domestic')
                             <h5 class="mt-4">Domestic Details</h5>

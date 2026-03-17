@@ -217,12 +217,12 @@ class AdminController extends Controller
     public function deleteEmpoweringDream($id)
     {
         $dream = EmpoweringDream::findOrFail($id);
-        
+
         // Delete image if exists
         if ($dream->image && file_exists(public_path($dream->image))) {
             unlink(public_path($dream->image));
         }
-        
+
         $dream->delete();
 
         return redirect()->back()->with('success', 'Data deleted successfully!');
@@ -257,7 +257,7 @@ class AdminController extends Controller
                 try {
                     $file = $request->file('icon');
                     $iconSvg = file_get_contents($file->getRealPath());
-                    
+
                     // Modify SVG to set proper sizing
                     $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
                     $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
@@ -313,12 +313,12 @@ class AdminController extends Controller
             try {
                 $file = $request->file('icon');
                 $iconSvg = file_get_contents($file->getRealPath());
-                
+
                 // Modify SVG to set proper sizing
                 $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
                 $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
                 $iconSvg = preg_replace('/(<svg)/i', '$1 width="40" height="40"', $iconSvg);
-                
+
                 $keyInstruction->icon_svg = $iconSvg;
                 $keyInstruction->icon = 'custom';
             } catch (\Exception $e) {
@@ -454,12 +454,12 @@ class AdminController extends Controller
     {
         try {
             $member = \App\Models\WorkingCommittee::findOrFail($id);
-            
+
             // Delete photo if exists
             if ($member->photo && file_exists(public_path($member->photo))) {
                 unlink(public_path($member->photo));
             }
-            
+
             $member->delete();
 
             return redirect()->route('admin.website.home.working-committee')->with('success', 'Working Committee member deleted successfully!');
@@ -574,11 +574,11 @@ class AdminController extends Controller
     public function deleteEmpoweringFuture($id)
     {
         $dream = EmpoweringDream::findOrFail($id);
-        
+
         if ($dream->image && file_exists(public_path($dream->image))) {
             unlink(public_path($dream->image));
         }
-        
+
         $dream->delete();
 
         return redirect()->route('admin.website.home.empowering-future')->with('success', 'Data deleted successfully!');
@@ -1147,6 +1147,7 @@ class AdminController extends Controller
             'can_be_jeap_donor' => 'nullable|in:yes,no',
             'jeap_donor_date' => 'nullable|date',
             'disbursement_in_year' => 'required|integer|min:1|max:6',
+            'document' => 'nullable',
         ];
 
         // Conditional validation based on disbursement system
@@ -1212,6 +1213,31 @@ class AdminController extends Controller
             'processed_by_name' => Auth::user()->name,
         ];
 
+        // // Handle document upload
+        // $documentPath = null;
+        // if ($request->hasFile('document')) {
+        //     $documentFile = $request->file('document');
+        //     $documentName = time() . '_' . $documentFile->getClientOriginalName();
+        //     $documentFile->storeAs('public/working_committee_documents', $documentName);
+        //     $documentPath = 'working_committee_documents/' . $documentName;
+        // }
+
+        // Handle document upload
+        $documentName = null;
+
+        if ($request->hasFile('document')) {
+            $documentFile = $request->file('document');
+
+            // unique file name
+            $documentName = time() . '_' . $documentFile->getClientOriginalName();
+
+            // move file to public/working_committee_documents
+            $documentFile->move(public_path('working_committee_documents'), $documentName);
+        }
+
+        // Save only file name in DB
+        //  $data->document = $documentName;
+
         // Handle disbursement arrays
         if ($request->disbursement_system === 'yearly') {
             $workingCommitteeData['disbursement_in_year'] = $request->disbursement_in_year;
@@ -1237,9 +1263,9 @@ class AdminController extends Controller
                 'disbursement_in_year' => $request->disbursement_in_year ?? null,
                 'disbursement_in_half_year' => $request->disbursement_in_half_year ?? null,
                 'yearly_dates' => $request->yearly_dates,
-                'yearly_amounts' => $request->yearly_amounts ,
-                'half_yearly_dates' => $request->half_yearly_dates ,
-                'half_yearly_amounts' => $request->half_yearly_amounts ,
+                'yearly_amounts' => $request->yearly_amounts,
+                'half_yearly_dates' => $request->half_yearly_dates,
+                'half_yearly_amounts' => $request->half_yearly_amounts,
                 'approval_financial_assistance_amount' => $request->approval_financial_assistance_amount,
                 'installment_amount' => $request->installment_amount,
                 'no_of_months' => $request->no_of_months,
@@ -1256,6 +1282,7 @@ class AdminController extends Controller
                 'processed_by_name' => Auth::user()->name,
                 'processed_by' => Auth::user()->id,
                 'approval_status' => 'approved',
+                'document' => $documentName,
             ]);
 
             $this->logUserActivity(
@@ -1530,7 +1557,7 @@ class AdminController extends Controller
             ->where('user_id', $user->id)
             ->where('status', 'completed')
             ->pluck('installment_no')
-            ->map(fn ($installmentNo) => (int) $installmentNo)
+            ->map(fn($installmentNo) => (int) $installmentNo)
             ->all();
 
         $pendingInstallmentNumbers = [];
@@ -3001,15 +3028,19 @@ class AdminController extends Controller
         // Load edit bank detail request if exists
         $editBankDetailRequest = \App\Models\EditBankDetailRequest::where('user_id', $user->id)->latest()->first();
 
-        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory', 'editBankDetailRequest'));
+        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory', 'editBankDetailRequest', 'courierDocumentChecklist'));
     }
 
     /**
      * Approve Edit Bank Detail Request
      */
-    public function approveEditBankDetailRequest(Request $request, User $user)
+    public function approveEditBankDetailRequest(Request $request)
     {
-        $editRequest = \App\Models\EditBankDetailRequest::where('user_id', $user->id)
+        $request->validate([
+            'user_id' => 'required|integer',
+        ]);
+
+        $editRequest = \App\Models\EditBankDetailRequest::where('user_id', $request->user_id)
             ->where('status', 'pending')
             ->latest()
             ->first();
@@ -3036,13 +3067,14 @@ class AdminController extends Controller
     /**
      * Reject Edit Bank Detail Request
      */
-    public function rejectEditBankDetailRequest(Request $request, User $user)
+    public function rejectEditBankDetailRequest(Request $request)
     {
         $request->validate([
+            'user_id' => 'required|integer',
             'admin_remark' => 'required|string|max:2000',
         ]);
 
-        $editRequest = \App\Models\EditBankDetailRequest::where('user_id', $user->id)
+        $editRequest = \App\Models\EditBankDetailRequest::where('user_id', $request->user_id)
             ->where('status', 'pending')
             ->latest()
             ->first();
@@ -3156,7 +3188,7 @@ class AdminController extends Controller
         sort($approvedDocuments);
 
         // Filter out 'Other' from expected documents (it's optional for approval)
-        $requiredDocuments = array_filter($expectedDocuments, function($doc) {
+        $requiredDocuments = array_filter($expectedDocuments, function ($doc) {
             return strtolower(trim($doc)) !== 'other';
         });
         $requiredDocuments = array_values($requiredDocuments);
@@ -3277,6 +3309,24 @@ class AdminController extends Controller
             'processed_by' => Auth::id(),
         ]);
 
+        // Log the approval action
+        $this->logUserActivity(
+            processType: 'Third_Stage_Document',
+            processAction: 'approved',
+            processDescription: 'Third stage document approved',
+            module: 'third_stage_document',
+            oldValues: ['status' => 'submitted'],
+            newValues: ['status' => 'approved', 'admin_remark' => $request->admin_remark],
+            additionalData: [
+                'user_id' => $user->id,
+                'document_id' => $thirdStageDocument->id,
+            ],
+            targetUserId: $user->id,
+            actorId: Auth::id(),
+            actorName: Auth::user()->name,
+            actorRole: Auth::user()->role ?? 'admin'
+        );
+
         return back()->with('success', 'Third stage documents approved successfully.');
     }
 
@@ -3297,6 +3347,24 @@ class AdminController extends Controller
             'rejected_at' => now(),
             'processed_by' => Auth::id(),
         ]);
+
+        // Log the send back action
+        $this->logUserActivity(
+            processType: 'Third_Stage_Document',
+            processAction: 'rejected',
+            processDescription: 'Third stage document sent back for correction',
+            module: 'third_stage_document',
+            oldValues: ['status' => $thirdStageDocument->getOriginal('status')],
+            newValues: ['status' => 'rejected', 'admin_remark' => $request->admin_remark],
+            additionalData: [
+                'user_id' => $user->id,
+                'document_id' => $thirdStageDocument->id,
+            ],
+            targetUserId: $user->id,
+            actorId: Auth::id(),
+            actorName: Auth::user()->name,
+            actorRole: Auth::user()->role ?? 'admin'
+        );
 
         try {
             Mail::to($user->email)->send(new ThirdStageDocumentCorrectionMail($user, $request->admin_remark));
@@ -3816,4 +3884,3 @@ class AdminController extends Controller
         ]);
     }
 }
-

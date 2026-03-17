@@ -38,8 +38,8 @@
                             novalidate>
                             @csrf
                             @if (session('bank_success'))
-                                <div class="alert alert-warning alert-dismissible fade show position-relative"
-                                    role="alert" id="bankSuccessAlert">
+                                <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
+                                    id="bankSuccessAlert">
                                     {{ session('bank_success') }}
                                     <button type="button" class="close custom-close" data-dismiss="alert"
                                         aria-label="Close">
@@ -89,8 +89,7 @@
                                         <div class="col-md-6">
 
                                             <div class="form-group mb-3">
-                                                <label for="bank_name">Bank Name <span
-                                                        style="color: red">*</span></label>
+                                                <label for="bank_name">Bank Name <span style="color: red">*</span></label>
 
                                                 <select class="form-control" name="bank_name" id="bank_name" required>
                                                     <option value="" hidden>Select Bank</option>
@@ -107,8 +106,7 @@
                                                 <small class="text-danger">{{ $errors->first('bank_name') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
-                                                <label for="ifsc_code">IFSC Code <span
-                                                        style="color: red">*</span></label>
+                                                <label for="ifsc_code">IFSC Code <span style="color: red">*</span></label>
                                                 <input type="text" class="form-control" name="ifsc_code" id="ifsc_code"
                                                     placeholder="IFSC Code "
                                                     value="{{ old('ifsc_code', $fundingDetail->ifsc_code ?? '') }}">
@@ -140,8 +138,8 @@
                                             <div class="form-group mb-3">
                                                 <label for="branch_name">Branch Name <span
                                                         style="color: red">*</span></label>
-                                                <input type="text" class="form-control" name="branch_name" id="branch_name"
-                                                    placeholder="Branch Name "
+                                                <input type="text" class="form-control" name="branch_name"
+                                                    id="branch_name" placeholder="Branch Name "
                                                     value="{{ old('branch_name', $fundingDetail->branch_name ?? '') }}">
                                                 <small class="text-danger">{{ $errors->first('branch_name') }}</small>
                                             </div>
@@ -149,8 +147,8 @@
                                             <div class="form-group mb-3">
                                                 <label for="bank_address">Bank Address <span
                                                         style="color: red">*</span></label>
-                                                <textarea class="form-control" name="bank_address" id="bank_address" rows="3"
-                                                    placeholder="Bank Address " style="resize: vertical;">{{ old('bank_address', $fundingDetail->bank_address ?? '') }}</textarea>
+                                                <textarea class="form-control" name="bank_address" id="bank_address" rows="3" placeholder="Bank Address "
+                                                    style="resize: vertical;">{{ old('bank_address', $fundingDetail->bank_address ?? '') }}</textarea>
                                                 <small class="text-danger">{{ $errors->first('bank_address') }}</small>
                                             </div>
                                         </div>
@@ -209,7 +207,8 @@
                             <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
                                 id="successAlert">
                                 {{ session('success') }}
-                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                <button type="button" class="close custom-close" data-dismiss="alert"
+                                    aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
@@ -218,7 +217,8 @@
                             <div class="alert alert-danger alert-dismissible fade show position-relative" role="alert"
                                 id="errorAlert">
                                 {{ session('error') }}
-                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                <button type="button" class="close custom-close" data-dismiss="alert"
+                                    aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
@@ -246,7 +246,8 @@
                                     </div>
                                     <div>
                                         <h3 class="card-title"> PDC/Cheque Details</h3>
-                                        <p class="card-subtitle">Upload your first cheque and add all cheque details for the
+                                        <p class="card-subtitle">Upload your first cheque and add all cheque details for
+                                            the
                                             financial assistance.</p>
                                     </div>
                                     <div class="ms-auto">
@@ -272,7 +273,7 @@
                                         @endphp
 
                                         {{-- Edit Bank Detail Request Button - Only visible until Apex Stage 2 approves PDC --}}
-                                        @if (!$isPdcApproved && !$hasApprovedRequest)
+                                        @if (!$isPdcApproved && !$hasApprovedRequest && $hasBankDetails)
                                             <button type="button" class="btn btn-warning" data-bs-toggle="modal"
                                                 data-bs-target="#editBankDetailRequestModal"
                                                 {{ $hasPendingRequest ? 'disabled' : '' }}>
@@ -319,7 +320,8 @@
                                         <div class="modal-dialog modal-lg modal-dialog-scrollable">
                                             <div class="modal-content">
                                                 <div class="modal-header bg-danger text-white">
-                                                    <h5 class="modal-title" id="rejectedRemarkModalLabel">Rejection Remarks
+                                                    <h5 class="modal-title" id="rejectedRemarkModalLabel">Rejection
+                                                        Remarks
                                                     </h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                         aria-label="Close"></button>
@@ -363,7 +365,8 @@
                                         <div class="modal-dialog modal-lg modal-dialog-scrollable">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="holdRemarkModalStep8Label">Application Send
+                                                    <h5 class="modal-title" id="holdRemarkModalStep8Label">Application
+                                                        Send
                                                         Back
                                                         Remarks</h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
@@ -380,7 +383,7 @@
 
 
                                 <!-- Rejection Alert - Show if request was rejected -->
-                                @if (isset($workingCommitteeApproval) && $workingCommitteeApproval)
+                                @if (isset($workingCommitteeApproval) && $workingCommitteeApproval && $hasBankDetails)
                                     <div class="card mb-4" style="border: 2px solid #009846; border-radius: 15px;">
                                         <div class="card-header bg-success text-white"
                                             style="border-radius: 13px 13px 0 0; background-color: #009846 !important;">
@@ -1168,12 +1171,12 @@
                 .slice(0, 10);
             const isPdcApproved = {{ $isPdcApproved ? 'true' : 'false' }};
             const repaymentStartRaw = "{{ $workingCommitteeApproval->repayment_starting_from ?? '' }}";
-            const repaymentStartDate = repaymentStartRaw
-                ? new Date(repaymentStartRaw + 'T00:00:00')
-                : null;
-            const minChequeDate = repaymentStartDate && repaymentStartDate > new Date(todayIso + 'T00:00:00')
-                ? toIsoDate(repaymentStartDate)
-                : todayIso;
+            const repaymentStartDate = repaymentStartRaw ?
+                new Date(repaymentStartRaw + 'T00:00:00') :
+                null;
+            const minChequeDate = repaymentStartDate && repaymentStartDate > new Date(todayIso + 'T00:00:00') ?
+                toIsoDate(repaymentStartDate) :
+                todayIso;
 
             // Check if bank_name is "OTHER" and show modal
             const isBankOther =
@@ -1246,9 +1249,9 @@
 
                 const studentName = "{{ $user->name ?? '' }}";
                 const applicationNo = "{{ $user->application_no ?? '' }}";
-                const defaultChequeDate = repaymentStartDate
-                    ? toIsoDate(addMonths(repaymentStartDate, index))
-                    : '';
+                const defaultChequeDate = repaymentStartDate ?
+                    toIsoDate(addMonths(repaymentStartDate, index)) :
+                    '';
                 const chequeDate = data ? data.cheque_date : defaultChequeDate;
                 const amount = data ? data.amount : '';
                 // Pre-populate from funding details if no existing data and bank is not "OTHER"
@@ -1308,8 +1311,8 @@
                                style="border: 2px solid #393185; border-radius: 10px;width:200px !important; background-color: #f8f9fa;">
                     </td>
                     ${!isPdcApproved ? `
-                        <td class="text-center">
-                            ${index > 0 ? `
+                                <td class="text-center">
+                                    ${index > 0 ? `
                                 <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"
                                     style="border-radius: 8px; font-weight: 600;">
                                     Remove
@@ -1317,8 +1320,8 @@
                             ` : `
                                 <span class="text-muted"></span>
                             `}
-                        </td>
-                    ` : ``}
+                                </td>
+                            ` : ``}
                 `;
 
                 const chequeDateInput = row.querySelector('input[name*="[cheque_date]"]');
@@ -2045,7 +2048,3 @@
         }
     </script>
 @endsection
-
-
-
-

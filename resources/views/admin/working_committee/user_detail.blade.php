@@ -834,7 +834,7 @@
             <div class="user-info-header">
                 <div class="user-avatar">
                     @if ($user->image)
-                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img"  style="width:90px;">
+                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img" style="width:90px;">
                     @else
                         {{ strtoupper(substr($user->name, 0, 1)) }}
                     @endif
@@ -1485,7 +1485,8 @@
                                 <div class="form-field">
                                     <label class="form-label">Current Year ITR</label>
                                     <input type="text" class="form-input"
-                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}" readonly>
+                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}"
+                                        readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Last Year ITR</label>
@@ -2024,7 +2025,8 @@
                                                     }
                                                 }
                                             @endphp
-                                            <button class="doc-button" onclick="selectDocument(event, '{{ $href }}', '{{ $label }}')"
+                                            <button class="doc-button"
+                                                onclick="selectDocument(event, '{{ $href }}', '{{ $label }}')"
                                                 style="text-align: left; padding: 0.75rem 1rem; background: white; color: var(--text-dark); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 400;">
                                                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                                                     <i class="fas fa-file-alt" style="font-size: 0.8rem;"></i>
@@ -2172,6 +2174,33 @@
                                     <input type="text" class="form-input"
                                         value="{{ $user->workingCommitteeApproval->meeting_no ?? 'N/A' }}" readonly>
                                 </div>
+                                @if ($user->workingCommitteeApproval && $user->workingCommitteeApproval->document)
+                                    <div class="form-field">
+                                        <label class="form-label">Document</label>
+                                        @php
+                                            $documentPath = $user->workingCommitteeApproval->document;
+                                            $extension = pathinfo($documentPath, PATHINFO_EXTENSION);
+                                        @endphp
+                                        @if (in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp']))
+                                            <a href="{{ asset('storage/' . $documentPath) }}" target="_blank">
+                                                <img src="{{ asset('storage/' . $documentPath) }}" alt="Document"
+                                                    style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; border-radius: 4px;">
+                                            </a>
+                                        @elseif (strtolower($extension) === 'pdf')
+                                            <a href="{{ asset('working_committee_documents/' . $documentPath) }}"
+                                                target="_blank" class="btn btn-sm"
+                                                style="background: #e74c3c; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block;">
+                                                <i class="fas fa-file-pdf"></i> View PDF
+                                            </a>
+                                        @else
+                                            <a href="{{ asset('storage/' . $documentPath) }}" target="_blank"
+                                                class="btn btn-sm"
+                                                style="background: #3498db; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block;">
+                                                <i class="fas fa-file"></i> View Document
+                                            </a>
+                                        @endif
+                                    </div>
+                                @endif
                             </div>
 
                             <!-- Disbursement Schedules -->
@@ -2547,7 +2576,8 @@
                                                 <div style="display: grid; gap: 0.25rem;">
                                                     <span>{{ $history->edited_by_name ?? 'N/A' }}</span>
                                                     @if (!empty($history->edited_by_email))
-                                                        <small style="color: var(--text-light);">{{ $history->edited_by_email }}</small>
+                                                        <small
+                                                            style="color: var(--text-light);">{{ $history->edited_by_email }}</small>
                                                     @endif
                                                 </div>
                                             </td>
@@ -2565,8 +2595,13 @@
                                                             @php
                                                                 $oldKey = 'old_' . $field;
                                                                 $oldValue = $history->$oldKey ?? null;
-                                                                $label = $historyFieldLabels[$field] ?? ucwords(str_replace('_', ' ', $field));
-                                                                $formattedValue = $formatHistoryValue($field, $oldValue);
+                                                                $label =
+                                                                    $historyFieldLabels[$field] ??
+                                                                    ucwords(str_replace('_', ' ', $field));
+                                                                $formattedValue = $formatHistoryValue(
+                                                                    $field,
+                                                                    $oldValue,
+                                                                );
                                                             @endphp
                                                             <div>
                                                                 <strong>{{ $label }}:</strong>
@@ -2712,7 +2747,7 @@
                                     </h6>
                                     <form
                                         action="{{ route('admin.working_committee.user.approve', ['user' => $user, 'stage' => 'working_committee']) }}"
-                                        method="POST" id="approval-form">
+                                        method="POST" id="approval-form" enctype="multipart/form-data">
                                         @csrf
                                         <!-- Previous Approvals Info -->
                                         <div
@@ -2783,10 +2818,15 @@
                                         </div>
                                         <!-- Working Committee Approval Form -->
                                         <div class="form-row">
-                                            <div class="form-field">
+                                            {{--  <div class="form-field">
                                                 <label class="form-label">Working Committee Approval Date</label>
                                                 <input type="date" name="w_c_approval_date" class="form-input"
                                                     required>
+                                            </div>  --}}
+                                            <div class="form-field">
+                                                <label class="form-label">Working Committee Approval Date</label>
+                                                <input type="date" name="w_c_approval_date" class="form-input"
+                                                    min="{{ date('Y-m-d') }}" required>
                                             </div>
                                             <div class="form-field">
                                                 <label class="form-label">Meeting Number</label>
@@ -2947,6 +2987,11 @@
                                             <div class="form-field" id="jeap-donor-date-field" style="display:none;">
                                                 <label class="form-label">JEAP Donor Date</label>
                                                 <input type="date" name="jeap_donor_date" class="form-input">
+                                            </div>
+                                            <div class="form-field">
+                                                <label class="form-label">Document (Image/PDF)</label>
+                                                <input type="file" name="document" class="form-input"
+                                                    accept="image/*,.pdf">
                                             </div>
                                             <div class="form-field">
                                                 <label class="form-label">Processed By</label>
@@ -4146,9 +4191,9 @@
 
                     halfYearlyFields.querySelectorAll('input[name="half_yearly_amounts[]"]').forEach((
                         input) => {
-                            input.readOnly = true;
-                            input.classList.add('bg-light');
-                        });
+                        input.readOnly = true;
+                        input.classList.add('bg-light');
+                    });
                 }
 
                 // Listen to all changes

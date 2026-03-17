@@ -2746,7 +2746,7 @@
 
                             @if ($editBankDetailRequest->reason)
                                 <div class="form-field mt-3">
-                                    <label class="form-label">User's Reason</label>
+                                    <label class="form-label">User Reason</label>
                                     <div class="data-value"
                                         style="background: #f8f9fa; padding: 1rem; border-radius: 8px;text-align: justify;">
                                         {{ $editBankDetailRequest->reason }}

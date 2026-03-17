@@ -20,6 +20,7 @@ use App\Http\Controllers\WorkingCommitteeController;
 use App\Http\Controllers\InitiativeController;
 use App\Http\Controllers\AccountantController;
 use App\Http\Controllers\AdminNotificationController;
+use App\Http\Controllers\ApplicationViewController;
 
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\WebsiteController;
@@ -70,6 +71,16 @@ Route::prefix('donor')->name('donor.')->group(function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+// Dynamic view system for applications (protected by admin middleware)
+Route::middleware(['admin', 'auth.active'])->group(function () {
+    Route::get('/applications/view', [ApplicationViewController::class, 'view'])->name('applications.view');
+    Route::post('/applications/group', [ApplicationViewController::class, 'group'])->name('applications.group');
+    Route::post('/applications/export', [ApplicationViewController::class, 'export'])->name('applications.export');
+    Route::post('/views/save', [ApplicationViewController::class, 'saveView'])->name('views.save');
+    Route::get('/views', [ApplicationViewController::class, 'listViews'])->name('views.list');
+    Route::get('/views/{id}', [ApplicationViewController::class, 'getView'])->name('views.get');
+});
 
 // Admin Routes - Protected by admin middleware
 Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->group(function () {
@@ -301,6 +312,18 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/logs/', [AdminController::class, 'showUserLogs'])->name('logs');
     Route::get('/logs/user/{user}', [AdminController::class, 'showUserLogs'])->name('user.logs');
     Route::post('/notifications/{notification}/read', [AdminNotificationController::class, 'read'])->name('notifications.read');
+
+    // Reports Routes
+    Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/fields', [App\Http\Controllers\ReportController::class, 'getAvailableFields'])->name('reports.fields');
+    Route::post('/reports/generate', [App\Http\Controllers\ReportController::class, 'generateDynamicReport'])->name('reports.generate');
+    Route::post('/reports/templates', [App\Http\Controllers\ReportController::class, 'saveTemplate'])->name('reports.templates.save');
+    Route::get('/reports/templates/{id}', [App\Http\Controllers\ReportController::class, 'loadTemplate'])->name('reports.templates.load');
+    Route::get('/reports/templates/{id}/export', [App\Http\Controllers\ReportController::class, 'exportFromTemplate'])->name('reports.templates.export');
+    Route::delete('/reports/templates/{id}', [App\Http\Controllers\ReportController::class, 'deleteTemplate'])->name('reports.templates.delete');
+    Route::get('/reports/jeap-disbursement', [App\Http\Controllers\ReportController::class, 'jeapDisbursement'])->name('reports.jeap_disbursement');
+    Route::get('/reports/financial-graph-report', [App\Http\Controllers\ReportController::class, 'financialGraphReport'])
+        ->name('reports.financial_graph_report');
 });
 
 // User Routes - Protected by auth and user middleware

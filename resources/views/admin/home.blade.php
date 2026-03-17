@@ -111,6 +111,21 @@
             background: #009846;
         }
 
+        /* Reports - Blue */
+        .nav-tabs-custom .nav-link.tab-reports {
+            background: #2196F3;
+        }
+
+        /* Dynamic View - Teal */
+        .nav-tabs-custom .nav-link.tab-dynamic {
+            background: #00897B;
+        }
+
+        /* Graph Report - Indigo */
+        .nav-tabs-custom .nav-link.tab-graph-report {
+            background: #3f51b5;
+        }
+
         .stat-card {
             background: white;
             border-radius: 15px;
@@ -626,6 +641,21 @@
             <li class="nav-item">
                 <a class="nav-link tab-initiatives" href="{{ route('admin.initiatives.index') }}">
                     <i class="fas fa-lightbulb"></i> Initiatives
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link tab-reports" href="{{ route('admin.reports.index') }}">
+                    <i class="fas fa-chart-bar"></i> Reports
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link tab-dynamic" href="{{ route('applications.view') }}">
+                    <i class="fas fa-layer-group"></i> Dynamic View
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link tab-graph-report" href="{{ route('admin.reports.financial_graph_report') }}">
+                    <i class="fas fa-chart-line"></i> Graph Report
                 </a>
             </li>
         </ul>

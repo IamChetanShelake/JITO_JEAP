@@ -2435,7 +2435,18 @@ class AdminController extends Controller
             ->get(['installment_no', 'planned_date', 'planned_amount', 'status']);
         // dd($workingCommitteeApproval);
         $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
-        return view('admin.working_committee.user_detail', compact('user', 'workingCommitteeApproval', 'loanCategory', 'completedDisbursementSchedules'));
+        $approvalHistories = DB::connection('admin_panel')
+            ->table('working_committee_approval_histories as h')
+            ->leftJoin('admin_users as au', 'au.id', '=', 'h.edited_by')
+            ->where('h.user_id', $user->id)
+            ->orderByDesc('h.created_at')
+            ->get([
+                'h.*',
+                'au.name as edited_by_name',
+                'au.email as edited_by_email',
+            ]);
+
+        return view('admin.working_committee.user_detail', compact('user', 'workingCommitteeApproval', 'loanCategory', 'completedDisbursementSchedules', 'approvalHistories'));
     }
 
     // Chapter Interview Methods

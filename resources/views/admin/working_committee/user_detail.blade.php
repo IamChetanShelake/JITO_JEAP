@@ -3753,7 +3753,7 @@
                             <div class="col-md-6">
                                 <label class="form-label">Repayment Starting From</label>
                                 <input type="date" name="repayment_starting_from" class="form-control"
-                                    value="{{ old('repayment_starting_from', optional($user->workingCommitteeApproval->repayment_starting_from)->format('Y-m-d') ?? '') }}">
+                                    value="{{ old('repayment_starting_from', optional(optional($user->workingCommitteeApproval)->repayment_starting_from)->format('Y-m-d') ?? '') }}">
                             </div>
 
                             <div class="col-md-3">
@@ -3773,7 +3773,7 @@
                                 style="{{ old('can_be_jito_member', $user->workingCommitteeApproval->can_be_jito_member ?? '') === 'yes' ? '' : 'display:none;' }}">
                                 <label class="form-label">JITO Member Date</label>
                                 <input type="date" name="jito_member_date" class="form-control"
-                                    value="{{ old('jito_member_date', optional($user->workingCommitteeApproval->jito_member_date)->format('Y-m-d') ?? '') }}">
+                                    value="{{ old('jito_member_date', optional(optional($user->workingCommitteeApproval)->jito_member_date)->format('Y-m-d') ?? '') }}">
                             </div>
 
                             <div class="col-md-3">
@@ -3793,7 +3793,7 @@
                                 style="{{ old('can_be_jeap_donor', $user->workingCommitteeApproval->can_be_jeap_donor ?? '') === 'yes' ? '' : 'display:none;' }}">
                                 <label class="form-label">JEAP Donor Date</label>
                                 <input type="date" name="jeap_donor_date" class="form-control"
-                                    value="{{ old('jeap_donor_date', optional($user->workingCommitteeApproval->jeap_donor_date)->format('Y-m-d') ?? '') }}">
+                                    value="{{ old('jeap_donor_date', optional(optional($user->workingCommitteeApproval)->jeap_donor_date)->format('Y-m-d') ?? '') }}">
                             </div>
 
                             <div class="col-12">

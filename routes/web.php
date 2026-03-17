@@ -201,6 +201,9 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::post('/apex-stage2/reject-edit-bank-request', [AdminController::class, 'rejectEditBankDetailRequest'])
         ->name('apex.stage2.reject.edit.bank.request');
 
+    // Files Report Route
+    Route::get('/files-report', [App\Http\Controllers\ReportController::class, 'filesReport'])->name('files.report');
+
     // PDC/Cheque Details Forms
     Route::get('/pdc/pending', [AdminController::class, 'pdcPending'])->name('pdc.pending');
     Route::get('/pdc/approved', [AdminController::class, 'pdcApproved'])->name('pdc.approved');

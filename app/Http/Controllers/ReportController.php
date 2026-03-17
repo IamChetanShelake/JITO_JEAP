@@ -12,7 +12,6 @@ use App\Models\User;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Spatie\Browsershot\Browsershot;
 use Illuminate\Support\Facades\Log;
@@ -597,45 +596,15 @@ class ReportController extends Controller
             return (float) ($user->workingCommitteeApproval?->approval_financial_assistance_amount ?? 0);
         });
 
-        $totalDisbursed = (float) DB::connection('admin_panel')
-            ->table('disbursement_schedules')
-            ->where('status', 'completed')
-            ->whereBetween('planned_date', [$startDate, $endDate])
-            ->sum('planned_amount');
+        $totalDisbursed = (float) \App\Models\Repayment::query()
+            ->whereNotNull('payment_date')
+            ->whereBetween('payment_date', [$startDate, $endDate])
+            ->sum('amount');
 
-        $totalDonations = (float) DonorPaymentDetail::query()
-            ->whereNotNull('payment_entries')
-            ->get(['payment_entries'])
-            ->sum(function ($detail) use ($startDate, $endDate) {
-                $entries = $detail->payment_entries;
-                if (!is_array($entries)) {
-                    $entries = json_decode($entries, true);
-                }
-
-                if (!is_array($entries)) {
-                    return 0;
-                }
-
-                $sum = 0;
-                foreach ($entries as $entry) {
-                    $dateValue = $entry['cheque_date'] ?? null;
-                    if (!$dateValue) {
-                        continue;
-                    }
-
-                    try {
-                        $date = Carbon::parse($dateValue);
-                    } catch (\Exception $e) {
-                        continue;
-                    }
-
-                    if ($date->between($startDate, $endDate)) {
-                        $sum += (float) ($entry['amount'] ?? 0);
-                    }
-                }
-
-                return $sum;
-            });
+        $totalDonations = (float) \App\Models\DonorPaymentDetail::query()
+            ->whereNotNull('payment_date')
+            ->whereBetween('payment_date', [$startDate, $endDate])
+            ->sum('amount');
 
         $financialSummary = [
             'donations'  => $totalDonations,
@@ -643,30 +612,30 @@ class ReportController extends Controller
             'disbursed'  => $totalDisbursed,
         ];
 
-        $fullyPaidLimit = 5400000;
         $committeeMembers = \App\Models\Donor::query()
-            ->with(['personalDetail', 'commitments', 'paymentDetail'])
-            ->where('donor_type', \App\Models\Donor::TYPE_MEMBER)
-            ->orderBy('id', 'desc')
-            ->get()
-            ->filter(function ($donor) use ($fullyPaidLimit) {
-                $totalPaid = $donor->commitments->sum(function ($commitment) {
-                    return $commitment->getTotalPaidAmount();
-                });
-                return $totalPaid >= $fullyPaidLimit;
-            })
-            ->values()
+            ->leftJoin('donor_personal_details as dpd', 'dpd.donor_id', '=', 'donors.id')
+            ->where('donors.donor_type', \App\Models\Donor::TYPE_MEMBER)
+            ->orderBy('donors.id', 'desc')
+            ->take(15)
+            ->get([
+                'donors.id',
+                'donors.name',
+                'dpd.title',
+                'dpd.first_name',
+                'dpd.middle_name',
+                'dpd.surname',
+                'dpd.zone',
+            ])
             ->map(function ($donor) {
-                $personal = $donor->personalDetail;
                 $name = trim(implode(' ', array_filter([
-                    $personal->title ?? null,
-                    $personal->first_name ?? null,
-                    $personal->middle_name ?? null,
-                    $personal->surname ?? null,
+                    $donor->title ?? null,
+                    $donor->first_name ?? null,
+                    $donor->middle_name ?? null,
+                    $donor->surname ?? null,
                 ])));
                 return [
                     'name' => $name ?: ($donor->name ?? 'Member'),
-                    'zone' => $personal->zone ?? 'N/A',
+                    'zone' => $donor->zone ?: 'N/A',
                 ];
             });
 
@@ -739,5 +708,199 @@ class ReportController extends Controller
             return 'Foreign';
         }
         return 'Domestic';
+    }
+
+    /**
+     * Files Report - Student loan workflow status report
+     */
+    public function filesReport(Request $request)
+    {
+        $fromDate = $request->input('from_date') ? Carbon::parse($request->input('from_date'))->startOfDay() : null;
+        $toDate = $request->input('to_date') ? Carbon::parse($request->input('to_date'))->endOfDay() : null;
+
+        // Base query for users with role 'user'
+        $baseQuery = User::where('role', 'user');
+
+        // 1. STUDENTS FILES NOT RECEIVED:
+        // Working committee approved but PDC details NOT submitted
+        $filesNotReceivedQuery = clone $baseQuery;
+        $filesNotReceivedQuery->whereHas('workflowStatus', function ($q) {
+            $q->where('working_committee_status', 'approved');
+        })->whereDoesntHave('pdcDetail', function ($q) {
+            $q->whereIn('status', ['submitted', 'approved']);
+        });
+
+        if ($fromDate && $toDate) {
+            $filesNotReceivedQuery->whereBetween('created_at', [$fromDate, $toDate]);
+        } elseif ($fromDate) {
+            $filesNotReceivedQuery->where('created_at', '>=', $fromDate);
+        } elseif ($toDate) {
+            $filesNotReceivedQuery->where('created_at', '<=', $toDate);
+        }
+
+        $filesNotReceivedCount = $filesNotReceivedQuery->count();
+        $filesNotReceivedAmount = (clone $filesNotReceivedQuery)->get()->sum(function ($user) {
+            return $user->workingCommitteeApproval->approval_financial_assistance_amount ?? 0;
+        });
+
+        // 2. STUDENTS FILES RECEIVED BUT CHEQUES / DOCUMENT PENDING:
+        // PDC submitted and courier received, but documents incomplete or not approved
+        $filesPendingQuery = clone $baseQuery;
+        $filesPendingQuery->whereHas('pdcDetail', function ($q) {
+            $q->whereIn('status', ['submitted'])
+                ->where('courier_receive_status', 'approved');
+        })->whereDoesntHave('pdcDetail', function ($q) {
+            $q->where('status', 'approved');
+        });
+
+        if ($fromDate && $toDate) {
+            $filesPendingQuery->whereBetween('created_at', [$fromDate, $toDate]);
+        } elseif ($fromDate) {
+            $filesPendingQuery->where('created_at', '>=', $fromDate);
+        } elseif ($toDate) {
+            $filesPendingQuery->where('created_at', '<=', $toDate);
+        }
+
+        $filesPendingCount = $filesPendingQuery->count();
+        $filesPendingAmount = (clone $filesPendingQuery)->get()->sum(function ($user) {
+            return $user->workingCommitteeApproval->approval_financial_assistance_amount ?? 0;
+        });
+
+        // 3. FILES CHECKING PENDING:
+        // PDC submitted and courier received, but under checking (not approved)
+        $filesCheckingQuery = clone $baseQuery;
+        $filesCheckingQuery->whereHas('pdcDetail', function ($q) {
+            $q->where('status', 'submitted')
+                ->where('courier_receive_status', 'approved');
+        });
+
+        if ($fromDate && $toDate) {
+            $filesCheckingQuery->whereBetween('created_at', [$fromDate, $toDate]);
+        } elseif ($fromDate) {
+            $filesCheckingQuery->where('created_at', '>=', $fromDate);
+        } elseif ($toDate) {
+            $filesCheckingQuery->where('created_at', '<=', $toDate);
+        }
+
+        $filesCheckingCount = $filesCheckingQuery->count();
+        $filesCheckingAmount = (clone $filesCheckingQuery)->get()->sum(function ($user) {
+            return $user->workingCommitteeApproval->approval_financial_assistance_amount ?? 0;
+        });
+
+        // 4. DISBURSEMENT IN QUE (FRESH / FOREIGN / MULTIPLE):
+        // PDC and courier documents approved and ready for disbursement
+        $disbursementInQueQuery = clone $baseQuery;
+        $disbursementInQueQuery->whereHas('pdcDetail', function ($q) {
+            $q->where('status', 'approved')
+                ->where('courier_receive_status', 'approved');
+        });
+
+        if ($fromDate && $toDate) {
+            $disbursementInQueQuery->whereBetween('created_at', [$fromDate, $toDate]);
+        } elseif ($fromDate) {
+            $disbursementInQueQuery->where('created_at', '>=', $fromDate);
+        } elseif ($toDate) {
+            $disbursementInQueQuery->where('created_at', '<=', $toDate);
+        }
+
+        $disbursementInQueCount = $disbursementInQueQuery->count();
+        $disbursementInQueAmount = (clone $disbursementInQueQuery)->get()->sum(function ($user) {
+            return $user->workingCommitteeApproval->approval_financial_assistance_amount ?? 0;
+        });
+
+        // 5. NO. OF STUDENTS REPAYMENT COMPLETED:
+        // Students who have repayments and all repayments have payment_date (meaning completed)
+        // First get all user_ids who have any repayment entries
+        $usersWithRepayments = \App\Models\Repayment::on('admin_panel')
+            ->whereNotNull('payment_date')
+            ->distinct()
+            ->pluck('user_id')
+            ->toArray();
+
+        // Get users whose all expected repayments are completed
+        $repaymentCompletedQuery = clone $baseQuery;
+        $repaymentCompletedQuery->whereIn('id', $usersWithRepayments);
+
+        if ($fromDate && $toDate) {
+            $repaymentCompletedQuery->whereBetween('created_at', [$fromDate, $toDate]);
+        } elseif ($fromDate) {
+            $repaymentCompletedQuery->where('created_at', '>=', $fromDate);
+        } elseif ($toDate) {
+            $repaymentCompletedQuery->where('created_at', '<=', $toDate);
+        }
+
+        if ($fromDate) {
+            $repaymentCompletedQuery->whereBetween('created_at', [$fromDate, $toDate]);
+        }
+
+        $repaymentCompletedCount = $repaymentCompletedQuery->count();
+
+        $reportData = [
+            [
+                'category' => 'Students Files Not Received',
+                'file_count' => $filesNotReceivedCount,
+                'amount' => $filesNotReceivedAmount,
+            ],
+            [
+                'category' => 'Students Files Received But Cheques/Document Pending',
+                'file_count' => $filesPendingCount,
+                'amount' => $filesPendingAmount,
+            ],
+            [
+                'category' => 'Files Checking Pending',
+                'file_count' => $filesCheckingCount,
+                'amount' => $filesCheckingAmount,
+            ],
+            [
+                'category' => 'Disbursement In Que (Fresh/Foreign/Multiple)',
+                'file_count' => $disbursementInQueCount,
+                'amount' => $disbursementInQueAmount,
+            ],
+            [
+                'category' => 'No. Of Students Repayment Completed',
+                'file_count' => $repaymentCompletedCount,
+                'amount' => 0,
+            ],
+        ];
+
+        // Check if export is requested
+        if ($request->input('export') === 'excel') {
+            return $this->exportFilesReport($reportData, $fromDate, $toDate);
+        }
+
+        return view('admin.files_report', compact('reportData', 'fromDate', 'toDate'));
+    }
+
+    /**
+     * Export Files Report to Excel
+     */
+    protected function exportFilesReport($reportData, $fromDate, $toDate)
+    {
+        $fileName = 'Files_Report_' . date('Y-m-d') . '.xlsx';
+
+        return Excel::download(new class($reportData) implements \Maatwebsite\Excel\Concerns\FromArray, \Maatwebsite\Excel\Concerns\WithHeadings {
+            private $data;
+
+            public function __construct($data)
+            {
+                $this->data = $data;
+            }
+
+            public function array(): array
+            {
+                return array_map(function ($row) {
+                    return [
+                        $row['category'],
+                        $row['file_count'],
+                        $row['amount'],
+                    ];
+                }, $this->data);
+            }
+
+            public function headings(): array
+            {
+                return ['Category', 'File Count', 'Amount'];
+            }
+        }, $fileName);
     }
 }

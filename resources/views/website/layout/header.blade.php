@@ -804,7 +804,7 @@
                                                                 href="{{ route('login') }}"
                                                                 style="padding: 6px 14px; border-radius: 6px; font-weight: 500; width: 100%;">Login</a> --}}
                                                             <a class="btn btn-success btn-sm"
-                                                                href="{{ route('login') }}"
+                                                                href=""
                                                                 style="padding: 6px 14px; border-radius: 6px; font-weight: 500; width: 100%;">Login</a>
                                                         </div>
                                                     @else
@@ -829,8 +829,9 @@
                                                                 onclick="event.preventDefault(); document.getElementById('logout-form-mobile').submit();">
                                                                 <i class="fa fa-power-off me-1 ms-1"></i> Logout
                                                             </a>
-                                                            <form id="logout-form-mobile" action=""
-                                                                method="POST" class="d-none">
+                                                            <form id="logout-form-mobile"
+                                                                action="" method="POST"
+                                                                class="d-none">
                                                                 @csrf
                                                             </form>
                                                         </div>
@@ -850,7 +851,7 @@
                                         {{-- <a class="btn btn-outline-secondary btn-lg px-4 py-2"
                                             href="{{ route('login') }}"
                                             style="padding: 6px 14px; border-radius: 6px ; border-color: gray; font-weight: 500; width: 140px; height: 40px;">Login</a> --}}
-                                        <a class="btn btn-success" href="{{ route('login') }}"
+                                        <a class="btn btn-success" href=""
                                             style="padding: 6px 14px; border-radius: 6px; font-weight: 500;width: 140px; height: 40px;margin-right:20px;">Login</a>
                                     </div>
                                 @else
@@ -885,7 +886,8 @@
                                                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                                     <i class="fa fa-power-off me-1 ms-1"></i>
                                                     Logout</a></li>
-                                            <form id="logout-form" action="" method="POST" class="d-none">
+                                            <form id="logout-form" action="" method="POST"
+                                                class="d-none">
                                                 @csrf
                                             </form>
                                         </ul>
@@ -902,7 +904,8 @@
                                                         aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <form action="" method="POST" id="changePasswordForm">
+                                                    <form action=""
+                                                        method="POST" id="changePasswordForm">
                                                         @csrf
                                                         <div class="mb-3">
                                                             <label for="newPassword" class="form-label">New

@@ -624,6 +624,11 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link tab-files" href="{{ route('admin.files.report') }}">
+                    <i class="fas fa-folder"></i> Files Report
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link tab-committee" href="{{ route('admin.committee.index') }}">
                     <i class="fas fa-user-tie"></i> Working Committee
                 </a>

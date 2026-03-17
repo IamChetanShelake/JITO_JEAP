@@ -264,14 +264,10 @@
                 </tr>
             </table>
         </div>
-        <div class="card-body" style="padding:0;">
-            <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#6da946"
-                style="background-color:#6da946;">
-                <tr>
-                    <td style="padding:10px 12px;">
-                        <div class="chart-title-white">COURSE TYPE DISTRIBUTION OF SANCTIONED FA APPLICATIONS</div>
-                        <svg width="{{ $cW }}" height="{{ $cH }}"
-                            viewBox="0 0 {{ $cW }} {{ $cH }}">
+        <div class="card-body" style="background:#70ad47;">
+            <div class="chart-title-white">COURSE TYPE DISTRIBUTION OF SANCTIONED FA APPLICATIONS</div>
+            <svg width="{{ $cW }}" height="{{ $cH }}"
+                viewBox="0 0 {{ $cW }} {{ $cH }}">
                 @for ($t = 0; $t <= 5; $t++)
                     @php
                         $yv = $yStep * $t;
@@ -321,8 +317,8 @@
                 <rect x="{{ $pL + 105 }}" y="{{ $cH - 16 }}" width="12" height="12" fill="#ffc000" />
                 <text x="{{ $pL + 120 }}" y="{{ $cH - 6 }}" font-size="9" fill="#0000"
                     font-weight="bold">FOREIGN FA</text>
-                        </svg>
-                        <table style="background:#fff; margin-top:8px;">
+            </svg>
+            <table style="background:#fff; margin-top:8px;">
                 <thead>
                     <tr>
                         <th style="width:30%;text-align:left;"></th>
@@ -351,9 +347,6 @@
                         <td>{{ $totalApplications }}</td>
                     </tr>
                 </tbody>
-                        </table>
-                    </td>
-                </tr>
             </table>
         </div>
     </div>

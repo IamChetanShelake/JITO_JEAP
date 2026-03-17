@@ -16,7 +16,8 @@
                             <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
                                 id="successAlert">
                                 {{ session('success') }}
-                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                <button type="button" class="close custom-close" data-dismiss="alert"
+                                    aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
@@ -35,7 +36,8 @@
                         @if (session('error'))
                             <div class="alert alert-danger alert-dismissible fade show position-relative" role="alert">
                                 {{ session('error') }}
-                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                <button type="button" class="close custom-close" data-dismiss="alert"
+                                    aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
@@ -68,9 +70,7 @@
                                 @endif
 
                                 @php
-                                    $isLocked =
-                                        $thirdStageDocument &&
-                                        in_array($thirdStageDocument->status, ['submitted', 'approved']);
+                                    $isLocked = $thirdStageDocument && in_array($thirdStageDocument->status, ['submitted', 'approved']);
                                 @endphp
 
                                 @if ($thirdStageDocument && $thirdStageDocument->status === 'submitted')
@@ -87,8 +87,7 @@
                                             <div class="card border-danger h-100">
                                                 <div class="card-body">
                                                     <h5 class="card-title text-danger">Send Back for Correction</h5>
-                                                    <p class="card-text mb-2">Your submission needs correction. Please
-                                                        review the remarks below.</p>
+                                                    <p class="card-text mb-2">Your submission needs correction. Please review the remarks below.</p>
                                                     @if ($thirdStageDocument->admin_remark)
                                                         <div class="alert alert-danger mb-0" style="border-radius: 10px;">
                                                             {!! $thirdStageDocument->admin_remark !!}
@@ -104,8 +103,7 @@
                                                     <p class="card-text">
                                                         Update the required fields/documents and resubmit for review.
                                                     </p>
-                                                    <span class="text-muted">Once resubmitted, you will not be able to edit
-                                                        until admin review.</span>
+                                                    <span class="text-muted">Once resubmitted, you will not be able to edit until admin review.</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -123,9 +121,9 @@
                                             All Mark Sheets
                                         </label>
                                         <input type="file" class="form-control" name="domestic_marksheets[]" multiple
-                                            accept=".pdf,image/*" {{ $isLocked ? 'disabled' : '' }}>
-                                        <small class="text-muted">Allowed formats: PDF, JPG, JPEG, PNG. Max 5MB per
-                                            file.</small>
+                                            accept=".pdf,image/*"
+                                            {{ $isLocked ? 'disabled' : '' }}>
+                                        <small class="text-muted">Allowed formats: PDF, JPG, JPEG, PNG. Max 5MB per file.</small>
                                     </div>
 
                                     <div class="mb-3">
@@ -133,9 +131,9 @@
                                             Paid Fees Receipt
                                         </label>
                                         <input type="file" class="form-control" name="domestic_paid_fees_receipt"
-                                            accept=".pdf,image/*" {{ $isLocked ? 'disabled' : '' }}>
-                                        <small class="text-muted">Allowed formats: PDF, JPG, JPEG, PNG. Max 5MB per
-                                            file.</small>
+                                            accept=".pdf,image/*"
+                                            {{ $isLocked ? 'disabled' : '' }}>
+                                        <small class="text-muted">Allowed formats: PDF, JPG, JPEG, PNG. Max 5MB per file.</small>
                                     </div>
 
                                     <div class="mb-3">
@@ -143,16 +141,17 @@
                                             Cancelled Cheque Copy
                                         </label>
                                         <input type="file" class="form-control" name="domestic_cancelled_cheque"
-                                            accept=".pdf,image/*" {{ $isLocked ? 'disabled' : '' }}>
-                                        <small class="text-muted">Allowed formats: PDF, JPG, JPEG, PNG. Max 5MB per
-                                            file.</small>
+                                            accept=".pdf,image/*"
+                                            {{ $isLocked ? 'disabled' : '' }}>
+                                        <small class="text-muted">Allowed formats: PDF, JPG, JPEG, PNG. Max 5MB per file.</small>
                                     </div>
                                 @elseif ($financialAssetType === 'foreign_finance_assistant')
                                     <div class="mb-3">
                                         <label class="form-label" style="font-weight: 600; color: #393185;">
                                             Applicant New Address (Overseas)
                                         </label>
-                                        <textarea class="form-control" name="foreign_address" rows="3" {{ $isLocked ? 'disabled' : '' }}>{{ old('foreign_address', $thirdStageDocument->foreign_address ?? '') }}</textarea>
+                                        <textarea class="form-control" name="foreign_address" rows="3"
+                                            {{ $isLocked ? 'disabled' : '' }}>{{ old('foreign_address', $thirdStageDocument->foreign_address ?? '') }}</textarea>
                                     </div>
 
                                     <div class="mb-3">
@@ -172,29 +171,27 @@
                                             value="{{ old('foreign_ssn_or_country_id', $thirdStageDocument->foreign_ssn_or_country_id ?? '') }}"
                                             {{ $isLocked ? 'disabled' : '' }}>
                                     </div>
-                                    @if (!$isLocked)
-                                        <div class="mb-3">
-                                            <label class="form-label" style="font-weight: 600; color: #393185;">
-                                                Immigration Copy (e.g. USA I-94 or Visa copy with your entry stamp on the
-                                                same page)
-                                            </label>
-                                            <input type="file" class="form-control" name="foreign_immigration_copy"
-                                                accept=".pdf,image/*" {{ $isLocked ? 'disabled' : '' }}>
-                                            <small class="text-muted">Allowed formats: PDF, JPG, JPEG, PNG. Max 5MB per
-                                                file.</small>
-                                        </div>
 
+                                    <div class="mb-3">
+                                        <label class="form-label" style="font-weight: 600; color: #393185;">
+                                            Immigration Copy (e.g. USA I-94 or Visa copy with your entry stamp on the same page)
+                                        </label>
+                                        <input type="file" class="form-control" name="foreign_immigration_copy"
+                                            accept=".pdf,image/*"
+                                            {{ $isLocked ? 'disabled' : '' }}>
+                                        <small class="text-muted">Allowed formats: PDF, JPG, JPEG, PNG. Max 5MB per file.</small>
+                                    </div>
 
-                                        <div class="mb-3">
-                                            <label class="form-label" style="font-weight: 600; color: #393185;">
-                                                Paid Fees Receipt of the University Admitted
-                                            </label>
-                                            <input type="file" class="form-control" name="foreign_paid_fees_receipt"
-                                                accept=".pdf,image/*" {{ $isLocked ? 'disabled' : '' }}>
-                                            <small class="text-muted">Allowed formats: PDF, JPG, JPEG, PNG. Max 5MB per
-                                                file.</small>
-                                        </div>
-                                    @endif
+                                    <div class="mb-3">
+                                        <label class="form-label" style="font-weight: 600; color: #393185;">
+                                            Paid Fees Receipt of the University Admitted
+                                        </label>
+                                        <input type="file" class="form-control" name="foreign_paid_fees_receipt"
+                                            accept=".pdf,image/*"
+                                            {{ $isLocked ? 'disabled' : '' }}>
+                                        <small class="text-muted">Allowed formats: PDF, JPG, JPEG, PNG. Max 5MB per file.</small>
+                                    </div>
+
                                     <div class="mb-3">
                                         <label class="form-label" style="font-weight: 600; color: #393185;">
                                             Name of Foreign Bank Account
@@ -220,8 +217,7 @@
                                         <ul class="list-group">
                                             @if (!empty($thirdStageDocument->domestic_marksheets))
                                                 @foreach ($thirdStageDocument->domestic_marksheets as $doc)
-                                                    <li
-                                                        class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
                                                         <span>{{ basename($doc) }}</span>
                                                         <a href="{{ asset($doc) }}" target="_blank"
                                                             class="btn btn-sm btn-outline-primary">View</a>
@@ -230,45 +226,40 @@
                                             @endif
 
                                             @if (!empty($thirdStageDocument->domestic_paid_fees_receipt))
-                                                <li
-                                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
                                                     <span>{{ basename($thirdStageDocument->domestic_paid_fees_receipt) }}</span>
-                                                    <a href="{{ asset($thirdStageDocument->domestic_paid_fees_receipt) }}"
-                                                        target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                    <a href="{{ asset($thirdStageDocument->domestic_paid_fees_receipt) }}" target="_blank"
+                                                        class="btn btn-sm btn-outline-primary">View</a>
                                                 </li>
                                             @endif
 
                                             @if (!empty($thirdStageDocument->domestic_cancelled_cheque))
-                                                <li
-                                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
                                                     <span>{{ basename($thirdStageDocument->domestic_cancelled_cheque) }}</span>
-                                                    <a href="{{ asset($thirdStageDocument->domestic_cancelled_cheque) }}"
-                                                        target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                    <a href="{{ asset($thirdStageDocument->domestic_cancelled_cheque) }}" target="_blank"
+                                                        class="btn btn-sm btn-outline-primary">View</a>
                                                 </li>
                                             @endif
 
                                             @if (!empty($thirdStageDocument->foreign_immigration_copy))
-                                                <li
-                                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
                                                     <span>{{ basename($thirdStageDocument->foreign_immigration_copy) }}</span>
-                                                    <a href="{{ asset($thirdStageDocument->foreign_immigration_copy) }}"
-                                                        target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                    <a href="{{ asset($thirdStageDocument->foreign_immigration_copy) }}" target="_blank"
+                                                        class="btn btn-sm btn-outline-primary">View</a>
                                                 </li>
                                             @endif
 
                                             @if (!empty($thirdStageDocument->foreign_paid_fees_receipt))
-                                                <li
-                                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
                                                     <span>{{ basename($thirdStageDocument->foreign_paid_fees_receipt) }}</span>
-                                                    <a href="{{ asset($thirdStageDocument->foreign_paid_fees_receipt) }}"
-                                                        target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                    <a href="{{ asset($thirdStageDocument->foreign_paid_fees_receipt) }}" target="_blank"
+                                                        class="btn btn-sm btn-outline-primary">View</a>
                                                 </li>
                                             @endif
 
                                             @if (!empty($thirdStageDocument->documents))
                                                 @foreach ($thirdStageDocument->documents as $doc)
-                                                    <li
-                                                        class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
                                                         <span>{{ basename($doc) }}</span>
                                                         <a href="{{ asset($doc) }}" target="_blank"
                                                             class="btn btn-sm btn-outline-primary">View</a>

@@ -492,7 +492,14 @@
                                         <p class="card-subtitle">Information about your family members</p>
                                     </div>
                                 </div>
-
+                                <!-- Important Note Box -->
+                                <div
+                                    style="background-color: #FEF6E0; border: 1px solid #FBBA00; border-radius: 8px; padding: 12px; margin-bottom: 20px;">
+                                    <p class="mb-0" style="color: #E31E24; font-size: 15px;font-weight: 500;">
+                                        <strong>Note:</strong> Please Enter Number Of Family member including student for
+                                        e.g. Student, Father, Mother, Brother, Sister, Grand Father/Mother.
+                                    </p>
+                                </div>
                                 <div class="row">
                                     <!-- Left Column -->
                                     <div class="col-md-6">

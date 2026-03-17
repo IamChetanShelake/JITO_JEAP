@@ -318,6 +318,8 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/reports/templates/{id}/export', [App\Http\Controllers\ReportController::class, 'exportFromTemplate'])->name('reports.templates.export');
     Route::delete('/reports/templates/{id}', [App\Http\Controllers\ReportController::class, 'deleteTemplate'])->name('reports.templates.delete');
     Route::get('/reports/jeap-disbursement', [App\Http\Controllers\ReportController::class, 'jeapDisbursement'])->name('reports.jeap_disbursement');
+    Route::get('/reports/financial-graph-report', [App\Http\Controllers\ReportController::class, 'financialGraphReport'])
+        ->name('reports.financial_graph_report');
 });
 
 // User Routes - Protected by auth and user middleware

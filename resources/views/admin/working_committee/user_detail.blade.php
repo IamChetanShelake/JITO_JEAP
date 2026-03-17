@@ -2441,6 +2441,159 @@
                 </div>
             @endif
 
+            @php
+                $historyFieldLabels = [
+                    'approval_financial_assistance_amount' => 'Approved Financial Assistance Amount',
+                    'meeting_no' => 'Meeting Number',
+                    'w_c_approval_date' => 'Approval Date',
+                    'disbursement_system' => 'Disbursement System',
+                    'disbursement_in_year' => 'Disbursement In Year',
+                    'disbursement_in_half_year' => 'Disbursement In Half Year',
+                    'yearly_dates' => 'Yearly Disbursement Dates',
+                    'yearly_amounts' => 'Yearly Disbursement Amounts',
+                    'half_yearly_dates' => 'Half-Yearly Disbursement Dates',
+                    'half_yearly_amounts' => 'Half-Yearly Disbursement Amounts',
+                    'installment_amount' => 'Installment Amounts',
+                    'no_of_months' => 'No. of Months',
+                    'total' => 'Total',
+                    'additional_installment_amount' => 'Additional Installment Amount',
+                    'repayment_type' => 'Repayment Type',
+                    'repayment_starting_from' => 'Repayment Starting From',
+                    'no_of_cheques_to_be_collected' => 'No. of Cheques to be Collected',
+                    'w_c_approval_remark' => 'Working Committee Approval Remark',
+                    'remarks_for_approval' => 'Remarks for Approval',
+                    'can_be_jito_member' => 'Can be JITO Member',
+                    'jito_member_date' => 'JITO Member Date',
+                    'can_be_jeap_donor' => 'Can be JEAP Donor',
+                    'jeap_donor_date' => 'JEAP Donor Date',
+                ];
+
+                $formatHistoryValue = function ($field, $value) {
+                    if ($value === null || $value === '') {
+                        return 'N/A';
+                    }
+
+                    if (is_array($value)) {
+                        if (count($value) === 0) {
+                            return 'N/A';
+                        }
+                        $formattedItems = [];
+                        foreach ($value as $item) {
+                            if ($item === null || $item === '') {
+                                $formattedItems[] = 'N/A';
+                                continue;
+                            }
+                            if (str_contains($field, 'date')) {
+                                try {
+                                    $formattedItems[] = \Carbon\Carbon::parse($item)->format('d M Y');
+                                } catch (\Exception $e) {
+                                    $formattedItems[] = $item;
+                                }
+                            } elseif (is_numeric($item)) {
+                                $formattedItems[] = number_format((float) $item, 2);
+                            } else {
+                                $formattedItems[] = is_string($item) ? strip_tags($item) : $item;
+                            }
+                        }
+                        return implode(', ', $formattedItems);
+                    }
+
+                    if (str_contains($field, 'date')) {
+                        try {
+                            return \Carbon\Carbon::parse($value)->format('d M Y');
+                        } catch (\Exception $e) {
+                            return $value;
+                        }
+                    }
+
+                    if (is_numeric($value) && str_contains($field, 'amount')) {
+                        return number_format((float) $value, 2);
+                    }
+
+                    return is_string($value) ? strip_tags($value) : $value;
+                };
+            @endphp
+
+            @if (isset($approvalHistories) && $approvalHistories->count())
+                <div class="form-data" style="margin-top: 2rem;">
+                    <div class="data-group">
+                        <h4>Working Committee Edit History</h4>
+                        <div class="table-container">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Edited At</th>
+                                        <th>Edited By</th>
+                                        <th>Changed Fields</th>
+                                        <th>Previous Values</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($approvalHistories as $history)
+                                        @php
+                                            $changedFields = [];
+                                            if (is_array($history->changed_fields ?? null)) {
+                                                $changedFields = $history->changed_fields;
+                                            } elseif (is_string($history->changed_fields ?? null)) {
+                                                $decoded = json_decode($history->changed_fields, true);
+                                                $changedFields = is_array($decoded) ? $decoded : [];
+                                            }
+                                        @endphp
+                                        <tr>
+                                            <td>
+                                                {{ $history->created_at ? \Carbon\Carbon::parse($history->created_at)->format('d M Y H:i') : 'N/A' }}
+                                            </td>
+                                            <td>
+                                                <div style="display: grid; gap: 0.25rem;">
+                                                    <span>{{ $history->edited_by_name ?? 'N/A' }}</span>
+                                                    @if (!empty($history->edited_by_email))
+                                                        <small style="color: var(--text-light);">{{ $history->edited_by_email }}</small>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if (count($changedFields))
+                                                    {{ implode(', ', array_map(fn($field) => $historyFieldLabels[$field] ?? ucwords(str_replace('_', ' ', $field)), $changedFields)) }}
+                                                @else
+                                                    N/A
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div style="display: grid; gap: 0.35rem;">
+                                                    @if (count($changedFields))
+                                                        @foreach ($changedFields as $field)
+                                                            @php
+                                                                $oldKey = 'old_' . $field;
+                                                                $oldValue = $history->$oldKey ?? null;
+                                                                $label = $historyFieldLabels[$field] ?? ucwords(str_replace('_', ' ', $field));
+                                                                $formattedValue = $formatHistoryValue($field, $oldValue);
+                                                            @endphp
+                                                            <div>
+                                                                <strong>{{ $label }}:</strong>
+                                                                {{ $formattedValue }}
+                                                            </div>
+                                                        @endforeach
+                                                    @else
+                                                        <span>N/A</span>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="form-data" style="margin-top: 2rem;">
+                    <div class="data-group">
+                        <h4>Working Committee Edit History</h4>
+                        <p style="color: var(--text-light); margin: 0;">No edit history available.</p>
+                    </div>
+                </div>
+            @endif
+
             @if ($user->workflowStatus && $user->workflowStatus->working_committee_status === 'rejected')
                 <!-- Display Working Committee Rejection Remarks -->
                 <div class="form-data">

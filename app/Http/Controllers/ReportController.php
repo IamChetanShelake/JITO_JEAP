@@ -4,10 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Exports\JeapDisbursementReportExport;
 use App\Exports\DynamicReportExport;
+use App\Models\Donor;
+use App\Models\DonorPaymentDetail;
+use App\Models\Repayment;
 use App\Models\ReportTemplate;
+use App\Models\User;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+use Spatie\Browsershot\Browsershot;
+use Illuminate\Support\Facades\Log;
+use Mpdf\Mpdf;
+use Mpdf\Config\ConfigVariables;
+use Mpdf\Config\FontVariables;
 
 class ReportController extends Controller
 {
@@ -533,5 +543,159 @@ class ReportController extends Controller
             new JeapDisbursementReportExport(),
             $fileName
         );
+    }
+
+    /**
+     * Graph-based financial assistance report (HTML preview + PDF download).
+     */
+    public function financialGraphReport(Request $request)
+    {
+        $startDate = Carbon::parse($request->input('start_date', '2023-07-01'))->startOfDay();
+        $endDate   = Carbon::parse($request->input('end_date', now()->toDateString()))->endOfDay();
+
+        $applications = User::with([
+            'educationDetail',
+            'chapterMaster.zone',
+            'workflowStatus',
+            'workingCommitteeApproval',
+        ])->where('role', 'user')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get();
+
+        $courseTypeStats = [
+            'Domestic' => ['UG' => 0, 'PG' => 0],
+            'Foreign'  => ['UG' => 0, 'PG' => 0],
+        ];
+        foreach ($applications as $user) {
+            $courseType = $this->resolveCourseType($user->educationDetail);
+            $faType     = $this->resolveFaType($user->educationDetail);
+            if (isset($courseTypeStats[$faType][$courseType])) {
+                $courseTypeStats[$faType][$courseType]++;
+            }
+        }
+
+        $totalApplications = $applications->count();
+
+        $zoneCounts = $applications->groupBy(function ($user) {
+            return $user->chapterMaster?->zone?->zone_name ?? $user->zone ?? 'N/A';
+        })->map->count()->sortDesc();
+
+        $chapterCounts = $applications->groupBy(function ($user) {
+            return $user->chapterMaster?->chapter_name ?? $user->chapter ?? 'N/A';
+        })->map->count()->sortDesc();
+
+        $rejected = $applications->filter(function ($user) {
+            return ($user->workflowStatus?->final_status ?? null) === 'rejected';
+        });
+
+        $rejectedByZone = $rejected->groupBy(function ($user) {
+            return $user->chapterMaster?->zone?->zone_name ?? $user->zone ?? 'N/A';
+        })->map->count()->sortDesc();
+
+        $totalSanctioned = (float) $applications->sum(function ($user) {
+            return (float) ($user->workingCommitteeApproval?->approval_financial_assistance_amount ?? 0);
+        });
+
+        $totalDisbursed = (float) \App\Models\Repayment::query()
+            ->whereNotNull('payment_date')
+            ->whereBetween('payment_date', [$startDate, $endDate])
+            ->sum('amount');
+
+        $totalDonations = (float) \App\Models\DonorPaymentDetail::query()
+            ->whereNotNull('payment_date')
+            ->whereBetween('payment_date', [$startDate, $endDate])
+            ->sum('amount');
+
+        $financialSummary = [
+            'donations'  => $totalDonations,
+            'sanctioned' => $totalSanctioned,
+            'disbursed'  => $totalDisbursed,
+        ];
+
+        $committeeMembers = \App\Models\Donor::with('personalDetail')
+            ->where('donor_type', \App\Models\Donor::TYPE_MEMBER)
+            ->orderBy('id', 'desc')
+            ->take(15)
+            ->get()
+            ->map(function ($donor) {
+                $p    = $donor->personalDetail;
+                $name = trim(implode(' ', array_filter([
+                    $p->title ?? null,
+                    $p->first_name ?? null,
+                    $p->middle_name ?? null,
+                    $p->surname ?? null,
+                ])));
+                return ['name' => $name ?: ($donor->name ?? 'Member'), 'zone' => $p->zone ?? 'N/A'];
+            });
+
+        // Pass raw ISO dates to avoid Carbon re-parsing formatted strings
+        $viewData = compact(
+            'courseTypeStats',
+            'totalApplications',
+            'zoneCounts',
+            'chapterCounts',
+            'rejectedByZone',
+            'financialSummary',
+            'committeeMembers'
+        );
+        $viewData['startDate'] = $startDate->toDateString(); // "2023-07-01"
+        $viewData['endDate']   = $endDate->toDateString();   // "2026-03-17"
+
+        // ---- Normal web view ----
+        if ($request->query('format') !== 'pdf' && ! $request->boolean('download')) {
+            return view('admin.reports.financial_graph_report', $viewData + ['renderForPdf' => false]);
+        }
+
+        // Build display-formatted dates only for the PDF blade
+        $pdfViewData = $viewData;
+        $pdfViewData['startDate'] = '1st ' . $startDate->format('M') . "'" . $startDate->format('Y');
+        $pdfViewData['endDate']   = $endDate->day . $endDate->format('S') . ' ' . $endDate->format('M') . "'" . $endDate->format('y');
+
+        // ---- PDF via mPDF ----
+        $html = view('admin.reports.financial_graph_report_pdf', $pdfViewData)->render();
+
+        $mpdf = new Mpdf([
+            'mode'              => 'utf-8',
+            'format'            => 'A4',
+            'margin_top'        => 10,
+            'margin_right'      => 10,
+            'margin_bottom'     => 10,
+            'margin_left'       => 10,
+            'default_font_size' => 10,
+            'default_font'      => 'dejavusans',
+            'tempDir'           => storage_path('app/mpdf_tmp'),
+        ]);
+
+        $mpdf->SetTitle('JITO JEAP Graphwise Report');
+        $mpdf->WriteHTML($html);
+
+        $fileName = 'GRAPHWISE_DETAILS_REPORT_'
+            . $startDate->format('Ymd') . '_to_' . $endDate->format('Ymd') . '.pdf';
+
+        return response()->streamDownload(function () use ($mpdf) {
+            echo $mpdf->Output('', 'S');
+        }, $fileName, ['Content-Type' => 'application/pdf']);
+    }
+
+
+    protected function resolveCourseType($education): string
+    {
+        $qual = strtolower((string) ($education->qualifications ?? ''));
+        if (in_array($qual, ['masters', 'phd'], true)) {
+            return 'PG';
+        }
+        if (in_array($qual, ['graduation', 'diploma'], true)) {
+            return 'UG';
+        }
+        return 'UG';
+    }
+
+    protected function resolveFaType($education): string
+    {
+        $country = strtolower(trim((string) ($education->country ?? '')));
+        if ($country && !in_array($country, ['india', 'in', 'bharat'], true)) {
+            return 'Foreign';
+        }
+        return 'Domestic';
     }
 }

@@ -121,6 +121,11 @@
             background: #00897B;
         }
 
+        /* Graph Report - Indigo */
+        .nav-tabs-custom .nav-link.tab-graph-report {
+            background: #3f51b5;
+        }
+
         .stat-card {
             background: white;
             border-radius: 15px;
@@ -646,6 +651,11 @@
             <li class="nav-item">
                 <a class="nav-link tab-dynamic" href="{{ route('applications.view') }}">
                     <i class="fas fa-layer-group"></i> Dynamic View
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link tab-graph-report" href="{{ route('admin.reports.financial_graph_report') }}">
+                    <i class="fas fa-chart-line"></i> Graph Report
                 </a>
             </li>
         </ul>

@@ -623,9 +623,15 @@
                     <i class="fas fa-users"></i> Apex
                 </a>
             </li>
-            <li class="nav-item">
+            {{--  <li class="nav-item">
                 <a class="nav-link tab-files" href="{{ route('admin.files.report') }}">
                     <i class="fas fa-folder"></i> Files Report
+                </a>
+            </li>  --}}
+
+            <li class="nav-item">
+                <a class="nav-link tab-chapter" href="{{ route('admin.chapters.index') }}">
+                    <i class="fas fa-map-marker-alt"></i> Chapter
                 </a>
             </li>
             <li class="nav-item">
@@ -634,20 +640,16 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link tab-zone" href="{{ route('admin.zones.index') }}">
-                    <i class="fas fa-globe"></i> Zone
+                <a class="nav-link tab-zone" href="{{ route('admin.files.report') }}">
+                    <i class="fas fa-globe"></i> Files Report
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link tab-chapter" href="{{ route('admin.chapters.index') }}">
-                    <i class="fas fa-map-marker-alt"></i> Chapter
-                </a>
-            </li>
-            <li class="nav-item">
+
+            {{--  <li class="nav-item">
                 <a class="nav-link tab-initiatives" href="{{ route('admin.initiatives.index') }}">
                     <i class="fas fa-lightbulb"></i> Initiatives
                 </a>
-            </li>
+            </li>  --}}
             <li class="nav-item">
                 <a class="nav-link tab-reports" href="{{ route('admin.reports.index') }}">
                     <i class="fas fa-chart-bar"></i> Reports

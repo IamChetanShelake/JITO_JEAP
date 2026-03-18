@@ -8,9 +8,11 @@ use App\Models\Donor;
 use App\Models\DonorPaymentDetail;
 use App\Models\Repayment;
 use App\Models\ReportTemplate;
+use App\Models\DisbursementSchedule;
 use App\Models\User;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Spatie\Browsershot\Browsershot;
@@ -789,24 +791,53 @@ class ReportController extends Controller
 
         // 4. DISBURSEMENT IN QUE (FRESH / FOREIGN / MULTIPLE):
         // PDC and courier documents approved and ready for disbursement
+        // Filter based on disbursement_schedules.planned_date
         $disbursementInQueQuery = clone $baseQuery;
         $disbursementInQueQuery->whereHas('pdcDetail', function ($q) {
             $q->where('status', 'approved')
                 ->where('courier_receive_status', 'approved');
         });
 
-        if ($fromDate && $toDate) {
-            $disbursementInQueQuery->whereBetween('created_at', [$fromDate, $toDate]);
-        } elseif ($fromDate) {
-            $disbursementInQueQuery->where('created_at', '>=', $fromDate);
-        } elseif ($toDate) {
-            $disbursementInQueQuery->where('created_at', '<=', $toDate);
+        // Get user IDs from the base query first
+        $disbursementInQueUserIds = (clone $disbursementInQueQuery)->pluck('id')->toArray();
+
+        // Apply disbursement schedule date filter if dates are provided
+        if ($fromDate || $toDate) {
+            $scheduleQuery = DB::connection('admin_panel')->table('disbursement_schedules')
+                ->where('installment_no', 1);
+
+            if ($fromDate && $toDate) {
+                $scheduleQuery->whereBetween('planned_date', [$fromDate, $toDate]);
+            } elseif ($fromDate) {
+                $scheduleQuery->where('planned_date', '>=', $fromDate);
+            } elseif ($toDate) {
+                $scheduleQuery->where('planned_date', '<=', $toDate);
+            }
+
+            $scheduledUserIds = $scheduleQuery->pluck('user_id')->toArray();
+            $disbursementInQueUserIds = array_intersect($disbursementInQueUserIds, $scheduledUserIds);
         }
 
-        $disbursementInQueCount = $disbursementInQueQuery->count();
-        $disbursementInQueAmount = (clone $disbursementInQueQuery)->get()->sum(function ($user) {
-            return $user->workingCommitteeApproval->approval_financial_assistance_amount ?? 0;
-        });
+        $disbursementInQueCount = count($disbursementInQueUserIds);
+
+        // Calculate amount as sum of first disbursement (installment_no = 1) from disbursement_schedules
+        $disbursementInQueAmount = 0;
+        if (!empty($disbursementInQueUserIds)) {
+            $disbursementAmountQuery = DB::connection('admin_panel')->table('disbursement_schedules')
+                ->whereIn('user_id', $disbursementInQueUserIds)
+                ->where('installment_no', 1);
+
+            // Apply date filter to the amount query as well
+            if ($fromDate && $toDate) {
+                $disbursementAmountQuery->whereBetween('planned_date', [$fromDate, $toDate]);
+            } elseif ($fromDate) {
+                $disbursementAmountQuery->where('planned_date', '>=', $fromDate);
+            } elseif ($toDate) {
+                $disbursementAmountQuery->where('planned_date', '<=', $toDate);
+            }
+
+            $disbursementInQueAmount = $disbursementAmountQuery->sum('planned_amount');
+        }
 
         // 5. NO. OF STUDENTS REPAYMENT COMPLETED:
         // Students who have repayments and all repayments have payment_date (meaning completed)

@@ -3673,10 +3673,7 @@
                             <div class="col-12" id="edit-yearly-section"
                                 style="{{ ($user->workingCommitteeApproval->disbursement_system ?? 'yearly') !== 'yearly' ? 'display:none;' : '' }}">
                                 <label class="form-label">Number of Years</label>
-                                <input type="hidden" name="disbursement_in_year"
-                                    value="{{ old('disbursement_in_year', count($user->workingCommitteeApproval->yearly_dates ?? [])) }}">
-                                <select name="disbursement_in_year_display" class="form-control" id="edit-year-count"
-                                    disabled>
+                                <select name="disbursement_in_year" class="form-control" id="edit-year-count">
                                     <option value="">Select</option>
                                     @for ($i = 1; $i <= 8; $i++)
                                         <option value="{{ $i }}"
@@ -3896,6 +3893,13 @@
                 const editJitoMemberDateField = document.getElementById('edit-jito-member-date-field');
                 const editCanBeJeapDonorSelect = document.getElementById('edit-can-be-jeap-donor');
                 const editJeapDonorDateField = document.getElementById('edit-jeap-donor-date-field');
+                const addInstallmentBtn = document.getElementById('edit-add-installment');
+                const rowsContainer = document.getElementById('edit-installment-rows');
+
+                if (!disbursementSystemSelect || !yearCountSelect || !yearlySection || !yearlyFields ||
+                    !halfYearCountSelect || !halfYearlySection || !halfYearlyFields || !rowsContainer) {
+                    return;
+                }
 
                 function toggleEditExtraFields() {
                     if (editJitoMemberDateField) {
@@ -3918,6 +3922,9 @@
                 }
 
                 function enforceLockedCount(selectElement) {
+                    if (!selectElement) {
+                        return;
+                    }
                     const selectedCount = parseInt(selectElement.value || '0', 10);
 
                     if (maxLockedInstallmentNo > 0 && selectedCount > 0 && selectedCount <
@@ -4011,7 +4018,7 @@
                     updateEditTotal();
                 }
 
-                yearCountSelect.addEventListener('change', () => {
+                yearCountSelect?.addEventListener('change', () => {
                     enforceLockedCount(yearCountSelect);
                     generateEditYearlyFields(parseInt(yearCountSelect.value) || 0);
                 });
@@ -4049,7 +4056,7 @@
                     updateEditTotal();
                 }
 
-                halfYearCountSelect.addEventListener('change', () => {
+                halfYearCountSelect?.addEventListener('change', () => {
                     enforceLockedCount(halfYearCountSelect);
                     generateEditHalfYearlyFields(parseInt(halfYearCountSelect.value) || 0);
                 });
@@ -4087,7 +4094,7 @@
                 editCanBeJitoMemberSelect?.addEventListener('change', toggleEditExtraFields);
                 editCanBeJeapDonorSelect?.addEventListener('change', toggleEditExtraFields);
 
-                disbursementSystemSelect.addEventListener('change', () => {
+                disbursementSystemSelect?.addEventListener('change', () => {
                     if (completedSchedules.length > 0) {
                         disbursementSystemSelect.value = disbursementSystemSelect.dataset
                             .originalValue || disbursementSystemSelect.value;
@@ -4100,9 +4107,6 @@
                 });
 
                 // Installment logic (similar to main form)
-                const addInstallmentBtn = document.getElementById('edit-add-installment');
-                const rowsContainer = document.getElementById('edit-installment-rows');
-
                 function toggleEditRemoveButtons() {
                     const rows = rowsContainer.querySelectorAll('.installment-row');
                     rows.forEach((row) => {
@@ -4113,7 +4117,7 @@
                     });
                 }
 
-                addInstallmentBtn.addEventListener('click', () => {
+                addInstallmentBtn?.addEventListener('click', () => {
                     const row = document.createElement('div');
                     row.className = 'row g-3 installment-row mb-2';
                     row.innerHTML = `
@@ -4183,22 +4187,9 @@
                     recalculateEditInstallments();
                 }
 
-                function lockEditableDisbursementAmounts() {
-                    yearlyFields.querySelectorAll('input[name="yearly_amounts[]"]').forEach((input) => {
-                        input.readOnly = true;
-                        input.classList.add('bg-light');
-                    });
-
-                    halfYearlyFields.querySelectorAll('input[name="half_yearly_amounts[]"]').forEach((
-                        input) => {
-                        input.readOnly = true;
-                        input.classList.add('bg-light');
-                    });
-                }
-
                 // Listen to all changes
-                rowsContainer.addEventListener('input', recalculateEditInstallments);
-                rowsContainer.addEventListener('click', (event) => {
+                rowsContainer?.addEventListener('input', recalculateEditInstallments);
+                rowsContainer?.addEventListener('click', (event) => {
                     const removeBtn = event.target.closest('.remove-edit-installment');
                     if (!removeBtn) return;
 
@@ -4214,7 +4205,6 @@
                         halfYearCountSelect);
                 }
                 toggleEditDisbursementSections();
-                lockEditableDisbursementAmounts();
                 toggleEditExtraFields();
                 toggleEditRemoveButtons();
                 recalculateEditInstallments();
@@ -4234,7 +4224,7 @@
         </script>
     @endif
 
-    @if ($errors->has('date_update_mode') || $errors->has('yearly_dates') || $errors->has('half_yearly_dates'))
+    @if (old('date_update_mode') === 'disbursement_dates' && ($errors->has('date_update_mode') || $errors->has('yearly_dates') || $errors->has('half_yearly_dates')))
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const editDatesModal = document.getElementById('editDisbursementDatesModal');

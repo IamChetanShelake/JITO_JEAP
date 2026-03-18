@@ -190,7 +190,8 @@
                     </td>
                     <td class="brand-cell-mid">
                         <span class="brand-name">JITO EDUCATION ASSISTANCE FOUNDATION</span><br>
-                        <span style="font-size:9px; color:#1f497d; font-weight:bold;">FULLY PAID JEAP DONORS WHO CONTRIBUTED 54
+                        <span style="font-size:9px; color:#1f497d; font-weight:bold;">FULLY PAID JEAP DONORS WHO
+                            CONTRIBUTED 54
                             LACS</span>
                     </td>
                     <td class="brand-cell-right">
@@ -293,22 +294,22 @@
                     <rect x="{{ $domX }}" y="{{ $base - max($domH, 1) }}" width="{{ $bW }}"
                         height="{{ max($domH, 1) }}" fill="#ed7d31" />
                     @if ($g[1] > 0)
-                        <text x="{{ $domX + $bW / 2 }}" y="{{ $base - $domH - 4 }}" text-anchor="middle" font-size="9"
-                            fill="#fff" font-weight="bold">{{ $g[1] }}</text>
+                        <text x="{{ $domX + $bW / 2 }}" y="{{ $base - $domH - 4 }}" text-anchor="middle"
+                            font-size="9" fill="#fff" font-weight="bold">{{ $g[1] }}</text>
                     @endif
                     <rect x="{{ $forX }}" y="{{ $base - max($forH, 1) }}" width="{{ $bW }}"
                         height="{{ max($forH, 1) }}" fill="#ffc000" />
                     @if ($g[2] > 0)
-                        <text x="{{ $forX + $bW / 2 }}" y="{{ $base - $forH - 4 }}" text-anchor="middle" font-size="9"
-                            fill="#fff" font-weight="bold">{{ $g[2] }}</text>
+                        <text x="{{ $forX + $bW / 2 }}" y="{{ $base - $forH - 4 }}" text-anchor="middle"
+                            font-size="9" fill="#fff" font-weight="bold">{{ $g[2] }}</text>
                     @endif
                     @php
                         $parts = explode(' ', $g[0]);
                         $mid = $gx + $bW + $gap / 2;
                     @endphp
                     @foreach ($parts as $pi => $part)
-                        <text x="{{ $mid }}" y="{{ $base + 14 + $pi * 11 }}" text-anchor="middle" font-size="8.5"
-                            fill="#fff" font-weight="bold">{{ $part }}</text>
+                        <text x="{{ $mid }}" y="{{ $base + 14 + $pi * 11 }}" text-anchor="middle"
+                            font-size="8.5" fill="#fff" font-weight="bold">{{ $part }}</text>
                     @endforeach
                 @endforeach
                 <rect x="{{ $pL }}" y="{{ $cH - 16 }}" width="12" height="12" fill="#ed7d31" />
@@ -540,8 +541,8 @@
                         @endphp
                         <line x1="{{ $xp }}" y1="{{ $rPT }}" x2="{{ $xp }}"
                             y2="{{ $rCH - $rPB }}" stroke="rgba(0,0,0,0.1)" stroke-width="0.7" />
-                        <text x="{{ $xp }}" y="{{ $rCH - $rPB + 12 }}" text-anchor="middle" font-size="8.5"
-                            fill="#555">{{ $xv }}</text>
+                        <text x="{{ $xp }}" y="{{ $rCH - $rPB + 12 }}" text-anchor="middle"
+                            font-size="8.5" fill="#555">{{ $xv }}</text>
                     @endfor
                     @foreach ($rNames as $ri => $rn)
                         @php
@@ -553,8 +554,8 @@
                         <rect x="{{ $rPL }}" y="{{ $by }}" width="{{ max($bw, 3) }}"
                             height="{{ $rBH }}" fill="#e0dede" stroke="#bbb" stroke-width="0.5"
                             rx="2" />
-                        <text x="{{ $rPL + max($bw, 3) + 5 }}" y="{{ $by + $rBH * 0.7 }}" font-size="9.5" fill="#1f497d"
-                            font-weight="bold">{{ $rVals[$ri] }}</text>
+                        <text x="{{ $rPL + max($bw, 3) + 5 }}" y="{{ $by + $rBH * 0.7 }}" font-size="9.5"
+                            fill="#1f497d" font-weight="bold">{{ $rVals[$ri] }}</text>
                     @endforeach
                     <rect x="{{ $rPL }}" y="{{ $rCH - $rPB + 18 }}" width="11" height="11"
                         fill="#e0dede" stroke="#bbb" stroke-width="0.5" />
@@ -649,8 +650,8 @@
                     <rect x="{{ $bx }}" y="{{ $fBase - max($bh, 1) }}" width="{{ $fBW }}"
                         height="{{ max($bh, 1) }}" fill="#4472c4" rx="2" />
                     @if ($bh > 16)
-                        <text x="{{ $bx + $fBW / 2 }}" y="{{ $fBase - $bh + 14 }}" text-anchor="middle" font-size="9"
-                            fill="#fff" font-weight="bold">{{ $fv }}</text>
+                        <text x="{{ $bx + $fBW / 2 }}" y="{{ $fBase - $bh + 14 }}" text-anchor="middle"
+                            font-size="9" fill="#fff" font-weight="bold">{{ $fv }}</text>
                     @else
                         <text x="{{ $bx + $fBW / 2 }}" y="{{ $fBase - max($bh, 1) - 4 }}" text-anchor="middle"
                             font-size="9" fill="#1f497d" font-weight="bold">{{ $fv }}</text>

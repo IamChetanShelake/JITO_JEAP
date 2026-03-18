@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use App\Models\ApplicationWorkflowStatus;
+use App\Models\UniversityWebsite;
+use App\Models\CollegeWebsite;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 
@@ -340,12 +342,26 @@ class UserController extends Controller
         $familyDetail = Familydetail::where('user_id', $user_id)->first();
         $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
         $educationDetail = EducationDetail::where('user_id', $user_id)->first();
+        
+        // Fetch universities based on financial_asset_type
+        $universityType = ($user->financial_asset_type == 'domestic') ? 'domestic' : 'foreign';
+        $universities = UniversityWebsite::where('university_type', $universityType)
+            ->where('status', true)
+            ->orderBy('university_name', 'asc')
+            ->get();
+        
+        // Fetch colleges based on financial_asset_type
+        $colleges = CollegeWebsite::where('college_type', $universityType)
+            ->where('status', true)
+            ->orderBy('college_name', 'asc')
+            ->get();
+        
         if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'graduation') {
-            return view('user.step2_ug', compact('type', 'user', 'familyDetail', 'fundingDetail', 'educationDetail'));
+            return view('user.step2_ug', compact('type', 'user', 'familyDetail', 'fundingDetail', 'educationDetail', 'universities', 'colleges'));
         } else if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'post_graduation') {
-            return view('user.step2_pg', compact('type', 'user', 'familyDetail', 'fundingDetail', 'educationDetail'));
+            return view('user.step2_pg', compact('type', 'user', 'familyDetail', 'fundingDetail', 'educationDetail', 'universities', 'colleges'));
         } else if ($user->financial_asset_type == 'foreign_finance_assistant' && $user->financial_asset_for == 'post_graduation') {
-            return view('user.step2_pg_foreign', compact('type', 'user', 'familyDetail', 'fundingDetail', 'educationDetail'));
+            return view('user.step2_pg_foreign', compact('type', 'user', 'familyDetail', 'fundingDetail', 'educationDetail', 'universities', 'colleges'));
         }
         //  return view('user.step2', compact('type', 'familyDetail', 'fundingDetail', 'user'));
     }

@@ -20,9 +20,11 @@
     @endif
     
     <div class="table-responsive">
-        <table class="table table-hover table-bordered">
+        <!-- Added table-layout: fixed; and width: 100%; to force full width -->
+        <table class="table table-hover table-bordered" style="width: 100%; table-layout: fixed;">
             <thead class="table-light">
                 <tr>
+                    <!-- Adjusted widths to sum 100% -->
                     <th width="5%" class="text-center">Sr. No.</th>
                     <th width="10%">Icon</th>
                     <th width="15%">Title</th>
@@ -37,7 +39,9 @@
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td class="text-center">
-                        @if(!empty($instruction->icon_svg))
+                        @if(!empty($instruction->icon_image))
+                            <img src="{{ asset('storage/' . $instruction->icon_image) }}" alt="Icon" style="width: 40px; height: 40px; object-fit: contain; background: {{ $instruction->color ?? '#000' }}; border-radius: 50%;">
+                        @elseif(!empty($instruction->icon_svg))
                             <div class="icon-preview" style="width: 40px; height: 40px; margin: 0 auto; display: flex; align-items: center; justify-content: center; background: {{ $instruction->color ?? '#000' }}; border-radius: 50%;">
                                 {!! $instruction->icon_svg !!}
                             </div>
@@ -78,7 +82,9 @@
                             </div>
                             <div class="modal-body">
                                 <div class="text-center mb-3">
-                                    @if(!empty($instruction->icon_svg))
+                                    @if(!empty($instruction->icon_image))
+                                        <img src="{{ asset('storage/' . $instruction->icon_image) }}" alt="Icon" style="width: 80px; height: 80px; object-fit: contain; background: {{ $instruction->color ?? '#000' }}; border-radius: 50%;">
+                                    @elseif(!empty($instruction->icon_svg))
                                         <div class="icon-preview" style="width: 80px; height: 80px; margin: 0 auto; display: flex; align-items: center; justify-content: center; background: {{ $instruction->color ?? '#000' }}; border-radius: 50%;">
                                             {!! $instruction->icon_svg !!}
                                         </div>
@@ -112,12 +118,17 @@
                                 <div class="modal-body">
                                     <div class="row mb-3">
                                         <div class="col-md-12">
-                                            <label for="icon{{ $instruction->id ?? $index }}" class="form-label">Icon (SVG File)</label>
-                                            <input type="file" class="form-control" id="icon{{ $instruction->id ?? $index }}" name="icon" accept=".svg,.xml">
-                                            <small class="text-muted">Upload SVG file (recommended size: 64x64px). Leave empty to keep current icon.</small>
-                                            @if(!empty($instruction->icon_svg))
+                                            <label for="icon{{ $instruction->id ?? $index }}" class="form-label">Icon (Image or SVG)</label>
+                                            <input type="file" class="form-control" id="icon{{ $instruction->id ?? $index }}" name="icon" accept=".png,.jpg,.jpeg,.gif,.webp,.svg,.xml">
+                                            <small class="text-muted">Upload image (PNG, JPG, JPEG, GIF, WebP) or SVG file. Leave empty to keep current icon.</small>
+                                            @if(!empty($instruction->icon_image))
                                                 <div class="mt-2">
-                                                    <label class="form-label">Current Icon:</label>
+                                                    <label class="form-label">Current Icon (Image):</label><br>
+                                                    <img src="{{ asset('storage/' . $instruction->icon_image) }}" alt="Icon" style="width: 50px; height: 50px; object-fit: contain; background: {{ $instruction->color ?? '#000' }}; border-radius: 50%;">
+                                                </div>
+                                            @elseif(!empty($instruction->icon_svg))
+                                                <div class="mt-2">
+                                                    <label class="form-label">Current Icon (SVG):</label>
                                                     <div style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: {{ $instruction->color ?? '#000' }}; border-radius: 50%;">
                                                         {!! $instruction->icon_svg !!}
                                                     </div>
@@ -216,9 +227,9 @@
                 <div class="modal-body">
                     <div class="row mb-3">
                         <div class="col-md-12">
-                            <label for="icon" class="form-label">Icon (SVG File)</label>
-                            <input type="file" class="form-control" id="icon" name="icon" accept=".svg,.xml">
-                            <small class="text-muted">Upload SVG file (recommended size: 64x64px). If not uploaded, a default icon will be used.</small>
+                            <label for="file" class="form-label">Icon (Image or SVG)</label>
+                            <input type="file" class="form-control" id="icon" name="icon" accept=".png,.jpg,.jpeg,.gif,.webp,.svg,.xml">
+                            <small class="text-muted">Upload an image (PNG, JPG, JPEG, GIF, WebP) or SVG file. If not uploaded, a default icon will be used.</small>
                         </div>
                     </div>
                     <div class="row mb-3">

@@ -284,6 +284,8 @@
         transition: max-height 0.4s ease-out;
         background: #fcfcff; /* Slight background for distinction */
         border-radius: 0 0 10px 10px;
+        position: relative;
+        z-index: 1000;
     }
     
     .dropdown-menu.show {
@@ -386,22 +388,24 @@
                     <span>Contact</span>
                 </a>
             </li>
-            <li>
-                <a href="{{ route('admin.website.donor') }}" class="{{ request()->routeIs('admin.website.donor') ? 'active' : '' }}">
-                    <div class="icon-box"><i class="fas fa-hand-holding-heart"></i></div>
-                    <span>Donor</span>
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.website.gallery') }}" class="{{ request()->routeIs('admin.website.gallery') ? 'active' : '' }}">
-                    <div class="icon-box"><i class="fas fa-images"></i></div>
-                    <span>Gallery</span>
-                </a>
-            </li>
+            
+           
             <li>
                 <a href="{{ route('admin.website.university') }}" class="{{ request()->routeIs('admin.website.university') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-university"></i></div>
                     <span>University</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.website.course') }}" class="{{ request()->routeIs('admin.website.course') ? 'active' : '' }}">
+                    <div class="icon-box"><i class="fas fa-book"></i></div>
+                    <span>Course</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.website.college') }}" class="{{ request()->routeIs('admin.website.college') ? 'active' : '' }}">
+                    <div class="icon-box"><i class="fas fa-graduation-cap"></i></div>
+                    <span>College</span>
                 </a>
             </li>
         </ul>

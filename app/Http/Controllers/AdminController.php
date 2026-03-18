@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\SendBackForCorrectionMail;
 use App\Mail\WorkingCommitteeApprovedMail;
 use App\Models\ApplicationWorkflowStatus;
+use App\Models\BeDonorDetail;
 use App\Models\Chapter;
 use App\Models\ChapterInterviewAnswer;
 use App\Models\AdminNotification;
@@ -14,9 +15,14 @@ use App\Models\ApexLeadership;
 use App\Models\DisbursementSchedule;
 use App\Models\EducationDetail;
 use App\Models\EmpoweringDream;
+use App\Models\AchievementImpact;
+use App\Models\PhotoGallery;
 use App\Models\Logs;
 use App\Models\Loan_category;
 use App\Models\PdcDetail;
+use App\Models\UniversityWebsite;
+use App\Models\CourseWebsite;
+use App\Models\CollegeWebsite;
 use App\Models\User;
 use App\Models\WorkingCommitteeApprovalHistory;
 use App\Traits\LogsUserActivity;
@@ -124,12 +130,10 @@ class AdminController extends Controller
     public function storeEmpoweringDream(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string',
             'description' => 'required|string',
-            'vision' => 'nullable|string',
-            'vision_description' => 'nullable|string',
-            'mission' => 'nullable|string',
-            'mission_description' => 'nullable|string',
+        
+           
             'features' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
@@ -145,10 +149,7 @@ class AdminController extends Controller
         EmpoweringDream::create([
             'title' => $request->title,
             'description' => $request->description,
-            'vision' => $request->vision,
-            'vision_description' => $request->vision_description,
-            'mission' => $request->mission,
-            'mission_description' => $request->mission_description,
+            
             'features' => $request->features,
             'image' => $imagePath,
             'order' => EmpoweringDream::max('order') + 1,
@@ -164,7 +165,7 @@ class AdminController extends Controller
     public function updateEmpoweringDream(Request $request, $id)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string',
             'description' => 'required|string',
             'vision' => 'nullable|string',
             'vision_description' => 'nullable|string',
@@ -235,27 +236,43 @@ class AdminController extends Controller
     {
         try {
             $validated = $request->validate([
-                'icon' => 'nullable|file|mimes:svg,xml',
+                'icon' => 'nullable|file',
                 'title' => 'required|string|max:255',
                 'description' => 'required|string',
                 'color' => 'required|string|max:20',
                 'display_order' => 'nullable|integer|min:0',
             ]);
 
-            // Handle SVG file upload
             $iconSvg = '';
+            $iconImage = null;
+            
             if ($request->hasFile('icon') && $request->file('icon')->isValid()) {
-                try {
-                    $file = $request->file('icon');
-                    $iconSvg = file_get_contents($file->getRealPath());
-                    
-                    // Modify SVG to set proper sizing
-                    $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
-                    $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
-                    $iconSvg = preg_replace('/(<svg)/i', '$1 width="40" height="40"', $iconSvg);
-                } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::error('Error processing icon: ' . $e->getMessage());
-                    $iconSvg = '';
+                $file = $request->file('icon');
+                $extension = strtolower($file->getClientOriginalExtension());
+                
+                // Check if it's an SVG file
+                if (in_array($extension, ['svg', 'xml'])) {
+                    try {
+                        $iconSvg = file_get_contents($file->getRealPath());
+                        
+                        // Modify SVG to set proper sizing
+                        $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
+                        $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
+                        $iconSvg = preg_replace('/(<svg)/i', '$1 width="40" height="40"', $iconSvg);
+                    } catch (\Exception $e) {
+                        \Illuminate\Support\Facades\Log::error('Error processing icon: ' . $e->getMessage());
+                        $iconSvg = '';
+                    }
+                } else {
+                    // It's an image file (png, jpg, jpeg, gif, webp, etc.)
+                    try {
+                        $filename = 'key-instruction-' . time() . '.' . $extension;
+                        $path = $file->storeAs('key-instructions', $filename, 'public');
+                        $iconImage = $path;
+                        \Illuminate\Support\Facades\Log::info('Icon image stored at: ' . $path);
+                    } catch (\Exception $e) {
+                        \Illuminate\Support\Facades\Log::error('Error storing icon image: ' . $e->getMessage());
+                    }
                 }
             } else {
                 // Use a default SVG icon
@@ -269,6 +286,7 @@ class AdminController extends Controller
             $keyInstruction = \App\Models\KeyInstruction::create([
                 'icon' => 'custom',
                 'icon_svg' => $iconSvg,
+                'icon_image' => $iconImage,
                 'title' => $validated['title'],
                 'description' => $validated['description'],
                 'color' => $validated['color'],
@@ -276,7 +294,7 @@ class AdminController extends Controller
                 'is_active' => 1,
             ]);
 
-            \Illuminate\Support\Facades\Log::info('Key Instruction created successfully: ' . $keyInstruction->id);
+            \Illuminate\Support\Facades\Log::info('Key Instruction created successfully: ' . $keyInstruction->id . ' | icon_image: ' . ($iconImage ?? 'null') . ' | icon_svg: ' . (empty($iconSvg) ? 'empty' : 'present'));
 
             return redirect()->route('admin.website.home.key-instruction')->with('success', 'Key Instruction added successfully!');
         } catch (\Exception $e) {
@@ -299,23 +317,45 @@ class AdminController extends Controller
 
         $keyInstruction = \App\Models\KeyInstruction::findOrFail($id);
 
-        // Handle SVG file upload if a new file is uploaded
+        // Handle file upload if a new file is uploaded
         if ($request->hasFile('icon') && $request->file('icon')->isValid()) {
-            try {
-                $file = $request->file('icon');
-                $iconSvg = file_get_contents($file->getRealPath());
-                
-                // Modify SVG to set proper sizing
-                $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
-                $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
-                $iconSvg = preg_replace('/(<svg)/i', '$1 width="40" height="40"', $iconSvg);
-                
-                $keyInstruction->icon_svg = $iconSvg;
-                $keyInstruction->icon = 'custom';
-            } catch (\Exception $e) {
-                // If there's an error, keep the existing icon
-                if ($request->has('existing_icon_svg')) {
-                    $keyInstruction->icon_svg = $request->input('existing_icon_svg');
+            $file = $request->file('icon');
+            $extension = $file->getClientOriginalExtension();
+            
+            // Check if it's an SVG file
+            if (in_array(strtolower($extension), ['svg', 'xml'])) {
+                try {
+                    $iconSvg = file_get_contents($file->getRealPath());
+                    
+                    // Modify SVG to set proper sizing
+                    $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
+                    $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
+                    $iconSvg = preg_replace('/(<svg)/i', '$1 width="40" height="40"', $iconSvg);
+                    
+                    $keyInstruction->icon_svg = $iconSvg;
+                    $keyInstruction->icon_image = null;
+                    $keyInstruction->icon = 'custom';
+                } catch (\Exception $e) {
+                    // If there's an error, keep the existing icon
+                    if ($request->has('existing_icon_svg')) {
+                        $keyInstruction->icon_svg = $request->input('existing_icon_svg');
+                    }
+                }
+            } else {
+                // It's an image file (png, jpg, jpeg, gif, webp, etc.)
+                try {
+                    // Delete old image if exists
+                    if ($keyInstruction->icon_image) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($keyInstruction->icon_image);
+                    }
+                    
+                    $filename = 'key-instruction-' . time() . '.' . $extension;
+                    $path = $file->storeAs('key-instructions', $filename, 'public');
+                    $keyInstruction->icon_image = $path;
+                    $keyInstruction->icon_svg = null;
+                    $keyInstruction->icon = 'custom';
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Error storing icon image: ' . $e->getMessage());
                 }
             }
         } elseif ($request->has('existing_icon_svg')) {
@@ -480,9 +520,9 @@ class AdminController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'vision' => 'nullable|string',
+            
             'vision_description' => 'nullable|string',
-            'mission' => 'nullable|string',
+           
             'mission_description' => 'nullable|string',
             'features' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -580,7 +620,91 @@ class AdminController extends Controller
      */
     public function websiteHomeAchievementImpact()
     {
-        return view('admin.website.home.achievement-impact');
+        $achievementImpacts = AchievementImpact::orderBy('order', 'asc')->get();
+        return view('admin.website.home.achievement-impact', compact('achievementImpacts'));
+    }
+
+    /**
+     * Store Achievement Impact Data
+     */
+    public function storeAchievementImpact(Request $request)
+    {
+        $request->validate([
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'numbers' => 'nullable|array',
+            'number_texts' => 'nullable|array',
+        ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/achievement-impact'), $imageName);
+            $imagePath = 'uploads/achievement-impact/' . $imageName;
+        }
+
+        AchievementImpact::create([
+            'description' => $request->description,
+            'image' => $imagePath,
+            'numbers' => json_encode($request->numbers ?? []),
+            'number_texts' => json_encode($request->number_texts ?? []),
+            'order' => AchievementImpact::max('order') + 1,
+            'status' => true,
+        ]);
+
+        return redirect()->back()->with('success', 'Data added successfully!');
+    }
+
+    /**
+     * Update Achievement Impact Data
+     */
+    public function updateAchievementImpact(Request $request, $id)
+    {
+        $request->validate([
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'numbers' => 'nullable|array',
+            'number_texts' => 'nullable|array',
+        ]);
+
+        $achievement = AchievementImpact::findOrFail($id);
+
+        $imagePath = $achievement->image;
+        if ($request->hasFile('image')) {
+            if ($achievement->image && file_exists(public_path($achievement->image))) {
+                unlink(public_path($achievement->image));
+            }
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/achievement-impact'), $imageName);
+            $imagePath = 'uploads/achievement-impact/' . $imageName;
+        }
+
+        $achievement->update([
+            'description' => $request->description,
+            'image' => $imagePath,
+            'numbers' => json_encode($request->numbers ?? []),
+            'number_texts' => json_encode($request->number_texts ?? []),
+        ]);
+
+        return redirect()->back()->with('success', 'Data updated successfully!');
+    }
+
+    /**
+     * Delete Achievement Impact Data
+     */
+    public function deleteAchievementImpact($id)
+    {
+        $achievement = AchievementImpact::findOrFail($id);
+        
+        if ($achievement->image && file_exists(public_path($achievement->image))) {
+            unlink(public_path($achievement->image));
+        }
+        
+        $achievement->delete();
+
+        return redirect()->back()->with('success', 'Data deleted successfully!');
     }
 
     /**
@@ -588,7 +712,79 @@ class AdminController extends Controller
      */
     public function websiteHomePhotoGallery()
     {
-        return view('admin.website.home.photo-gallery');
+        $photoGalleries = PhotoGallery::orderBy('order', 'asc')->get();
+        return view('admin.website.home.photo-gallery', compact('photoGalleries'));
+    }
+
+    /**
+     * Store Photo Gallery
+     */
+    public function storePhotoGallery(Request $request)
+    {
+        $request->validate([
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        $imagePaths = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('website/photo-gallery'), $imageName);
+                $imagePaths[] = 'website/photo-gallery/' . $imageName;
+            }
+        }
+
+        PhotoGallery::create([
+            'images' => json_encode($imagePaths),
+            'order' => PhotoGallery::max('order') + 1,
+            'status' => true,
+        ]);
+
+        return redirect()->route('admin.website.home.photo-gallery')->with('success', 'Photos added successfully');
+    }
+
+    /**
+     * Update Photo Gallery
+     */
+    public function updatePhotoGallery(Request $request, $id)
+    {
+        $gallery = PhotoGallery::findOrFail($id);
+
+        $imagePaths = json_decode($gallery->images, true) ?? [];
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('website/photo-gallery'), $imageName);
+                $imagePaths[] = 'website/photo-gallery/' . $imageName;
+            }
+        }
+
+        $gallery->update([
+            'images' => json_encode($imagePaths),
+        ]);
+
+        return redirect()->route('admin.website.home.photo-gallery')->with('success', 'Photos updated successfully');
+    }
+
+    /**
+     * Delete Photo Gallery
+     */
+    public function deletePhotoGallery($id)
+    {
+        $gallery = PhotoGallery::findOrFail($id);
+        
+        // Delete images from storage
+        $images = json_decode($gallery->images, true) ?? [];
+        foreach ($images as $image) {
+            if (file_exists(public_path($image))) {
+                unlink(public_path($image));
+            }
+        }
+
+        $gallery->delete();
+
+        return redirect()->route('admin.website.home.photo-gallery')->with('success', 'Photo Gallery deleted successfully');
     }
 
     /**
@@ -596,7 +792,133 @@ class AdminController extends Controller
      */
     public function websiteHomeOurTestimonial()
     {
-        return view('admin.website.home.our-testimonial');
+        $testimonials = \App\Models\OurTestimonial::orderBy('display_order', 'asc')->orderBy('created_at', 'desc')->get();
+        return view('admin.website.home.our-testimonial', compact('testimonials'));
+    }
+
+    /**
+     * Store Our Testimonial
+     */
+    public function storeOurTestimonial(\Illuminate\Http\Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'feedback' => 'required|string',
+                'title' => 'nullable|string|max:255',
+                'about' => 'nullable|string',
+                'date' => 'nullable|date',
+                'display_order' => 'nullable|integer|min:0',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+
+            // Handle image upload
+            $imagePath = null;
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                $image = $request->file('image');
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/testimonials'), $imageName);
+                $imagePath = 'uploads/testimonials/' . $imageName;
+            }
+
+            if (!isset($validated['display_order']) || $validated['display_order'] == 0) {
+                $validated['display_order'] = (\App\Models\OurTestimonial::max('display_order') ?? 0) + 1;
+            }
+
+            $testimonial = \App\Models\OurTestimonial::create([
+                'title' => $validated['title'] ?? null,
+                'image' => $imagePath,
+                'about' => $validated['about'] ?? null,
+                'feedback' => $validated['feedback'],
+                'name' => $validated['name'],
+                'date' => $validated['date'] ?? null,
+                'display_order' => $validated['display_order'] ?? 0,
+                'is_active' => 1,
+            ]);
+
+            \Illuminate\Support\Facades\Log::info('Our Testimonial created successfully: ' . $testimonial->id);
+
+            return redirect()->route('admin.website.home.our-testimonial')->with('success', 'Testimonial added successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error storing testimonial: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Update Our Testimonial
+     */
+    public function updateOurTestimonial(\Illuminate\Http\Request $request, $id)
+    {
+        try {
+            $testimonial = \App\Models\OurTestimonial::findOrFail($id);
+
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'feedback' => 'required|string',
+                'title' => 'nullable|string|max:255',
+                'about' => 'nullable|string',
+                'date' => 'nullable|date',
+                'display_order' => 'nullable|integer|min:0',
+                'is_active' => 'nullable|boolean',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+
+            // Handle image upload
+            $imagePath = $testimonial->image;
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                // Delete old image if exists
+                if ($testimonial->image && file_exists(public_path($testimonial->image))) {
+                    unlink(public_path($testimonial->image));
+                }
+                $image = $request->file('image');
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/testimonials'), $imageName);
+                $imagePath = 'uploads/testimonials/' . $imageName;
+            }
+
+            $testimonial->update([
+                'title' => $validated['title'] ?? null,
+                'image' => $imagePath,
+                'about' => $validated['about'] ?? null,
+                'feedback' => $validated['feedback'],
+                'name' => $validated['name'],
+                'date' => $validated['date'] ?? null,
+                'display_order' => $validated['display_order'] ?? 0,
+                'is_active' => $validated['is_active'] ?? true,
+            ]);
+
+            \Illuminate\Support\Facades\Log::info('Our Testimonial updated successfully: ' . $id);
+
+            return redirect()->route('admin.website.home.our-testimonial')->with('success', 'Testimonial updated successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error updating testimonial: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Delete Our Testimonial
+     */
+    public function deleteOurTestimonial($id)
+    {
+        try {
+            $testimonial = \App\Models\OurTestimonial::findOrFail($id);
+
+            // Delete image if exists
+            if ($testimonial->image && file_exists(public_path($testimonial->image))) {
+                unlink(public_path($testimonial->image));
+            }
+
+            $testimonial->delete();
+
+            \Illuminate\Support\Facades\Log::info('Our Testimonial deleted successfully: ' . $id);
+
+            return redirect()->route('admin.website.home.our-testimonial')->with('success', 'Testimonial deleted successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error deleting testimonial: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -604,7 +926,117 @@ class AdminController extends Controller
      */
     public function websiteHomeSuccessStories()
     {
-        return view('admin.website.home.success-stories');
+        $successStories = \App\Models\SuccessStory::orderBy('display_order', 'asc')->orderBy('created_at', 'desc')->get();
+        return view('admin.website.home.success-stories', compact('successStories'));
+    }
+
+    /**
+     * Store Success Story
+     */
+    public function storeSuccessStory(\Illuminate\Http\Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'video_link' => 'nullable|url',
+                'display_order' => 'nullable|integer|min:0',
+            ]);
+
+            // Handle image upload
+            $imagePath = null;
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                $image = $request->file('image');
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/success-stories'), $imageName);
+                $imagePath = 'uploads/success-stories/' . $imageName;
+            }
+
+            if (!isset($validated['display_order']) || $validated['display_order'] == 0) {
+                $validated['display_order'] = (\App\Models\SuccessStory::max('display_order') ?? 0) + 1;
+            }
+
+            $story = \App\Models\SuccessStory::create([
+                'image' => $imagePath,
+                'video_link' => $validated['video_link'] ?? null,
+                'display_order' => $validated['display_order'] ?? 0,
+                'is_active' => 1,
+            ]);
+
+            \Illuminate\Support\Facades\Log::info('Success Story created successfully: ' . $story->id);
+
+            return redirect()->route('admin.website.home.success-stories')->with('success', 'Success Story added successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error storing success story: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Update Success Story
+     */
+    public function updateSuccessStory(\Illuminate\Http\Request $request, $id)
+    {
+        try {
+            $story = \App\Models\SuccessStory::findOrFail($id);
+
+            $validated = $request->validate([
+                'video_link' => 'nullable|url',
+                'display_order' => 'nullable|integer|min:0',
+                'is_active' => 'nullable|boolean',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+
+            // Handle image upload
+            $imagePath = $story->image;
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                // Delete old image if exists
+                if ($story->image && file_exists(public_path($story->image))) {
+                    unlink(public_path($story->image));
+                }
+                $image = $request->file('image');
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/success-stories'), $imageName);
+                $imagePath = 'uploads/success-stories/' . $imageName;
+            }
+
+            $story->update([
+                'image' => $imagePath,
+                'video_link' => $validated['video_link'] ?? null,
+                'display_order' => $validated['display_order'] ?? 0,
+                'is_active' => $validated['is_active'] ?? true,
+            ]);
+
+            \Illuminate\Support\Facades\Log::info('Success Story updated successfully: ' . $id);
+
+            return redirect()->route('admin.website.home.success-stories')->with('success', 'Success Story updated successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error updating success story: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Delete Success Story
+     */
+    public function deleteSuccessStory($id)
+    {
+        try {
+            $story = \App\Models\SuccessStory::findOrFail($id);
+
+            // Delete image if exists
+            if ($story->image && file_exists(public_path($story->image))) {
+                unlink(public_path($story->image));
+            }
+
+            $story->delete();
+
+            \Illuminate\Support\Facades\Log::info('Success Story deleted successfully: ' . $id);
+
+            return redirect()->route('admin.website.home.success-stories')->with('success', 'Success Story deleted successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error deleting success story: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -640,6 +1072,78 @@ class AdminController extends Controller
     }
 
     /**
+     * Website Be Donor Page Management
+     */
+    public function websiteBeDonor()
+    {
+        $beDonorDetails = BeDonorDetail::orderBy('display_order')->get();
+        return view('admin.website.be-donor', compact('beDonorDetails'));
+    }
+
+    /**
+     * Store Be Donor Detail
+     */
+    public function storeBeDonorDetail(Request $request)
+    {
+        $request->validate([
+            'benefit' => 'required|string|max:255',
+            'description' => 'required|string',
+        ]);
+
+        $beDonorDetail = new BeDonorDetail();
+        $beDonorDetail->icon = $request->icon;
+        $beDonorDetail->benefit = $request->benefit;
+        $beDonorDetail->description = $request->description;
+        $beDonorDetail->become_member_step = $request->become_member_step;
+        $beDonorDetail->what_to_do = $request->what_to_do;
+        $beDonorDetail->display_order = $request->display_order ?? 0;
+        $beDonorDetail->save();
+
+        return redirect()->route('admin.website.be-donor')->with('success', 'Data added successfully!');
+    }
+
+    /**
+     * Update Be Donor Detail
+     */
+    public function updateBeDonorDetail(Request $request, $id)
+    {
+        $request->validate([
+            'benefit' => 'required|string|max:255',
+            'description' => 'required|string',
+        ]);
+
+        $beDonorDetail = BeDonorDetail::findOrFail($id);
+        $beDonorDetail->icon = $request->icon;
+        $beDonorDetail->benefit = $request->benefit;
+        $beDonorDetail->description = $request->description;
+        $beDonorDetail->become_member_step = $request->become_member_step;
+        $beDonorDetail->what_to_do = $request->what_to_do;
+        $beDonorDetail->display_order = $request->display_order ?? 0;
+        $beDonorDetail->save();
+
+        return redirect()->route('admin.website.be-donor')->with('success', 'Data updated successfully!');
+    }
+
+    /**
+     * Delete Be Donor Detail
+     */
+    public function deleteBeDonorDetail($id)
+    {
+        $beDonorDetail = BeDonorDetail::findOrFail($id);
+        $beDonorDetail->delete();
+
+        return redirect()->route('admin.website.be-donor')->with('success', 'Data deleted successfully!');
+    }
+
+    /**
+     * Website Our Donor Page Management
+     */
+    public function websiteOurDonor()
+    {
+        return view('admin.website.our-donor');
+    }
+
+    /**
      * Website Gallery Page Management
      */
     public function websiteGallery()
@@ -652,7 +1156,225 @@ class AdminController extends Controller
      */
     public function websiteUniversity()
     {
-        return view('admin.website.university');
+        $universities = UniversityWebsite::orderBy('id', 'desc')->get();
+        return view('admin.website.university', compact('universities'));
+    }
+
+    /**
+     * Store University Data
+     */
+    public function storeUniversity(Request $request)
+    {
+        $request->validate([
+            'university_name' => 'required|string|max:255',
+            
+            'university_type' => 'required|in:domestic,foreign',
+            'country' => 'required|string|max:255',
+            'state' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+        ]);
+
+        UniversityWebsite::create([
+            'university_name' => $request->university_name,
+            
+            'university_type' => $request->university_type,
+            'country' => $request->country,
+            'state' => $request->state,
+            'city' => $request->city,
+            'status' => true,
+        ]);
+
+        return redirect()->route('admin.website.university')->with('success', 'University added successfully!');
+    }
+
+    /**
+     * Update University Data
+     */
+    public function updateUniversity(Request $request, $id)
+    {
+        $request->validate([
+            'university_name' => 'required|string|max:255',
+            
+            'university_type' => 'required|in:domestic,foreign',
+            'country' => 'required|string|max:255',
+            'state' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+        ]);
+
+        $university = UniversityWebsite::findOrFail($id);
+        $university->update([
+            'university_name' => $request->university_name,
+            
+            'university_type' => $request->university_type,
+            'country' => $request->country,
+            'state' => $request->state,
+            'city' => $request->city,
+        ]);
+
+        return redirect()->route('admin.website.university')->with('success', 'University updated successfully!');
+    }
+
+    /**
+     * Delete University Data
+     */
+    public function deleteUniversity($id)
+    {
+        $university = UniversityWebsite::findOrFail($id);
+        $university->delete();
+
+        return redirect()->route('admin.website.university')->with('success', 'University deleted successfully!');
+    }
+
+    /**
+     * Toggle University Status
+     */
+    public function toggleUniversityStatus($id)
+    {
+        $university = UniversityWebsite::findOrFail($id);
+        $university->status = !$university->status;
+        $university->save();
+
+        return redirect()->route('admin.website.university')->with('success', 'University status updated successfully!');
+    }
+
+    /**
+     * Website Course Page Management
+     */
+    public function websiteCourse()
+    {
+        $courses = CourseWebsite::orderBy('id', 'desc')->get();
+        return view('admin.website.course', compact('courses'));
+    }
+
+    /**
+     * Store Course Data
+     */
+    public function storeCourse(Request $request)
+    {
+        $request->validate([
+            'course_name' => 'required|string|max:255',
+        ]);
+        
+        // Check if course already exists
+        $existingCourse = CourseWebsite::where('course_name', $request->course_name)->first();
+        if ($existingCourse) {
+            return redirect()->route('admin.website.course')->with('error', 'Course already exists!');
+        }
+
+        CourseWebsite::create([
+            'course_name' => $request->course_name,
+            'duration' => $request->duration,
+            'status' => true,
+        ]);
+
+        return redirect()->route('admin.website.course')->with('success', 'Course added successfully!');
+    }
+
+    /**
+     * Update Course Data
+     */
+    public function updateCourse(Request $request, $id)
+    {
+        $request->validate([
+            'course_name' => 'required|string|max:255',
+        ]);
+
+        $course = CourseWebsite::findOrFail($id);
+        $course->update([
+            'course_name' => $request->course_name,
+            'duration' => $request->duration,
+        ]);
+
+        return redirect()->route('admin.website.course')->with('success', 'Course updated successfully!');
+    }
+
+    /**
+     * Delete Course Data
+     */
+    public function deleteCourse($id)
+    {
+        $course = CourseWebsite::findOrFail($id);
+        $course->delete();
+
+        return redirect()->route('admin.website.course')->with('success', 'Course deleted successfully!');
+    }
+
+    /**
+     * Website College Page Management
+     */
+    public function websiteCollege()
+    {
+        $colleges = CollegeWebsite::orderBy('id', 'desc')->get();
+        $universities = UniversityWebsite::where('status', true)->orderBy('university_name', 'asc')->get();
+        $courses = CourseWebsite::orderBy('course_name', 'asc')->get();
+        return view('admin.website.college', compact('colleges', 'universities', 'courses'));
+    }
+
+    /**
+     * Store College Data
+     */
+    public function storeCollege(Request $request)
+    {
+        $request->validate([
+            'college_name' => 'required|string|max:255',
+            'university_name' => 'required|string|max:255',
+            'college_type' => 'required|in:domestic,foreign',
+            'country' => 'required|string|max:255',
+            'state' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+        ]);
+
+        CollegeWebsite::create([
+            'college_name' => $request->college_name,
+            'university_name' => $request->university_name,
+            'college_type' => $request->college_type,
+            'country' => $request->country,
+            'state' => $request->state,
+            'city' => $request->city,
+            'courses' => json_encode($request->courses ?? []),
+            'status' => true,
+        ]);
+
+        return redirect()->route('admin.website.college')->with('success', 'College added successfully!');
+    }
+
+    /**
+     * Update College Data
+     */
+    public function updateCollege(Request $request, $id)
+    {
+        $request->validate([
+            'college_name' => 'required|string|max:255',
+            'university_name' => 'required|string|max:255',
+            'college_type' => 'required|in:domestic,foreign',
+            'country' => 'required|string|max:255',
+            'state' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+        ]);
+
+        $college = CollegeWebsite::findOrFail($id);
+        $college->update([
+            'college_name' => $request->college_name,
+            'university_name' => $request->university_name,
+            'college_type' => $request->college_type,
+            'country' => $request->country,
+            'state' => $request->state,
+            'city' => $request->city,
+            'courses' => json_encode($request->courses ?? []),
+        ]);
+
+        return redirect()->route('admin.website.college')->with('success', 'College updated successfully!');
+    }
+
+    /**
+     * Delete College Data
+     */
+    public function deleteCollege($id)
+    {
+        $college = CollegeWebsite::findOrFail($id);
+        $college->delete();
+
+        return redirect()->route('admin.website.college')->with('success', 'College deleted successfully!');
     }
 
     /**

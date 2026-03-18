@@ -18,6 +18,7 @@ use App\Models\EmpoweringDream;
 use App\Models\Logs;
 use App\Models\Loan_category;
 use App\Models\PdcDetail;
+use App\Models\PdcCourierHistory;
 use App\Models\User;
 use App\Models\WorkingCommitteeApprovalHistory;
 use App\Models\ThirdStageDocument;
@@ -3033,11 +3034,15 @@ class AdminController extends Controller
         $pdcDetail = \App\Models\PdcDetail::where('user_id', $user->id)->first();
         $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
         $courierDocumentChecklist = $this->getUploadedCourierDocumentChecklist($user, $loanCategory);
+        $chequeTotal = $this->getChequeTotalForUser($user);
+        $courierHistory = $pdcDetail
+            ? $pdcDetail->courierHistories()->with('actor')->orderBy('action_at')->get()
+            : collect();
 
         // Load edit bank detail request if exists
         $editBankDetailRequest = \App\Models\EditBankDetailRequest::where('user_id', $user->id)->latest()->first();
 
-        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory', 'editBankDetailRequest', 'courierDocumentChecklist'));
+        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory', 'editBankDetailRequest', 'courierDocumentChecklist', 'chequeTotal', 'courierHistory'));
     }
 
     /**
@@ -3122,6 +3127,12 @@ class AdminController extends Controller
             return back()->with('error', 'PDC details not found.');
         }
 
+        if ($pdcDetail->courier_receive_status === 'approved') {
+            return back()->with('error', 'Courier is already approved. Further receive entries are not allowed.');
+        }
+
+        $isResent = $pdcDetail->courier_receive_status === 'hold';
+
         $oldValues = $pdcDetail->only([
             'courier_received_by',
             'courier_received_date',
@@ -3130,6 +3141,14 @@ class AdminController extends Controller
             'courier_receive_processed_by',
             'courier_receive_processed_at',
             'courier_receive_verified_documents',
+            'courier_receive_approved_by',
+            'courier_receive_approved_at',
+            'courier_cheque_total',
+            'courier_cheque_received',
+            'courier_cheque_pending',
+            'courier_send_back',
+            'courier_send_back_reason',
+            'courier_send_back_date',
             'status',
             'admin_reject_remark',
         ]);
@@ -3142,6 +3161,14 @@ class AdminController extends Controller
             'courier_receive_processed_by' => null,
             'courier_receive_processed_at' => null,
             'courier_receive_verified_documents' => null,
+            'courier_receive_approved_by' => null,
+            'courier_receive_approved_at' => null,
+            'courier_cheque_total' => null,
+            'courier_cheque_received' => null,
+            'courier_cheque_pending' => null,
+            'courier_send_back' => null,
+            'courier_send_back_reason' => null,
+            'courier_send_back_date' => null,
             'status' => 'submitted',
             'admin_reject_remark' => null,
         ]);
@@ -3154,8 +3181,29 @@ class AdminController extends Controller
             'courier_receive_processed_by',
             'courier_receive_processed_at',
             'courier_receive_verified_documents',
+            'courier_receive_approved_by',
+            'courier_receive_approved_at',
+            'courier_cheque_total',
+            'courier_cheque_received',
+            'courier_cheque_pending',
+            'courier_send_back',
+            'courier_send_back_reason',
+            'courier_send_back_date',
             'status',
             'admin_reject_remark',
+        ]);
+
+        PdcCourierHistory::create([
+            'pdc_detail_id' => $pdcDetail->id,
+            'user_id' => $user->id,
+            'action' => $isResent ? 'resent_received' : 'received',
+            'action_by' => Auth::id(),
+            'action_at' => now(),
+            'data' => [
+                'courier_received_by' => $request->courier_received_by,
+                'courier_received_date' => $request->courier_received_date,
+                'is_resend' => $isResent,
+            ],
         ]);
 
         $actor = Auth::user();
@@ -3186,6 +3234,11 @@ class AdminController extends Controller
         $request->validate([
             'courier_action' => 'required|in:approve,hold',
             'courier_receive_hold_remark' => 'nullable|string|max:2000',
+            'courier_cheque_received' => 'required|integer|min:0',
+            'courier_cheque_pending' => 'required|integer|min:0',
+            'courier_send_back' => 'nullable|in:0,1',
+            'courier_send_back_reason' => 'nullable|string|max:2000',
+            'courier_send_back_date' => 'nullable|date',
         ]);
 
         $pdcDetail = PdcDetail::where('user_id', $user->id)->first();
@@ -3198,10 +3251,28 @@ class AdminController extends Controller
             return back()->with('error', 'Please save courier receive details before approval or hold.');
         }
 
+        $chequeTotal = $this->getChequeTotalForUser($user, $pdcDetail);
+        $chequeReceived = (int) $request->courier_cheque_received;
+        $chequePending = (int) $request->courier_cheque_pending;
+
+        if ($chequeTotal !== null && ($chequeReceived + $chequePending) !== (int) $chequeTotal) {
+            return back()->withErrors([
+                'courier_cheque_received' => 'Received + pending cheques must equal total cheques (' . $chequeTotal . ').',
+            ]);
+        }
+
         if ($request->courier_action === 'hold') {
             $request->validate([
                 'courier_receive_hold_remark' => 'required|string|max:2000',
             ]);
+
+            $sendBack = $request->input('courier_send_back') === '1';
+            if ($sendBack) {
+                $request->validate([
+                    'courier_send_back_reason' => 'required|string|max:2000',
+                    'courier_send_back_date' => 'required|date',
+                ]);
+            }
 
             $oldValues = $pdcDetail->only([
                 'courier_receive_status',
@@ -3209,6 +3280,12 @@ class AdminController extends Controller
                 'courier_receive_processed_by',
                 'courier_receive_processed_at',
                 'courier_receive_verified_documents',
+                'courier_cheque_total',
+                'courier_cheque_received',
+                'courier_cheque_pending',
+                'courier_send_back',
+                'courier_send_back_reason',
+                'courier_send_back_date',
                 'status',
                 'admin_reject_remark',
             ]);
@@ -3219,6 +3296,12 @@ class AdminController extends Controller
                 'courier_receive_processed_by' => Auth::id(),
                 'courier_receive_processed_at' => now(),
                 'courier_receive_verified_documents' => null,
+                'courier_cheque_total' => $chequeTotal,
+                'courier_cheque_received' => $chequeReceived,
+                'courier_cheque_pending' => $chequePending,
+                'courier_send_back' => $sendBack,
+                'courier_send_back_reason' => $sendBack ? $request->courier_send_back_reason : null,
+                'courier_send_back_date' => $sendBack ? $request->courier_send_back_date : null,
                 'status' => 'correction_required',
                 'admin_reject_remark' => $request->courier_receive_hold_remark,
             ]);
@@ -3229,8 +3312,31 @@ class AdminController extends Controller
                 'courier_receive_processed_by',
                 'courier_receive_processed_at',
                 'courier_receive_verified_documents',
+                'courier_cheque_total',
+                'courier_cheque_received',
+                'courier_cheque_pending',
+                'courier_send_back',
+                'courier_send_back_reason',
+                'courier_send_back_date',
                 'status',
                 'admin_reject_remark',
+            ]);
+
+            PdcCourierHistory::create([
+                'pdc_detail_id' => $pdcDetail->id,
+                'user_id' => $user->id,
+                'action' => 'hold',
+                'action_by' => Auth::id(),
+                'action_at' => now(),
+                'data' => [
+                    'hold_reason' => $request->courier_receive_hold_remark,
+                    'send_back' => $sendBack,
+                    'send_back_reason' => $sendBack ? $request->courier_send_back_reason : null,
+                    'send_back_date' => $sendBack ? $request->courier_send_back_date : null,
+                    'cheque_total' => $chequeTotal,
+                    'cheque_received' => $chequeReceived,
+                    'cheque_pending' => $chequePending,
+                ],
             ]);
 
             $actor = Auth::user();
@@ -3255,13 +3361,20 @@ class AdminController extends Controller
             }
 
             try {
-                Mail::to($user->email)->send(new SendBackForCorrectionMail($user, $request->courier_receive_hold_remark));
-                Log::info("Courier receive hold email sent to user {$user->id} ({$user->email})");
+                if ($sendBack) {
+                    Mail::to($user->email)->send(new SendBackForCorrectionMail($user, $request->courier_receive_hold_remark));
+                    Log::info("Courier receive hold email sent to user {$user->id} ({$user->email})");
+                }
             } catch (\Exception $e) {
                 Log::error("Failed to send courier receive hold email to user {$user->id}: " . $e->getMessage());
             }
 
-            return back()->with('success', 'Courier receive marked as hold and mail sent to the student.');
+            return back()->with(
+                'success',
+                $sendBack
+                    ? 'Courier receive marked as hold and mail sent to the student.'
+                    : 'Courier receive marked as hold.'
+            );
         }
 
         $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
@@ -3302,6 +3415,11 @@ class AdminController extends Controller
             'courier_receive_processed_by',
             'courier_receive_processed_at',
             'courier_receive_verified_documents',
+            'courier_cheque_total',
+            'courier_cheque_received',
+            'courier_cheque_pending',
+            'courier_receive_approved_by',
+            'courier_receive_approved_at',
             'status',
             'admin_reject_remark',
         ]);
@@ -3312,6 +3430,14 @@ class AdminController extends Controller
             'courier_receive_processed_by' => Auth::id(),
             'courier_receive_processed_at' => now(),
             'courier_receive_verified_documents' => $approvedDocuments,
+            'courier_cheque_total' => $chequeTotal,
+            'courier_cheque_received' => $chequeReceived,
+            'courier_cheque_pending' => $chequePending,
+            'courier_receive_approved_by' => Auth::id(),
+            'courier_receive_approved_at' => now(),
+            'courier_send_back' => null,
+            'courier_send_back_reason' => null,
+            'courier_send_back_date' => null,
             'status' => $pdcDetail->status === 'approved' ? 'approved' : 'submitted',
             'admin_reject_remark' => null,
         ]);
@@ -3322,8 +3448,27 @@ class AdminController extends Controller
             'courier_receive_processed_by',
             'courier_receive_processed_at',
             'courier_receive_verified_documents',
+            'courier_cheque_total',
+            'courier_cheque_received',
+            'courier_cheque_pending',
+            'courier_receive_approved_by',
+            'courier_receive_approved_at',
             'status',
             'admin_reject_remark',
+        ]);
+
+        PdcCourierHistory::create([
+            'pdc_detail_id' => $pdcDetail->id,
+            'user_id' => $user->id,
+            'action' => 'approved',
+            'action_by' => Auth::id(),
+            'action_at' => now(),
+            'data' => [
+                'approved_documents' => $approvedDocuments,
+                'cheque_total' => $chequeTotal,
+                'cheque_received' => $chequeReceived,
+                'cheque_pending' => $chequePending,
+            ],
         ]);
 
         $actor = Auth::user();
@@ -3903,6 +4048,25 @@ class AdminController extends Controller
     private function isCourierReceiveApproved(?PdcDetail $pdcDetail): bool
     {
         return $pdcDetail && $pdcDetail->courier_receive_status === 'approved';
+    }
+
+    private function getChequeTotalForUser(User $user, ?PdcDetail $pdcDetail = null): ?int
+    {
+        $approval = \App\Models\WorkingCommitteeApproval::query()
+            ->where('user_id', $user->id)
+            ->orderByDesc('id')
+            ->first();
+
+        if ($approval && $approval->no_of_cheques_to_be_collected) {
+            return (int) $approval->no_of_cheques_to_be_collected;
+        }
+
+        $pdcDetail = $pdcDetail ?: PdcDetail::where('user_id', $user->id)->first();
+        if ($pdcDetail && is_array($pdcDetail->cheque_details)) {
+            return count($pdcDetail->cheque_details);
+        }
+
+        return null;
     }
 
     private function getUploadedCourierDocumentChecklist(User $user, ?Loan_category $loanCategory = null): array

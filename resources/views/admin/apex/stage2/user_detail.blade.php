@@ -2391,6 +2391,46 @@
                                 </div>
                             @endif
 
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Total Cheques</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $chequeTotal ?? ($pdcDetail->courier_cheque_total ?? 'N/A') }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Cheques Received</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $pdcDetail->courier_cheque_received ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Cheques Pending</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $pdcDetail->courier_cheque_pending ?? 'N/A' }}" readonly>
+                                </div>
+                            </div>
+
+                            @if (!is_null($pdcDetail->courier_send_back))
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Send Back to Student</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $pdcDetail->courier_send_back ? 'Yes' : 'No' }}" readonly>
+                                    </div>
+                                    @if ($pdcDetail->courier_send_back)
+                                        <div class="form-field">
+                                            <label class="form-label">Send Back Date</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $pdcDetail->courier_send_back_date ? $pdcDetail->courier_send_back_date->format('d M Y') : 'N/A' }}"
+                                                readonly>
+                                        </div>
+                                        <div class="form-field form-field-full">
+                                            <label class="form-label">Send Back Reason</label>
+                                            <textarea class="form-textarea" readonly>{{ strip_tags($pdcDetail->courier_send_back_reason ?? '') }}</textarea>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+
                             @if (!empty($pdcDetail->courier_receive_verified_documents))
                                 <div class="form-row">
                                     <div class="form-field form-field-full">
@@ -2440,6 +2480,31 @@
                                     method="POST">
                                     @csrf
                                     <div style="display: grid; gap: 0.75rem;">
+                                        <div style="display: grid; gap: 0.5rem;">
+                                            <label class="form-label">Cheque Summary <span style="color: red;">*</span></label>
+                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem;">
+                                                <div>
+                                                    <label class="form-label" style="font-size: 0.85rem;">Total Cheques</label>
+                                                    <input type="text" class="form-input" value="{{ $chequeTotal ?? ($pdcDetail->courier_cheque_total ?? 'N/A') }}"
+                                                        readonly>
+                                                </div>
+                                                <div>
+                                                    <label class="form-label" style="font-size: 0.85rem;">Cheques Received</label>
+                                                    <input type="number" min="0" name="courier_cheque_received" class="form-input"
+                                                        value="{{ old('courier_cheque_received', $pdcDetail->courier_cheque_received ?? 0) }}" required>
+                                                </div>
+                                                <div>
+                                                    <label class="form-label" style="font-size: 0.85rem;">Cheques Pending</label>
+                                                    <input type="number" min="0" name="courier_cheque_pending" class="form-input"
+                                                        value="{{ old('courier_cheque_pending', $pdcDetail->courier_cheque_pending ?? 0) }}" required>
+                                                </div>
+                                            </div>
+                                            <input type="hidden" name="courier_cheque_total"
+                                                value="{{ $chequeTotal ?? ($pdcDetail->courier_cheque_total ?? '') }}">
+                                            <div id="cheques-error"
+                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                            </div>
+                                        </div>
                                         <div>
                                             <label class="form-label">Uploaded Documents Checklist <span
                                                     style="color: red;">*</span></label>
@@ -2472,6 +2537,28 @@
                                                 style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
                                             </div>
                                         </div>
+                                        <div style="display: grid; gap: 0.5rem;">
+                                            <label class="form-label">Send Back to Student?</label>
+                                            <select name="courier_send_back" class="form-input" id="courierSendBackSelect">
+                                                <option value="0" {{ old('courier_send_back', $pdcDetail->courier_send_back ? 1 : 0) == 0 ? 'selected' : '' }}>No</option>
+                                                <option value="1" {{ old('courier_send_back', $pdcDetail->courier_send_back ? 1 : 0) == 1 ? 'selected' : '' }}>Yes</option>
+                                            </select>
+                                        </div>
+                                        <div id="courierSendBackFields" style="display: grid; gap: 0.5rem;">
+                                            <div>
+                                                <label class="form-label">Send Back Reason</label>
+                                                <textarea name="courier_send_back_reason" rows="3" class="remark-input"
+                                                    placeholder="Reason for sending back to student">{{ old('courier_send_back_reason', $pdcDetail->courier_send_back_reason ?? '') }}</textarea>
+                                            </div>
+                                            <div>
+                                                <label class="form-label">Send Back Date</label>
+                                                <input type="date" name="courier_send_back_date" class="form-input"
+                                                    value="{{ old('courier_send_back_date', optional($pdcDetail->courier_send_back_date)->format('Y-m-d')) }}">
+                                            </div>
+                                            <div id="sendback-error"
+                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                            </div>
+                                        </div>
                                         <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
                                             <button type="submit" name="courier_action" value="approve"
                                                 class="btn btn-approve">
@@ -2490,6 +2577,36 @@
                     </div>
 
                 </div>
+                @if (($courierHistory ?? collect())->isNotEmpty())
+                    <div class="data-group" style="margin-top: 1rem;">
+                        <h4>Courier History</h4>
+                        <div style="display: grid; gap: 0.75rem;">
+                            @foreach ($courierHistory as $history)
+                                <div style="padding: 0.75rem; border: 1px solid #e5e5e5; border-radius: 8px;">
+                                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.9rem;">
+                                        <div><strong>Action:</strong> {{ ucfirst(str_replace('_', ' ', $history->action)) }}</div>
+                                        <div><strong>By:</strong> {{ $history->actor->name ?? ('Admin #' . ($history->action_by ?? 'N/A')) }}</div>
+                                        <div><strong>Date:</strong> {{ $history->action_at ? $history->action_at->format('d M Y H:i') : 'N/A' }}</div>
+                                    </div>
+                                    @if (!empty($history->data))
+                                        <div style="margin-top: 0.5rem; display: grid; gap: 0.35rem;">
+                                            @foreach ($history->data as $key => $value)
+                                                <div style="font-size: 0.85rem;">
+                                                    <strong>{{ ucwords(str_replace('_', ' ', $key)) }}:</strong>
+                                                    @if (is_array($value))
+                                                        {{ implode(', ', $value) }}
+                                                    @else
+                                                        {{ is_bool($value) ? ($value ? 'Yes' : 'No') : $value }}
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             @else
                 <div class="no-data">
                     <p>Courier receive cannot be processed because PDC/Cheque Details are not submitted yet.</p>
@@ -3274,9 +3391,18 @@
 
         const remarkInput = reviewForm.querySelector('textarea[name="courier_receive_hold_remark"]');
         const documentCheckboxes = reviewForm.querySelectorAll('input[name="courier_verified_documents[]"]');
+        const chequeTotalInput = reviewForm.querySelector('input[name="courier_cheque_total"]');
+        const chequeReceivedInput = reviewForm.querySelector('input[name="courier_cheque_received"]');
+        const chequePendingInput = reviewForm.querySelector('input[name="courier_cheque_pending"]');
+        const sendBackSelect = reviewForm.querySelector('#courierSendBackSelect');
+        const sendBackFields = document.getElementById('courierSendBackFields');
+        const sendBackReasonInput = reviewForm.querySelector('textarea[name="courier_send_back_reason"]');
+        const sendBackDateInput = reviewForm.querySelector('input[name="courier_send_back_date"]');
 
         const documentsErrorDiv = document.getElementById('documents-error');
         const remarkErrorDiv = document.getElementById('remark-error');
+        const chequesErrorDiv = document.getElementById('cheques-error');
+        const sendBackErrorDiv = document.getElementById('sendback-error');
 
         function showDocumentsError(message) {
             documentsErrorDiv.textContent = message;
@@ -3296,12 +3422,59 @@
             remarkErrorDiv.style.display = 'none';
         }
 
+        function showChequesError(message) {
+            chequesErrorDiv.textContent = message;
+            chequesErrorDiv.style.display = 'block';
+        }
+
+        function hideChequesError() {
+            chequesErrorDiv.style.display = 'none';
+        }
+
+        function showSendBackError(message) {
+            sendBackErrorDiv.textContent = message;
+            sendBackErrorDiv.style.display = 'block';
+        }
+
+        function hideSendBackError() {
+            sendBackErrorDiv.style.display = 'none';
+        }
+
+        function toggleSendBackFields() {
+            if (!sendBackSelect || !sendBackFields) return;
+            const isSendBack = sendBackSelect.value === '1';
+            sendBackFields.style.display = isSendBack ? 'grid' : 'none';
+        }
+
+        toggleSendBackFields();
+        if (sendBackSelect) {
+            sendBackSelect.addEventListener('change', toggleSendBackFields);
+        }
+
         reviewForm.addEventListener('submit', function(e) {
 
             const action = e.submitter.value;
 
             hideDocumentsError();
             hideRemarkError();
+            hideChequesError();
+            hideSendBackError();
+
+            const totalCheques = chequeTotalInput ? parseInt(chequeTotalInput.value, 10) : NaN;
+            const receivedCheques = chequeReceivedInput ? parseInt(chequeReceivedInput.value || '0', 10) : 0;
+            const pendingCheques = chequePendingInput ? parseInt(chequePendingInput.value || '0', 10) : 0;
+
+            if (!Number.isNaN(totalCheques)) {
+                if ((receivedCheques + pendingCheques) !== totalCheques) {
+                    e.preventDefault();
+                    showChequesError("Received + pending cheques must equal total cheques (" + totalCheques + ").");
+                    chequesErrorDiv.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+                    return;
+                }
+            }
 
             // APPROVE VALIDATION
             if (action === "approve") {
@@ -3364,6 +3537,20 @@
                     return;
                 }
 
+                const isSendBack = sendBackSelect && sendBackSelect.value === '1';
+                if (isSendBack) {
+                    const reasonValue = sendBackReasonInput ? sendBackReasonInput.value.trim() : "";
+                    const dateValue = sendBackDateInput ? sendBackDateInput.value.trim() : "";
+                    if (reasonValue === "" || dateValue === "") {
+                        e.preventDefault();
+                        showSendBackError("Please provide reason and date when sending courier back to student.");
+                        sendBackErrorDiv.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        });
+                        return;
+                    }
+                }
             }
 
         });

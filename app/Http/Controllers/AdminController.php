@@ -1232,7 +1232,7 @@ class AdminController extends Controller
             $documentName = time() . '_' . $documentFile->getClientOriginalName();
 
             // move file to public/working_committee_documents
-            $documentFile->move(public_path('working_committee_documents'), $documentName);
+            $documentFile->move('working_committee_documents', $documentName);
         }
 
         // Save only file name in DB

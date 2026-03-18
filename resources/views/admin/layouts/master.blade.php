@@ -461,7 +461,7 @@
             background: linear-gradient(135deg, var(--primary-color) 0%, #4a3fa5 100%);
             border: none;
             color: white;
-            
+
             border-radius: 25px;
             font-weight: 500;
             transition: all 0.3s ease;
@@ -478,7 +478,7 @@
             background: linear-gradient(135deg, var(--success-color) 0%, #00b855 100%);
             border: none;
             color: white;
-            
+
             border-radius: 25px;
             font-weight: 500;
             transition: all 0.3s ease;
@@ -489,7 +489,7 @@
             background: yellow;
             border: none;
             color: rgb(136, 128, 128);
-            
+
             border-radius: 25px;
             font-weight: 500;
             transition: all 0.3s ease;
@@ -506,7 +506,7 @@
             background: linear-gradient(135deg, var(--secondary-color) 0%, #f9282e 100%);
             border: none;
             color: white;
-            
+
             border-radius: 25px;
             font-weight: 500;
             transition: all 0.3s ease;
@@ -975,12 +975,12 @@
                         </li>
                     @endif
                     <li class="nav-item">
-                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'website') ? 'active' : '' }}"
-                                href="{{ route('admin.website.index') }}">
-                                <i class="fas fa-globe"></i>
-                                <span class="nav-text">Jito Jeap Website</span>
-                            </a>
-                        </li>
+                        <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'website') ? 'active' : '' }}"
+                            href="{{ route('admin.website.index') }}">
+                            <i class="fas fa-globe"></i>
+                            <span class="nav-text">Jito Jeap Website</span>
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" style="margin-bottom: 20px;"
                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -1027,7 +1027,8 @@
                                         data-read-url="{{ route('admin.notifications.read', $notification->id) }}">
                                         <div class="notification-item-title">{{ $notification->title }}</div>
                                         <div class="notification-item-text">{{ $notification->message }}</div>
-                                        <div class="notification-item-time">{{ $notification->created_at?->diffForHumans() }}</div>
+                                        <div class="notification-item-time">
+                                            {{ $notification->created_at?->diffForHumans() }}</div>
                                     </a>
                                 @empty
                                     <div class="notification-empty">No notifications found.</div>
@@ -1080,7 +1081,8 @@
                     fetch(readUrl, {
                             method: 'POST',
                             headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content'),
                                 'X-Requested-With': 'XMLHttpRequest',
                                 'Accept': 'application/json',
                             },
@@ -1195,6 +1197,7 @@
                 });
             });
         </script>
+        <script src="{{ asset('summernotes/summernote-lite.min.js') }}"></script>
         @yield('scripts')
     </footer>
 

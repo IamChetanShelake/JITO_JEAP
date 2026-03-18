@@ -11,15 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::connection('admin_panel')->create('working_committee', function (Blueprint $table) {
+        Schema::connection('admin_panel')->create('admin_jito_stats', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('department')->nullable();
-            $table->string('designation');
-            $table->string('email')->unique();
-            $table->string('contact');
+            $table->string('number');
+            $table->string('text');
+            $table->integer('display_order')->default(0);
             $table->boolean('status')->default(true);
-            $table->boolean('show_hide')->default(true);
             $table->timestamps();
         });
     }
@@ -29,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('admin_panel')->dropIfExists('working_committee');
+        Schema::connection('admin_panel')->dropIfExists('admin_jito_stats');
     }
 };

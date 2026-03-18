@@ -48,55 +48,48 @@
                 <div class="col-md-12 mt-4">
                     <div class="row">
 
+                        @forelse($items as $item)
                         <div class="col-md-3 mt-4 ">
-                            <!-- Added director-card class -->
                             <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px; border:1px solid #D7D7D7;">
-                                <!-- Added img-wrapper class -->
+                                <div class="img-wrapper" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
+                                    @if($item->image)
+                                    <img src="{{ asset($item->image) }}" alt="{{ $item->name }}" style="width: 100%; height: 106%; object-fit: cover;">
+                                    @else
+                                    <img src="{{ asset('website/images/d001.png') }}" alt="{{ $item->name }}" style="width: 100%; height: 106%; object-fit: cover;">
+                                    @endif
+                                </div>
+                                <h3 style="font-size: 16px; font-weight: 600; color: #393186; margin-bottom: -4px;font-family: 'Poppins', sans-serif !important; text-transform: none !important;">
+                                    {{ $item->name }}
+                                </h3>
+                                <p class="designation-text" style="font-size: 16px; color: #4D4D4D;font-weight: 500; margin-bottom: -4px;">
+                                    {{ $item->post }}
+                                </p>
+                                @if($item->email)
+                                <a href="mailto:{{ $item->email }}" class="email-link" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">{{ $item->email }}</a>
+                                @endif
+                            </div>
+                        </div>
+                        @empty
+                        <div class="col-md-3 mt-4 ">
+                            <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px; border:1px solid #D7D7D7;">
                                 <div class="img-wrapper" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
                                     <img src="{{ asset('website/images/d001.png') }}" alt="Photo" style="width: 100%; height: 106%; object-fit: cover;">
                                 </div>
                                 <h3 style="font-size: 16px; font-weight: 600; color: #393186; margin-bottom: -4px;font-family: 'Poppins', sans-serif !important; text-transform: none !important;">
                                     Hitesh Doshi
                                 </h3>
-                                <!-- Added designation-text class -->
                                 <p class="designation-text" style="font-size: 16px; color: #4D4D4D;font-weight: 500; margin-bottom: -4px;">
                                     Chairman
                                 </p>
-                                <!-- Added email-link class -->
                                 <a href="#" class="email-link" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">hiteshdoshi@waaree.com</a>
                             </div>
                         </div>
+                        @endforelse
 
-                        <div class="col-md-3 mt-4 ">
-                            <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px; border:1px solid #D7D7D7;">
-                                <div class="img-wrapper" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
-                                    <img src="{{ asset('website/images/d002.png') }}" alt="Photo" style="width: 100%; height: 106%; object-fit: cover;">
-                                </div>
-                                <h3 style="font-size: 16px; font-weight: 600; color: #393186; margin-bottom: -4px;font-family: 'Poppins', sans-serif !important; text-transform: none !important;">
-                                    Mahaveer Singh Choudhary
-                                </h3>
-                                <p class="designation-text" style="font-size: 16px; color: #4D4D4D;font-weight: 500; margin-bottom: -4px;">
-                                    Vice Chairman
-                                </p>
-                                <a href="#" class="email-link" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">navkarassociates@yahoo.in</a>
-                            </div>
-                        </div>
+                    </div>
 
-                        <div class="col-md-3 mt-4 ">
-                            <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px; border:1px solid #D7D7D7;">
-                                <div class="img-wrapper" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
-                                    <img src="{{ asset('website/images/d003.png') }}" alt="Photo" style="width: 100%; height: 106%; object-fit: cover;">
-                                </div>
-                                <h3 style="font-size: 16px; font-weight: 600; color: #393186; margin-bottom: -4px;font-family: 'Poppins', sans-serif !important; text-transform: none !important;">
-                                    Dr.Bipin Doshi
-                                </h3>
-                                <p class="designation-text" style="font-size: 16px; color: #4D4D4D;font-weight: 500; margin-bottom: -4px;">
-                                    Vice Chairman
-                                </p>
-                                <a href="#" class="email-link" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">drbipindoshi@yahoo.com</a>
-                            </div>
-                        </div>
-
+                </div>
+<!-- 
                         <div class="col-md-3 mt-4 ">
                             <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px; border:1px solid #D7D7D7;">
                                 <div class="img-wrapper" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
@@ -110,9 +103,9 @@
                                 </p>
                                 <a href="#" class="email-link" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">casatishhiran@gmail.com</a>
                             </div>
-                        </div>
+                        </div> -->
 
-                        <div class="col-md-3 mt-4 ">
+                        <!-- <div class="col-md-3 mt-4 ">
                             <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px; border:1px solid #D7D7D7;">
                                 <div class="img-wrapper" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
                                     <img src="{{ asset('website/images/d005.png') }}" alt="Photo" style="width: 100%; height: 106%; object-fit: cover;">
@@ -125,9 +118,9 @@
                                 </p>
                                 <a href="#" class="email-link" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">bhansalisiddharth@gmail.com</a>
                             </div>
-                        </div>
+                        </div> -->
 
-                        <div class="col-md-3 mt-4 ">
+                        <!-- <div class="col-md-3 mt-4 ">
                             <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px; border:1px solid #D7D7D7;">
                                 <div class="img-wrapper" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
                                     <img src="{{ asset('website/images/d006.png') }}" alt="Photo" style="width: 100%; height: 106%; object-fit: cover;">
@@ -140,9 +133,9 @@
                                 </p>
                                 <a href="#" class="email-link" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">adhunik_finance@yahoo.com</a>
                             </div>
-                        </div>
+                        </div> -->
 
-                        <div class="col-md-3 mt-4 ">
+                        <!-- <div class="col-md-3 mt-4 ">
                             <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px; border:1px solid #D7D7D7;">
                                 <div class="img-wrapper" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
                                     <img src="{{ asset('website/images/d007.png') }}" alt="Photo" style="width: 100%; height: 106%; object-fit: cover;">
@@ -155,9 +148,9 @@
                                 </p>
                                 <a href="#" class="email-link" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">ashok.katariya@ashokabuildcon.com</a>
                             </div>
-                        </div>
+                        </div> -->
 
-                        <div class="col-md-3 mt-4 ">
+                        <!-- <div class="col-md-3 mt-4 ">
                             <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px; border:1px solid #D7D7D7;">
                                 <div class="img-wrapper" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
                                     <img src="{{ asset('website/images/d008.png') }}" alt="Photo" style="width: 100%; height: 106%; object-fit: cover;">
@@ -170,9 +163,9 @@
                                 </p>
                                 <a href="#" class="email-link" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">casatishhiran@gmail.com</a>
                             </div>
-                        </div>
+                        </div> -->
 
-                        <div class="col-md-3 mt-4 ">
+                        <!-- <div class="col-md-3 mt-4 ">
                             <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px; border:1px solid #D7D7D7;">
                                 <div class="img-wrapper" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
                                     <img src="{{ asset('website/images/d009.png') }}" alt="Photo" style="width: 100%; height: 106%; object-fit: cover;">
@@ -185,9 +178,9 @@
                                 </p>
                                 <a href="#" class="email-link" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">hj@kljindia.com</a>
                             </div>
-                        </div>
+                        </div> -->
 
-                        <div class="col-md-3 mt-4 ">
+                        <!-- <div class="col-md-3 mt-4 ">
                             <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px; border:1px solid #D7D7D7;">
                                 <div class="img-wrapper" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
                                     <img src="{{ asset('website/images/d010.png') }}" alt="Photo" style="width: 100%; height: 106%; object-fit: cover;">
@@ -200,9 +193,9 @@
                                 </p>
                                 <a href="#" class="email-link" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">md@cenzer.com</a>
                             </div>
-                        </div>
+                        </div> -->
 
-                        <div class="col-md-3 mt-4 ">
+                        <!-- <div class="col-md-3 mt-4 ">
                             <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px; border:1px solid #D7D7D7;">
                                 <div class="img-wrapper" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
                                     <img src="{{ asset('website/images/d011.png') }}" alt="Photo" style="width: 100%; height: 106%; object-fit: cover;">
@@ -215,8 +208,8 @@
                                 </p>
                                 <a href="#" class="email-link" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">kamlesh@jainmetalgroup.com</a>
                             </div>
-                        </div>
-
+                        </div> -->
+<!-- 
                         <div class="col-md-3 mt-4 ">
                             <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px; border:1px solid #D7D7D7;">
                                 <div class="img-wrapper" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
@@ -230,9 +223,9 @@
                                 </p>
                                 <a href="#" class="email-link" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">canileshjain@gmail.com</a>
                             </div>
-                        </div>
+                        </div> -->
 
-                        <div class="col-md-3 mt-4 ">
+                        <!-- <div class="col-md-3 mt-4 ">
                             <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px; border:1px solid #D7D7D7;">
                                 <div class="img-wrapper" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
                                     <img src="{{ asset('website/images/d013.png') }}" alt="Photo" style="width: 100%; height: 106%; object-fit: cover;">
@@ -245,9 +238,9 @@
                                 </p>
                                 <a href="#" class="email-link" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">omjain@gmail.com</a>
                             </div>
-                        </div>
+                        </div> -->
 
-                        <div class="col-md-3 mt-4 ">
+                        <!-- <div class="col-md-3 mt-4 ">
                             <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px; border:1px solid #D7D7D7;">
                                 <div class="img-wrapper" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
                                     <img src="{{ asset('website/images/d015.png') }}" alt="Photo" style="width: 100%; height: 106%; object-fit: cover;">
@@ -260,7 +253,7 @@
                                 </p>
                                 <a href="#" class="email-link" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">sunil@frontier.in.net</a>
                             </div>
-                        </div>
+                        </div> -->
 
                     </div>
                 </div>

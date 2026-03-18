@@ -35,6 +35,7 @@
         
         /* FIX: Allow vertical scroll when dropdowns expand */
         overflow-y: auto;
+    }
     
     .website-pages-sidebar .sidebar-header {
         background: linear-gradient(135deg, var(--primary-color) 0%, #6c5ce7 100%);
@@ -367,18 +368,40 @@
                 </ul>
             </li>
 
-            <!-- OTHER LINKS -->
-            <li>
-                <a href="{{ route('admin.website.about') }}" class="{{ request()->routeIs('admin.website.about') ? 'active' : '' }}">
-                    <div class="icon-box"><i class="fas fa-info-circle"></i></div>
-                    <span>About Us</span>
-                </a>
+            <!-- ABOUT US DROPDOWN ITEM (UPDATED) -->
+            <li class="dropdown-menu-item">
+                <button class="dropdown-toggle {{ request()->routeIs('admin.website.about.*') ? 'active' : '' }}" type="button">
+                    <div style="display: flex; align-items: center;">
+                        <div class="icon-box"><i class="fas fa-info-circle"></i></div>
+                        <span>About Us</span>
+                    </div>
+                    <i class="fas fa-chevron-down arrow-icon"></i>
+                </button>
+                
+                <!-- Dropdown Menu -->
+                <ul class="dropdown-menu {{ request()->routeIs('admin.website.about.*') ? 'show' : '' }}">
+                    <li><a href="{{ route('admin.website.about.jito') }}" class="{{ request()->routeIs('admin.website.about.jito') ? 'active' : '' }}">Jito</a></li>
+                    <li><a href="{{ route('admin.website.about.jeap') }}" class="{{ request()->routeIs('admin.website.about.jeap') ? 'active' : '' }}">Jeap</a></li>
+                    <li><a href="{{ route('admin.website.about.board-of-directors') }}" class="{{ request()->routeIs('admin.website.about.board-of-directors') ? 'active' : '' }}">Board of Directors</a></li>
+                    <li><a href="{{ route('admin.website.about.zone-chairmen') }}" class="{{ request()->routeIs('admin.website.about.zone-chairmen') ? 'active' : '' }}">Zone Chairmen</a></li>
+                    <li><a href="{{ route('admin.website.about.testimonials-success') }}" class="{{ request()->routeIs('admin.website.about.testimonials-success') ? 'active' : '' }}">Our Testimonials / Success Story</a></li>
+                </ul>
             </li>
-            <li>
-                <a href="{{ route('admin.website.application') }}" class="{{ request()->routeIs('admin.website.application') ? 'active' : '' }}">
-                    <div class="icon-box"><i class="fas fa-file-alt"></i></div>
-                    <span>Application</span>
-                </a>
+
+            <!-- APPLICATION DROPDOWN ITEM -->
+            <li class="dropdown-menu-item">
+                <button class="dropdown-toggle {{ request()->routeIs('admin.website.application.*') ? 'active' : '' }}" type="button">
+                    <div style="display: flex; align-items: center;">
+                        <div class="icon-box"><i class="fas fa-file-alt"></i></div>
+                        <span>Application</span>
+                    </div>
+                    <i class="fas fa-chevron-down arrow-icon"></i>
+                </button>
+                
+                <!-- Dropdown Menu -->
+                <ul class="dropdown-menu {{ request()->routeIs('admin.website.application.*') ? 'show' : '' }}">
+                    <li><a href="{{ route('admin.website.application.faqs') }}" class="{{ request()->routeIs('admin.website.application.faqs') ? 'active' : '' }}">FAQ's</a></li>
+                </ul>
             </li>
             <li>
                 <a href="{{ route('admin.website.contact') }}" class="{{ request()->routeIs('admin.website.contact') ? 'active' : '' }}">

@@ -1,18 +1,18 @@
 @extends('admin.website.layouts.master')
 
-@section('title', 'About Us - JitoJeap Admin')
+@section('title', 'Application - JitoJeap Admin')
 
 @section('website-content')
 <div class="welcome-card">
-    <h3><i class="fas fa-info-circle"></i> About Us Page Settings</h3>
-    <p>Manage your website's about us page content here.</p>
+    <h3><i class="fas fa-file-alt"></i> Application Page Settings</h3>
+    <p>Manage your website's application page content here.</p>
     
     <div class="quick-tips">
         <h4><i class="fas fa-lightbulb"></i> Quick Tips</h4>
         <ul>
-            <li>Write a compelling mission statement</li>
-            <li>Add information about your organization history</li>
-            <li>Include team member profiles</li>
+            <li>Manage FAQ's for applicants</li>
+            <li>Keep the FAQ content updated</li>
+            <li>Add common questions and answers</li>
         </ul>
     </div>
 </div>

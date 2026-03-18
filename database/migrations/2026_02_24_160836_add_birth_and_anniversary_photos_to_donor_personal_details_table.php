@@ -14,8 +14,12 @@ return new class extends Migration
     public function up(): void
 {
     Schema::connection('admin_panel')->table('donor_personal_details', function (Blueprint $table) {
-        $table->string('birth_photo')->nullable()->after('date_of_birth');
-        $table->string('anniversary_photo')->nullable()->after('anniversary_date');
+        if (!Schema::connection('admin_panel')->hasColumn('donor_personal_details', 'birth_photo')) {
+            $table->string('birth_photo')->nullable()->after('date_of_birth');
+        }
+        if (!Schema::connection('admin_panel')->hasColumn('donor_personal_details', 'anniversary_photo')) {
+            $table->string('anniversary_photo')->nullable()->after('anniversary_date');
+        }
     });
 }
 

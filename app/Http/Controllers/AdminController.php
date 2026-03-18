@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SendBackForCorrectionMail;
+use App\Mail\ThirdStageDocumentCorrectionMail;
 use App\Mail\WorkingCommitteeApprovedMail;
 use App\Models\ApplicationWorkflowStatus;
 use App\Models\BeDonorDetail;
@@ -25,6 +26,7 @@ use App\Models\CourseWebsite;
 use App\Models\CollegeWebsite;
 use App\Models\User;
 use App\Models\WorkingCommitteeApprovalHistory;
+use App\Models\ThirdStageDocument;
 use App\Traits\LogsUserActivity;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -79,6 +81,7 @@ class AdminController extends Controller
         // Calculate disbursement counts for dashboard
         $disbursementCounts = $this->getDisbursementCounts();
         $repaymentCounts = $this->getRepaymentCounts();
+        $thirdStageCounts = $this->getThirdStageDocumentCounts();
 
         return view('admin.home', [
             'activeGuard' => $request->active_guard,
@@ -96,6 +99,12 @@ class AdminController extends Controller
             'repaymentUpcoming' => $repaymentCounts['upcoming'],
             'repaymentPast' => $repaymentCounts['past'],
             'repaymentTotal' => $repaymentCounts['total'],
+            'thirdStagePending' => $thirdStageCounts['pending'],
+            'thirdStageSubmitted' => $thirdStageCounts['submitted'],
+            'thirdStageApproved' => $thirdStageCounts['approved'],
+            'thirdStageSendBack' => $thirdStageCounts['send_back'],
+            'thirdStageResubmitted' => $thirdStageCounts['resubmitted'],
+            'thirdStageTotal' => $thirdStageCounts['total'],
         ]);
     }
 
@@ -209,12 +218,12 @@ class AdminController extends Controller
     public function deleteEmpoweringDream($id)
     {
         $dream = EmpoweringDream::findOrFail($id);
-        
+
         // Delete image if exists
         if ($dream->image && file_exists(public_path($dream->image))) {
             unlink(public_path($dream->image));
         }
-        
+
         $dream->delete();
 
         return redirect()->back()->with('success', 'Data deleted successfully!');
@@ -485,12 +494,12 @@ class AdminController extends Controller
     {
         try {
             $member = \App\Models\WorkingCommittee::findOrFail($id);
-            
+
             // Delete photo if exists
             if ($member->photo && file_exists(public_path($member->photo))) {
                 unlink(public_path($member->photo));
             }
-            
+
             $member->delete();
 
             return redirect()->route('admin.website.home.working-committee')->with('success', 'Working Committee member deleted successfully!');
@@ -605,11 +614,11 @@ class AdminController extends Controller
     public function deleteEmpoweringFuture($id)
     {
         $dream = EmpoweringDream::findOrFail($id);
-        
+
         if ($dream->image && file_exists(public_path($dream->image))) {
             unlink(public_path($dream->image));
         }
-        
+
         $dream->delete();
 
         return redirect()->route('admin.website.home.empowering-future')->with('success', 'Data deleted successfully!');
@@ -1615,6 +1624,39 @@ class AdminController extends Controller
         }
     }
 
+    private function getThirdStageDocumentCounts(): array
+    {
+        try {
+            $pending = ThirdStageDocument::where('status', 'pending')->count();
+            $sendBack = ThirdStageDocument::where('status', 'rejected')->count();
+            $resubmitted = ThirdStageDocument::where('status', 'submitted')
+                ->whereNotNull('rejected_at')
+                ->count();
+            $submitted = ThirdStageDocument::where('status', 'submitted')
+                ->whereNull('rejected_at')
+                ->count();
+            $approved = ThirdStageDocument::where('status', 'approved')->count();
+
+            return [
+                'pending' => $pending,
+                'submitted' => $submitted,
+                'approved' => $approved,
+                'send_back' => $sendBack,
+                'resubmitted' => $resubmitted,
+                'total' => $pending + $submitted + $approved + $sendBack + $resubmitted,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'pending' => 0,
+                'submitted' => 0,
+                'approved' => 0,
+                'send_back' => 0,
+                'resubmitted' => 0,
+                'total' => 0,
+            ];
+        }
+    }
+
     public function apexStage1Approved()
     {
         // Get users where final_status = 'approved'
@@ -1827,6 +1869,7 @@ class AdminController extends Controller
             'can_be_jeap_donor' => 'nullable|in:yes,no',
             'jeap_donor_date' => 'nullable|date',
             'disbursement_in_year' => 'required|integer|min:1|max:6',
+            'document' => 'nullable',
         ];
 
         // Conditional validation based on disbursement system
@@ -1892,6 +1935,31 @@ class AdminController extends Controller
             'processed_by_name' => Auth::user()->name,
         ];
 
+        // // Handle document upload
+        // $documentPath = null;
+        // if ($request->hasFile('document')) {
+        //     $documentFile = $request->file('document');
+        //     $documentName = time() . '_' . $documentFile->getClientOriginalName();
+        //     $documentFile->storeAs('public/working_committee_documents', $documentName);
+        //     $documentPath = 'working_committee_documents/' . $documentName;
+        // }
+
+        // Handle document upload
+        $documentName = null;
+
+        if ($request->hasFile('document')) {
+            $documentFile = $request->file('document');
+
+            // unique file name
+            $documentName = time() . '_' . $documentFile->getClientOriginalName();
+
+            // move file to public/working_committee_documents
+            $documentFile->move('working_committee_documents', $documentName);
+        }
+
+        // Save only file name in DB
+        //  $data->document = $documentName;
+
         // Handle disbursement arrays
         if ($request->disbursement_system === 'yearly') {
             $workingCommitteeData['disbursement_in_year'] = $request->disbursement_in_year;
@@ -1917,9 +1985,9 @@ class AdminController extends Controller
                 'disbursement_in_year' => $request->disbursement_in_year ?? null,
                 'disbursement_in_half_year' => $request->disbursement_in_half_year ?? null,
                 'yearly_dates' => $request->yearly_dates,
-                'yearly_amounts' => $request->yearly_amounts ,
-                'half_yearly_dates' => $request->half_yearly_dates ,
-                'half_yearly_amounts' => $request->half_yearly_amounts ,
+                'yearly_amounts' => $request->yearly_amounts,
+                'half_yearly_dates' => $request->half_yearly_dates,
+                'half_yearly_amounts' => $request->half_yearly_amounts,
                 'approval_financial_assistance_amount' => $request->approval_financial_assistance_amount,
                 'installment_amount' => $request->installment_amount,
                 'no_of_months' => $request->no_of_months,
@@ -1936,6 +2004,7 @@ class AdminController extends Controller
                 'processed_by_name' => Auth::user()->name,
                 'processed_by' => Auth::user()->id,
                 'approval_status' => 'approved',
+                'document' => $documentName,
             ]);
 
             $this->logUserActivity(
@@ -2044,6 +2113,47 @@ class AdminController extends Controller
         $validated['total'] = $totals;
         $validated['jito_member_date'] = ($request->can_be_jito_member === 'yes') ? $request->jito_member_date : null;
         $validated['jeap_donor_date'] = ($request->can_be_jeap_donor === 'yes') ? $request->jeap_donor_date : null;
+        $existingApproval = $user->workingCommitteeApproval;
+
+        if ($existingApproval) {
+            $validated['disbursement_system'] = $request->disbursement_system ?? $existingApproval->disbursement_system;
+
+            if ($validated['disbursement_system'] === 'yearly') {
+                $validated['disbursement_in_year'] = $request->input(
+                    'disbursement_in_year',
+                    $existingApproval->disbursement_in_year
+                );
+                $validated['yearly_dates'] = array_values($request->input(
+                    'yearly_dates',
+                    (array) $existingApproval->yearly_dates
+                ));
+                $validated['yearly_amounts'] = array_values($request->input(
+                    'yearly_amounts',
+                    (array) $existingApproval->yearly_amounts
+                ));
+                $validated['disbursement_in_half_year'] = $existingApproval->disbursement_in_half_year;
+                $validated['half_yearly_dates'] = (array) $existingApproval->half_yearly_dates;
+                $validated['half_yearly_amounts'] = (array) $existingApproval->half_yearly_amounts;
+            }
+
+            if ($validated['disbursement_system'] === 'half_yearly') {
+                $validated['disbursement_in_half_year'] = $request->input(
+                    'disbursement_in_half_year',
+                    $existingApproval->disbursement_in_half_year
+                );
+                $validated['half_yearly_dates'] = array_values($request->input(
+                    'half_yearly_dates',
+                    (array) $existingApproval->half_yearly_dates
+                ));
+                $validated['half_yearly_amounts'] = array_values($request->input(
+                    'half_yearly_amounts',
+                    (array) $existingApproval->half_yearly_amounts
+                ));
+                $validated['disbursement_in_year'] = $existingApproval->disbursement_in_year;
+                $validated['yearly_dates'] = (array) $existingApproval->yearly_dates;
+                $validated['yearly_amounts'] = (array) $existingApproval->yearly_amounts;
+            }
+        }
 
         $this->validateCompletedDisbursementSchedules($user, $validated);
 
@@ -2074,6 +2184,82 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Working Committee decision updated successfully.');
     }
 
+    public function updateWorkingCommitteeDisbursementDates(Request $request, User $user)
+    {
+        $approval = $user->workingCommitteeApproval;
+
+        if (!$approval) {
+            return redirect()->back()->with('error', 'Working Committee approval not found.');
+        }
+
+        $validated = $request->validate([
+            'date_update_mode' => 'required|in:disbursement_dates',
+            'yearly_dates' => 'nullable|array|min:1',
+            'yearly_dates.*' => 'nullable|date',
+            'half_yearly_dates' => 'nullable|array|min:1',
+            'half_yearly_dates.*' => 'nullable|date',
+        ]);
+
+        if ($approval->disbursement_system === 'yearly') {
+            $validated['yearly_dates'] = array_values($request->input('yearly_dates', []));
+
+            if (count($validated['yearly_dates']) !== count((array) $approval->yearly_dates)) {
+                throw ValidationException::withMessages([
+                    'yearly_dates' => 'Only the existing disbursement dates can be updated here.',
+                ]);
+            }
+        }
+
+        if ($approval->disbursement_system === 'half_yearly') {
+            $validated['half_yearly_dates'] = array_values($request->input('half_yearly_dates', []));
+
+            if (count($validated['half_yearly_dates']) !== count((array) $approval->half_yearly_dates)) {
+                throw ValidationException::withMessages([
+                    'half_yearly_dates' => 'Only the existing disbursement dates can be updated here.',
+                ]);
+            }
+        }
+
+        DB::connection('admin_panel')->transaction(function () use ($user, $approval, $validated) {
+            $originalSnapshot = $this->buildWorkingCommitteeApprovalHistorySnapshot($approval);
+
+            $proposedApproval = new \App\Models\WorkingCommitteeApproval($approval->toArray());
+            $proposedApproval->yearly_dates = $approval->disbursement_system === 'yearly'
+                ? ($validated['yearly_dates'] ?? [])
+                : $approval->yearly_dates;
+            $proposedApproval->half_yearly_dates = $approval->disbursement_system === 'half_yearly'
+                ? ($validated['half_yearly_dates'] ?? [])
+                : $approval->half_yearly_dates;
+
+            $this->validateCompletedDisbursementSchedules($user, $proposedApproval);
+
+            $approval->fill([
+                'yearly_dates' => $approval->disbursement_system === 'yearly'
+                    ? ($validated['yearly_dates'] ?? [])
+                    : $approval->yearly_dates,
+                'half_yearly_dates' => $approval->disbursement_system === 'half_yearly'
+                    ? ($validated['half_yearly_dates'] ?? [])
+                    : $approval->half_yearly_dates,
+            ]);
+
+            $changedFields = array_keys($approval->getDirty());
+            $approval->save();
+
+            if (!empty($changedFields)) {
+                WorkingCommitteeApprovalHistory::create(array_merge($originalSnapshot, [
+                    'user_id' => $user->id,
+                    'working_committee_approval_id' => $approval->id,
+                    'edited_by' => Auth::id(),
+                    'changed_fields' => $changedFields,
+                ]));
+            }
+
+            $this->syncWorkingCommitteeDisbursementSchedules($user, $approval);
+        });
+
+        return redirect()->back()->with('success', 'Disbursement dates updated successfully.');
+    }
+
     private function syncWorkingCommitteeDisbursementSchedules(User $user, \App\Models\WorkingCommitteeApproval $approval): void
     {
         $workflowStatus = ApplicationWorkflowStatus::where('user_id', $user->id)->first();
@@ -2102,7 +2288,7 @@ class AdminController extends Controller
             ->where('user_id', $user->id)
             ->where('status', 'completed')
             ->pluck('installment_no')
-            ->map(fn ($installmentNo) => (int) $installmentNo)
+            ->map(fn($installmentNo) => (int) $installmentNo)
             ->all();
 
         $pendingInstallmentNumbers = [];
@@ -2150,7 +2336,7 @@ class AdminController extends Controller
         }
     }
 
-    private function validateCompletedDisbursementSchedules(User $user, array $validated): void
+    private function validateCompletedDisbursementSchedules(User $user, $approvalData): void
     {
         $completedSchedules = DB::connection('admin_panel')
             ->table('disbursement_schedules')
@@ -2163,9 +2349,11 @@ class AdminController extends Controller
             return;
         }
 
-        $proposedSchedules = $this->buildWorkingCommitteePlannedSchedules(
-            new \App\Models\WorkingCommitteeApproval($validated)
-        );
+        $approval = $approvalData instanceof \App\Models\WorkingCommitteeApproval
+            ? $approvalData
+            : new \App\Models\WorkingCommitteeApproval($approvalData);
+
+        $proposedSchedules = $this->buildWorkingCommitteePlannedSchedules($approval);
 
         foreach ($completedSchedules as $completedSchedule) {
             $index = ((int) $completedSchedule->installment_no) - 1;
@@ -3005,7 +3193,18 @@ class AdminController extends Controller
             ->get(['installment_no', 'planned_date', 'planned_amount', 'status']);
         // dd($workingCommitteeApproval);
         $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
-        return view('admin.working_committee.user_detail', compact('user', 'workingCommitteeApproval', 'loanCategory', 'completedDisbursementSchedules'));
+        $approvalHistories = DB::connection('admin_panel')
+            ->table('working_committee_approval_histories as h')
+            ->leftJoin('admin_users as au', 'au.id', '=', 'h.edited_by')
+            ->where('h.user_id', $user->id)
+            ->orderByDesc('h.created_at')
+            ->get([
+                'h.*',
+                'au.name as edited_by_name',
+                'au.email as edited_by_email',
+            ]);
+
+        return view('admin.working_committee.user_detail', compact('user', 'workingCommitteeApproval', 'loanCategory', 'completedDisbursementSchedules', 'approvalHistories'));
     }
 
     // Chapter Interview Methods
@@ -3555,8 +3754,485 @@ class AdminController extends Controller
         // Load PDC details
         $pdcDetail = \App\Models\PdcDetail::where('user_id', $user->id)->first();
         $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
+        $courierDocumentChecklist = $this->getUploadedCourierDocumentChecklist($user, $loanCategory);
 
-        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory'));
+        // Load edit bank detail request if exists
+        $editBankDetailRequest = \App\Models\EditBankDetailRequest::where('user_id', $user->id)->latest()->first();
+
+        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory', 'editBankDetailRequest', 'courierDocumentChecklist'));
+    }
+
+    /**
+     * Approve Edit Bank Detail Request
+     */
+    public function approveEditBankDetailRequest(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|integer',
+        ]);
+
+        $editRequest = \App\Models\EditBankDetailRequest::where('user_id', $request->user_id)
+            ->where('status', 'pending')
+            ->latest()
+            ->first();
+
+        if (!$editRequest) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No pending request found'
+            ], 404);
+        }
+
+        $editRequest->update([
+            'status' => 'approved',
+            'processed_by' => Auth::id(),
+            'processed_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Request approved successfully! User can now edit bank details.'
+        ]);
+    }
+
+    /**
+     * Reject Edit Bank Detail Request
+     */
+    public function rejectEditBankDetailRequest(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|integer',
+            'admin_remark' => 'required|string|max:2000',
+        ]);
+
+        $editRequest = \App\Models\EditBankDetailRequest::where('user_id', $request->user_id)
+            ->where('status', 'pending')
+            ->latest()
+            ->first();
+
+        if (!$editRequest) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No pending request found'
+            ], 404);
+        }
+
+        $editRequest->update([
+            'status' => 'rejected',
+            'admin_remark' => $request->admin_remark,
+            'processed_by' => Auth::id(),
+            'processed_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Request rejected successfully!'
+        ]);
+        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory', 'courierDocumentChecklist'));
+    }
+
+    public function storeCourierReceive(Request $request, User $user)
+    {
+        $request->validate([
+            'courier_received_by' => 'required|string|max:255',
+            'courier_received_date' => 'required|date',
+        ]);
+
+        $pdcDetail = PdcDetail::where('user_id', $user->id)->first();
+
+        if (!$pdcDetail) {
+            return back()->with('error', 'PDC details not found.');
+        }
+
+        $oldValues = $pdcDetail->only([
+            'courier_received_by',
+            'courier_received_date',
+            'courier_receive_status',
+            'courier_receive_hold_remark',
+            'courier_receive_processed_by',
+            'courier_receive_processed_at',
+            'courier_receive_verified_documents',
+            'status',
+            'admin_reject_remark',
+        ]);
+
+        $pdcDetail->update([
+            'courier_received_by' => $request->courier_received_by,
+            'courier_received_date' => $request->courier_received_date,
+            'courier_receive_status' => 'pending',
+            'courier_receive_hold_remark' => null,
+            'courier_receive_processed_by' => null,
+            'courier_receive_processed_at' => null,
+            'courier_receive_verified_documents' => null,
+            'status' => 'submitted',
+            'admin_reject_remark' => null,
+        ]);
+
+        $newValues = $pdcDetail->fresh()->only([
+            'courier_received_by',
+            'courier_received_date',
+            'courier_receive_status',
+            'courier_receive_hold_remark',
+            'courier_receive_processed_by',
+            'courier_receive_processed_at',
+            'courier_receive_verified_documents',
+            'status',
+            'admin_reject_remark',
+        ]);
+
+        $actor = Auth::user();
+        if ($actor) {
+            $this->logUserActivity(
+                processType: 'courier_receive',
+                processAction: 'saved',
+                processDescription: 'Courier receive details saved',
+                module: 'pdc',
+                oldValues: $oldValues,
+                newValues: $newValues,
+                additionalData: [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                ],
+                targetUserId: $user->id,
+                actorId: $actor->id,
+                actorName: $actor->name,
+                actorRole: $actor->role
+            );
+        }
+
+        return back()->with('success', 'Courier receive details saved successfully.');
+    }
+
+    public function reviewCourierReceive(Request $request, User $user)
+    {
+        $request->validate([
+            'courier_action' => 'required|in:approve,hold',
+            'courier_receive_hold_remark' => 'nullable|string|max:2000',
+        ]);
+
+        $pdcDetail = PdcDetail::where('user_id', $user->id)->first();
+
+        if (!$pdcDetail) {
+            return back()->with('error', 'PDC details not found.');
+        }
+
+        if (!$pdcDetail->courier_received_by || !$pdcDetail->courier_received_date) {
+            return back()->with('error', 'Please save courier receive details before approval or hold.');
+        }
+
+        if ($request->courier_action === 'hold') {
+            $request->validate([
+                'courier_receive_hold_remark' => 'required|string|max:2000',
+            ]);
+
+            $oldValues = $pdcDetail->only([
+                'courier_receive_status',
+                'courier_receive_hold_remark',
+                'courier_receive_processed_by',
+                'courier_receive_processed_at',
+                'courier_receive_verified_documents',
+                'status',
+                'admin_reject_remark',
+            ]);
+
+            $pdcDetail->update([
+                'courier_receive_status' => 'hold',
+                'courier_receive_hold_remark' => $request->courier_receive_hold_remark,
+                'courier_receive_processed_by' => Auth::id(),
+                'courier_receive_processed_at' => now(),
+                'courier_receive_verified_documents' => null,
+                'status' => 'correction_required',
+                'admin_reject_remark' => $request->courier_receive_hold_remark,
+            ]);
+
+            $newValues = $pdcDetail->fresh()->only([
+                'courier_receive_status',
+                'courier_receive_hold_remark',
+                'courier_receive_processed_by',
+                'courier_receive_processed_at',
+                'courier_receive_verified_documents',
+                'status',
+                'admin_reject_remark',
+            ]);
+
+            $actor = Auth::user();
+            if ($actor) {
+                $this->logUserActivity(
+                    processType: 'courier_receive',
+                    processAction: 'hold',
+                    processDescription: $request->courier_receive_hold_remark,
+                    module: 'pdc',
+                    oldValues: $oldValues,
+                    newValues: $newValues,
+                    additionalData: [
+                        'user_id' => $user->id,
+                        'user_name' => $user->name,
+                        'verified_documents' => [],
+                    ],
+                    targetUserId: $user->id,
+                    actorId: $actor->id,
+                    actorName: $actor->name,
+                    actorRole: $actor->role
+                );
+            }
+
+            try {
+                Mail::to($user->email)->send(new SendBackForCorrectionMail($user, $request->courier_receive_hold_remark));
+                Log::info("Courier receive hold email sent to user {$user->id} ({$user->email})");
+            } catch (\Exception $e) {
+                Log::error("Failed to send courier receive hold email to user {$user->id}: " . $e->getMessage());
+            }
+
+            return back()->with('success', 'Courier receive marked as hold and mail sent to the student.');
+        }
+
+        $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
+        $uploadedDocuments = $this->getUploadedCourierDocumentChecklist($user->loadMissing('document'), $loanCategory);
+        $expectedDocuments = collect($uploadedDocuments)->pluck('label')->values()->all();
+        $approvedDocuments = collect($request->input('courier_verified_documents', []))
+            ->filter(fn($value) => is_string($value) && $value !== '')
+            ->values()
+            ->all();
+
+        if (empty($expectedDocuments)) {
+            throw ValidationException::withMessages([
+                'courier_verified_documents' => 'No uploaded documents were found for courier approval.',
+            ]);
+        }
+
+        sort($expectedDocuments);
+        sort($approvedDocuments);
+
+        // Filter out 'Other' from expected documents (it's optional for approval)
+        $requiredDocuments = array_filter($expectedDocuments, function ($doc) {
+            return strtolower(trim($doc)) !== 'other';
+        });
+        $requiredDocuments = array_values($requiredDocuments);
+
+        // Check if all required documents (except 'Other') are selected
+        $missingDocuments = array_diff($requiredDocuments, $approvedDocuments);
+
+        if (!empty($missingDocuments)) {
+            throw ValidationException::withMessages([
+                'courier_verified_documents' => 'Please select all documents except "Other" for approving. Missing: ' . implode(', ', $missingDocuments),
+            ]);
+        }
+
+        $oldValues = $pdcDetail->only([
+            'courier_receive_status',
+            'courier_receive_hold_remark',
+            'courier_receive_processed_by',
+            'courier_receive_processed_at',
+            'courier_receive_verified_documents',
+            'status',
+            'admin_reject_remark',
+        ]);
+
+        $pdcDetail->update([
+            'courier_receive_status' => 'approved',
+            'courier_receive_hold_remark' => null,
+            'courier_receive_processed_by' => Auth::id(),
+            'courier_receive_processed_at' => now(),
+            'courier_receive_verified_documents' => $approvedDocuments,
+            'status' => $pdcDetail->status === 'approved' ? 'approved' : 'submitted',
+            'admin_reject_remark' => null,
+        ]);
+
+        $newValues = $pdcDetail->fresh()->only([
+            'courier_receive_status',
+            'courier_receive_hold_remark',
+            'courier_receive_processed_by',
+            'courier_receive_processed_at',
+            'courier_receive_verified_documents',
+            'status',
+            'admin_reject_remark',
+        ]);
+
+        $actor = Auth::user();
+        if ($actor) {
+            $this->logUserActivity(
+                processType: 'courier_receive',
+                processAction: 'approved',
+                processDescription: 'Courier receive approved',
+                module: 'pdc',
+                oldValues: $oldValues,
+                newValues: $newValues,
+                additionalData: [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'verified_documents' => $approvedDocuments,
+                ],
+                targetUserId: $user->id,
+                actorId: $actor->id,
+                actorName: $actor->name,
+                actorRole: $actor->role
+            );
+        }
+
+        return back()->with('success', 'Courier receive approved successfully.');
+    }
+
+    // =====================================================
+    // Third Stage Document Methods
+    // =====================================================
+
+    public function thirdStageDocumentPending()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('thirdStageDocument', function ($q) {
+                $q->where('status', 'pending');
+            })
+            ->with(['thirdStageDocument', 'workflowStatus'])
+            ->get();
+
+        return view('admin.third_stage_documents.pending', compact('users'));
+    }
+
+    public function thirdStageDocumentSubmitted()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('thirdStageDocument', function ($q) {
+                $q->where('status', 'submitted')
+                    ->whereNull('rejected_at');
+            })
+            ->with(['thirdStageDocument', 'workflowStatus'])
+            ->get();
+
+        return view('admin.third_stage_documents.submitted', compact('users'));
+    }
+
+    public function thirdStageDocumentSendBack()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('thirdStageDocument', function ($q) {
+                $q->where('status', 'rejected');
+            })
+            ->with(['thirdStageDocument', 'workflowStatus'])
+            ->get();
+
+        return view('admin.third_stage_documents.send_back', compact('users'));
+    }
+
+    public function thirdStageDocumentResubmitted()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('thirdStageDocument', function ($q) {
+                $q->where('status', 'submitted')
+                    ->whereNotNull('rejected_at');
+            })
+            ->with(['thirdStageDocument', 'workflowStatus'])
+            ->get();
+
+        return view('admin.third_stage_documents.resubmitted', compact('users'));
+    }
+
+    public function thirdStageDocumentApproved()
+    {
+        $users = User::where('role', 'user')
+            ->whereHas('thirdStageDocument', function ($q) {
+                $q->where('status', 'approved');
+            })
+            ->with(['thirdStageDocument', 'workflowStatus'])
+            ->get();
+
+        return view('admin.third_stage_documents.approved', compact('users'));
+    }
+
+    public function thirdStageDocumentUserDetail(User $user)
+    {
+        $user->load(['thirdStageDocument', 'workflowStatus']);
+        return view('admin.third_stage_documents.user_detail', compact('user'));
+    }
+
+    public function approveThirdStageDocument(Request $request, User $user)
+    {
+        $request->validate([
+            'admin_remark' => 'nullable|string|max:2000',
+        ]);
+
+        $thirdStageDocument = ThirdStageDocument::where('user_id', $user->id)->first();
+        if (!$thirdStageDocument) {
+            return back()->with('error', 'Third stage documents not found.');
+        }
+
+        if ($thirdStageDocument->status !== 'submitted') {
+            return back()->with('error', 'Only submitted documents can be approved.');
+        }
+
+        $thirdStageDocument->update([
+            'status' => 'approved',
+            'admin_remark' => $request->admin_remark,
+            'approved_at' => now(),
+            'processed_by' => Auth::id(),
+        ]);
+
+        // Log the approval action
+        $this->logUserActivity(
+            processType: 'Third_Stage_Document',
+            processAction: 'approved',
+            processDescription: 'Third stage document approved',
+            module: 'third_stage_document',
+            oldValues: ['status' => 'submitted'],
+            newValues: ['status' => 'approved', 'admin_remark' => $request->admin_remark],
+            additionalData: [
+                'user_id' => $user->id,
+                'document_id' => $thirdStageDocument->id,
+            ],
+            targetUserId: $user->id,
+            actorId: Auth::id(),
+            actorName: Auth::user()->name,
+            actorRole: Auth::user()->role ?? 'admin'
+        );
+
+        return back()->with('success', 'Third stage documents approved successfully.');
+    }
+
+    public function sendBackThirdStageDocument(Request $request, User $user)
+    {
+        $request->validate([
+            'admin_remark' => 'required|string|max:2000',
+        ]);
+
+        $thirdStageDocument = ThirdStageDocument::where('user_id', $user->id)->first();
+        if (!$thirdStageDocument) {
+            return back()->with('error', 'Third stage documents not found.');
+        }
+
+        $thirdStageDocument->update([
+            'status' => 'rejected',
+            'admin_remark' => $request->admin_remark,
+            'rejected_at' => now(),
+            'processed_by' => Auth::id(),
+        ]);
+
+        // Log the send back action
+        $this->logUserActivity(
+            processType: 'Third_Stage_Document',
+            processAction: 'rejected',
+            processDescription: 'Third stage document sent back for correction',
+            module: 'third_stage_document',
+            oldValues: ['status' => $thirdStageDocument->getOriginal('status')],
+            newValues: ['status' => 'rejected', 'admin_remark' => $request->admin_remark],
+            additionalData: [
+                'user_id' => $user->id,
+                'document_id' => $thirdStageDocument->id,
+            ],
+            targetUserId: $user->id,
+            actorId: Auth::id(),
+            actorName: Auth::user()->name,
+            actorRole: Auth::user()->role ?? 'admin'
+        );
+
+        try {
+            Mail::to($user->email)->send(new ThirdStageDocumentCorrectionMail($user, $request->admin_remark));
+        } catch (\Throwable $e) {
+            Log::error('Third stage correction email failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return back()->with('success', 'Third stage documents sent back for correction.');
     }
 
     // =====================================================
@@ -3567,7 +4243,8 @@ class AdminController extends Controller
     {
         $users = User::where('role', 'user')
             ->whereHas('pdcDetail', function ($q) {
-                $q->where('status', 'submitted');
+                $q->where('status', 'submitted')
+                    ->where('courier_receive_status', 'approved');
             })
             ->with(['pdcDetail', 'workflowStatus'])
             ->get();
@@ -3614,10 +4291,26 @@ class AdminController extends Controller
             return back()->with('error', 'PDC details not found');
         }
 
+        if (!$this->isCourierReceiveApproved($pdcDetail)) {
+            return back()->with('error', 'Courier receive approval is required before processing PDC details.');
+        }
+
+        $oldValues = $pdcDetail->only([
+            'status',
+            'admin_remark',
+            'processed_by',
+        ]);
+
         $pdcDetail->update([
             'status' => 'approved',
             'admin_remark' => $request->admin_remark,
             'processed_by' => Auth::id(),
+        ]);
+
+        $newValues = $pdcDetail->fresh()->only([
+            'status',
+            'admin_remark',
+            'processed_by',
         ]);
 
         // Update workflow status
@@ -3627,6 +4320,26 @@ class AdminController extends Controller
                 'current_stage' => 'pdc',
                 'final_status' => 'approved',
             ]);
+        }
+
+        $actor = Auth::user();
+        if ($actor) {
+            $this->logUserActivity(
+                processType: 'pdc',
+                processAction: 'approved',
+                processDescription: $request->admin_remark ?? 'PDC approved',
+                module: 'pdc',
+                oldValues: $oldValues,
+                newValues: $newValues,
+                additionalData: [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                ],
+                targetUserId: $user->id,
+                actorId: $actor->id,
+                actorName: $actor->name,
+                actorRole: $actor->role
+            );
         }
 
         return back()->with('success', 'PDC approved successfully');
@@ -3644,11 +4357,47 @@ class AdminController extends Controller
             return back()->with('error', 'PDC details not found');
         }
 
+        if (!$this->isCourierReceiveApproved($pdcDetail)) {
+            return back()->with('error', 'Courier receive approval is required before processing PDC details.');
+        }
+
+        $oldValues = $pdcDetail->only([
+            'status',
+            'admin_remark',
+            'processed_by',
+        ]);
+
         $pdcDetail->update([
             'status' => 'correction_required',
             'admin_remark' => $request->admin_remark,
             'processed_by' => Auth::id(),
         ]);
+
+        $newValues = $pdcDetail->fresh()->only([
+            'status',
+            'admin_remark',
+            'processed_by',
+        ]);
+
+        $actor = Auth::user();
+        if ($actor) {
+            $this->logUserActivity(
+                processType: 'pdc',
+                processAction: 'correction_required',
+                processDescription: $request->admin_remark,
+                module: 'pdc',
+                oldValues: $oldValues,
+                newValues: $newValues,
+                additionalData: [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                ],
+                targetUserId: $user->id,
+                actorId: $actor->id,
+                actorName: $actor->name,
+                actorRole: $actor->role
+            );
+        }
 
         return back()->with('success', 'PDC sent back for correction');
     }
@@ -3662,6 +4411,30 @@ class AdminController extends Controller
 
         if (!$user->pdcDetail) {
             return back()->with('error', 'PDC details not found');
+        }
+
+        if (!$this->isCourierReceiveApproved($user->pdcDetail)) {
+            return back()->with('error', 'Courier receive approval is required before editing PDC details.');
+        }
+
+        $actor = Auth::user();
+        if ($actor) {
+            $this->logUserActivity(
+                processType: 'pdc',
+                processAction: 'edit_view',
+                processDescription: 'PDC edit page opened',
+                module: 'pdc',
+                oldValues: null,
+                newValues: null,
+                additionalData: [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                ],
+                targetUserId: $user->id,
+                actorId: $actor->id,
+                actorName: $actor->name,
+                actorRole: $actor->role
+            );
         }
 
         // Load Working Committee Approval details
@@ -3706,6 +4479,17 @@ class AdminController extends Controller
             return back()->with('error', 'PDC details not found');
         }
 
+        if (!$this->isCourierReceiveApproved($pdcDetail)) {
+            return back()->with('error', 'Courier receive approval is required before updating PDC details.');
+        }
+
+        $oldValues = $pdcDetail->only([
+            'first_cheque_image',
+            'cheque_details',
+            'status',
+            'processed_by',
+        ]);
+
         $normalizedChequeDetails = collect($request->cheque_details)
             ->values()
             ->map(function ($cheque, $index) {
@@ -3743,6 +4527,33 @@ class AdminController extends Controller
             'status' => 'submitted', // Reset status to submitted for review
             'processed_by' => Auth::id(),
         ]);
+
+        $newValues = $pdcDetail->fresh()->only([
+            'first_cheque_image',
+            'cheque_details',
+            'status',
+            'processed_by',
+        ]);
+
+        $actor = Auth::user();
+        if ($actor) {
+            $this->logUserActivity(
+                processType: 'pdc',
+                processAction: 'updated',
+                processDescription: 'PDC details updated',
+                module: 'pdc',
+                oldValues: $oldValues,
+                newValues: $newValues,
+                additionalData: [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                ],
+                targetUserId: $user->id,
+                actorId: $actor->id,
+                actorName: $actor->name,
+                actorRole: $actor->role
+            );
+        }
 
         return redirect()->route('admin.apex.stage2.user.detail', $user)
             ->with('success', 'PDC details updated successfully');
@@ -3809,6 +4620,141 @@ class AdminController extends Controller
             })
             ->whereIn('status', ['paid', 'partial'])
             ->values();
+    }
+
+    private function isCourierReceiveApproved(?PdcDetail $pdcDetail): bool
+    {
+        return $pdcDetail && $pdcDetail->courier_receive_status === 'approved';
+    }
+
+    private function getUploadedCourierDocumentChecklist(User $user, ?Loan_category $loanCategory = null): array
+    {
+        $document = $user->document;
+
+        if (!$document) {
+            return [];
+        }
+
+        $applicableDocuments = $this->getCourierDocumentDefinitions($user, $loanCategory);
+
+        return array_values(array_filter($applicableDocuments, function (array $item) use ($document) {
+            $field = $item['field'];
+            return !empty($document->{$field});
+        }));
+    }
+
+    private function getCourierDocumentDefinitions(User $user, ?Loan_category $loanCategory = null): array
+    {
+        $loanCategory = $loanCategory ?: Loan_category::where('user_id', $user->id)->latest()->first();
+        $isBelowOneLakh = $loanCategory && $loanCategory->type === 'below';
+
+        if ($isBelowOneLakh) {
+            return [
+                ['field' => 'ssc_cbse_icse_ib_igcse', 'label' => 'SSC Marksheet'],
+                ['field' => 'hsc_diploma_marksheet', 'label' => 'HSC / Diploma Marksheet'],
+                ['field' => 'graduate_post_graduate_marksheet', 'label' => 'Graduation Marksheet (Only for Post Graduation Applicant)'],
+                ['field' => 'admission_letter_fees_structure', 'label' => 'College - Fees Structure'],
+                ['field' => 'pan_applicant', 'label' => 'Pancard - Applicant'],
+                ['field' => 'aadhaar_applicant', 'label' => 'Aadhaar card - Applicant'],
+                ['field' => 'jain_sangh_certificate', 'label' => 'Jain Sangh Certificate of Applicant'],
+                ['field' => 'jito_group_recommendation', 'label' => 'Recommendation of JITO Member'],
+                ['field' => 'electricity_bill', 'label' => 'Electricity Bill Latest'],
+                ['field' => 'aadhaar_father_mother', 'label' => 'Aadhar card - Father / Mother / Guardian'],
+                ['field' => 'pan_father_mother', 'label' => 'Pancard - Father / Mother / Guardian'],
+                ['field' => 'form16_salary_income_father', 'label' => 'Form no.16 / Salary Slip of Father'],
+                ['field' => 'bank_statement_father_12months', 'label' => 'Bank Statement of Father Last 1 year'],
+                ['field' => 'other_documents', 'label' => 'Others'],
+            ];
+        }
+
+        if ($user->financial_asset_type === 'foreign_finance_assistant' && $user->financial_asset_for === 'post_graduation') {
+            return [
+                ['field' => 'ssc_cbse_icse_ib_igcse', 'label' => 'SSC / CBSE / ICSE / IB / IGCSE Marksheet'],
+                ['field' => 'hsc_diploma_marksheet', 'label' => 'HSC / Diploma Marksheet'],
+                ['field' => 'graduate_post_graduate_marksheet', 'label' => 'Graduation Marksheet'],
+                ['field' => 'admission_letter_fees_structure', 'label' => 'Admission Letter / Fees Structure'],
+                ['field' => 'passport_applicant', 'label' => 'Passport - Applicant'],
+                ['field' => 'visa_applicant', 'label' => 'Visa - Applicant'],
+                ['field' => 'aadhaar_applicant', 'label' => 'Aadhaar card - Applicant'],
+                ['field' => 'pan_applicant', 'label' => 'PAN card - Applicant'],
+                ['field' => 'student_bank_details_statement', 'label' => 'Student Bank Details / Statement'],
+                ['field' => 'jito_group_recommendation', 'label' => 'JITO Group Recommendation'],
+                ['field' => 'jain_sangh_certificate', 'label' => 'Jain Sangh Certificate'],
+                ['field' => 'electricity_bill', 'label' => 'Electricity Bill'],
+                ['field' => 'itr_acknowledgement_father', 'label' => 'ITR Acknowledgement - Father'],
+                ['field' => 'itr_computation_father', 'label' => 'ITR Computation - Father'],
+                ['field' => 'form16_salary_income_father', 'label' => 'Form 16 / Salary Income - Father'],
+                ['field' => 'bank_statement_father_12months', 'label' => 'Bank Statement - Father (12 months)'],
+                ['field' => 'bank_statement_mother_12months', 'label' => 'Bank Statement - Mother (12 months)'],
+                ['field' => 'aadhaar_father_mother', 'label' => 'Aadhaar - Father / Mother'],
+                ['field' => 'pan_father_mother', 'label' => 'PAN - Father / Mother'],
+                ['field' => 'guarantor1_aadhaar', 'label' => 'Guarantor 1 Aadhaar'],
+                ['field' => 'guarantor1_pan', 'label' => 'Guarantor 1 PAN'],
+                ['field' => 'guarantor2_aadhaar', 'label' => 'Guarantor 2 Aadhaar'],
+                ['field' => 'guarantor2_pan', 'label' => 'Guarantor 2 PAN'],
+                ['field' => 'student_handwritten_statement', 'label' => 'Student Handwritten Statement'],
+                ['field' => 'proof_funds_arranged', 'label' => 'Proof of Funds Arranged'],
+                ['field' => 'other_documents', 'label' => 'Other Documents'],
+                ['field' => 'extra_curricular', 'label' => 'Extra Curricular Documents'],
+            ];
+        }
+
+        if ($user->financial_asset_type === 'domestic' && $user->financial_asset_for === 'post_graduation') {
+            return [
+                ['field' => 'ssc_cbse_icse_ib_igcse', 'label' => 'SSC / CBSE / ICSE / IB / IGCSE Marksheet'],
+                ['field' => 'hsc_diploma_marksheet', 'label' => 'HSC / Diploma Marksheet'],
+                ['field' => 'graduate_post_graduate_marksheet', 'label' => 'Graduation Marksheet'],
+                ['field' => 'admission_letter_fees_structure', 'label' => 'Admission Letter / Fees Structure'],
+                ['field' => 'aadhaar_applicant', 'label' => 'Aadhaar card - Applicant'],
+                ['field' => 'pan_applicant', 'label' => 'PAN card - Applicant'],
+                ['field' => 'student_bank_details_statement', 'label' => 'Student Bank Details / Statement'],
+                ['field' => 'jito_group_recommendation', 'label' => 'JITO Group Recommendation'],
+                ['field' => 'jain_sangh_certificate', 'label' => 'Jain Sangh Certificate'],
+                ['field' => 'electricity_bill', 'label' => 'Electricity Bill'],
+                ['field' => 'itr_acknowledgement_father', 'label' => 'ITR Acknowledgement - Father'],
+                ['field' => 'itr_computation_father', 'label' => 'ITR Computation - Father'],
+                ['field' => 'form16_salary_income_father', 'label' => 'Form 16 / Salary Income - Father'],
+                ['field' => 'bank_statement_father_12months', 'label' => 'Bank Statement - Father (12 months)'],
+                ['field' => 'bank_statement_mother_12months', 'label' => 'Bank Statement - Mother (12 months)'],
+                ['field' => 'aadhaar_father_mother', 'label' => 'Aadhaar - Father / Mother'],
+                ['field' => 'pan_father_mother', 'label' => 'PAN - Father / Mother'],
+                ['field' => 'guarantor1_aadhaar', 'label' => 'Guarantor 1 Aadhaar'],
+                ['field' => 'guarantor1_pan', 'label' => 'Guarantor 1 PAN'],
+                ['field' => 'guarantor2_aadhaar', 'label' => 'Guarantor 2 Aadhaar'],
+                ['field' => 'guarantor2_pan', 'label' => 'Guarantor 2 PAN'],
+                ['field' => 'student_handwritten_statement', 'label' => 'Student Handwritten Statement'],
+                ['field' => 'proof_funds_arranged', 'label' => 'Proof of Funds Arranged'],
+                ['field' => 'other_documents', 'label' => 'Other Documents'],
+                ['field' => 'extra_curricular', 'label' => 'Extra Curricular Documents'],
+            ];
+        }
+
+        return [
+            ['field' => 'ssc_cbse_icse_ib_igcse', 'label' => 'SSC / CBSE / ICSE / IB / IGCSE Marksheet'],
+            ['field' => 'hsc_diploma_marksheet', 'label' => 'HSC / Diploma Marksheet'],
+            ['field' => 'admission_letter_fees_structure', 'label' => 'Admission Letter / Fees Structure'],
+            ['field' => 'aadhaar_applicant', 'label' => 'Aadhaar card - Applicant'],
+            ['field' => 'pan_applicant', 'label' => 'PAN card - Applicant'],
+            ['field' => 'student_bank_details_statement', 'label' => 'Student Bank Details / Statement'],
+            ['field' => 'jito_group_recommendation', 'label' => 'JITO Group Recommendation'],
+            ['field' => 'jain_sangh_certificate', 'label' => 'Jain Sangh Certificate'],
+            ['field' => 'electricity_bill', 'label' => 'Electricity Bill'],
+            ['field' => 'itr_acknowledgement_father', 'label' => 'ITR Acknowledgement - Father'],
+            ['field' => 'itr_computation_father', 'label' => 'ITR Computation - Father'],
+            ['field' => 'form16_salary_income_father', 'label' => 'Form 16 / Salary Income - Father'],
+            ['field' => 'bank_statement_father_12months', 'label' => 'Bank Statement - Father (12 months)'],
+            ['field' => 'bank_statement_mother_12months', 'label' => 'Bank Statement - Mother (12 months)'],
+            ['field' => 'aadhaar_father_mother', 'label' => 'Aadhaar - Father / Mother'],
+            ['field' => 'pan_father_mother', 'label' => 'PAN - Father / Mother'],
+            ['field' => 'guarantor1_aadhaar', 'label' => 'Guarantor 1 Aadhaar'],
+            ['field' => 'guarantor1_pan', 'label' => 'Guarantor 1 PAN'],
+            ['field' => 'guarantor2_aadhaar', 'label' => 'Guarantor 2 Aadhaar'],
+            ['field' => 'guarantor2_pan', 'label' => 'Guarantor 2 PAN'],
+            ['field' => 'student_handwritten_statement', 'label' => 'Student Handwritten Statement'],
+            ['field' => 'proof_funds_arranged', 'label' => 'Proof of Funds Arranged'],
+            ['field' => 'other_documents', 'label' => 'Other Documents'],
+            ['field' => 'extra_curricular', 'label' => 'Extra Curricular Documents'],
+        ];
     }
 
     private function validateLockedPdcChequeDetails($existingChequeDetails, array $proposedChequeDetails, $lockedInstallments): void
@@ -3913,4 +4859,3 @@ class AdminController extends Controller
         ]);
     }
 }
-

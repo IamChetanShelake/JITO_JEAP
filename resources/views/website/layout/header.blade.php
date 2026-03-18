@@ -829,9 +829,8 @@
                                                                 onclick="event.preventDefault(); document.getElementById('logout-form-mobile').submit();">
                                                                 <i class="fa fa-power-off me-1 ms-1"></i> Logout
                                                             </a>
-                                                            <form id="logout-form-mobile"
-                                                                action="" method="POST"
-                                                                class="d-none">
+                                                            <form id="logout-form-mobile" action=""
+                                                                method="POST" class="d-none">
                                                                 @csrf
                                                             </form>
                                                         </div>
@@ -886,8 +885,7 @@
                                                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                                     <i class="fa fa-power-off me-1 ms-1"></i>
                                                     Logout</a></li>
-                                            <form id="logout-form" action="" method="POST"
-                                                class="d-none">
+                                            <form id="logout-form" action="" method="POST" class="d-none">
                                                 @csrf
                                             </form>
                                         </ul>
@@ -904,8 +902,7 @@
                                                         aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <form action=""
-                                                        method="POST" id="changePasswordForm">
+                                                    <form action="" method="POST" id="changePasswordForm">
                                                         @csrf
                                                         <div class="mb-3">
                                                             <label for="newPassword" class="form-label">New

@@ -117,6 +117,11 @@
                                              eligible and our listed in JEAP Website.</br>For more details, visit: [Foreign
                                              University List](https://jitojeap.in/foreign/)
                                          </p>
+                                         <p style="margin-bottom: 14px;color:#494C4E;">
+                                             6) I confirm that if I receive a sanction from JITO-JEAP in the future, I will
+                                             submit the required number of bank cheques as informed to me. I have also read
+                                             and reviewed the attached list of approved banks from JEAP.
+                                         </p>
                                          {{-- <p style="margin-bottom: 14px;color:#494C4E;">
                                              I commit to maintaining satisfactory academic performance and will provide
                                              my

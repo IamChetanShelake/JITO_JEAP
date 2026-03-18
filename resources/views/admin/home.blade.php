@@ -111,6 +111,21 @@
             background: #009846;
         }
 
+        /* Reports - Blue */
+        .nav-tabs-custom .nav-link.tab-reports {
+            background: #2196F3;
+        }
+
+        /* Dynamic View - Teal */
+        .nav-tabs-custom .nav-link.tab-dynamic {
+            background: #00897B;
+        }
+
+        /* Graph Report - Indigo */
+        .nav-tabs-custom .nav-link.tab-graph-report {
+            background: #3f51b5;
+        }
+
         .stat-card {
             background: white;
             border-radius: 15px;
@@ -608,24 +623,46 @@
                     <i class="fas fa-users"></i> Apex
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link tab-committee" href="{{ route('admin.committee.index') }}">
-                    <i class="fas fa-user-tie"></i> Working Committee
+            {{--  <li class="nav-item">
+                <a class="nav-link tab-files" href="{{ route('admin.files.report') }}">
+                    <i class="fas fa-folder"></i> Files Report
                 </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link tab-zone" href="{{ route('admin.zones.index') }}">
-                    <i class="fas fa-globe"></i> Zone
-                </a>
-            </li>
+            </li>  --}}
+
             <li class="nav-item">
                 <a class="nav-link tab-chapter" href="{{ route('admin.chapters.index') }}">
                     <i class="fas fa-map-marker-alt"></i> Chapter
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link tab-committee" href="{{ route('admin.committee.index') }}">
+                    <i class="fas fa-user-tie"></i> Working Committee
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link tab-zone" href="{{ route('admin.files.report') }}">
+                    <i class="fas fa-globe"></i> Files Report
+                </a>
+            </li>
+
+            {{--  <li class="nav-item">
                 <a class="nav-link tab-initiatives" href="{{ route('admin.initiatives.index') }}">
                     <i class="fas fa-lightbulb"></i> Initiatives
+                </a>
+            </li>  --}}
+            <li class="nav-item">
+                <a class="nav-link tab-reports" href="{{ route('admin.reports.index') }}">
+                    <i class="fas fa-chart-bar"></i> Reports
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link tab-dynamic" href="{{ route('applications.view') }}">
+                    <i class="fas fa-layer-group"></i> Dynamic View
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link tab-graph-report" href="{{ route('admin.reports.financial_graph_report') }}">
+                    <i class="fas fa-chart-line"></i> Graph Report
                 </a>
             </li>
         </ul>
@@ -1217,6 +1254,86 @@
                                 <div>
                                     <div class="status-label">Past Repayment</div>
                                     <div class="status-value">{{ $repaymentPast ?? 0 }}</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Row 4: 3rd Stage Document -->
+        <div class="row g-3 mt-1">
+            <div class="col-lg-6">
+                @if (in_array($activeGuard, ['admin', 'accountant']))
+                    <div class="approval-section">
+                        <div class="approval-header">
+                            <div class="approval-title initiatives-title">
+                                <i class="fas fa-file-alt"></i>
+                                3rd Stage Document
+                            </div>
+                            <div class="approval-total">Total - {{ $thirdStageTotal ?? 0 }}</div>
+                        </div>
+                        <div class="approval-rate">
+                            <span>Submission Progress</span>
+                            <span>
+                                {{ $thirdStageTotal > 0 ? round((($thirdStageApproved ?? 0) / $thirdStageTotal) * 100) : 0 }}%
+                            </span>
+                        </div>
+                        <div class="progress-custom">
+                            <div class="progress-bar-custom"
+                                style="width: {{ $thirdStageTotal > 0 ? (($thirdStageApproved ?? 0) / $thirdStageTotal) * 100 : 0 }}%; background: linear-gradient(90deg, #393185, #5a52b1);">
+                            </div>
+                        </div>
+                        <div class="status-badges" style="grid-template-columns: repeat(3, 1fr);">
+                            <a href="{{ route('admin.third_stage_documents.pending') }}" class="status-badge pending"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon pending">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Pending</div>
+                                    <div class="status-value">{{ $thirdStagePending ?? 0 }}</div>
+                                </div>
+                            </a>
+                            <a href="{{ route('admin.third_stage_documents.send_back') }}" class="status-badge hold"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon hold">
+                                    <i class="fas fa-exclamation"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Send back for Correction</div>
+                                    <div class="status-value">{{ $thirdStageSendBack ?? 0 }}</div>
+                                </div>
+                            </a>
+                            <a href="{{ route('admin.third_stage_documents.submitted') }}" class="status-badge ready"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon ready">
+                                    <i class="fas fa-inbox"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Submitted</div>
+                                    <div class="status-value">{{ $thirdStageSubmitted ?? 0 }}</div>
+                                </div>
+                            </a>
+                            <a href="{{ route('admin.third_stage_documents.resubmitted') }}" class="status-badge hold"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon hold">
+                                    <i class="fas fa-redo"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Resubmitted</div>
+                                    <div class="status-value">{{ $thirdStageResubmitted ?? 0 }}</div>
+                                </div>
+                            </a>
+                            <a href="{{ route('admin.third_stage_documents.approved') }}" class="status-badge approved"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon approved">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Approved</div>
+                                    <div class="status-value">{{ $thirdStageApproved ?? 0 }}</div>
                                 </div>
                             </a>
                         </div>

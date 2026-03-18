@@ -103,7 +103,8 @@
                 <div class="d-flex justify-content-between align-items-start gap-2">
                     <div style="min-width: 0;">
                         <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
-                        <p style="margin: 8px 0 4px 0; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        <p
+                            style="margin: 8px 0 4px 0; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                             {{ trim(preg_replace('/\s+/', ' ', strip_tags($guarantorDetail->admin_remark))) }}
                         </p>
                         <button type="button" class="btn btn-link p-0" data-bs-toggle="modal"
@@ -159,7 +160,8 @@
                                         <li>{{ $error }}</li>
                                     @endforeach
                                 </ul>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
                             </div>
                         @endif
                         <div class="row mb-3">
@@ -242,8 +244,8 @@
                                             <div class="form-group mb-3">
                                                 <label for="g_one_pan" class="form-label">PAN Card Number <span
                                                         style="color: red;">*</span></label>
-                                                <input type="text" id="g_one_pan" name="g_one_pan" class="form-control"
-                                                    placeholder="Enter 10-character PAN number"
+                                                <input type="text" id="g_one_pan" name="g_one_pan"
+                                                    class="form-control" placeholder="Enter 10-character PAN number"
                                                     value="{{ old('g_one_pan') ?: $guarantorDetail->g_one_pan ?? '' }}"
                                                     onblur="
                                                         checkDuplicate('pan', this.value, 'g_one_pan_error');
@@ -261,8 +263,8 @@
                                             <div class="form-group mb-3">
                                                 <label for="g_one_name" class="form-label">Name <span
                                                         style="color: red;">*</span></label>
-                                                <input type="text" id="g_one_name" class="form-control" name="g_one_name"
-                                                    placeholder="Enter guarantor's name"
+                                                <input type="text" id="g_one_name" class="form-control"
+                                                    name="g_one_name" placeholder="Enter guarantor's name"
                                                     value="{{ old('g_one_name') ?: $guarantorDetail->g_one_name ?? '' }}"
                                                     onblur="
                                                     checkDuplicate('name', this.value, 'g_one_name_error');
@@ -281,7 +283,8 @@
                                             <div class="form-group mb-3">
                                                 <label for="g_one_gender" class="form-label">Gender <span
                                                         style="color: red;">*</span></label>
-                                                <select id="g_one_gender" class="form-control" name="g_one_gender" required>
+                                                <select id="g_one_gender" class="form-control" name="g_one_gender"
+                                                    required>
                                                     <option disabled
                                                         {{ (old('g_one_gender') ?: $guarantorDetail->g_one_gender ?? '') ? '' : 'selected' }}
                                                         hidden>
@@ -754,20 +757,41 @@
                             </div>
                         </div>
                         <div class="d-flex justify-content-between mt-4 mb-4">
-                            <button type="button" class="btn " style="background:#988DFF1F;color:gray;"><svg
+                            {{--  <button type="button" class="btn " style="background:#988DFF1F;color:gray;"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
                                     stroke="gray" stroke-width="2" viewBox="0 0 24 24">
                                     <path d="M15 18l-6-6 6-6" />
                                 </svg>
 
-                                Previous</button>
-                            <button type="submit" class="btn" style="background:#393185;color:white;">Next Step <svg
-                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                    stroke="white" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M9 6l6 6-6 6" />
+                                Previous</button>  --}}
+                            <a href="{{ route('user.step4') }}" class="btn"
+                                style="background:#988DFF1F;color:gray;border:1px solid #393185;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                    stroke="gray" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M15 18l-6-6 6-6" />
                                 </svg>
-
-                            </button>
+                                Previous
+                            </a>
+                            @if ($user->guarantorDetail && $user->workflowStatus->apex_1_status == 'approved')
+                                <button type="button" class="btn"
+                                    style="background:#F0FDF4;color:#009846;border:1px solid #009846" disabled>
+                                    <i class="bi bi-check-lg" style="color: green; font-size: 24px;"></i>
+                                    Approved
+                                </button>
+                            @elseif ($user->guarantorDetail && $user->guarantorDetail->submit_status == 'resubmit')
+                                <button type="submit" class="btn"
+                                    style="background:#F0FDF4;color:red;border:1px solid red">
+                                    <i class="bi bi-arrow-clockwise" style="color: red; font-size: 24px;"></i>
+                                    Resubmit
+                                </button>
+                            @else
+                                <button type="submit" class="btn" style="background:#393185;color:white;">Next Step
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                        stroke="white" stroke-width="2" viewBox="0 0 24 24">
+                                        <path d="M9 6l6 6-6 6" />
+                                    </svg>
+                                </button>
+                            @endif
                         </div>
                     </form>
                 </div>

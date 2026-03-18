@@ -20,6 +20,7 @@ use App\Http\Controllers\WorkingCommitteeController;
 use App\Http\Controllers\InitiativeController;
 use App\Http\Controllers\AccountantController;
 use App\Http\Controllers\AdminNotificationController;
+use App\Http\Controllers\ApplicationViewController;
 
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\WebsiteController;
@@ -71,6 +72,16 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+// Dynamic view system for applications (protected by admin middleware)
+Route::middleware(['admin', 'auth.active'])->group(function () {
+    Route::get('/applications/view', [ApplicationViewController::class, 'view'])->name('applications.view');
+    Route::post('/applications/group', [ApplicationViewController::class, 'group'])->name('applications.group');
+    Route::post('/applications/export', [ApplicationViewController::class, 'export'])->name('applications.export');
+    Route::post('/views/save', [ApplicationViewController::class, 'saveView'])->name('views.save');
+    Route::get('/views', [ApplicationViewController::class, 'listViews'])->name('views.list');
+    Route::get('/views/{id}', [ApplicationViewController::class, 'getView'])->name('views.get');
+});
+
 // Admin Routes - Protected by admin middleware
 Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
@@ -104,6 +115,8 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // NEW: Update (edit/save) Working Committee decision
     Route::patch('admin/working-committee/users/{user}/update', [AdminController::class, 'updateWorkingCommittee'])
         ->name('working_committee.user.update');
+    Route::patch('admin/working-committee/users/{user}/update-disbursement-dates', [AdminController::class, 'updateWorkingCommitteeDisbursementDates'])
+        ->name('working_committee.user.update_disbursement_dates');
 
     // Approval workflow endpoints
     Route::post('/user/{user}/approve/{stage}', [AdminController::class, 'approveStage'])->name('user.approve');
@@ -131,7 +144,7 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // Website Management Routes
     Route::get('/website', [AdminController::class, 'websiteIndex'])->name('website.index');
     Route::get('/website/home', [AdminController::class, 'websiteHome'])->name('website.home');
-    
+
     // Home Sub-Pages Routes
     Route::get('/website/home/empowering-dreams', [AdminController::class, 'websiteHomeEmpoweringDreams'])->name('website.home.empowering-dreams');
     Route::post('/website/home/empowering-dreams', [AdminController::class, 'storeEmpoweringDream'])->name('website.home.empowering-dreams.store');
@@ -210,6 +223,17 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/apex-stage2/hold', [AdminController::class, 'apexStage2Hold'])->name('apex.stage2.hold');
     Route::get('/apex-stage2/user/{user}', [AdminController::class, 'apexStage2UserDetail'])->name('apex.stage2.user.detail');
     Route::get('/apex-stage2/resubmitted', [AdminController::class, 'apexStage2Resubmitted'])->name('apex.stage2.resubmitted');
+    Route::post('/apex-stage2/user/{user}/courier-receive', [AdminController::class, 'storeCourierReceive'])->name('apex.stage2.courier_receive.store');
+    Route::post('/apex-stage2/user/{user}/courier-review', [AdminController::class, 'reviewCourierReceive'])->name('apex.stage2.courier_receive.review');
+
+    // Edit Bank Detail Request Routes
+    Route::post('/apex-stage2/approve-edit-bank-request', [AdminController::class, 'approveEditBankDetailRequest'])
+        ->name('apex.stage2.approve.edit.bank.request');
+    Route::post('/apex-stage2/reject-edit-bank-request', [AdminController::class, 'rejectEditBankDetailRequest'])
+        ->name('apex.stage2.reject.edit.bank.request');
+
+    // Files Report Route
+    Route::get('/files-report', [App\Http\Controllers\ReportController::class, 'filesReport'])->name('files.report');
 
     // PDC/Cheque Details Forms
     Route::get('/pdc/pending', [AdminController::class, 'pdcPending'])->name('pdc.pending');
@@ -222,6 +246,24 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // PDC Edit functionality
     Route::get('/pdc/edit/{user}', [AdminController::class, 'editPdc'])->name('pdc.edit');
     Route::put('/pdc/update/{user}', [AdminController::class, 'updatePdc'])->name('pdc.update');
+
+    // Third Stage Documents
+    Route::get('/third-stage-documents/pending', [AdminController::class, 'thirdStageDocumentPending'])
+        ->name('third_stage_documents.pending');
+    Route::get('/third-stage-documents/send-back', [AdminController::class, 'thirdStageDocumentSendBack'])
+        ->name('third_stage_documents.send_back');
+    Route::get('/third-stage-documents/resubmitted', [AdminController::class, 'thirdStageDocumentResubmitted'])
+        ->name('third_stage_documents.resubmitted');
+    Route::get('/third-stage-documents/submitted', [AdminController::class, 'thirdStageDocumentSubmitted'])
+        ->name('third_stage_documents.submitted');
+    Route::get('/third-stage-documents/approved', [AdminController::class, 'thirdStageDocumentApproved'])
+        ->name('third_stage_documents.approved');
+    Route::get('/third-stage-documents/user/{user}', [AdminController::class, 'thirdStageDocumentUserDetail'])
+        ->name('third_stage_documents.user.detail');
+    Route::post('/third-stage-documents/user/{user}/approve', [AdminController::class, 'approveThirdStageDocument'])
+        ->name('third_stage_documents.approve');
+    Route::post('/third-stage-documents/user/{user}/send-back', [AdminController::class, 'sendBackThirdStageDocument'])
+        ->name('third_stage_documents.sendback');
 
 
     Route::get('/chapters/resubmit', [AdminController::class, 'chapterResubmit'])->name('chapter.resubmit');
@@ -304,6 +346,18 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/logs/', [AdminController::class, 'showUserLogs'])->name('logs');
     Route::get('/logs/user/{user}', [AdminController::class, 'showUserLogs'])->name('user.logs');
     Route::post('/notifications/{notification}/read', [AdminNotificationController::class, 'read'])->name('notifications.read');
+
+    // Reports Routes
+    Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/fields', [App\Http\Controllers\ReportController::class, 'getAvailableFields'])->name('reports.fields');
+    Route::post('/reports/generate', [App\Http\Controllers\ReportController::class, 'generateDynamicReport'])->name('reports.generate');
+    Route::post('/reports/templates', [App\Http\Controllers\ReportController::class, 'saveTemplate'])->name('reports.templates.save');
+    Route::get('/reports/templates/{id}', [App\Http\Controllers\ReportController::class, 'loadTemplate'])->name('reports.templates.load');
+    Route::get('/reports/templates/{id}/export', [App\Http\Controllers\ReportController::class, 'exportFromTemplate'])->name('reports.templates.export');
+    Route::delete('/reports/templates/{id}', [App\Http\Controllers\ReportController::class, 'deleteTemplate'])->name('reports.templates.delete');
+    Route::get('/reports/jeap-disbursement', [App\Http\Controllers\ReportController::class, 'jeapDisbursement'])->name('reports.jeap_disbursement');
+    Route::get('/reports/financial-graph-report', [App\Http\Controllers\ReportController::class, 'financialGraphReport'])
+        ->name('reports.financial_graph_report');
 });
 
 // User Routes - Protected by auth and user middleware
@@ -382,8 +436,28 @@ Route::middleware(['auth', 'user'])
         // Step 8 - PDC/Cheque Details
         Route::get('/Step8', [UserController::class, 'step8'])
             ->name('step8');
+        Route::post('/Step8BankDetailsStore/', [UserController::class, 'step8BankDetailsStore'])
+            ->name('step8.bank.store');
         Route::post('/Step8Store/', [UserController::class, 'step8store'])
             ->name('step8.store');
+
+        // Step 9 - Third Stage Documents
+        Route::get('/Step9', [UserController::class, 'step9'])
+            ->name('step9');
+        Route::post('/Step9Store/', [UserController::class, 'step9store'])
+            ->name('step9.store');
+
+        // Edit Bank Detail Request
+        Route::post('/submit-edit-bank-detail-request', [UserController::class, 'submitEditBankDetailRequest'])
+            ->name('submit.edit.bank.detail.request');
+
+        // Update Bank Details (after request is approved)
+        Route::post('/update-bank-details', [UserController::class, 'updateBankDetails'])
+            ->name('update.bank.details');
+
+        // Bank verification route
+        Route::post('/verify-bank-details', [UserController::class, 'verifyBankDetails'])
+            ->name('verify.bank.details');
 
         // API route for fetching chapters by pincode
         Route::get('/get-chapters/{pincode}', [UserController::class, 'getChapters'])

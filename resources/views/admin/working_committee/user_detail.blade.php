@@ -772,6 +772,18 @@
                 order: unset;
             }
         }
+
+        /* Document button highlighting styles */
+        .doc-button {
+            transition: all 0.3s ease;
+        }
+
+        .doc-button.active {
+            background: var(--primary-purple) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            border-color: var(--primary-purple) !important;
+        }
     </style>
 @endsection
 
@@ -822,7 +834,7 @@
             <div class="user-info-header">
                 <div class="user-avatar">
                     @if ($user->image)
-                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img"  style="width:90px;">
+                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img" style="width:90px;">
                     @else
                         {{ strtoupper(substr($user->name, 0, 1)) }}
                     @endif
@@ -1473,7 +1485,8 @@
                                 <div class="form-field">
                                     <label class="form-label">Current Year ITR</label>
                                     <input type="text" class="form-input"
-                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}" readonly>
+                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}"
+                                        readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Last Year ITR</label>
@@ -2012,10 +2025,9 @@
                                                     }
                                                 }
                                             @endphp
-                                            <button onclick="openModal('{{ $href }}', '{{ $label }}')"
-                                                style="text-align: left; padding: 0.75rem 1rem; background: {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'white' }}; color: {{ request()->session()->get('selected_document') == $href ? 'white' : 'var(--text-dark)' }}; border: 1px solid {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--border-color)' }}; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: {{ request()->session()->get('selected_document') == $href ? '600' : '400' }};"
-                                                onmouseover="this.style.background = '{{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--bg-light)' }}'"
-                                                onmouseout="this.style.background = '{{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'white' }}'">
+                                            <button class="doc-button"
+                                                onclick="selectDocument(event, '{{ $href }}', '{{ $label }}')"
+                                                style="text-align: left; padding: 0.75rem 1rem; background: white; color: var(--text-dark); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 400;">
                                                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                                                     <i class="fas fa-file-alt" style="font-size: 0.8rem;"></i>
                                                     {{ $label }}
@@ -2034,7 +2046,13 @@
 
                             <!-- Document Preview -->
                             <div style="padding-left: 1rem; display: flex; flex-direction: column;">
-                                <h5 style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1rem;">Document Preview
+                                <h5
+                                    style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                                    Document Preview
+                                    <button id="docDownloadBtn" onclick="downloadCurrentDoc()"
+                                        style="display: none; padding: 0.4rem 0.8rem; background: var(--primary-purple); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                        <i class="fas fa-download"></i> Download
+                                    </button>
                                 </h5>
                                 <div id="documentPreview"
                                     style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--bg-light); border-radius: 8px; border: 1px solid var(--border-color); padding: 2rem;">
@@ -2119,7 +2137,13 @@
             @if (
                 $user->workflowStatus &&
                     in_array($user->workflowStatus->working_committee_status, ['approved', 'hold', 'rejected']))
-                <div style="margin-top: 2rem; text-align: right;">
+                <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 0.75rem; flex-wrap: wrap;">
+                    @if ($user->workingCommitteeApproval)
+                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                            data-bs-target="#editDisbursementDatesModal">
+                            <i class="fas fa-calendar-alt"></i> Edit Disbursement Dates
+                        </button>
+                    @endif
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                         data-bs-target="#editWorkingCommitteeModal">
                         <i class="fas fa-edit"></i> Edit Working Committee Decision
@@ -2150,6 +2174,33 @@
                                     <input type="text" class="form-input"
                                         value="{{ $user->workingCommitteeApproval->meeting_no ?? 'N/A' }}" readonly>
                                 </div>
+                                @if ($user->workingCommitteeApproval && $user->workingCommitteeApproval->document)
+                                    <div class="form-field">
+                                        <label class="form-label">Document</label>
+                                        @php
+                                            $documentPath = $user->workingCommitteeApproval->document;
+                                            $extension = pathinfo($documentPath, PATHINFO_EXTENSION);
+                                        @endphp
+                                        @if (in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp']))
+                                            <a href="{{ asset('storage/' . $documentPath) }}" target="_blank">
+                                                <img src="{{ asset('storage/' . $documentPath) }}" alt="Document"
+                                                    style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; border-radius: 4px;">
+                                            </a>
+                                        @elseif (strtolower($extension) === 'pdf')
+                                            <a href="{{ asset('working_committee_documents/' . $documentPath) }}"
+                                                target="_blank" class="btn btn-sm"
+                                                style="background: #e74c3c; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block;">
+                                                <i class="fas fa-file-pdf"></i> View PDF
+                                            </a>
+                                        @else
+                                            <a href="{{ asset('storage/' . $documentPath) }}" target="_blank"
+                                                class="btn btn-sm"
+                                                style="background: #3498db; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block;">
+                                                <i class="fas fa-file"></i> View Document
+                                            </a>
+                                        @endif
+                                    </div>
+                                @endif
                             </div>
 
                             <!-- Disbursement Schedules -->
@@ -2419,6 +2470,165 @@
                 </div>
             @endif
 
+            @php
+                $historyFieldLabels = [
+                    'approval_financial_assistance_amount' => 'Approved Financial Assistance Amount',
+                    'meeting_no' => 'Meeting Number',
+                    'w_c_approval_date' => 'Approval Date',
+                    'disbursement_system' => 'Disbursement System',
+                    'disbursement_in_year' => 'Disbursement In Year',
+                    'disbursement_in_half_year' => 'Disbursement In Half Year',
+                    'yearly_dates' => 'Yearly Disbursement Dates',
+                    'yearly_amounts' => 'Yearly Disbursement Amounts',
+                    'half_yearly_dates' => 'Half-Yearly Disbursement Dates',
+                    'half_yearly_amounts' => 'Half-Yearly Disbursement Amounts',
+                    'installment_amount' => 'Installment Amounts',
+                    'no_of_months' => 'No. of Months',
+                    'total' => 'Total',
+                    'additional_installment_amount' => 'Additional Installment Amount',
+                    'repayment_type' => 'Repayment Type',
+                    'repayment_starting_from' => 'Repayment Starting From',
+                    'no_of_cheques_to_be_collected' => 'No. of Cheques to be Collected',
+                    'w_c_approval_remark' => 'Working Committee Approval Remark',
+                    'remarks_for_approval' => 'Remarks for Approval',
+                    'can_be_jito_member' => 'Can be JITO Member',
+                    'jito_member_date' => 'JITO Member Date',
+                    'can_be_jeap_donor' => 'Can be JEAP Donor',
+                    'jeap_donor_date' => 'JEAP Donor Date',
+                ];
+
+                $formatHistoryValue = function ($field, $value) {
+                    if ($value === null || $value === '') {
+                        return 'N/A';
+                    }
+
+                    if (is_array($value)) {
+                        if (count($value) === 0) {
+                            return 'N/A';
+                        }
+                        $formattedItems = [];
+                        foreach ($value as $item) {
+                            if ($item === null || $item === '') {
+                                $formattedItems[] = 'N/A';
+                                continue;
+                            }
+                            if (str_contains($field, 'date')) {
+                                try {
+                                    $formattedItems[] = \Carbon\Carbon::parse($item)->format('d M Y');
+                                } catch (\Exception $e) {
+                                    $formattedItems[] = $item;
+                                }
+                            } elseif (is_numeric($item)) {
+                                $formattedItems[] = number_format((float) $item, 2);
+                            } else {
+                                $formattedItems[] = is_string($item) ? strip_tags($item) : $item;
+                            }
+                        }
+                        return implode(', ', $formattedItems);
+                    }
+
+                    if (str_contains($field, 'date')) {
+                        try {
+                            return \Carbon\Carbon::parse($value)->format('d M Y');
+                        } catch (\Exception $e) {
+                            return $value;
+                        }
+                    }
+
+                    if (is_numeric($value) && str_contains($field, 'amount')) {
+                        return number_format((float) $value, 2);
+                    }
+
+                    return is_string($value) ? strip_tags($value) : $value;
+                };
+            @endphp
+
+            @if (isset($approvalHistories) && $approvalHistories->count())
+                <div class="form-data" style="margin-top: 2rem;">
+                    <div class="data-group">
+                        <h4>Working Committee Edit History</h4>
+                        <div class="table-container">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Edited At</th>
+                                        <th>Edited By</th>
+                                        <th>Changed Fields</th>
+                                        <th>Previous Values</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($approvalHistories as $history)
+                                        @php
+                                            $changedFields = [];
+                                            if (is_array($history->changed_fields ?? null)) {
+                                                $changedFields = $history->changed_fields;
+                                            } elseif (is_string($history->changed_fields ?? null)) {
+                                                $decoded = json_decode($history->changed_fields, true);
+                                                $changedFields = is_array($decoded) ? $decoded : [];
+                                            }
+                                        @endphp
+                                        <tr>
+                                            <td>
+                                                {{ $history->created_at ? \Carbon\Carbon::parse($history->created_at)->format('d M Y H:i') : 'N/A' }}
+                                            </td>
+                                            <td>
+                                                <div style="display: grid; gap: 0.25rem;">
+                                                    <span>{{ $history->edited_by_name ?? 'N/A' }}</span>
+                                                    @if (!empty($history->edited_by_email))
+                                                        <small
+                                                            style="color: var(--text-light);">{{ $history->edited_by_email }}</small>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if (count($changedFields))
+                                                    {{ implode(', ', array_map(fn($field) => $historyFieldLabels[$field] ?? ucwords(str_replace('_', ' ', $field)), $changedFields)) }}
+                                                @else
+                                                    N/A
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div style="display: grid; gap: 0.35rem;">
+                                                    @if (count($changedFields))
+                                                        @foreach ($changedFields as $field)
+                                                            @php
+                                                                $oldKey = 'old_' . $field;
+                                                                $oldValue = $history->$oldKey ?? null;
+                                                                $label =
+                                                                    $historyFieldLabels[$field] ??
+                                                                    ucwords(str_replace('_', ' ', $field));
+                                                                $formattedValue = $formatHistoryValue(
+                                                                    $field,
+                                                                    $oldValue,
+                                                                );
+                                                            @endphp
+                                                            <div>
+                                                                <strong>{{ $label }}:</strong>
+                                                                {{ $formattedValue }}
+                                                            </div>
+                                                        @endforeach
+                                                    @else
+                                                        <span>N/A</span>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="form-data" style="margin-top: 2rem;">
+                    <div class="data-group">
+                        <h4>Working Committee Edit History</h4>
+                        <p style="color: var(--text-light); margin: 0;">No edit history available.</p>
+                    </div>
+                </div>
+            @endif
+
             @if ($user->workflowStatus && $user->workflowStatus->working_committee_status === 'rejected')
                 <!-- Display Working Committee Rejection Remarks -->
                 <div class="form-data">
@@ -2440,8 +2650,9 @@
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Rejected By</label>
-                                    <input type="text" class="form-input" value="{{ Auth::user()->name ?? 'N/A' }}"
-                                        readonly style="border-color: #f44336;">
+                                    <input type="text" class="form-input"
+                                        value="{{ Auth::user()->name ?? 'N/A' }}" readonly
+                                        style="border-color: #f44336;">
                                 </div>
                             </div>
                         </div>
@@ -2536,7 +2747,7 @@
                                     </h6>
                                     <form
                                         action="{{ route('admin.working_committee.user.approve', ['user' => $user, 'stage' => 'working_committee']) }}"
-                                        method="POST" id="approval-form">
+                                        method="POST" id="approval-form" enctype="multipart/form-data">
                                         @csrf
                                         <!-- Previous Approvals Info -->
                                         <div
@@ -2607,10 +2818,15 @@
                                         </div>
                                         <!-- Working Committee Approval Form -->
                                         <div class="form-row">
-                                            <div class="form-field">
+                                            {{--  <div class="form-field">
                                                 <label class="form-label">Working Committee Approval Date</label>
                                                 <input type="date" name="w_c_approval_date" class="form-input"
                                                     required>
+                                            </div>  --}}
+                                            <div class="form-field">
+                                                <label class="form-label">Working Committee Approval Date</label>
+                                                <input type="date" name="w_c_approval_date" class="form-input"
+                                                    min="{{ date('Y-m-d') }}" required>
                                             </div>
                                             <div class="form-field">
                                                 <label class="form-label">Meeting Number</label>
@@ -2741,40 +2957,47 @@
                                                     <option value="monthly">Monthly</option>
                                                 </select>
                                             </div>
-                            <div class="form-field">
-                                <label class="form-label">Repayment Starting From</label>
-                                <input type="date" name="repayment_starting_from"
-                                    class="form-input">
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Can he/she be JITO Member?</label>
-                                <select name="can_be_jito_member" class="form-input" id="can-be-jito-member">
-                                    <option value="">Select</option>
-                                    <option value="yes">Yes</option>
-                                    <option value="no">No</option>
-                                </select>
-                            </div>
-                            <div class="form-field" id="jito-member-date-field" style="display:none;">
-                                <label class="form-label">JITO Member Date</label>
-                                <input type="date" name="jito_member_date" class="form-input">
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Can he/she be Donor for JEAP?</label>
-                                <select name="can_be_jeap_donor" class="form-input" id="can-be-jeap-donor">
-                                    <option value="">Select</option>
-                                    <option value="yes">Yes</option>
-                                    <option value="no">No</option>
-                                </select>
-                            </div>
-                            <div class="form-field" id="jeap-donor-date-field" style="display:none;">
-                                <label class="form-label">JEAP Donor Date</label>
-                                <input type="date" name="jeap_donor_date" class="form-input">
-                            </div>
-                            <div class="form-field">
-                                <label class="form-label">Processed By</label>
-                                <input type="text" name="processed_by_name" class="form-input"
-                                    value="{{ Auth::user()->name ?? 'N/A' }}" readonly>
-                            </div>
+                                            <div class="form-field">
+                                                <label class="form-label">Repayment Starting From</label>
+                                                <input type="date" name="repayment_starting_from"
+                                                    class="form-input">
+                                            </div>
+                                            <div class="form-field">
+                                                <label class="form-label">Can he/she be JITO Member?</label>
+                                                <select name="can_be_jito_member" class="form-input"
+                                                    id="can-be-jito-member">
+                                                    <option value="">Select</option>
+                                                    <option value="yes">Yes</option>
+                                                    <option value="no">No</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-field" id="jito-member-date-field" style="display:none;">
+                                                <label class="form-label">JITO Member Date</label>
+                                                <input type="date" name="jito_member_date" class="form-input">
+                                            </div>
+                                            <div class="form-field">
+                                                <label class="form-label">Can he/she be Donor for JEAP?</label>
+                                                <select name="can_be_jeap_donor" class="form-input"
+                                                    id="can-be-jeap-donor">
+                                                    <option value="">Select</option>
+                                                    <option value="yes">Yes</option>
+                                                    <option value="no">No</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-field" id="jeap-donor-date-field" style="display:none;">
+                                                <label class="form-label">JEAP Donor Date</label>
+                                                <input type="date" name="jeap_donor_date" class="form-input">
+                                            </div>
+                                            <div class="form-field">
+                                                <label class="form-label">Document (Image/PDF)</label>
+                                                <input type="file" name="document" class="form-input"
+                                                    accept="image/*,.pdf">
+                                            </div>
+                                            <div class="form-field">
+                                                <label class="form-label">Processed By</label>
+                                                <input type="text" name="processed_by_name" class="form-input"
+                                                    value="{{ Auth::user()->name ?? 'N/A' }}" readonly>
+                                            </div>
                                         </div>
 
 
@@ -3014,34 +3237,43 @@
             // }
         }
 
+        // Select document and highlight it
+        function selectDocument(event, url, title) {
+            event.preventDefault();
+
+            // Remove active class from all buttons (CSS will handle styling)
+            document.querySelectorAll('.doc-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Add active class to clicked button
+            const clickedBtn = event.target.closest('.doc-button');
+            if (clickedBtn) {
+                clickedBtn.classList.add('active');
+            }
+
+            // Open the modal/preview
+            openModal(url, title);
+        }
+
         // Modal functions for document viewing
+        let currentDocUrl = '';
+
         function openModal(url, title = 'Document Preview') {
             const previewContainer = document.getElementById('documentPreview');
+            const downloadBtn = document.getElementById('docDownloadBtn');
             const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|ico)$/i.test(url);
+
+            // Store current URL for download
+            currentDocUrl = url;
 
             // Clear existing preview content
             previewContainer.innerHTML = '';
 
-            // Create preview title
-            const previewTitle = document.createElement('div');
-            previewTitle.style.cssText =
-                'margin-bottom: 1rem; padding: 0.5rem; background: var(--primary-purple); color: white; border-radius: 6px; font-weight: 600; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center;';
-            previewTitle.textContent = title;
-
-            // Add close button to preview
-            const closeBtn = document.createElement('button');
-            closeBtn.innerHTML = '<i class="fas fa-times"></i>';
-            closeBtn.style.cssText =
-                'background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;';
-            closeBtn.onclick = function() {
-                previewContainer.innerHTML = `
-                    <i class="fas fa-file-image" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
-                    <p style="color: var(--text-light); font-size: 1rem;">Select a document from the left to preview</p>
-                    <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Click on any document name to view its content</p>
-                `;
-            };
-            previewTitle.appendChild(closeBtn);
-            previewContainer.appendChild(previewTitle);
+            // Show download button in header
+            if (downloadBtn) {
+                downloadBtn.style.display = 'inline-flex';
+            }
 
             // Create preview content
             if (isImage) {
@@ -3056,22 +3288,32 @@
                 iframe.style.cssText = 'width: 100%; height: 400px; border: none; border-radius: 6px;';
                 previewContainer.appendChild(iframe);
             }
+        }
 
-            // Add download button
-            const downloadBtn = document.createElement('button');
-            downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';
-            downloadBtn.style.cssText =
-                'margin-top: 1rem; padding: 0.5rem 1rem; background: var(--primary-purple); color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;';
-            downloadBtn.onclick = function() {
-                window.open(url, '_blank');
-            };
-            downloadBtn.onmouseover = function() {
-                this.style.background = '#4a40a8';
-            };
-            downloadBtn.onmouseout = function() {
-                this.style.background = 'var(--primary-purple)';
-            };
-            previewContainer.appendChild(downloadBtn);
+        // Reset preview to initial state
+        function resetPreview() {
+            const previewContainer = document.getElementById('documentPreview');
+            const downloadBtn = document.getElementById('docDownloadBtn');
+
+            previewContainer.innerHTML = `
+                <i class="fas fa-file-image" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+                <p style="color: var(--text-light); font-size: 1rem;">Select a document from the left to preview</p>
+                <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Click on any document name to view its content</p>
+            `;
+
+            // Hide download button
+            if (downloadBtn) {
+                downloadBtn.style.display = 'none';
+            }
+
+            currentDocUrl = '';
+        }
+
+        // Download current document
+        function downloadCurrentDoc() {
+            if (currentDocUrl) {
+                window.open(currentDocUrl, '_blank');
+            }
         }
 
         // Close modal when clicking outside
@@ -3221,6 +3463,114 @@
         </div>
     </div>
 
+    @php
+        $completedScheduleMap = ($completedDisbursementSchedules ?? collect())->keyBy('installment_no');
+    @endphp
+
+    <div class="modal fade" id="editDisbursementDatesModal" tabindex="-1"
+        aria-labelledby="editDisbursementDatesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
+                    <form
+                        action="{{ route('admin.working_committee.user.update_disbursement_dates', ['user' => $user]) }}"
+                        method="POST" id="edit-disbursement-dates-form">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="date_update_mode" value="disbursement_dates">
+
+                        <div class="alert alert-info mb-3">
+                            Completed disbursement installments are locked. Only pending installment dates can be updated
+                            here.
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Disbursement System</label>
+                                <input type="text" class="form-control"
+                                    value="{{ ucfirst($user->workingCommitteeApproval->disbursement_system ?? 'N/A') }}"
+                                    readonly>
+                            </div>
+
+                            @if (($user->workingCommitteeApproval->disbursement_system ?? null) === 'yearly')
+                                @foreach ((array) ($user->workingCommitteeApproval->yearly_dates ?? []) as $index => $date)
+                                    @php
+                                        $installmentNo = $index + 1;
+                                        $completedSchedule = $completedScheduleMap->get($installmentNo);
+                                        $resolvedDate = $completedSchedule
+                                            ? \Illuminate\Support\Str::of($completedSchedule->planned_date)->substr(
+                                                0,
+                                                10,
+                                            )
+                                            : \Carbon\Carbon::parse($date)->format('Y-m-d');
+                                    @endphp
+                                    <div class="col-md-6">
+                                        <label class="form-label">Year {{ $installmentNo }} Date</label>
+                                        @if ($completedSchedule)
+                                            <input type="date" class="form-control"
+                                                value="{{ old("yearly_dates.$index", $resolvedDate) }}" disabled>
+                                            <input type="hidden" name="yearly_dates[]"
+                                                value="{{ old("yearly_dates.$index", $resolvedDate) }}">
+                                        @else
+                                            <input type="date" name="yearly_dates[]" class="form-control"
+                                                value="{{ old("yearly_dates.$index", $resolvedDate) }}" required>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Year {{ $installmentNo }} Amount</label>
+                                        <input type="text" class="form-control"
+                                            value="Rs. {{ number_format((float) ($user->workingCommitteeApproval->yearly_amounts[$index] ?? 0), 2) }}"
+                                            readonly>
+                                    </div>
+                                @endforeach
+                            @endif
+
+                            @if (($user->workingCommitteeApproval->disbursement_system ?? null) === 'half_yearly')
+                                @foreach ((array) ($user->workingCommitteeApproval->half_yearly_dates ?? []) as $index => $date)
+                                    @php
+                                        $installmentNo = $index + 1;
+                                        $completedSchedule = $completedScheduleMap->get($installmentNo);
+                                        $resolvedDate = $completedSchedule
+                                            ? \Illuminate\Support\Str::of($completedSchedule->planned_date)->substr(
+                                                0,
+                                                10,
+                                            )
+                                            : \Carbon\Carbon::parse($date)->format('Y-m-d');
+                                    @endphp
+                                    <div class="col-md-6">
+                                        <label class="form-label">Half-Year {{ $installmentNo }} Date</label>
+                                        @if ($completedSchedule)
+                                            <input type="date" class="form-control"
+                                                value="{{ old("half_yearly_dates.$index", $resolvedDate) }}" disabled>
+                                            <input type="hidden" name="half_yearly_dates[]"
+                                                value="{{ old("half_yearly_dates.$index", $resolvedDate) }}">
+                                        @else
+                                            <input type="date" name="half_yearly_dates[]" class="form-control"
+                                                value="{{ old("half_yearly_dates.$index", $resolvedDate) }}" required>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Half-Year {{ $installmentNo }} Amount</label>
+                                        <input type="text" class="form-control"
+                                            value="Rs. {{ number_format((float) ($user->workingCommitteeApproval->half_yearly_amounts[$index] ?? 0), 2) }}"
+                                            readonly>
+                                    </div>
+                                @endforeach
+                            @endif
+                        </div>
+
+                        <div class="modal-footer mt-4">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Update Dates
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Edit Working Committee Modal -->
     <div class="modal fade" id="editWorkingCommitteeModal" tabindex="-1"
         aria-labelledby="editWorkingCommitteeModalLabel" aria-hidden="true">
@@ -3242,7 +3592,7 @@
 
                         <div class="alert alert-info mb-3" id="edit-disbursement-lock-note"
                             style="{{ isset($completedDisbursementSchedules) && $completedDisbursementSchedules->isNotEmpty() ? '' : 'display:none;' }}">
-                            Completed disbursement installments are locked. Only pending installments can be changed here.
+                            Only disbursement dates can be updated here. Completed installments stay locked.
                         </div>
 
                         <!-- Previous Approvals Info (read-only) -->
@@ -3306,7 +3656,10 @@
                             <!-- Disbursement System -->
                             <div class="col-12">
                                 <label class="form-label">Disbursement System</label>
-                                <select name="disbursement_system" class="form-control" id="edit-disbursement-system">
+                                <input type="hidden" name="disbursement_system"
+                                    value="{{ old('disbursement_system', $user->workingCommitteeApproval->disbursement_system ?? '') }}">
+                                <select name="disbursement_system_display" class="form-control"
+                                    id="edit-disbursement-system" disabled>
                                     <option value="yearly"
                                         {{ old('disbursement_system', $user->workingCommitteeApproval->disbursement_system ?? '') == 'yearly' ? 'selected' : '' }}>
                                         Yearly</option>
@@ -3338,7 +3691,10 @@
                             <div class="col-12" id="edit-half-yearly-section"
                                 style="{{ ($user->workingCommitteeApproval->disbursement_system ?? 'yearly') !== 'half_yearly' ? 'display:none;' : '' }}">
                                 <label class="form-label">Number of Half-Yearly Installments</label>
-                                <select name="disbursement_in_half_year" class="form-control" id="edit-half-year-count">
+                                <input type="hidden" name="disbursement_in_half_year"
+                                    value="{{ old('disbursement_in_half_year', count($user->workingCommitteeApproval->half_yearly_dates ?? [])) }}">
+                                <select name="disbursement_in_half_year_display" class="form-control"
+                                    id="edit-half-year-count" disabled>
                                     <option value="">Select</option>
                                     @for ($i = 1; $i <= 16; $i++)
                                         <option value="{{ $i }}"
@@ -3439,7 +3795,7 @@
                             <div class="col-md-6">
                                 <label class="form-label">Repayment Starting From</label>
                                 <input type="date" name="repayment_starting_from" class="form-control"
-                                    value="{{ old('repayment_starting_from', optional($user->workingCommitteeApproval->repayment_starting_from)->format('Y-m-d') ?? '') }}">
+                                    value="{{ old('repayment_starting_from', optional(optional($user->workingCommitteeApproval)->repayment_starting_from)->format('Y-m-d') ?? '') }}">
                             </div>
 
                             <div class="col-md-3">
@@ -3459,7 +3815,7 @@
                                 style="{{ old('can_be_jito_member', $user->workingCommitteeApproval->can_be_jito_member ?? '') === 'yes' ? '' : 'display:none;' }}">
                                 <label class="form-label">JITO Member Date</label>
                                 <input type="date" name="jito_member_date" class="form-control"
-                                    value="{{ old('jito_member_date', optional($user->workingCommitteeApproval->jito_member_date)->format('Y-m-d') ?? '') }}">
+                                    value="{{ old('jito_member_date', optional(optional($user->workingCommitteeApproval)->jito_member_date)->format('Y-m-d') ?? '') }}">
                             </div>
 
                             <div class="col-md-3">
@@ -3479,7 +3835,7 @@
                                 style="{{ old('can_be_jeap_donor', $user->workingCommitteeApproval->can_be_jeap_donor ?? '') === 'yes' ? '' : 'display:none;' }}">
                                 <label class="form-label">JEAP Donor Date</label>
                                 <input type="date" name="jeap_donor_date" class="form-control"
-                                    value="{{ old('jeap_donor_date', optional($user->workingCommitteeApproval->jeap_donor_date)->format('Y-m-d') ?? '') }}">
+                                    value="{{ old('jeap_donor_date', optional(optional($user->workingCommitteeApproval)->jeap_donor_date)->format('Y-m-d') ?? '') }}">
                             </div>
 
                             <div class="col-12">
@@ -3519,7 +3875,8 @@
             const savedHalfYearlyDates = @json(old('half_yearly_dates', $user->workingCommitteeApproval->half_yearly_dates ?? []));
             const savedHalfYearlyAmounts = @json(old('half_yearly_amounts', $user->workingCommitteeApproval->half_yearly_amounts ?? []));
             const completedSchedules = @json(($completedDisbursementSchedules ?? collect())->values());
-            const maxLockedInstallmentNo = completedSchedules.length ? Math.max(...completedSchedules.map(item => Number(item.installment_no))) : 0;
+            const maxLockedInstallmentNo = completedSchedules.length ? Math.max(...completedSchedules.map(item =>
+                Number(item.installment_no))) : 0;
 
             // Trigger when modal is shown
             editModal.addEventListener('shown.bs.modal', function() {
@@ -3536,13 +3893,22 @@
                 const editJitoMemberDateField = document.getElementById('edit-jito-member-date-field');
                 const editCanBeJeapDonorSelect = document.getElementById('edit-can-be-jeap-donor');
                 const editJeapDonorDateField = document.getElementById('edit-jeap-donor-date-field');
+                const addInstallmentBtn = document.getElementById('edit-add-installment');
+                const rowsContainer = document.getElementById('edit-installment-rows');
+
+                if (!disbursementSystemSelect || !yearCountSelect || !yearlySection || !yearlyFields ||
+                    !halfYearCountSelect || !halfYearlySection || !halfYearlyFields || !rowsContainer) {
+                    return;
+                }
 
                 function toggleEditExtraFields() {
                     if (editJitoMemberDateField) {
-                        editJitoMemberDateField.style.display = editCanBeJitoMemberSelect?.value === 'yes' ? '' : 'none';
+                        editJitoMemberDateField.style.display = editCanBeJitoMemberSelect?.value === 'yes' ?
+                            '' : 'none';
                     }
                     if (editJeapDonorDateField) {
-                        editJeapDonorDateField.style.display = editCanBeJeapDonorSelect?.value === 'yes' ? '' : 'none';
+                        editJeapDonorDateField.style.display = editCanBeJeapDonorSelect?.value === 'yes' ?
+                            '' : 'none';
                     }
                 }
 
@@ -3551,13 +3917,18 @@
                 }
 
                 function getCompletedSchedule(installmentNo) {
-                    return completedSchedules.find(item => Number(item.installment_no) === installmentNo) || null;
+                    return completedSchedules.find(item => Number(item.installment_no) === installmentNo) ||
+                        null;
                 }
 
                 function enforceLockedCount(selectElement) {
+                    if (!selectElement) {
+                        return;
+                    }
                     const selectedCount = parseInt(selectElement.value || '0', 10);
 
-                    if (maxLockedInstallmentNo > 0 && selectedCount > 0 && selectedCount < maxLockedInstallmentNo) {
+                    if (maxLockedInstallmentNo > 0 && selectedCount > 0 && selectedCount <
+                        maxLockedInstallmentNo) {
                         selectElement.value = String(maxLockedInstallmentNo);
 
                         if (lockNote) {
@@ -3606,7 +3977,8 @@
                             installmentNo,
                             completedSchedule.planned_date,
                             completedSchedule.planned_amount,
-                            type === 'yearly' ? `Year ${installmentNo}` : `Half-Year ${installmentNo}`
+                            type === 'yearly' ? `Year ${installmentNo}` :
+                            `Half-Year ${installmentNo}`
                         );
                     });
                 }
@@ -3646,7 +4018,7 @@
                     updateEditTotal();
                 }
 
-                yearCountSelect.addEventListener('change', () => {
+                yearCountSelect?.addEventListener('change', () => {
                     enforceLockedCount(yearCountSelect);
                     generateEditYearlyFields(parseInt(yearCountSelect.value) || 0);
                 });
@@ -3684,7 +4056,7 @@
                     updateEditTotal();
                 }
 
-                halfYearCountSelect.addEventListener('change', () => {
+                halfYearCountSelect?.addEventListener('change', () => {
                     enforceLockedCount(halfYearCountSelect);
                     generateEditHalfYearlyFields(parseInt(halfYearCountSelect.value) || 0);
                 });
@@ -3697,14 +4069,16 @@
                     halfYearlySection.style.display = isYearly ? 'none' : 'block';
 
                     if (isYearly) {
-                        const initialYearCount = parseInt(yearCountSelect.value, 10) || savedYearlyDates.length || 0;
+                        const initialYearCount = parseInt(yearCountSelect.value, 10) || savedYearlyDates
+                            .length || 0;
                         if (initialYearCount > 0) {
                             yearCountSelect.value = initialYearCount;
                         }
                         generateEditYearlyFields(initialYearCount);
                         halfYearlyFields.innerHTML = '';
                     } else {
-                        const initialHalfYearCount = parseInt(halfYearCountSelect.value, 10) || savedHalfYearlyDates.length || 0;
+                        const initialHalfYearCount = parseInt(halfYearCountSelect.value, 10) ||
+                            savedHalfYearlyDates.length || 0;
                         if (initialHalfYearCount > 0) {
                             halfYearCountSelect.value = initialHalfYearCount;
                         }
@@ -3720,10 +4094,12 @@
                 editCanBeJitoMemberSelect?.addEventListener('change', toggleEditExtraFields);
                 editCanBeJeapDonorSelect?.addEventListener('change', toggleEditExtraFields);
 
-                disbursementSystemSelect.addEventListener('change', () => {
+                disbursementSystemSelect?.addEventListener('change', () => {
                     if (completedSchedules.length > 0) {
-                        disbursementSystemSelect.value = disbursementSystemSelect.dataset.originalValue || disbursementSystemSelect.value;
-                        enforceLockedCount(disbursementSystemSelect.value === 'yearly' ? yearCountSelect : halfYearCountSelect);
+                        disbursementSystemSelect.value = disbursementSystemSelect.dataset
+                            .originalValue || disbursementSystemSelect.value;
+                        enforceLockedCount(disbursementSystemSelect.value === 'yearly' ?
+                            yearCountSelect : halfYearCountSelect);
                         return;
                     }
 
@@ -3731,9 +4107,6 @@
                 });
 
                 // Installment logic (similar to main form)
-                const addInstallmentBtn = document.getElementById('edit-add-installment');
-                const rowsContainer = document.getElementById('edit-installment-rows');
-
                 function toggleEditRemoveButtons() {
                     const rows = rowsContainer.querySelectorAll('.installment-row');
                     rows.forEach((row) => {
@@ -3744,7 +4117,7 @@
                     });
                 }
 
-                addInstallmentBtn.addEventListener('click', () => {
+                addInstallmentBtn?.addEventListener('click', () => {
                     const row = document.createElement('div');
                     row.className = 'row g-3 installment-row mb-2';
                     row.innerHTML = `
@@ -3806,16 +4179,17 @@
                     yearlyFields.querySelectorAll('input[name="yearly_amounts[]"]').forEach(input => {
                         total += parseFloat(input.value) || 0;
                     });
-                    halfYearlyFields.querySelectorAll('input[name="half_yearly_amounts[]"]').forEach(input => {
-                        total += parseFloat(input.value) || 0;
-                    });
+                    halfYearlyFields.querySelectorAll('input[name="half_yearly_amounts[]"]').forEach(
+                        input => {
+                            total += parseFloat(input.value) || 0;
+                        });
                     document.getElementById('edit-total-amount').value = total.toFixed(2);
                     recalculateEditInstallments();
                 }
 
                 // Listen to all changes
-                rowsContainer.addEventListener('input', recalculateEditInstallments);
-                rowsContainer.addEventListener('click', (event) => {
+                rowsContainer?.addEventListener('input', recalculateEditInstallments);
+                rowsContainer?.addEventListener('click', (event) => {
                     const removeBtn = event.target.closest('.remove-edit-installment');
                     if (!removeBtn) return;
 
@@ -3827,7 +4201,8 @@
                     recalculateEditInstallments();
                 });
                 if (completedSchedules.length > 0) {
-                    enforceLockedCount(disbursementSystemSelect.value === 'yearly' ? yearCountSelect : halfYearCountSelect);
+                    enforceLockedCount(disbursementSystemSelect.value === 'yearly' ? yearCountSelect :
+                        halfYearCountSelect);
                 }
                 toggleEditDisbursementSections();
                 toggleEditExtraFields();
@@ -3844,6 +4219,18 @@
                 if (!editModal || typeof bootstrap === 'undefined') return;
 
                 const modalInstance = new bootstrap.Modal(editModal);
+                modalInstance.show();
+            });
+        </script>
+    @endif
+
+    @if (old('date_update_mode') === 'disbursement_dates' && ($errors->has('date_update_mode') || $errors->has('yearly_dates') || $errors->has('half_yearly_dates')))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const editDatesModal = document.getElementById('editDisbursementDatesModal');
+                if (!editDatesModal || typeof bootstrap === 'undefined') return;
+
+                const modalInstance = new bootstrap.Modal(editDatesModal);
                 modalInstance.show();
             });
         </script>

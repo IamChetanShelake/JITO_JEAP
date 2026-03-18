@@ -9,8 +9,11 @@ use App\Models\User;
 use App\Models\Subcast;
 use App\Models\Document;
 use App\Models\PdcDetail;
+use App\Models\ThirdStageDocument;
 use App\Models\Familydetail;
 use App\Models\ReviewSubmit;
+use App\Models\EditBankDetailRequest;
+use App\Models\JitoJeapBank;
 use Illuminate\Http\Request;
 use App\Models\FundingDetail;
 use App\Models\Loan_category;
@@ -24,6 +27,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use App\Models\ApplicationWorkflowStatus;
 use App\Models\UniversityWebsite;
 use App\Models\CollegeWebsite;
@@ -889,7 +894,7 @@ class UserController extends Controller
     public function step2_foreign_pg_store(Request $request)
     {
         // Validation for education details
-        dd($request->all());
+       // dd($request->all());
 
         // Add workflow update here for simplicity
         $rules = [
@@ -1448,15 +1453,10 @@ class UserController extends Controller
         $isBelowOneLakh = $type === 'below';
 
         // Build validation rules based on loan category
-        $rules = [
-            // Bank Details (always required)
-            'bank_name' => 'required|string|max:255',
-            'account_holder_name' => 'required|string|max:255',
-            'account_number' => 'required|string|max:50',
-            'branch_name' => 'required|string|max:255',
-            'ifsc_code' => 'required|string|max:20',
-            'bank_address' => 'required|string|max:500',
-        ];
+        $rules = [];
+
+        // Bank cheque declaration is required for all loan types
+        $rules['bank_cheque_declaration'] = 'required|accepted';
 
         // Only validate funding details and sibling assistance for loans above 1 lakh
         if (!$isBelowOneLakh) {
@@ -1491,15 +1491,6 @@ class UserController extends Controller
 
         $data = [
             'user_id' => $user_id,
-
-            // Bank Details (always required)
-            'bank_name' => $request->bank_name,
-            'account_holder_name' => $request->account_holder_name,
-            'account_number' => $request->account_number,
-            'branch_name' => $request->branch_name,
-            'ifsc_code' => $request->ifsc_code,
-            'bank_address' => $request->bank_address,
-
             'status' => 'step4_completed',
             'submit_status' => 'submited',
         ];
@@ -1660,7 +1651,6 @@ class UserController extends Controller
             'raw'     => $result
         ], 422);
     }
-
     public function verifyPan(Request $request)
     {
         $request->validate([
@@ -3285,7 +3275,55 @@ class UserController extends Controller
             $noOfCheques = $workingCommitteeApproval->no_of_cheques_to_be_collected;
         }
 
-        return view('user.step8', compact('type', 'user', 'pdcDetail', 'noOfCheques', 'workingCommitteeApproval', 'fundingDetail'));
+        // Get edit bank detail request if exists
+        $editBankDetailRequest = EditBankDetailRequest::where('user_id', $user_id)->latest()->first();
+
+        // Get all banks for dropdown
+        $banks = Bank::all();
+
+        return view('user.step8', compact('type', 'user', 'pdcDetail', 'noOfCheques', 'workingCommitteeApproval', 'fundingDetail', 'editBankDetailRequest', 'banks'));
+    }
+
+    /**
+     * Store Bank Details from Step 8
+     */
+    public function step8BankDetailsStore(Request $request)
+    {
+        $user_id = Auth::id();
+
+        $request->validate([
+            'bank_name' => 'required|string|max:255',
+            'account_holder_name' => 'required|string|max:255',
+            'account_number' => 'required|string|max:50',
+            'branch_name' => 'required|string|max:255',
+            'ifsc_code' => 'required|string|max:20',
+            'bank_address' => 'required|string|max:500',
+        ]);
+
+        $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
+
+        $bankData = [
+            'bank_name' => $request->bank_name,
+            'account_holder_name' => $request->account_holder_name,
+            'account_number' => $request->account_number,
+            'branch_name' => $request->branch_name,
+            'ifsc_code' => $request->ifsc_code,
+            'bank_address' => $request->bank_address,
+        ];
+
+        if ($fundingDetail) {
+            $fundingDetail->update($bankData);
+            $message = 'Bank details updated successfully!';
+        } else {
+            FundingDetail::create(array_merge([
+                'user_id' => $user_id,
+                'status' => 'step4_completed',
+                'submit_status' => 'submited',
+            ], $bankData));
+            $message = 'Bank details saved successfully!';
+        }
+
+        return redirect()->route('user.step8')->with('bank_success', $message);
     }
 
     /**
@@ -3295,6 +3333,26 @@ class UserController extends Controller
     {
         $user_id = Auth::id();
         // dd($request->all());
+
+        $workflow = ApplicationWorkflowStatus::where('user_id', $user_id)->first();
+        if ($workflow && $workflow->apex_2_status === 'approved') {
+            return redirect()->route('user.step8')
+                ->with('error', 'PDC details are already approved. You cannot update them.');
+        }
+
+        $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
+        if (
+            !$fundingDetail ||
+            !$fundingDetail->bank_name ||
+            !$fundingDetail->account_holder_name ||
+            !$fundingDetail->account_number ||
+            !$fundingDetail->branch_name ||
+            !$fundingDetail->ifsc_code ||
+            !$fundingDetail->bank_address
+        ) {
+            return redirect()->route('user.step8')
+                ->withErrors(['bank_details' => 'Please submit your bank details before submitting PDC details.']);
+        }
 
         // Check if PDC details already exist for this user
         $pdcDetail = PdcDetail::where('user_id', $user_id)->first();
@@ -3352,7 +3410,6 @@ class UserController extends Controller
             'status' => 'submitted',
         ];
 
-        $workflow = ApplicationWorkflowStatus::where('user_id', $user_id)->first();
         if ($workflow) {
             $workflow->update([
                 'apex_2_status' => 'pending'
@@ -3373,6 +3430,447 @@ class UserController extends Controller
         }
 
         return redirect()->route('user.step8')->with('success', $message);
+    }
+
+    /**
+     * Step 9 - Third Stage Documents
+     */
+    public function step9(Request $request)
+    {
+        $user_id = Auth::id();
+        $user = User::find($user_id);
+        $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
+        $thirdStageDocument = ThirdStageDocument::where('user_id', $user_id)->first();
+        $eligibility = $this->getThirdStageEligibility($user_id);
+
+        if (!$eligibility['eligible']) {
+            return redirect()->route('user.home')
+                ->with('error', '3rd Stage Documents are not available yet.');
+        }
+
+        return view('user.step9', compact('type', 'user', 'thirdStageDocument', 'eligibility'));
+    }
+
+    /**
+     * Store Step 9 - Third Stage Documents
+     */
+    public function step9store(Request $request)
+    {
+        $user_id = Auth::id();
+        $user = Auth::user();
+        $financialAssetType = $user?->financial_asset_type;
+        $eligibility = $this->getThirdStageEligibility($user_id);
+
+        if (!$eligibility['eligible']) {
+            return back()->with('error', '3rd Stage Documents are not available yet.');
+        }
+
+        $thirdStageDocument = ThirdStageDocument::where('user_id', $user_id)->first();
+        if ($thirdStageDocument && in_array($thirdStageDocument->status, ['submitted', 'approved'])) {
+            return back()->with('error', '3rd Stage Documents are already submitted. You cannot update them until reviewed.');
+        }
+
+        $baseFileRule = 'file|mimes:pdf,jpg,jpeg,png|max:5120';
+        $rules = [];
+
+        if ($financialAssetType === 'domestic') {
+            $hasMarksheets = $thirdStageDocument && !empty($thirdStageDocument->domestic_marksheets);
+            $rules['domestic_marksheets'] = $hasMarksheets ? 'nullable|array' : 'required|array';
+            $rules['domestic_marksheets.*'] = $baseFileRule;
+            $rules['domestic_paid_fees_receipt'] = ($thirdStageDocument && $thirdStageDocument->domestic_paid_fees_receipt)
+                ? 'nullable|' . $baseFileRule
+                : 'required|' . $baseFileRule;
+            $rules['domestic_cancelled_cheque'] = ($thirdStageDocument && $thirdStageDocument->domestic_cancelled_cheque)
+                ? 'nullable|' . $baseFileRule
+                : 'required|' . $baseFileRule;
+        } elseif ($financialAssetType === 'foreign_finance_assistant') {
+            $rules = [
+                'foreign_address' => 'required|string|max:1000',
+                'foreign_contact_number' => 'required|string|max:30',
+                'foreign_ssn_or_country_id' => 'required|string|max:50',
+                'foreign_bank_name' => 'required|string|max:255',
+                'foreign_bank_account_number' => 'required|string|max:50',
+                'foreign_immigration_copy' => ($thirdStageDocument && $thirdStageDocument->foreign_immigration_copy)
+                    ? 'nullable|' . $baseFileRule
+                    : 'required|' . $baseFileRule,
+                'foreign_paid_fees_receipt' => ($thirdStageDocument && $thirdStageDocument->foreign_paid_fees_receipt)
+                    ? 'nullable|' . $baseFileRule
+                    : 'required|' . $baseFileRule,
+            ];
+        }
+
+        $request->validate($rules);
+
+        $uploadDir = public_path('third_stage_documents/' . $user_id);
+        if (!File::exists($uploadDir)) {
+            File::makeDirectory($uploadDir, 0755, true);
+        }
+
+        $storeFile = function ($file, string $prefix) use ($uploadDir, $user_id) {
+            $safeName = time() . '_' . $prefix . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+            $file->move($uploadDir, $safeName);
+            return 'third_stage_documents/' . $user_id . '/' . $safeName;
+        };
+
+        $storeMultiple = function ($files, string $prefix) use ($storeFile) {
+            $paths = [];
+            foreach ($files as $index => $file) {
+                if (!$file) {
+                    continue;
+                }
+                $paths[] = $storeFile($file, $prefix . '_' . $index);
+            }
+            return $paths;
+        };
+
+        $data = [
+            'user_id' => $user_id,
+            'status' => 'submitted',
+            'submitted_at' => now(),
+            'admin_remark' => null,
+            'processed_by' => null,
+        ];
+
+        if ($financialAssetType === 'domestic') {
+            $marksheets = $thirdStageDocument?->domestic_marksheets ?? [];
+            if ($request->hasFile('domestic_marksheets')) {
+                $marksheets = $storeMultiple($request->file('domestic_marksheets'), 'marksheet');
+            }
+
+            $data['domestic_marksheets'] = $marksheets;
+
+            $data['domestic_paid_fees_receipt'] = $thirdStageDocument?->domestic_paid_fees_receipt;
+            if ($request->hasFile('domestic_paid_fees_receipt')) {
+                $data['domestic_paid_fees_receipt'] = $storeFile($request->file('domestic_paid_fees_receipt'), 'paid_fees_receipt');
+            }
+
+            $data['domestic_cancelled_cheque'] = $thirdStageDocument?->domestic_cancelled_cheque;
+            if ($request->hasFile('domestic_cancelled_cheque')) {
+                $data['domestic_cancelled_cheque'] = $storeFile($request->file('domestic_cancelled_cheque'), 'cancelled_cheque');
+            }
+
+            $data['foreign_address'] = null;
+            $data['foreign_contact_number'] = null;
+            $data['foreign_ssn_or_country_id'] = null;
+            $data['foreign_immigration_copy'] = null;
+            $data['foreign_paid_fees_receipt'] = null;
+            $data['foreign_bank_name'] = null;
+            $data['foreign_bank_account_number'] = null;
+        } elseif ($financialAssetType === 'foreign_finance_assistant') {
+            $data['foreign_address'] = $request->foreign_address;
+            $data['foreign_contact_number'] = $request->foreign_contact_number;
+            $data['foreign_ssn_or_country_id'] = $request->foreign_ssn_or_country_id;
+            $data['foreign_bank_name'] = $request->foreign_bank_name;
+            $data['foreign_bank_account_number'] = $request->foreign_bank_account_number;
+
+            $data['foreign_immigration_copy'] = $thirdStageDocument?->foreign_immigration_copy;
+            if ($request->hasFile('foreign_immigration_copy')) {
+                $data['foreign_immigration_copy'] = $storeFile($request->file('foreign_immigration_copy'), 'immigration_copy');
+            }
+
+            $data['foreign_paid_fees_receipt'] = $thirdStageDocument?->foreign_paid_fees_receipt;
+            if ($request->hasFile('foreign_paid_fees_receipt')) {
+                $data['foreign_paid_fees_receipt'] = $storeFile($request->file('foreign_paid_fees_receipt'), 'paid_fees_receipt');
+            }
+
+            $data['domestic_marksheets'] = null;
+            $data['domestic_paid_fees_receipt'] = null;
+            $data['domestic_cancelled_cheque'] = null;
+        }
+
+        if ($thirdStageDocument) {
+            $thirdStageDocument->update($data);
+        } else {
+            ThirdStageDocument::create($data);
+        }
+
+        return redirect()->route('user.step9')->with('success', 'Third Stage Documents submitted successfully.');
+    }
+
+    private function getThirdStageEligibility(int $userId): array
+    {
+        $firstCompleted = DB::connection('admin_panel')
+            ->table('disbursement_schedules')
+            ->where('user_id', $userId)
+            ->where('installment_no', 1)
+            ->where('status', 'completed')
+            ->exists();
+
+        $secondSchedule = DB::connection('admin_panel')
+            ->table('disbursement_schedules')
+            ->where('user_id', $userId)
+            ->where('installment_no', 2)
+            ->first();
+
+        if (!$secondSchedule || empty($secondSchedule->planned_date)) {
+            return [
+                'eligible' => false,
+                'first_completed' => $firstCompleted,
+                'second_date' => null,
+                'open_date' => null,
+            ];
+        }
+
+        $secondDate = Carbon::parse($secondSchedule->planned_date)->startOfDay();
+        $openDate = $secondDate->copy()->subMonth()->startOfDay();
+        $eligible = $firstCompleted && now()->startOfDay()->gte($openDate);
+
+        return [
+            'eligible' => $eligible,
+            'first_completed' => $firstCompleted,
+            'second_date' => $secondDate,
+            'open_date' => $openDate,
+        ];
+    }
+
+    /**
+     * Submit Edit Bank Detail Request
+     */
+    // public function submitEditBankDetailRequest(Request $request)
+    // {
+    //     $request->validate([
+    //         'reason' => 'required|string|max:1000',
+    //     ]);
+
+    //     $user_id = Auth::id();
+    //     $user = User::find($user_id);
+
+    //     // Check if Apex Stage 2 has approved PDC details
+    //     $workflow = ApplicationWorkflowStatus::where('user_id', $user_id)->first();
+    //     if ($workflow && $workflow->apex_2_status === 'approved') {
+    //         if ($request->ajax()) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'PDC details have already been approved. You cannot submit a request now.'
+    //             ], 422);
+    //         }
+    //         return redirect()->back()->with('error', 'PDC details have already been approved. You cannot submit a request now.');
+    //     }
+
+    //     // Check if there's already a pending request
+    //     $existingRequest = EditBankDetailRequest::where('user_id', $user_id)
+    //         ->where('status', 'pending')
+    //         ->first();
+
+    //     if ($existingRequest) {
+    //         if ($request->ajax()) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'You already have a pending request.'
+    //             ], 422);
+    //         }
+    //         return redirect()->back()->with('error', 'You already have a pending request.');
+    //     }
+
+    //     // Create new request
+    //     EditBankDetailRequest::create([
+    //         'user_id' => $user_id,
+    //         'reason' => $request->reason,
+    //         'status' => 'pending',
+    //     ]);
+
+    //     // Send notification to admin
+    //     $this->sendAdminNotification(
+    //         $user_id,
+    //         'Edit Bank Detail Request',
+    //         "User {$user->name} (Application No: {$user->application_no}) has submitted an edit bank detail request.",
+    //         'edit_bank_detail_request'
+    //     );
+
+    //     if ($request->ajax()) {
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Your request has been submitted successfully!'
+    //         ]);
+    //     }
+
+    //     return redirect()->back()->with('success', 'Your request has been submitted successfully!');
+    // }
+
+    public function submitEditBankDetailRequest(Request $request)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:1000',
+        ]);
+
+        $user_id = Auth::id();
+        $user = User::find($user_id);
+
+        // Check if Apex Stage 2 has approved PDC details
+        $workflow = ApplicationWorkflowStatus::where('user_id', $user_id)->first();
+        if ($workflow && $workflow->apex_2_status === 'approved') {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'PDC details have already been approved. You cannot submit a request now.'
+            ], 422);
+        }
+
+        // Check if there's already a pending request
+        $existingRequest = EditBankDetailRequest::where('user_id', $user_id)
+            ->where('status', 'pending')
+            ->first();
+
+        if ($existingRequest) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'You already have a pending request.'
+            ], 422);
+        }
+
+        // Create new request
+        EditBankDetailRequest::create([
+            'user_id' => $user_id,
+            'reason' => $request->reason,
+            'status' => 'pending',
+        ]);
+
+        // Send notification to admin
+        $this->sendAdminNotification(
+            $user_id,
+            'Edit Bank Detail Request',
+            "User {$user->name} (Application No: {$user->application_no}) has submitted an edit bank detail request.",
+            'edit_bank_detail_request'
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Your request has been submitted successfully!'
+        ]);
+    }
+
+    /**
+     * Update Bank Details (after request is approved)
+     */
+    public function updateBankDetails(Request $request)
+    {
+        $user_id = Auth::id();
+
+        // Check if there's an approved request
+        $editRequest = EditBankDetailRequest::where('user_id', $user_id)
+            ->where('status', 'approved')
+            ->latest()
+            ->first();
+
+        if (!$editRequest) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No approved request found. Please submit a request first.'
+            ], 400);
+        }
+
+        $request->validate([
+            'bank_name' => 'required|string|max:255',
+            'account_holder_name' => 'required|string|max:255',
+            'account_number' => 'required|string|max:50',
+            'branch_name' => 'required|string|max:255',
+            'ifsc_code' => 'required|string|max:20',
+            'bank_address' => 'required|string|max:500',
+        ]);
+
+        // Get funding detail and update
+        $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
+        $editbankdetail = EditBankDetailRequest::where('user_id', $user_id)->first();
+
+        if ($fundingDetail) {
+            $fundingDetail->update([
+                'bank_name' => $request->bank_name,
+                'account_holder_name' => $request->account_holder_name,
+                'account_number' => $request->account_number,
+                'branch_name' => $request->branch_name,
+                'ifsc_code' => $request->ifsc_code,
+                'bank_address' => $request->bank_address,
+            ]);
+            $editbankdetail->update([
+                'bank_update_status' => 'submitted',
+            ]);
+        } else {
+            FundingDetail::create([
+                'user_id' => $user_id,
+                'bank_name' => $request->bank_name,
+                'account_holder_name' => $request->account_holder_name,
+                'account_number' => $request->account_number,
+                'branch_name' => $request->branch_name,
+                'ifsc_code' => $request->ifsc_code,
+                'bank_address' => $request->bank_address,
+                'status' => 'step4_completed',
+                'submit_status' => 'submited',
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Bank details updated successfully!'
+        ]);
+    }
+
+    /**
+     * Send notification to admin
+     */
+    private function sendAdminNotification($userId, $title, $message, $type)
+    {
+        try {
+            // Get all admin users
+            $adminUsers = \DB::connection('admin_panel')
+                ->table('admin_users')
+                ->where('role', 'admin')
+                ->get();
+
+            foreach ($adminUsers as $admin) {
+                \App\Models\AdminNotification::create([
+                    'user_id' => $userId,
+                    'admin_user_id' => $admin->id,
+                    'title' => $title,
+                    'message' => $message,
+                    'type' => $type,
+                    'is_read' => false,
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to send admin notification: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Verify Bank Details API
+     */
+    public function verifyBankDetails(Request $request)
+    {
+        $request->validate([
+            'account_number' => 'required|string',
+            'ifsc_code' => 'required|string',
+        ]);
+
+        $accountNumber = $request->account_number;
+        $ifscCode = $request->ifsc_code;
+
+        try {
+            // Get bank details from JitoJeapBank table
+            $bank = JitoJeapBank::where('ifsc_code', $ifscCode)->first();
+
+            if (!$bank) {
+                return response()->json([
+                    'success' => false,
+                    'valid' => false,
+                    'message' => 'Bank not found in JITO JEAP registered banks'
+                ]);
+            }
+
+            // Note: Actual bank verification API would be called here
+            // For now, we'll return a success message if the bank is in our system
+            return response()->json([
+                'success' => true,
+                'valid' => true,
+                'message' => 'Bank verified successfully! Branch: ' . ($bank->branch ?? 'N/A')
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'valid' => false,
+                'message' => 'Verification failed: ' . $e->getMessage()
+            ]);
+        }
     }
 
     public function getChapters(Request $request, $pincode)

@@ -163,29 +163,49 @@
     <div class="container py-4">
 
         {{-- Show admin hold remarks for any step --}}
-        @if(isset($user))
+        @if (isset($user))
             @php
                 $remarks = [];
-                if(isset($user->familyDetail) && $user->familyDetail->submit_status == 'resubmit' && $user->familyDetail->admin_remark) {
+                if (
+                    isset($user->familyDetail) &&
+                    $user->familyDetail->submit_status == 'resubmit' &&
+                    $user->familyDetail->admin_remark
+                ) {
                     $remarks[] = ['step' => 'Step 1 (Personal)', 'message' => $user->familyDetail->admin_remark];
                 }
-                if(isset($user->educationDetail) && $user->educationDetail->submit_status == 'resubmit' && $user->educationDetail->admin_remark) {
+                if (
+                    isset($user->educationDetail) &&
+                    $user->educationDetail->submit_status == 'resubmit' &&
+                    $user->educationDetail->admin_remark
+                ) {
                     $remarks[] = ['step' => 'Step 2 (Education)', 'message' => $user->educationDetail->admin_remark];
                 }
-                if(isset($user->fundingDetail) && $user->fundingDetail->submit_status == 'resubmit' && $user->fundingDetail->admin_remark) {
+                if (
+                    isset($user->fundingDetail) &&
+                    $user->fundingDetail->submit_status == 'resubmit' &&
+                    $user->fundingDetail->admin_remark
+                ) {
                     $remarks[] = ['step' => 'Step 4 (Funding)', 'message' => $user->fundingDetail->admin_remark];
                 }
-                if(isset($user->guarantorDetail) && $user->guarantorDetail->submit_status == 'resubmit' && $user->guarantorDetail->admin_remark) {
+                if (
+                    isset($user->guarantorDetail) &&
+                    $user->guarantorDetail->submit_status == 'resubmit' &&
+                    $user->guarantorDetail->admin_remark
+                ) {
                     $remarks[] = ['step' => 'Step 5 (Guarantor)', 'message' => $user->guarantorDetail->admin_remark];
                 }
-                if(isset($user->document) && $user->document->submit_status == 'resubmit' && $user->document->admin_remark) {
+                if (
+                    isset($user->document) &&
+                    $user->document->submit_status == 'resubmit' &&
+                    $user->document->admin_remark
+                ) {
                     $remarks[] = ['step' => 'Step 6/7 (Documents/Final)', 'message' => $user->document->admin_remark];
                 }
             @endphp
 
-            @if(count($remarks) > 0)
+            @if (count($remarks) > 0)
                 <div class="mb-4">
-                    @foreach($remarks as $r)
+                    @foreach ($remarks as $r)
                         <div class="alert alert-warning">
                             <strong>{{ $r['step'] }}:</strong> {{ $r['message'] }}
                         </div>
@@ -262,12 +282,22 @@
                                 <div class="feature-title">Simplified Documentation</div>
                                 <div class="feature-sub">You can view the list of documents here.</div>
                             </div>
-                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none"
+                            {{--  <svg width="30" height="30" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
                                     d="M12 0.5C15.05 0.5 17.9752 1.7115 20.1318 3.86816C22.2885 6.02483 23.5 8.95001 23.5 12C23.5 15.05 22.2885 17.9752 20.1318 20.1318C17.9752 22.2885 15.05 23.5 12 23.5C8.95001 23.5 6.02483 22.2885 3.86816 20.1318C1.7115 17.9752 0.5 15.05 0.5 12C0.5 8.95001 1.7115 6.02483 3.86816 3.86816C6.02483 1.7115 8.95001 0.5 12 0.5ZM12 4.21387C11.4127 4.21387 10.8498 4.44802 10.4346 4.86328C10.0194 5.27853 9.78613 5.84148 9.78613 6.42871V12.2832H7.21094C6.94295 12.2838 6.68064 12.3635 6.45801 12.5127C6.23544 12.6619 6.06241 12.8745 5.95996 13.1221C5.85763 13.3695 5.83077 13.6416 5.88281 13.9043C5.93493 14.1672 6.06373 14.4088 6.25293 14.5986V14.5996L11.0391 19.3867L11.04 19.3877C11.2945 19.6419 11.6394 19.7851 11.999 19.7852C12.3589 19.7852 12.7045 19.6421 12.959 19.3877L17.7471 14.5996V14.5986C17.9363 14.4088 18.0651 14.1672 18.1172 13.9043C18.1692 13.6416 18.1424 13.3695 18.04 13.1221C17.9376 12.8745 17.7646 12.6619 17.542 12.5127C17.3194 12.3635 17.057 12.2838 16.7891 12.2832H14.2139V6.42871C14.2139 5.84148 13.9806 5.27853 13.5654 4.86328C13.1502 4.44802 12.5873 4.21387 12 4.21387Z"
                                     fill="#E0E0E0" stroke="#A0A0A0" />
-                            </svg>
+                            </svg>  --}}
+                            <a href="{{ asset('UNDER-1lakh-List_of_Documents_12122025.pdf') }}" download
+                                style="border-radius:15px;">
+                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg" style="cursor: pointer;">
+
+                                    <path
+                                        d="M12 0.5C15.05 0.5 17.9752 1.7115 20.1318 3.86816C22.2885 6.02483 23.5 8.95001 23.5 12C23.5 15.05 22.2885 17.9752 20.1318 20.1318C17.9752 22.2885 15.05 23.5 12 23.5C8.95001 23.5 6.02483 22.2885 3.86816 20.1318C1.7115 17.9752 0.5 15.05 0.5 12C0.5 8.95001 1.7115 6.02483 3.86816 3.86816C6.02483 1.7115 8.95001 0.5 12 0.5ZM12 4.21387C11.4127 4.21387 10.8498 4.44802 10.4346 4.86328C10.0194 5.27853 9.78613 5.84148 9.78613 6.42871V12.2832H7.21094C6.94295 12.2838 6.68064 12.3635 6.45801 12.5127C6.23544 12.6619 6.06241 12.8745 5.95996 13.1221C5.85763 13.3695 5.83077 13.6416 5.88281 13.9043C5.93493 14.1672 6.06373 14.4088 6.25293 14.5986V14.5996L11.0391 19.3867L11.04 19.3877C11.2945 19.6419 11.6394 19.7851 11.999 19.7852C12.3589 19.7852 12.7045 19.6421 12.959 19.3877L17.7471 14.5996V14.5986C17.9363 14.4088 18.0651 14.1672 18.1172 13.9043C18.1692 13.6416 18.1424 13.3695 18.04 13.1221C17.9376 12.8745 17.7646 12.6619 17.542 12.5127C17.3194 12.3635 17.057 12.2838 16.7891 12.2832H14.2139V6.42871C14.2139 5.84148 13.9806 5.27853 13.5654 4.86328C13.1502 4.44802 12.5873 4.21387 12 4.21387Z"
+                                        fill="#E0E0E0" stroke="#A0A0A0" />
+                                </svg>
+                            </a>
                         </div>
 
                         <div class="feature-box">
@@ -365,12 +395,14 @@
                                 <div class="feature-title">Comprehensive Documentation</div>
                                 <div class="feature-sub">Gather this List of Documents</div>
                             </div>
-                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M12 0.5C15.05 0.5 17.9752 1.7115 20.1318 3.86816C22.2885 6.02483 23.5 8.95001 23.5 12C23.5 15.05 22.2885 17.9752 20.1318 20.1318C17.9752 22.2885 15.05 23.5 12 23.5C8.95001 23.5 6.02483 22.2885 3.86816 20.1318C1.7115 17.9752 0.5 15.05 0.5 12C0.5 8.95001 1.7115 6.02483 3.86816 3.86816C6.02483 1.7115 8.95001 0.5 12 0.5ZM12 4.21387C11.4127 4.21387 10.8498 4.44802 10.4346 4.86328C10.0194 5.27853 9.78613 5.84148 9.78613 6.42871V12.2832H7.21094C6.94295 12.2838 6.68064 12.3635 6.45801 12.5127C6.23544 12.6619 6.06241 12.8745 5.95996 13.1221C5.85763 13.3695 5.83077 13.6416 5.88281 13.9043C5.93493 14.1672 6.06373 14.4088 6.25293 14.5986V14.5996L11.0391 19.3867L11.04 19.3877C11.2945 19.6419 11.6394 19.7851 11.999 19.7852C12.3589 19.7852 12.7045 19.6421 12.959 19.3877L17.7471 14.5996V14.5986C17.9363 14.4088 18.0651 14.1672 18.1172 13.9043C18.1692 13.6416 18.1424 13.3695 18.04 13.1221C17.9376 12.8745 17.7646 12.6619 17.542 12.5127C17.3194 12.3635 17.057 12.2838 16.7891 12.2832H14.2139V6.42871C14.2139 5.84148 13.9806 5.27853 13.5654 4.86328C13.1502 4.44802 12.5873 4.21387 12 4.21387Z"
-                                    fill="#E0E0E0" stroke="#A0A0A0" />
-                            </svg>
+                            <a href="{{ asset('Domestic_%26_Foreign.pdf') }}" download style="border-radius:15px;">
+                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M12 0.5C15.05 0.5 17.9752 1.7115 20.1318 3.86816C22.2885 6.02483 23.5 8.95001 23.5 12C23.5 15.05 22.2885 17.9752 20.1318 20.1318C17.9752 22.2885 15.05 23.5 12 23.5C8.95001 23.5 6.02483 22.2885 3.86816 20.1318C1.7115 17.9752 0.5 15.05 0.5 12C0.5 8.95001 1.7115 6.02483 3.86816 3.86816C6.02483 1.7115 8.95001 0.5 12 0.5ZM12 4.21387C11.4127 4.21387 10.8498 4.44802 10.4346 4.86328C10.0194 5.27853 9.78613 5.84148 9.78613 6.42871V12.2832H7.21094C6.94295 12.2838 6.68064 12.3635 6.45801 12.5127C6.23544 12.6619 6.06241 12.8745 5.95996 13.1221C5.85763 13.3695 5.83077 13.6416 5.88281 13.9043C5.93493 14.1672 6.06373 14.4088 6.25293 14.5986V14.5996L11.0391 19.3867L11.04 19.3877C11.2945 19.6419 11.6394 19.7851 11.999 19.7852C12.3589 19.7852 12.7045 19.6421 12.959 19.3877L17.7471 14.5996V14.5986C17.9363 14.4088 18.0651 14.1672 18.1172 13.9043C18.1692 13.6416 18.1424 13.3695 18.04 13.1221C17.9376 12.8745 17.7646 12.6619 17.542 12.5127C17.3194 12.3635 17.057 12.2838 16.7891 12.2832H14.2139V6.42871C14.2139 5.84148 13.9806 5.27853 13.5654 4.86328C13.1502 4.44802 12.5873 4.21387 12 4.21387Z"
+                                        fill="#E0E0E0" stroke="#A0A0A0" />
+                                </svg>
+                            </a>
                         </div>
                         <div class="feature-box">
                             <svg width="35" height="35" viewBox="0 0 25 25" fill="none"

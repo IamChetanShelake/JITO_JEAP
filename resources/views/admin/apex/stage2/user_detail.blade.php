@@ -803,6 +803,18 @@
                 order: unset;
             }
         }
+
+        /* Document button highlighting styles */
+        .doc-button {
+            transition: all 0.3s ease;
+        }
+
+        .doc-button.active {
+            background: var(--primary-purple) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            border-color: var(--primary-purple) !important;
+        }
     </style>
 @endsection
 
@@ -959,6 +971,10 @@
             </div>
             <div class="step-nav-item step-8" onclick="showStep(8)">
                 <span class="step-number">{{ $isBelowLoan ? 7 : 8 }}</span>
+                <span class="step-title">Courier Receive</span>
+            </div>
+            <div class="step-nav-item step-9" onclick="showStep(9)">
+                <span class="step-number">{{ $isBelowLoan ? 8 : 9 }}</span>
                 <span class="step-title">PDC/Cheque Details</span>
             </div>
 
@@ -1538,7 +1554,8 @@
                                 <div class="form-field">
                                     <label class="form-label">Current Year ITR</label>
                                     <input type="text" class="form-input"
-                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}" readonly>
+                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}"
+                                        readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Last Year ITR</label>
@@ -2205,10 +2222,9 @@
                                                     }
                                                 }
                                             @endphp
-                                            <button onclick="openModal('{{ $href }}', '{{ $label }}')"
-                                                style="text-align: left; padding: 0.75rem 1rem; background: {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'white' }}; color: {{ request()->session()->get('selected_document') == $href ? 'white' : 'var(--text-dark)' }}; border: 1px solid {{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--border-color)' }}; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: {{ request()->session()->get('selected_document') == $href ? '600' : '400' }};"
-                                                onmouseover="this.style.background = '{{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'var(--bg-light)' }}'"
-                                                onmouseout="this.style.background = '{{ request()->session()->get('selected_document') == $href ? 'var(--primary-purple)' : 'white' }}'">
+                                            <button class="doc-button"
+                                                onclick="selectDocument(event, '{{ $href }}', '{{ $label }}')"
+                                                style="text-align: left; padding: 0.75rem 1rem; background: white; color: var(--text-dark); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 400;">
                                                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                                                     <i class="fas fa-file-alt" style="font-size: 0.8rem;"></i>
                                                     {{ $label }}
@@ -2227,7 +2243,13 @@
 
                             <!-- Document Preview -->
                             <div style="padding-left: 1rem; display: flex; flex-direction: column;">
-                                <h5 style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1rem;">Document Preview
+                                <h5
+                                    style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                                    Document Preview
+                                    <button id="docDownloadBtn" onclick="downloadCurrentDoc()"
+                                        style="display: none; padding: 0.4rem 0.8rem; background: var(--primary-purple); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                        <i class="fas fa-download"></i> Download
+                                    </button>
                                 </h5>
                                 <div id="documentPreview"
                                     style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--bg-light); border-radius: 8px; border: 1px solid var(--border-color); padding: 2rem;">
@@ -2260,16 +2282,16 @@
                         {{ $user->document ? ucfirst($user->document->submit_status) : 'Pending' }}
                     </span>
                     {{-- <div class="action-buttons">
-                    <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="btn-approve">Approve</button>
-                    </form>
-                    <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
-                        @csrf
-                        <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
-                        <button type="submit" class="btn-hold">Hold</button>
-                    </form>
-                </div> --}}
+                            <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
+                                @csrf
+                                <button type="submit" class="btn-approve">Approve</button>
+                            </form>
+                            <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
+                                @csrf
+                                <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
+                                <button type="submit" class="btn-hold">Hold</button>
+                            </form>
+                        </div> --}}
                 </div>
             </div>
 
@@ -2306,10 +2328,179 @@
             </div>
         </div>
 
-        <!-- Step 8: PDC/Cheque Details -->
+        <!-- Step 8: Courier Receive -->
         <div class="step-content" id="step-8">
+            @php
+                $isCourierApproved =
+                    isset($pdcDetail) && $pdcDetail && $pdcDetail->courier_receive_status === 'approved';
+                $isCourierHold = isset($pdcDetail) && $pdcDetail && $pdcDetail->courier_receive_status === 'hold';
+            @endphp
             <div class="step-header">
-                <h2 class="step-title-large">Step {{ $isBelowLoan ? 7 : 8 }}: PDC/Cheque Details</h2>
+                <h2 class="step-title-large">Step {{ $isBelowLoan ? 7 : 8 }}: Courier Receive</h2>
+                <div class="step-status">
+                    @if ($isCourierApproved)
+                        <span class="status-badge status-approved">
+                            <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
+                            Approved
+                        </span>
+                    @elseif($isCourierHold)
+                        <span class="status-badge status-hold">
+                            <i class="fas fa-times-circle" style="font-size: 0.6rem;"></i>
+                            Hold
+                        </span>
+                    @else
+                        <span class="status-badge status-pending">
+                            <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                            {{ isset($pdcDetail) ? 'Pending Review' : 'Pending' }}
+                        </span>
+                    @endif
+                </div>
+            </div>
+
+            @if (isset($pdcDetail) && $pdcDetail)
+                <div class="form-data">
+                    <div class="data-group">
+                        <h4>Courier Receive</h4>
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Courier Status</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $isCourierApproved ? 'Approved' : ($isCourierHold ? 'Hold' : 'Pending') }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Received By</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $pdcDetail->courier_received_by ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Received Date</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $pdcDetail->courier_received_date ? $pdcDetail->courier_received_date->format('d M Y') : 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>
+
+                            @if ($pdcDetail->courier_receive_hold_remark)
+                                <div class="form-row">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label">Hold Remark</label>
+                                        <textarea class="form-textarea" readonly>{{ strip_tags($pdcDetail->courier_receive_hold_remark) }}</textarea>
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if (!empty($pdcDetail->courier_receive_verified_documents))
+                                <div class="form-row">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label">Approved Document Checklist</label>
+                                        <div style="display: grid; gap: 0.5rem;">
+                                            @foreach ($pdcDetail->courier_receive_verified_documents as $verifiedDocument)
+                                                <label style="display: flex; gap: 0.5rem; align-items: center;">
+                                                    <input type="checkbox" checked disabled>
+                                                    <span>{{ $verifiedDocument }}</span>
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <form action="{{ route('admin.apex.stage2.courier_receive.store', $user) }}"
+                                        method="POST">
+                                        @csrf
+                                        <div style="display:flex; gap:10px;">
+                                            <div style="flex:1;">
+                                                <label class="form-label">Received By <span
+                                                        style="color: red;">*</span></label>
+                                                <input type="text" name="courier_received_by" class="form-input"
+                                                    value="{{ old('courier_received_by', $pdcDetail->courier_received_by ?? (auth()->user()->name ?? '')) }}"
+                                                    required>
+                                            </div>
+                                            <div style="flex:1;">
+                                                <label class="form-label">Received Date <span
+                                                        style="color: red;">*</span></label>
+                                                <input type="date" name="courier_received_date" class="form-input"
+                                                    value="{{ old('courier_received_date', optional($pdcDetail->courier_received_date)->format('Y-m-d') ?? now()->format('Y-m-d')) }}"
+                                                    required>
+                                            </div>
+                                            <button type="submit" class="btn btn-approve">Save Courier Receive</button>
+                                        </div>
+                                    </form>
+                                </div>
+
+
+                            </div>
+                            <div class="form-field">
+                                <form id="courierReviewForm"
+                                    action="{{ route('admin.apex.stage2.courier_receive.review', $user) }}"
+                                    method="POST">
+                                    @csrf
+                                    <div style="display: grid; gap: 0.75rem;">
+                                        <div>
+                                            <label class="form-label">Uploaded Documents Checklist <span
+                                                    style="color: red;">*</span></label>
+                                            <div
+                                                style="display: grid; gap: 0.5rem; max-height: 260px; overflow-y: auto; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px;">
+                                                @forelse ($courierDocumentChecklist ?? [] as $documentItem)
+                                                    <label>
+                                                        <input type="checkbox" name="courier_verified_documents[]"
+                                                            value="{{ $documentItem['label'] }}"
+                                                            {{ in_array($documentItem['label'], old('courier_verified_documents', $pdcDetail->courier_receive_verified_documents ?? []), true) ? 'checked' : '' }}>
+                                                        <span style="margin: 10px;">{{ $documentItem['label'] }}</span>
+                                                    </label>
+                                                @empty
+                                                    <p style="margin: 0; color: var(--text-light);">No uploaded
+                                                        document list found for this student.</p>
+                                                @endforelse
+                                            </div>
+                                            <!-- Error message for documents validation -->
+                                            <div id="documents-error"
+                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="form-label">Hold Remark <span style="color: red;">*</span>
+                                                for hold only</label>
+                                            <textarea name="courier_receive_hold_remark" rows="4" class="remark-input"
+                                                placeholder="Required only when putting courier receive on hold">{{ old('courier_receive_hold_remark', $pdcDetail->courier_receive_hold_remark ?? '') }}</textarea>
+                                            <!-- Error message for remark validation -->
+                                            <div id="remark-error"
+                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                            <button type="submit" name="courier_action" value="approve"
+                                                class="btn btn-approve">
+                                                Approve Courier Receive
+                                            </button>
+                                            <button type="submit" name="courier_action" value="hold"
+                                                class="btn btn-hold">
+                                                Hold Courier Receive
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            @else
+                <div class="no-data">
+                    <p>Courier receive cannot be processed because PDC/Cheque Details are not submitted yet.</p>
+                </div>
+            @endif
+        </div>
+
+        <!-- Step 9: PDC/Cheque Details -->
+        <div class="step-content" id="step-9">
+            <div class="step-header">
+                <h2 class="step-title-large">Step {{ $isBelowLoan ? 8 : 9 }}: PDC/Cheque Details</h2>
                 <div class="step-status">
                     @if (isset($pdcDetail) && $pdcDetail->status === 'approved')
                         <span class="status-badge status-approved">
@@ -2327,177 +2518,271 @@
                             {{ isset($pdcDetail) ? 'Submitted' : 'Pending' }}
                         </span>
                     @endif
-                    <a href="{{ route('admin.pdc.edit', $user) }}" class="dropdown-item"
-                        style="display: block; padding: 0.75rem 1rem; background: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);color:white; border-radius:15px;">
-                        <i class="fas fa-edit" style="margin-right: 0.5rem;"></i> Edit PDC/Cheque Details
-                    </a>
+                    @if ($isCourierApproved)
+                        <a href="{{ route('admin.pdc.edit', $user) }}" class="dropdown-item"
+                            style="display: block; padding: 0.75rem 1rem; background: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);color:white; border-radius:15px;">
+                            <i class="fas fa-edit" style="margin-right: 0.5rem;"></i> Edit PDC/Cheque Details
+                        </a>
+                    @endif
                 </div>
             </div>
 
             @if (isset($pdcDetail) && $pdcDetail)
-                <div class="form-data">
-                    <!-- Approval Details -->
-                    @if (isset($workingCommitteeApproval) && $workingCommitteeApproval)
-                        <div class="data-group">
-                            <h4>Approval Details</h4>
-                            <div class="form-section">
-                                <div class="form-row">
-                                    <div class="form-field">
-                                        <label class="form-label">Approved Financial Assistance Amount</label>
-                                        <input type="text" class="form-input"
-                                            value="{{ $workingCommitteeApproval->approval_financial_assistance_amount ? '₹' . number_format($workingCommitteeApproval->approval_financial_assistance_amount) : 'N/A' }}"
-                                            readonly>
+                @if (!$isCourierApproved)
+                    <div class="data-group">
+                        <div class="no-data">
+                            <p>PDC/Cheque details are locked until Courier Receive is approved.</p>
+                        </div>
+                    </div>
+                @else
+                    <div class="form-data">
+                        <!-- Approval Details -->
+                        @if (isset($workingCommitteeApproval) && $workingCommitteeApproval)
+                            <div class="data-group">
+                                <h4>Approval Details</h4>
+                                <div class="form-section">
+                                    <div class="form-row">
+                                        <div class="form-field">
+                                            <label class="form-label">Approved Financial Assistance Amount</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $workingCommitteeApproval->approval_financial_assistance_amount ? '₹' . number_format($workingCommitteeApproval->approval_financial_assistance_amount) : 'N/A' }}"
+                                                readonly>
+                                        </div>
+                                        <div class="form-field">
+                                            <label class="form-label">Repayment Type</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ ucfirst($workingCommitteeApproval->repayment_type ?? 'N/A') }}"
+                                                readonly>
+                                        </div>
+                                        <div class="form-field">
+                                            <label class="form-label">No. of Cheques to be Collected</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $workingCommitteeApproval->no_of_cheques_to_be_collected ?? 'N/A' }}"
+                                                readonly>
+                                        </div>
                                     </div>
-                                    <div class="form-field">
-                                        <label class="form-label">Repayment Type</label>
-                                        <input type="text" class="form-input"
-                                            value="{{ ucfirst($workingCommitteeApproval->repayment_type ?? 'N/A') }}"
-                                            readonly>
-                                    </div>
-                                    <div class="form-field">
-                                        <label class="form-label">No. of Cheques to be Collected</label>
-                                        <input type="text" class="form-input"
-                                            value="{{ $workingCommitteeApproval->no_of_cheques_to_be_collected ?? 'N/A' }}"
-                                            readonly>
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-field">
-                                        <label class="form-label">Repayment Starting From</label>
-                                        <input type="text" class="form-input"
-                                            value="{{ $workingCommitteeApproval->repayment_starting_from ? \Carbon\Carbon::parse($workingCommitteeApproval->repayment_starting_from)->format('d M Y') : 'N/A' }}"
-                                            readonly>
+                                    <div class="form-row">
+                                        <div class="form-field">
+                                            <label class="form-label">Repayment Starting From</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $workingCommitteeApproval->repayment_starting_from ? \Carbon\Carbon::parse($workingCommitteeApproval->repayment_starting_from)->format('d M Y') : 'N/A' }}"
+                                                readonly>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    @endif
+                        @endif
 
-                    <!-- First Cheque Image -->
-                    <div class="data-group">
-                        <h4>First Cheque Image</h4>
-                        <div class="form-section">
-                            @if ($pdcDetail->first_cheque_image)
+                        <!-- First Cheque Image -->
+                        <div class="data-group">
+                            <h4>First Cheque Image</h4>
+                            <div class="form-section">
+                                @if ($pdcDetail->first_cheque_image)
+                                    @php
+                                        $chequeImagePath = $pdcDetail->first_cheque_image;
+                                        if (strpos($chequeImagePath, 'http') === 0) {
+                                            $chequeImageUrl = $chequeImagePath;
+                                        } else {
+                                            $chequeImageUrl = asset($chequeImagePath);
+                                        }
+                                        $fileExtension = strtolower(pathinfo($chequeImagePath, PATHINFO_EXTENSION));
+                                        $fileName =
+                                            'First_Cheque_' .
+                                            ($user->application_no ?? $user->id) .
+                                            '.' .
+                                            $fileExtension;
+                                    @endphp
+                                    <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                                        @if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif', 'webp']))
+                                            <!-- Image Preview -->
+                                            <div style="margin-bottom: 1rem;">
+                                                <img src="{{ $chequeImageUrl }}" alt="First Cheque Image"
+                                                    style="max-width: 400px; max-height: 300px; border: 2px solid #dee2e6; border-radius: 8px; object-fit: contain;">
+                                            </div>
+                                            <!-- Action Buttons -->
+                                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                                <a href="{{ $chequeImageUrl }}" target="_blank" class="btn"
+                                                    style="background: var(--primary-blue); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                                <a href="{{ $chequeImageUrl }}" download="{{ $fileName }}"
+                                                    class="btn"
+                                                    style="background: var(--primary-green); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                                    <i class="fas fa-download"></i> Download
+                                                </a>
+                                                <button onclick="printImage('{{ $chequeImageUrl }}')" class="btn"
+                                                    style="background: var(--primary-purple); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                                    <i class="fas fa-print"></i> Print
+                                                </button>
+                                            </div>
+                                        @elseif($fileExtension == 'pdf')
+                                            <!-- PDF Preview -->
+                                            <div style="margin-bottom: 1rem;">
+                                                <iframe src="{{ $chequeImageUrl }}"
+                                                    style="width: 100%; height: 400px; border: 2px solid #dee2e6; border-radius: 8px;"
+                                                    title="First Cheque PDF"></iframe>
+                                            </div>
+                                            <!-- Action Buttons -->
+                                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                                <a href="{{ $chequeImageUrl }}" target="_blank" class="btn"
+                                                    style="background: var(--primary-blue); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                                <a href="{{ $chequeImageUrl }}" download="{{ $fileName }}"
+                                                    class="btn"
+                                                    style="background: var(--primary-green); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                                    <i class="fas fa-download"></i> Download
+                                                </a>
+                                                <button onclick="printPDF('{{ $chequeImageUrl }}')" class="btn"
+                                                    style="background: var(--primary-purple); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                                    <i class="fas fa-print"></i> Print
+                                                </button>
+                                            </div>
+                                        @else
+                                            <span style="color: var(--text-light);">Unsupported file format</span>
+                                        @endif
+                                    </div>
+                                @else
+                                    <p style="color: var(--text-light);">No cheque image uploaded</p>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Cheque Details Table -->
+                        <div class="data-group">
+                            <h4>Cheque Details</h4>
+                            <div class="table-container">
                                 @php
-                                    $chequeImagePath = $pdcDetail->first_cheque_image;
-                                    if (strpos($chequeImagePath, 'http') === 0) {
-                                        $chequeImageUrl = $chequeImagePath;
-                                    } else {
-                                        $chequeImageUrl = asset($chequeImagePath);
-                                    }
-                                    $fileExtension = strtolower(pathinfo($chequeImagePath, PATHINFO_EXTENSION));
-                                    $fileName =
-                                        'First_Cheque_' . ($user->application_no ?? $user->id) . '.' . $fileExtension;
+                                    $chequeDetails = json_decode($pdcDetail->cheque_details, true);
                                 @endphp
-                                <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;">
-                                    @if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif', 'webp']))
-                                        <!-- Image Preview -->
-                                        <div style="margin-bottom: 1rem;">
-                                            <img src="{{ $chequeImageUrl }}" alt="First Cheque Image"
-                                                style="max-width: 400px; max-height: 300px; border: 2px solid #dee2e6; border-radius: 8px; object-fit: contain;">
-                                        </div>
-                                        <!-- Action Buttons -->
-                                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                                            <a href="{{ $chequeImageUrl }}" target="_blank" class="btn"
-                                                style="background: var(--primary-blue); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
-                                                <i class="fas fa-eye"></i> View
-                                            </a>
-                                            <a href="{{ $chequeImageUrl }}" download="{{ $fileName }}"
-                                                class="btn"
-                                                style="background: var(--primary-green); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
-                                                <i class="fas fa-download"></i> Download
-                                            </a>
-                                            <button onclick="printImage('{{ $chequeImageUrl }}')" class="btn"
-                                                style="background: var(--primary-purple); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
-                                                <i class="fas fa-print"></i> Print
-                                            </button>
-                                        </div>
-                                    @elseif($fileExtension == 'pdf')
-                                        <!-- PDF Preview -->
-                                        <div style="margin-bottom: 1rem;">
-                                            <iframe src="{{ $chequeImageUrl }}"
-                                                style="width: 100%; height: 400px; border: 2px solid #dee2e6; border-radius: 8px;"
-                                                title="First Cheque PDF"></iframe>
-                                        </div>
-                                        <!-- Action Buttons -->
-                                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                                            <a href="{{ $chequeImageUrl }}" target="_blank" class="btn"
-                                                style="background: var(--primary-blue); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
-                                                <i class="fas fa-eye"></i> View
-                                            </a>
-                                            <a href="{{ $chequeImageUrl }}" download="{{ $fileName }}"
-                                                class="btn"
-                                                style="background: var(--primary-green); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
-                                                <i class="fas fa-download"></i> Download
-                                            </a>
-                                            <button onclick="printPDF('{{ $chequeImageUrl }}')" class="btn"
-                                                style="background: var(--primary-purple); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
-                                                <i class="fas fa-print"></i> Print
-                                            </button>
-                                        </div>
-                                    @else
-                                        <span style="color: var(--text-light);">Unsupported file format</span>
-                                    @endif
-                                </div>
-                            @else
-                                <p style="color: var(--text-light);">No cheque image uploaded</p>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Cheque Details Table -->
-                    <div class="data-group">
-                        <h4>Cheque Details</h4>
-                        <div class="table-container">
-                            @php
-                                $chequeDetails = json_decode($pdcDetail->cheque_details, true);
-                            @endphp
-                            @if ($chequeDetails && count($chequeDetails) > 0)
-                                <table class="custom-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Sr No</th>
-                                            <th>Student Name</th>
-                                            <th>Application No.</th>
-                                            <th>Repayment Date</th>
-                                            <th>Amount (₹)</th>
-                                            <th>Bank Name</th>
-                                            <th>IFSC Code</th>
-                                            <th>Account Number</th>
-                                            <th>Cheque Number</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($chequeDetails as $index => $cheque)
+                                @if ($chequeDetails && count($chequeDetails) > 0)
+                                    <table class="custom-table">
+                                        <thead>
                                             <tr>
-                                                <td>{{ $index + 1 }}</td>
-                                                <td>{{ $user->name ?? 'N/A' }}</td>
-                                                <td>{{ $user->application_no ?? 'N/A' }}</td>
-                                                <td>{{ isset($cheque['cheque_date']) ? date('d M Y', strtotime($cheque['cheque_date'])) : 'N/A' }}
-                                                </td>
-                                                <td class="amount-cell">₹{{ number_format($cheque['amount'] ?? 0) }}</td>
-                                                <td>{{ $cheque['bank_name'] ?? 'N/A' }}</td>
-                                                <td>{{ $cheque['ifsc'] ?? 'N/A' }}</td>
-                                                <td>{{ $cheque['account_number'] ?? 'N/A' }}</td>
-                                                <td>{{ $cheque['cheque_number'] ?? 'N/A' }}</td>
+                                                <th>Sr No</th>
+                                                <th>Student Name</th>
+                                                <th>Application No.</th>
+                                                <th>Repayment Date</th>
+                                                <th>Amount (₹)</th>
+                                                <th>Bank Name</th>
+                                                <th>IFSC Code</th>
+                                                <th>Account Number</th>
+                                                <th>Cheque Number</th>
                                             </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            @else
-                                <div class="no-data">
-                                    <p>No cheque details available.</p>
-                                </div>
-                            @endif
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($chequeDetails as $index => $cheque)
+                                                <tr>
+                                                    <td>{{ $index + 1 }}</td>
+                                                    <td>{{ $user->name ?? 'N/A' }}</td>
+                                                    <td>{{ $user->application_no ?? 'N/A' }}</td>
+                                                    <td>{{ isset($cheque['cheque_date']) ? date('d M Y', strtotime($cheque['cheque_date'])) : 'N/A' }}
+                                                    </td>
+                                                    <td class="amount-cell">₹{{ number_format($cheque['amount'] ?? 0) }}
+                                                    </td>
+                                                    <td>{{ $cheque['bank_name'] ?? 'N/A' }}</td>
+                                                    <td>{{ $cheque['ifsc'] ?? 'N/A' }}</td>
+                                                    <td>{{ $cheque['account_number'] ?? 'N/A' }}</td>
+                                                    <td>{{ $cheque['cheque_number'] ?? 'N/A' }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <div class="no-data">
+                                        <p>No cheque details available.</p>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
+
+
+
                     </div>
-
-
-
-                </div>
+                @endif
             @else
                 <div class="no-data">
                     <p>PDC/Cheque Details not submitted yet.</p>
+                </div>
+            @endif
+
+            <!-- Edit Bank Detail Request Section -->
+            @if (isset($editBankDetailRequest) && $editBankDetailRequest)
+                <div class="form-data mt-4" style="border: 2px solid #FBBA00; border-radius: 15px; padding: 1.5rem;">
+                    <div class="data-group">
+                        <h4 style="color: white;">
+                            <i class="bi bi-pencil-square me-2"></i>
+                            Edit Bank Detail Request
+                        </h4>
+
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Status</label>
+                                    @if ($editBankDetailRequest->status === 'pending')
+                                        <span class="status-badge status-pending">
+                                            <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                                            Pending
+                                        </span>
+                                    @elseif($editBankDetailRequest->status === 'approved')
+                                        <span class="status-badge status-approved">
+                                            <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
+                                            Approved
+                                        </span>
+                                    @elseif($editBankDetailRequest->status === 'rejected')
+                                        <span class="status-badge status-hold">
+                                            <i class="fas fa-times-circle" style="font-size: 0.6rem;"></i>
+                                            Rejected
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="form-field text-end">
+                                    <label class="form-label">Submitted On</label>
+                                    <div class="data-value">
+                                        {{ $editBankDetailRequest->created_at ? \Carbon\Carbon::parse($editBankDetailRequest->created_at)->format('d M Y H:i') : 'N/A' }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if ($editBankDetailRequest->reason)
+                                <div class="form-field mt-3">
+                                    <label class="form-label">User Reason</label>
+                                    <div class="data-value"
+                                        style="background: #f8f9fa; padding: 1rem; border-radius: 8px;text-align: justify;">
+                                        {{ $editBankDetailRequest->reason }}
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if ($editBankDetailRequest->status === 'approved')
+                                <div class="alert alert-success mt-3" style="border-radius: 10px;">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    Request approved. User can now edit bank details.
+                                </div>
+                            @elseif($editBankDetailRequest->status === 'rejected')
+                                <div class="form-field mt-3">
+                                    <label class="form-label">Admin Remark</label>
+                                    <div class="data-value"
+                                        style="background: #f8d7da; padding: 1rem; border-radius: 8px; color: #721c24;">
+                                        {!! $editBankDetailRequest->admin_remark !!}
+                                    </div>
+                                </div>
+                            @elseif($editBankDetailRequest->status === 'pending')
+                                <div class="mt-4">
+                                    <div class="d-flex gap-3">
+                                        <button type="button" class="btn btn-approve"
+                                            onclick="approveEditBankRequest({{ $user->id }})">
+                                            <i class="fas fa-check me-1"></i> Approve Request
+                                        </button>
+                                        <button type="button" class="btn btn-reject"
+                                            onclick="showRejectModal({{ $user->id }})">
+                                            <i class="fas fa-times me-1"></i> Reject Request
+                                        </button>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             @endif
 
@@ -2743,34 +3028,43 @@
         }
     });
 
+    // Select document and highlight it
+    function selectDocument(event, url, title) {
+        event.preventDefault();
+
+        // Remove active class from all buttons (CSS will handle styling)
+        document.querySelectorAll('.doc-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Add active class to clicked button
+        const clickedBtn = event.target.closest('.doc-button');
+        if (clickedBtn) {
+            clickedBtn.classList.add('active');
+        }
+
+        // Open the modal/preview
+        openModal(url, title);
+    }
+
     // Document preview function for right-side display
+    let currentDocUrl = '';
+
     function openModal(url, title = 'Document Preview') {
         const previewContainer = document.getElementById('documentPreview');
+        const downloadBtn = document.getElementById('docDownloadBtn');
         const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|ico)$/i.test(url);
+
+        // Store current URL for download
+        currentDocUrl = url;
 
         // Clear existing preview content
         previewContainer.innerHTML = '';
 
-        // Create preview title
-        const previewTitle = document.createElement('div');
-        previewTitle.style.cssText =
-            'margin-bottom: 1rem; padding: 0.5rem; background: var(--primary-purple); color: white; border-radius: 6px; font-weight: 600; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center;';
-        previewTitle.textContent = title;
-
-        // Add close button to preview
-        const closeBtn = document.createElement('button');
-        closeBtn.innerHTML = '<i class="fas fa-times"></i>';
-        closeBtn.style.cssText =
-            'background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;';
-        closeBtn.onclick = function() {
-            previewContainer.innerHTML = `
-            <i class="fas fa-file-image" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
-            <p style="color: var(--text-light); font-size: 1rem;">Select a document from the left to preview</p>
-            <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Click on any document name to view its content</p>
-        `;
-        };
-        previewTitle.appendChild(closeBtn);
-        previewContainer.appendChild(previewTitle);
+        // Show download button in header
+        if (downloadBtn) {
+            downloadBtn.style.display = 'inline-flex';
+        }
 
         // Create preview content
         if (isImage) {
@@ -2785,22 +3079,32 @@
             iframe.style.cssText = 'width: 100%; height: 400px; border: none; border-radius: 6px;';
             previewContainer.appendChild(iframe);
         }
+    }
 
-        // Add download button
-        const downloadBtn = document.createElement('button');
-        downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';
-        downloadBtn.style.cssText =
-            'margin-top: 1rem; padding: 0.5rem 1rem; background: var(--primary-purple); color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;';
-        downloadBtn.onclick = function() {
-            window.open(url, '_blank');
-        };
-        downloadBtn.onmouseover = function() {
-            this.style.background = '#4a40a8';
-        };
-        downloadBtn.onmouseout = function() {
-            this.style.background = 'var(--primary-purple)';
-        };
-        previewContainer.appendChild(downloadBtn);
+    // Reset preview to initial state
+    function resetPreview() {
+        const previewContainer = document.getElementById('documentPreview');
+        const downloadBtn = document.getElementById('docDownloadBtn');
+
+        previewContainer.innerHTML = `
+            <i class="fas fa-file-image" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+            <p style="color: var(--text-light); font-size: 1rem;">Select a document from the left to preview</p>
+            <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Click on any document name to view its content</p>
+        `;
+
+        // Hide download button
+        if (downloadBtn) {
+            downloadBtn.style.display = 'none';
+        }
+
+        currentDocUrl = '';
+    }
+
+    // Download current document
+    function downloadCurrentDoc() {
+        if (currentDocUrl) {
+            window.open(currentDocUrl, '_blank');
+        }
     }
 
     // Dropdown toggle function
@@ -2840,12 +3144,76 @@
             };
         }
     }
+
+    // Edit Bank Detail Request Functions
+    function approveEditBankRequest(userId) {
+        if (confirm(
+                'Are you sure you want to approve this edit bank detail request? The user will be able to edit their bank details.'
+            )) {
+            fetch('{{ route('admin.apex.stage2.approve.edit.bank.request') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Error approving request');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+        }
+    }
+
+    function showRejectModal(userId) {
+        const remark = prompt('Please enter the reason for rejection:');
+        if (remark === null || remark.trim() === '') {
+            return;
+        }
+
+        fetch('{{ route('admin.apex.stage2.reject.edit.bank.request') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    admin_remark: remark
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message || 'Error rejecting request');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+    }
 </script>
 
 <script>
     $(document).ready(function() {
         $('textarea:not([readonly]):not([disabled]):not(.swal2-textarea)').each(function() {
             const $textarea = $(this);
+
             if ($textarea.next('.note-editor').length) {
                 return;
             }
@@ -2858,7 +3226,14 @@
                     ['para', ['ul', 'ol', 'paragraph']],
                     ['insert', ['link']],
                     ['view', ['codeview']]
-                ]
+                ],
+                callbacks: {
+                    onInit: function() {
+                        if ($(this).summernote('isEmpty')) {
+                            $(this).summernote('code', '');
+                        }
+                    }
+                }
             });
         });
     });
@@ -2885,3 +3260,132 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Courier Receive Review Form Validation
+    // Use interval to check for form existence since it's loaded dynamically
+    function initCourierReceiveValidation() {
+
+        const reviewForm = document.getElementById('courierReviewForm');
+        if (!reviewForm) return false;
+
+        if (reviewForm.dataset.validationInitialized) return true;
+        reviewForm.dataset.validationInitialized = 'true';
+
+        const remarkInput = reviewForm.querySelector('textarea[name="courier_receive_hold_remark"]');
+        const documentCheckboxes = reviewForm.querySelectorAll('input[name="courier_verified_documents[]"]');
+
+        const documentsErrorDiv = document.getElementById('documents-error');
+        const remarkErrorDiv = document.getElementById('remark-error');
+
+        function showDocumentsError(message) {
+            documentsErrorDiv.textContent = message;
+            documentsErrorDiv.style.display = 'block';
+        }
+
+        function hideDocumentsError() {
+            documentsErrorDiv.style.display = 'none';
+        }
+
+        function showRemarkError(message) {
+            remarkErrorDiv.textContent = message;
+            remarkErrorDiv.style.display = 'block';
+        }
+
+        function hideRemarkError() {
+            remarkErrorDiv.style.display = 'none';
+        }
+
+        reviewForm.addEventListener('submit', function(e) {
+
+            const action = e.submitter.value;
+
+            hideDocumentsError();
+            hideRemarkError();
+
+            // APPROVE VALIDATION
+            if (action === "approve") {
+
+                let allChecked = true;
+                let unchecked = [];
+
+                documentCheckboxes.forEach(function(checkbox) {
+
+                    const labelSpan = checkbox.closest('label').querySelector('span');
+                    const documentName = labelSpan ? labelSpan.textContent.trim() : checkbox.value;
+
+                    if (documentName.toLowerCase() !== "other") {
+
+                        if (!checkbox.checked) {
+                            allChecked = false;
+                            unchecked.push(documentName);
+                        }
+
+                    }
+
+                });
+
+                if (!allChecked) {
+
+                    e.preventDefault();
+
+                    showDocumentsError(
+                        "Please select all documents"
+                    );
+
+                    documentsErrorDiv.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+
+                    return;
+                }
+
+            }
+
+            // HOLD VALIDATION
+            if (action === "hold") {
+
+                const remarkValue = remarkInput.value.trim();
+
+                if (remarkValue === "") {
+
+                    e.preventDefault();
+
+                    showRemarkError(
+                        "Please provide a remark when putting Courier Receive on hold."
+                    );
+
+                    remarkErrorDiv.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+
+                    return;
+                }
+
+            }
+
+        });
+
+        return true;
+    }
+
+    // Initialize on DOM ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Try to initialize immediately
+        if (!initCourierReceiveValidation()) {
+            // If form not found, try again after delays
+            setTimeout(initCourierReceiveValidation, 500);
+            setTimeout(initCourierReceiveValidation, 1000);
+            setTimeout(initCourierReceiveValidation, 2000);
+        }
+    });
+
+    // Also try when step nav items are clicked
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.step-nav-item')) {
+            setTimeout(initCourierReceiveValidation, 300);
+        }
+    });
+</script>

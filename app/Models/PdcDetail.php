@@ -15,6 +15,9 @@ class PdcDetail extends Model
 
     protected $casts = [
         'cheque_details' => 'array',
+        'courier_received_date' => 'date',
+        'courier_receive_processed_at' => 'datetime',
+        'courier_receive_verified_documents' => 'array',
     ];
 
     public function user()

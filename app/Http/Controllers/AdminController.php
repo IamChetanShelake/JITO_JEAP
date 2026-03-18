@@ -1355,33 +1355,42 @@ class AdminController extends Controller
         $existingApproval = $user->workingCommitteeApproval;
 
         if ($existingApproval) {
-            $validated['disbursement_system'] = $existingApproval->disbursement_system;
-            $validated['disbursement_in_year'] = $existingApproval->disbursement_in_year;
-            $validated['disbursement_in_half_year'] = $existingApproval->disbursement_in_half_year;
-            $validated['yearly_amounts'] = (array) $existingApproval->yearly_amounts;
-            $validated['half_yearly_amounts'] = (array) $existingApproval->half_yearly_amounts;
-            $validated['approval_financial_assistance_amount'] = $existingApproval->approval_financial_assistance_amount;
+            $validated['disbursement_system'] = $request->disbursement_system ?? $existingApproval->disbursement_system;
 
-            if ($existingApproval->disbursement_system === 'yearly') {
-                $validated['yearly_dates'] = array_values($request->input('yearly_dates', (array) $existingApproval->yearly_dates));
+            if ($validated['disbursement_system'] === 'yearly') {
+                $validated['disbursement_in_year'] = $request->input(
+                    'disbursement_in_year',
+                    $existingApproval->disbursement_in_year
+                );
+                $validated['yearly_dates'] = array_values($request->input(
+                    'yearly_dates',
+                    (array) $existingApproval->yearly_dates
+                ));
+                $validated['yearly_amounts'] = array_values($request->input(
+                    'yearly_amounts',
+                    (array) $existingApproval->yearly_amounts
+                ));
+                $validated['disbursement_in_half_year'] = $existingApproval->disbursement_in_half_year;
                 $validated['half_yearly_dates'] = (array) $existingApproval->half_yearly_dates;
-
-                if (count($validated['yearly_dates']) !== count((array) $existingApproval->yearly_dates)) {
-                    throw ValidationException::withMessages([
-                        'yearly_dates' => 'Only the existing disbursement dates can be updated here.',
-                    ]);
-                }
+                $validated['half_yearly_amounts'] = (array) $existingApproval->half_yearly_amounts;
             }
 
-            if ($existingApproval->disbursement_system === 'half_yearly') {
-                $validated['half_yearly_dates'] = array_values($request->input('half_yearly_dates', (array) $existingApproval->half_yearly_dates));
+            if ($validated['disbursement_system'] === 'half_yearly') {
+                $validated['disbursement_in_half_year'] = $request->input(
+                    'disbursement_in_half_year',
+                    $existingApproval->disbursement_in_half_year
+                );
+                $validated['half_yearly_dates'] = array_values($request->input(
+                    'half_yearly_dates',
+                    (array) $existingApproval->half_yearly_dates
+                ));
+                $validated['half_yearly_amounts'] = array_values($request->input(
+                    'half_yearly_amounts',
+                    (array) $existingApproval->half_yearly_amounts
+                ));
+                $validated['disbursement_in_year'] = $existingApproval->disbursement_in_year;
                 $validated['yearly_dates'] = (array) $existingApproval->yearly_dates;
-
-                if (count($validated['half_yearly_dates']) !== count((array) $existingApproval->half_yearly_dates)) {
-                    throw ValidationException::withMessages([
-                        'half_yearly_dates' => 'Only the existing disbursement dates can be updated here.',
-                    ]);
-                }
+                $validated['yearly_amounts'] = (array) $existingApproval->yearly_amounts;
             }
         }
 
@@ -3069,6 +3078,18 @@ class AdminController extends Controller
             return back()->with('error', 'PDC details not found.');
         }
 
+        $oldValues = $pdcDetail->only([
+            'courier_received_by',
+            'courier_received_date',
+            'courier_receive_status',
+            'courier_receive_hold_remark',
+            'courier_receive_processed_by',
+            'courier_receive_processed_at',
+            'courier_receive_verified_documents',
+            'status',
+            'admin_reject_remark',
+        ]);
+
         $pdcDetail->update([
             'courier_received_by' => $request->courier_received_by,
             'courier_received_date' => $request->courier_received_date,
@@ -3080,6 +3101,38 @@ class AdminController extends Controller
             'status' => 'submitted',
             'admin_reject_remark' => null,
         ]);
+
+        $newValues = $pdcDetail->fresh()->only([
+            'courier_received_by',
+            'courier_received_date',
+            'courier_receive_status',
+            'courier_receive_hold_remark',
+            'courier_receive_processed_by',
+            'courier_receive_processed_at',
+            'courier_receive_verified_documents',
+            'status',
+            'admin_reject_remark',
+        ]);
+
+        $actor = Auth::user();
+        if ($actor) {
+            $this->logUserActivity(
+                processType: 'courier_receive',
+                processAction: 'saved',
+                processDescription: 'Courier receive details saved',
+                module: 'pdc',
+                oldValues: $oldValues,
+                newValues: $newValues,
+                additionalData: [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                ],
+                targetUserId: $user->id,
+                actorId: $actor->id,
+                actorName: $actor->name,
+                actorRole: $actor->role
+            );
+        }
 
         return back()->with('success', 'Courier receive details saved successfully.');
     }
@@ -3106,6 +3159,16 @@ class AdminController extends Controller
                 'courier_receive_hold_remark' => 'required|string|max:2000',
             ]);
 
+            $oldValues = $pdcDetail->only([
+                'courier_receive_status',
+                'courier_receive_hold_remark',
+                'courier_receive_processed_by',
+                'courier_receive_processed_at',
+                'courier_receive_verified_documents',
+                'status',
+                'admin_reject_remark',
+            ]);
+
             $pdcDetail->update([
                 'courier_receive_status' => 'hold',
                 'courier_receive_hold_remark' => $request->courier_receive_hold_remark,
@@ -3115,6 +3178,37 @@ class AdminController extends Controller
                 'status' => 'correction_required',
                 'admin_reject_remark' => $request->courier_receive_hold_remark,
             ]);
+
+            $newValues = $pdcDetail->fresh()->only([
+                'courier_receive_status',
+                'courier_receive_hold_remark',
+                'courier_receive_processed_by',
+                'courier_receive_processed_at',
+                'courier_receive_verified_documents',
+                'status',
+                'admin_reject_remark',
+            ]);
+
+            $actor = Auth::user();
+            if ($actor) {
+                $this->logUserActivity(
+                    processType: 'courier_receive',
+                    processAction: 'hold',
+                    processDescription: $request->courier_receive_hold_remark,
+                    module: 'pdc',
+                    oldValues: $oldValues,
+                    newValues: $newValues,
+                    additionalData: [
+                        'user_id' => $user->id,
+                        'user_name' => $user->name,
+                        'verified_documents' => [],
+                    ],
+                    targetUserId: $user->id,
+                    actorId: $actor->id,
+                    actorName: $actor->name,
+                    actorRole: $actor->role
+                );
+            }
 
             try {
                 Mail::to($user->email)->send(new SendBackForCorrectionMail($user, $request->courier_receive_hold_remark));
@@ -3158,6 +3252,16 @@ class AdminController extends Controller
             ]);
         }
 
+        $oldValues = $pdcDetail->only([
+            'courier_receive_status',
+            'courier_receive_hold_remark',
+            'courier_receive_processed_by',
+            'courier_receive_processed_at',
+            'courier_receive_verified_documents',
+            'status',
+            'admin_reject_remark',
+        ]);
+
         $pdcDetail->update([
             'courier_receive_status' => 'approved',
             'courier_receive_hold_remark' => null,
@@ -3167,6 +3271,37 @@ class AdminController extends Controller
             'status' => $pdcDetail->status === 'approved' ? 'approved' : 'submitted',
             'admin_reject_remark' => null,
         ]);
+
+        $newValues = $pdcDetail->fresh()->only([
+            'courier_receive_status',
+            'courier_receive_hold_remark',
+            'courier_receive_processed_by',
+            'courier_receive_processed_at',
+            'courier_receive_verified_documents',
+            'status',
+            'admin_reject_remark',
+        ]);
+
+        $actor = Auth::user();
+        if ($actor) {
+            $this->logUserActivity(
+                processType: 'courier_receive',
+                processAction: 'approved',
+                processDescription: 'Courier receive approved',
+                module: 'pdc',
+                oldValues: $oldValues,
+                newValues: $newValues,
+                additionalData: [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'verified_documents' => $approvedDocuments,
+                ],
+                targetUserId: $user->id,
+                actorId: $actor->id,
+                actorName: $actor->name,
+                actorRole: $actor->role
+            );
+        }
 
         return back()->with('success', 'Courier receive approved successfully.');
     }
@@ -3332,10 +3467,22 @@ class AdminController extends Controller
             return back()->with('error', 'Courier receive approval is required before processing PDC details.');
         }
 
+        $oldValues = $pdcDetail->only([
+            'status',
+            'admin_remark',
+            'processed_by',
+        ]);
+
         $pdcDetail->update([
             'status' => 'approved',
             'admin_remark' => $request->admin_remark,
             'processed_by' => Auth::id(),
+        ]);
+
+        $newValues = $pdcDetail->fresh()->only([
+            'status',
+            'admin_remark',
+            'processed_by',
         ]);
 
         // Update workflow status
@@ -3345,6 +3492,26 @@ class AdminController extends Controller
                 'current_stage' => 'pdc',
                 'final_status' => 'approved',
             ]);
+        }
+
+        $actor = Auth::user();
+        if ($actor) {
+            $this->logUserActivity(
+                processType: 'pdc',
+                processAction: 'approved',
+                processDescription: $request->admin_remark ?? 'PDC approved',
+                module: 'pdc',
+                oldValues: $oldValues,
+                newValues: $newValues,
+                additionalData: [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                ],
+                targetUserId: $user->id,
+                actorId: $actor->id,
+                actorName: $actor->name,
+                actorRole: $actor->role
+            );
         }
 
         return back()->with('success', 'PDC approved successfully');
@@ -3366,11 +3533,43 @@ class AdminController extends Controller
             return back()->with('error', 'Courier receive approval is required before processing PDC details.');
         }
 
+        $oldValues = $pdcDetail->only([
+            'status',
+            'admin_remark',
+            'processed_by',
+        ]);
+
         $pdcDetail->update([
             'status' => 'correction_required',
             'admin_remark' => $request->admin_remark,
             'processed_by' => Auth::id(),
         ]);
+
+        $newValues = $pdcDetail->fresh()->only([
+            'status',
+            'admin_remark',
+            'processed_by',
+        ]);
+
+        $actor = Auth::user();
+        if ($actor) {
+            $this->logUserActivity(
+                processType: 'pdc',
+                processAction: 'correction_required',
+                processDescription: $request->admin_remark,
+                module: 'pdc',
+                oldValues: $oldValues,
+                newValues: $newValues,
+                additionalData: [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                ],
+                targetUserId: $user->id,
+                actorId: $actor->id,
+                actorName: $actor->name,
+                actorRole: $actor->role
+            );
+        }
 
         return back()->with('success', 'PDC sent back for correction');
     }
@@ -3388,6 +3587,26 @@ class AdminController extends Controller
 
         if (!$this->isCourierReceiveApproved($user->pdcDetail)) {
             return back()->with('error', 'Courier receive approval is required before editing PDC details.');
+        }
+
+        $actor = Auth::user();
+        if ($actor) {
+            $this->logUserActivity(
+                processType: 'pdc',
+                processAction: 'edit_view',
+                processDescription: 'PDC edit page opened',
+                module: 'pdc',
+                oldValues: null,
+                newValues: null,
+                additionalData: [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                ],
+                targetUserId: $user->id,
+                actorId: $actor->id,
+                actorName: $actor->name,
+                actorRole: $actor->role
+            );
         }
 
         // Load Working Committee Approval details
@@ -3436,6 +3655,13 @@ class AdminController extends Controller
             return back()->with('error', 'Courier receive approval is required before updating PDC details.');
         }
 
+        $oldValues = $pdcDetail->only([
+            'first_cheque_image',
+            'cheque_details',
+            'status',
+            'processed_by',
+        ]);
+
         $normalizedChequeDetails = collect($request->cheque_details)
             ->values()
             ->map(function ($cheque, $index) {
@@ -3473,6 +3699,33 @@ class AdminController extends Controller
             'status' => 'submitted', // Reset status to submitted for review
             'processed_by' => Auth::id(),
         ]);
+
+        $newValues = $pdcDetail->fresh()->only([
+            'first_cheque_image',
+            'cheque_details',
+            'status',
+            'processed_by',
+        ]);
+
+        $actor = Auth::user();
+        if ($actor) {
+            $this->logUserActivity(
+                processType: 'pdc',
+                processAction: 'updated',
+                processDescription: 'PDC details updated',
+                module: 'pdc',
+                oldValues: $oldValues,
+                newValues: $newValues,
+                additionalData: [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                ],
+                targetUserId: $user->id,
+                actorId: $actor->id,
+                actorName: $actor->name,
+                actorRole: $actor->role
+            );
+        }
 
         return redirect()->route('admin.apex.stage2.user.detail', $user)
             ->with('success', 'PDC details updated successfully');

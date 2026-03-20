@@ -550,6 +550,146 @@ class ReportController extends Controller
     /**
      * Graph-based financial assistance report (HTML preview + PDF download).
      */
+    // public function financialGraphReport(Request $request)
+    // {
+    //     $startDate = Carbon::parse($request->input('start_date', '2023-07-01'))->startOfDay();
+    //     $endDate   = Carbon::parse($request->input('end_date', now()->toDateString()))->endOfDay();
+
+    //     $applications = User::with([
+    //         'educationDetail',
+    //         'chapterMaster.zone',
+    //         'workflowStatus',
+    //         'workingCommitteeApproval',
+    //     ])->where('role', 'user')
+    //         ->whereBetween('created_at', [$startDate, $endDate])
+    //         ->get();
+
+    //     $courseTypeStats = [
+    //         'Domestic' => ['UG' => 0, 'PG' => 0],
+    //         'Foreign'  => ['UG' => 0, 'PG' => 0],
+    //     ];
+    //     foreach ($applications as $user) {
+    //         $courseType = $this->resolveCourseType($user->educationDetail);
+    //         $faType     = $this->resolveFaType($user->educationDetail);
+    //         if (isset($courseTypeStats[$faType][$courseType])) {
+    //             $courseTypeStats[$faType][$courseType]++;
+    //         }
+    //     }
+
+    //     $totalApplications = $applications->count();
+
+    //     $zoneCounts = $applications->groupBy(function ($user) {
+    //         return $user->chapterMaster?->zone?->zone_name ?? $user->zone ?? 'N/A';
+    //     })->map->count()->sortDesc();
+
+    //     $chapterCounts = $applications->groupBy(function ($user) {
+    //         return $user->chapterMaster?->chapter_name ?? $user->chapter ?? 'N/A';
+    //     })->map->count()->sortDesc();
+
+    //     $rejected = $applications->filter(function ($user) {
+    //         return ($user->workflowStatus?->final_status ?? null) === 'rejected';
+    //     });
+
+    //     $rejectedByZone = $rejected->groupBy(function ($user) {
+    //         return $user->chapterMaster?->zone?->zone_name ?? $user->zone ?? 'N/A';
+    //     })->map->count()->sortDesc();
+
+    //     $totalSanctioned = (float) $applications->sum(function ($user) {
+    //         return (float) ($user->workingCommitteeApproval?->approval_financial_assistance_amount ?? 0);
+    //     });
+
+    //     $totalDisbursed = (float) \App\Models\Repayment::query()
+    //         ->whereNotNull('payment_date')
+    //         ->whereBetween('payment_date', [$startDate, $endDate])
+    //         ->sum('amount');
+
+    //     $totalDonations = (float) \App\Models\DonorPaymentDetail::query()
+    //         ->whereNotNull('payment_date')
+    //         ->whereBetween('payment_date', [$startDate, $endDate])
+    //         ->sum('amount');
+
+    //     $financialSummary = [
+    //         'donations'  => $totalDonations,
+    //         'sanctioned' => $totalSanctioned,
+    //         'disbursed'  => $totalDisbursed,
+    //     ];
+
+    //     $committeeMembers = \App\Models\Donor::query()
+    //         ->leftJoin('donor_personal_details as dpd', 'dpd.donor_id', '=', 'donors.id')
+    //         ->where('donors.donor_type', \App\Models\Donor::TYPE_MEMBER)
+    //         ->orderBy('donors.id', 'desc')
+    //         ->take(15)
+    //         ->get([
+    //             'donors.id',
+    //             'donors.name',
+    //             'dpd.title',
+    //             'dpd.first_name',
+    //             'dpd.middle_name',
+    //             'dpd.surname',
+    //             'dpd.zone',
+    //         ])
+    //         ->map(function ($donor) {
+    //             $name = trim(implode(' ', array_filter([
+    //                 $donor->title ?? null,
+    //                 $donor->first_name ?? null,
+    //                 $donor->middle_name ?? null,
+    //                 $donor->surname ?? null,
+    //             ])));
+    //             return [
+    //                 'name' => $name ?: ($donor->name ?? 'Member'),
+    //                 'zone' => $donor->zone ?: 'N/A',
+    //             ];
+    //         });
+
+    //     // Pass raw ISO dates to avoid Carbon re-parsing formatted strings
+    //     $viewData = compact(
+    //         'courseTypeStats',
+    //         'totalApplications',
+    //         'zoneCounts',
+    //         'chapterCounts',
+    //         'rejectedByZone',
+    //         'financialSummary',
+    //         'committeeMembers'
+    //     );
+    //     $viewData['startDate'] = $startDate->toDateString(); // "2023-07-01"
+    //     $viewData['endDate']   = $endDate->toDateString();   // "2026-03-17"
+
+    //     // ---- Normal web view ----
+    //     if ($request->query('format') !== 'pdf' && ! $request->boolean('download')) {
+    //         return view('admin.reports.financial_graph_report', $viewData + ['renderForPdf' => false]);
+    //     }
+
+    //     // Build display-formatted dates only for the PDF blade
+    //     $pdfViewData = $viewData;
+    //     $pdfViewData['startDate'] = '1st ' . $startDate->format('M') . "'" . $startDate->format('Y');
+    //     $pdfViewData['endDate']   = $endDate->day . $endDate->format('S') . ' ' . $endDate->format('M') . "'" . $endDate->format('y');
+
+    //     // ---- PDF via mPDF ----
+    //     $html = view('admin.reports.financial_graph_report_pdf', $pdfViewData)->render();
+
+    //     $mpdf = new Mpdf([
+    //         'mode'              => 'utf-8',
+    //         'format'            => 'A4',
+    //         'margin_top'        => 10,
+    //         'margin_right'      => 10,
+    //         'margin_bottom'     => 10,
+    //         'margin_left'       => 10,
+    //         'default_font_size' => 10,
+    //         'default_font'      => 'dejavusans',
+    //         'tempDir'           => storage_path('app/mpdf_tmp'),
+    //     ]);
+
+    //     $mpdf->SetTitle('JITO JEAP Graphwise Report');
+    //     $mpdf->WriteHTML($html);
+
+    //     $fileName = 'GRAPHWISE_DETAILS_REPORT_'
+    //         . $startDate->format('Ymd') . '_to_' . $endDate->format('Ymd') . '.pdf';
+
+    //     return response()->streamDownload(function () use ($mpdf) {
+    //         echo $mpdf->Output('', 'S');
+    //     }, $fileName, ['Content-Type' => 'application/pdf']);
+    // }
+
     public function financialGraphReport(Request $request)
     {
         $startDate = Carbon::parse($request->input('start_date', '2023-07-01'))->startOfDay();
@@ -598,15 +738,45 @@ class ReportController extends Controller
             return (float) ($user->workingCommitteeApproval?->approval_financial_assistance_amount ?? 0);
         });
 
-        $totalDisbursed = (float) \App\Models\Repayment::query()
-            ->whereNotNull('payment_date')
-            ->whereBetween('payment_date', [$startDate, $endDate])
-            ->sum('amount');
+        $totalDisbursed = (float) DB::connection('admin_panel')
+            ->table('disbursement_schedules')
+            ->where('status', 'completed')
+            ->whereBetween('planned_date', [$startDate, $endDate])
+            ->sum('planned_amount');
 
-        $totalDonations = (float) \App\Models\DonorPaymentDetail::query()
-            ->whereNotNull('payment_date')
-            ->whereBetween('payment_date', [$startDate, $endDate])
-            ->sum('amount');
+        $totalDonations = (float) DonorPaymentDetail::query()
+            ->whereNotNull('payment_entries')
+            ->get(['payment_entries'])
+            ->sum(function ($detail) use ($startDate, $endDate) {
+                $entries = $detail->payment_entries;
+                if (!is_array($entries)) {
+                    $entries = json_decode($entries, true);
+                }
+
+                if (!is_array($entries)) {
+                    return 0;
+                }
+
+                $sum = 0;
+                foreach ($entries as $entry) {
+                    $dateValue = $entry['cheque_date'] ?? null;
+                    if (!$dateValue) {
+                        continue;
+                    }
+
+                    try {
+                        $date = Carbon::parse($dateValue);
+                    } catch (\Exception $e) {
+                        continue;
+                    }
+
+                    if ($date->between($startDate, $endDate)) {
+                        $sum += (float) ($entry['amount'] ?? 0);
+                    }
+                }
+
+                return $sum;
+            });
 
         $financialSummary = [
             'donations'  => $totalDonations,
@@ -614,30 +784,30 @@ class ReportController extends Controller
             'disbursed'  => $totalDisbursed,
         ];
 
+        $fullyPaidLimit = 5400000;
         $committeeMembers = \App\Models\Donor::query()
-            ->leftJoin('donor_personal_details as dpd', 'dpd.donor_id', '=', 'donors.id')
-            ->where('donors.donor_type', \App\Models\Donor::TYPE_MEMBER)
-            ->orderBy('donors.id', 'desc')
-            ->take(15)
-            ->get([
-                'donors.id',
-                'donors.name',
-                'dpd.title',
-                'dpd.first_name',
-                'dpd.middle_name',
-                'dpd.surname',
-                'dpd.zone',
-            ])
+            ->with(['personalDetail', 'commitments', 'paymentDetail'])
+            ->where('donor_type', \App\Models\Donor::TYPE_MEMBER)
+            ->orderBy('id', 'desc')
+            ->get()
+            ->filter(function ($donor) use ($fullyPaidLimit) {
+                $totalPaid = $donor->commitments->sum(function ($commitment) {
+                    return $commitment->getTotalPaidAmount();
+                });
+                return $totalPaid >= $fullyPaidLimit;
+            })
+            ->values()
             ->map(function ($donor) {
+                $personal = $donor->personalDetail;
                 $name = trim(implode(' ', array_filter([
-                    $donor->title ?? null,
-                    $donor->first_name ?? null,
-                    $donor->middle_name ?? null,
-                    $donor->surname ?? null,
+                    $personal->title ?? null,
+                    $personal->first_name ?? null,
+                    $personal->middle_name ?? null,
+                    $personal->surname ?? null,
                 ])));
                 return [
                     'name' => $name ?: ($donor->name ?? 'Member'),
-                    'zone' => $donor->zone ?: 'N/A',
+                    'zone' => $personal->zone ?? 'N/A',
                 ];
             });
 

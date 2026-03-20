@@ -265,89 +265,97 @@
                 </tr>
             </table>
         </div>
-        <div class="card-body" style="background:#70ad47;">
-            <div class="chart-title-white">COURSE TYPE DISTRIBUTION OF SANCTIONED FA APPLICATIONS</div>
-            <svg width="{{ $cW }}" height="{{ $cH }}"
-                viewBox="0 0 {{ $cW }} {{ $cH }}">
-                @for ($t = 0; $t <= 5; $t++)
-                    @php
-                        $yv = $yStep * $t;
-                        $yp = $pT + $iH - ($iH * $yv) / $yMax;
-                    @endphp
-                    <line x1="{{ $pL }}" y1="{{ $yp }}" x2="{{ $cW - $pR }}"
-                        y2="{{ $yp }}" stroke="rgba(255,255,255,0.35)" stroke-width="0.7" />
-                    <text x="{{ $pL - 4 }}" y="{{ $yp + 3.5 }}" text-anchor="end" font-size="9"
-                        fill="#fff">{{ $yv }}</text>
-                @endfor
-                <line x1="{{ $pL }}" y1="{{ $pT }}" x2="{{ $pL }}"
-                    y2="{{ $base }}" stroke="#fff" stroke-width="1.2" />
-                <line x1="{{ $pL }}" y1="{{ $base }}" x2="{{ $cW - $pR }}"
-                    y2="{{ $base }}" stroke="#fff" stroke-width="1.2" />
-                @foreach ($groups as $gi => $g)
-                    @php
-                        $gx = $pL + $gi * $gW + $gPad;
-                        $domX = $gx;
-                        $forX = $gx + $bW + $gap;
-                        $domH = $yMax > 0 ? ($g[1] / $yMax) * $iH : 0;
-                        $forH = $yMax > 0 ? ($g[2] / $yMax) * $iH : 0;
-                    @endphp
-                    <rect x="{{ $domX }}" y="{{ $base - max($domH, 1) }}" width="{{ $bW }}"
-                        height="{{ max($domH, 1) }}" fill="#ed7d31" />
-                    @if ($g[1] > 0)
-                        <text x="{{ $domX + $bW / 2 }}" y="{{ $base - $domH - 4 }}" text-anchor="middle"
-                            font-size="9" fill="#fff" font-weight="bold">{{ $g[1] }}</text>
-                    @endif
-                    <rect x="{{ $forX }}" y="{{ $base - max($forH, 1) }}" width="{{ $bW }}"
-                        height="{{ max($forH, 1) }}" fill="#ffc000" />
-                    @if ($g[2] > 0)
-                        <text x="{{ $forX + $bW / 2 }}" y="{{ $base - $forH - 4 }}" text-anchor="middle"
-                            font-size="9" fill="#fff" font-weight="bold">{{ $g[2] }}</text>
-                    @endif
-                    @php
-                        $parts = explode(' ', $g[0]);
-                        $mid = $gx + $bW + $gap / 2;
-                    @endphp
-                    @foreach ($parts as $pi => $part)
-                        <text x="{{ $mid }}" y="{{ $base + 14 + $pi * 11 }}" text-anchor="middle"
-                            font-size="8.5" fill="#fff" font-weight="bold">{{ $part }}</text>
-                    @endforeach
-                @endforeach
-                <rect x="{{ $pL }}" y="{{ $cH - 16 }}" width="12" height="12" fill="#ed7d31" />
-                <text x="{{ $pL + 15 }}" y="{{ $cH - 6 }}" font-size="9" fill="#0000"
-                    font-weight="bold">DOMESTIC FA</text>
-                <rect x="{{ $pL + 105 }}" y="{{ $cH - 16 }}" width="12" height="12" fill="#ffc000" />
-                <text x="{{ $pL + 120 }}" y="{{ $cH - 6 }}" font-size="9" fill="#0000"
-                    font-weight="bold">FOREIGN FA</text>
-            </svg>
-            <table style="background:#fff; margin-top:8px;">
-                <thead>
-                    <tr>
-                        <th style="width:30%;text-align:left;"></th>
-                        <th>UNDER GRADUATE COURSE</th>
-                        <th>POST GRADUATE COURSE</th>
-                        <th>TOTAL</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="td-dom">DOMESTIC FA</td>
-                        <td>{{ $ugDom }}</td>
-                        <td>{{ $pgDom }}</td>
-                        <td>{{ $ugDom + $pgDom }}</td>
-                    </tr>
-                    <tr>
-                        <td class="td-for">FOREIGN FA</td>
-                        <td>{{ $ugFor }}</td>
-                        <td>{{ $pgFor }}</td>
-                        <td>{{ $ugFor + $pgFor }}</td>
-                    </tr>
-                    <tr>
-                        <td class="td-bold">TOTAL FA</td>
-                        <td>{{ $ugDom + $ugFor }}</td>
-                        <td>{{ $pgDom + $pgFor }}</td>
-                        <td>{{ $totalApplications }}</td>
-                    </tr>
-                </tbody>
+        <div class="card-body" style="padding:0;">
+            <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#6da946" style="background-color:#6da946;">
+                <tr>
+                    <td style="padding:10px 12px;">
+                        <div class="chart-title-white">COURSE TYPE DISTRIBUTION OF SANCTIONED FA APPLICATIONS</div>
+                        <svg width="{{ $cW }}" height="{{ $cH }}"
+                            viewBox="0 0 {{ $cW }} {{ $cH }}">
+                            @for ($t = 0; $t <= 5; $t++)
+                                @php
+                                    $yv = $yStep * $t;
+                                    $yp = $pT + $iH - ($iH * $yv) / $yMax;
+                                @endphp
+                                <line x1="{{ $pL }}" y1="{{ $yp }}" x2="{{ $cW - $pR }}"
+                                    y2="{{ $yp }}" stroke="rgba(255,255,255,0.35)" stroke-width="0.7" />
+                                <text x="{{ $pL - 4 }}" y="{{ $yp + 3.5 }}" text-anchor="end" font-size="9"
+                                    fill="#fff">{{ $yv }}</text>
+                            @endfor
+                            <line x1="{{ $pL }}" y1="{{ $pT }}" x2="{{ $pL }}"
+                                y2="{{ $base }}" stroke="#fff" stroke-width="1.2" />
+                            <line x1="{{ $pL }}" y1="{{ $base }}" x2="{{ $cW - $pR }}"
+                                y2="{{ $base }}" stroke="#fff" stroke-width="1.2" />
+                            @foreach ($groups as $gi => $g)
+                                @php
+                                    $gx = $pL + $gi * $gW + $gPad;
+                                    $domX = $gx;
+                                    $forX = $gx + $bW + $gap;
+                                    $domH = $yMax > 0 ? ($g[1] / $yMax) * $iH : 0;
+                                    $forH = $yMax > 0 ? ($g[2] / $yMax) * $iH : 0;
+                                @endphp
+                                <rect x="{{ $domX }}" y="{{ $base - max($domH, 1) }}"
+                                    width="{{ $bW }}" height="{{ max($domH, 1) }}" fill="#ed7d31" />
+                                @if ($g[1] > 0)
+                                    <text x="{{ $domX + $bW / 2 }}" y="{{ $base - $domH - 4 }}" text-anchor="middle"
+                                        font-size="9" fill="#fff" font-weight="bold">{{ $g[1] }}</text>
+                                @endif
+                                <rect x="{{ $forX }}" y="{{ $base - max($forH, 1) }}"
+                                    width="{{ $bW }}" height="{{ max($forH, 1) }}" fill="#ffc000" />
+                                @if ($g[2] > 0)
+                                    <text x="{{ $forX + $bW / 2 }}" y="{{ $base - $forH - 4 }}" text-anchor="middle"
+                                        font-size="9" fill="#fff" font-weight="bold">{{ $g[2] }}</text>
+                                @endif
+                                @php
+                                    $parts = explode(' ', $g[0]);
+                                    $mid = $gx + $bW + $gap / 2;
+                                @endphp
+                                @foreach ($parts as $pi => $part)
+                                    <text x="{{ $mid }}" y="{{ $base + 14 + $pi * 11 }}" text-anchor="middle"
+                                        font-size="8.5" fill="#fff" font-weight="bold">{{ $part }}</text>
+                                @endforeach
+                            @endforeach
+                            <rect x="{{ $pL }}" y="{{ $cH - 16 }}" width="12" height="12"
+                                fill="#ed7d31" />
+                            <text x="{{ $pL + 15 }}" y="{{ $cH - 6 }}" font-size="9" fill="#0000"
+                                font-weight="bold">DOMESTIC FA</text>
+                            <rect x="{{ $pL + 105 }}" y="{{ $cH - 16 }}" width="12" height="12"
+                                fill="#ffc000" />
+                            <text x="{{ $pL + 120 }}" y="{{ $cH - 6 }}" font-size="9" fill="#0000"
+                                font-weight="bold">FOREIGN FA</text>
+                        </svg>
+                        <table style="background:#fff; margin-top:8px;">
+                            <thead>
+                                <tr>
+                                    <th style="width:30%;text-align:left;"></th>
+                                    <th>UNDER GRADUATE COURSE</th>
+                                    <th>POST GRADUATE COURSE</th>
+                                    <th>TOTAL</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="td-dom">DOMESTIC FA</td>
+                                    <td>{{ $ugDom }}</td>
+                                    <td>{{ $pgDom }}</td>
+                                    <td>{{ $ugDom + $pgDom }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="td-for">FOREIGN FA</td>
+                                    <td>{{ $ugFor }}</td>
+                                    <td>{{ $pgFor }}</td>
+                                    <td>{{ $ugFor + $pgFor }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="td-bold">TOTAL FA</td>
+                                    <td>{{ $ugDom + $ugFor }}</td>
+                                    <td>{{ $pgDom + $pgFor }}</td>
+                                    <td>{{ $totalApplications }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
             </table>
         </div>
     </div>

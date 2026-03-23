@@ -149,6 +149,21 @@ $apex2Rejected = safeCount(function() { return \App\Models\User::where('role', '
             background: #009846;
         }
 
+        /* Reports - Blue */
+        .nav-tabs-custom .nav-link.tab-reports {
+            background: #2196F3;
+        }
+
+        /* Dynamic View - Teal */
+        .nav-tabs-custom .nav-link.tab-dynamic {
+            background: #00897B;
+        }
+
+        /* Graph Report - Indigo */
+        .nav-tabs-custom .nav-link.tab-graph-report {
+            background: #3f51b5;
+        }
+
         .stat-card {
             background: white;
             border-radius: 15px;
@@ -646,24 +661,46 @@ $apex2Rejected = safeCount(function() { return \App\Models\User::where('role', '
                     <i class="fas fa-users"></i> Apex
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link tab-committee" href="{{ route('admin.committee.index') }}">
-                    <i class="fas fa-user-tie"></i> Working Committee
+            {{--  <li class="nav-item">
+                <a class="nav-link tab-files" href="{{ route('admin.files.report') }}">
+                    <i class="fas fa-folder"></i> Files Report
                 </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link tab-zone" href="{{ route('admin.zones.index') }}">
-                    <i class="fas fa-globe"></i> Zone
-                </a>
-            </li>
+            </li>  --}}
+
             <li class="nav-item">
                 <a class="nav-link tab-chapter" href="{{ route('admin.chapters.index') }}">
                     <i class="fas fa-map-marker-alt"></i> Chapter
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link tab-committee" href="{{ route('admin.committee.index') }}">
+                    <i class="fas fa-user-tie"></i> Working Committee
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link tab-zone" href="{{ route('admin.files.report') }}">
+                    <i class="fas fa-globe"></i> Files Report
+                </a>
+            </li>
+
+            {{--  <li class="nav-item">
                 <a class="nav-link tab-initiatives" href="{{ route('admin.initiatives.index') }}">
                     <i class="fas fa-lightbulb"></i> Initiatives
+                </a>
+            </li>  --}}
+            <li class="nav-item">
+                <a class="nav-link tab-reports" href="{{ route('admin.reports.index') }}">
+                    <i class="fas fa-chart-bar"></i> Reports
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link tab-dynamic" href="{{ route('applications.view') }}">
+                    <i class="fas fa-layer-group"></i> Dynamic View
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link tab-graph-report" href="{{ route('admin.reports.financial_graph_report') }}">
+                    <i class="fas fa-chart-line"></i> Graph Report
                 </a>
             </li>
         </ul>
@@ -1269,7 +1306,7 @@ $apex2Rejected = safeCount(function() { return \App\Models\User::where('role', '
 
         <!-- Row 4: 3rd Stage Document -->
         <div class="row g-3 mt-1">
-            <div class="col-lg-12">
+            <div class="col-lg-6">
                 @if (in_array($activeGuard, ['admin', 'accountant']))
                     <div class="approval-section">
                         <div class="approval-header">
@@ -1301,6 +1338,16 @@ $apex2Rejected = safeCount(function() { return \App\Models\User::where('role', '
                                     <div class="status-value">{{ $thirdStagePending ?? 0 }}</div>
                                 </div>
                             </a>
+                            <a href="{{ route('admin.third_stage_documents.send_back') }}" class="status-badge hold"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon hold">
+                                    <i class="fas fa-exclamation"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Send back for Correction</div>
+                                    <div class="status-value">{{ $thirdStageSendBack ?? 0 }}</div>
+                                </div>
+                            </a>
                             <a href="{{ route('admin.third_stage_documents.submitted') }}" class="status-badge ready"
                                 style="text-decoration: none; color: inherit;">
                                 <div class="status-icon ready">
@@ -1309,6 +1356,16 @@ $apex2Rejected = safeCount(function() { return \App\Models\User::where('role', '
                                 <div>
                                     <div class="status-label">Submitted</div>
                                     <div class="status-value">{{ $thirdStageSubmitted ?? 0 }}</div>
+                                </div>
+                            </a>
+                            <a href="{{ route('admin.third_stage_documents.resubmitted') }}" class="status-badge hold"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon hold">
+                                    <i class="fas fa-redo"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Resubmitted</div>
+                                    <div class="status-value">{{ $thirdStageResubmitted ?? 0 }}</div>
                                 </div>
                             </a>
                             <a href="{{ route('admin.third_stage_documents.approved') }}" class="status-badge approved"

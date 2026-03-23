@@ -129,7 +129,8 @@
                 <div class="d-flex justify-content-between align-items-start gap-2">
                     <div style="min-width: 0;">
                         <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
-                        <p style="margin: 8px 0 4px 0; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        <p
+                            style="margin: 8px 0 4px 0; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                             {{ trim(preg_replace('/\s+/', ' ', strip_tags($educationDetail->admin_remark))) }}
                         </p>
                         <button type="button" class="btn btn-link p-0" data-bs-toggle="modal"
@@ -298,7 +299,8 @@
                                                         style="color: red;">*</span></label>
                                                 <input type="text" id="country" class="form-control" name="country"
                                                     placeholder="Enter Country Name "
-                                                    value="{{ old('country', $educationDetail->country ?? '') }}" required>
+                                                    value="{{ old('country', $educationDetail->country ?? '') }}"
+                                                    required>
                                                 <small class="text-danger"
                                                     id="country_error">{{ $errors->first('country') }}</small>
                                             </div>
@@ -1451,12 +1453,25 @@
                         </svg>
                         Previous
                     </a>
-                    <button type="submit" class="btn" style="background:#393185;color:white;">Next Step <svg
-                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                            stroke="white" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M9 6l6 6-6 6" />
-                        </svg>
-                    </button>
+                    @if ($educationDetail && $educationDetail->user->workflowStatus->apex_1_status == 'approved')
+                        <button type="button" class="btn"
+                            style="background:#F0FDF4;color:#009846;border:1px solid #009846" disabled>
+                            <i class="bi bi-check-lg" style="color: green; font-size: 24px;"></i>
+                        Approved
+                        </button>
+                    @elseif ($educationDetail && $educationDetail->submit_status == 'resubmit')
+                        <button type="submit" class="btn" style="background:#F0FDF4;color:red;border:1px solid red">
+                            <i class="bi bi-arrow-clockwise" style="color: red; font-size: 24px;"></i>
+                            Resubmit
+                        </button>
+                    @else
+                        <button type="submit" class="btn" style="background:#393185;color:white;">Next Step <svg
+                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                stroke="white" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M9 6l6 6-6 6" />
+                            </svg>
+                        </button>
+                    @endif
                 </div>
                 </form>
             </div>
@@ -2428,12 +2443,13 @@
                         // Add modal to body
                         document.body.insertAdjacentHTML('beforeend', modalHtml);
                         // Show the modal
-                        const modal = new bootstrap.Modal(document.getElementById('totalExpensesErrorModal'));
+                        const modal = new bootstrap.Modal(document.getElementById(
+                            'totalExpensesErrorModal'));
                         modal.show();
                         return false;
                     }
                 }
-            
+
                 // Final check
                 if (!isValid) {
                     e.preventDefault();

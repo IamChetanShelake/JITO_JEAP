@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Exports\JeapDisbursementReportExport;
 use App\Exports\DynamicReportExport;
+use App\Models\Chapter;
 use App\Models\Donor;
 use App\Models\DonorPaymentDetail;
 use App\Models\Repayment;
 use App\Models\ReportTemplate;
 use App\Models\DisbursementSchedule;
 use App\Models\User;
+use App\Models\Zone;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -718,21 +720,55 @@ class ReportController extends Controller
 
         $totalApplications = $applications->count();
 
-        $zoneCounts = $applications->groupBy(function ($user) {
+        // Step 1: Get all zones
+        $allZones = Zone::pluck('zone_name');
+
+        // Step 2: Get application counts per zone
+        $applicationZoneCounts = $applications->groupBy(function ($user) {
             return $user->chapterMaster?->zone?->zone_name ?? $user->zone ?? 'N/A';
-        })->map->count()->sortDesc();
+        })->map->count();
 
-        $chapterCounts = $applications->groupBy(function ($user) {
+        // Step 3: Merge → ensure all zones exist, default count = 0
+        $zoneCounts = $allZones->mapWithKeys(function ($zoneName) use ($applicationZoneCounts) {
+            return [
+                $zoneName => $applicationZoneCounts[$zoneName] ?? 0
+            ];
+        })->sortDesc();
+
+        // Step 1: Get all chapters
+        $allChapters = Chapter::pluck('chapter_name');
+
+        // Step 2: Get application counts per chapter
+        $applicationChapterCounts = $applications->groupBy(function ($user) {
             return $user->chapterMaster?->chapter_name ?? $user->chapter ?? 'N/A';
-        })->map->count()->sortDesc();
+        })->map->count();
 
+        // Step 3: Merge → ensure all chapters exist, default count = 0
+        $chapterCounts = $allChapters->mapWithKeys(function ($chapterName) use ($applicationChapterCounts) {
+            return [
+                $chapterName => $applicationChapterCounts[$chapterName] ?? 0
+            ];
+        })->sortDesc();
+
+        // Step 1: All zones (master data)
+        $allZones = Zone::pluck('zone_name');
+
+        // Step 2: Filter rejected at working committee
         $rejected = $applications->filter(function ($user) {
-            return ($user->workflowStatus?->final_status ?? null) === 'rejected';
+            return strtolower($user->workflowStatus?->working_committee_status ?? '') === 'rejected';
         });
 
-        $rejectedByZone = $rejected->groupBy(function ($user) {
+        // Step 3: Count rejected per zone
+        $rejectedZoneCounts = $rejected->groupBy(function ($user) {
             return $user->chapterMaster?->zone?->zone_name ?? $user->zone ?? 'N/A';
-        })->map->count()->sortDesc();
+        })->map->count();
+
+        // Step 4: Merge (include zones with 0)
+        $rejectedByZone = $allZones->mapWithKeys(function ($zoneName) use ($rejectedZoneCounts) {
+            return [
+                $zoneName => $rejectedZoneCounts[$zoneName] ?? 0
+            ];
+        })->sortDesc();
 
         $totalSanctioned = (float) $applications->sum(function ($user) {
             return (float) ($user->workingCommitteeApproval?->approval_financial_assistance_amount ?? 0);

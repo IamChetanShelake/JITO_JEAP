@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\Auth\CustomForgotPasswordController;
+use App\Http\Controllers\Auth\ConfirmPasswordController;
+use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DisbursementController;
@@ -69,6 +75,15 @@ Route::prefix('donor')->name('donor.')->group(function () {
 });
 
 Auth::routes();
+
+// Custom Password Reset Routes with OTP
+Route::get('/password/reset', [CustomForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/password/email', [CustomForgotPasswordController::class, 'sendOtp'])->name('password.sendotp');
+Route::get('/password/verify', [CustomForgotPasswordController::class, 'showVerifyOtpForm'])->name('password.verifyotp.form');
+Route::post('/password/verify', [CustomForgotPasswordController::class, 'verifyOtp'])->name('password.verifyotp');
+Route::post('/password/resend', [CustomForgotPasswordController::class, 'resendOtp'])->name('password.resendotp');
+Route::get('/password/reset/{token}', [CustomForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/password/reset', [CustomForgotPasswordController::class, 'reset'])->name('password.update');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 

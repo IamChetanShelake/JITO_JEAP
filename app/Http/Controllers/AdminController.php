@@ -3038,11 +3038,16 @@ class AdminController extends Controller
         $courierHistory = $pdcDetail
             ? $pdcDetail->courierHistories()->with('actor')->orderBy('action_at')->get()
             : collect();
+        $apexUsers = ApexLeadership::query()
+            ->where('status', true)
+            ->where('show_hide', true)
+            ->orderBy('name')
+            ->get();
 
         // Load edit bank detail request if exists
         $editBankDetailRequest = \App\Models\EditBankDetailRequest::where('user_id', $user->id)->latest()->first();
 
-        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory', 'editBankDetailRequest', 'courierDocumentChecklist', 'chequeTotal', 'courierHistory'));
+        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory', 'editBankDetailRequest', 'courierDocumentChecklist', 'chequeTotal', 'courierHistory', 'apexUsers'));
     }
 
     /**
@@ -3117,7 +3122,7 @@ class AdminController extends Controller
     public function storeCourierReceive(Request $request, User $user)
     {
         $request->validate([
-            'courier_received_by' => 'required|string|max:255',
+            'courier_received_by' => 'required|string|max:255|exists:admin_panel.apex_leadership,name',
             'courier_received_date' => 'required|date',
         ]);
 
@@ -3233,9 +3238,11 @@ class AdminController extends Controller
     {
         $request->validate([
             'courier_action' => 'required|in:approve,hold',
+            'courier_approved_by' => 'required_if:courier_action,approve|nullable|integer|exists:admin_panel.apex_leadership,id',
+            'courier_hold_by' => 'required_if:courier_action,hold|nullable|integer|exists:admin_panel.apex_leadership,id',
             'courier_receive_hold_remark' => 'nullable|string|max:2000',
-            'courier_cheque_received' => 'required|integer|min:0',
-            'courier_cheque_pending' => 'required|integer|min:0',
+            'courier_cheque_received' => 'required_if:courier_action,approve|nullable|integer|min:0',
+            'courier_cheque_pending' => 'required_if:courier_action,approve|nullable|integer|min:0',
             'courier_send_back' => 'nullable|in:0,1',
             'courier_send_back_reason' => 'nullable|string|max:2000',
             'courier_send_back_date' => 'nullable|date',
@@ -3252,20 +3259,18 @@ class AdminController extends Controller
         }
 
         $chequeTotal = $this->getChequeTotalForUser($user, $pdcDetail);
-        $chequeReceived = (int) $request->courier_cheque_received;
-        $chequePending = (int) $request->courier_cheque_pending;
-
-        if ($chequeTotal !== null && ($chequeReceived + $chequePending) !== (int) $chequeTotal) {
-            return back()->withErrors([
-                'courier_cheque_received' => 'Received + pending cheques must equal total cheques (' . $chequeTotal . ').',
-            ]);
-        }
+        $chequeReceived = null;
+        $chequePending = null;
 
         if ($request->courier_action === 'hold') {
+            $chequeReceived = $pdcDetail->courier_cheque_received;
+            $chequePending = $pdcDetail->courier_cheque_pending;
+
             $request->validate([
                 'courier_receive_hold_remark' => 'required|string|max:2000',
             ]);
 
+            $holdBy = ApexLeadership::query()->find($request->courier_hold_by);
             $sendBack = $request->input('courier_send_back') === '1';
             if ($sendBack) {
                 $request->validate([
@@ -3293,7 +3298,7 @@ class AdminController extends Controller
             $pdcDetail->update([
                 'courier_receive_status' => 'hold',
                 'courier_receive_hold_remark' => $request->courier_receive_hold_remark,
-                'courier_receive_processed_by' => Auth::id(),
+                'courier_receive_processed_by' => $holdBy?->id,
                 'courier_receive_processed_at' => now(),
                 'courier_receive_verified_documents' => null,
                 'courier_cheque_total' => $chequeTotal,
@@ -3330,6 +3335,7 @@ class AdminController extends Controller
                 'action_at' => now(),
                 'data' => [
                     'hold_reason' => $request->courier_receive_hold_remark,
+                    'hold_by' => $holdBy?->name,
                     'send_back' => $sendBack,
                     'send_back_reason' => $sendBack ? $request->courier_send_back_reason : null,
                     'send_back_date' => $sendBack ? $request->courier_send_back_date : null,
@@ -3375,6 +3381,15 @@ class AdminController extends Controller
                     ? 'Courier receive marked as hold and mail sent to the student.'
                     : 'Courier receive marked as hold.'
             );
+        }
+
+        $chequeReceived = (int) $request->courier_cheque_received;
+        $chequePending = (int) $request->courier_cheque_pending;
+
+        if ($chequeTotal !== null && ($chequeReceived + $chequePending) !== (int) $chequeTotal) {
+            return back()->withErrors([
+                'courier_cheque_received' => 'Received + pending cheques must equal total cheques (' . $chequeTotal . ').',
+            ]);
         }
 
         $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
@@ -3424,16 +3439,17 @@ class AdminController extends Controller
             'admin_reject_remark',
         ]);
 
+        $approvedBy = ApexLeadership::query()->find($request->courier_approved_by);
         $pdcDetail->update([
             'courier_receive_status' => 'approved',
             'courier_receive_hold_remark' => null,
-            'courier_receive_processed_by' => Auth::id(),
+            'courier_receive_processed_by' => $approvedBy?->id,
             'courier_receive_processed_at' => now(),
             'courier_receive_verified_documents' => $approvedDocuments,
             'courier_cheque_total' => $chequeTotal,
             'courier_cheque_received' => $chequeReceived,
             'courier_cheque_pending' => $chequePending,
-            'courier_receive_approved_by' => Auth::id(),
+            'courier_receive_approved_by' => $approvedBy?->id,
             'courier_receive_approved_at' => now(),
             'courier_send_back' => null,
             'courier_send_back_reason' => null,
@@ -3465,6 +3481,7 @@ class AdminController extends Controller
             'action_at' => now(),
             'data' => [
                 'approved_documents' => $approvedDocuments,
+                'approved_by' => $approvedBy?->name,
                 'cheque_total' => $chequeTotal,
                 'cheque_received' => $chequeReceived,
                 'cheque_pending' => $chequePending,

@@ -2334,6 +2334,15 @@
                 $isCourierApproved =
                     isset($pdcDetail) && $pdcDetail && $pdcDetail->courier_receive_status === 'approved';
                 $isCourierHold = isset($pdcDetail) && $pdcDetail && $pdcDetail->courier_receive_status === 'hold';
+                $apexUserList = $apexUsers ?? collect();
+                $apexUserById = $apexUserList->keyBy('id');
+                $hasCourierReceive =
+                    isset($pdcDetail) &&
+                    $pdcDetail &&
+                    !empty($pdcDetail->courier_received_by) &&
+                    !empty($pdcDetail->courier_received_date);
+                $canReviewCourier =
+                    $hasCourierReceive && isset($pdcDetail) && $pdcDetail->courier_receive_status === 'pending';
             @endphp
             <div class="step-header">
                 <h2 class="step-title-large">Step {{ $isBelowLoan ? 7 : 8 }}: Courier Receive</h2>
@@ -2362,7 +2371,7 @@
                     <div class="data-group">
                         <h4>Courier Receive</h4>
                         <div class="form-section">
-                            <div class="form-row">
+                            {{--  <div class="form-row">
                                 <div class="form-field">
                                     <label class="form-label">Courier Status</label>
                                     <input type="text" class="form-input"
@@ -2370,7 +2379,7 @@
                                         readonly>
                                 </div>
                                 <div class="form-field">
-                                    <label class="form-label">Received By</label>
+                                    <label class="form-label">Courier Received By</label>
                                     <input type="text" class="form-input"
                                         value="{{ $pdcDetail->courier_received_by ?? 'N/A' }}" readonly>
                                 </div>
@@ -2380,7 +2389,38 @@
                                         value="{{ $pdcDetail->courier_received_date ? $pdcDetail->courier_received_date->format('d M Y') : 'N/A' }}"
                                         readonly>
                                 </div>
-                            </div>
+                            </div>  --}}
+                            {{--  @if ($isCourierApproved)
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Approved By</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $apexUserById->get($pdcDetail->courier_receive_approved_by)->name ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Approved Date</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $pdcDetail->courier_receive_approved_at ? $pdcDetail->courier_receive_approved_at->format('d M Y H:i') : 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                            @elseif ($isCourierHold)
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Hold By</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $apexUserById->get($pdcDetail->courier_receive_processed_by)->name ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Hold Date</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $pdcDetail->courier_receive_processed_at ? $pdcDetail->courier_receive_processed_at->format('d M Y H:i') : 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                            @endif  --}}
 
                             @if ($pdcDetail->courier_receive_hold_remark)
                                 <div class="form-row">
@@ -2391,7 +2431,7 @@
                                 </div>
                             @endif
 
-                            <div class="form-row">
+                            {{--  <div class="form-row">
                                 <div class="form-field">
                                     <label class="form-label">Total Cheques</label>
                                     <input type="text" class="form-input"
@@ -2407,7 +2447,7 @@
                                     <input type="text" class="form-input"
                                         value="{{ $pdcDetail->courier_cheque_pending ?? 'N/A' }}" readonly>
                                 </div>
-                            </div>
+                            </div>  --}}
 
                             @if (!is_null($pdcDetail->courier_send_back))
                                 <div class="form-row">
@@ -2454,11 +2494,17 @@
                                         @csrf
                                         <div style="display:flex; gap:10px;">
                                             <div style="flex:1;">
-                                                <label class="form-label">Received By <span
+                                                <label class="form-label">Courier Received By <span
                                                         style="color: red;">*</span></label>
-                                                <input type="text" name="courier_received_by" class="form-input"
-                                                    value="{{ old('courier_received_by', $pdcDetail->courier_received_by ?? (auth()->user()->name ?? '')) }}"
-                                                    required>
+                                                <select name="courier_received_by" class="form-input" required>
+                                                    <option value="">Select Apex User</option>
+                                                    @foreach ($apexUserList as $apexUser)
+                                                        <option value="{{ $apexUser->name }}"
+                                                            {{ old('courier_received_by', $pdcDetail->courier_received_by ?? '') === $apexUser->name ? 'selected' : '' }}>
+                                                            {{ $apexUser->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
                                             </div>
                                             <div style="flex:1;">
                                                 <label class="form-label">Received Date <span
@@ -2474,116 +2520,181 @@
 
 
                             </div>
-                            <div class="form-field">
-                                <form id="courierReviewForm"
-                                    action="{{ route('admin.apex.stage2.courier_receive.review', $user) }}"
-                                    method="POST">
-                                    @csrf
-                                    <div style="display: grid; gap: 0.75rem;">
-                                        <div style="display: grid; gap: 0.5rem;">
-                                            <label class="form-label">Cheque Summary <span style="color: red;">*</span></label>
-                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem;">
-                                                <div>
-                                                    <label class="form-label" style="font-size: 0.85rem;">Total Cheques</label>
-                                                    <input type="text" class="form-input" value="{{ $chequeTotal ?? ($pdcDetail->courier_cheque_total ?? 'N/A') }}"
-                                                        readonly>
-                                                </div>
-                                                <div>
-                                                    <label class="form-label" style="font-size: 0.85rem;">Cheques Received</label>
-                                                    <input type="number" min="0" name="courier_cheque_received" class="form-input"
-                                                        value="{{ old('courier_cheque_received', $pdcDetail->courier_cheque_received ?? 0) }}" required>
-                                                </div>
-                                                <div>
-                                                    <label class="form-label" style="font-size: 0.85rem;">Cheques Pending</label>
-                                                    <input type="number" min="0" name="courier_cheque_pending" class="form-input"
-                                                        value="{{ old('courier_cheque_pending', $pdcDetail->courier_cheque_pending ?? 0) }}" required>
-                                                </div>
-                                            </div>
-                                            <input type="hidden" name="courier_cheque_total"
-                                                value="{{ $chequeTotal ?? ($pdcDetail->courier_cheque_total ?? '') }}">
-                                            <div id="cheques-error"
-                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
-                                            </div>
-                                        </div>
-                                        <div style="display: grid; gap: 1rem;">
-                                            <div class="data-group" style="margin: 0;">
-                                                <h4>Approve Courier Receive</h4>
-                                                <div class="form-section">
-                                                    <label class="form-label">Uploaded Documents Checklist <span
-                                                            style="color: red;">*</span></label>
-                                                    <div
-                                                        style="display: grid; gap: 0.5rem; max-height: 260px; overflow-y: auto; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px;">
-                                                        @forelse ($courierDocumentChecklist ?? [] as $documentItem)
-                                                            <label>
-                                                                <input type="checkbox" name="courier_verified_documents[]"
-                                                                    value="{{ $documentItem['label'] }}"
-                                                                    {{ in_array($documentItem['label'], old('courier_verified_documents', $pdcDetail->courier_receive_verified_documents ?? []), true) ? 'checked' : '' }}>
-                                                                <span style="margin: 10px;">{{ $documentItem['label'] }}</span>
-                                                            </label>
-                                                        @empty
-                                                            <p style="margin: 0; color: var(--text-light);">No uploaded
-                                                                document list found for this student.</p>
-                                                        @endforelse
-                                                    </div>
-                                                    <!-- Error message for documents validation -->
-                                                    <div id="documents-error"
-                                                        style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
-                                                    </div>
-                                                    <div style="margin-top: 0.75rem;">
-                                                        <button type="submit" name="courier_action" value="approve"
-                                                            class="btn btn-approve">
-                                                            Approve Courier Receive
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="data-group" style="margin: 0;">
-                                                <h4>Hold Courier Receive</h4>
-                                                <div class="form-section" style="display: grid; gap: 0.75rem;">
-                                                    <div>
-                                                        <label class="form-label">Hold Remark <span style="color: red;">*</span>
-                                                            for hold only</label>
-                                                        <textarea name="courier_receive_hold_remark" rows="4" class="remark-input"
-                                                            placeholder="Required only when putting courier receive on hold">{{ old('courier_receive_hold_remark', $pdcDetail->courier_receive_hold_remark ?? '') }}</textarea>
-                                                        <!-- Error message for remark validation -->
-                                                        <div id="remark-error"
-                                                            style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
-                                                        </div>
-                                                    </div>
-                                                    <div style="display: grid; gap: 0.5rem;">
-                                                        <label class="form-label">Send Back to Student?</label>
-                                                        <select name="courier_send_back" class="form-input" id="courierSendBackSelect">
-                                                            <option value="0" {{ old('courier_send_back', $pdcDetail->courier_send_back ? 1 : 0) == 0 ? 'selected' : '' }}>No</option>
-                                                            <option value="1" {{ old('courier_send_back', $pdcDetail->courier_send_back ? 1 : 0) == 1 ? 'selected' : '' }}>Yes</option>
-                                                        </select>
-                                                    </div>
-                                                    <div id="courierSendBackFields" style="display: grid; gap: 0.5rem;">
-                                                        <div>
-                                                            <label class="form-label">Send Back Reason</label>
-                                                            <textarea name="courier_send_back_reason" rows="3" class="remark-input"
-                                                                placeholder="Reason for sending back to student">{{ old('courier_send_back_reason', $pdcDetail->courier_send_back_reason ?? '') }}</textarea>
+                            @if ($canReviewCourier)
+                                <div class="form-field">
+                                    <form id="courierReviewForm"
+                                        action="{{ route('admin.apex.stage2.courier_receive.review', $user) }}"
+                                        method="POST">
+                                        @csrf
+                                        <div style="display: grid; gap: 0.75rem;">
+                                            <div style="display: grid; gap: 1rem;">
+                                                <div class="data-group" style="margin: 0;">
+                                                    <h4>Approve Courier Receive</h4>
+                                                    <div class="form-section">
+                                                        <div style="display: grid; gap: 0.5rem;">
+                                                            <label class="form-label">Cheque Summary <span
+                                                                    style="color: red;">*</span></label>
+                                                            <div
+                                                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem;">
+                                                                <div>
+                                                                    <label class="form-label"
+                                                                        style="font-size: 0.85rem;">Total Cheques</label>
+                                                                    <input type="text" class="form-input"
+                                                                        value="{{ $chequeTotal ?? ($pdcDetail->courier_cheque_total ?? 'N/A') }}"
+                                                                        readonly>
+                                                                </div>
+                                                                <div>
+                                                                    <label class="form-label"
+                                                                        style="font-size: 0.85rem;">Cheques
+                                                                        Received</label>
+                                                                    <input type="number" min="0"
+                                                                        name="courier_cheque_received"
+                                                                        class="form-input"
+                                                                        value="{{ old('courier_cheque_received', $pdcDetail->courier_cheque_received ?? 0) }}">
+                                                                </div>
+                                                                <div>
+                                                                    <label class="form-label"
+                                                                        style="font-size: 0.85rem;">Cheques
+                                                                        Pending</label>
+                                                                    <input type="number" min="0"
+                                                                        name="courier_cheque_pending" class="form-input"
+                                                                        value="{{ old('courier_cheque_pending', $pdcDetail->courier_cheque_pending ?? 0) }}">
+                                                                </div>
+                                                            </div>
+                                                            <input type="hidden" name="courier_cheque_total"
+                                                                value="{{ $chequeTotal ?? ($pdcDetail->courier_cheque_total ?? '') }}">
+                                                            <div id="cheques-error"
+                                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                                            </div>
                                                         </div>
                                                         <div>
-                                                            <label class="form-label">Send Back Date</label>
-                                                            <input type="date" name="courier_send_back_date" class="form-input"
-                                                                value="{{ old('courier_send_back_date', optional($pdcDetail->courier_send_back_date)->format('Y-m-d')) }}">
+                                                            <label class="form-label">Approved By <span
+                                                                    style="color: red;">*</span></label>
+                                                            <select name="courier_approved_by" class="form-input">
+                                                                <option value="">Select Apex User</option>
+                                                                @foreach ($apexUserList as $apexUser)
+                                                                    <option value="{{ $apexUser->id }}"
+                                                                        {{ (string) old('courier_approved_by') === (string) $apexUser->id ? 'selected' : '' }}>
+                                                                        {{ $apexUser->name }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                            <div id="approvedby-error"
+                                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                                            </div>
                                                         </div>
-                                                        <div id="sendback-error"
+                                                        <label class="form-label" style="margin-top: 0.75rem;">Uploaded
+                                                            Documents Checklist <span style="color: red;">*</span></label>
+                                                        <div
+                                                            style="display: grid; gap: 0.5rem; max-height: 260px; overflow-y: auto; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px;">
+                                                            @forelse ($courierDocumentChecklist ?? [] as $documentItem)
+                                                                <label>
+                                                                    <input type="checkbox"
+                                                                        name="courier_verified_documents[]"
+                                                                        value="{{ $documentItem['label'] }}"
+                                                                        {{ in_array($documentItem['label'], old('courier_verified_documents', $pdcDetail->courier_receive_verified_documents ?? []), true) ? 'checked' : '' }}>
+                                                                    <span
+                                                                        style="margin: 10px;">{{ $documentItem['label'] }}</span>
+                                                                </label>
+                                                            @empty
+                                                                <p style="margin: 0; color: var(--text-light);">No
+                                                                    uploaded
+                                                                    document list found for this student.</p>
+                                                            @endforelse
+                                                        </div>
+                                                        <!-- Error message for documents validation -->
+                                                        <div id="documents-error"
                                                             style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
                                                         </div>
+                                                        <div style="margin-top: 0.75rem;">
+                                                            <button type="submit" name="courier_action"
+                                                                value="approve" class="btn btn-approve">
+                                                                Approve Courier Receive
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <button type="submit" name="courier_action" value="hold"
-                                                            class="btn btn-hold">
-                                                            Hold Courier Receive
-                                                        </button>
+                                                </div>
+                                                <div class="data-group" style="margin: 0;">
+                                                    <h4>Hold Courier Receive</h4>
+                                                    <div class="form-section" style="display: grid; gap: 0.75rem;">
+                                                        <div>
+                                                            <label class="form-label">Hold By <span
+                                                                    style="color: red;">*</span></label>
+                                                            <select name="courier_hold_by" class="form-input">
+                                                                <option value="">Select Apex User</option>
+                                                                @foreach ($apexUserList as $apexUser)
+                                                                    <option value="{{ $apexUser->id }}"
+                                                                        {{ (string) old('courier_hold_by') === (string) $apexUser->id ? 'selected' : '' }}>
+                                                                        {{ $apexUser->name }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                            <div id="holdby-error"
+                                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <label class="form-label">Hold Remark <span
+                                                                    style="color: red;">*</span>
+                                                                for hold only</label>
+                                                            <textarea name="courier_receive_hold_remark" rows="4" class="remark-input"
+                                                                placeholder="Required only when putting courier receive on hold">{{ old('courier_receive_hold_remark', $pdcDetail->courier_receive_hold_remark ?? '') }}</textarea>
+                                                            <!-- Error message for remark validation -->
+                                                            <div id="remark-error"
+                                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                                            </div>
+                                                        </div>
+                                                        <div style="display: grid; gap: 0.5rem;">
+                                                            <label class="form-label">Send Back to Student?</label>
+                                                            <select name="courier_send_back" class="form-input"
+                                                                id="courierSendBackSelect">
+                                                                <option value="0"
+                                                                    {{ old('courier_send_back', $pdcDetail->courier_send_back ? 1 : 0) == 0 ? 'selected' : '' }}>
+                                                                    No</option>
+                                                                <option value="1"
+                                                                    {{ old('courier_send_back', $pdcDetail->courier_send_back ? 1 : 0) == 1 ? 'selected' : '' }}>
+                                                                    Yes</option>
+                                                            </select>
+                                                        </div>
+                                                        <div id="courierSendBackFields"
+                                                            style="display: grid; gap: 0.5rem;">
+                                                            <div>
+                                                                <label class="form-label">Send Back Reason</label>
+                                                                <textarea name="courier_send_back_reason" rows="3" class="remark-input"
+                                                                    placeholder="Reason for sending back to student">{{ old('courier_send_back_reason', $pdcDetail->courier_send_back_reason ?? '') }}</textarea>
+                                                            </div>
+                                                            <div>
+                                                                <label class="form-label">Send Back Date</label>
+                                                                <input type="date" name="courier_send_back_date"
+                                                                    class="form-input"
+                                                                    value="{{ old('courier_send_back_date', optional($pdcDetail->courier_send_back_date)->format('Y-m-d')) }}">
+                                                            </div>
+                                                            <div id="sendback-error"
+                                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <button type="submit" name="courier_action"
+                                                                value="hold" class="btn btn-hold">
+                                                                Hold Courier Receive
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </form>
-                            </div>
+                                    </form>
+                                </div>
+                            @elseif ($hasCourierReceive)
+                                <div class="no-data">
+                                    <p>Courier receive has already been processed. To re-process, save new courier receive
+                                        details above.</p>
+                                </div>
+                            @else
+                                <div class="no-data">
+                                    <p>Please save courier receive details to continue with approval or hold.</p>
+                                </div>
+                            @endif
 
                         </div>
                     </div>
@@ -2596,9 +2707,20 @@
                             @foreach ($courierHistory as $history)
                                 <div style="padding: 0.75rem; border: 1px solid #e5e5e5; border-radius: 8px;">
                                     <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.9rem;">
-                                        <div><strong>Action:</strong> {{ ucfirst(str_replace('_', ' ', $history->action)) }}</div>
-                                        <div><strong>By:</strong> {{ $history->actor->name ?? ('Admin #' . ($history->action_by ?? 'N/A')) }}</div>
-                                        <div><strong>Date:</strong> {{ $history->action_at ? $history->action_at->format('d M Y H:i') : 'N/A' }}</div>
+                                        @php
+                                            $historyBy =
+                                                $history->data['approved_by'] ??
+                                                ($history->data['hold_by'] ??
+                                                    ($history->data['courier_received_by'] ?? null));
+                                        @endphp
+                                        <div><strong>Action:</strong>
+                                            {{ ucfirst(str_replace('_', ' ', $history->action)) }}</div>
+                                        <div><strong>By:</strong>
+                                            {{ $historyBy ?? ($history->actor->name ?? 'Admin #' . ($history->action_by ?? 'N/A')) }}
+                                        </div>
+                                        <div><strong>Date:</strong>
+                                            {{ $history->action_at ? $history->action_at->format('d M Y H:i') : 'N/A' }}
+                                        </div>
                                     </div>
                                     @if (!empty($history->data))
                                         <div style="margin-top: 0.5rem; display: grid; gap: 0.35rem;">
@@ -3410,11 +3532,15 @@
         const sendBackFields = document.getElementById('courierSendBackFields');
         const sendBackReasonInput = reviewForm.querySelector('textarea[name="courier_send_back_reason"]');
         const sendBackDateInput = reviewForm.querySelector('input[name="courier_send_back_date"]');
+        const approvedBySelect = reviewForm.querySelector('select[name="courier_approved_by"]');
+        const holdBySelect = reviewForm.querySelector('select[name="courier_hold_by"]');
 
         const documentsErrorDiv = document.getElementById('documents-error');
         const remarkErrorDiv = document.getElementById('remark-error');
         const chequesErrorDiv = document.getElementById('cheques-error');
         const sendBackErrorDiv = document.getElementById('sendback-error');
+        const approvedByErrorDiv = document.getElementById('approvedby-error');
+        const holdByErrorDiv = document.getElementById('holdby-error');
 
         function showDocumentsError(message) {
             documentsErrorDiv.textContent = message;
@@ -3452,6 +3578,24 @@
             sendBackErrorDiv.style.display = 'none';
         }
 
+        function showApprovedByError(message) {
+            approvedByErrorDiv.textContent = message;
+            approvedByErrorDiv.style.display = 'block';
+        }
+
+        function hideApprovedByError() {
+            approvedByErrorDiv.style.display = 'none';
+        }
+
+        function showHoldByError(message) {
+            holdByErrorDiv.textContent = message;
+            holdByErrorDiv.style.display = 'block';
+        }
+
+        function hideHoldByError() {
+            holdByErrorDiv.style.display = 'none';
+        }
+
         function toggleSendBackFields() {
             if (!sendBackSelect || !sendBackFields) return;
             const isSendBack = sendBackSelect.value === '1';
@@ -3471,25 +3615,38 @@
             hideRemarkError();
             hideChequesError();
             hideSendBackError();
+            hideApprovedByError();
+            hideHoldByError();
 
             const totalCheques = chequeTotalInput ? parseInt(chequeTotalInput.value, 10) : NaN;
             const receivedCheques = chequeReceivedInput ? parseInt(chequeReceivedInput.value || '0', 10) : 0;
             const pendingCheques = chequePendingInput ? parseInt(chequePendingInput.value || '0', 10) : 0;
 
-            if (!Number.isNaN(totalCheques)) {
-                if ((receivedCheques + pendingCheques) !== totalCheques) {
+            // APPROVE VALIDATION
+            if (action === "approve") {
+
+                if (!Number.isNaN(totalCheques)) {
+                    if ((receivedCheques + pendingCheques) !== totalCheques) {
+                        e.preventDefault();
+                        showChequesError("Received + pending cheques must equal total cheques (" + totalCheques +
+                            ").");
+                        chequesErrorDiv.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        });
+                        return;
+                    }
+                }
+
+                if (approvedBySelect && approvedBySelect.value === "") {
                     e.preventDefault();
-                    showChequesError("Received + pending cheques must equal total cheques (" + totalCheques + ").");
-                    chequesErrorDiv.scrollIntoView({
+                    showApprovedByError("Please select who approved the courier receive.");
+                    approvedByErrorDiv.scrollIntoView({
                         behavior: "smooth",
                         block: "center"
                     });
                     return;
                 }
-            }
-
-            // APPROVE VALIDATION
-            if (action === "approve") {
 
                 let allChecked = true;
                 let unchecked = [];
@@ -3531,6 +3688,16 @@
             // HOLD VALIDATION
             if (action === "hold") {
 
+                if (holdBySelect && holdBySelect.value === "") {
+                    e.preventDefault();
+                    showHoldByError("Please select who put the courier receive on hold.");
+                    holdByErrorDiv.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+                    return;
+                }
+
                 const remarkValue = remarkInput.value.trim();
 
                 if (remarkValue === "") {
@@ -3555,7 +3722,8 @@
                     const dateValue = sendBackDateInput ? sendBackDateInput.value.trim() : "";
                     if (reasonValue === "" || dateValue === "") {
                         e.preventDefault();
-                        showSendBackError("Please provide reason and date when sending courier back to student.");
+                        showSendBackError(
+                            "Please provide reason and date when sending courier back to student.");
                         sendBackErrorDiv.scrollIntoView({
                             behavior: "smooth",
                             block: "center"

@@ -15,13 +15,8 @@ use App\Helpers\AppHelpers;
 use App\Models\ContactEnquiry;
 use App\Models\RomChapterLeader;
 use App\Models\EmpoweringDream;
+use App\Models\EmpoweringFutureWebsite;
 use App\Models\WorkingCommittee;
-use App\Models\AdminAboutJitoWebsite;
-use App\Models\AdminJitoStats;
-use App\Models\JeapWebsite;
-use App\Models\BoardOfDirectors;
-use App\Models\ZoneChairmen;
-use App\Mail\ContactFormMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
@@ -31,10 +26,15 @@ class WebsiteController extends Controller
 {
     public function index()
     {
-        $empoweringDreams = EmpoweringDream::where('status', true)->orderBy('order', 'asc')->get();
-        $keyInstructions = KeyInstruction::where('is_active', true)->orderBy('display_order', 'asc')->get();
-        $workingCommittee = WorkingCommittee::where('status', true)->orderBy('display_order', 'asc')->get();
-        return view('website.home', compact('empoweringDreams', 'keyInstructions', 'workingCommittee'));
+        $empoweringDreams = EmpoweringDream::on('admin_panel')->where('status', true)->orderBy('order', 'asc')->get();
+        $keyInstructions = KeyInstruction::on('admin_panel')->where('is_active', true)->orderBy('display_order', 'asc')->get();
+        $workingCommittee = WorkingCommittee::on('admin_panel')->where('status', true)->orderBy('display_order', 'asc')->get();
+        $empoweringFutureWebsite = EmpoweringFutureWebsite::on('admin_panel')->where('status', true)->orderBy('order', 'asc')->get();
+        $achievementImpacts = AchievementImpact::on('admin_panel')->where('status', true)->orderBy('order', 'asc')->get();
+        $photoGalleries = PhotoGallery::on('admin_panel')->where('status', true)->orderBy('order', 'asc')->get();
+        $testimonials = OurTestimonial::on('admin_panel')->where('is_active', true)->orderBy('display_order', 'asc')->get();
+        $successStories = SuccessStory::on('admin_panel')->where('is_active', true)->orderBy('display_order', 'asc')->get();
+        return view('website.home', compact('empoweringDreams', 'keyInstructions', 'workingCommittee', 'empoweringFutureWebsite', 'achievementImpacts', 'photoGalleries', 'testimonials', 'successStories'));
     }
     public function aboutJito()
     {
@@ -100,7 +100,8 @@ class WebsiteController extends Controller
     }
     public function gallery()
     {
-        return view('website.gallery');
+        $photoGalleries = PhotoGallery::on('admin_panel')->where('status', true)->orderBy('order', 'asc')->get();
+        return view('website.gallery', compact('photoGalleries'));
     }
 
     
@@ -114,7 +115,9 @@ class WebsiteController extends Controller
     }
     public function testimonialSuccessStories()
     {
-        return view('website.testimonialSuccessStories');
+        $testimonials = OurTestimonial::on('admin_panel')->where('is_active', true)->orderBy('display_order', 'asc')->get();
+        $successStories = SuccessStory::on('admin_panel')->where('is_active', true)->orderBy('display_order', 'asc')->get();
+        return view('website.testimonialSuccessStories', compact('testimonials', 'successStories'));
     }
 
     
@@ -139,11 +142,19 @@ class WebsiteController extends Controller
 
     public function domestic()
     {
-        return view('website.domestic');
+        $universities = UniversityWebsite::where('university_type', 'domestic')
+            ->where('status', true)
+            ->orderBy('university_name', 'asc')
+            ->get();
+        return view('website.domestic', compact('universities'));
     }
     public function foreign()
     {
-        return view('website.foreign');
+        $universities = UniversityWebsite::where('university_type', 'foreign')
+            ->where('status', true)
+            ->orderBy('university_name', 'asc')
+            ->get();
+        return view('website.foreign', compact('universities'));
     }
 
     

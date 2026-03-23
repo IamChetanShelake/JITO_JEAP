@@ -152,9 +152,21 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::put('/website/home/empowering-future/{id}', [AdminController::class, 'updateEmpoweringFuture'])->name('website.home.empowering-future.update');
     Route::delete('/website/home/empowering-future/{id}', [AdminController::class, 'deleteEmpoweringFuture'])->name('website.home.empowering-future.delete');
     Route::get('/website/home/achievement-impact', [AdminController::class, 'websiteHomeAchievementImpact'])->name('website.home.achievement-impact');
+    Route::post('/website/home/achievement-impact', [AdminController::class, 'storeAchievementImpact'])->name('website.home.achievement-impact.store');
+    Route::put('/website/home/achievement-impact/{id}', [AdminController::class, 'updateAchievementImpact'])->name('website.home.achievement-impact.update');
+    Route::delete('/website/home/achievement-impact/{id}', [AdminController::class, 'deleteAchievementImpact'])->name('website.home.achievement-impact.delete');
     Route::get('/website/home/photo-gallery', [AdminController::class, 'websiteHomePhotoGallery'])->name('website.home.photo-gallery');
+    Route::post('/website/home/photo-gallery', [AdminController::class, 'storePhotoGallery'])->name('website.home.photo-gallery.store');
+    Route::put('/website/home/photo-gallery/{id}', [AdminController::class, 'updatePhotoGallery'])->name('website.home.photo-gallery.update');
+    Route::delete('/website/home/photo-gallery/{id}', [AdminController::class, 'deletePhotoGallery'])->name('website.home.photo-gallery.delete');
     Route::get('/website/home/our-testimonial', [AdminController::class, 'websiteHomeOurTestimonial'])->name('website.home.our-testimonial');
+    Route::post('/website/home/our-testimonial', [AdminController::class, 'storeOurTestimonial'])->name('website.home.our-testimonials.store');
+    Route::put('/website/home/our-testimonial/{id}', [AdminController::class, 'updateOurTestimonial'])->name('website.home.our-testimonials.update');
+    Route::delete('/website/home/our-testimonial/{id}', [AdminController::class, 'deleteOurTestimonial'])->name('website.home.our-testimonials.delete');
     Route::get('/website/home/success-stories', [AdminController::class, 'websiteHomeSuccessStories'])->name('website.home.success-stories');
+    Route::post('/website/home/success-stories', [AdminController::class, 'storeSuccessStory'])->name('website.home.success-stories.store');
+    Route::put('/website/home/success-stories/{id}', [AdminController::class, 'updateSuccessStory'])->name('website.home.success-stories.update');
+    Route::delete('/website/home/success-stories/{id}', [AdminController::class, 'deleteSuccessStory'])->name('website.home.success-stories.delete');
     
     Route::get('/website/about', [AdminController::class, 'websiteAbout'])->name('website.about');
 
@@ -197,8 +209,27 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::delete('/website/contact/delete/{id}', [AdminController::class, 'deleteContact'])->name('website.contact.delete');
 
     Route::get('/website/donor', [AdminController::class, 'websiteDonor'])->name('website.donor');
+    Route::get('/website/be-donor', [AdminController::class, 'websiteBeDonor'])->name('website.be-donor');
+    Route::post('/website/be-donor', [AdminController::class, 'storeBeDonorDetail'])->name('website.be-donor.store');
+    Route::put('/website/be-donor/{id}', [AdminController::class, 'updateBeDonorDetail'])->name('website.be-donor.update');
+    Route::delete('/website/be-donor/{id}', [AdminController::class, 'deleteBeDonorDetail'])->name('website.be-donor.delete');
+    Route::get('/website/our-donor', [AdminController::class, 'websiteOurDonor'])->name('website.our-donor');
     Route::get('/website/gallery', [AdminController::class, 'websiteGallery'])->name('website.gallery');
     Route::get('/website/university', [AdminController::class, 'websiteUniversity'])->name('website.university');
+    Route::post('/website/university', [AdminController::class, 'storeUniversity'])->name('website.university.store');
+    Route::put('/website/university/{id}', [AdminController::class, 'updateUniversity'])->name('website.university.update');
+    Route::delete('/website/university/{id}', [AdminController::class, 'deleteUniversity'])->name('website.university.delete');
+    Route::post('/website/university/{id}/toggle-status', [AdminController::class, 'toggleUniversityStatus'])->name('website.university.toggle-status');
+    
+    Route::get('/website/course', [AdminController::class, 'websiteCourse'])->name('website.course');
+    Route::post('/website/course', [AdminController::class, 'storeCourse'])->name('website.course.store');
+    Route::put('/website/course/{id}', [AdminController::class, 'updateCourse'])->name('website.course.update');
+    Route::delete('/website/course/{id}', [AdminController::class, 'deleteCourse'])->name('website.course.delete');
+    
+    Route::get('/website/college', [AdminController::class, 'websiteCollege'])->name('website.college');
+    Route::post('/website/college', [AdminController::class, 'storeCollege'])->name('website.college.store');
+    Route::put('/website/college/{id}', [AdminController::class, 'updateCollege'])->name('website.college.update');
+    Route::delete('/website/college/{id}', [AdminController::class, 'deleteCollege'])->name('website.college.delete');
 
 
 

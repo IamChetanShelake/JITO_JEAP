@@ -91,6 +91,9 @@
                                     style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
                                     <span style="color: #FFD800;">BE A </span> <span style="color: #393186;">DONOR</span>
                                 </h2>
+                                <a href="{{ route('donor.login') }}" class="btn btn-primary" style="margin-left: auto; background-color: #393186; border-color: #393186; padding: 10px 20px; font-size: 14px; font-weight: 600;">
+                                    <i class="fas fa-sign-in-alt"></i> Donor Login
+                                </a>
                             </div>
                             <div class="my-3" style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
                                 <span

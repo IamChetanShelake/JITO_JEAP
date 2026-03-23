@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('department')->nullable();
             $table->string('designation');
+            $table->string('photo');
+            $table->boolean('display_order');
             $table->string('email')->unique();
             $table->string('contact');
             $table->boolean('status')->default(true);

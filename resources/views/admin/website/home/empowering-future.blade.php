@@ -70,12 +70,12 @@
                     </td>
                     <td class="align-middle">
                         <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            {{ Str::limit($dream->vision ?? 'No vision', 50) }}
+                            {{ Str::limit($dream->vision_description ?? 'No vision', 50) }}
                         </div>
                     </td>
                     <td class="align-middle">
                         <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            {{ Str::limit($dream->mission ?? 'No mission', 50) }}
+                            {{ Str::limit($dream->mission_description ?? 'No mission', 50) }}
                         </div>
                     </td>
                     <td class="text-center align-middle">{{ $dream->order ?? 0 }}</td>
@@ -121,12 +121,10 @@
                                 <p>{{ $dream->title ?? 'N/A' }}</p>
                                 <h6>Description:</h6>
                                 <p>{{ $dream->description ?? 'No description' }}</p>
-                                <h6>Vision of JEAP:</h6>
-                                <p>{{ $dream->vision ?? $dream->vision_description ?? 'No vision description' }}</p>
+                                
                                 <h6>Vision Description of JEAP:</h6>
                                 <p>{{ $dream->vision_description ?? 'No vision description' }}</p>
-                                <h6>Mission of JEAP:</h6>
-                                <p>{{ $dream->mission ?? $dream->mission_description ?? 'No mission description' }}</p>
+                               
                                 <h6>Mission Description of JEAP:</h6>
                                 <p>{{ $dream->mission_description ?? 'No mission description' }}</p>
                                 
@@ -185,24 +183,14 @@
                                             <textarea class="form-control" id="description{{ $dream->id }}" name="description" rows="3" required>{{ $dream->description }}</textarea>
                                         </div>
                                     </div>
-                                    <div class="row mb-3">
-                                        <div class="col-md-12">
-                                            <label for="vision{{ $dream->id }}" class="form-label">Vision of JEAP</label>
-                                            <textarea class="form-control" id="vision{{ $dream->id }}" name="vision" rows="3">{{ $dream->vision }}</textarea>
-                                        </div>
-                                    </div>
+                                    
                                     <div class="row mb-3">
                                         <div class="col-md-12">
                                             <label for="vision_description{{ $dream->id }}" class="form-label">Vision Description of JEAP</label>
                                             <textarea class="form-control" id="vision_description{{ $dream->id }}" name="vision_description" rows="3">{{ $dream->vision_description }}</textarea>
                                         </div>
                                     </div>
-                                    <div class="row mb-3">
-                                        <div class="col-md-12">
-                                            <label for="mission{{ $dream->id }}" class="form-label">Mission of JEAP</label>
-                                            <textarea class="form-control" id="mission{{ $dream->id }}" name="mission" rows="3">{{ $dream->mission }}</textarea>
-                                        </div>
-                                    </div>
+                                    
                                     <div class="row mb-3">
                                         <div class="col-md-12">
                                             <label for="mission_description{{ $dream->id }}" class="form-label">Mission Description of JEAP</label>
@@ -210,14 +198,7 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="row mb-3">
-                                        <div class="col-md-12">
-                                            <label for="features{{ $dream->id }}" class="form-label">Features</label>
-                                            <textarea class="form-control" id="features{{ $dream->id }}" name="features" rows="2" placeholder="Enter features separated by commas">{{ $dream->features }}</textarea>
-                                            <small class="text-muted">Enter features separated by commas (e.g., Feature 1, Feature 2, Feature 3)</small>
-                                        </div>
-                                    </div>
-                                    
+
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label for="order{{ $dream->id }}" class="form-label">Display Order</label>
@@ -306,13 +287,6 @@
                         <div class="col-md-12">
                             <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
                             <textarea class="form-control" id="description" name="description" rows="3" required placeholder="Enter description"></textarea>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label for="features" class="form-label">Features</label>
-                            <textarea class="form-control" id="features" name="features" rows="2" placeholder="Enter features separated by commas"></textarea>
-                            <small class="text-muted">Enter features separated by commas (e.g., Feature 1, Feature 2, Feature 3)</small>
                         </div>
                     </div>
                     <div class="row mb-3">

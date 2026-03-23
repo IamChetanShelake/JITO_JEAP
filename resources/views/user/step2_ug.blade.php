@@ -244,20 +244,35 @@
                                             <div class="form-group mb-3">
                                                 <label for="course_name">Course Name <span
                                                         style="color: red;">*</span></label>
-                                                <input type="text" id="course_name" class="form-control"
-                                                    name="course_name" placeholder="Enter Course Name "
-                                                    value="{{ old('course_name', $educationDetail->course_name ?? '') }}"
-                                                    required>
+                                                <select id="course_name" class="form-control"
+                                                    name="course_name" required>
+                                                    <option value="" disabled
+                                                        {{ old('course_name', $educationDetail->course_name ?? '') ? '' : 'selected' }}>
+                                                        Select Course Name</option>
+                                                    @if($educationDetail && (old('course_name') || $educationDetail->course_name))
+                                                        <option value="{{ old('course_name', $educationDetail->course_name) }}" selected>
+                                                            {{ old('course_name', $educationDetail->course_name) }}
+                                                        </option>
+                                                    @endif
+                                                </select>
                                                 <small class="text-danger"
                                                     id="course_name_error">{{ $errors->first('course_name') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="university_name">University Name <span
                                                         style="color: red;">*</span></label>
-                                                <input type="text" id="university_name" class="form-control"
-                                                    name="university_name" placeholder="Enter University Name "
-                                                    value="{{ old('university_name', $educationDetail->university_name ?? '') }}"
-                                                    required>
+                                                <select id="university_name" class="form-control"
+                                                    name="university_name" required>
+                                                    <option value="" disabled
+                                                        {{ old('university_name', $educationDetail->university_name ?? '') ? '' : 'selected' }}>
+                                                        Select University Name</option>
+                                                    @foreach ($universities as $university)
+                                                        <option value="{{ $university->university_name }}"
+                                                            {{ (old('university_name') ?: $educationDetail->university_name ?? '') == $university->university_name ? 'selected' : '' }}>
+                                                            {{ $university->university_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
                                                 <small class="text-danger"
                                                     id="university_name_error">{{ $errors->first('university_name') }}</small>
                                             </div>
@@ -265,10 +280,22 @@
                                             <div class="form-group mb-3">
                                                 <label for="college_name">College Name <span
                                                         style="color: red;">*</span></label>
-                                                <input type="text" id="college_name" class="form-control"
-                                                    name="college_name" placeholder="Enter College Name "
-                                                    value="{{ old('college_name', $educationDetail->college_name ?? '') }}"
-                                                    required>
+                                                <select id="college_name" class="form-control"
+                                                    name="college_name" required>
+                                                    <option value="" disabled
+                                                        {{ old('college_name', $educationDetail->college_name ?? '') ? '' : 'selected' }}>
+                                                        Select College Name</option>
+                                                    @foreach ($colleges as $college)
+                                                        @php
+                                                            $coursesData = is_array($college->courses) ? $college->courses : (is_string($college->courses) ? json_decode($college->courses, true) : []);
+                                                        @endphp
+                                                        <option value="{{ $college->college_name }}"
+                                                            data-courses='{{ json_encode($coursesData) }}'
+                                                            {{ (old('college_name') ?: $educationDetail->college_name ?? '') == $college->college_name ? 'selected' : '' }}>
+                                                            {{ $college->college_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
                                                 <small class="text-danger"
                                                     id="college_name_error">{{ $errors->first('college_name') }}</small>
                                             </div>
@@ -927,6 +954,60 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Function to handle college selection and populate courses
+            function handleCollegeChange() {
+                const collegeSelect = document.getElementById('college_name');
+                const courseSelect = document.getElementById('course_name');
+                
+                if (collegeSelect && courseSelect) {
+                    collegeSelect.addEventListener('change', function() {
+                        const selectedOption = this.options[this.selectedIndex];
+                        const coursesData = selectedOption.getAttribute('data-courses');
+                        
+                        console.log('College changed, courses data:', coursesData);
+                        
+                        // Clear existing options
+                        courseSelect.innerHTML = '<option value="" disabled selected>Select Course Name</option>';
+                        
+                        // Check if courses data exists and is not empty
+                        if (coursesData && coursesData !== 'null' && coursesData !== '' && coursesData !== '[]' && coursesData !== '{}') {
+                            try {
+                                const coursesArray = JSON.parse(coursesData);
+                                // Handle both array and object formats
+                                const courses = Array.isArray(coursesArray) ? coursesArray : Object.values(coursesArray);
+                                
+                                if (courses && courses.length > 0) {
+                                    courses.forEach(function(course) {
+                                        if (course) {
+                                            const option = document.createElement('option');
+                                            option.value = course;
+                                            option.textContent = course;
+                                            courseSelect.appendChild(option);
+                                        }
+                                    });
+                                    console.log('Courses populated:', courses);
+                                } else {
+                                    // No courses available, allow manual entry
+                                    courseSelect.innerHTML = '<option value="">Select Course Name</option>';
+                                }
+                            } catch (e) {
+                                console.error('Error parsing courses:', e);
+                                courseSelect.innerHTML = '<option value="">Select Course Name</option>';
+                            }
+                        } else {
+                            // No courses data available, allow manual entry
+                            courseSelect.innerHTML = '<option value="">Select Course Name</option>';
+                        }
+                    });
+                    
+                    if (collegeSelect.value) {
+                        collegeSelect.dispatchEvent(new Event('change'));
+                    }
+                }
+            }
+            
+            handleCollegeChange();
+            
             // Function to toggle qualification fields
 
 

@@ -111,79 +111,39 @@
                                         Sr.No</th>
                                     <th
                                         style="background-color: #393186; color: white; padding: 12px; text-align: left; font-family: 'Poppins'; font-weight: 500; font-size: 16px; border-right: 4px solid white;">
-                                        Name</th>
+                                         University Name</th>
+                                         <th
+                                        style="background-color: #393186; color: white; padding: 12px; text-align: left; font-family: 'Poppins'; font-weight: 500; font-size: 16px; border-right: 4px solid white;">
+                                        Country</th>
                                     <th
-                                        style="background-color: #393186; color: white; padding: 12px; text-align: left; font-family: 'Poppins'; font-weight: 500; font-size: 16px;">
+                                        style="background-color: #393186; color: white; padding: 12px; text-align: left; font-family: 'Poppins'; font-weight: 500; font-size: 16px; border-right: 4px solid white;">
                                         State</th>
                                 </tr>
                             </thead>
                             <tbody id="tableBody">
+                                @forelse($universities as $index => $university)
                                 <tr class="tableRow">
                                     <td
                                         style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
-                                        1</td>
+                                        {{ $index + 1 }}</td>
+                                    <td
+                                        style="padding: 12px; border-left: none; border-right: 4px solid white; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
+                                        {{ $university->university_name }}</td>
+                                    <td
+                                        style="padding: 12px; border-left: none; border-right: 4px solid white; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
+                                        {{ $university->country ?? 'N/A' }}</td>
+                                    
                                     <td
                                         style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
-                                        John Doe</td>
-                                    <td
-                                        style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
-                                        Maharashtra</td>
+                                        {{ $university->state ?? 'N/A' }}</td>
                                 </tr>
+                                @empty
                                 <tr class="tableRow">
-                                    <td
-                                        style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
-                                        2</td>
-                                    <td
-                                        style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
-                                        Jane Smith</td>
-                                    <td
-                                        style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
-                                        Delhi</td>
+                                    <td colspan="4" style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px; text-align: center;">
+                                        No foreign universities found.
+                                    </td>
                                 </tr>
-                                <tr class="tableRow">
-                                    <td
-                                        style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
-                                        3</td>
-                                    <td
-                                        style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
-                                        Bob Johnson</td>
-                                    <td
-                                        style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
-                                        Karnataka</td>
-                                </tr>
-                                <tr class="tableRow">
-                                    <td
-                                        style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
-                                        1</td>
-                                    <td
-                                        style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
-                                        John Doe</td>
-                                    <td
-                                        style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
-                                        Maharashtra</td>
-                                </tr>
-                                <tr class="tableRow">
-                                    <td
-                                        style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
-                                        2</td>
-                                    <td
-                                        style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
-                                        Jane Smith</td>
-                                    <td
-                                        style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
-                                        Delhi</td>
-                                </tr>
-                                <tr class="tableRow">
-                                    <td
-                                        style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
-                                        3</td>
-                                    <td
-                                        style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
-                                        Bob Johnson</td>
-                                    <td
-                                        style="padding: 12px; border-left: none; border-right: none; border-bottom: 1px solid #ddd; font-family: 'Poppins'; font-size: 14px;">
-                                        Karnataka</td>
-                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>

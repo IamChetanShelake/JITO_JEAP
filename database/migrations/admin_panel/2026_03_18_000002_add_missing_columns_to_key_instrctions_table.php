@@ -11,15 +11,27 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // First, check if table exists with typo name and add columns
-        Schema::connection('admin_panel')->table('key_instrctions', function (Blueprint $table) {
-            if (!Schema::connection('admin_panel')->hasColumn('key_instrctions', 'icon_svg')) {
+        $schema = Schema::connection('admin_panel');
+
+        if ($schema->hasTable('key_instrctions') && !$schema->hasTable('key_instructions')) {
+            $schema->rename('key_instrctions', 'key_instructions');
+        }
+
+        if (!$schema->hasTable('key_instructions')) {
+            return;
+        }
+
+        if (!$schema->hasColumn('key_instructions', 'icon_svg')) {
+            $schema->table('key_instructions', function (Blueprint $table) {
                 $table->text('icon_svg')->nullable()->after('icon');
-            }
-            if (!Schema::connection('admin_panel')->hasColumn('key_instrctions', 'icon_image')) {
+            });
+        }
+
+        if (!$schema->hasColumn('key_instructions', 'icon_image')) {
+            $schema->table('key_instructions', function (Blueprint $table) {
                 $table->string('icon_image')->nullable()->after('icon_svg');
-            }
-        });
+            });
+        }
     }
 
     /**
@@ -27,8 +39,24 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('admin_panel')->table('key_instrctions', function (Blueprint $table) {
-            $table->dropColumn(['icon_svg', 'icon_image']);
-        });
+        $schema = Schema::connection('admin_panel');
+
+        if (!$schema->hasTable('key_instructions')) {
+            return;
+        }
+
+        $columnsToDrop = [];
+        if ($schema->hasColumn('key_instructions', 'icon_svg')) {
+            $columnsToDrop[] = 'icon_svg';
+        }
+        if ($schema->hasColumn('key_instructions', 'icon_image')) {
+            $columnsToDrop[] = 'icon_image';
+        }
+
+        if (!empty($columnsToDrop)) {
+            $schema->table('key_instructions', function (Blueprint $table) use ($columnsToDrop) {
+                $table->dropColumn($columnsToDrop);
+            });
+        }
     }
 };

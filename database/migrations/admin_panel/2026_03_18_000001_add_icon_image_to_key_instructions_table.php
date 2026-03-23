@@ -11,9 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::connection('admin_panel')->table('key_instructions', function (Blueprint $table) {
-            $table->string('icon_image')->nullable()->after('icon_svg');
-        });
+        if (!Schema::connection('admin_panel')->hasTable('key_instructions')) {
+            return;
+        }
+
+        if (!Schema::connection('admin_panel')->hasColumn('key_instructions', 'icon_image')) {
+            Schema::connection('admin_panel')->table('key_instructions', function (Blueprint $table) {
+                $table->string('icon_image')->nullable()->after('icon_svg');
+            });
+        }
     }
 
     /**
@@ -21,8 +27,14 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('admin_panel')->table('key_instructions', function (Blueprint $table) {
-            $table->dropColumn('icon_image');
-        });
+        if (!Schema::connection('admin_panel')->hasTable('key_instructions')) {
+            return;
+        }
+
+        if (Schema::connection('admin_panel')->hasColumn('key_instructions', 'icon_image')) {
+            Schema::connection('admin_panel')->table('key_instructions', function (Blueprint $table) {
+                $table->dropColumn('icon_image');
+            });
+        }
     }
 };

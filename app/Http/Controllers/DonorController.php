@@ -132,7 +132,21 @@ class DonorController extends Controller
         $donorCommitments = $donor->donationCommitments ?? collect();
         $activeCommitments = $donorCommitments->where('status', 'active');
 
-        return view('admin.donors.dashboard_show', compact('donor', 'children', 'paymentOptions', 'paymentEntries', 'zonesByState', 'chaptersByZone', 'zone_id', 'donorCommitments', 'activeCommitments'));
+        // Calculate total commitment amount
+        $totalCommitmentAmount = $activeCommitments->sum('committed_amount');
+
+        // Calculate total paid amount from payment entries
+        $totalPaidAmount = 0;
+        if (!empty($paymentEntries)) {
+            foreach ($paymentEntries as $entry) {
+                $totalPaidAmount += (float) ($entry['amount'] ?? 0);
+            }
+        }
+
+        // Remaining amount that can be paid
+        $remainingAmount = max(0, $totalCommitmentAmount - $totalPaidAmount);
+
+        return view('admin.donors.dashboard_show', compact('donor', 'children', 'paymentOptions', 'paymentEntries', 'zonesByState', 'chaptersByZone', 'zone_id', 'donorCommitments', 'activeCommitments', 'totalCommitmentAmount', 'totalPaidAmount', 'remainingAmount'));
     }
 
     public function index()
@@ -346,7 +360,9 @@ class DonorController extends Controller
     }
 
     /**
-     * Update payment for a specific commitment via modal form.
+     * Update payment for a donor (supports multiple payments not tied to commitments).
+     * For member donors: total payments cannot exceed total commitment amount.
+     * For general donors: no limit on payments.
      */
     public function updatePayment(Request $request, Donor $donor)
     {
@@ -367,7 +383,40 @@ class DonorController extends Controller
                 $existingPayments = [];
             }
 
-            // Handle General Donor payment (no commitment)
+            // Handle Delete Payment
+            if ($request->has('delete_payment_index')) {
+                $deleteIndex = $request->input('delete_payment_index');
+                if (isset($existingPayments[$deleteIndex])) {
+                    unset($existingPayments[$deleteIndex]);
+                    $existingPayments = array_values($existingPayments);
+
+                    $paymentDetail->payment_entries = $existingPayments;
+                    $paymentDetail->save();
+
+                    DB::commit();
+                    return redirect()->back()->with('success', 'Payment deleted successfully.');
+                }
+            }
+
+            // Calculate total commitment for member donors
+            $totalCommitmentAmount = 0;
+            if ($donor->donor_type === 'member') {
+                $activeCommitments = $donor->donationCommitments->where('status', 'active');
+                $totalCommitmentAmount = $activeCommitments->sum('committed_amount');
+            }
+
+            // Calculate current total paid (excluding the payment being edited)
+            $currentTotalPaid = 0;
+            foreach ($existingPayments as $index => $entry) {
+                // Skip the payment being edited when calculating current total
+                $editIndex = $request->input('general_payment_index');
+                if ($editIndex !== null && $editIndex !== '' && (string)$index === (string)$editIndex) {
+                    continue;
+                }
+                $currentTotalPaid += (float) ($entry['amount'] ?? 0);
+            }
+
+            // Handle General Donor payment (no commitment limit)
             if ($donor->donor_type === 'general' && $request->has('general_payment')) {
                 $generalPayment = $request->input('general_payment');
                 $generalPaymentData = [
@@ -387,7 +436,42 @@ class DonorController extends Controller
                     $existingPayments[] = $generalPaymentData;
                 }
             }
-            // Handle Member Donor payments (by commitment)
+            // Handle Member Donor payments (not tied to specific commitments)
+            elseif ($donor->donor_type === 'member' && $request->has('general_payment')) {
+                $generalPayment = $request->input('general_payment');
+                $newPaymentAmount = (float) ($generalPayment['amount'] ?? 0);
+
+                // Calculate new total after adding this payment
+                $newTotalPaid = $currentTotalPaid + $newPaymentAmount;
+
+                // Validate: total payments cannot exceed total commitment
+                if ($newTotalPaid > $totalCommitmentAmount) {
+                    $excessAmount = $newTotalPaid - $totalCommitmentAmount;
+                    return redirect()->back()->with(
+                        'error',
+                        'Total payments (₹' . number_format($newTotalPaid, 2) . ') cannot exceed total commitment amount (₹' .
+                            number_format($totalCommitmentAmount, 2) . '). Excess amount: ₹' . number_format($excessAmount, 2)
+                    );
+                }
+
+                $generalPaymentData = [
+                    'commitment_id' => null,
+                    'utr_no' => $generalPayment['utr_no'] ?? '',
+                    'cheque_date' => $generalPayment['cheque_date'] ?? '',
+                    'amount' => $newPaymentAmount,
+                    'bank_branch' => $generalPayment['bank_branch'] ?? '',
+                    'issued_by' => $generalPayment['issued_by'] ?? '',
+                ];
+
+                // If an index is provided, update that payment, else append as new
+                $generalPaymentIndex = $request->input('general_payment_index');
+                if ($generalPaymentIndex !== null && $generalPaymentIndex !== '' && isset($existingPayments[$generalPaymentIndex])) {
+                    $existingPayments[$generalPaymentIndex] = $generalPaymentData;
+                } else {
+                    $existingPayments[] = $generalPaymentData;
+                }
+            }
+            // Legacy: Handle old per-commitment payments
             elseif ($request->has('payments')) {
                 $payments = $request->input('payments', []);
 

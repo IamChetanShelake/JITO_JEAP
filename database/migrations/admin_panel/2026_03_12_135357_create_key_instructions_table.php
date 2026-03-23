@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::connection('admin_panel')->create('key_instrctions', function (Blueprint $table) {
+        Schema::connection('admin_panel')->create('key_instructions', function (Blueprint $table) {
             $table->id();
             $table->string('icon', 50)->default('info');
             $table->string('title', 255);

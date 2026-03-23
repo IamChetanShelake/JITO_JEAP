@@ -141,8 +141,8 @@ class AdminController extends Controller
         $request->validate([
             'title' => 'required|string',
             'description' => 'required|string',
-        
-           
+
+
             'features' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
@@ -158,7 +158,7 @@ class AdminController extends Controller
         EmpoweringDream::create([
             'title' => $request->title,
             'description' => $request->description,
-            
+
             'features' => $request->features,
             'image' => $imagePath,
             'order' => EmpoweringDream::max('order') + 1,
@@ -254,16 +254,16 @@ class AdminController extends Controller
 
             $iconSvg = '';
             $iconImage = null;
-            
+
             if ($request->hasFile('icon') && $request->file('icon')->isValid()) {
                 $file = $request->file('icon');
                 $extension = strtolower($file->getClientOriginalExtension());
-                
+
                 // Check if it's an SVG file
                 if (in_array($extension, ['svg', 'xml'])) {
                     try {
                         $iconSvg = file_get_contents($file->getRealPath());
-                        
+
                         // Modify SVG to set proper sizing
                         $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
                         $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
@@ -330,17 +330,17 @@ class AdminController extends Controller
         if ($request->hasFile('icon') && $request->file('icon')->isValid()) {
             $file = $request->file('icon');
             $extension = $file->getClientOriginalExtension();
-            
+
             // Check if it's an SVG file
             if (in_array(strtolower($extension), ['svg', 'xml'])) {
                 try {
                     $iconSvg = file_get_contents($file->getRealPath());
-                    
+
                     // Modify SVG to set proper sizing
                     $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
                     $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
                     $iconSvg = preg_replace('/(<svg)/i', '$1 width="40" height="40"', $iconSvg);
-                    
+
                     $keyInstruction->icon_svg = $iconSvg;
                     $keyInstruction->icon_image = null;
                     $keyInstruction->icon = 'custom';
@@ -357,7 +357,7 @@ class AdminController extends Controller
                     if ($keyInstruction->icon_image) {
                         \Illuminate\Support\Facades\Storage::disk('public')->delete($keyInstruction->icon_image);
                     }
-                    
+
                     $filename = 'key-instruction-' . time() . '.' . $extension;
                     $path = $file->storeAs('key-instructions', $filename, 'public');
                     $keyInstruction->icon_image = $path;
@@ -529,9 +529,9 @@ class AdminController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            
+
             'vision_description' => 'nullable|string',
-           
+
             'mission_description' => 'nullable|string',
             'features' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -706,11 +706,11 @@ class AdminController extends Controller
     public function deleteAchievementImpact($id)
     {
         $achievement = AchievementImpact::findOrFail($id);
-        
+
         if ($achievement->image && file_exists(public_path($achievement->image))) {
             unlink(public_path($achievement->image));
         }
-        
+
         $achievement->delete();
 
         return redirect()->back()->with('success', 'Data deleted successfully!');
@@ -782,7 +782,7 @@ class AdminController extends Controller
     public function deletePhotoGallery($id)
     {
         $gallery = PhotoGallery::findOrFail($id);
-        
+
         // Delete images from storage
         $images = json_decode($gallery->images, true) ?? [];
         foreach ($images as $image) {
@@ -1773,7 +1773,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'university_name' => 'required|string|max:255',
-            
+
             'university_type' => 'required|in:domestic,foreign',
             'country' => 'required|string|max:255',
             'state' => 'required|string|max:255',
@@ -1782,7 +1782,7 @@ class AdminController extends Controller
 
         UniversityWebsite::create([
             'university_name' => $request->university_name,
-            
+
             'university_type' => $request->university_type,
             'country' => $request->country,
             'state' => $request->state,
@@ -1800,7 +1800,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'university_name' => 'required|string|max:255',
-            
+
             'university_type' => 'required|in:domestic,foreign',
             'country' => 'required|string|max:255',
             'state' => 'required|string|max:255',
@@ -1810,7 +1810,7 @@ class AdminController extends Controller
         $university = UniversityWebsite::findOrFail($id);
         $university->update([
             'university_name' => $request->university_name,
-            
+
             'university_type' => $request->university_type,
             'country' => $request->country,
             'state' => $request->state,
@@ -1860,7 +1860,7 @@ class AdminController extends Controller
         $request->validate([
             'course_name' => 'required|string|max:255',
         ]);
-        
+
         // Check if course already exists
         $existingCourse = CourseWebsite::where('course_name', $request->course_name)->first();
         if ($existingCourse) {
@@ -4419,11 +4419,20 @@ class AdminController extends Controller
         $pdcDetail = \App\Models\PdcDetail::where('user_id', $user->id)->first();
         $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
         $courierDocumentChecklist = $this->getUploadedCourierDocumentChecklist($user, $loanCategory);
+        $chequeTotal = $this->getChequeTotalForUser($user);
+        $courierHistory = $pdcDetail
+            ? $pdcDetail->courierHistories()->with('actor')->orderBy('action_at')->get()
+            : collect();
+        $apexUsers = ApexLeadership::query()
+            ->where('status', true)
+            ->where('show_hide', true)
+            ->orderBy('name')
+            ->get();
 
         // Load edit bank detail request if exists
         $editBankDetailRequest = \App\Models\EditBankDetailRequest::where('user_id', $user->id)->latest()->first();
 
-        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory', 'editBankDetailRequest', 'courierDocumentChecklist'));
+        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory', 'editBankDetailRequest', 'courierDocumentChecklist', 'chequeTotal', 'courierHistory', 'apexUsers'));
     }
 
     /**
@@ -4498,7 +4507,7 @@ class AdminController extends Controller
     public function storeCourierReceive(Request $request, User $user)
     {
         $request->validate([
-            'courier_received_by' => 'required|string|max:255',
+            'courier_received_by' => 'required|string|max:255|exists:admin_panel.apex_leadership,name',
             'courier_received_date' => 'required|date',
         ]);
 
@@ -4508,6 +4517,12 @@ class AdminController extends Controller
             return back()->with('error', 'PDC details not found.');
         }
 
+        if ($pdcDetail->courier_receive_status === 'approved') {
+            return back()->with('error', 'Courier is already approved. Further receive entries are not allowed.');
+        }
+
+        $isResent = $pdcDetail->courier_receive_status === 'hold';
+
         $oldValues = $pdcDetail->only([
             'courier_received_by',
             'courier_received_date',
@@ -4516,6 +4531,14 @@ class AdminController extends Controller
             'courier_receive_processed_by',
             'courier_receive_processed_at',
             'courier_receive_verified_documents',
+            'courier_receive_approved_by',
+            'courier_receive_approved_at',
+            'courier_cheque_total',
+            'courier_cheque_received',
+            'courier_cheque_pending',
+            'courier_send_back',
+            'courier_send_back_reason',
+            'courier_send_back_date',
             'status',
             'admin_reject_remark',
         ]);
@@ -4528,6 +4551,14 @@ class AdminController extends Controller
             'courier_receive_processed_by' => null,
             'courier_receive_processed_at' => null,
             'courier_receive_verified_documents' => null,
+            'courier_receive_approved_by' => null,
+            'courier_receive_approved_at' => null,
+            'courier_cheque_total' => null,
+            'courier_cheque_received' => null,
+            'courier_cheque_pending' => null,
+            'courier_send_back' => null,
+            'courier_send_back_reason' => null,
+            'courier_send_back_date' => null,
             'status' => 'submitted',
             'admin_reject_remark' => null,
         ]);
@@ -4540,8 +4571,29 @@ class AdminController extends Controller
             'courier_receive_processed_by',
             'courier_receive_processed_at',
             'courier_receive_verified_documents',
+            'courier_receive_approved_by',
+            'courier_receive_approved_at',
+            'courier_cheque_total',
+            'courier_cheque_received',
+            'courier_cheque_pending',
+            'courier_send_back',
+            'courier_send_back_reason',
+            'courier_send_back_date',
             'status',
             'admin_reject_remark',
+        ]);
+
+        PdcCourierHistory::create([
+            'pdc_detail_id' => $pdcDetail->id,
+            'user_id' => $user->id,
+            'action' => $isResent ? 'resent_received' : 'received',
+            'action_by' => Auth::id(),
+            'action_at' => now(),
+            'data' => [
+                'courier_received_by' => $request->courier_received_by,
+                'courier_received_date' => $request->courier_received_date,
+                'is_resend' => $isResent,
+            ],
         ]);
 
         $actor = Auth::user();
@@ -4571,7 +4623,14 @@ class AdminController extends Controller
     {
         $request->validate([
             'courier_action' => 'required|in:approve,hold',
+            'courier_approved_by' => 'required_if:courier_action,approve|nullable|integer|exists:admin_panel.apex_leadership,id',
+            'courier_hold_by' => 'required_if:courier_action,hold|nullable|integer|exists:admin_panel.apex_leadership,id',
             'courier_receive_hold_remark' => 'nullable|string|max:2000',
+            'courier_cheque_received' => 'required_if:courier_action,approve|nullable|integer|min:0',
+            'courier_cheque_pending' => 'required_if:courier_action,approve|nullable|integer|min:0',
+            'courier_send_back' => 'nullable|in:0,1',
+            'courier_send_back_reason' => 'nullable|string|max:2000',
+            'courier_send_back_date' => 'nullable|date',
         ]);
 
         $pdcDetail = PdcDetail::where('user_id', $user->id)->first();
@@ -4584,10 +4643,26 @@ class AdminController extends Controller
             return back()->with('error', 'Please save courier receive details before approval or hold.');
         }
 
+        $chequeTotal = $this->getChequeTotalForUser($user, $pdcDetail);
+        $chequeReceived = null;
+        $chequePending = null;
+
         if ($request->courier_action === 'hold') {
+            $chequeReceived = $pdcDetail->courier_cheque_received;
+            $chequePending = $pdcDetail->courier_cheque_pending;
+
             $request->validate([
                 'courier_receive_hold_remark' => 'required|string|max:2000',
             ]);
+
+            $holdBy = ApexLeadership::query()->find($request->courier_hold_by);
+            $sendBack = $request->input('courier_send_back') === '1';
+            if ($sendBack) {
+                $request->validate([
+                    'courier_send_back_reason' => 'required|string|max:2000',
+                    'courier_send_back_date' => 'required|date',
+                ]);
+            }
 
             $oldValues = $pdcDetail->only([
                 'courier_receive_status',
@@ -4595,6 +4670,12 @@ class AdminController extends Controller
                 'courier_receive_processed_by',
                 'courier_receive_processed_at',
                 'courier_receive_verified_documents',
+                'courier_cheque_total',
+                'courier_cheque_received',
+                'courier_cheque_pending',
+                'courier_send_back',
+                'courier_send_back_reason',
+                'courier_send_back_date',
                 'status',
                 'admin_reject_remark',
             ]);
@@ -4602,9 +4683,15 @@ class AdminController extends Controller
             $pdcDetail->update([
                 'courier_receive_status' => 'hold',
                 'courier_receive_hold_remark' => $request->courier_receive_hold_remark,
-                'courier_receive_processed_by' => Auth::id(),
+                'courier_receive_processed_by' => $holdBy?->id,
                 'courier_receive_processed_at' => now(),
                 'courier_receive_verified_documents' => null,
+                'courier_cheque_total' => $chequeTotal,
+                'courier_cheque_received' => $chequeReceived,
+                'courier_cheque_pending' => $chequePending,
+                'courier_send_back' => $sendBack,
+                'courier_send_back_reason' => $sendBack ? $request->courier_send_back_reason : null,
+                'courier_send_back_date' => $sendBack ? $request->courier_send_back_date : null,
                 'status' => 'correction_required',
                 'admin_reject_remark' => $request->courier_receive_hold_remark,
             ]);
@@ -4615,8 +4702,32 @@ class AdminController extends Controller
                 'courier_receive_processed_by',
                 'courier_receive_processed_at',
                 'courier_receive_verified_documents',
+                'courier_cheque_total',
+                'courier_cheque_received',
+                'courier_cheque_pending',
+                'courier_send_back',
+                'courier_send_back_reason',
+                'courier_send_back_date',
                 'status',
                 'admin_reject_remark',
+            ]);
+
+            PdcCourierHistory::create([
+                'pdc_detail_id' => $pdcDetail->id,
+                'user_id' => $user->id,
+                'action' => 'hold',
+                'action_by' => Auth::id(),
+                'action_at' => now(),
+                'data' => [
+                    'hold_reason' => $request->courier_receive_hold_remark,
+                    'hold_by' => $holdBy?->name,
+                    'send_back' => $sendBack,
+                    'send_back_reason' => $sendBack ? $request->courier_send_back_reason : null,
+                    'send_back_date' => $sendBack ? $request->courier_send_back_date : null,
+                    'cheque_total' => $chequeTotal,
+                    'cheque_received' => $chequeReceived,
+                    'cheque_pending' => $chequePending,
+                ],
             ]);
 
             $actor = Auth::user();
@@ -4641,13 +4752,29 @@ class AdminController extends Controller
             }
 
             try {
-                Mail::to($user->email)->send(new SendBackForCorrectionMail($user, $request->courier_receive_hold_remark));
-                Log::info("Courier receive hold email sent to user {$user->id} ({$user->email})");
+                if ($sendBack) {
+                    Mail::to($user->email)->send(new SendBackForCorrectionMail($user, $request->courier_receive_hold_remark));
+                    Log::info("Courier receive hold email sent to user {$user->id} ({$user->email})");
+                }
             } catch (\Exception $e) {
                 Log::error("Failed to send courier receive hold email to user {$user->id}: " . $e->getMessage());
             }
 
-            return back()->with('success', 'Courier receive marked as hold and mail sent to the student.');
+            return back()->with(
+                'success',
+                $sendBack
+                    ? 'Courier receive marked as hold and mail sent to the student.'
+                    : 'Courier receive marked as hold.'
+            );
+        }
+
+        $chequeReceived = (int) $request->courier_cheque_received;
+        $chequePending = (int) $request->courier_cheque_pending;
+
+        if ($chequeTotal !== null && ($chequeReceived + $chequePending) !== (int) $chequeTotal) {
+            return back()->withErrors([
+                'courier_cheque_received' => 'Received + pending cheques must equal total cheques (' . $chequeTotal . ').',
+            ]);
         }
 
         $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
@@ -4688,16 +4815,30 @@ class AdminController extends Controller
             'courier_receive_processed_by',
             'courier_receive_processed_at',
             'courier_receive_verified_documents',
+            'courier_cheque_total',
+            'courier_cheque_received',
+            'courier_cheque_pending',
+            'courier_receive_approved_by',
+            'courier_receive_approved_at',
             'status',
             'admin_reject_remark',
         ]);
 
+        $approvedBy = ApexLeadership::query()->find($request->courier_approved_by);
         $pdcDetail->update([
             'courier_receive_status' => 'approved',
             'courier_receive_hold_remark' => null,
-            'courier_receive_processed_by' => Auth::id(),
+            'courier_receive_processed_by' => $approvedBy?->id,
             'courier_receive_processed_at' => now(),
             'courier_receive_verified_documents' => $approvedDocuments,
+            'courier_cheque_total' => $chequeTotal,
+            'courier_cheque_received' => $chequeReceived,
+            'courier_cheque_pending' => $chequePending,
+            'courier_receive_approved_by' => $approvedBy?->id,
+            'courier_receive_approved_at' => now(),
+            'courier_send_back' => null,
+            'courier_send_back_reason' => null,
+            'courier_send_back_date' => null,
             'status' => $pdcDetail->status === 'approved' ? 'approved' : 'submitted',
             'admin_reject_remark' => null,
         ]);
@@ -4708,8 +4849,28 @@ class AdminController extends Controller
             'courier_receive_processed_by',
             'courier_receive_processed_at',
             'courier_receive_verified_documents',
+            'courier_cheque_total',
+            'courier_cheque_received',
+            'courier_cheque_pending',
+            'courier_receive_approved_by',
+            'courier_receive_approved_at',
             'status',
             'admin_reject_remark',
+        ]);
+
+        PdcCourierHistory::create([
+            'pdc_detail_id' => $pdcDetail->id,
+            'user_id' => $user->id,
+            'action' => 'approved',
+            'action_by' => Auth::id(),
+            'action_at' => now(),
+            'data' => [
+                'approved_documents' => $approvedDocuments,
+                'approved_by' => $approvedBy?->name,
+                'cheque_total' => $chequeTotal,
+                'cheque_received' => $chequeReceived,
+                'cheque_pending' => $chequePending,
+            ],
         ]);
 
         $actor = Auth::user();
@@ -5289,6 +5450,25 @@ class AdminController extends Controller
     private function isCourierReceiveApproved(?PdcDetail $pdcDetail): bool
     {
         return $pdcDetail && $pdcDetail->courier_receive_status === 'approved';
+    }
+
+    private function getChequeTotalForUser(User $user, ?PdcDetail $pdcDetail = null): ?int
+    {
+        $approval = \App\Models\WorkingCommitteeApproval::query()
+            ->where('user_id', $user->id)
+            ->orderByDesc('id')
+            ->first();
+
+        if ($approval && $approval->no_of_cheques_to_be_collected) {
+            return (int) $approval->no_of_cheques_to_be_collected;
+        }
+
+        $pdcDetail = $pdcDetail ?: PdcDetail::where('user_id', $user->id)->first();
+        if ($pdcDetail && is_array($pdcDetail->cheque_details)) {
+            return count($pdcDetail->cheque_details);
+        }
+
+        return null;
     }
 
     private function getUploadedCourierDocumentChecklist(User $user, ?Loan_category $loanCategory = null): array

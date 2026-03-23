@@ -2321,7 +2321,7 @@
                                 <div class="form-field">
                                     <label class="form-label">Repayment Starting From</label>
                                     <input type="text" class="form-input"
-                                        value="{{ $user->workingCommitteeApproval->repayment_starting_from ? \Carbon\Carbon::parse($user->workingCommitteeApproval->repayment_starting_from)->format('d M Y') : 'N/A' }}"
+                                        value="{{ optional($user->workingCommitteeApproval)->repayment_starting_from ? \Carbon\Carbon::parse(optional($user->workingCommitteeApproval)->repayment_starting_from)->format('d M Y') : 'N/A' }}"
                                         readonly>
                                 </div>
                                 <div class="form-field">

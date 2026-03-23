@@ -18,6 +18,9 @@ class PdcDetail extends Model
         'courier_received_date' => 'date',
         'courier_receive_processed_at' => 'datetime',
         'courier_receive_verified_documents' => 'array',
+        'courier_receive_approved_at' => 'datetime',
+        'courier_send_back' => 'boolean',
+        'courier_send_back_date' => 'date',
     ];
 
     public function user()
@@ -28,5 +31,10 @@ class PdcDetail extends Model
     public function processedBy()
     {
         return $this->hasOne(User::class, 'id', 'processed_by');
+    }
+
+    public function courierHistories()
+    {
+        return $this->hasMany(PdcCourierHistory::class, 'pdc_detail_id');
     }
 }

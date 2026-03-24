@@ -562,13 +562,32 @@
                         $family = \App\Models\FamilyDetail::where('user_id', auth()->id())->first();
                         $fundingDetail = \App\Models\FundingDetail::where('user_id', auth()->id())->first();
                         $guarantorDetail = \App\Models\GuarantorDetail::where('user_id', auth()->id())->first();
-                        $document = \App\Models\Document::where('user_id', auth()->id())->first();
-                        $reviewSubmit = \App\Models\ReviewSubmit::where('user_id', auth()->id())->first();
+
                         // Get loan category type to determine if below 1 lakh
                         $loanCategory = \App\Models\Loan_category::where('user_id', auth()->id())
                             ->latest()
                             ->first();
                         $isBelowOneLakh = $loanCategory && $loanCategory->type === 'below';
+
+                        // Get user to check financial asset type and for
+                        $currentUser = \App\Models\User::find(auth()->id());
+                        $isDomesticGraduation = $currentUser && $currentUser->financial_asset_type === 'domestic' && $currentUser->financial_asset_for === 'graduation';
+                        $isDomesticPg = $currentUser && $currentUser->financial_asset_type === 'domestic' && $currentUser->financial_asset_for === 'post_graduation';
+                        // Check domestic + post_graduation FIRST (uses DocumentBelowPg table)
+                        $useDocumentBelowPg = $isDomesticPg;
+                        // Check below or domestic + graduation (uses DocumentsBelow table)
+                        $useDocumentsBelow = !$useDocumentBelowPg && ($isBelowOneLakh || $isDomesticGraduation);
+
+                        // Use correct document model based on loan category and financial asset
+                        if ($useDocumentsBelow) {
+                            $document = \App\Models\DocumentsBelow::where('user_id', auth()->id())->first();
+                        } elseif ($useDocumentBelowPg) {
+                            $document = \App\Models\DocumentBelowPg::where('user_id', auth()->id())->first();
+                        } else {
+                            $document = \App\Models\Document::where('user_id', auth()->id())->first();
+                        }
+
+                        $reviewSubmit = \App\Models\ReviewSubmit::where('user_id', auth()->id())->first();
                     @endphp
                     {{--
                     <li class="{{ request()->routeIs('user.step2') ? 'active' : '' }}">
@@ -746,9 +765,9 @@
                         <a href="{{ route('user.step6') }}">
                             <div
                                 class="step-icon
-@if ($document && in_array($document->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
-@if ($document && $document->submit_status === 'resubmit') resubmit-step @endif
-@if (request()->routeIs('user.step6')) active-step @endif">
+                            @if ($document && in_array($document->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+                            @if ($document && $document->submit_status === 'resubmit') resubmit-step @endif
+                            @if (request()->routeIs('user.step6')) active-step @endif">
 
                                 @if ($document && in_array($document->submit_status, ['submited', 'submitted', 'approved']))
                                     <svg width="34" height="23" viewBox="0 0 34 23" fill="none"

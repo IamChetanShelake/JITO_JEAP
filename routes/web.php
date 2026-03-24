@@ -481,6 +481,13 @@ Route::middleware(['auth', 'user'])
         Route::post('/Step6Storeforeign/', [UserController::class, 'step6storeforeign'])
             ->name('step6.storeforeign');
 
+        // Step 6 - Document Upload for Below 1 Lakh
+        Route::post('/Step6Storeugbelow/', [UserController::class, 'step6storeugbelow'])
+            ->name('step6.storeugbelow');
+
+        Route::post('/Step6Storepgbelow/', [UserController::class, 'step6storepgbelow'])
+            ->name('step6.storepgbelow');
+
 
         Route::get('/Step7', [UserController::class, 'step7'])
             ->name('step7');

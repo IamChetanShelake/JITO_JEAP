@@ -2563,12 +2563,23 @@ class BelowUserController extends Controller
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
         $user = User::find($user_id);
         $documents = Document::where('user_id', $user_id)->first();
-        if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'graduation') {
-            return view('user.step6_ug', compact('type', 'user', 'documents'));
-        } else if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'post_graduation') {
-            return view('user.step6_pg', compact('type', 'user', 'documents'));
-        } else if ($user->financial_asset_type == 'foreign_finance_assistant' && $user->financial_asset_for == 'post_graduation') {
-            return view('user.step6_pg_foreign', compact('type', 'user', 'documents'));
+        
+        if ($type == 'below') {
+            // Below 1 lakh category
+            if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'graduation') {
+                return view('user.step6_ug_below', compact('type', 'user', 'documents'));
+            } else if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'post_graduation') {
+                return view('user.step6_pg_below', compact('type', 'user', 'documents'));
+            }
+        } else {
+            // Above 1 lakh category (existing logic)
+            if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'graduation') {
+                return view('user.step6_ug', compact('type', 'user', 'documents'));
+            } else if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'post_graduation') {
+                return view('user.step6_pg', compact('type', 'user', 'documents'));
+            } else if ($user->financial_asset_type == 'foreign_finance_assistant' && $user->financial_asset_for == 'post_graduation') {
+                return view('user.step6_pg_foreign', compact('type', 'user', 'documents'));
+            }
         }
         // return view('user.step6', compact('type', 'user'));
     }

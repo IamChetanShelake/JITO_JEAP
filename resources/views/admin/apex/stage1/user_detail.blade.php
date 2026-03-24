@@ -864,6 +864,11 @@
                         style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-top: 1px solid var(--border-color);">
                         <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Short Summary PDF
                     </a>
+
+                    <a href="{{ route('admin.user.generate.financial_closure.pdf', $user) }}" class="dropdown-item"
+                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
+                        <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Financial Closure PDF
+                    </a>
                 </div>
             </div>
 

@@ -3198,6 +3198,49 @@ class AdminController extends Controller
 
         return $pdf->stream('JEAP_Short_Summary_' . $user->id . '.pdf');
     }
+
+    public function generateFinancialClosurePDF(User $user)
+    {
+        $user->load(['repayments']);
+
+        $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
+
+        $userNumber = $user->application_no;
+
+        if (!$workingCommitteeApproval) {
+            abort(404, 'Approval data not found');
+        }
+
+        $totalsArray = is_array($workingCommitteeApproval->total)
+            ? $workingCommitteeApproval->total
+            : json_decode($workingCommitteeApproval->total, true);
+
+        $totalExpected = array_sum($totalsArray);
+
+        $payments = $user->repayments
+            ->filter(fn($r) => strtolower(trim($r->status)) === 'paid');
+
+        $totalPaid = $payments->sum('amount');
+
+        // ❗ Closure check
+        if ($totalPaid < $totalExpected) {
+            return back()->with('error', 'Loan is not fully repaid yet.');
+        }
+
+        // ✅ Closure date = LAST payment date
+        $closureDate = $payments->sortByDesc('payment_date')->first()->payment_date;
+
+        $pdf = Pdf::loadView('pdf.financial-closure-report', [
+            'user' => $user,
+            'totalExpected' => $totalExpected,
+            'totalPaid' => $totalPaid,
+            'closureDate' => $closureDate,
+            'approval' => $workingCommitteeApproval,
+            'userNumber' => $userNumber
+        ]);
+
+        return $pdf->stream('Financial_Closure_Report_' . $user->id . '.pdf');
+    }
     public function viewSanctionLetter(User $user)
     {
         // Load all related data

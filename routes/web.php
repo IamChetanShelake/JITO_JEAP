@@ -241,6 +241,8 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
 
     Route::get('/user/{user}/generate-short-summary-pdf', [AdminController::class, 'generateShortSummaryPDF'])->name('user.generate.shortsummary.pdf');
 
+    Route::get('/financial-closure/{user}', [AdminController::class, 'generateFinancialClosurePDF'])->name('user.generate.financial_closure.pdf');
+
     // View Sanction Letter
     Route::get('/user/{user}/sanction-letter', [AdminController::class, 'viewSanctionLetter'])->name('user.sanction.letter');
 

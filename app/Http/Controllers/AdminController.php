@@ -19,6 +19,7 @@ use App\Models\Logs;
 use App\Models\Loan_category;
 use App\Models\PdcDetail;
 use App\Models\User;
+use App\Models\WorkingCommitteeApproval;
 use App\Models\WorkingCommitteeApprovalHistory;
 use App\Models\ThirdStageDocument;
 use App\Traits\LogsUserActivity;
@@ -3786,6 +3787,56 @@ class AdminController extends Controller
         }
 
         return back()->with('success', 'Third stage documents sent back for correction.');
+    }
+
+    public function generateThirdStageDocumentPDF(User $user)
+    {
+        $user->load(['thirdStageDocument', 'disbursementSchedules.disbursement']);
+
+        $thirdStageDocument = $user->thirdStageDocument;
+
+        if (!$thirdStageDocument) {
+            return back()->with('error', 'Third stage documents not found.');
+        }
+
+        if ($thirdStageDocument->status !== 'approved') {
+            return back()->with('error', 'PDF can only be generated after third stage documents are approved.');
+        }
+
+        $workingCommitteeApproval = WorkingCommitteeApproval::where('user_id', $user->id)->first();
+
+        $schedules = $user->disbursementSchedules
+            ->sortBy(fn ($schedule) => $schedule->installment_no ?? 0)
+            ->values();
+
+        $firstSchedule = $schedules->first();
+        $secondSchedule = $schedules->where('installment_no', 2)->first() ?? $schedules->skip(1)->first();
+
+        $firstDisbursementAmount = $this->resolveThirdStageScheduleAmount($firstSchedule);
+        $secondDisbursementAmount = $this->resolveThirdStageScheduleAmount($secondSchedule);
+
+        $pdf = Pdf::loadView('pdf.third-stage-documents', [
+            'user' => $user,
+            'thirdStageDocument' => $thirdStageDocument,
+            'workingCommitteeApproval' => $workingCommitteeApproval,
+            'firstDisbursementAmount' => $firstDisbursementAmount,
+            'secondDisbursementAmount' => $secondDisbursementAmount,
+        ]);
+
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->stream('Third_Stage_Documents_' . $user->id . '.pdf');
+    }
+
+    private function resolveThirdStageScheduleAmount($schedule): float
+    {
+        if (!$schedule) {
+            return 0.0;
+        }
+
+        $amount = optional($schedule->disbursement)->amount ?? $schedule->planned_amount ?? 0;
+
+        return (float) $amount;
     }
 
     // =====================================================

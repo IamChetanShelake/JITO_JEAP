@@ -869,6 +869,12 @@
                         style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
                         <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Financial Closure PDF
                     </a>
+                    @if ($user->thirdStageDocument && $user->thirdStageDocument->status === 'approved')
+                        <a href="{{ route('admin.third_stage_documents.pdf', $user) }}" class="dropdown-item"
+                            style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-top: 1px solid var(--border-color);">
+                            <i class="fas fa-file-pdf" style="margin-right: 0.5rem;"></i> Third Stage Documents PDF
+                        </a>
+                    @endif
                 </div>
             </div>
 

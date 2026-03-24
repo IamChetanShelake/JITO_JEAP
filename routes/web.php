@@ -226,6 +226,8 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
         ->name('third_stage_documents.approve');
     Route::post('/third-stage-documents/user/{user}/send-back', [AdminController::class, 'sendBackThirdStageDocument'])
         ->name('third_stage_documents.send_back');
+    Route::get('/third-stage-documents/user/{user}/pdf', [AdminController::class, 'generateThirdStageDocumentPDF'])
+        ->name('third_stage_documents.pdf');
 
 
     Route::get('/chapters/resubmit', [AdminController::class, 'chapterResubmit'])->name('chapter.resubmit');

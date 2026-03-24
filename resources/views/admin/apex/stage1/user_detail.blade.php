@@ -859,6 +859,11 @@
                         style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
                         <i class="fas fa-file-contract" style="margin-right: 0.5rem;"></i> Sanction Letter
                     </a>
+
+                    <a href="{{ route('admin.user.generate.shortsummary.pdf', $user) }}" class="dropdown-item"
+                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-top: 1px solid var(--border-color);">
+                        <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Short Summary PDF
+                    </a>
                 </div>
             </div>
 
@@ -1538,7 +1543,8 @@
                                 <div class="form-field">
                                     <label class="form-label">Current Year ITR</label>
                                     <input type="text" class="form-input"
-                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}" readonly>
+                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}"
+                                        readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Last Year ITR</label>

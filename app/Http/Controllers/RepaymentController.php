@@ -332,7 +332,7 @@ class RepaymentController extends Controller
                 ->withInput();
         }
 
-        $status = $request->payment_mode === 'pdc' ? 'pending' : 'cleared';
+        $status = 'paid';
 
         $repaymentId = null;
         $updatedRepaidAmount = 0;

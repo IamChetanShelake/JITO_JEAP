@@ -95,4 +95,14 @@ class User extends Authenticatable
     {
         return $this->hasOne(ThirdStageDocument::class);
     }
+
+    public function disbursementSchedules()
+    {
+        return $this->hasMany(DisbursementSchedule::class);
+    }
+
+    public function repayments()
+    {
+        return $this->hasMany(Repayment::class);
+    }
 }

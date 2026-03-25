@@ -13,6 +13,7 @@
                             <div class="col-md-4"><strong>Name:</strong> {{ $user->name }}</div>
                             <div class="col-md-4"><strong>Email:</strong> {{ $user->email }}</div>
                             <div class="col-md-4"><strong>Phone:</strong> {{ $user->phone }}</div>
+                            <div class="col-md-4"><strong>Application No:</strong> {{ $user->application_no }}</div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-4"><strong>Chapter:</strong> {{ $user->chapter }}</div>

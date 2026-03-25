@@ -3629,6 +3629,387 @@ class AdminController extends Controller
         return $pdf->stream($filename);
     }
 
+    // public function generateShortSummaryPDF(User $user)
+    // {
+    //     // Load relations
+    //     $user->load([
+    //         'workflowStatus',
+    //         'educationDetail',
+    //         'disbursementSchedules.disbursement', // IMPORTANT
+    //         'repayments'
+    //     ]);
+
+    //     $workflow = $user->workflowStatus;
+    //     $educationDetail = $user->educationDetail;
+
+    //     // Working committee
+    //     $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
+
+    //     // =========================
+    //     // 🔹 DISBURSEMENT DATA
+    //     // =========================
+    //     $disbursementSchedules = $user->disbursementSchedules
+    //         ->sortBy('installment_no')
+    //         ->values();
+
+    //     $disbursements = $disbursementSchedules
+    //         ->map(function ($schedule) {
+    //             return $schedule->disbursement;
+    //         })
+    //         ->filter()
+    //         ->values();
+
+    //     $paidDisbursementSchedules = $disbursementSchedules
+    //         ->filter(fn($schedule) => (bool) $schedule->disbursement)
+    //         ->values();
+
+    //     $totalDisbursed = $disbursements->sum('amount');
+
+    //     // First disbursement
+    //     $firstDisbursement = $disbursements->sortBy('disbursement_date')->first();
+    //     $firstSchedule = $disbursementSchedules->first();
+
+    //     // =========================
+    //     // 🔹 REPAYMENT DATA
+    //     // =========================
+    //     $repayments = $user->repayments
+    //         ->sortBy('payment_date')
+    //         ->values();
+
+    //     $paidRepayments = $repayments->filter(function ($repayment) {
+    //         return strtolower(trim((string) $repayment->status)) === 'paid';
+    //     });
+
+    //     $totalRepaid = $paidRepayments->sum('amount');
+
+    //     // =========================
+    //     // 🔹 REPAYMENT SUMMARY (NEW LOGIC)
+    //     // =========================
+
+    //     // Only paid repayments (sorted)
+    //     $paidRepayments = $repayments
+    //         ->filter(function ($r) {
+    //             return strtolower(trim((string)$r->status)) === 'paid';
+    //         })
+    //         ->sortBy('payment_date')
+    //         ->values();
+
+
+
+    //     // =========================
+    //     // 🔹 COMBINED REPAYMENT SCHEDULE
+    //     // =========================
+
+    //     // =========================
+    //     // 🔹 PHASE-WISE SUMMARY (FINAL)
+    //     // =========================
+
+    //     $repaymentRows = [];
+
+    //     $installmentAmounts = $workingCommitteeApproval->installment_amount ?? [];
+    //     $monthsArray = $workingCommitteeApproval->no_of_months ?? [];
+    //     $totalsArray = $workingCommitteeApproval->total ?? [];
+
+    //     $startDate = \Carbon\Carbon::parse($workingCommitteeApproval->repayment_starting_from);
+
+
+    //     // Running outstanding
+    //     $totalExpected = array_sum($totalsArray); // 300000
+    //     $runningOutstanding = $totalExpected;
+
+    //     // Paid repayments
+    //     $payments = $repayments
+    //         ->filter(fn($r) => strtolower(trim($r->status)) === 'paid')
+    //         ->sortBy('payment_date')
+    //         ->values();
+
+    //     $totalPaid = $payments->sum('amount');
+
+    //     $runningOutstanding = $totalDisbursed;
+
+    //     $currentDate = $startDate->copy();
+
+    //     $totalExpected = array_sum($totalsArray);
+
+    //     foreach ($totalsArray as $index => $totalAmount) {
+
+    //         $months = (int) ($monthsArray[$index] ?? 0);
+
+    //         // Calculate how much paid falls into this phase
+    //         $phasePaid = 0;
+
+    //         foreach ($payments as $payment) {
+    //             if (
+    //                 $payment->payment_date >= $currentDate &&
+    //                 $payment->payment_date < $currentDate->copy()->addMonths($months)
+    //             ) {
+
+    //                 $phasePaid += $payment->amount;
+    //             }
+    //         }
+
+    //         $runningOutstanding -= $phasePaid;
+
+    //         $repaymentRows[] = [
+    //             'date' => $currentDate->copy(),
+    //             'expected' => (float) $totalAmount,
+    //             'paid' => $phasePaid,
+    //             'outstanding' => max($runningOutstanding, 0),
+    //         ];
+
+    //         // Move to next phase start date
+    //         $currentDate->addMonths($months);
+    //     }
+
+    //     // Total paid
+    //     $totalPaid = $repayments
+    //         ->filter(fn($r) => strtolower(trim($r->status)) === 'paid')
+    //         ->sum('amount');
+
+    //     $pdcInstallments = $this->getPdcInstallmentsWithStatus($user);
+
+    //     // Outstanding
+    //     $outstanding = $totalExpected - $totalPaid;
+
+    //     // =========================
+    //     // 🔹 PASS TO VIEW
+    //     // =========================
+    //     $pdf = Pdf::loadView('pdf.jeap-short-summary', compact(
+    //         'user',
+    //         'workflow',
+    //         'educationDetail',
+    //         'workingCommitteeApproval',
+    //         'disbursements',
+    //         'disbursementSchedules',
+    //         'paidDisbursementSchedules',
+    //         'firstDisbursement',
+    //         'firstSchedule',
+    //         'repayments',
+    //         'pdcInstallments',
+    //         'totalDisbursed',
+    //         'totalRepaid',
+    //         'outstanding',
+    //         'repaymentRows',
+    //         'totalPaid',
+    //         'totalExpected'
+    //     ));
+
+    //     $pdf->setPaper('a4', 'portrait');
+
+    //     return $pdf->stream('JEAP_Short_Summary_' . $user->id . '.pdf');
+    // }
+
+    public function generateShortSummaryPDF(User $user)
+    {
+        // Load relations
+        $user->load([
+            'workflowStatus',
+            'educationDetail',
+            'disbursementSchedules.disbursement',
+            'repayments'
+        ]);
+
+        $workflow = $user->workflowStatus;
+        $educationDetail = $user->educationDetail;
+
+        // Working committee
+        $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
+
+        // =========================
+        // 🔹 DISBURSEMENT DATA
+        // =========================
+        $disbursementSchedules = $user->disbursementSchedules
+            ->sortBy('installment_no')
+            ->values();
+
+        $disbursements = $disbursementSchedules
+            ->map(fn($schedule) => $schedule->disbursement)
+            ->filter()
+            ->values();
+
+
+        $paidDisbursementSchedules = $disbursementSchedules
+            ->filter(fn($schedule) => (bool) $schedule->disbursement)
+            ->values();
+
+        $totalDisbursed = $disbursements->sum('amount');
+
+        $firstDisbursement = $disbursements->sortBy('disbursement_date')->first();
+        $firstSchedule = $disbursementSchedules->first();
+
+        // =========================
+        // 🔹 REPAYMENT DATA
+        // =========================
+        $repayments = $user->repayments
+            ->sortBy('payment_date')
+            ->values();
+
+        // =========================
+        // 🔹 PHASE-WISE REPAYMENT SUMMARY
+        // =========================
+
+        // Safe array handling (in case casting not applied)
+        $installmentAmounts = is_array($workingCommitteeApproval->installment_amount)
+            ? $workingCommitteeApproval->installment_amount
+            : json_decode($workingCommitteeApproval->installment_amount, true);
+
+        $monthsArray = is_array($workingCommitteeApproval->no_of_months)
+            ? $workingCommitteeApproval->no_of_months
+            : json_decode($workingCommitteeApproval->no_of_months, true);
+
+        $totalsArray = is_array($workingCommitteeApproval->total)
+            ? $workingCommitteeApproval->total
+            : json_decode($workingCommitteeApproval->total, true);
+
+        // Start date
+        $startDate = \Carbon\Carbon::parse($workingCommitteeApproval->repayment_starting_from);
+
+        // ✅ TOTAL EXPECTED (IMPORTANT)
+        $totalExpected = array_sum($totalsArray);
+
+        // Paid repayments
+        $payments = $repayments
+            ->filter(fn($r) => strtolower(trim($r->status)) === 'paid')
+            ->sortBy('payment_date')
+            ->values();
+
+        $totalPaid = $payments->sum('amount');
+
+        // Running outstanding starts from TOTAL EXPECTED
+        $runningOutstanding = $totalExpected;
+
+        $repaymentRows = [];
+        $currentDate = $startDate->copy();
+
+        $remainingPayments = $payments->values();
+
+
+        foreach ($totalsArray as $index => $totalAmount) {
+
+            $months = (int) ($monthsArray[$index] ?? 0);
+
+            $expected = (float) $totalAmount;
+            $phasePaid = 0;
+
+            $paymentDate = null; // ✅ track payment date
+
+            while ($remainingPayments->isNotEmpty() && $expected > 0) {
+
+                $payment = $remainingPayments->shift(); // full object
+
+                if (!$paymentDate) {
+                    $paymentDate = $payment->payment_date; // ✅ first payment date
+                }
+
+                if ($payment->amount <= $expected) {
+                    $phasePaid += $payment->amount;
+                    $expected -= $payment->amount;
+                } else {
+                    $phasePaid += $expected;
+
+                    // push remaining back
+                    $remainingPayments->prepend((object)[
+                        'amount' => $payment->amount - $expected,
+                        'payment_date' => $payment->payment_date
+                    ]);
+
+                    $expected = 0;
+                }
+            }
+
+            $runningOutstanding -= $phasePaid;
+
+            $repaymentRows[] = [
+                // ✅ IMPORTANT CHANGE HERE
+                'date' => $phasePaid > 0
+                    ? \Carbon\Carbon::parse($paymentDate)
+                    : $currentDate->copy(),
+
+                'expected' => (float) $totalAmount,
+                'paid' => $phasePaid,
+                'outstanding' => max($runningOutstanding, 0),
+            ];
+
+            $currentDate->addMonths($months);
+        }
+
+        // Final outstanding
+        $outstanding = $totalExpected - $totalPaid;
+
+        // =========================
+        // 🔹 OTHER DATA
+        // =========================
+        $pdcInstallments = $this->getPdcInstallmentsWithStatus($user);
+
+        // =========================
+        // 🔹 PASS TO VIEW
+        // =========================
+        $pdf = Pdf::loadView('pdf.jeap-short-summary', compact(
+            'user',
+            'workflow',
+            'educationDetail',
+            'workingCommitteeApproval',
+            'disbursements',
+            'disbursementSchedules',
+            'paidDisbursementSchedules',
+            'firstDisbursement',
+            'firstSchedule',
+            'repayments',
+            'pdcInstallments',
+            'totalDisbursed',
+            'repaymentRows',
+            'totalPaid',
+            'totalExpected',
+            'outstanding'
+        ));
+
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->stream('JEAP_Short_Summary_' . $user->id . '.pdf');
+    }
+
+    public function generateFinancialClosurePDF(User $user)
+    {
+        $user->load(['repayments']);
+
+        $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
+
+        $userNumber = $user->application_no;
+
+        if (!$workingCommitteeApproval) {
+            abort(404, 'Approval data not found');
+        }
+
+        $totalsArray = is_array($workingCommitteeApproval->total)
+            ? $workingCommitteeApproval->total
+            : json_decode($workingCommitteeApproval->total, true);
+
+        $totalExpected = array_sum($totalsArray);
+
+        $payments = $user->repayments
+            ->filter(fn($r) => strtolower(trim($r->status)) === 'paid');
+
+        $totalPaid = $payments->sum('amount');
+
+        // ❗ Closure check
+        if ($totalPaid < $totalExpected) {
+            return back()->with('error', 'Loan is not fully repaid yet.');
+        }
+
+        // ✅ Closure date = LAST payment date
+        $closureDate = $payments->sortByDesc('payment_date')->first()->payment_date;
+
+        $pdf = Pdf::loadView('pdf.financial-closure-report', [
+            'user' => $user,
+            'totalExpected' => $totalExpected,
+            'totalPaid' => $totalPaid,
+            'closureDate' => $closureDate,
+            'approval' => $workingCommitteeApproval,
+            'userNumber' => $userNumber
+        ]);
+
+        return $pdf->stream('Financial_Closure_Report_' . $user->id . '.pdf');
+    }
     public function viewSanctionLetter(User $user)
     {
         // Load all related data
@@ -4385,6 +4766,56 @@ class AdminController extends Controller
         return back()->with('success', 'Third stage documents sent back for correction.');
     }
 
+    public function generateThirdStageDocumentPDF(User $user)
+    {
+        $user->load(['thirdStageDocument', 'disbursementSchedules.disbursement']);
+
+        $thirdStageDocument = $user->thirdStageDocument;
+
+        if (!$thirdStageDocument) {
+            return back()->with('error', 'Third stage documents not found.');
+        }
+
+        if ($thirdStageDocument->status !== 'approved') {
+            return back()->with('error', 'PDF can only be generated after third stage documents are approved.');
+        }
+
+        $workingCommitteeApproval = WorkingCommitteeApproval::where('user_id', $user->id)->first();
+
+        $schedules = $user->disbursementSchedules
+            ->sortBy(fn ($schedule) => $schedule->installment_no ?? 0)
+            ->values();
+
+        $firstSchedule = $schedules->first();
+        $secondSchedule = $schedules->where('installment_no', 2)->first() ?? $schedules->skip(1)->first();
+
+        $firstDisbursementAmount = $this->resolveThirdStageScheduleAmount($firstSchedule);
+        $secondDisbursementAmount = $this->resolveThirdStageScheduleAmount($secondSchedule);
+
+        $pdf = Pdf::loadView('pdf.third-stage-documents', [
+            'user' => $user,
+            'thirdStageDocument' => $thirdStageDocument,
+            'workingCommitteeApproval' => $workingCommitteeApproval,
+            'firstDisbursementAmount' => $firstDisbursementAmount,
+            'secondDisbursementAmount' => $secondDisbursementAmount,
+        ]);
+
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->stream('Third_Stage_Documents_' . $user->id . '.pdf');
+    }
+
+    private function resolveThirdStageScheduleAmount($schedule): float
+    {
+        if (!$schedule) {
+            return 0.0;
+        }
+
+        $amount = optional($schedule->disbursement)->amount ?? $schedule->planned_amount ?? 0;
+
+        return (float) $amount;
+    }
+
     // =====================================================
     // PDC (Cheque) Stage Methods
     // =====================================================
@@ -4709,7 +5140,7 @@ class AdminController extends Controller
             ->with('success', 'PDC details updated successfully');
     }
 
-    private function getLockedPdcInstallments(User $user)
+    private function getPdcInstallmentsWithStatus(User $user, bool $onlyPaidOrPartial = false)
     {
         $pdcDetail = PdcDetail::query()
             ->where('user_id', $user->id)
@@ -4754,22 +5185,30 @@ class AdminController extends Controller
             ->where('status', '!=', 'bounced')
             ->sum('amount');
 
-        return $installments
-            ->map(function ($installment) use (&$remainingPaidAmount) {
-                if ($remainingPaidAmount >= $installment->amount && $installment->amount > 0) {
-                    $installment->status = 'paid';
-                    $remainingPaidAmount -= $installment->amount;
-                } elseif ($remainingPaidAmount > 0 && $installment->amount > 0) {
-                    $installment->status = 'partial';
-                    $remainingPaidAmount = 0;
-                } else {
-                    $installment->status = 'pending';
-                }
+        $annotated = $installments->map(function ($installment) use (&$remainingPaidAmount) {
+            if ($remainingPaidAmount >= $installment->amount && $installment->amount > 0) {
+                $installment->status = 'paid';
+                $remainingPaidAmount -= $installment->amount;
+            } elseif ($remainingPaidAmount > 0 && $installment->amount > 0) {
+                $installment->status = 'partial';
+                $remainingPaidAmount = 0;
+            } else {
+                $installment->status = 'pending';
+            }
 
-                return $installment;
-            })
-            ->whereIn('status', ['paid', 'partial'])
-            ->values();
+            return $installment;
+        });
+
+        if ($onlyPaidOrPartial) {
+            return $annotated->whereIn('status', ['paid', 'partial'])->values();
+        }
+
+        return $annotated->values();
+    }
+
+    private function getLockedPdcInstallments(User $user)
+    {
+        return $this->getPdcInstallmentsWithStatus($user, true);
     }
 
     private function isCourierReceiveApproved(?PdcDetail $pdcDetail): bool

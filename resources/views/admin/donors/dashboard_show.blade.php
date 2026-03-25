@@ -1107,100 +1107,99 @@
 
                             @php
                                 $donorCommitments = $donor->commitments ?? collect();
-                                $activeCommitment = $donorCommitments->where('status', 'active')->first();
+                                $commitmentLimit = 5400000;
+                                $totalCommittedAmount = $donorCommitments->sum('committed_amount');
+                                $remainingCommitmentAmount = max($commitmentLimit - $totalCommittedAmount, 0);
                             @endphp
 
-                            <!-- Show all active commitments with progress -->
-                            @if ($donorCommitments->where('status', 'active')->count() > 0)
-                                @foreach ($donorCommitments->where('status', 'active') as $commitment)
-                                    @php
-                                        $totalPaid = $commitment->getTotalPaidAmount();
-                                        $remaining = $commitment->getRemainingAmount();
-                                        $percentagePaid =
-                                            $commitment->committed_amount > 0
-                                                ? round(($totalPaid / $commitment->committed_amount) * 100, 2)
-                                                : 0;
-                                    @endphp
-                                    <div class="alert alert-success mb-3">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <h6 class="mb-1">Active Commitment</h6>
-                                            <span
-                                                class="badge bg-secondary">₹{{ number_format($commitment->committed_amount, 0) }}</span>
-                                        </div>
-                                        <p class="mb-1">Total Paid:
-                                            <strong>₹{{ number_format($totalPaid, 2) }}</strong>
-                                        </p>
-                                        <p class="mb-1">Remaining: <strong>₹{{ number_format($remaining, 2) }}</strong>
-                                        </p>
-                                        <div class="progress mt-2">
-                                            <div class="progress-bar bg-success" role="progressbar"
-                                                style="width: {{ $percentagePaid }}%"
-                                                aria-valuenow="{{ $percentagePaid }}" aria-valuemin="0"
-                                                aria-valuemax="100">
-                                                {{ $percentagePaid }}%
+                            <!-- Summary: Total Commitment vs Total Paid -->
+                            @if ($totalCommittedAmount > 0)
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-4">
+                                        <div class="card border-primary">
+                                            <div class="card-body text-center">
+                                                <h6 class="text-muted mb-1">Total Commitment</h6>
+                                                <h4 class="text-primary mb-0">₹{{ number_format($totalCommittedAmount, 2) }}</h4>
                                             </div>
                                         </div>
-                                        @if ($commitment->start_date)
-                                            <small class="text-muted">Start:
-                                                {{ $commitment->start_date->format('d-m-Y') }}</small>
-                                        @endif
-                                        @if ($commitment->end_date)
-                                            <small class="text-muted ms-2">End:
-                                                {{ $commitment->end_date->format('d-m-Y') }}</small>
-                                        @endif
                                     </div>
-                                @endforeach
+                                    <div class="col-md-4">
+                                        <div class="card border-success">
+                                            <div class="card-body text-center">
+                                                <h6 class="text-muted mb-1">Total Paid</h6>
+                                                <h4 class="text-success mb-0">₹{{ number_format($totalPaidAmount, 2) }}</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card border-{{ $remainingAmount > 0 ? 'warning' : 'success' }}">
+                                            <div class="card-body text-center">
+                                                <h6 class="text-muted mb-1">Remaining</h6>
+                                                <h4 class="text-{{ $remainingAmount > 0 ? 'warning' : 'success' }} mb-0">
+                                                    ₹{{ number_format($remainingAmount, 2) }}
+                                                </h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @php
+                                    $overallPercentage = $totalCommittedAmount > 0
+                                        ? round(($totalPaidAmount / $totalCommittedAmount) * 100, 2)
+                                        : 0;
+                                @endphp
+                                <div class="progress mb-3" style="height: 25px;">
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                        style="width: {{ $overallPercentage }}%"
+                                        aria-valuenow="{{ $overallPercentage }}" aria-valuemin="0"
+                                        aria-valuemax="100">
+                                        {{ $overallPercentage }}%
+                                    </div>
+                                </div>
+
+                                <!-- Simple Commitment List (just dates, no payment linking) -->
+                                @if ($donorCommitments->count() > 0)
+                                    <div class="mt-3">
+                                        <h6>Commitment Details</h6>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-bordered">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Committed Amount</th>
+                                                        <th>Start Date</th>
+                                                        <th>End Date</th>
+                                                        <th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($donorCommitments as $commitment)
+                                                        <tr>
+                                                            <td>₹{{ number_format($commitment->committed_amount, 2) }}</td>
+                                                            <td>{{ $commitment->start_date?->format('d-m-Y') ?? '-' }}</td>
+                                                            <td>{{ $commitment->end_date?->format('d-m-Y') ?? '-' }}</td>
+                                                            <td>
+                                                                @switch($commitment->status)
+                                                                    @case('active')
+                                                                        <span class="badge bg-success">Active</span>
+                                                                    @break
+                                                                    @case('completed')
+                                                                        <span class="badge bg-primary">Completed</span>
+                                                                    @break
+                                                                    @case('cancelled')
+                                                                        <span class="badge bg-danger">Cancelled</span>
+                                                                    @break
+                                                                @endswitch
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                @endif
                             @else
                                 <div class="alert alert-info mb-3">
-                                    <p class="mb-0">No active donation commitment. Create one to track your donation
-                                        goals.</p>
-                                </div>
-                            @endif
-
-
-                            <!-- Commitment History -->
-                            @if ($donorCommitments->count() > 0)
-                                <div class="mt-3">
-                                    <h6>Commitment History</h6>
-                                    <div class="table-responsive">
-                                        <table class="table table-sm table-bordered">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>Committed Amount</th>
-                                                    <th>Start Date</th>
-                                                    <th>End Date</th>
-                                                    <th>Status</th>
-                                                    <th>Total Paid</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach ($donorCommitments as $commitment)
-                                                    <tr>
-                                                        <td>₹{{ number_format($commitment->committed_amount, 2) }}</td>
-                                                        <td>{{ $commitment->start_date?->format('d-m-Y') ?? '-' }}</td>
-                                                        <td>{{ $commitment->end_date?->format('d-m-Y') ?? '-' }}</td>
-                                                        <td>
-                                                            @switch($commitment->status)
-                                                                @case('active')
-                                                                    <span class="badge bg-success">Active</span>
-                                                                @break
-
-                                                                @case('completed')
-                                                                    <span class="badge bg-primary">Completed</span>
-                                                                @break
-
-                                                                @case('cancelled')
-                                                                    <span class="badge bg-danger">Cancelled</span>
-                                                                @break
-                                                            @endswitch
-                                                        </td>
-                                                        <td>₹{{ number_format($commitment->getTotalPaidAmount(), 2) }}
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                    <p class="mb-0">No active donation commitment. Create one to track your donation goals.</p>
                                 </div>
                             @endif
                         </div>

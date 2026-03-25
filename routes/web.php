@@ -175,10 +175,6 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::put('/website/home/our-testimonial/{id}', [AdminController::class, 'updateOurTestimonial'])->name('website.home.our-testimonials.update');
     Route::delete('/website/home/our-testimonial/{id}', [AdminController::class, 'deleteOurTestimonial'])->name('website.home.our-testimonials.delete');
     Route::get('/website/home/success-stories', [AdminController::class, 'websiteHomeSuccessStories'])->name('website.home.success-stories');
-    Route::post('/website/home/success-stories', [AdminController::class, 'storeSuccessStory'])->name('website.home.success-stories.store');
-    Route::put('/website/home/success-stories/{id}', [AdminController::class, 'updateSuccessStory'])->name('website.home.success-stories.update');
-    Route::delete('/website/home/success-stories/{id}', [AdminController::class, 'deleteSuccessStory'])->name('website.home.success-stories.delete');
-    
     Route::get('/website/about', [AdminController::class, 'websiteAbout'])->name('website.about');
     Route::get('/website/application', [AdminController::class, 'websiteApplication'])->name('website.application');
     Route::get('/website/contact', [AdminController::class, 'websiteContact'])->name('website.contact');
@@ -194,12 +190,12 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::put('/website/university/{id}', [AdminController::class, 'updateUniversity'])->name('website.university.update');
     Route::delete('/website/university/{id}', [AdminController::class, 'deleteUniversity'])->name('website.university.delete');
     Route::post('/website/university/{id}/toggle-status', [AdminController::class, 'toggleUniversityStatus'])->name('website.university.toggle-status');
-    
+
     Route::get('/website/course', [AdminController::class, 'websiteCourse'])->name('website.course');
     Route::post('/website/course', [AdminController::class, 'storeCourse'])->name('website.course.store');
     Route::put('/website/course/{id}', [AdminController::class, 'updateCourse'])->name('website.course.update');
     Route::delete('/website/course/{id}', [AdminController::class, 'deleteCourse'])->name('website.course.delete');
-    
+
     Route::get('/website/college', [AdminController::class, 'websiteCollege'])->name('website.college');
     Route::post('/website/college', [AdminController::class, 'storeCollege'])->name('website.college.store');
     Route::put('/website/college/{id}', [AdminController::class, 'updateCollege'])->name('website.college.update');
@@ -276,6 +272,10 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
 
     // Generate Summary PDF
     Route::get('/user/{user}/generate-summary-pdf', [AdminController::class, 'generateSummaryPDF'])->name('user.generate.summary.pdf');
+
+    Route::get('/user/{user}/generate-short-summary-pdf', [AdminController::class, 'generateShortSummaryPDF'])->name('user.generate.shortsummary.pdf');
+
+    Route::get('/financial-closure/{user}', [AdminController::class, 'generateFinancialClosurePDF'])->name('user.generate.financial_closure.pdf');
 
     // View Sanction Letter
     Route::get('/user/{user}/sanction-letter', [AdminController::class, 'viewSanctionLetter'])->name('user.sanction.letter');

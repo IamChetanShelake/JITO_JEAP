@@ -98,6 +98,11 @@ class User extends Authenticatable
 
     public function disbursementSchedules()
     {
-        return $this->hasMany(DisbursementSchedule::class, 'user_id');
+        return $this->hasMany(DisbursementSchedule::class);
+    }
+
+    public function repayments()
+    {
+        return $this->hasMany(Repayment::class);
     }
 }

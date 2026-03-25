@@ -518,7 +518,7 @@
             <p class="page-subtitle">Update cheque details for {{ $user->name }}</p>
         </div>
         <div style="display: flex; gap: 1rem; align-items: center;">
-            <a href="{{ route('admin.pdc.user.detail', $user) }}" class="back-btn">
+            <a href="{{ route('admin.apex.stage2.user.detail', $user) }}" class="back-btn">
                 <i class="fas fa-arrow-left"></i> Back to Details
             </a>
         </div>
@@ -627,7 +627,8 @@
                 <div class="form-section">
                     @if (isset($lockedPdcInstallments) && $lockedPdcInstallments->isNotEmpty())
                         <div class="alert alert-info mb-3">
-                            Repayment already exists for some installments. Those cheque entries are locked and cannot be edited or removed.
+                            Repayment already exists for some installments. Those cheque entries are locked and cannot be
+                            edited or removed.
                         </div>
                     @endif
 
@@ -665,7 +666,8 @@
                                             value="{{ $cheque['parents_jnt_ac_name'] ?? '' }}"
                                             @if ($isLocked) disabled @else required @endif>
                                         @if ($isLocked)
-                                            <input type="hidden" name="cheque_details[{{ $index }}][parents_jnt_ac_name]"
+                                            <input type="hidden"
+                                                name="cheque_details[{{ $index }}][parents_jnt_ac_name]"
                                                 value="{{ $cheque['parents_jnt_ac_name'] ?? '' }}">
                                         @endif
                                     </div>
@@ -720,7 +722,8 @@
                                             value="{{ $cheque['account_number'] ?? ($bankDetails['account_number'] ?? '') }}"
                                             @if ($isLocked) disabled @else required @endif>
                                         @if ($isLocked)
-                                            <input type="hidden" name="cheque_details[{{ $index }}][account_number]"
+                                            <input type="hidden"
+                                                name="cheque_details[{{ $index }}][account_number]"
                                                 value="{{ $cheque['account_number'] ?? ($bankDetails['account_number'] ?? '') }}">
                                         @endif
                                     </div>
@@ -731,7 +734,8 @@
                                             value="{{ $cheque['cheque_number'] ?? '' }}"
                                             @if ($isLocked) disabled @else required @endif>
                                         @if ($isLocked)
-                                            <input type="hidden" name="cheque_details[{{ $index }}][cheque_number]"
+                                            <input type="hidden"
+                                                name="cheque_details[{{ $index }}][cheque_number]"
                                                 value="{{ $cheque['cheque_number'] ?? '' }}">
                                         @endif
                                     </div>
@@ -890,5 +894,4 @@
             fileNameDisplay.style.color = 'var(--text-light)';
         }
     });
-
 </script>

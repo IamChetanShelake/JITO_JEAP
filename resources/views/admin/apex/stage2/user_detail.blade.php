@@ -651,6 +651,19 @@
             box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
         }
 
+        .btn[disabled],
+        .btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-approve[disabled],
+        .btn-approve.disabled {
+            background: linear-gradient(135deg, #9ccc9c, #8bc48b);
+        }
+
         .btn-reject {
             background: linear-gradient(135deg, var(--primary-red), #e53935);
             color: white;
@@ -2371,6 +2384,27 @@
                     <div class="data-group">
                         <h4>Courier Receive</h4>
                         <div class="form-section">
+                            @php
+                                $chequePendingCount = (int) ($pdcDetail->courier_cheque_pending ?? 0);
+                            @endphp
+
+                            @if ($isCourierApproved && $chequePendingCount > 0)
+                                <div style="margin-bottom: 1rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                    <a href="#courierReviewFormWrapper" class="btn btn-approve"
+                                        id="toggleCourierReviewFormBtn" style="text-decoration: none;"
+                                        data-cheque-total="{{ $chequeTotal ?? ($pdcDetail->courier_cheque_total ?? 0) }}"
+                                        data-cheque-received="{{ $pdcDetail->courier_cheque_received ?? 0 }}"
+                                        data-cheque-pending="{{ $pdcDetail->courier_cheque_pending ?? 0 }}">
+                                        <i class="fas fa-edit"></i>
+                                        Edit Cheque Details (Pending: {{ $chequePendingCount }})
+                                    </a>
+                                    {{--  <a href="{{ route('admin.pdc.edit', $user) }}" class="btn btn-approve"
+                                        style="text-decoration: none;">
+                                        <i class="fas fa-external-link-alt"></i>
+                                        Open Edit Page
+                                    </a>  --}}
+                                </div>
+                            @endif
                             {{--  <div class="form-row">
                                 <div class="form-field">
                                     <label class="form-label">Courier Status</label>
@@ -2487,41 +2521,47 @@
                                 </div>
                             @endif
 
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <form action="{{ route('admin.apex.stage2.courier_receive.store', $user) }}"
-                                        method="POST">
-                                        @csrf
-                                        <div style="display:flex; gap:10px;">
-                                            <div style="flex:1;">
-                                                <label class="form-label">Courier Received By <span
-                                                        style="color: red;">*</span></label>
-                                                <select name="courier_received_by" class="form-input" required>
-                                                    <option value="">Select Apex User</option>
-                                                    @foreach ($apexUserList as $apexUser)
-                                                        <option value="{{ $apexUser->name }}"
-                                                            {{ old('courier_received_by', $pdcDetail->courier_received_by ?? '') === $apexUser->name ? 'selected' : '' }}>
-                                                            {{ $apexUser->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
+                            @if (!$isCourierApproved)
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <form action="{{ route('admin.apex.stage2.courier_receive.store', $user) }}"
+                                            method="POST">
+                                            @csrf
+                                            <div style="display:flex; gap:10px;">
+                                                <div style="flex:1;">
+                                                    <label class="form-label">Courier Received By <span
+                                                            style="color: red;">*</span></label>
+                                                    <select name="courier_received_by" class="form-input" required>
+                                                        <option value="">Select Apex User</option>
+                                                        @foreach ($apexUserList as $apexUser)
+                                                            <option value="{{ $apexUser->name }}"
+                                                                {{ old('courier_received_by', $pdcDetail->courier_received_by ?? '') === $apexUser->name ? 'selected' : '' }}>
+                                                                {{ $apexUser->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div style="flex:1;">
+                                                    <label class="form-label">Received Date <span
+                                                            style="color: red;">*</span></label>
+                                                    <input type="date" name="courier_received_date" class="form-input"
+                                                        value="{{ old('courier_received_date', optional($pdcDetail->courier_received_date)->format('Y-m-d') ?? now()->format('Y-m-d')) }}"
+                                                        required>
+                                                </div>
+                                                <button type="submit" class="btn btn-approve">Save Courier
+                                                    Receive</button>
                                             </div>
-                                            <div style="flex:1;">
-                                                <label class="form-label">Received Date <span
-                                                        style="color: red;">*</span></label>
-                                                <input type="date" name="courier_received_date" class="form-input"
-                                                    value="{{ old('courier_received_date', optional($pdcDetail->courier_received_date)->format('Y-m-d') ?? now()->format('Y-m-d')) }}"
-                                                    required>
-                                            </div>
-                                            <button type="submit" class="btn btn-approve">Save Courier Receive</button>
-                                        </div>
-                                    </form>
+                                        </form>
+                                    </div>
                                 </div>
-
-
-                            </div>
-                            @if ($canReviewCourier)
-                                <div class="form-field">
+                            @endif
+                            @php
+                                $showCourierReviewForm =
+                                    $canReviewCourier || ($isCourierApproved && $chequePendingCount > 0);
+                            @endphp
+                            @if ($showCourierReviewForm)
+                                <div class="form-field" id="courierReviewFormWrapper"
+                                    style="{{ $canReviewCourier ? '' : 'display: none;' }}">
                                     <form id="courierReviewForm"
                                         action="{{ route('admin.apex.stage2.courier_receive.review', $user) }}"
                                         method="POST">
@@ -2567,14 +2607,14 @@
                                                                 style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
                                                             </div>
                                                         </div>
-                                                        <div>
+                                                        <div class="js-approve-extra">
                                                             <label class="form-label">Approved By <span
                                                                     style="color: red;">*</span></label>
                                                             <select name="courier_approved_by" class="form-input">
                                                                 <option value="">Select Apex User</option>
                                                                 @foreach ($apexUserList as $apexUser)
                                                                     <option value="{{ $apexUser->id }}"
-                                                                        {{ (string) old('courier_approved_by') === (string) $apexUser->id ? 'selected' : '' }}>
+                                                                        {{ (string) old('courier_approved_by', $pdcDetail->courier_receive_approved_by ?? '') === (string) $apexUser->id ? 'selected' : '' }}>
                                                                         {{ $apexUser->name }}
                                                                     </option>
                                                                 @endforeach
@@ -2583,38 +2623,48 @@
                                                                 style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
                                                             </div>
                                                         </div>
-                                                        <label class="form-label" style="margin-top: 0.75rem;">Uploaded
-                                                            Documents Checklist <span style="color: red;">*</span></label>
-                                                        <div
-                                                            style="display: grid; gap: 0.5rem; max-height: 260px; overflow-y: auto; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px;">
-                                                            @forelse ($courierDocumentChecklist ?? [] as $documentItem)
-                                                                <label>
-                                                                    <input type="checkbox"
-                                                                        name="courier_verified_documents[]"
-                                                                        value="{{ $documentItem['label'] }}"
-                                                                        {{ in_array($documentItem['label'], old('courier_verified_documents', $pdcDetail->courier_receive_verified_documents ?? []), true) ? 'checked' : '' }}>
-                                                                    <span
-                                                                        style="margin: 10px;">{{ $documentItem['label'] }}</span>
-                                                                </label>
-                                                            @empty
-                                                                <p style="margin: 0; color: var(--text-light);">No
-                                                                    uploaded
-                                                                    document list found for this student.</p>
-                                                            @endforelse
+                                                        <div class="js-approve-extra">
+                                                            <label class="form-label"
+                                                                style="margin-top: 0.75rem;">Uploaded
+                                                                Documents Checklist</label>
+                                                            <div
+                                                                style="display: grid; gap: 0.5rem; max-height: 260px; overflow-y: auto; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px;">
+                                                                @forelse ($courierDocumentChecklist ?? [] as $documentItem)
+                                                                    <label>
+                                                                        <input type="checkbox"
+                                                                            name="courier_verified_documents[]"
+                                                                            value="{{ $documentItem['label'] }}"
+                                                                            {{ in_array($documentItem['label'], old('courier_verified_documents', $pdcDetail->courier_receive_verified_documents ?? []), true) ? 'checked' : '' }}>
+                                                                        <span
+                                                                            style="margin: 10px;">{{ $documentItem['label'] }}</span>
+                                                                    </label>
+                                                                @empty
+                                                                    <p style="margin: 0; color: var(--text-light);">No
+                                                                        uploaded
+                                                                        document list found for this student.</p>
+                                                                @endforelse
+                                                            </div>
+                                                            <!-- Error message for documents validation -->
+                                                            <div id="documents-error"
+                                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                                            </div>
+                                                            <div style="margin-top: 0.75rem;">
+                                                                <button type="submit" name="courier_action"
+                                                                    value="approve" class="btn btn-approve">
+                                                                    Approve Courier Receive
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                        <!-- Error message for documents validation -->
-                                                        <div id="documents-error"
-                                                            style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
-                                                        </div>
-                                                        <div style="margin-top: 0.75rem;">
+                                                        <div class="js-cheque-summary-only"
+                                                            style="margin-top: 0.75rem; display: none;">
                                                             <button type="submit" name="courier_action"
                                                                 value="approve" class="btn btn-approve">
-                                                                Approve Courier Receive
+                                                                Update Cheque Summary
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="data-group" style="margin: 0;">
+                                                <div class="data-group js-approve-extra" style="margin: 0;">
                                                     <h4>Hold Courier Receive</h4>
                                                     <div class="form-section" style="display: grid; gap: 0.75rem;">
                                                         <div>
@@ -2685,12 +2735,12 @@
                                         </div>
                                     </form>
                                 </div>
-                            @elseif ($hasCourierReceive)
+                            @elseif ($hasCourierReceive && !$isCourierApproved)
                                 <div class="no-data">
                                     <p>Courier receive has already been processed. To re-process, save new courier receive
                                         details above.</p>
                                 </div>
-                            @else
+                            @elseif(!$isCourierApproved)
                                 <div class="no-data">
                                     <p>Please save courier receive details to continue with approval or hold.</p>
                                 </div>
@@ -3125,6 +3175,20 @@
                 <div class="workflow-action-card">
                     <h4 class="action-title">Apex 2 Decision</h4>
 
+                    @php
+                        $isCourierApproved =
+                            isset($pdcDetail) && $pdcDetail && $pdcDetail->courier_receive_status === 'approved';
+                    @endphp
+
+                    @if (!$isCourierApproved)
+                        <div
+                            style="background: rgba(244, 67, 54, 0.08); border: 1px solid rgba(244, 67, 54, 0.2); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem;">
+                            <span style="color: var(--primary-red); font-size: 0.9rem; font-weight: 600;">
+                                Courier Receive must be approved before approving the application.
+                            </span>
+                        </div>
+                    @endif
+
                     <!-- Approve Form -->
                     <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_2']) }}"
                         method="POST">
@@ -3147,7 +3211,8 @@
 
 
                         </div>
-                        <button type="submit" class="btn btn-approve">
+                        <button type="submit" class="btn btn-approve"
+                            @if (!$isCourierApproved) disabled @endif>
                             <i class="fas fa-check"></i>
                             Approve Application
                         </button>
@@ -3628,7 +3693,8 @@
                 if (!Number.isNaN(totalCheques)) {
                     if ((receivedCheques + pendingCheques) !== totalCheques) {
                         e.preventDefault();
-                        showChequesError("Received + pending cheques must equal total cheques (" + totalCheques +
+                        showChequesError("Received + pending cheques must equal total cheques (" +
+                            totalCheques +
                             ").");
                         chequesErrorDiv.scrollIntoView({
                             behavior: "smooth",
@@ -3645,41 +3711,6 @@
                         behavior: "smooth",
                         block: "center"
                     });
-                    return;
-                }
-
-                let allChecked = true;
-                let unchecked = [];
-
-                documentCheckboxes.forEach(function(checkbox) {
-
-                    const labelSpan = checkbox.closest('label').querySelector('span');
-                    const documentName = labelSpan ? labelSpan.textContent.trim() : checkbox.value;
-
-                    if (documentName.toLowerCase() !== "other") {
-
-                        if (!checkbox.checked) {
-                            allChecked = false;
-                            unchecked.push(documentName);
-                        }
-
-                    }
-
-                });
-
-                if (!allChecked) {
-
-                    e.preventDefault();
-
-                    showDocumentsError(
-                        "Please select all documents"
-                    );
-
-                    documentsErrorDiv.scrollIntoView({
-                        behavior: "smooth",
-                        block: "center"
-                    });
-
                     return;
                 }
 
@@ -3747,6 +3778,43 @@
             setTimeout(initCourierReceiveValidation, 1000);
             setTimeout(initCourierReceiveValidation, 2000);
         }
+    });
+
+    // Toggle courier review form for approved cases with pending cheques
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleBtn = document.getElementById('toggleCourierReviewFormBtn');
+        const wrapper = document.getElementById('courierReviewFormWrapper');
+        if (!toggleBtn || !wrapper) return;
+
+        toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            wrapper.style.display = 'block';
+
+            const receivedInput = wrapper.querySelector('input[name="courier_cheque_received"]');
+            const pendingInput = wrapper.querySelector('input[name="courier_cheque_pending"]');
+            const totalInput = wrapper.querySelector('input[name="courier_cheque_total"]');
+            const fullSections = wrapper.querySelectorAll('.js-approve-extra');
+            const summaryOnlySections = wrapper.querySelectorAll('.js-cheque-summary-only');
+
+            const total = toggleBtn.getAttribute('data-cheque-total');
+            const received = toggleBtn.getAttribute('data-cheque-received');
+            const pending = toggleBtn.getAttribute('data-cheque-pending');
+
+            if (totalInput && total !== null && total !== '') totalInput.value = total;
+            if (receivedInput && received !== null && received !== '') receivedInput.value = received;
+            if (pendingInput && pending !== null && pending !== '') pendingInput.value = pending;
+            fullSections.forEach(section => {
+                section.style.display = 'none';
+            });
+            summaryOnlySections.forEach(section => {
+                section.style.display = 'block';
+            });
+
+            wrapper.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        });
     });
 
     // Also try when step nav items are clicked

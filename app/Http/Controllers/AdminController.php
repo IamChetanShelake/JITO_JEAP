@@ -6,39 +6,47 @@ use App\Http\Controllers\Controller;
 use App\Mail\SendBackForCorrectionMail;
 use App\Mail\ThirdStageDocumentCorrectionMail;
 use App\Mail\WorkingCommitteeApprovedMail;
+use App\Models\AchievementImpact;
+use App\Models\AdminNotification;
+use App\Models\AdminUser;
+use App\Models\ApexLeadership;
 use App\Models\ApplicationWorkflowStatus;
 use App\Models\BeDonorDetail;
 use App\Models\Chapter;
 use App\Models\ChapterInterviewAnswer;
-use App\Models\AdminNotification;
-use App\Models\AdminUser;
-use App\Models\ApexLeadership;
+use App\Models\CollegeWebsite;
+use App\Models\CourseWebsite;
 use App\Models\DisbursementSchedule;
+use App\Models\EditBankDetailRequest;
 use App\Models\EducationDetail;
 use App\Models\EmpoweringDream;
-use App\Models\AchievementImpact;
-use App\Models\PhotoGallery;
-use App\Models\Logs;
+use App\Models\KeyInstruction;
 use App\Models\Loan_category;
+use App\Models\Logs;
+use App\Models\OurTestimonial;
+use App\Models\PdcCourierHistory;
 use App\Models\PdcDetail;
-use App\Models\UniversityWebsite;
-use App\Models\CourseWebsite;
-use App\Models\CollegeWebsite;
-use App\Models\User;
-use App\Models\WorkingCommitteeApprovalHistory;
+use App\Models\PhotoGallery;
+use App\Models\SuccessStory;
 use App\Models\ThirdStageDocument;
+use App\Models\UniversityWebsite;
+
+
+
+
+
+use App\Models\User;
+use App\Models\WorkingCommittee;
+use App\Models\WorkingCommitteeApproval;
+use App\Models\WorkingCommitteeApprovalHistory;
 use App\Traits\LogsUserActivity;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-
-
-
-
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 
@@ -4121,28 +4129,9 @@ class AdminController extends Controller
             ->values()
             ->all();
 
-        if (empty($expectedDocuments)) {
-            throw ValidationException::withMessages([
-                'courier_verified_documents' => 'No uploaded documents were found for courier approval.',
-            ]);
-        }
-
-        sort($expectedDocuments);
-        sort($approvedDocuments);
-
-        // Filter out 'Other' from expected documents (it's optional for approval)
-        $requiredDocuments = array_filter($expectedDocuments, function ($doc) {
-            return strtolower(trim($doc)) !== 'other';
-        });
-        $requiredDocuments = array_values($requiredDocuments);
-
-        // Check if all required documents (except 'Other') are selected
-        $missingDocuments = array_diff($requiredDocuments, $approvedDocuments);
-
-        if (!empty($missingDocuments)) {
-            throw ValidationException::withMessages([
-                'courier_verified_documents' => 'Please select all documents except "Other" for approving. Missing: ' . implode(', ', $missingDocuments),
-            ]);
+        // Allow partial selection; just normalize to expected values when available.
+        if (!empty($expectedDocuments)) {
+            $approvedDocuments = array_values(array_intersect($expectedDocuments, $approvedDocuments));
         }
 
         $oldValues = $pdcDetail->only([

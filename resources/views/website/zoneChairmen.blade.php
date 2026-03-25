@@ -270,125 +270,32 @@
                 <div class="col-md-12 mt-4">
                     <div class="row">
 
+                        @forelse($items as $item)
                         <div class="col-md-3 mt-4 ">
                             <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px;border:1px solid #D7D7D7;">
                                 <p style="font-size: 16px; color: #4D4D4D;font-weight: 600; margin:0px 0px 7px;font-family: 'Poppins';">
-                                    East Zone
+                                    {{ $item->post }}
                                 </p>
                                 <div class="img-circle" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
-                                    <img src="{{ asset('website/images/j1.png') }}" alt="Photo" style="width: 106%; height: 106%; object-fit: cover;">
+                                    @if($item->image)
+                                    <img src="{{ asset($item->image) }}" alt="{{ $item->name }}" style="width: 106%; height: 106%; object-fit: cover;">
+                                    @else
+                                    <img src="{{ asset('website/images/j1.png') }}" alt="{{ $item->name }}" style="width: 106%; height: 106%; object-fit: cover;">
+                                    @endif
                                 </div>
                                 <h3 style="font-size: 16px; font-weight: 600; color: #393186; margin-bottom: -4px;font-family: 'Poppins', sans-serif !important; text-transform: none !important;">
-                                    Surendra Kumar Dugar
+                                    {{ $item->name }}
                                 </h3>
-                                <a href="#" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">skdugar@bmd.net.in</a>
+                                @if($item->email)
+                                <a href="mailto:{{ $item->email }}" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">{{ $item->email }}</a>
+                                @endif
                             </div>
                         </div>
-
-                        <div class="col-md-3 mt-4 ">
-                            <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px;border:1px solid #D7D7D7;">
-                                <p style="font-size: 16px; color: #4D4D4D;font-weight: 600; margin:0px 0px 7px;font-family: 'Poppins';">
-                                    Gujarat Zone
-                                </p>
-                                <div class="img-circle" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
-                                    <img src="{{ asset('website/images/j2.png') }}" alt="Photo" style="width: 106%; height: 106%; object-fit: cover;">
-                                </div>
-                                <h3 style="font-size: 16px; font-weight: 600; color: #393186; margin-bottom: -4px;font-family: 'Poppins', sans-serif !important; text-transform: none !important;">
-                                    Ashok Ranka
-                                </h3>
-                                <a href="#" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">ashok@rankasteels.com</a>
-                            </div>
+                        @empty
+                        <div class="col-md-12 text-center py-4">
+                            <p class="text-muted">No Zone Chairmen data available</p>
                         </div>
-
-                        <div class="col-md-3 mt-4 ">
-                            <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px;border:1px solid #D7D7D7;">
-                                <p style="font-size: 16px; color: #4D4D4D;font-weight: 600; margin:0px 0px 7px;font-family: 'Poppins';">
-                                    MPCG Zone
-                                </p>
-                                <div class="img-circle" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
-                                    <img src="{{ asset('website/images/j4.png') }}" alt="Photo" style="width: 106%; height: 106%; object-fit: cover;">
-                                </div>
-                                <h3 style="font-size: 16px; font-weight: 600; color: #393186; margin-bottom: -4px;font-family: 'Poppins', sans-serif !important; text-transform: none !important;">
-                                    Akhilesh Jain
-                                </h3>
-                                <a href="#" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">director@atishay.com</a>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 mt-4 ">
-                            <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px;border:1px solid #D7D7D7;">
-                                <p style="font-size: 16px; color: #4D4D4D;font-weight: 600; margin:0px 0px 7px;font-family: 'Poppins';">
-                                    Mumbai Zone
-                                </p>
-                                <div class="img-circle" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
-                                    <img src="{{ asset('website/images/j5.png') }}" alt="Photo" style="width: 106%; height: 106%; object-fit: cover;">
-                                </div>
-                                <h3 style="font-size: 16px; font-weight: 600; color: #393186; margin-bottom: -4px;font-family: 'Poppins', sans-serif !important; text-transform: none !important;">
-                                    Surendra Dassani
-                                </h3>
-                                <a href="#" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">skdassani@gmail.com</a>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 mt-4 ">
-                            <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px;border:1px solid #D7D7D7;">
-                                <p style="font-size: 16px; color: #4D4D4D;font-weight: 600; margin:0px 0px 7px;font-family: 'Poppins';">
-                                    North Zone
-                                </p>
-                                <div class="img-circle" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
-                                    <img src="{{ asset('website/images/j6.png') }}" alt="Photo" style="width: 106%; height: 106%; object-fit: cover;">
-                                </div>
-                                <h3 style="font-size: 16px; font-weight: 600; color: #393186; margin-bottom: -4px;font-family: 'Poppins', sans-serif !important; text-transform: none !important;">
-                                    Vikram Jain
-                                </h3>
-                                <a href="#" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">vjain@sperryplast.com</a>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 mt-4 ">
-                            <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px;border:1px solid #D7D7D7;">
-                                <p style="font-size: 16px; color: #4D4D4D;font-weight: 600; margin:0px 0px 7px;font-family: 'Poppins';">
-                                    Rajasthan Zone
-                                </p>
-                                <div class="img-circle" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
-                                    <img src="{{ asset('website/images/j7.png') }}" alt="Photo" style="width: 106%; height: 106%; object-fit: cover;">
-                                </div>
-                                <h3 style="font-size: 16px; font-weight: 600; color: #393186; margin-bottom: -4px;font-family: 'Poppins', sans-serif !important; text-transform: none !important;">
-                                    Shripal Raj Lodha
-                                </h3>
-                                <a href="#" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">jitojodhpur@shripallodha.com</a>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 mt-4 ">
-                            <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px;border:1px solid #D7D7D7;">
-                                <p style="font-size: 16px; color: #4D4D4D;font-weight: 600; margin:0px 0px 7px;font-family: 'Poppins';">
-                                    TNAPTS Zone
-                                </p>
-                                <div class="img-circle" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
-                                    <img src="{{ asset('website/images/j8.png') }}" alt="Photo" style="width: 106%; height: 106%; object-fit: cover;">
-                                </div>
-                                <h3 style="font-size: 16px; font-weight: 600; color: #393186; margin-bottom: -4px;font-family: 'Poppins', sans-serif !important; text-transform: none !important;">
-                                    Rajesh J. JAIN
-                                </h3>
-                                <a href="#" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">rajesh@futuralights.com</a>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 mt-4 ">
-                            <div class="card director-card" style="width: 85%; margin: 0 auto; background: white; border-radius: 0px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; padding: 20px;border:1px solid #D7D7D7;">
-                                <p style="font-size: 16px; color: #4D4D4D;font-weight: 600; margin:0px 0px 7px;font-family: 'Poppins';">
-                                    ROM Zone
-                                </p>
-                                <div class="img-circle" style="border-radius: 50%; width: 150px; height: 150px; margin: 0 auto 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid #ccc;">
-                                    <img src="{{ asset('website/images/j9.png') }}" alt="Photo" style="width: 106%; height: 106%; object-fit: cover;">
-                                </div>
-                                <h3 style="font-size: 16px; font-weight: 600; color: #393186; margin-bottom: -4px;font-family: 'Poppins', sans-serif !important; text-transform: none !important;">
-                                    Ravindra Khinvasara
-                                </h3>
-                                <a href="#" style="font-size: 16px;  color: #FFD800; text-decoration:underline;">ravi@khinvasaragroup.com</a>
-                            </div>
-                        </div>
+                        @endforelse
 
                     </div>
                 </div>

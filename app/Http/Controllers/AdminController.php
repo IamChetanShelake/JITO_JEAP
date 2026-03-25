@@ -14,15 +14,16 @@ use App\Models\ApplicationWorkflowStatus;
 use App\Models\BeDonorDetail;
 use App\Models\Chapter;
 use App\Models\ChapterInterviewAnswer;
-use App\Models\CollegeWebsite;
-use App\Models\CourseWebsite;
+
+use App\Models\BoardOfDirectors;
+use App\Models\ZoneChairmen;
 use App\Models\DisbursementSchedule;
 use App\Models\EditBankDetailRequest;
 use App\Models\EducationDetail;
 use App\Models\EmpoweringDream;
-use App\Models\KeyInstruction;
-use App\Models\Loan_category;
 use App\Models\Logs;
+use App\Models\Loan_category;
+
 use App\Models\OurTestimonial;
 use App\Models\PdcCourierHistory;
 use App\Models\PdcDetail;
@@ -1065,6 +1066,531 @@ class AdminController extends Controller
     }
 
     /**
+     * Website About - Jito Page
+     */
+    public function websiteAboutJito()
+    {
+        $items = AdminAboutJitoWebsite::orderBy('display_order')->get();
+        $stats = AdminJitoStats::orderBy('display_order')->get();
+        return view('admin.website.about.jito', compact('items', 'stats'));
+    }
+
+    /**
+     * Store Jito About Section
+     */
+    public function storeAboutJito(Request $request)
+    {
+        $request->validate([
+            'title' => 'nullable|string|max:255',
+            'paragraphs' => 'required|array|min:1',
+            'paragraphs.*' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'number' => 'nullable|string|max:255',
+            'stat_text' => 'nullable|string|max:255',
+            'display_order' => 'nullable|integer|min:0',
+            'status' => 'nullable|boolean',
+        ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/about-jito'), $imageName);
+            $imagePath = 'uploads/about-jito/' . $imageName;
+        }
+
+        AdminAboutJitoWebsite::create([
+            'title' => $request->title,
+            'paragraphs' => $request->paragraphs,
+            'image' => $imagePath,
+            'number' => $request->number,
+            'stat_text' => $request->stat_text,
+            'display_order' => $request->display_order ?? (AdminAboutJitoWebsite::max('display_order') + 1),
+            'status' => $request->status ?? true,
+        ]);
+
+        return redirect()->back()->with('success', 'Data added successfully!');
+    }
+
+    /**
+     * Update Jito About Section
+     */
+    public function updateAboutJito(Request $request, $id)
+    {
+        $request->validate([
+            'title' => 'nullable|string|max:255',
+            'paragraphs' => 'required|array|min:1',
+            'paragraphs.*' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'number' => 'nullable|string|max:255',
+            'stat_text' => 'nullable|string|max:255',
+            'display_order' => 'nullable|integer|min:0',
+            'status' => 'nullable|boolean',
+        ]);
+
+        $item = AdminAboutJitoWebsite::findOrFail($id);
+
+        $imagePath = $item->image;
+        if ($request->hasFile('image')) {
+            if ($item->image && file_exists(public_path($item->image))) {
+                unlink(public_path($item->image));
+            }
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/about-jito'), $imageName);
+            $imagePath = 'uploads/about-jito/' . $imageName;
+        }
+
+        $item->update([
+            'title' => $request->title,
+            'paragraphs' => $request->paragraphs,
+            'image' => $imagePath,
+            'number' => $request->number,
+            'stat_text' => $request->stat_text,
+            'display_order' => $request->display_order ?? $item->display_order,
+            'status' => $request->status ?? $item->status,
+        ]);
+
+        return redirect()->back()->with('success', 'Data updated successfully!');
+    }
+
+    /**
+     * Delete Jito About Section
+     */
+    public function deleteAboutJito($id)
+    {
+        $item = AdminAboutJitoWebsite::findOrFail($id);
+        if ($item->image && file_exists(public_path($item->image))) {
+            unlink(public_path($item->image));
+        }
+        $item->delete();
+
+        return redirect()->back()->with('success', 'Data deleted successfully!');
+    }
+
+    /**
+     * Store Jito Stats
+     */
+    public function storeJitoStats(Request $request)
+    {
+        $request->validate([
+            'number' => 'required|string|max:255',
+            'text' => 'required|string|max:255',
+            'display_order' => 'nullable|integer|min:0',
+            'status' => 'nullable|boolean',
+        ]);
+
+        AdminJitoStats::create([
+            'number' => $request->number,
+            'text' => $request->text,
+            'display_order' => $request->display_order ?? (AdminJitoStats::max('display_order') + 1),
+            'status' => $request->status ?? true,
+        ]);
+
+        return redirect()->back()->with('success', 'Stat added successfully!');
+    }
+
+    /**
+     * Update Jito Stats
+     */
+    public function updateJitoStats(Request $request, $id)
+    {
+        $request->validate([
+            'number' => 'required|string|max:255',
+            'text' => 'required|string|max:255',
+            'display_order' => 'nullable|integer|min:0',
+            'status' => 'nullable|boolean',
+        ]);
+
+        $item = AdminJitoStats::findOrFail($id);
+
+        $item->update([
+            'number' => $request->number,
+            'text' => $request->text,
+            'display_order' => $request->display_order ?? $item->display_order,
+            'status' => $request->status ?? $item->status,
+        ]);
+
+        return redirect()->back()->with('success', 'Stat updated successfully!');
+    }
+
+    /**
+     * Delete Jito Stats
+     */
+    public function deleteJitoStats($id)
+    {
+        $item = AdminJitoStats::findOrFail($id);
+        $item->delete();
+
+        return redirect()->back()->with('success', 'Stat deleted successfully!');
+    }
+
+    /**
+     * Website About - Jeap Page
+     */
+    public function websiteAboutJeap()
+    {
+        $items = \App\Models\JeapWebsite::orderBy('display_order','asc')->get();
+        return view('admin.website.about.jeap', compact('items'));
+    }
+
+    /**
+     * Store JEAP Data
+     */
+    public function storeJeap(Request $request)
+    {
+        $request->validate([
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'images.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+        ]);
+
+        $imagePath = null;
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time().'_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/jeap'), $imageName);
+            $imagePath = 'uploads/jeap/'.$imageName;
+        }
+
+        // Handle multiple images
+        $imagesPaths = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $img) {
+                if ($img) {
+                    $imageName = time().'_'.uniqid().'_'.$img->getClientOriginalName();
+                    $img->move(public_path('uploads/jeap'), $imageName);
+                    $imagesPaths[] = 'uploads/jeap/'.$imageName;
+                }
+            }
+        }
+
+        // Filter out empty values and re-index arrays
+        $smallTitles = array_values(array_filter($request->small_titles ?? [], function($value) {
+            return $value !== null && $value !== '';
+        }));
+
+        $smallDescriptions = array_values(array_filter($request->small_descriptions ?? [], function($value) {
+            return $value !== null && $value !== '';
+        }));
+
+        \App\Models\JeapWebsite::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'small_titles' => !empty($smallTitles) ? $smallTitles : null,
+            'small_descriptions' => !empty($smallDescriptions) ? $smallDescriptions : null,
+            'image' => $imagePath,
+            'images' => !empty($imagesPaths) ? $imagesPaths : null
+        ]);
+
+        return back()->with('success','JEAP Data Added Successfully');
+    }
+
+    /**
+     * Update JEAP Data
+     */
+    public function updateJeap(Request $request, $id)
+    {
+        $item = \App\Models\JeapWebsite::findOrFail($id);
+
+        $request->validate([
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'images.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+        ]);
+
+        $imagePath = $item->image;
+
+        if ($request->hasFile('image')) {
+            if ($item->image && file_exists(public_path($item->image))) {
+                unlink(public_path($item->image));
+            }
+            $image = $request->file('image');
+            $imageName = time().'_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/jeap'), $imageName);
+            $imagePath = 'uploads/jeap/'.$imageName;
+        }
+
+        // Handle multiple images
+        $imagesPaths = $item->images ? $item->images : [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $img) {
+                if ($img) {
+                    $imageName = time().'_'.uniqid().'_'.$img->getClientOriginalName();
+                    $img->move(public_path('uploads/jeap'), $imageName);
+                    $imagesPaths[] = 'uploads/jeap/'.$imageName;
+                }
+            }
+        }
+
+        // Filter out empty values and re-index arrays
+        $smallTitles = array_values(array_filter($request->small_titles ?? [], function($value) {
+            return $value !== null && $value !== '';
+        }));
+
+        $smallDescriptions = array_values(array_filter($request->small_descriptions ?? [], function($value) {
+            return $value !== null && $value !== '';
+        }));
+
+        $item->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'small_titles' => !empty($smallTitles) ? $smallTitles : null,
+            'small_descriptions' => !empty($smallDescriptions) ? $smallDescriptions : null,
+            'image' => $imagePath,
+            'images' => !empty($imagesPaths) ? $imagesPaths : null
+        ]);
+
+        return back()->with('success','JEAP Data Updated Successfully');
+    }
+
+    /**
+     * Delete JEAP Data
+     */
+    public function deleteJeap($id)
+    {
+        $item = \App\Models\JeapWebsite::findOrFail($id);
+
+        if ($item->image && file_exists(public_path($item->image))) {
+            unlink(public_path($item->image));
+        }
+
+        // Delete additional images
+        if ($item->images) {
+            foreach ($item->images as $img) {
+                if (file_exists(public_path($img))) {
+                    unlink(public_path($img));
+                }
+            }
+        }
+
+        $item->delete();
+
+        return back()->with('success','JEAP Data Deleted Successfully');
+    }
+
+    /**
+     * Delete single image from JEAP
+     */
+    public function deleteJeapImage($id)
+    {
+        $item = \App\Models\JeapWebsite::findOrFail($id);
+        $imageIndex = request()->input('image_index');
+
+        if ($item->images && isset($item->images[$imageIndex])) {
+            $imagePath = $item->images[$imageIndex];
+
+            // Delete the file
+            if (file_exists(public_path($imagePath))) {
+                unlink(public_path($imagePath));
+            }
+
+            // Remove from array
+            $images = $item->images;
+            unset($images[$imageIndex]);
+            $item->images = array_values($images);
+            $item->save();
+        }
+
+        return back()->with('success','Image Deleted Successfully');
+    }
+
+    /**
+     * Website About - Board of Directors Page
+     */
+    public function websiteAboutBoardOfDirectors()
+    {
+        $items = BoardOfDirectors::orderBy('display_order', 'asc')->get();
+        return view('admin.website.about.board-of-directors', compact('items'));
+    }
+
+    /**
+     * Store Board of Directors Data
+     */
+    public function storeBoardOfDirectors(Request $request)
+    {
+        $request->validate([
+            'name' => 'nullable|string|max:255',
+            'post' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+        ]);
+
+        $imagePath = null;
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time().'_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/board-of-directors'), $imageName);
+            $imagePath = 'uploads/board-of-directors/'.$imageName;
+        }
+
+        BoardOfDirectors::create([
+            'name' => $request->name,
+            'post' => $request->post,
+            'email' => $request->email,
+            'image' => $imagePath
+        ]);
+
+        return back()->with('success', 'Board of Directors Data Added Successfully');
+    }
+
+    /**
+     * Update Board of Directors Data
+     */
+    public function updateBoardOfDirectors(Request $request, $id)
+    {
+        $item = BoardOfDirectors::findOrFail($id);
+
+        $request->validate([
+            'name' => 'nullable|string|max:255',
+            'post' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+        ]);
+
+        $imagePath = $item->image;
+
+        if ($request->hasFile('image')) {
+            if ($item->image && file_exists(public_path($item->image))) {
+                unlink(public_path($item->image));
+            }
+            $image = $request->file('image');
+            $imageName = time().'_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/board-of-directors'), $imageName);
+            $imagePath = 'uploads/board-of-directors/'.$imageName;
+        }
+
+        $item->update([
+            'name' => $request->name,
+            'post' => $request->post,
+            'email' => $request->email,
+            'image' => $imagePath
+        ]);
+
+        return back()->with('success', 'Board of Directors Data Updated Successfully');
+    }
+
+    /**
+     * Delete Board of Directors Data
+     */
+    public function deleteBoardOfDirectors($id)
+    {
+        $item = BoardOfDirectors::findOrFail($id);
+
+        if ($item->image && file_exists(public_path($item->image))) {
+            unlink(public_path($item->image));
+        }
+
+        $item->delete();
+
+        return back()->with('success', 'Board of Directors Data Deleted Successfully');
+    }
+
+    /**
+     * Website About - Zone Chairmen Page
+     */
+    public function websiteAboutZoneChairmen()
+    {
+        $items = ZoneChairmen::orderBy('display_order', 'asc')->get();
+        return view('admin.website.about.zone-chairmen', compact('items'));
+    }
+
+    /**
+     * Store Zone Chairmen Data
+     */
+    public function storeZoneChairmen(Request $request)
+    {
+        $request->validate([
+            'name' => 'nullable|string|max:255',
+            'post' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+        ]);
+
+        $imagePath = null;
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time().'_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/zone-chairmen'), $imageName);
+            $imagePath = 'uploads/zone-chairmen/'.$imageName;
+        }
+
+        ZoneChairmen::create([
+            'name' => $request->name,
+            'post' => $request->post,
+            'email' => $request->email,
+            'image' => $imagePath
+        ]);
+
+        return back()->with('success', 'Zone Chairmen Data Added Successfully');
+    }
+
+    /**
+     * Update Zone Chairmen Data
+     */
+    public function updateZoneChairmen(Request $request, $id)
+    {
+        $item = ZoneChairmen::findOrFail($id);
+
+        $request->validate([
+            'name' => 'nullable|string|max:255',
+            'post' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+        ]);
+
+        $imagePath = $item->image;
+
+        if ($request->hasFile('image')) {
+            if ($item->image && file_exists(public_path($item->image))) {
+                unlink(public_path($item->image));
+            }
+            $image = $request->file('image');
+            $imageName = time().'_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/zone-chairmen'), $imageName);
+            $imagePath = 'uploads/zone-chairmen/'.$imageName;
+        }
+
+        $item->update([
+            'name' => $request->name,
+            'post' => $request->post,
+            'email' => $request->email,
+            'image' => $imagePath
+        ]);
+
+        return back()->with('success', 'Zone Chairmen Data Updated Successfully');
+    }
+
+    /**
+     * Delete Zone Chairmen Data
+     */
+    public function deleteZoneChairmen($id)
+    {
+        $item = ZoneChairmen::findOrFail($id);
+
+        if ($item->image && file_exists(public_path($item->image))) {
+            unlink(public_path($item->image));
+        }
+
+        $item->delete();
+
+        return back()->with('success', 'Zone Chairmen Data Deleted Successfully');
+    }
+
+    /**
+     * Website About - Testimonials / Success Story Page
+     */
+    public function websiteAboutTestimonialsSuccess()
+    {
+        return view('admin.website.about.testimonials-success');
+    }
+
+    /**
      * Website Application Page Management
      */
     public function websiteApplication()
@@ -1077,7 +1603,79 @@ class AdminController extends Controller
      */
     public function websiteContact()
     {
-        return view('admin.website.contact');
+        $items = \App\Models\AdminContact::orderBy('id', 'desc')->get();
+        return view('admin.website.contact', compact('items'));
+    }
+
+    /**
+     * Store Contact
+     */
+    public function storeContact(Request $request)
+    {
+        $request->validate([
+            'title' => 'nullable|string',
+            'description' => 'nullable|string',
+        ]);
+
+        // Filter out empty small_titles and small_descriptions
+        $smallTitles = array_filter($request->small_titles ?? [], function($value) {
+            return !is_null($value) && $value !== '';
+        });
+        $smallDescriptions = array_filter($request->small_descriptions ?? [], function($value) {
+            return !is_null($value) && $value !== '';
+        });
+
+        \App\Models\AdminContact::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'small_titles' => array_values($smallTitles),
+            'small_descriptions' => array_values($smallDescriptions),
+            'is_active' => $request->is_active ?? true,
+        ]);
+
+        return back()->with('success', 'Contact Data Added Successfully');
+    }
+
+    /**
+     * Update Contact
+     */
+    public function updateContact(Request $request, $id)
+    {
+        $request->validate([
+            'title' => 'nullable|string',
+            'description' => 'nullable|string',
+        ]);
+
+        $contact = \App\Models\AdminContact::findOrFail($id);
+
+        // Filter out empty small_titles and small_descriptions
+        $smallTitles = array_filter($request->small_titles ?? [], function($value) {
+            return !is_null($value) && $value !== '';
+        });
+        $smallDescriptions = array_filter($request->small_descriptions ?? [], function($value) {
+            return !is_null($value) && $value !== '';
+        });
+
+        $contact->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'small_titles' => array_values($smallTitles),
+            'small_descriptions' => array_values($smallDescriptions),
+            'is_active' => $request->is_active ?? true,
+        ]);
+
+        return back()->with('success', 'Contact Data Updated Successfully');
+    }
+
+    /**
+     * Delete Contact
+     */
+    public function deleteContact($id)
+    {
+        $contact = \App\Models\AdminContact::findOrFail($id);
+        $contact->delete();
+
+        return back()->with('success', 'Contact Data Deleted Successfully');
     }
 
     /**
@@ -1392,6 +1990,73 @@ class AdminController extends Controller
         $college->delete();
 
         return redirect()->route('admin.website.college')->with('success', 'College deleted successfully!');
+    }
+
+    /**
+     * Website Application - FAQs Page
+     */
+    public function websiteApplicationFaqs()
+    {
+        $faqs = \App\Models\AdminFaq::orderBy('sort_order', 'asc')->orderBy('id', 'desc')->get();
+        return view('admin.website.application.faqs', compact('faqs'));
+    }
+
+    /**
+     * Store FAQ
+     */
+    public function storeFaq(Request $request)
+    {
+        $request->validate([
+            'question' => 'required|string',
+            'answer' => 'required|string',
+        ]);
+
+        $maxOrder = \App\Models\AdminFaq::max('sort_order') ?? 0;
+
+        \App\Models\AdminFaq::create([
+            'question' => $request->question,
+            'answer' => $request->answer,
+            'question_hi' => $request->question_hi,
+            'answer_hi' => $request->answer_hi,
+            'sort_order' => $maxOrder + 1,
+            'is_active' => $request->is_active ?? true,
+        ]);
+
+        return back()->with('success', 'FAQ Added Successfully');
+    }
+
+    /**
+     * Update FAQ
+     */
+    public function updateFaq(Request $request, $id)
+    {
+        $request->validate([
+            'question' => 'required|string',
+            'answer' => 'required|string',
+        ]);
+
+        $faq = \App\Models\AdminFaq::findOrFail($id);
+
+        $faq->update([
+            'question' => $request->question,
+            'answer' => $request->answer,
+            'question_hi' => $request->question_hi,
+            'answer_hi' => $request->answer_hi,
+            'is_active' => $request->is_active ?? true,
+        ]);
+
+        return back()->with('success', 'FAQ Updated Successfully');
+    }
+
+    /**
+     * Delete FAQ
+     */
+    public function deleteFaq($id)
+    {
+        $faq = \App\Models\AdminFaq::findOrFail($id);
+        $faq->delete();
+
+        return back()->with('success', 'FAQ Deleted Successfully');
     }
 
     /**
@@ -5465,5 +6130,11 @@ class AdminController extends Controller
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
         ]);
+    }
+
+   // about
+    public function websiteAboutEmpoweringDreams()
+    {
+       return view('admin.website.about.empowering-dreams');
     }
 }

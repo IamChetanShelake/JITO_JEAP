@@ -33,8 +33,77 @@
                     <h2 style="font-family: 'Times New Roman', Times, serif; font-weight: bold; font-size: 32px; margin-bottom: 10px;">
                         <span style="color: #FFD800;">CONTACT</span> <span style="color: #393186;">US</span>
                     </h2>
-                    <h4 style="font-family: 'Poppins', sans-serif; font-weight: 600; color: #393186; margin-bottom: 20px;">Get In Touch With Us</h4>
                     
+                    @if($contactItems->count() > 0)
+                        @foreach($contactItems as $contact)
+                            @if($contact->title)
+                            <h4 style="font-family: 'Poppins', sans-serif; font-weight: 600; color: #393186; margin-bottom: 20px;">{{ $contact->title }}</h4>
+                            @endif
+                            
+                            @if($contact->description)
+                            <p style="font-size: 15px; color: #5B5B5B; line-height: 1.6; margin-bottom: 30px;">
+                                {{ $contact->description }}
+                            </p>
+                            @endif
+
+                            @if($contact->small_titles && count($contact->small_titles) > 0)
+                                @foreach($contact->small_titles as $index => $smallTitle)
+                                <div style="margin-bottom: 20px;">
+                                    <h5 style="font-family: 'Poppins', sans-serif; font-weight: 600; color: #333; font-size: 16px; display: flex; align-items: center;">
+                                        @if($index == 0)
+                                        <i class="fas fa-map-marker-alt" style="color: #FFD800; margin-right: 15px; font-size: 18px;"></i>
+                                        @elseif($index == 1)
+                                        <i class="fas fa-envelope" style="color: #FFD800; margin-right: 15px; font-size: 18px;"></i>
+                                        @elseif($index == 2)
+                                        <i class="fas fa-clock" style="color: #FFD800; margin-right: 15px; font-size: 18px;"></i>
+                                        @else
+                                        <i class="fas fa-info-circle" style="color: #FFD800; margin-right: 15px; font-size: 18px;"></i>
+                                        @endif
+                                        {{ $smallTitle }}
+                                    </h5>
+                                    <p style="margin-left: 33px; color: #5B5B5B; font-size: 14px; line-height: 1.5;">
+                                        {{ $contact->small_descriptions[$index] ?? '' }}
+                                    </p>
+                                </div>
+                                @endforeach
+                            @else
+                            <p style="font-size: 15px; color: #5B5B5B; line-height: 1.6; margin-bottom: 30px;">
+                                Welcome to JEAP! We are here to assist you with any questions, concerns, or feedback you may have. Whether you need help with the application process or want to learn more about our programs, our team is ready to support you.
+                            </p>
+
+                            <div style="margin-bottom: 20px;">
+                                <h5 style="font-family: 'Poppins', sans-serif; font-weight: 600; color: #333; font-size: 16px; display: flex; align-items: center;">
+                                    <i class="fas fa-map-marker-alt" style="color: #FFD800; margin-right: 15px; font-size: 18px;"></i>
+                                    Location
+                                </h5>
+                                <p style="margin-left: 33px; color: #5B5B5B; font-size: 14px; line-height: 1.5;">
+                                    JITO HOUSE, Plot No. A-56, Road No. 1, MIDC MAROL, Near International by Tunga Hotel, Mulgaon, Andheri (East), Mumbai - 400 093.
+                                </p>
+                            </div>
+
+                            <div style="margin-bottom: 20px;">
+                                <h5 style="font-family: 'Poppins', sans-serif; font-weight: 600; color: #333; font-size: 16px; display: flex; align-items: center;">
+                                    <i class="fas fa-envelope" style="color: #FFD800; margin-right: 15px; font-size: 18px;"></i>
+                                    Email
+                                </h5>
+                                <p style="margin-left: 33px; color: #5B5B5B; font-size: 14px;">
+                                    <a href="mailto:support.jitojeap@jito.org" style="color: #5B5B5B; text-decoration: none;">support.jitojeap@jito.org</a><br>
+                                    <a href="mailto:grievance.jitojeap@jito.org" style="color: #5B5B5B; text-decoration: none;">grievance.jitojeap@jito.org</a>
+                                </p>
+                            </div>
+
+                            <div style="margin-bottom: 20px;">
+                                <h5 style="font-family: 'Poppins', sans-serif; font-weight: 600; color: #333; font-size: 16px; display: flex; align-items: center;">
+                                    <i class="fas fa-clock" style="color: #FFD800; margin-right: 15px; font-size: 18px;"></i>
+                                    Business Hours
+                                </h5>
+                                <p style="margin-left: 33px; color: #5B5B5B; font-size: 14px;">
+                                    MON - Fri 9 Am - 5 Pm
+                                </p>
+                            </div>
+                            @endif
+                        @endforeach
+                    @else
                     <p style="font-size: 15px; color: #5B5B5B; line-height: 1.6; margin-bottom: 30px;">
                         Welcome to JEAP! We are here to assist you with any questions, concerns, or feedback you may have. Whether you need help with the application process or want to learn more about our programs, our team is ready to support you.
                     </p>
@@ -69,11 +138,17 @@
                             MON - Fri 9 Am - 5 Pm
                         </p>
                     </div>
+                    @endif
                 </div>
 
                 <!-- Right Side: Contact Form (Purple Background) -->
                 <div class="col-lg-7" style="background-color: #393186; padding: 50px;">
-                    <form action="" method="POST" enctype="multipart/form-data">
+                    @if(session('success'))
+                        <div class="alert alert-success" style="background-color: #d4edda; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+                    <form action="{{ route('contact.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-md-6 mb-3">

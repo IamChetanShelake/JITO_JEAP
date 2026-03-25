@@ -335,16 +335,33 @@
                 </div>
                 <div class="col-md-3">
                     <div class="info-card">
-                        <div class="info-label">Financial Assistent Type</div>
-                        <div class="info-value">{{ $user->financial_asset_type ?? 'N/A' }}</div>
+                        <div class="info-label">Application No:</div>
+                        <div class="info-value">{{ $user->application_no }}</div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="info-card">
-                        <div class="info-label">Financial Assistent For</div>
-                        <div class="info-value">{{ $user->financial_asset_for ?? 'N/A' }}</div>
-                    </div>
-                </div>
+    <div class="info-card">
+        <div class="info-label">Financial Assistant Type</div>
+        <div class="info-value">
+            {{ $user->financial_asset_type 
+                ? ucwords(str_replace('_', ' ', $user->financial_asset_type)) 
+                : 'N/A' }}
+        </div>
+    </div>
+</div>
+
+<div class="col-md-3">
+    <div class="info-card">
+        <div class="info-label">Financial Assistant For</div>
+        <div class="info-value">
+            {{ $user->financial_asset_for 
+                ? collect(explode(',', $user->financial_asset_for))
+                    ->map(fn($item) => ucwords(str_replace('_', ' ', $item)))
+                    ->implode(', ')
+                : 'N/A' }}
+        </div>
+    </div>
+</div>
                 <div class="col-md-3">
                     <div class="info-card">
                         <div class="info-label">Category</div>

@@ -8,7 +8,6 @@ use App\Models\Logs;
 use App\Models\User;
 use App\Models\Subcast;
 use App\Models\Document;
-use App\Models\DocumentBelowPg;
 use App\Models\PdcDetail;
 use App\Models\ThirdStageDocument;
 use App\Models\Familydetail;
@@ -34,7 +33,7 @@ use App\Models\ApplicationWorkflowStatus;
 use App\Models\UniversityWebsite;
 use App\Models\CollegeWebsite;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Models\DocumentsBelow;
+
 
 
 class UserController extends Controller
@@ -2645,18 +2644,8 @@ class UserController extends Controller
         $isDomesticGraduation = $user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'graduation';
         $isDomesticPg = $user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'post_graduation';
         
-        // Check domestic + post_graduation FIRST (uses DocumentBelowPg table)
-        if ($isDomesticPg) {
-            $documents = DocumentBelowPg::where('user_id', $user_id)->first();
-        }
-        // Check below or domestic + graduation (uses DocumentsBelow table)
-        elseif ($isBelowOneLakh || $isDomesticGraduation) {
-            $documents = DocumentsBelow::where('user_id', $user_id)->first();
-        }
-        // All other cases use Document table
-        else {
-            $documents = Document::where('user_id', $user_id)->first();
-        }
+        // Use main documents table for all cases now
+        $documents = Document::where('user_id', $user_id)->first();
         
         if ($type == 'below') {
             // Below 1 lakh category
@@ -3219,7 +3208,8 @@ class UserController extends Controller
     ]);
 
     try {
-        $existing = DocumentsBelow::where('user_id', Auth::id())->first();
+        // Store in main documents table instead of documents_belows
+        $existing = Document::where('user_id', Auth::id())->first();
         $rules = [];
         
         // Updated fields list to match the View
@@ -3281,13 +3271,13 @@ class UserController extends Controller
             }
         }
 
-        $document = DocumentsBelow::where('user_id', $user_id)->first();
+        $document = Document::where('user_id', $user_id)->first();
 
         if ($document) {
             $document->update($data);
             $message = 'Documents updated successfully!';
         } else {
-            DocumentsBelow::create($data);
+            Document::create($data);
             $message = 'Documents uploaded successfully!';
         }
 
@@ -3360,7 +3350,8 @@ class UserController extends Controller
     ]);
 
     try {
-        $existing = DocumentBelowPg::where('user_id', Auth::id())->first();
+        // Store in main documents table instead of document_below_pgs
+        $existing = Document::where('user_id', Auth::id())->first();
         $rules = [];
         
         // Updated fields to match the View input names
@@ -3422,13 +3413,13 @@ class UserController extends Controller
             }
         }
 
-        $document = DocumentBelowPg::where('user_id', $user_id)->first();
+        $document = Document::where('user_id', $user_id)->first();
 
         if ($document) {
             $document->update($data);
             $message = 'Documents updated successfully!';
         } else {
-            DocumentBelowPg::create($data);
+            Document::create($data);
             $message = 'Documents uploaded successfully!';
         }
 

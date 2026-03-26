@@ -1612,7 +1612,7 @@
                                 </svg>
                                 Previous
                             </a>
-                            @if ($documents && $user->workflowStatus->apex_1_status == 'approved')
+                            @if ($documents && in_array($documents->submit_status, ['submited', 'approved']))
                                 <button type="button" class="btn"
                                     style="background:#F0FDF4;color:#009846;border:1px solid #009846" disabled>
                                     <i class="bi bi-check-lg" style="color: green; font-size: 24px;"></i>

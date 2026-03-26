@@ -152,8 +152,33 @@
                                     <div class="row mb-3">
                                         <div class="col-md-12">
                                             <label for="features{{ $dream->id }}" class="form-label">Features <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="features{{ $dream->id }}" name="features" value="{{ $dream->features }}" required>
+                                            <input type="text" class="form-control" id="features{{ $dream->id }}" name="features" value="{{ $dream->features }}" required onkeyup="updateFeatureImageFieldsEdit('{{ $dream->id }}')">
                                             <small class="text-muted">Separate features with commas (e.g., Tuition, Books, Uniform)</small>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-12">
+                                            <label class="form-label">Feature Images</label>
+                                            <div id="featureImageFields{{ $dream->id }}">
+                                                @php
+                                                    $features = explode(',', $dream->features);
+                                                    $featureImages = json_decode($dream->feature_images, true) ?? [];
+                                                @endphp
+                                                @foreach($features as $index => $feature)
+                                                    @if(trim($feature))
+                                                    <div class="mb-2">
+                                                        <label class="form-label small">Image for: <strong>{{ trim($feature) }}</strong></label>
+                                                        <input type="file" class="form-control" name="feature_images[{{ $index }}]" accept="image/*">
+                                                        @if(isset($featureImages[$index]) && file_exists(public_path($featureImages[$index])))
+                                                            <div class="mt-1">
+                                                                <img src="{{ asset($featureImages[$index]) }}" alt="Feature Image" class="img-thumbnail" style="max-width: 80px; max-height: 60px;">
+                                                                <small class="text-muted d-block">Current image</small>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                    @endif
+                                                @endforeach
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="row mb-3">
@@ -243,10 +268,20 @@
                     <div class="row mb-3">
                         <div class="col-md-12">
                             <label for="features" class="form-label">Features <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="features" name="features" required placeholder="Enter features (comma separated)">
+                            <input type="text" class="form-control" id="features" name="features" required placeholder="Enter features (comma separated)" onkeyup="updateFeatureImageFields()">
                             <small class="text-muted">Separate features with commas (e.g., Tuition, Books, Uniform)</small>
                         </div>
                     </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Feature Images</label>
+                            <div id="featureImageFields">
+                                <p class="text-muted small">Enter features above to see image upload fields</p>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="row mb-3">
                         <div class="col-md-12">
                             <label for="image" class="form-label">Image <span class="text-danger">*</span></label>
@@ -263,6 +298,56 @@
         </div>
     </div>
 </div>
+
+<script>
+function updateFeatureImageFields() {
+    const featuresInput = document.getElementById('features').value;
+    const container = document.getElementById('featureImageFields');
+    
+    if (!featuresInput.trim()) {
+        container.innerHTML = '<p class="text-muted small">Enter features above to see image upload fields</p>';
+        return;
+    }
+    
+    const features = featuresInput.split(',').map(f => f.trim()).filter(f => f);
+    let html = '';
+    
+    features.forEach((feature, index) => {
+        html += `
+            <div class="mb-2">
+                <label class="form-label small">Image for: <strong>${feature}</strong></label>
+                <input type="file" class="form-control" name="feature_images[${index}]" accept="image/*">
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function updateFeatureImageFieldsEdit(dreamId) {
+    const featuresInput = document.getElementById('features' + dreamId).value;
+    const container = document.getElementById('featureImageFields' + dreamId);
+    
+    if (!featuresInput.trim()) {
+        container.innerHTML = '<p class="text-muted small">Enter features above to see image upload fields</p>';
+        return;
+    }
+    
+    const features = featuresInput.split(',').map(f => f.trim()).filter(f => f);
+    let html = '';
+    
+    features.forEach((feature, index) => {
+        html += `
+            <div class="mb-2">
+                <label class="form-label small">Image for: <strong>${feature}</strong></label>
+                <input type="file" class="form-control" name="feature_images[${index}]" accept="image/*">
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+</script>
 
 <style>
     /* Reference style from Working Committee */

@@ -616,14 +616,8 @@
                         // Check below or domestic + graduation (uses DocumentsBelow table)
                         $useDocumentsBelow = !$useDocumentBelowPg && ($isBelowOneLakh || $isDomesticGraduation);
 
-                        // Use correct document model based on loan category and financial asset
-                        if ($useDocumentsBelow) {
-                            $document = \App\Models\DocumentsBelow::where('user_id', auth()->id())->first();
-                        } elseif ($useDocumentBelowPg) {
-                            $document = \App\Models\DocumentBelowPg::where('user_id', auth()->id())->first();
-                        } else {
-                            $document = \App\Models\Document::where('user_id', auth()->id())->first();
-                        }
+                        // Use main documents table for all cases now
+                        $document = \App\Models\Document::where('user_id', auth()->id())->first();
 
                         $reviewSubmit = \App\Models\ReviewSubmit::where('user_id', auth()->id())->first();
                     @endphp

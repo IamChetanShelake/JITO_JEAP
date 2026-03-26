@@ -591,7 +591,7 @@
 
                     @php
                         $educationDetail = \App\Models\EducationDetail::where('user_id', auth()->id())->first();
-                        $family = \App\Models\FamilyDetail::where('user_id', auth()->id())->first();
+                        $family = \App\Models\Familydetail::where('user_id', auth()->id())->first();
                         $fundingDetail = \App\Models\FundingDetail::where('user_id', auth()->id())->first();
                         $guarantorDetail = \App\Models\GuarantorDetail::where('user_id', auth()->id())->first();
 
@@ -603,8 +603,14 @@
 
                         // Get user to check financial asset type and for
                         $currentUser = \App\Models\User::find(auth()->id());
-                        $isDomesticGraduation = $currentUser && $currentUser->financial_asset_type === 'domestic' && $currentUser->financial_asset_for === 'graduation';
-                        $isDomesticPg = $currentUser && $currentUser->financial_asset_type === 'domestic' && $currentUser->financial_asset_for === 'post_graduation';
+                        $isDomesticGraduation =
+                            $currentUser &&
+                            $currentUser->financial_asset_type === 'domestic' &&
+                            $currentUser->financial_asset_for === 'graduation';
+                        $isDomesticPg =
+                            $currentUser &&
+                            $currentUser->financial_asset_type === 'domestic' &&
+                            $currentUser->financial_asset_for === 'post_graduation';
                         // Check domestic + post_graduation FIRST (uses DocumentBelowPg table)
                         $useDocumentBelowPg = $isDomesticPg;
                         // Check below or domestic + graduation (uses DocumentsBelow table)

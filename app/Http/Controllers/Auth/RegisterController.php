@@ -63,9 +63,16 @@ class RegisterController extends Controller
 
         // Perform PAN verification
         try {
+            // $response = Http::withHeaders([
+            //     'Content-Type' => 'application/json',
+            //     'Authorization' => 'Bearer ' . env('SUREPASS_TOKEN')
+            // ])->post('https://kyc-api.surepass.io/api/v1/pan/pan-comprehensive', [
+            //     'id_number' => $request->pan_card
+            // ]);
+
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc2Nzc3MjYwNCwianRpIjoiMTBjODNjNTktZTY3ZC00ZGNhLTgyZDktZTc1ZWQ4YmVmOGZiIiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LnNsdW5hd2F0ZmluQHN1cmVwYXNzLmlvIiwibmJmIjoxNzY3NzcyNjA0LCJleHAiOjIzOTg0OTI2MDQsImVtYWlsIjoic2x1bmF3YXRmaW5Ac3VyZXBhc3MuaW8iLCJ0ZW5hbnRfaWQiOiJtYWluIiwidXNlcl9jbGFpbXMiOnsic2NvcGVzIjpbInVzZXIiXX19.4PUIOM6lMXFUKqUxsNi1ZYIW5BLJ3A63LxZqiYB9a3c'
+                'Authorization' => 'Bearer ' . config('services.surepass.token')
             ])->post('https://kyc-api.surepass.io/api/v1/pan/pan-comprehensive', [
                 'id_number' => $request->pan_card
             ]);

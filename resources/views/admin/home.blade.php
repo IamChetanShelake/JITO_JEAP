@@ -625,7 +625,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link tab-committee" href="{{ route('admin.committee.index') }}">
-                    <i class="fas fa-user-tie"></i> Working Committee
+                    Working Committee
                 </a>
             </li>
             <li class="nav-item">

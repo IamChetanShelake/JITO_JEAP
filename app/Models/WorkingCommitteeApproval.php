@@ -4,6 +4,9 @@ namespace App\Models;
 
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\User;
+
 
 class WorkingCommitteeApproval extends Model
 {
@@ -58,5 +61,10 @@ class WorkingCommitteeApproval extends Model
             AdminUser::class,
             WorkingCommittee::class
         );
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

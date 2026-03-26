@@ -21,6 +21,7 @@ use App\Http\Controllers\InitiativeController;
 use App\Http\Controllers\AccountantController;
 use App\Http\Controllers\AdminNotificationController;
 use App\Http\Controllers\ApplicationViewController;
+use App\Http\Controllers\SnapshotReportController;
 
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\WebsiteController;
@@ -326,6 +327,7 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/reports/jeap-disbursement', [App\Http\Controllers\ReportController::class, 'jeapDisbursement'])->name('reports.jeap_disbursement');
     Route::get('/reports/financial-graph-report', [App\Http\Controllers\ReportController::class, 'financialGraphReport'])
         ->name('reports.financial_graph_report');
+    Route::get('/reports/snapshot', [SnapshotReportController::class, 'generate'])->name('reports.snapshot');
 });
 
 // User Routes - Protected by auth and user middleware

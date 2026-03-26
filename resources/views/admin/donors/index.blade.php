@@ -4,14 +4,25 @@
 
 @section('content')
     <div class="container">
-        <div class="dashboard-header">
+        <div class="dashboard-header align-items-start">
             <div>
                 <h1 class="dashboard-title"><i class="fas fa-hand-holding-heart me-2"></i> Donors</h1>
                 <p class="dashboard-subtitle">Manage donor accounts</p>
             </div>
-            <a href="{{ route('admin.donors.create') }}" class="btn btn-success-custom">
-                <i class="fas fa-plus me-1"></i> Add Donor
-            </a>
+            <div class="d-flex flex-column flex-md-row gap-2">
+                <a href="{{ route('admin.donors.create') }}" class="btn btn-success-custom">
+                    <i class="fas fa-plus me-1"></i> Add Donor
+                </a>
+                <form action="{{ route('admin.reports.snapshot') }}" method="GET" class="d-flex gap-2 align-items-center" target="_blank">
+                    <div class="d-flex gap-2">
+                        <input type="date" name="start_date" class="form-control form-control-sm" required>
+                        <input type="date" name="end_date" class="form-control form-control-sm" required>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary btn-sm" target="_blank">
+                        <i class="fas fa-file-pdf me-1"></i> Generate Snapshot
+                    </button>
+                </form>
+            </div>
         </div>
 
         <div class="section-card">

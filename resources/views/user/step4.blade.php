@@ -475,129 +475,128 @@
                                 @endif
 
                                 <!-- Section 3: Brother/Sister Assistance -->
-                                @if (!$isBelowOneLakh)
-                                    <div class="education-section">
-                                        <h4 class="title" style="color:#4C4C4C;font-size:18px;">Have your Brother/Sister
-                                            received financial assistance<br> from JITO JEAP/ JATF/SEED or JITO Chapter?
-                                        </h4>
-                                        <div id="sibling-assistance-fields">
+                                {{--  @if (!$isBelowOneLakh)  --}}
+                                <div class="education-section">
+                                    <h4 class="title" style="color:#4C4C4C;font-size:18px;">Have your Brother/Sister
+                                        received financial assistance<br> from JITO JEAP/ JATF/SEED or JITO Chapter?
+                                    </h4>
+                                    <div id="sibling-assistance-fields">
 
-                                            <div class="row">
+                                        <div class="row">
 
-                                                <!-- Left Column -->
-                                                <div class="col-md-6">
+                                            <!-- Left Column -->
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <label for="sibling_assistance">Yes/No <span
+                                                            style="color: red">*</span></label>
+                                                    <select class="form-control" name="sibling_assistance">
+                                                        <option value=""
+                                                            {{ !old('sibling_assistance') && !$fundingDetail ? 'selected' : '' }}
+                                                            disabled hidden>
+                                                            Yes/No
+                                                        </option>
+                                                        <option value="yes"
+                                                            {{ old('sibling_assistance') == 'yes' || ($fundingDetail && $fundingDetail->sibling_assistance === 'yes') ? 'selected' : '' }}>
+                                                            Yes
+                                                        </option>
+                                                        <option value="no"
+                                                            {{ old('sibling_assistance') == 'no' || ($fundingDetail && $fundingDetail->sibling_assistance === 'no') ? 'selected' : '' }}>
+                                                            No
+                                                        </option>
+                                                    </select>
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('sibling_assistance') }}</small>
+                                                </div>
+                                                <div class="sibling-fields" style="display:none;">
                                                     <div class="form-group mb-3">
-                                                        <label for="sibling_assistance">Yes/No <span
+                                                        <label for="sibling_name">Sibling name <span
                                                                 style="color: red">*</span></label>
-                                                        <select class="form-control" name="sibling_assistance">
-                                                            <option value=""
-                                                                {{ !old('sibling_assistance') && !$fundingDetail ? 'selected' : '' }}
-                                                                disabled hidden>
-                                                                Yes/No
-                                                            </option>
-                                                            <option value="yes"
-                                                                {{ old('sibling_assistance') == 'yes' || ($fundingDetail && $fundingDetail->sibling_assistance === 'yes') ? 'selected' : '' }}>
-                                                                Yes
-                                                            </option>
-                                                            <option value="no"
-                                                                {{ old('sibling_assistance') == 'no' || ($fundingDetail && $fundingDetail->sibling_assistance === 'no') ? 'selected' : '' }}>
-                                                                No
-                                                            </option>
-                                                        </select>
-                                                        <small
-                                                            class="text-danger">{{ $errors->first('sibling_assistance') }}</small>
+                                                        <input type="text" class="form-control" name="sibling_name"
+                                                            placeholder="Sibling name "
+                                                            value="{{ old('sibling_name', $fundingDetail->sibling_name ?? '') }}">
                                                     </div>
-                                                    <div class="sibling-fields" style="display:none;">
-                                                        <div class="form-group mb-3">
-                                                            <label for="sibling_name">Sibling name <span
-                                                                    style="color: red">*</span></label>
-                                                            <input type="text" class="form-control"
-                                                                name="sibling_name" placeholder="Sibling name "
-                                                                value="{{ old('sibling_name', $fundingDetail->sibling_name ?? '') }}">
-                                                        </div>
 
-                                                        <div class="form-group mb-3">
-                                                            <label for="sibling_number">Sibling number <span
-                                                                    style="color: red">*</span></label>
-                                                            <input type="text" class="form-control"
-                                                                name="sibling_number" placeholder="Sibling number "
-                                                                value="{{ old('sibling_number', $fundingDetail->sibling_number ?? '') }}">
-                                                        </div>
+                                                    <div class="form-group mb-3">
+                                                        <label for="sibling_number">Sibling number <span
+                                                                style="color: red">*</span></label>
+                                                        <input type="text" class="form-control" name="sibling_number"
+                                                            placeholder="Sibling number "
+                                                            value="{{ old('sibling_number', $fundingDetail->sibling_number ?? '') }}">
+                                                    </div>
 
-                                                        <div class="form-group mb-3">
-                                                            <label for="sibling_ngo_name">NGO name <span
-                                                                    style="color: red">*</span></label>
-                                                            <input type="text" class="form-control"
-                                                                name="sibling_ngo_name" placeholder="NGO name "
-                                                                value="{{ old('sibling_ngo_name', $fundingDetail->sibling_ngo_name ?? '') }}">
-                                                        </div>
+                                                    <div class="form-group mb-3">
+                                                        <label for="sibling_ngo_name">NGO name <span
+                                                                style="color: red">*</span></label>
+                                                        <input type="text" class="form-control"
+                                                            name="sibling_ngo_name" placeholder="NGO name "
+                                                            value="{{ old('sibling_ngo_name', $fundingDetail->sibling_ngo_name ?? '') }}">
                                                     </div>
                                                 </div>
-
-                                                <!-- Right Column -->
-                                                <div class="col-md-6">
-                                                    <div class="sibling-fields" style="display:none;">
-                                                        <div class="form-group mb-3">
-                                                            <label for="ngo_number">NGO Phone number <span
-                                                                    style="color: red">*</span></label>
-                                                            <input type="text" class="form-control" name="ngo_number"
-                                                                placeholder="NGO Phone number "
-                                                                value="{{ old('ngo_number', $fundingDetail->ngo_number ?? '') }}">
-                                                        </div>
-
-
-                                                        <div class="form-group mb-3">
-                                                            <label for="sibling_loan_status">Loan status <span
-                                                                    style="color: red">*</span></label>
-                                                            <select class="form-control" name="sibling_loan_status">
-                                                                <option value=""
-                                                                    {{ !old('sibling_loan_status') && !$fundingDetail ? 'selected' : '' }}
-                                                                    disabled hidden>Loan status</option>
-                                                                <option value="applied"
-                                                                    {{ old('sibling_loan_status') == 'applied' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'applied') ? 'selected' : '' }}>
-                                                                    Applied</option>
-                                                                <option value="approved"
-                                                                    {{ old('sibling_loan_status') == 'approved' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'approved') ? 'selected' : '' }}>
-                                                                    Approved</option>
-                                                                <option value="sanctioned"
-                                                                    {{ old('sibling_loan_status') == 'sanctioned' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'sanctioned') ? 'selected' : '' }}>
-                                                                    Sanctioned</option>
-                                                                <option value="disbursed"
-                                                                    {{ old('sibling_loan_status') == 'disbursed' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'disbursed') ? 'selected' : '' }}>
-                                                                    Disbursed</option>
-                                                                <option value="closed"
-                                                                    {{ old('sibling_loan_status') == 'closed' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'closed') ? 'selected' : '' }}>
-                                                                    Closed</option>
-                                                                <option value="not applicable"
-                                                                    {{ old('sibling_loan_status') == 'not applicable' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'not applicable') ? 'selected' : '' }}>
-                                                                    Not Applicable</option>
-                                                            </select>
-                                                        </div>
-
-                                                        <div class="form-group mb-3">
-                                                            <label for="sibling_applied_year">Sanction for year <span
-                                                                    style="color: red">*</span></label>
-                                                            <input type="text" class="form-control"
-                                                                name="sibling_applied_year"
-                                                                placeholder="Sanction for year "
-                                                                value="{{ old('sibling_applied_year', $fundingDetail->sibling_applied_year ?? '') }}">
-                                                        </div>
-
-                                                        <div class="form-group mb-3">
-                                                            <label for="sibling_applied_amount">Sanction amount <span
-                                                                    style="color: red">*</span></label>
-                                                            <input type="number" class="form-control"
-                                                                name="sibling_applied_amount"
-                                                                placeholder="Sanction amount " min="0"
-                                                                value="{{ old('sibling_applied_amount', $fundingDetail->sibling_applied_amount ?? '') }}">
-                                                        </div>
-                                                    </div>
-                                                </div>
-
                                             </div>
+
+                                            <!-- Right Column -->
+                                            <div class="col-md-6">
+                                                <div class="sibling-fields" style="display:none;">
+                                                    <div class="form-group mb-3">
+                                                        <label for="ngo_number">NGO Phone number <span
+                                                                style="color: red">*</span></label>
+                                                        <input type="text" class="form-control" name="ngo_number"
+                                                            placeholder="NGO Phone number "
+                                                            value="{{ old('ngo_number', $fundingDetail->ngo_number ?? '') }}">
+                                                    </div>
+
+
+                                                    <div class="form-group mb-3">
+                                                        <label for="sibling_loan_status">Loan status <span
+                                                                style="color: red">*</span></label>
+                                                        <select class="form-control" name="sibling_loan_status">
+                                                            <option value=""
+                                                                {{ !old('sibling_loan_status') && !$fundingDetail ? 'selected' : '' }}
+                                                                disabled hidden>Loan status</option>
+                                                            <option value="applied"
+                                                                {{ old('sibling_loan_status') == 'applied' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'applied') ? 'selected' : '' }}>
+                                                                Applied</option>
+                                                            <option value="approved"
+                                                                {{ old('sibling_loan_status') == 'approved' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'approved') ? 'selected' : '' }}>
+                                                                Approved</option>
+                                                            <option value="sanctioned"
+                                                                {{ old('sibling_loan_status') == 'sanctioned' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'sanctioned') ? 'selected' : '' }}>
+                                                                Sanctioned</option>
+                                                            <option value="disbursed"
+                                                                {{ old('sibling_loan_status') == 'disbursed' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'disbursed') ? 'selected' : '' }}>
+                                                                Disbursed</option>
+                                                            <option value="closed"
+                                                                {{ old('sibling_loan_status') == 'closed' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'closed') ? 'selected' : '' }}>
+                                                                Closed</option>
+                                                            <option value="not applicable"
+                                                                {{ old('sibling_loan_status') == 'not applicable' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'not applicable') ? 'selected' : '' }}>
+                                                                Not Applicable</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="form-group mb-3">
+                                                        <label for="sibling_applied_year">Sanction for year <span
+                                                                style="color: red">*</span></label>
+                                                        <input type="text" class="form-control"
+                                                            name="sibling_applied_year" placeholder="Sanction for year "
+                                                            value="{{ old('sibling_applied_year', $fundingDetail->sibling_applied_year ?? '') }}">
+                                                    </div>
+
+                                                    <div class="form-group mb-3">
+                                                        <label for="sibling_applied_amount">Sanction amount <span
+                                                                style="color: red">*</span></label>
+                                                        <input type="number" class="form-control"
+                                                            name="sibling_applied_amount" placeholder="Sanction amount "
+                                                            min="0"
+                                                            value="{{ old('sibling_applied_amount', $fundingDetail->sibling_applied_amount ?? '') }}">
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                         </div>
                                     </div>
-                                @endif
+                                </div>
+                                {{--  @endif  --}}
 
                                 <!-- Declaration Section -->
                                 <div class="education-section"

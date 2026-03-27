@@ -895,7 +895,8 @@
             }
 
             const API_ENDPOINT = 'https://kyc-api.surepass.io/api/v1/bank-verification/';
-            const API_TOKEN = @json(config('services.surepass.token'));
+            const API_TOKEN =
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc2Nzc3MjYwNCwianRpIjoiMTBjODNjNTktZTY3ZC00ZGNhLTgyZDktZTc1ZWQ4YmVmOGZiIiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LnNsdW5hd2F0ZmluQHN1cmVwYXNzLmlvIiwibmJmIjoxNzY3NzcyNjA0LCJleHAiOjIzOTg0OTI2MDQsImVtYWlsIjoic2x1bmF3YXRmaW5Ac3VyZXBhc3MuaW8iLCJ0ZW5hbnRfaWQiOiJtYWluIiwidXNlcl9jbGFpbXMiOnsic2NvcGVzIjpbInVzZXIiXX19.4PUIOM6lMXFUKqUxsNi1ZYIW5BLJ3A63LxZqiYB9a3c';
 
             function validateBankAccount() {
 
@@ -1902,7 +1903,8 @@
         const editValidationMessageDiv = document.getElementById('editBankValidationMessage');
 
         const EDIT_API_ENDPOINT = 'https://kyc-api.surepass.io/api/v1/bank-verification/';
-        const EDIT_API_TOKEN = @json(config('services.surepass.token'));
+        const EDIT_API_TOKEN =
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc2Nzc3MjYwNCwianRpIjoiMTBjODNjNTktZTY3ZC00ZGNhLTgyZDktZTc1ZWQ4YmVmOGZiIiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LnNsdW5hd2F0ZmluQHN1cmVwYXNzLmlvIiwibmJmIjoxNzY3NzcyNjA0LCJleHAiOjIzOTg0OTI2MDQsImVtYWlsIjoic2x1bmF3YXRmaW5Ac3VyZXBhc3MuaW8iLCJ0ZW5hbnRfaWQiOiJtYWluIiwidXNlcl9jbGFpbXMiOnsic2NvcGVzIjpbInVzZXIiXX19.4PUIOM6lMXFUKqUxsNi1ZYIW5BLJ3A63LxZqiYB9a3c';
 
         function resetEditBankModalFields() {
             if (!editBankSelect) return;

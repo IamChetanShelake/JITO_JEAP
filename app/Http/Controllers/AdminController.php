@@ -7,26 +7,34 @@ use App\Mail\SendBackForCorrectionMail;
 use App\Mail\ThirdStageDocumentCorrectionMail;
 use App\Mail\WorkingCommitteeApprovedMail;
 use App\Models\AchievementImpact;
+use App\Models\AdminAboutJitoWebsite;
+use App\Models\AdminContact;
+use App\Models\AdminFaq;
+use App\Models\AdminJitoStats;
 use App\Models\AdminNotification;
 use App\Models\AdminUser;
 use App\Models\ApexLeadership;
+
 use App\Models\ApplicationWorkflowStatus;
 use App\Models\BeDonorDetail;
+use App\Models\BoardOfDirectors;
 use App\Models\Chapter;
 use App\Models\ChapterInterviewAnswer;
-use App\Models\CourseWebsite;
 use App\Models\CollegeWebsite;
-
-use App\Models\BoardOfDirectors;
-use App\Models\ZoneChairmen;
+use App\Models\CourseWebsite;
 use App\Models\DisbursementSchedule;
+
 use App\Models\EditBankDetailRequest;
 use App\Models\EducationDetail;
 use App\Models\EmpoweringDream;
-use App\Models\Logs;
-use App\Models\AdminAboutJitoWebsite;
-use App\Models\AdminJitoStats;
+use App\Models\JeapWebsite;
+use App\Models\KeyInstruction;
 use App\Models\Loan_category;
+use App\Models\Logs;
+
+
+
+
 
 use App\Models\OurTestimonial;
 use App\Models\PdcCourierHistory;
@@ -35,18 +43,15 @@ use App\Models\PhotoGallery;
 use App\Models\SuccessStory;
 use App\Models\ThirdStageDocument;
 use App\Models\UniversityWebsite;
-
-
-
-
-
 use App\Models\User;
 use App\Models\WorkingCommittee;
 use App\Models\WorkingCommitteeApproval;
 use App\Models\WorkingCommitteeApprovalHistory;
+use App\Models\ZoneChairmen;
 use App\Traits\LogsUserActivity;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -126,7 +131,38 @@ class AdminController extends Controller
      */
     public function websiteIndex()
     {
-        return view('admin.website.index');
+        // Get statistics for website sections
+        $stats = [
+            'home' => [
+                'empowering_dreams' => \App\Models\EmpoweringDream::on('admin_panel')->count(),
+                'key_instructions' => \App\Models\KeyInstruction::on('admin_panel')->count(),
+                'working_committee' => \App\Models\WorkingCommittee::on('admin_panel')->count(),
+                'empowering_future' => \App\Models\EmpoweringFutureWebsite::on('admin_panel')->count(),
+                'achievement_impact' => \App\Models\AchievementImpact::on('admin_panel')->count(),
+                'photo_gallery' => \App\Models\PhotoGallery::on('admin_panel')->count(),
+                'our_testimonials' => \App\Models\OurTestimonial::on('admin_panel')->count(),
+                'success_stories' => \App\Models\SuccessStory::on('admin_panel')->count(),
+            ],
+            'about' => [
+                'jito' => \App\Models\AdminAboutJitoWebsite::on('admin_panel')->count(),
+                'jeap' => \App\Models\JeapWebsite::on('admin_panel')->count(),
+                'board_of_directors' => \App\Models\BoardOfDirectors::on('admin_panel')->count(),
+                'zone_chairmen' => \App\Models\ZoneChairmen::on('admin_panel')->count(),
+                'testimonials_success' => \App\Models\OurTestimonial::on('admin_panel')->count(),
+            ],
+            'application' => [
+                'faqs' => \App\Models\AdminFaq::on('admin_panel')->count(),
+            ],
+            'other' => [
+                'contact' => \App\Models\AdminContact::on('admin_panel')->count(),
+                'universities' => \App\Models\UniversityWebsite::on('admin_panel')->count(),
+                'courses' => \App\Models\CourseWebsite::on('admin_panel')->count(),
+                'colleges' => \App\Models\CollegeWebsite::on('admin_panel')->count(),
+                'be_donor_details' => \App\Models\BeDonorDetail::on('admin_panel')->count(),
+            ],
+        ];
+
+        return view('admin.website.index', compact('stats'));
     }
 
     /**
@@ -170,7 +206,7 @@ class AdminController extends Controller
         $featureImages = [];
         $features = array_map('trim', explode(',', $request->features));
         $featureImageFiles = $request->file('feature_images', []);
-        
+
         foreach ($features as $index => $feature) {
             if (!empty($feature) && isset($featureImageFiles[$index])) {
                 $file = $featureImageFiles[$index];
@@ -229,7 +265,7 @@ class AdminController extends Controller
         $featureImages = json_decode($dream->feature_images, true) ?? [];
         $features = array_map('trim', explode(',', $request->features));
         $featureImageFiles = $request->file('feature_images', []);
-        
+
         foreach ($features as $index => $feature) {
             if (!empty($feature)) {
                 if (isset($featureImageFiles[$index]) && $featureImageFiles[$index]->isValid()) {
@@ -2524,30 +2560,98 @@ class AdminController extends Controller
         }
     }
 
-    public function apexStage1Approved()
+    public function apexStage1Approved(Request $request)
     {
         // Get users where final_status = 'approved'
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('apex_1_status', 'approved');
             })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
-            ->get();
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
 
         $this->attachLatestLoanCategoryType($users);
 
         return view('admin.apex.stage1.approved', compact('users'));
     }
 
-    public function apexStage1Pending()
+    public function apexStage1Pending(Request $request)
     {
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($query) {
                 $query->where('current_stage', 'apex_1')
                     ->where('apex_1_status', 'pending')->whereNull('apex_1_reject_remarks');
             })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
-            ->get();
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
 
         $this->attachLatestLoanCategoryType($users);
 
@@ -2555,15 +2659,49 @@ class AdminController extends Controller
     }
 
 
-    public function apexStage1Hold()
+    public function apexStage1Hold(Request $request)
     {
         // Get users where final_status = 'rejected'
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('apex_1_status', 'rejected');
             })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
-            ->get();
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
 
         $this->attachLatestLoanCategoryType($users);
         return view('admin.apex.stage1.hold', compact('users'));
@@ -3922,7 +4060,7 @@ class AdminController extends Controller
         return back()->with('success', 'Application unheld successfully. Status reset to pending.');
     }
 
-    public function chapterPending()
+    public function chapterPending(Request $request)
     {
         $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($query) {
@@ -3930,18 +4068,52 @@ class AdminController extends Controller
                     ->where('final_status', 'in_progress')
                     ->where('chapter_status', 'pending');
             });
-        if (request('chapter_id')) {
-            $query->where('chapter_id', request('chapter_id'));
+        if ($request->filled('chapter_id')) {
+            $query->where('chapter_id', $request->input('chapter_id'));
         }
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
         $this->attachLatestLoanCategoryType($users);
 
-        return view('admin.chapters.stage2.pending', compact('users'));
+        return view('admin.chapters.stage2.pending', compact('users'))->with('filterRoute', 'admin.chapter.pending');
     }
 
-    public function chapterApproved()
+    public function chapterApproved(Request $request)
     {
         $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
@@ -3950,14 +4122,48 @@ class AdminController extends Controller
         if (request('chapter_id')) {
             $query->where('chapter_id', request('chapter_id'));
         }
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
         $this->attachLatestLoanCategoryType($users);
-        return view('admin.chapters.stage2.approved', compact('users'));
+        return view('admin.chapters.stage2.approved', compact('users'))->with('filterRoute', 'admin.chapter.approved');
     }
 
-    public function chapterHold()
+    public function chapterHold(Request $request)
     {
         $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
@@ -3966,12 +4172,45 @@ class AdminController extends Controller
         if (request('chapter_id')) {
             $query->where('chapter_id', request('chapter_id'));
         }
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
-
         $this->attachLatestLoanCategoryType($users);
-        return view('admin.chapters.stage2.hold', compact('users'));
+        return view('admin.chapters.stage2.hold', compact('users'))->with('filterRoute', 'admin.chapter.hold');
     }
 
     public function chapterUserDetail(User $user)
@@ -4268,28 +4507,96 @@ class AdminController extends Controller
         return view('admin.chapters.chapter_details', compact('chapter'));
     }
 
-    public function chapterTotalApplied()
+    public function chapterTotalApplied(Request $request)
     {
-        $chapter_id = request('chapter_id');
-        $users = User::where('role', 'user')
+        $chapter_id = $request->input('chapter_id');
+        $query = User::where('role', 'user')
             ->where('chapter_id', $chapter_id)
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
-            ->get();
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
 
         $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.approved', compact('users')); // Reuse existing view
     }
 
-    public function chapterDraft()
+    public function chapterDraft(Request $request)
     {
-        $chapter_id = request('chapter_id');
-        $users = User::where('role', 'user')
+        $chapter_id = $request->input('chapter_id');
+        $query = User::where('role', 'user')
             ->where('chapter_id', $chapter_id)
-            ->where('application_status', 'draft')
-            ->get();
+            ->where('application_status', 'draft');
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
 
         $this->attachLatestLoanCategoryType($users);
-        return view('admin.chapters.stage2.pending', compact('users')); // Reuse existing view
+        return view('admin.chapters.stage2.pending', compact('users'))->with('filterRoute', 'admin.chapter.draft'); // Reuse existing view
     }
 
     public function chapterApexPending()
@@ -4305,7 +4612,7 @@ class AdminController extends Controller
             ->get();
 
         $this->attachLatestLoanCategoryType($users);
-        return view('admin.chapters.stage2.pending', compact('users')); // Reuse existing view
+        return view('admin.chapters.stage2.pending', compact('users'))->with('filterRoute', 'admin.chapter.apex-pending'); // Reuse existing view
     }
 
     public function chapterWorkingCommitteePending()
@@ -4323,10 +4630,10 @@ class AdminController extends Controller
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
         $this->attachLatestLoanCategoryType($users);
-        return view('admin.chapters.stage2.pending', compact('users')); // Reuse existing view
+        return view('admin.chapters.stage2.pending', compact('users'))->with('filterRoute', 'admin.chapter.working-committee-pending'); // Reuse existing view
     }
 
-    public function chapterWorkingCommitteeApproved()
+    public function chapterWorkingCommitteeApproved(Request $request)
     {
         $chapter_id = request('chapter_id');
         $query = User::where('role', 'user')
@@ -4338,26 +4645,94 @@ class AdminController extends Controller
         if (request('chapter_id')) {
             $query->where('chapter_id', request('chapter_id'));
         }
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
         $this->attachLatestLoanCategoryType($users);
-        return view('admin.chapters.stage2.approved', compact('users')); // Reuse existing view
+        return view('admin.chapters.stage2.approved', compact('users'))->with('filterRoute', 'admin.chapter.working-committee-approved'); // Reuse existing view
     }
 
-    public function chapterResubmit()
+    public function chapterResubmit(Request $request)
     {
         $chapter_id = request('chapter_id');
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->where('chapter_id', $chapter_id)
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('apex_1_status', 'rejected');
-            })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            });
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
         $this->attachLatestLoanCategoryType($users);
-        return view('admin.chapters.stage2.hold', compact('users')); // Reuse existing view
+        return view('admin.chapters.stage2.hold', compact('users'))->with('filterRoute', 'admin.chapter.resubmit'); // Reuse existing view
     }
 
     public function chapterUserDashboard()

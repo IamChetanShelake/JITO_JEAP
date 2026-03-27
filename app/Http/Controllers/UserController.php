@@ -348,20 +348,20 @@ class UserController extends Controller
         $familyDetail = Familydetail::where('user_id', $user_id)->first();
         $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
         $educationDetail = EducationDetail::where('user_id', $user_id)->first();
-        
+
         // Fetch universities based on financial_asset_type
         $universityType = ($user->financial_asset_type == 'domestic') ? 'domestic' : 'foreign';
         $universities = UniversityWebsite::where('university_type', $universityType)
             ->where('status', true)
             ->orderBy('university_name', 'asc')
             ->get();
-        
+
         // Fetch colleges based on financial_asset_type
         $colleges = CollegeWebsite::where('college_type', $universityType)
             ->where('status', true)
             ->orderBy('college_name', 'asc')
             ->get();
-        
+
         if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'graduation') {
             return view('user.step2_ug', compact('type', 'user', 'familyDetail', 'fundingDetail', 'educationDetail', 'universities', 'colleges'));
         } else if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'post_graduation') {
@@ -895,7 +895,7 @@ class UserController extends Controller
     public function step2_foreign_pg_store(Request $request)
     {
         // Validation for education details
-       // dd($request->all());
+        // dd($request->all());
 
         // Add workflow update here for simplicity
         $rules = [
@@ -1469,16 +1469,18 @@ class UserController extends Controller
             $rules['funding.*.amount'] = 'nullable|numeric|min:0';
 
             // Sibling Assistance
-            $rules['sibling_assistance'] = 'required|in:yes,no';
-            $rules['sibling_name'] = 'nullable|required_if:sibling_assistance,yes|string|max:255';
-            $rules['sibling_number'] = 'nullable|required_if:sibling_assistance,yes|string|max:255';
-            $rules['sibling_ngo_name'] = 'nullable|required_if:sibling_assistance,yes|string|max:255';
-            $rules['ngo_number'] = 'nullable|required_if:sibling_assistance,yes|string|max:15';
-            $rules['sibling_loan_status'] = 'nullable|required_if:sibling_assistance,yes|string|max:255';
-            $rules['sibling_applied_year'] = 'nullable|required_if:sibling_assistance,yes|string|max:255';
-            $rules['sibling_applied_amount'] = 'nullable|required_if:sibling_assistance,yes|numeric|min:0';
-            $rules['account_holder_name']='nullable';
+
+
+            $rules['account_holder_name'] = 'nullable';
         }
+        $rules['sibling_assistance'] = 'required|in:yes,no';
+        $rules['sibling_name'] = 'nullable|required_if:sibling_assistance,yes|string|max:255';
+        $rules['sibling_number'] = 'nullable|required_if:sibling_assistance,yes|string|max:255';
+        $rules['sibling_ngo_name'] = 'nullable|required_if:sibling_assistance,yes|string|max:255';
+        $rules['ngo_number'] = 'nullable|required_if:sibling_assistance,yes|string|max:15';
+        $rules['sibling_loan_status'] = 'nullable|required_if:sibling_assistance,yes|string|max:255';
+        $rules['sibling_applied_year'] = 'nullable|required_if:sibling_assistance,yes|string|max:255';
+        $rules['sibling_applied_amount'] = 'nullable|required_if:sibling_assistance,yes|numeric|min:0';
 
         $request->validate($rules);
         // dd($request->all());
@@ -1502,6 +1504,14 @@ class UserController extends Controller
             'branch_name' => $request->branch_name ?? null,
             'ifsc_code' => $request->ifsc_code ?? null,
             'bank_address' => $request->bank_address ?? null,
+            'sibling_assistance' => $request->sibling_assistance,
+            'sibling_name' => $request->sibling_name,
+            'sibling_number' => $request->sibling_number,
+            'sibling_ngo_name' => $request->sibling_ngo_name,
+            'ngo_number' => $request->ngo_number,
+            'sibling_loan_status' => $request->sibling_loan_status,
+            'sibling_applied_year' => $request->sibling_applied_year,
+            'sibling_applied_amount' => $request->sibling_applied_amount,
         ];
 
         // Only save funding details and sibling assistance for loans above 1 lakh
@@ -2632,21 +2642,21 @@ class UserController extends Controller
         return redirect()->route('user.step6')->with('success', $message);
     }
 
-    
+
     public function step6(Request $request)
     {
         $user_id = Auth::id();
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
         $user = User::find($user_id);
-        
+
         // Fetch documents based on loan type and financial asset
         $isBelowOneLakh = $type == 'below';
         $isDomesticGraduation = $user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'graduation';
         $isDomesticPg = $user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'post_graduation';
-        
+
         // Use main documents table for all cases now
         $documents = Document::where('user_id', $user_id)->first();
-        
+
         if ($type == 'below') {
             // Below 1 lakh category
             if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'graduation') {
@@ -3196,277 +3206,277 @@ class UserController extends Controller
      * Store documents for below 1 lakh category (domestic graduation)
      */
     public function step6storeugbelow(Request $request)
-{
-    Log::info('Step6StoreUGBelow: Method called', [
-        'user_id' => Auth::id(),
-        'request_method' => $request->method(),
-        'content_type' => $request->header('Content-Type'),
-        'files_count' => count($request->allFiles()),
-        'all_files' => array_keys($request->allFiles()),
-        'has_csrf' => $request->has('_token'),
-        'csrf_token' => $request->input('_token') ? 'present' : 'missing'
-    ]);
+    {
+        Log::info('Step6StoreUGBelow: Method called', [
+            'user_id' => Auth::id(),
+            'request_method' => $request->method(),
+            'content_type' => $request->header('Content-Type'),
+            'files_count' => count($request->allFiles()),
+            'all_files' => array_keys($request->allFiles()),
+            'has_csrf' => $request->has('_token'),
+            'csrf_token' => $request->input('_token') ? 'present' : 'missing'
+        ]);
 
-    try {
-        // Store in main documents table instead of documents_belows
-        $existing = Document::where('user_id', Auth::id())->first();
-        $rules = [];
-        
-        // Updated fields list to match the View
-        $requiredFields = [
-            'ssc_cbse_icse_ib_igcse',
-            'hsc_diploma_marksheet',
-            // 'graduation_marksheet', // Removed: Not in the view for UG Below
-            'admission_letter_fees_structure',
-            'student_bank_details_statement', // Added: Present in view
-            'pan_applicant',
-            'aadhaar_applicant',
-            'jain_sangh_certificate',
-            'jito_group_recommendation',
-            'electricity_bill',
-            'aadhaar_father_mother',
-            'pan_father_mother',
-            'form16_salary_income_father',
-            'bank_statement_father_12months',
-        ];
+        try {
+            // Store in main documents table instead of documents_belows
+            $existing = Document::where('user_id', Auth::id())->first();
+            $rules = [];
 
-        foreach ($requiredFields as $field) {
-            $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
-        }
+            // Updated fields list to match the View
+            $requiredFields = [
+                'ssc_cbse_icse_ib_igcse',
+                'hsc_diploma_marksheet',
+                // 'graduation_marksheet', // Removed: Not in the view for UG Below
+                'admission_letter_fees_structure',
+                'student_bank_details_statement', // Added: Present in view
+                'pan_applicant',
+                'aadhaar_applicant',
+                'jain_sangh_certificate',
+                'jito_group_recommendation',
+                'electricity_bill',
+                'aadhaar_father_mother',
+                'pan_father_mother',
+                'form16_salary_income_father',
+                'bank_statement_father_12months',
+            ];
 
-        $request->validate($rules);
-
-        $user_id = Auth::id();
-        $isResubmission = $this->isStepResubmission('step6');
-
-        $data = [
-            'user_id' => $user_id,
-            'status' => 'step6_completed',
-            'submit_status' => 'submited',
-        ];
-
-        // Handle file uploads - Updated list to match View
-        $files = [
-            'ssc_cbse_icse_ib_igcse',
-            'hsc_diploma_marksheet',
-            // 'graduation_marksheet',
-            'admission_letter_fees_structure',
-            'student_bank_details_statement', // Added
-            'pan_applicant',
-            'aadhaar_applicant',
-            'jain_sangh_certificate',
-            'jito_group_recommendation',
-            'electricity_bill',
-            'aadhaar_father_mother',
-            'pan_father_mother',
-            'form16_salary_income_father',
-            'bank_statement_father_12months',
-        ];
-
-        foreach ($files as $file) {
-            if ($request->hasFile($file)) {
-                $fileName = time() . '_' . $file . '.' . $request->$file->extension();
-                $request->$file->move('user_document_images', $fileName);
-                $data[$file] = 'user_document_images/' . $fileName;
+            foreach ($requiredFields as $field) {
+                $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
             }
+
+            $request->validate($rules);
+
+            $user_id = Auth::id();
+            $isResubmission = $this->isStepResubmission('step6');
+
+            $data = [
+                'user_id' => $user_id,
+                'status' => 'step6_completed',
+                'submit_status' => 'submited',
+            ];
+
+            // Handle file uploads - Updated list to match View
+            $files = [
+                'ssc_cbse_icse_ib_igcse',
+                'hsc_diploma_marksheet',
+                // 'graduation_marksheet',
+                'admission_letter_fees_structure',
+                'student_bank_details_statement', // Added
+                'pan_applicant',
+                'aadhaar_applicant',
+                'jain_sangh_certificate',
+                'jito_group_recommendation',
+                'electricity_bill',
+                'aadhaar_father_mother',
+                'pan_father_mother',
+                'form16_salary_income_father',
+                'bank_statement_father_12months',
+            ];
+
+            foreach ($files as $file) {
+                if ($request->hasFile($file)) {
+                    $fileName = time() . '_' . $file . '.' . $request->$file->extension();
+                    $request->$file->move('user_document_images', $fileName);
+                    $data[$file] = 'user_document_images/' . $fileName;
+                }
+            }
+
+            $document = Document::where('user_id', $user_id)->first();
+
+            if ($document) {
+                $document->update($data);
+                $message = 'Documents updated successfully!';
+            } else {
+                Document::create($data);
+                $message = 'Documents uploaded successfully!';
+            }
+
+            // Get user for logging
+            $user = User::find($user_id);
+
+            // Log step completion
+            $this->logUserActivity(
+                processType: $isResubmission
+                    ? 'step6_resubmission'
+                    : 'step6_completion',
+                processAction: $isResubmission
+                    ? 'resubmitted'
+                    : 'completed',
+                processDescription: $isResubmission
+                    ? 'User resubmitted Document Upload after correction (Below 1 Lakh)'
+                    : 'User submitted Document Upload step6 (Below 1 Lakh)',
+                module: 'application',
+                oldValues: null,
+                newValues: null,
+                additionalData: [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'user_email' => $user->email,
+                    'step' => 'step6',
+                    'step_name' => 'Document Upload (Below 1 Lakh)',
+                ],
+                targetUserId: $user->id,
+                actorId: $user->id,
+                actorName: $user->name,
+                actorRole: $user->role
+            );
+
+            Log::info('Step6StoreUGBelow: Document created successfully', ['user_id' => $user_id]);
+
+            // Check if all steps are submitted
+            $this->checkAndUpdateWorkflowStatus();
+
+            return redirect()->route('user.step7')->with('upload_success', $message);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Step6StoreUGBelow: Validation failed', [
+                'user_id' => Auth::id(),
+                'errors' => $e->errors()
+            ]);
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error('Step6StoreUGBelow: Unexpected error', [
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
-
-        $document = Document::where('user_id', $user_id)->first();
-
-        if ($document) {
-            $document->update($data);
-            $message = 'Documents updated successfully!';
-        } else {
-            Document::create($data);
-            $message = 'Documents uploaded successfully!';
-        }
-
-        // Get user for logging
-        $user = User::find($user_id);
-
-        // Log step completion
-        $this->logUserActivity(
-            processType: $isResubmission
-                ? 'step6_resubmission'
-                : 'step6_completion',
-            processAction: $isResubmission
-                ? 'resubmitted'
-                : 'completed',
-            processDescription: $isResubmission
-                ? 'User resubmitted Document Upload after correction (Below 1 Lakh)'
-                : 'User submitted Document Upload step6 (Below 1 Lakh)',
-            module: 'application',
-            oldValues: null,
-            newValues: null,
-            additionalData: [
-                'user_id' => $user->id,
-                'user_name' => $user->name,
-                'user_email' => $user->email,
-                'step' => 'step6',
-                'step_name' => 'Document Upload (Below 1 Lakh)',
-            ],
-            targetUserId: $user->id,
-            actorId: $user->id,
-            actorName: $user->name,
-            actorRole: $user->role
-        );
-
-        Log::info('Step6StoreUGBelow: Document created successfully', ['user_id' => $user_id]);
-
-        // Check if all steps are submitted
-        $this->checkAndUpdateWorkflowStatus();
-
-        return redirect()->route('user.step7')->with('upload_success', $message);
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        Log::error('Step6StoreUGBelow: Validation failed', [
-            'user_id' => Auth::id(),
-            'errors' => $e->errors()
-        ]);
-        throw $e;
-    } catch (\Exception $e) {
-        Log::error('Step6StoreUGBelow: Unexpected error', [
-            'user_id' => Auth::id(),
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-        throw $e;
     }
-}
 
 
     /**
      * Store documents for domestic post-graduation (document_below_pgs)
      */
     public function step6storepgbelow(Request $request)
-{
-    Log::info('Step6StorePGBelow: Method called', [
-        'user_id' => Auth::id(),
-        'request_method' => $request->method(),
-        'content_type' => $request->header('Content-Type'),
-        'files_count' => count($request->allFiles()),
-        'all_files' => array_keys($request->allFiles()),
-        'has_csrf' => $request->has('_token'),
-        'csrf_token' => $request->has('_token') ? 'present' : 'missing'
-    ]);
+    {
+        Log::info('Step6StorePGBelow: Method called', [
+            'user_id' => Auth::id(),
+            'request_method' => $request->method(),
+            'content_type' => $request->header('Content-Type'),
+            'files_count' => count($request->allFiles()),
+            'all_files' => array_keys($request->allFiles()),
+            'has_csrf' => $request->has('_token'),
+            'csrf_token' => $request->has('_token') ? 'present' : 'missing'
+        ]);
 
-    try {
-        // Store in main documents table instead of document_below_pgs
-        $existing = Document::where('user_id', Auth::id())->first();
-        $rules = [];
-        
-        // Updated fields to match the View input names
-        $requiredFields = [
-            'ssc_cbse_icse_ib_igcse',
-            'hsc_diploma_marksheet',
-            'graduate_post_graduate_marksheet', // Fixed: Changed from 'graduation_marksheet' to match View
-            'admission_letter_fees_structure',
-            // 'student_bank_details_statement', // Removed: This field is missing in your View. Add it to HTML if needed.
-            'pan_applicant',
-            'aadhaar_applicant',
-            'jain_sangh_certificate',
-            'jito_group_recommendation',
-            'electricity_bill',
-            'aadhaar_father_mother',
-            'pan_father_mother',
-            'form16_salary_income_father',
-            'bank_statement_father_12months',
-        ];
+        try {
+            // Store in main documents table instead of document_below_pgs
+            $existing = Document::where('user_id', Auth::id())->first();
+            $rules = [];
 
-        foreach ($requiredFields as $field) {
-            $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
-        }
+            // Updated fields to match the View input names
+            $requiredFields = [
+                'ssc_cbse_icse_ib_igcse',
+                'hsc_diploma_marksheet',
+                'graduate_post_graduate_marksheet', // Fixed: Changed from 'graduation_marksheet' to match View
+                'admission_letter_fees_structure',
+                // 'student_bank_details_statement', // Removed: This field is missing in your View. Add it to HTML if needed.
+                'pan_applicant',
+                'aadhaar_applicant',
+                'jain_sangh_certificate',
+                'jito_group_recommendation',
+                'electricity_bill',
+                'aadhaar_father_mother',
+                'pan_father_mother',
+                'form16_salary_income_father',
+                'bank_statement_father_12months',
+            ];
 
-        $request->validate($rules);
-
-        $user_id = Auth::id();
-        $isResubmission = $this->isStepResubmission('step6');
-
-        $data = [
-            'user_id' => $user_id,
-            'status' => 'step6_completed',
-            'submit_status' => 'submited',
-        ];
-
-        // Updated file processing list
-        $files = [
-            'ssc_cbse_icse_ib_igcse',
-            'hsc_diploma_marksheet',
-            'graduate_post_graduate_marksheet', // Fixed name
-            'admission_letter_fees_structure',
-            // 'student_bank_details_statement', // Removed to match View
-            'pan_applicant',
-            'aadhaar_applicant',
-            'jain_sangh_certificate',
-            'jito_group_recommendation',
-            'electricity_bill',
-            'aadhaar_father_mother',
-            'pan_father_mother',
-            'form16_salary_income_father',
-            'bank_statement_father_12months',
-        ];
-
-        foreach ($files as $file) {
-            if ($request->hasFile($file)) {
-                $fileName = time() . '_' . $file . '.' . $request->$file->extension();
-                $request->$file->move('user_document_images', $fileName);
-                $data[$file] = 'user_document_images/' . $fileName;
+            foreach ($requiredFields as $field) {
+                $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
             }
+
+            $request->validate($rules);
+
+            $user_id = Auth::id();
+            $isResubmission = $this->isStepResubmission('step6');
+
+            $data = [
+                'user_id' => $user_id,
+                'status' => 'step6_completed',
+                'submit_status' => 'submited',
+            ];
+
+            // Updated file processing list
+            $files = [
+                'ssc_cbse_icse_ib_igcse',
+                'hsc_diploma_marksheet',
+                'graduate_post_graduate_marksheet', // Fixed name
+                'admission_letter_fees_structure',
+                // 'student_bank_details_statement', // Removed to match View
+                'pan_applicant',
+                'aadhaar_applicant',
+                'jain_sangh_certificate',
+                'jito_group_recommendation',
+                'electricity_bill',
+                'aadhaar_father_mother',
+                'pan_father_mother',
+                'form16_salary_income_father',
+                'bank_statement_father_12months',
+            ];
+
+            foreach ($files as $file) {
+                if ($request->hasFile($file)) {
+                    $fileName = time() . '_' . $file . '.' . $request->$file->extension();
+                    $request->$file->move('user_document_images', $fileName);
+                    $data[$file] = 'user_document_images/' . $fileName;
+                }
+            }
+
+            $document = Document::where('user_id', $user_id)->first();
+
+            if ($document) {
+                $document->update($data);
+                $message = 'Documents updated successfully!';
+            } else {
+                Document::create($data);
+                $message = 'Documents uploaded successfully!';
+            }
+
+            $user = User::find($user_id);
+
+            $this->logUserActivity(
+                processType: $isResubmission ? 'step6_resubmission' : 'step6_completion',
+                processAction: $isResubmission ? 'resubmitted' : 'completed',
+                processDescription: $isResubmission
+                    ? 'User resubmitted Document Upload after correction (Domestic PG)'
+                    : 'User submitted Document Upload step6 (Domestic PG)',
+                module: 'application',
+                oldValues: null,
+                newValues: null,
+                additionalData: [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'user_email' => $user->email,
+                    'step' => 'step6',
+                    'step_name' => 'Document Upload (Domestic PG)',
+                ],
+                targetUserId: $user->id,
+                actorId: $user->id,
+                actorName: $user->name,
+                actorRole: $user->role
+            );
+
+            Log::info('Step6StorePGBelow: Document created successfully', ['user_id' => $user_id]);
+
+            $this->checkAndUpdateWorkflowStatus();
+
+            return redirect()->route('user.step7')->with('upload_success', $message);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Step6StorePGBelow: Validation failed', [
+                'user_id' => Auth::id(),
+                'errors' => $e->errors()
+            ]);
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error('Step6StorePGBelow: Error occurred', [
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
-
-        $document = Document::where('user_id', $user_id)->first();
-
-        if ($document) {
-            $document->update($data);
-            $message = 'Documents updated successfully!';
-        } else {
-            Document::create($data);
-            $message = 'Documents uploaded successfully!';
-        }
-
-        $user = User::find($user_id);
-
-        $this->logUserActivity(
-            processType: $isResubmission ? 'step6_resubmission' : 'step6_completion',
-            processAction: $isResubmission ? 'resubmitted' : 'completed',
-            processDescription: $isResubmission
-                ? 'User resubmitted Document Upload after correction (Domestic PG)'
-                : 'User submitted Document Upload step6 (Domestic PG)',
-            module: 'application',
-            oldValues: null,
-            newValues: null,
-            additionalData: [
-                'user_id' => $user->id,
-                'user_name' => $user->name,
-                'user_email' => $user->email,
-                'step' => 'step6',
-                'step_name' => 'Document Upload (Domestic PG)',
-            ],
-            targetUserId: $user->id,
-            actorId: $user->id,
-            actorName: $user->name,
-            actorRole: $user->role
-        );
-
-        Log::info('Step6StorePGBelow: Document created successfully', ['user_id' => $user_id]);
-
-        $this->checkAndUpdateWorkflowStatus();
-
-        return redirect()->route('user.step7')->with('upload_success', $message);
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        Log::error('Step6StorePGBelow: Validation failed', [
-            'user_id' => Auth::id(),
-            'errors' => $e->errors()
-        ]);
-        throw $e;
-    } catch (\Exception $e) {
-        Log::error('Step6StorePGBelow: Error occurred', [
-            'user_id' => Auth::id(),
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-        throw $e;
     }
-}
 
     public function step7(Request $request)
     {

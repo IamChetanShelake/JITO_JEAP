@@ -236,38 +236,14 @@
                                     <div class="row">
                                         <!-- Left Column -->
                                         <div class="col-md-6">
-                                            <div class="form-group mb-3">
-                                                <label for="course_name">Course Name <span
-                                                        style="color: red;">*</span></label>
-                                                <select id="course_name" class="form-control"
-                                                    name="course_name" required>
-                                                    <option value="" disabled
-                                                        {{ old('course_name', $educationDetail->course_name ?? '') ? '' : 'selected' }}>
-                                                        Select Course Name</option>
-                                                    @if($educationDetail && (old('course_name') || $educationDetail->course_name))
-                                                        <option value="{{ old('course_name', $educationDetail->course_name) }}" selected>
-                                                            {{ old('course_name', $educationDetail->course_name) }}
-                                                        </option>
-                                                    @endif
-                                                </select>
-                                                <small class="text-danger"
-                                                    id="course_name_error">{{ $errors->first('course_name') }}</small>
-                                            </div>
+                                            
                                             <div class="form-group mb-3">
                                                 <label for="university_name">University Name <span
                                                         style="color: red;">*</span></label>
-                                                <select id="university_name" class="form-control"
-                                                    name="university_name" required>
-                                                    <option value="" disabled
-                                                        {{ old('university_name', $educationDetail->university_name ?? '') ? '' : 'selected' }}>
-                                                        Select University Name</option>
-                                                    @foreach ($universities as $university)
-                                                        <option value="{{ $university->university_name }}"
-                                                            {{ (old('university_name') ?: $educationDetail->university_name ?? '') == $university->university_name ? 'selected' : '' }}>
-                                                            {{ $university->university_name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
+                                                <input type="text" id="university_name" class="form-control"
+                                                    name="university_name" placeholder="Enter University Name"
+                                                    value="{{ old('university_name', $educationDetail->university_name ?? '') }}"
+                                                    required>
                                                 <small class="text-danger"
                                                     id="university_name_error">{{ $errors->first('university_name') }}</small>
                                             </div>
@@ -293,6 +269,25 @@
                                                 </select>
                                                 <small class="text-danger"
                                                     id="college_name_error">{{ $errors->first('college_name') }}</small>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="course_name">Course Name <span
+                                                        style="color: red;">*</span></label>
+                                                <select id="course_name" class="form-control"
+                                                    name="course_name" required
+                                                    data-existing-course="{{ $educationDetail->course_name ?? '' }}">
+                                                    <option value=""
+                                                        {{ empty(old('course_name')) && empty($educationDetail->course_name ?? '') ? 'selected' : '' }}
+                                                        disabled>
+                                                        Select Course Name</option>
+                                                    @if($educationDetail && old('course_name', $educationDetail->course_name ?? ''))
+                                                        <option value="{{ old('course_name', $educationDetail->course_name) }}" selected>
+                                                            {{ old('course_name', $educationDetail->course_name) }}
+                                                        </option>
+                                                    @endif
+                                                </select>
+                                                <small class="text-danger"
+                                                    id="course_name_error">{{ $errors->first('course_name') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="country">Country Name <span
@@ -1493,6 +1488,10 @@
                         
                         console.log('College changed, courses data:', coursesData);
                         
+                        // Get existing course_name from the data attribute (set by server)
+                        const existingCourseName = courseSelect.getAttribute('data-existing-course');
+                        console.log('Existing course name:', existingCourseName);
+                        
                         // Clear existing options
                         courseSelect.innerHTML = '<option value="" disabled selected>Select Course Name</option>';
                         
@@ -1509,6 +1508,10 @@
                                             const option = document.createElement('option');
                                             option.value = course;
                                             option.textContent = course;
+                                            // Check if this is the existing course
+                                            if (existingCourseName && course === existingCourseName) {
+                                                option.selected = true;
+                                            }
                                             courseSelect.appendChild(option);
                                         }
                                     });
@@ -1524,6 +1527,14 @@
                         } else {
                             // No courses data available, allow manual entry
                             courseSelect.innerHTML = '<option value="">Select Course Name</option>';
+                            // If there's an existing course and no courses from college, add it as manual entry
+                            if (existingCourseName) {
+                                const option = document.createElement('option');
+                                option.value = existingCourseName;
+                                option.textContent = existingCourseName;
+                                option.selected = true;
+                                courseSelect.appendChild(option);
+                            }
                         }
                     });
                     

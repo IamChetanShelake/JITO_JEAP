@@ -312,6 +312,43 @@
     </div>
 
     <div class="card">
+        <div class="card-body" style="padding: 1.5rem; border-bottom: 1px solid var(--border-color);">
+            <form method="GET" action="{{ route('admin.apex.stage1.approved') }}" id="filterForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="search" class="form-label" style="font-weight: 500; color: var(--text-dark);">Search</label>
+                        <input type="text" class="form-control" id="search" name="search" 
+                               placeholder="Search by name or Aadhar number..." 
+                               value="{{ request('search') }}"
+                               style="border-radius: 8px; border: 1px solid var(--border-color); padding: 0.6rem 1rem;">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="category" class="form-label" style="font-weight: 500; color: var(--text-dark);">Category</label>
+                        <select class="form-select" id="category" name="category" 
+                                style="border-radius: 8px; border: 1px solid var(--border-color); padding: 0.6rem 1rem;">
+                            <option value="">All Categories</option>
+                            <option value="above" {{ request('category') == 'above' ? 'selected' : '' }}>Above 100000</option>
+                            <option value="below" {{ request('category') == 'below' ? 'selected' : '' }}>Below 100000</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="financial_assistance_type" class="form-label" style="font-weight: 500; color: var(--text-dark);">Foreign</label>
+                        <select class="form-select" id="financial_assistance_type" name="financial_assistance_type" 
+                                style="border-radius: 8px; border: 1px solid var(--border-color); padding: 0.6rem 1rem;">
+                            <option value="">All Types</option>
+                            <option value="domestic" {{ request('financial_assistance_type') == 'domestic' ? 'selected' : '' }}>Domestic</option>
+                            <option value="foreign" {{ request('financial_assistance_type') == 'foreign' ? 'selected' : '' }}>Foreign Finance Assistant</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn w-100" 
+                                style="background-color: var(--primary-purple); color: white; border-radius: 8px; padding: 0.6rem 1rem; font-weight: 500;">
+                            <i class="fas fa-search me-1"></i> Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
         <div class="table-container">
             <div class="table-responsive">
                 <div class="scroll-hint">
@@ -323,9 +360,11 @@
                             <th style="width: 5%;">Sr. No</th>
                             <th style="width: 15%;">Name</th>
                             <th style="width: 20%;">Aadhar Number</th>
+                            <th style="width: 20%;">phone</th>
                             <th style="width: 15%;">Financial Assistance Type</th>
                             <th style="width: 15%;">Financial Assistance For</th>
                             <th style="width: 12%;">Category</th>
+                            <th style="width: 12%;">Register Date</th>
                             <th style="width: 15%;">Status</th>
                             <th style="width: 10%;">Actions</th>
                         </tr>
@@ -338,6 +377,7 @@
                                     <strong>{{ $user->name }}</strong>
                                 </td>
                                 <td>{{ $user->aadhar_card_number }}</td>
+                                <td>{{ $user->phone }}</td>
                                 <td>{{ $user->financial_asset_type }}</td>
                                 <td>{{ $user->financial_asset_for }}</td>
                                 <td>
@@ -346,6 +386,7 @@
                                         {{ $user->loan_category_type === 'below' ? 'Below 1 Lakh' : 'Above 1 Lakh' }}
                                     </span>
                                 </td>
+                                 <td>{{ $user->created_at }}</td>
                                 <td>
                                     <span class="status-badge status-approved">
                                         <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>

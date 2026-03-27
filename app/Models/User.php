@@ -67,15 +67,7 @@ class User extends Authenticatable
         return $this->hasOne(Document::class);
     }
 
-    public function documentsBelow()
-    {
-        return $this->hasOne(DocumentsBelow::class);
-    }
-
-    public function documentBelowPg()
-    {
-        return $this->hasOne(DocumentBelowPg::class);
-    }
+    // Document relationship - now using single documents table for all
 
     public function workflowStatus()
     {

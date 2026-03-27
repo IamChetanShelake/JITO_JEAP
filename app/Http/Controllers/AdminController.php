@@ -152,8 +152,6 @@ class AdminController extends Controller
         $request->validate([
             'title' => 'required|string',
             'description' => 'required|string',
-
-
             'features' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
@@ -166,11 +164,27 @@ class AdminController extends Controller
             $imagePath = 'uploads/empowering-dreams/' . $imageName;
         }
 
+        // Handle feature images
+        $featureImages = [];
+        $features = array_map('trim', explode(',', $request->features));
+        $featureImageFiles = $request->file('feature_images', []);
+        
+        foreach ($features as $index => $feature) {
+            if (!empty($feature) && isset($featureImageFiles[$index])) {
+                $file = $featureImageFiles[$index];
+                if ($file && $file->isValid()) {
+                    $fileName = time() . '_feature_' . $index . '_' . $file->getClientOriginalName();
+                    $file->move(public_path('uploads/empowering-dreams/features'), $fileName);
+                    $featureImages[$index] = 'uploads/empowering-dreams/features/' . $fileName;
+                }
+            }
+        }
+
         EmpoweringDream::on('admin_panel')->create([
             'title' => $request->title,
             'description' => $request->description,
-
             'features' => $request->features,
+            'feature_images' => json_encode($featureImages),
             'image' => $imagePath,
             'order' => EmpoweringDream::on('admin_panel')->max('order') + 1,
             'status' => true,
@@ -209,6 +223,26 @@ class AdminController extends Controller
             $imagePath = 'uploads/empowering-dreams/' . $imageName;
         }
 
+        // Handle feature images
+        $featureImages = json_decode($dream->feature_images, true) ?? [];
+        $features = array_map('trim', explode(',', $request->features));
+        $featureImageFiles = $request->file('feature_images', []);
+        
+        foreach ($features as $index => $feature) {
+            if (!empty($feature)) {
+                if (isset($featureImageFiles[$index]) && $featureImageFiles[$index]->isValid()) {
+                    // Delete old feature image if exists
+                    if (isset($featureImages[$index]) && file_exists(public_path($featureImages[$index]))) {
+                        unlink(public_path($featureImages[$index]));
+                    }
+                    $file = $featureImageFiles[$index];
+                    $fileName = time() . '_feature_' . $index . '_' . $file->getClientOriginalName();
+                    $file->move(public_path('uploads/empowering-dreams/features'), $fileName);
+                    $featureImages[$index] = 'uploads/empowering-dreams/features/' . $fileName;
+                }
+            }
+        }
+
         $dream->update([
             'title' => $request->title,
             'description' => $request->description,
@@ -217,6 +251,7 @@ class AdminController extends Controller
             'mission' => $request->mission,
             'mission_description' => $request->mission_description,
             'features' => $request->features,
+            'feature_images' => json_encode($featureImages),
             'image' => $imagePath,
         ]);
 

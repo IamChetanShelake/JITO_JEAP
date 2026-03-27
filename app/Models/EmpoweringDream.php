@@ -20,6 +20,7 @@ class EmpoweringDream extends Model
         'mission',
         'mission_description',
         'features',
+        'feature_images',
         'image',
         'order',
         'status',

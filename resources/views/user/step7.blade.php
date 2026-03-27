@@ -301,7 +301,7 @@
                                         ($user->familyDetail && $user->familyDetail->submit_status == 'submited') &&
                                         ($user->fundingDetail && $user->fundingDetail->submit_status == 'submited') &&
                                         $isGuarantorValid &&
-                                        ($useDocumentsBelow ? ($user->documentsBelow && $user->documentsBelow->submit_status == "submited") : ($useDocumentBelowPg ? ($user->documentBelowPg && $user->documentBelowPg->submit_status == "submited") : ($user->document && $user->document->submit_status == "submited"))) &&
+                                        ($useDocumentsBelow ? ($user->document && $user->document->submit_status == "submited") : ($useDocumentBelowPg ? ($user->document && $user->document->submit_status == "submited") : ($user->document && $user->document->submit_status == "submited"))) &&
                                         $user->application_status != 'submitted'
                                     )
                                  <button type="submit" class="btn"

@@ -14,6 +14,8 @@ use App\Models\ApplicationWorkflowStatus;
 use App\Models\BeDonorDetail;
 use App\Models\Chapter;
 use App\Models\ChapterInterviewAnswer;
+use App\Models\CourseWebsite;
+use App\Models\CollegeWebsite;
 
 use App\Models\BoardOfDirectors;
 use App\Models\ZoneChairmen;

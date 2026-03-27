@@ -143,8 +143,9 @@
 
                                 {{ session('success') }}
 
-                                <button type="button" class="btn-close custom-close" data-bs-dismiss="alert"
-                                    aria-label="Close"></button>
+                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
                             </div>
                         @endif
 
@@ -1012,7 +1013,100 @@
             }
 
         });
+
+        let gOneAadhaarVerifying = false;
+
+        document.getElementById('g_one_aadhar_card_number')
+            .addEventListener('blur', function() {
+
+                if (gOneAadhaarVerifying) return;
+
+                let aadhaar = this.value.trim();
+
+                if (aadhaar.length !== 12) {
+                    alert('Aadhaar number must be 12 digits');
+                    return;
+                }
+
+                gOneAadhaarVerifying = true;
+
+                fetch("{{ route('user.verify.aadhaar.last4') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": document
+                                .querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            aadhaar: aadhaar,
+                            type: 'first'
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(resp => {
+                        if (resp.status) {
+                            alert(resp.message + ' ✅');
+                        } else {
+                            alert(resp.message + ' ❌');
+                            this.value = '';
+                        }
+                    })
+                    .catch(() => {
+                        alert('Aadhaar verification failed');
+                    })
+                    .finally(() => {
+                        gOneAadhaarVerifying = false;
+                    });
+            });
+
+        let gTwoAadhaarVerifying = false;
+
+        document.querySelector('[name="g_two_aadhar_card_number"]')
+            .addEventListener('blur', function() {
+
+                if (gTwoAadhaarVerifying) return;
+
+                let aadhaar = this.value.trim();
+
+                if (aadhaar.length !== 12) {
+                    alert('Aadhaar number must be 12 digits');
+                    return;
+                }
+
+                gTwoAadhaarVerifying = true;
+
+                fetch("{{ route('user.verify.aadhaar.last4') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": document
+                                .querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            aadhaar: aadhaar,
+                            type: 'second'
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(resp => {
+                        if (resp.status) {
+                            alert(resp.message + ' ✅');
+                        } else {
+                            alert(resp.message + ' ❌');
+                            this.value = '';
+                        }
+                    })
+                    .catch(() => {
+                        alert('Aadhaar verification failed');
+                    })
+                    .finally(() => {
+                        gTwoAadhaarVerifying = false;
+                    });
+            });
     </script>
+
 
     <script>
         function checkDuplicate(field, value, errorElementId) {
@@ -1150,5 +1244,50 @@
                 });
             }
         });
+    </script>
+    <script>
+        function checkGuarantorOneTwoSame() {
+
+            const fields = [{
+                    one: 'g_one_pan',
+                    two: 'g_two_pan',
+                    msg: 'PAN cannot be same for both guarantors'
+                },
+                {
+                    one: 'g_one_phone',
+                    two: 'g_two_phone',
+                    msg: 'Mobile number cannot be same for both guarantors'
+                },
+                {
+                    one: 'g_one_email',
+                    two: 'g_two_email',
+                    msg: 'Email cannot be same for both guarantors'
+                },
+                {
+                    one: 'g_one_aadhar_card_number',
+                    two: 'g_two_aadhar_card_number',
+                    msg: 'Aadhaar cannot be same for both guarantors'
+                },
+                {
+                    one: 'g_one_name',
+                    two: 'g_two_name',
+                    msg: 'Name cannot be same for both guarantors'
+                },
+            ];
+
+            let isValid = true;
+
+            fields.forEach(f => {
+                const oneVal = document.getElementById(f.one)?.value?.trim();
+                const twoVal = document.getElementById(f.two)?.value?.trim();
+
+                if (oneVal && twoVal && oneVal === twoVal) {
+                    alert(f.msg);
+                    isValid = false;
+                }
+            });
+
+            return isValid;
+        }
     </script>
 @endsection

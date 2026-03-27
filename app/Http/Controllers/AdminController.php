@@ -7,22 +7,34 @@ use App\Mail\SendBackForCorrectionMail;
 use App\Mail\ThirdStageDocumentCorrectionMail;
 use App\Mail\WorkingCommitteeApprovedMail;
 use App\Models\AchievementImpact;
+use App\Models\AdminAboutJitoWebsite;
+use App\Models\AdminContact;
+use App\Models\AdminFaq;
+use App\Models\AdminJitoStats;
 use App\Models\AdminNotification;
 use App\Models\AdminUser;
 use App\Models\ApexLeadership;
+
 use App\Models\ApplicationWorkflowStatus;
 use App\Models\BeDonorDetail;
+use App\Models\BoardOfDirectors;
 use App\Models\Chapter;
 use App\Models\ChapterInterviewAnswer;
-
-use App\Models\BoardOfDirectors;
-use App\Models\ZoneChairmen;
+use App\Models\CollegeWebsite;
+use App\Models\CourseWebsite;
 use App\Models\DisbursementSchedule;
+
 use App\Models\EditBankDetailRequest;
 use App\Models\EducationDetail;
 use App\Models\EmpoweringDream;
-use App\Models\Logs;
+use App\Models\JeapWebsite;
+use App\Models\KeyInstruction;
 use App\Models\Loan_category;
+use App\Models\Logs;
+
+
+
+
 
 use App\Models\OurTestimonial;
 use App\Models\PdcCourierHistory;
@@ -31,18 +43,15 @@ use App\Models\PhotoGallery;
 use App\Models\SuccessStory;
 use App\Models\ThirdStageDocument;
 use App\Models\UniversityWebsite;
-
-
-
-
-
 use App\Models\User;
 use App\Models\WorkingCommittee;
 use App\Models\WorkingCommitteeApproval;
 use App\Models\WorkingCommitteeApprovalHistory;
+use App\Models\ZoneChairmen;
 use App\Traits\LogsUserActivity;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -166,7 +175,7 @@ class AdminController extends Controller
         $featureImages = [];
         $features = array_map('trim', explode(',', $request->features));
         $featureImageFiles = $request->file('feature_images', []);
-        
+
         foreach ($features as $index => $feature) {
             if (!empty($feature) && isset($featureImageFiles[$index])) {
                 $file = $featureImageFiles[$index];
@@ -225,7 +234,7 @@ class AdminController extends Controller
         $featureImages = json_decode($dream->feature_images, true) ?? [];
         $features = array_map('trim', explode(',', $request->features));
         $featureImageFiles = $request->file('feature_images', []);
-        
+
         foreach ($features as $index => $feature) {
             if (!empty($feature)) {
                 if (isset($featureImageFiles[$index]) && $featureImageFiles[$index]->isValid()) {

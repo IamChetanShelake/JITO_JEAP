@@ -440,7 +440,6 @@
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <!-- 7. Jain Sangh Certificate -->
                                             <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">Jain Sangh Certificate *</span>

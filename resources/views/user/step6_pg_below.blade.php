@@ -729,12 +729,14 @@
                                     Resubmit Step 6
                                 </button>
                             @else
-                                <button type="submit" class="btn" style="background:#393185;color:white;">Next Step
+                                <button type="submit" class="btn" id="nextStepBtn" style="background:#393185;color:white;" disabled>
+                                    Next Step
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
                                         stroke="white" stroke-width="2" viewBox="0 0 24 24">
                                         <path d="M9 6l6 6-6 6" />
                                     </svg>
                                 </button>
+                                <small id="uploadWarning" class="text-danger" style="display:none;">Please upload all required documents first.</small>
                             @endif
                         </div>
                     </form>
@@ -744,6 +746,44 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Check if all required documents are uploaded
+            function checkAllDocumentsUploaded() {
+                const requiredFields = [
+                    'ssc_cbse_icse_ib_igcse',
+                    'hsc_diploma_marksheet',
+                    'graduate_post_graduate_marksheet',
+                    'admission_letter_fees_structure',
+                    'pan_applicant',
+                    'aadhaar_applicant',
+                    'jain_sangh_certificate',
+                    'jito_group_recommendation',
+                    'electricity_bill',
+                    'aadhaar_father_mother',
+                    'pan_father_mother',
+                    'form16_salary_income_father',
+                    'bank_statement_father_12months'
+                ];
+                
+                let allUploaded = true;
+                requiredFields.forEach(function(field) {
+                    const input = document.querySelector('input[name="' + field + '"]');
+                    if (input && !input.files.length && !input.dataset.filename) {
+                        allUploaded = false;
+                    }
+                });
+                
+                const nextBtn = document.getElementById('nextStepBtn');
+                const warning = document.getElementById('uploadWarning');
+                
+                if (nextBtn) {
+                    nextBtn.disabled = !allUploaded;
+                    if (!allUploaded && warning) {
+                        warning.style.display = 'block';
+                    } else if (warning) {
+                        warning.style.display = 'none';
+                    }
+                }
+            }
 
             // Function to handle file upload
             function handleFileUpload(fileInput) {
@@ -798,6 +838,27 @@
                 uploadSummary.innerHTML = '';
                 uploadButton.style.display = 'block';
                 uploadedButton.style.display = 'none';
+                
+                // Remove document from database via AJAX
+                const fieldName = fileInput.name;
+                if (fileInput.dataset.filename) {
+                    fetch('{{ route("user.removeDocument") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ field_name: fieldName })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Document removed from database');
+                            checkAllDocumentsUploaded();
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                }
             }
 
             // Add event listeners to all file inputs
@@ -805,6 +866,7 @@
             fileInputs.forEach(function(input) {
                 input.addEventListener('change', function() {
                     handleFileUpload(this);
+                    checkAllDocumentsUploaded();
                 });
 
                 const photoUploadBox = input.closest('.photo-upload-box');
@@ -813,6 +875,7 @@
                     if (removeBtn) {
                         removeBtn.addEventListener('click', function() {
                             removeUpload(input);
+                            checkAllDocumentsUploaded();
                         });
                     }
                 }
@@ -823,6 +886,8 @@
                 const dataFilename = input.getAttribute('data-filename');
                 if (dataFilename) {
                     const photoUploadBox = input.closest('.photo-upload-box');
+                    if (!photoUploadBox) return;
+                    
                     const uploadStatus = photoUploadBox.querySelector('.upload-status');
                     const uploadButton = photoUploadBox.querySelector('.upload-btn');
                     const uploadedButton = photoUploadBox.querySelector('.uploaded-btn');
@@ -848,6 +913,9 @@
                     removeBtn.style.display = 'inline-block';
                 }
             });
+            
+            // Check on page load
+            checkAllDocumentsUploaded();
         });
     </script>
 @endsection

@@ -488,6 +488,10 @@ Route::middleware(['auth', 'user'])
         Route::post('/Step6Storepgbelow/', [UserController::class, 'step6storepgbelow'])
             ->name('step6.storepgbelow');
 
+        // Delete/Remove Document
+        Route::post('/Step6RemoveDocument/', [UserController::class, 'step6RemoveDocument'])
+            ->name('removeDocument');
+
 
         Route::get('/Step7', [UserController::class, 'step7'])
             ->name('step7');

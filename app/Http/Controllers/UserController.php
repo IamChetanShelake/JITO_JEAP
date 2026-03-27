@@ -3476,6 +3476,36 @@ class UserController extends Controller
         return view('user.step7', compact('type', 'user'));
     }
 
+    /**
+     * Remove a specific document from the database
+     */
+    public function step6RemoveDocument(Request $request)
+    {
+        $request->validate([
+            'field_name' => 'required|string',
+        ]);
+
+        $user_id = Auth::id();
+        $fieldName = $request->input('field_name');
+
+        $document = Document::where('user_id', $user_id)->first();
+
+        if ($document && $document->$fieldName) {
+            // Delete the file from storage
+            $filePath = public_path($document->$fieldName);
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+
+            // Update the database field to null
+            $document->update([$fieldName => null]);
+
+            return response()->json(['success' => true, 'message' => 'Document removed successfully']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Document not found'], 404);
+    }
+
     public function step7store(Request $request)
     {
         $user_id = Auth::id();

@@ -277,13 +277,8 @@
                     
                     <div class="row mb-3">
                         <div class="col-md-12">
-                            <label for="university_name_select" class="form-label">University Name <span class="text-danger">*</span></label>
-                            <!-- Dropdown dynamically populated -->
-                            <select class="form-select" id="university_name_select" name="university_name_select" required>
-                                <option value="">Select University Type First</option>
-                            </select>
-                            <!-- Text input for 'Other' option -->
-                            <input type="text" class="form-control mt-2" id="university_name_other" name="university_name_other" placeholder="Enter university name" style="display: none;">
+                            <label for="university_name" class="form-label">University Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="university_name" name="university_name" required placeholder="Enter university name">
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -318,102 +313,9 @@
         "IIM", "IIT", "ISB-HYBD", "NMIMS", "VIT", "Bitspilani", "Symbiosis"
     ];
 
-    const foreignUniversities = [
-        "MIT", "Imperial College London", "Stanford", "Oxford", "Cambridge"
-    ];
-
-    // 2. Function to toggle dropdown options based on Type
-    function toggleUniversityOptions() {
-        const type = document.getElementById('university_type').value;
-        const universitySelect = document.getElementById('university_name_select');
-        const universityNameOther = document.getElementById('university_name_other');
-        const countryInput = document.getElementById('country');
-        
-        // Clear current options
-        universitySelect.innerHTML = '<option value="">Select University</option>';
-        universityNameOther.style.display = 'none';
-        universityNameOther.value = '';
-
-        let universities = [];
-
-        if (type === 'domestic') {
-            universities = domesticUniversities;
-            // Auto-fill country for domestic
-            countryInput.value = 'India';
-        } else if (type === 'foreign') {
-            universities = foreignUniversities;
-            // Clear country for foreign
-            countryInput.value = '';
-        } else {
-            universitySelect.innerHTML = '<option value="">Select University Type First</option>';
-            return;
-        }
-
-        // Populate the dropdown dynamically
-        universities.forEach(function(uni) {
-            const option = document.createElement('option');
-            option.value = uni;
-            option.textContent = uni;
-            universitySelect.appendChild(option);
-        });
-
-        // Add "Other" option for Foreign type
-        if (type === 'foreign') {
-            const otherOption = document.createElement('option');
-            otherOption.value = 'other';
-            otherOption.textContent = 'Other (Enter Manually)';
-            universitySelect.appendChild(otherOption);
-        }
-    }
-
-    // 3. Handle selection of "Other" to show text input
-    document.getElementById('university_name_select').addEventListener('change', function() {
-        const universityNameOther = document.getElementById('university_name_other');
-        if (this.value === 'other') {
-            universityNameOther.style.display = 'block';
-            universityNameOther.setAttribute('required', 'required');
-        } else {
-            universityNameOther.style.display = 'none';
-            universityNameOther.removeAttribute('required');
-            universityNameOther.value = '';
-        }
-    });
-
-    // 4. Handle Form Submission to ensure correct name is sent to Controller
-    function prepareFormForSubmit() {
-        const universitySelect = document.getElementById('university_name_select');
-        const universityNameOther = document.getElementById('university_name_other');
-        const form = document.getElementById('addUniversityForm');
-
-        // If "Other" is selected, use the text input value
-        if (universitySelect.value === 'other') {
-            if (!universityNameOther.value.trim()) {
-                alert('Please enter the university name');
-                return false;
-            }
-            
-            // Remove name from select so it doesn't send "other"
-            universitySelect.removeAttribute('name');
-            
-            // Create a hidden input with the correct name 'university_name'
-            let hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'university_name';
-            hiddenInput.value = universityNameOther.value;
-            form.appendChild(hiddenInput);
-        } else {
-            // If a standard option is selected, ensure the select has the correct name
-            universitySelect.setAttribute('name', 'university_name');
-        }
-
-        return true;
-    }
-
-    // 5. Reset form when modal closes to ensure clean state
+    // Reset form when modal closes to ensure clean state
     document.getElementById('addUniversityModal').addEventListener('hidden.bs.modal', function () {
         document.getElementById('addUniversityForm').reset();
-        document.getElementById('university_name_select').innerHTML = '<option value="">Select University Type First</option>';
-        document.getElementById('university_name_other').style.display = 'none';
     });
 </script>
 

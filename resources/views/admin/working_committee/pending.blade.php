@@ -374,8 +374,12 @@
                                     <strong>{{ $user->name }}</strong>
                                 </td>
                                 <td>{{ $user->aadhar_card_number }}</td>
-                                <td>{{ $user->financial_asset_type }}</td>
-                                <td>{{ $user->financial_asset_for }}</td>
+                                <td>{{ $user->financial_asset_type
+                    ? ucwords(str_replace('_', ' ', $user->financial_asset_type)) 
+                    : 'N/A' }}</td>
+                                <td>{{ $user->financial_asset_for 
+                    ? ucwords(str_replace('_', ' ', $user->financial_asset_for)) 
+                    : 'N/A' }}</td>
                                 <td>
                                     <span
                                         class="loan-type-badge {{ $user->loan_category_type === 'below' ? 'loan-type-below' : ($user->loan_category_type === 'above' ? 'loan-type-above' : '') }}">

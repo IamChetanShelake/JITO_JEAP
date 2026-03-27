@@ -1646,6 +1646,8 @@
             function handleFileUpload(fileInput) {
                 console.log('File upload triggered for input:', fileInput.name);
                 const photoUploadBox = fileInput.closest('.photo-upload-box');
+                if (!photoUploadBox) return;
+                
                 const uploadStatus = photoUploadBox.querySelector('.upload-status');
                 const uploadButton = photoUploadBox.querySelector('.upload-btn');
                 const uploadedButton = photoUploadBox.querySelector('.uploaded-btn');
@@ -1698,6 +1700,8 @@
             // Function to remove upload
             function removeUpload(fileInput) {
                 const photoUploadBox = fileInput.closest('.photo-upload-box');
+                if (!photoUploadBox) return;
+                
                 const uploadStatus = photoUploadBox.querySelector('.upload-status');
                 const uploadSummary = photoUploadBox.querySelector('.upload-summary');
                 const uploadButton = photoUploadBox.querySelector('.upload-btn');
@@ -1720,6 +1724,26 @@
                 uploadSummary.innerHTML = '';
                 uploadButton.style.display = 'block';
                 uploadedButton.style.display = 'none';
+                
+                // Remove document from database via AJAX
+                const fieldName = fileInput.name;
+                if (fileInput.dataset.filename) {
+                    fetch('{{ route("user.removeDocument") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ field_name: fieldName })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Document removed from database');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                }
             }
 
             // Add event listeners to all file inputs
@@ -1748,6 +1772,8 @@
                 if (dataFilename) {
                     // Simulate upload for existing document
                     const photoUploadBox = input.closest('.photo-upload-box');
+                    if (!photoUploadBox) return;
+                    
                     const uploadStatus = photoUploadBox.querySelector('.upload-status');
                     const uploadButton = photoUploadBox.querySelector('.upload-btn');
                     const uploadedButton = photoUploadBox.querySelector('.uploaded-btn');

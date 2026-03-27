@@ -209,16 +209,7 @@
                                     <div class="row">
                                         <!-- Left Column -->
                                         <div class="col-md-6">
-                                            <div class="form-group mb-3">
-                                                <label for="course_name">Course Name <span
-                                                        style="color: red;">*</span></label>
-                                                <input type="text" id="course_name" class="form-control"
-                                                    name="course_name" placeholder="Enter Course Name "
-                                                    value="{{ old('course_name', $educationDetail->course_name ?? '') }}"
-                                                    required>
-                                                <small class="text-danger"
-                                                    id="course_name_error">{{ $errors->first('course_name') }}</small>
-                                            </div>
+                                            
                                             <div class="form-group mb-3">
                                                 <label for="university_name">University Name <span
                                                         style="color: red;">*</span></label>
@@ -239,6 +230,16 @@
                                                     required>
                                                 <small class="text-danger"
                                                     id="college_name_error">{{ $errors->first('college_name') }}</small>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="course_name">Course Name <span
+                                                        style="color: red;">*</span></label>
+                                                <input type="text" id="course_name" class="form-control"
+                                                    name="course_name" placeholder="Enter Course Name "
+                                                    value="{{ old('course_name', $educationDetail->course_name ?? '') }}"
+                                                    required>
+                                                <small class="text-danger"
+                                                    id="course_name_error">{{ $errors->first('course_name') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="country">Country Name <span

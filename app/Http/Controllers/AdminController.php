@@ -6,39 +6,50 @@ use App\Http\Controllers\Controller;
 use App\Mail\SendBackForCorrectionMail;
 use App\Mail\ThirdStageDocumentCorrectionMail;
 use App\Mail\WorkingCommitteeApprovedMail;
+use App\Models\AchievementImpact;
+use App\Models\AdminNotification;
+use App\Models\AdminUser;
+use App\Models\ApexLeadership;
 use App\Models\ApplicationWorkflowStatus;
 use App\Models\BeDonorDetail;
 use App\Models\Chapter;
 use App\Models\ChapterInterviewAnswer;
-use App\Models\AdminNotification;
-use App\Models\AdminUser;
-use App\Models\ApexLeadership;
+
 use App\Models\BoardOfDirectors;
 use App\Models\ZoneChairmen;
 use App\Models\DisbursementSchedule;
+use App\Models\EditBankDetailRequest;
 use App\Models\EducationDetail;
 use App\Models\EmpoweringDream;
 use App\Models\Logs;
+use App\Models\AdminAboutJitoWebsite;
+use App\Models\AdminJitoStats;
 use App\Models\Loan_category;
+
+use App\Models\OurTestimonial;
+use App\Models\PdcCourierHistory;
 use App\Models\PdcDetail;
-use App\Models\UniversityWebsite;
-use App\Models\CourseWebsite;
-use App\Models\CollegeWebsite;
-use App\Models\User;
-use App\Models\WorkingCommitteeApprovalHistory;
+use App\Models\PhotoGallery;
+use App\Models\SuccessStory;
 use App\Models\ThirdStageDocument;
+use App\Models\UniversityWebsite;
+
+
+
+
+
+use App\Models\User;
+use App\Models\WorkingCommittee;
+use App\Models\WorkingCommitteeApproval;
+use App\Models\WorkingCommitteeApprovalHistory;
 use App\Traits\LogsUserActivity;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-
-
-
-
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 
@@ -129,7 +140,7 @@ class AdminController extends Controller
      */
     public function websiteHomeEmpoweringDreams()
     {
-        $empoweringDreams = EmpoweringDream::orderBy('order', 'asc')->get();
+        $empoweringDreams = EmpoweringDream::on('admin_panel')->orderBy('order', 'asc')->get();
         return view('admin.website.home.empowering-dreams', compact('empoweringDreams'));
     }
 
@@ -155,13 +166,13 @@ class AdminController extends Controller
             $imagePath = 'uploads/empowering-dreams/' . $imageName;
         }
 
-        EmpoweringDream::create([
+        EmpoweringDream::on('admin_panel')->create([
             'title' => $request->title,
             'description' => $request->description,
 
             'features' => $request->features,
             'image' => $imagePath,
-            'order' => EmpoweringDream::max('order') + 1,
+            'order' => EmpoweringDream::on('admin_panel')->max('order') + 1,
             'status' => true,
         ]);
 
@@ -184,7 +195,7 @@ class AdminController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $dream = EmpoweringDream::findOrFail($id);
+        $dream = EmpoweringDream::on('admin_panel')->findOrFail($id);
 
         $imagePath = $dream->image;
         if ($request->hasFile('image')) {
@@ -217,7 +228,7 @@ class AdminController extends Controller
      */
     public function deleteEmpoweringDream($id)
     {
-        $dream = EmpoweringDream::findOrFail($id);
+        $dream = EmpoweringDream::on('admin_panel')->findOrFail($id);
 
         // Delete image if exists
         if ($dream->image && file_exists(public_path($dream->image))) {
@@ -513,7 +524,7 @@ class AdminController extends Controller
      */
     public function websiteHomeEmpoweringFuture()
     {
-        $empoweringDreams = EmpoweringDream::orderBy('order')->get();
+        $empoweringDreams = EmpoweringDream::on('admin_panel')->orderBy('order')->get();
         $response = response()->view('admin.website.home.empowering-future', compact('empoweringDreams'));
         $response->header('Cache-Control', 'no-cache, no-store, must-revalidate');
         $response->header('Pragma', 'no-cache');
@@ -545,7 +556,7 @@ class AdminController extends Controller
             $imagePath = 'uploads/empowering-dreams/' . $imageName;
         }
 
-        EmpoweringDream::create([
+        EmpoweringDream::on('admin_panel')->create([
             'title' => $request->title,
             'description' => $request->description,
             'vision' => $request->input('vision', ''),
@@ -554,7 +565,7 @@ class AdminController extends Controller
             'mission_description' => $request->input('mission_description', ''),
             'features' => $request->input('features', ''),
             'image' => $imagePath,
-            'order' => EmpoweringDream::max('order') + 1,
+            'order' => EmpoweringDream::on('admin_panel')->max('order') + 1,
             'status' => true,
         ]);
 
@@ -579,7 +590,7 @@ class AdminController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $dream = EmpoweringDream::findOrFail($id);
+        $dream = EmpoweringDream::on('admin_panel')->findOrFail($id);
 
         $imagePath = $dream->image;
         if ($request->hasFile('image')) {
@@ -613,7 +624,7 @@ class AdminController extends Controller
      */
     public function deleteEmpoweringFuture($id)
     {
-        $dream = EmpoweringDream::findOrFail($id);
+        $dream = EmpoweringDream::on('admin_panel')->findOrFail($id);
 
         if ($dream->image && file_exists(public_path($dream->image))) {
             unlink(public_path($dream->image));
@@ -815,7 +826,6 @@ class AdminController extends Controller
                 'name' => 'required|string|max:255',
                 'feedback' => 'required|string',
                 'title' => 'nullable|string|max:255',
-                'about' => 'nullable|string',
                 'date' => 'nullable|date',
                 'display_order' => 'nullable|integer|min:0',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -837,7 +847,6 @@ class AdminController extends Controller
             $testimonial = \App\Models\OurTestimonial::create([
                 'title' => $validated['title'] ?? null,
                 'image' => $imagePath,
-                'about' => $validated['about'] ?? null,
                 'feedback' => $validated['feedback'],
                 'name' => $validated['name'],
                 'date' => $validated['date'] ?? null,
@@ -866,7 +875,6 @@ class AdminController extends Controller
                 'name' => 'required|string|max:255',
                 'feedback' => 'required|string',
                 'title' => 'nullable|string|max:255',
-                'about' => 'nullable|string',
                 'date' => 'nullable|date',
                 'display_order' => 'nullable|integer|min:0',
                 'is_active' => 'nullable|boolean',
@@ -889,7 +897,6 @@ class AdminController extends Controller
             $testimonial->update([
                 'title' => $validated['title'] ?? null,
                 'image' => $imagePath,
-                'about' => $validated['about'] ?? null,
                 'feedback' => $validated['feedback'],
                 'name' => $validated['name'],
                 'date' => $validated['date'] ?? null,
@@ -1262,7 +1269,7 @@ class AdminController extends Controller
         $smallTitles = array_values(array_filter($request->small_titles ?? [], function($value) {
             return $value !== null && $value !== '';
         }));
-        
+
         $smallDescriptions = array_values(array_filter($request->small_descriptions ?? [], function($value) {
             return $value !== null && $value !== '';
         }));
@@ -1321,7 +1328,7 @@ class AdminController extends Controller
         $smallTitles = array_values(array_filter($request->small_titles ?? [], function($value) {
             return $value !== null && $value !== '';
         }));
-        
+
         $smallDescriptions = array_values(array_filter($request->small_descriptions ?? [], function($value) {
             return $value !== null && $value !== '';
         }));
@@ -1373,12 +1380,12 @@ class AdminController extends Controller
 
         if ($item->images && isset($item->images[$imageIndex])) {
             $imagePath = $item->images[$imageIndex];
-            
+
             // Delete the file
             if (file_exists(public_path($imagePath))) {
                 unlink(public_path($imagePath));
             }
-            
+
             // Remove from array
             $images = $item->images;
             unset($images[$imageIndex]);
@@ -1578,7 +1585,166 @@ class AdminController extends Controller
      */
     public function websiteAboutTestimonialsSuccess()
     {
-        return view('admin.website.about.testimonials-success');
+        $testimonials = \App\Models\OurTestimonial::orderBy('display_order', 'asc')->orderBy('created_at', 'desc')->get();
+        $successStories = \App\Models\SuccessStory::orderBy('display_order', 'asc')->orderBy('created_at', 'desc')->get();
+        return view('admin.website.about.testimonials-success', compact('testimonials', 'successStories'));
+    }
+
+    /**
+     * Store Testimonials or Success Story
+     */
+    public function storeTestimonialsSuccess(\Illuminate\Http\Request $request)
+    {
+        try {
+            $type = $request->input('type', 'testimonial');
+            
+            $validated = $request->validate([
+                'type' => 'required|in:testimonial,success_story',
+                'name' => 'required|string|max:255' . ($type == 'testimonial' ? '' : '|nullable'),
+                'title' => 'nullable|string|max:255',
+                'feedback' => 'required|string',
+                'date' => 'nullable|date',
+                'display_order' => 'nullable|integer|min:0',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+
+            // Handle image upload
+            $imagePath = null;
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                $image = $request->file('image');
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/testimonials'), $imageName);
+                $imagePath = 'uploads/testimonials/' . $imageName;
+            }
+
+            if (!isset($validated['display_order']) || $validated['display_order'] == 0) {
+                if ($type == 'testimonial') {
+                    $validated['display_order'] = (\App\Models\OurTestimonial::max('display_order') ?? 0) + 1;
+                } else {
+                    $validated['display_order'] = (\App\Models\SuccessStory::max('display_order') ?? 0) + 1;
+                }
+            }
+
+            if ($type == 'testimonial') {
+                \App\Models\OurTestimonial::create([
+                    'title' => $validated['title'] ?? null,
+                    'image' => $imagePath,
+                    'feedback' => $validated['feedback'],
+                    'name' => $validated['name'],
+                    'date' => $validated['date'] ?? null,
+                    'display_order' => $validated['display_order'] ?? 0,
+                    'is_active' => 1,
+                ]);
+            } else {
+                \App\Models\SuccessStory::create([
+                    'title' => $validated['title'] ?? null,
+                    'image' => $imagePath,
+                    'description' => $validated['feedback'],
+                    'name' => $validated['name'] ?? null,
+                    'date' => $validated['date'] ?? null,
+                    'display_order' => $validated['display_order'] ?? 0,
+                    'is_active' => 1,
+                ]);
+            }
+
+            \Illuminate\Support\Facades\Log::info('Testimonial/Success Story created successfully');
+
+            return redirect()->route('admin.website.about.testimonials-success')->with('success', 'Added successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error storing testimonial/success story: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Update Testimonials or Success Story
+     */
+    public function updateTestimonialsSuccess(\Illuminate\Http\Request $request, $id)
+    {
+        try {
+            $type = $request->input('type', 'testimonial');
+            
+            $validated = $request->validate([
+                'type' => 'required|in:testimonial,success_story',
+                'name' => 'required|string|max:255' . ($type == 'testimonial' ? '' : '|nullable'),
+                'title' => 'nullable|string|max:255',
+                'feedback' => 'required|string',
+                'date' => 'nullable|date',
+                'display_order' => 'nullable|integer|min:0',
+                'is_active' => 'nullable|boolean',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+
+            if ($type == 'testimonial') {
+                $item = \App\Models\OurTestimonial::findOrFail($id);
+            } else {
+                $item = \App\Models\SuccessStory::findOrFail($id);
+            }
+
+            // Handle image upload
+            $imagePath = $item->image;
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                if ($item->image && file_exists(public_path($item->image))) {
+                    unlink(public_path($item->image));
+                }
+                $image = $request->file('image');
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/testimonials'), $imageName);
+                $imagePath = 'uploads/testimonials/' . $imageName;
+            }
+
+            if ($type == 'testimonial') {
+                $item->update([
+                    'title' => $validated['title'] ?? null,
+                    'image' => $imagePath,
+                    'feedback' => $validated['feedback'],
+                    'name' => $validated['name'],
+                    'date' => $validated['date'] ?? null,
+                    'display_order' => $validated['display_order'] ?? 0,
+                    'is_active' => $validated['is_active'] ?? 1,
+                ]);
+            } else {
+                $item->update([
+                    'title' => $validated['title'] ?? null,
+                    'image' => $imagePath,
+                    'description' => $validated['feedback'],
+                    'name' => $validated['name'] ?? null,
+                    'date' => $validated['date'] ?? null,
+                    'display_order' => $validated['display_order'] ?? 0,
+                    'is_active' => $validated['is_active'] ?? 1,
+                ]);
+            }
+
+            return redirect()->route('admin.website.about.testimonials-success')->with('success', 'Updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Delete Testimonials or Success Story
+     */
+    public function deleteTestimonialsSuccess($id)
+    {
+        try {
+            $type = request()->input('type', 'testimonial');
+            
+            if ($type == 'testimonial') {
+                $item = \App\Models\OurTestimonial::findOrFail($id);
+            } else {
+                $item = \App\Models\SuccessStory::findOrFail($id);
+            }
+
+            if ($item->image && file_exists(public_path($item->image))) {
+                unlink(public_path($item->image));
+            }
+
+            $item->delete();
+
+            return redirect()->route('admin.website.about.testimonials-success')->with('success', 'Deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -4285,6 +4451,387 @@ class AdminController extends Controller
         return $pdf->stream($filename);
     }
 
+    // public function generateShortSummaryPDF(User $user)
+    // {
+    //     // Load relations
+    //     $user->load([
+    //         'workflowStatus',
+    //         'educationDetail',
+    //         'disbursementSchedules.disbursement', // IMPORTANT
+    //         'repayments'
+    //     ]);
+
+    //     $workflow = $user->workflowStatus;
+    //     $educationDetail = $user->educationDetail;
+
+    //     // Working committee
+    //     $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
+
+    //     // =========================
+    //     // 🔹 DISBURSEMENT DATA
+    //     // =========================
+    //     $disbursementSchedules = $user->disbursementSchedules
+    //         ->sortBy('installment_no')
+    //         ->values();
+
+    //     $disbursements = $disbursementSchedules
+    //         ->map(function ($schedule) {
+    //             return $schedule->disbursement;
+    //         })
+    //         ->filter()
+    //         ->values();
+
+    //     $paidDisbursementSchedules = $disbursementSchedules
+    //         ->filter(fn($schedule) => (bool) $schedule->disbursement)
+    //         ->values();
+
+    //     $totalDisbursed = $disbursements->sum('amount');
+
+    //     // First disbursement
+    //     $firstDisbursement = $disbursements->sortBy('disbursement_date')->first();
+    //     $firstSchedule = $disbursementSchedules->first();
+
+    //     // =========================
+    //     // 🔹 REPAYMENT DATA
+    //     // =========================
+    //     $repayments = $user->repayments
+    //         ->sortBy('payment_date')
+    //         ->values();
+
+    //     $paidRepayments = $repayments->filter(function ($repayment) {
+    //         return strtolower(trim((string) $repayment->status)) === 'paid';
+    //     });
+
+    //     $totalRepaid = $paidRepayments->sum('amount');
+
+    //     // =========================
+    //     // 🔹 REPAYMENT SUMMARY (NEW LOGIC)
+    //     // =========================
+
+    //     // Only paid repayments (sorted)
+    //     $paidRepayments = $repayments
+    //         ->filter(function ($r) {
+    //             return strtolower(trim((string)$r->status)) === 'paid';
+    //         })
+    //         ->sortBy('payment_date')
+    //         ->values();
+
+
+
+    //     // =========================
+    //     // 🔹 COMBINED REPAYMENT SCHEDULE
+    //     // =========================
+
+    //     // =========================
+    //     // 🔹 PHASE-WISE SUMMARY (FINAL)
+    //     // =========================
+
+    //     $repaymentRows = [];
+
+    //     $installmentAmounts = $workingCommitteeApproval->installment_amount ?? [];
+    //     $monthsArray = $workingCommitteeApproval->no_of_months ?? [];
+    //     $totalsArray = $workingCommitteeApproval->total ?? [];
+
+    //     $startDate = \Carbon\Carbon::parse($workingCommitteeApproval->repayment_starting_from);
+
+
+    //     // Running outstanding
+    //     $totalExpected = array_sum($totalsArray); // 300000
+    //     $runningOutstanding = $totalExpected;
+
+    //     // Paid repayments
+    //     $payments = $repayments
+    //         ->filter(fn($r) => strtolower(trim($r->status)) === 'paid')
+    //         ->sortBy('payment_date')
+    //         ->values();
+
+    //     $totalPaid = $payments->sum('amount');
+
+    //     $runningOutstanding = $totalDisbursed;
+
+    //     $currentDate = $startDate->copy();
+
+    //     $totalExpected = array_sum($totalsArray);
+
+    //     foreach ($totalsArray as $index => $totalAmount) {
+
+    //         $months = (int) ($monthsArray[$index] ?? 0);
+
+    //         // Calculate how much paid falls into this phase
+    //         $phasePaid = 0;
+
+    //         foreach ($payments as $payment) {
+    //             if (
+    //                 $payment->payment_date >= $currentDate &&
+    //                 $payment->payment_date < $currentDate->copy()->addMonths($months)
+    //             ) {
+
+    //                 $phasePaid += $payment->amount;
+    //             }
+    //         }
+
+    //         $runningOutstanding -= $phasePaid;
+
+    //         $repaymentRows[] = [
+    //             'date' => $currentDate->copy(),
+    //             'expected' => (float) $totalAmount,
+    //             'paid' => $phasePaid,
+    //             'outstanding' => max($runningOutstanding, 0),
+    //         ];
+
+    //         // Move to next phase start date
+    //         $currentDate->addMonths($months);
+    //     }
+
+    //     // Total paid
+    //     $totalPaid = $repayments
+    //         ->filter(fn($r) => strtolower(trim($r->status)) === 'paid')
+    //         ->sum('amount');
+
+    //     $pdcInstallments = $this->getPdcInstallmentsWithStatus($user);
+
+    //     // Outstanding
+    //     $outstanding = $totalExpected - $totalPaid;
+
+    //     // =========================
+    //     // 🔹 PASS TO VIEW
+    //     // =========================
+    //     $pdf = Pdf::loadView('pdf.jeap-short-summary', compact(
+    //         'user',
+    //         'workflow',
+    //         'educationDetail',
+    //         'workingCommitteeApproval',
+    //         'disbursements',
+    //         'disbursementSchedules',
+    //         'paidDisbursementSchedules',
+    //         'firstDisbursement',
+    //         'firstSchedule',
+    //         'repayments',
+    //         'pdcInstallments',
+    //         'totalDisbursed',
+    //         'totalRepaid',
+    //         'outstanding',
+    //         'repaymentRows',
+    //         'totalPaid',
+    //         'totalExpected'
+    //     ));
+
+    //     $pdf->setPaper('a4', 'portrait');
+
+    //     return $pdf->stream('JEAP_Short_Summary_' . $user->id . '.pdf');
+    // }
+
+    public function generateShortSummaryPDF(User $user)
+    {
+        // Load relations
+        $user->load([
+            'workflowStatus',
+            'educationDetail',
+            'disbursementSchedules.disbursement',
+            'repayments'
+        ]);
+
+        $workflow = $user->workflowStatus;
+        $educationDetail = $user->educationDetail;
+
+        // Working committee
+        $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
+
+        // =========================
+        // 🔹 DISBURSEMENT DATA
+        // =========================
+        $disbursementSchedules = $user->disbursementSchedules
+            ->sortBy('installment_no')
+            ->values();
+
+        $disbursements = $disbursementSchedules
+            ->map(fn($schedule) => $schedule->disbursement)
+            ->filter()
+            ->values();
+
+
+        $paidDisbursementSchedules = $disbursementSchedules
+            ->filter(fn($schedule) => (bool) $schedule->disbursement)
+            ->values();
+
+        $totalDisbursed = $disbursements->sum('amount');
+
+        $firstDisbursement = $disbursements->sortBy('disbursement_date')->first();
+        $firstSchedule = $disbursementSchedules->first();
+
+        // =========================
+        // 🔹 REPAYMENT DATA
+        // =========================
+        $repayments = $user->repayments
+            ->sortBy('payment_date')
+            ->values();
+
+        // =========================
+        // 🔹 PHASE-WISE REPAYMENT SUMMARY
+        // =========================
+
+        // Safe array handling (in case casting not applied)
+        $installmentAmounts = is_array($workingCommitteeApproval->installment_amount)
+            ? $workingCommitteeApproval->installment_amount
+            : json_decode($workingCommitteeApproval->installment_amount, true);
+
+        $monthsArray = is_array($workingCommitteeApproval->no_of_months)
+            ? $workingCommitteeApproval->no_of_months
+            : json_decode($workingCommitteeApproval->no_of_months, true);
+
+        $totalsArray = is_array($workingCommitteeApproval->total)
+            ? $workingCommitteeApproval->total
+            : json_decode($workingCommitteeApproval->total, true);
+
+        // Start date
+        $startDate = \Carbon\Carbon::parse($workingCommitteeApproval->repayment_starting_from);
+
+        // ✅ TOTAL EXPECTED (IMPORTANT)
+        $totalExpected = array_sum($totalsArray);
+
+        // Paid repayments
+        $payments = $repayments
+            ->filter(fn($r) => strtolower(trim($r->status)) === 'paid')
+            ->sortBy('payment_date')
+            ->values();
+
+        $totalPaid = $payments->sum('amount');
+
+        // Running outstanding starts from TOTAL EXPECTED
+        $runningOutstanding = $totalExpected;
+
+        $repaymentRows = [];
+        $currentDate = $startDate->copy();
+
+        $remainingPayments = $payments->values();
+
+
+        foreach ($totalsArray as $index => $totalAmount) {
+
+            $months = (int) ($monthsArray[$index] ?? 0);
+
+            $expected = (float) $totalAmount;
+            $phasePaid = 0;
+
+            $paymentDate = null; // ✅ track payment date
+
+            while ($remainingPayments->isNotEmpty() && $expected > 0) {
+
+                $payment = $remainingPayments->shift(); // full object
+
+                if (!$paymentDate) {
+                    $paymentDate = $payment->payment_date; // ✅ first payment date
+                }
+
+                if ($payment->amount <= $expected) {
+                    $phasePaid += $payment->amount;
+                    $expected -= $payment->amount;
+                } else {
+                    $phasePaid += $expected;
+
+                    // push remaining back
+                    $remainingPayments->prepend((object)[
+                        'amount' => $payment->amount - $expected,
+                        'payment_date' => $payment->payment_date
+                    ]);
+
+                    $expected = 0;
+                }
+            }
+
+            $runningOutstanding -= $phasePaid;
+
+            $repaymentRows[] = [
+                // ✅ IMPORTANT CHANGE HERE
+                'date' => $phasePaid > 0
+                    ? \Carbon\Carbon::parse($paymentDate)
+                    : $currentDate->copy(),
+
+                'expected' => (float) $totalAmount,
+                'paid' => $phasePaid,
+                'outstanding' => max($runningOutstanding, 0),
+            ];
+
+            $currentDate->addMonths($months);
+        }
+
+        // Final outstanding
+        $outstanding = $totalExpected - $totalPaid;
+
+        // =========================
+        // 🔹 OTHER DATA
+        // =========================
+        $pdcInstallments = $this->getPdcInstallmentsWithStatus($user);
+
+        // =========================
+        // 🔹 PASS TO VIEW
+        // =========================
+        $pdf = Pdf::loadView('pdf.jeap-short-summary', compact(
+            'user',
+            'workflow',
+            'educationDetail',
+            'workingCommitteeApproval',
+            'disbursements',
+            'disbursementSchedules',
+            'paidDisbursementSchedules',
+            'firstDisbursement',
+            'firstSchedule',
+            'repayments',
+            'pdcInstallments',
+            'totalDisbursed',
+            'repaymentRows',
+            'totalPaid',
+            'totalExpected',
+            'outstanding'
+        ));
+
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->stream('JEAP_Short_Summary_' . $user->id . '.pdf');
+    }
+
+    public function generateFinancialClosurePDF(User $user)
+    {
+        $user->load(['repayments']);
+
+        $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
+
+        $userNumber = $user->application_no;
+
+        if (!$workingCommitteeApproval) {
+            abort(404, 'Approval data not found');
+        }
+
+        $totalsArray = is_array($workingCommitteeApproval->total)
+            ? $workingCommitteeApproval->total
+            : json_decode($workingCommitteeApproval->total, true);
+
+        $totalExpected = array_sum($totalsArray);
+
+        $payments = $user->repayments
+            ->filter(fn($r) => strtolower(trim($r->status)) === 'paid');
+
+        $totalPaid = $payments->sum('amount');
+
+        // ❗ Closure check
+        if ($totalPaid < $totalExpected) {
+            return back()->with('error', 'Loan is not fully repaid yet.');
+        }
+
+        // ✅ Closure date = LAST payment date
+        $closureDate = $payments->sortByDesc('payment_date')->first()->payment_date;
+
+        $pdf = Pdf::loadView('pdf.financial-closure-report', [
+            'user' => $user,
+            'totalExpected' => $totalExpected,
+            'totalPaid' => $totalPaid,
+            'closureDate' => $closureDate,
+            'approval' => $workingCommitteeApproval,
+            'userNumber' => $userNumber
+        ]);
+
+        return $pdf->stream('Financial_Closure_Report_' . $user->id . '.pdf');
+    }
     public function viewSanctionLetter(User $user)
     {
         // Load all related data
@@ -4785,28 +5332,9 @@ class AdminController extends Controller
             ->values()
             ->all();
 
-        if (empty($expectedDocuments)) {
-            throw ValidationException::withMessages([
-                'courier_verified_documents' => 'No uploaded documents were found for courier approval.',
-            ]);
-        }
-
-        sort($expectedDocuments);
-        sort($approvedDocuments);
-
-        // Filter out 'Other' from expected documents (it's optional for approval)
-        $requiredDocuments = array_filter($expectedDocuments, function ($doc) {
-            return strtolower(trim($doc)) !== 'other';
-        });
-        $requiredDocuments = array_values($requiredDocuments);
-
-        // Check if all required documents (except 'Other') are selected
-        $missingDocuments = array_diff($requiredDocuments, $approvedDocuments);
-
-        if (!empty($missingDocuments)) {
-            throw ValidationException::withMessages([
-                'courier_verified_documents' => 'Please select all documents except "Other" for approving. Missing: ' . implode(', ', $missingDocuments),
-            ]);
+        // Allow partial selection; just normalize to expected values when available.
+        if (!empty($expectedDocuments)) {
+            $approvedDocuments = array_values(array_intersect($expectedDocuments, $approvedDocuments));
         }
 
         $oldValues = $pdcDetail->only([
@@ -5058,6 +5586,56 @@ class AdminController extends Controller
         }
 
         return back()->with('success', 'Third stage documents sent back for correction.');
+    }
+
+    public function generateThirdStageDocumentPDF(User $user)
+    {
+        $user->load(['thirdStageDocument', 'disbursementSchedules.disbursement']);
+
+        $thirdStageDocument = $user->thirdStageDocument;
+
+        if (!$thirdStageDocument) {
+            return back()->with('error', 'Third stage documents not found.');
+        }
+
+        if ($thirdStageDocument->status !== 'approved') {
+            return back()->with('error', 'PDF can only be generated after third stage documents are approved.');
+        }
+
+        $workingCommitteeApproval = WorkingCommitteeApproval::where('user_id', $user->id)->first();
+
+        $schedules = $user->disbursementSchedules
+            ->sortBy(fn ($schedule) => $schedule->installment_no ?? 0)
+            ->values();
+
+        $firstSchedule = $schedules->first();
+        $secondSchedule = $schedules->where('installment_no', 2)->first() ?? $schedules->skip(1)->first();
+
+        $firstDisbursementAmount = $this->resolveThirdStageScheduleAmount($firstSchedule);
+        $secondDisbursementAmount = $this->resolveThirdStageScheduleAmount($secondSchedule);
+
+        $pdf = Pdf::loadView('pdf.third-stage-documents', [
+            'user' => $user,
+            'thirdStageDocument' => $thirdStageDocument,
+            'workingCommitteeApproval' => $workingCommitteeApproval,
+            'firstDisbursementAmount' => $firstDisbursementAmount,
+            'secondDisbursementAmount' => $secondDisbursementAmount,
+        ]);
+
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->stream('Third_Stage_Documents_' . $user->id . '.pdf');
+    }
+
+    private function resolveThirdStageScheduleAmount($schedule): float
+    {
+        if (!$schedule) {
+            return 0.0;
+        }
+
+        $amount = optional($schedule->disbursement)->amount ?? $schedule->planned_amount ?? 0;
+
+        return (float) $amount;
     }
 
     // =====================================================
@@ -5384,7 +5962,7 @@ class AdminController extends Controller
             ->with('success', 'PDC details updated successfully');
     }
 
-    private function getLockedPdcInstallments(User $user)
+    private function getPdcInstallmentsWithStatus(User $user, bool $onlyPaidOrPartial = false)
     {
         $pdcDetail = PdcDetail::query()
             ->where('user_id', $user->id)
@@ -5429,22 +6007,30 @@ class AdminController extends Controller
             ->where('status', '!=', 'bounced')
             ->sum('amount');
 
-        return $installments
-            ->map(function ($installment) use (&$remainingPaidAmount) {
-                if ($remainingPaidAmount >= $installment->amount && $installment->amount > 0) {
-                    $installment->status = 'paid';
-                    $remainingPaidAmount -= $installment->amount;
-                } elseif ($remainingPaidAmount > 0 && $installment->amount > 0) {
-                    $installment->status = 'partial';
-                    $remainingPaidAmount = 0;
-                } else {
-                    $installment->status = 'pending';
-                }
+        $annotated = $installments->map(function ($installment) use (&$remainingPaidAmount) {
+            if ($remainingPaidAmount >= $installment->amount && $installment->amount > 0) {
+                $installment->status = 'paid';
+                $remainingPaidAmount -= $installment->amount;
+            } elseif ($remainingPaidAmount > 0 && $installment->amount > 0) {
+                $installment->status = 'partial';
+                $remainingPaidAmount = 0;
+            } else {
+                $installment->status = 'pending';
+            }
 
-                return $installment;
-            })
-            ->whereIn('status', ['paid', 'partial'])
-            ->values();
+            return $installment;
+        });
+
+        if ($onlyPaidOrPartial) {
+            return $annotated->whereIn('status', ['paid', 'partial'])->values();
+        }
+
+        return $annotated->values();
+    }
+
+    private function getLockedPdcInstallments(User $user)
+    {
+        return $this->getPdcInstallmentsWithStatus($user, true);
     }
 
     private function isCourierReceiveApproved(?PdcDetail $pdcDetail): bool
@@ -5703,7 +6289,7 @@ class AdminController extends Controller
         ]);
     }
 
-   // about 
+   // about
     public function websiteAboutEmpoweringDreams()
     {
        return view('admin.website.about.empowering-dreams');

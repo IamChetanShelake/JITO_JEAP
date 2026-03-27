@@ -1165,10 +1165,16 @@
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            function pad2(value) {
+                return String(value).padStart(2, '0');
+            }
+
+            function toIsoDate(dateObj) {
+                return `${dateObj.getFullYear()}-${pad2(dateObj.getMonth() + 1)}-${pad2(dateObj.getDate())}`;
+            }
+
             const today = new Date();
-            const todayIso = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-                .toISOString()
-                .slice(0, 10);
+            const todayIso = toIsoDate(today);
             const isPdcApproved = {{ $isPdcApproved ? 'true' : 'false' }};
             const repaymentStartRaw = "{{ $workingCommitteeApproval->repayment_starting_from ?? '' }}";
             const repaymentStartDate = repaymentStartRaw ?
@@ -1234,12 +1240,6 @@
                     d.setDate(0);
                 }
                 return d;
-            }
-
-            function toIsoDate(dateObj) {
-                return new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate())
-                    .toISOString()
-                    .slice(0, 10);
             }
 
             function createChequeRow(index, data = null) {

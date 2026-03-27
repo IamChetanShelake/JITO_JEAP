@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('admin_contact_website', function (Blueprint $table) {
+        Schema::create('password_otps', function (Blueprint $table) {
             $table->id();
-            $table->string('title')->nullable();
-            $table->longText('description')->nullable();
-            $table->json('small_titles')->nullable();
-            $table->json('small_descriptions')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->string('email')->index();
+            $table->string('otp');
+            $table->string('purpose')->default('password_reset');
+            $table->boolean('is_verified')->default(false);
+            $table->timestamp('expires_at');
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('admin_contact_website');
+        Schema::dropIfExists('password_otps');
     }
 };

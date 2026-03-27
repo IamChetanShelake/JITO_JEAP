@@ -144,7 +144,8 @@
                 <!-- Right Side: Contact Form (Purple Background) -->
                 <div class="col-lg-7" style="background-color: #393186; padding: 50px;">
                     @if(session('success'))
-                        <div class="alert alert-success" style="background-color: #d4edda; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                        <div class="alert alert-success" style="background-color: #28a745; color: #ffffff; padding: 20px; margin-bottom: 25px; border-radius: 8px; border: none; font-size: 16px; font-weight: 600; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+                            <i class="fas fa-check-circle" style="margin-right: 10px;"></i>
                             {{ session('success') }}
                         </div>
                     @endif

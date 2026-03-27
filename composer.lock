@@ -897,6 +897,10 @@
             "time": "2025-03-06T22:45:56+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> main
             "name": "ezyang/htmlpurifier",
             "version": "v4.19.0",
             "source": {
@@ -976,6 +980,29 @@
                 "symfony/http-foundation": "^5.4|^6.4|^7.3|^8"
             },
             "require-dev": {
+<<<<<<< HEAD
+=======
+=======
+            "name": "fruitcake/php-cors",
+            "version": "v1.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/fruitcake/php-cors.git",
+                "reference": "38aaa6c3fd4c157ffe2a4d10aa8b9b16ba8de379"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/fruitcake/php-cors/zipball/38aaa6c3fd4c157ffe2a4d10aa8b9b16ba8de379",
+                "reference": "38aaa6c3fd4c157ffe2a4d10aa8b9b16ba8de379",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1",
+                "symfony/http-foundation": "^5.4|^6.4|^7.3|^8"
+            },
+            "require-dev": {
+>>>>>>> vaishnavi
+>>>>>>> main
                 "phpstan/phpstan": "^2",
                 "phpunit/phpunit": "^9",
                 "squizlabs/php_codesniffer": "^4"
@@ -2352,6 +2379,10 @@
         },
         {
             "name": "league/uri",
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> main
             "version": "7.8.1",
             "source": {
                 "type": "git",
@@ -2366,6 +2397,25 @@
             },
             "require": {
                 "league/uri-interfaces": "^7.8.1",
+<<<<<<< HEAD
+=======
+=======
+            "version": "7.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/uri.git",
+                "reference": "4436c6ec8d458e4244448b069cc572d088230b76"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/uri/zipball/4436c6ec8d458e4244448b069cc572d088230b76",
+                "reference": "4436c6ec8d458e4244448b069cc572d088230b76",
+                "shasum": ""
+            },
+            "require": {
+                "league/uri-interfaces": "^7.8",
+>>>>>>> vaishnavi
+>>>>>>> main
                 "php": "^8.1",
                 "psr/http-factory": "^1"
             },
@@ -2438,7 +2488,15 @@
                 "docs": "https://uri.thephpleague.com",
                 "forum": "https://thephpleague.slack.com",
                 "issues": "https://github.com/thephpleague/uri-src/issues",
+<<<<<<< HEAD
                 "source": "https://github.com/thephpleague/uri/tree/7.8.1"
+=======
+<<<<<<< HEAD
+                "source": "https://github.com/thephpleague/uri/tree/7.8.1"
+=======
+                "source": "https://github.com/thephpleague/uri/tree/7.8.0"
+>>>>>>> vaishnavi
+>>>>>>> main
             },
             "funding": [
                 {
@@ -2446,6 +2504,10 @@
                     "type": "github"
                 }
             ],
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> main
             "time": "2026-03-15T20:22:25+00:00"
         },
         {
@@ -2460,6 +2522,25 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/thephpleague/uri-interfaces/zipball/85d5c77c5d6d3af6c54db4a78246364908f3c928",
                 "reference": "85d5c77c5d6d3af6c54db4a78246364908f3c928",
+<<<<<<< HEAD
+=======
+=======
+            "time": "2026-01-14T17:24:56+00:00"
+        },
+        {
+            "name": "league/uri-interfaces",
+            "version": "7.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/uri-interfaces.git",
+                "reference": "c5c5cd056110fc8afaba29fa6b72a43ced42acd4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/uri-interfaces/zipball/c5c5cd056110fc8afaba29fa6b72a43ced42acd4",
+                "reference": "c5c5cd056110fc8afaba29fa6b72a43ced42acd4",
+>>>>>>> vaishnavi
+>>>>>>> main
                 "shasum": ""
             },
             "require": {
@@ -2522,7 +2603,15 @@
                 "docs": "https://uri.thephpleague.com",
                 "forum": "https://thephpleague.slack.com",
                 "issues": "https://github.com/thephpleague/uri-src/issues",
+<<<<<<< HEAD
                 "source": "https://github.com/thephpleague/uri-interfaces/tree/7.8.1"
+=======
+<<<<<<< HEAD
+                "source": "https://github.com/thephpleague/uri-interfaces/tree/7.8.1"
+=======
+                "source": "https://github.com/thephpleague/uri-interfaces/tree/7.8.0"
+>>>>>>> vaishnavi
+>>>>>>> main
             },
             "funding": [
                 {
@@ -2530,6 +2619,10 @@
                     "type": "github"
                 }
             ],
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> main
             "time": "2026-03-08T20:05:35+00:00"
         },
         {
@@ -2797,6 +2890,12 @@
                 "source": "https://github.com/MarkBaker/PHPMatrix/tree/3.0.1"
             },
             "time": "2022-12-02T22:17:43+00:00"
+<<<<<<< HEAD
+=======
+=======
+            "time": "2026-01-15T06:54:53+00:00"
+>>>>>>> vaishnavi
+>>>>>>> main
         },
         {
             "name": "masterminds/html5",
@@ -2969,6 +3068,10 @@
             "time": "2026-01-02T08:56:05+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> main
             "name": "mpdf/mpdf",
             "version": "v8.3.1",
             "source": {
@@ -3212,6 +3315,20 @@
             },
             "dist": {
                 "type": "zip",
+<<<<<<< HEAD
+=======
+=======
+            "name": "nesbot/carbon",
+            "version": "3.11.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/CarbonPHP/carbon.git",
+                "reference": "6a7e652845bb018c668220c2a545aded8594fbbf"
+            },
+            "dist": {
+                "type": "zip",
+>>>>>>> vaishnavi
+>>>>>>> main
                 "url": "https://api.github.com/repos/CarbonPHP/carbon/zipball/6a7e652845bb018c668220c2a545aded8594fbbf",
                 "reference": "6a7e652845bb018c668220c2a545aded8594fbbf",
                 "shasum": ""
@@ -3611,6 +3728,10 @@
             "time": "2026-02-16T23:10:27+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> main
             "name": "paragonie/random_compat",
             "version": "v9.99.100",
             "source": {
@@ -3778,6 +3899,20 @@
             },
             "dist": {
                 "type": "zip",
+<<<<<<< HEAD
+=======
+=======
+            "name": "phpoption/phpoption",
+            "version": "1.9.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/schmittjoh/php-option.git",
+                "reference": "75365b91986c2405cf5e1e012c5595cd487a98be"
+            },
+            "dist": {
+                "type": "zip",
+>>>>>>> vaishnavi
+>>>>>>> main
                 "url": "https://api.github.com/repos/schmittjoh/php-option/zipball/75365b91986c2405cf5e1e012c5595cd487a98be",
                 "reference": "75365b91986c2405cf5e1e012c5595cd487a98be",
                 "shasum": ""

@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\Auth\CustomForgotPasswordController;
+use App\Http\Controllers\Auth\ConfirmPasswordController;
+use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DisbursementController;
@@ -69,6 +75,15 @@ Route::prefix('donor')->name('donor.')->group(function () {
 });
 
 Auth::routes();
+
+// Custom Password Reset Routes with OTP
+Route::get('/password/reset', [CustomForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/password/email', [CustomForgotPasswordController::class, 'sendOtp'])->name('password.sendotp');
+Route::get('/password/verify', [CustomForgotPasswordController::class, 'showVerifyOtpForm'])->name('password.verifyotp.form');
+Route::post('/password/verify', [CustomForgotPasswordController::class, 'verifyOtp'])->name('password.verifyotp');
+Route::post('/password/resend', [CustomForgotPasswordController::class, 'resendOtp'])->name('password.resendotp');
+Route::get('/password/reset/{token}', [CustomForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/password/reset', [CustomForgotPasswordController::class, 'reset'])->name('password.update');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
@@ -178,7 +193,6 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::post('/website/home/success-stories', [AdminController::class, 'storeSuccessStory'])->name('website.home.success-stories.store');
     Route::put('/website/home/success-stories/{id}', [AdminController::class, 'updateSuccessStory'])->name('website.home.success-stories.update');
     Route::delete('/website/home/success-stories/{id}', [AdminController::class, 'deleteSuccessStory'])->name('website.home.success-stories.delete');
-    
     Route::get('/website/about', [AdminController::class, 'websiteAbout'])->name('website.about');
 
     // About Sub-Pages
@@ -205,6 +219,9 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::put('/website/about/zone-chairmen/update/{id}', [AdminController::class, 'updateZoneChairmen'])->name('website.about.zone-chairmen.update');
     Route::delete('/website/about/zone-chairmen/delete/{id}', [AdminController::class, 'deleteZoneChairmen'])->name('website.about.zone-chairmen.delete');
     Route::get('/website/about/testimonials-success', [AdminController::class, 'websiteAboutTestimonialsSuccess'])->name('website.about.testimonials-success');
+    Route::post('/website/about/testimonials-success', [AdminController::class, 'storeTestimonialsSuccess'])->name('website.about.testimonials-success.store');
+    Route::put('/website/about/testimonials-success/{id}', [AdminController::class, 'updateTestimonialsSuccess'])->name('website.about.testimonials-success.update');
+    Route::delete('/website/about/testimonials-success/{id}', [AdminController::class, 'deleteTestimonialsSuccess'])->name('website.about.testimonials-success.delete');
 
     Route::get('/website/application', [AdminController::class, 'websiteApplication'])->name('website.application');
     
@@ -231,12 +248,12 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::put('/website/university/{id}', [AdminController::class, 'updateUniversity'])->name('website.university.update');
     Route::delete('/website/university/{id}', [AdminController::class, 'deleteUniversity'])->name('website.university.delete');
     Route::post('/website/university/{id}/toggle-status', [AdminController::class, 'toggleUniversityStatus'])->name('website.university.toggle-status');
-    
+
     Route::get('/website/course', [AdminController::class, 'websiteCourse'])->name('website.course');
     Route::post('/website/course', [AdminController::class, 'storeCourse'])->name('website.course.store');
     Route::put('/website/course/{id}', [AdminController::class, 'updateCourse'])->name('website.course.update');
     Route::delete('/website/course/{id}', [AdminController::class, 'deleteCourse'])->name('website.course.delete');
-    
+
     Route::get('/website/college', [AdminController::class, 'websiteCollege'])->name('website.college');
     Route::post('/website/college', [AdminController::class, 'storeCollege'])->name('website.college.store');
     Route::put('/website/college/{id}', [AdminController::class, 'updateCollege'])->name('website.college.update');
@@ -315,6 +332,10 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
 
     // Generate Summary PDF
     Route::get('/user/{user}/generate-summary-pdf', [AdminController::class, 'generateSummaryPDF'])->name('user.generate.summary.pdf');
+
+    Route::get('/user/{user}/generate-short-summary-pdf', [AdminController::class, 'generateShortSummaryPDF'])->name('user.generate.shortsummary.pdf');
+
+    Route::get('/financial-closure/{user}', [AdminController::class, 'generateFinancialClosurePDF'])->name('user.generate.financial_closure.pdf');
 
     // View Sanction Letter
     Route::get('/user/{user}/sanction-letter', [AdminController::class, 'viewSanctionLetter'])->name('user.sanction.letter');
@@ -465,6 +486,13 @@ Route::middleware(['auth', 'user'])
 
         Route::post('/Step6Storeforeign/', [UserController::class, 'step6storeforeign'])
             ->name('step6.storeforeign');
+
+        // Step 6 - Document Upload for Below 1 Lakh
+        Route::post('/Step6Storeugbelow/', [UserController::class, 'step6storeugbelow'])
+            ->name('step6.storeugbelow');
+
+        Route::post('/Step6Storepgbelow/', [UserController::class, 'step6storepgbelow'])
+            ->name('step6.storepgbelow');
 
 
         Route::get('/Step7', [UserController::class, 'step7'])

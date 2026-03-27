@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('admin_faqs_website', function (Blueprint $table) {
+        Schema::connection('admin_panel')->create('admin_faqs_website', function (Blueprint $table) {
             $table->id();
             $table->text('question');
             $table->longText('answer');

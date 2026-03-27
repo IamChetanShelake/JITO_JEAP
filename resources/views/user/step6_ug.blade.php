@@ -261,6 +261,7 @@
 
 
 
+
                                             {{-- post graduation  --}}
                                             {{-- <div class="form-group mb-3">
                                                 <div class="photo-upload-box">
@@ -819,7 +820,7 @@
                                                             <span class="photo-label">ITR Acknowledgement of Father
                                                                 *<br></span>
                                                             <span class="photo-label" style="color:gray;font-size:12px;">
-                                                                Father’s ITR acknowledgement for the latest 2 years.
+                                                                Father's ITR acknowledgement for the latest 2 years.
                                                             </span>
                                                             <input type="file" id="itr_acknowledgement_father"
                                                                 @if ($documents && $documents->itr_acknowledgement_father) data-filename="{{ basename($documents->itr_acknowledgement_father) }}" @endif
@@ -979,9 +980,6 @@
 
                                         <!-- Right Column -->
                                         <div class="col-lg-6 col-md-6 col-sm-12 col-12">
-
-
-
 
 
 

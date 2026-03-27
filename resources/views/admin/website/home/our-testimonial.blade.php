@@ -180,18 +180,8 @@
                                     </div>
                                     <div class="row mb-3">
                                         <div class="col-md-6">
-                                            <label for="date{{ $testimonial->id }}" class="form-label">Date</label>
-                                            <input type="date" class="form-control" id="date{{ $testimonial->id }}" name="date" value="{{ $testimonial->date ?? '' }}">
-                                        </div>
-                                        <div class="col-md-6">
                                             <label for="display_order{{ $testimonial->id }}" class="form-label">Display Order</label>
                                             <input type="number" class="form-control" id="display_order{{ $testimonial->id }}" name="display_order" value="{{ $testimonial->display_order ?? 0 }}" min="0">
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <div class="col-md-12">
-                                            <label for="about{{ $testimonial->id }}" class="form-label">About</label>
-                                            <textarea class="form-control" id="about{{ $testimonial->id }}" name="about" rows="2" placeholder="Enter about information">{{ $testimonial->about ?? '' }}</textarea>
                                         </div>
                                     </div>
                                     <div class="row mb-3">
@@ -284,19 +274,9 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="date" class="form-label">Date</label>
-                            <input type="date" class="form-control" id="date" name="date">
-                        </div>
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <label for="display_order" class="form-label">Display Order</label>
                             <input type="number" class="form-control" id="display_order" name="display_order" value="0" min="0">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label for="about" class="form-label">About</label>
-                            <textarea class="form-control" id="about" name="about" rows="2" placeholder="Enter about information"></textarea>
                         </div>
                     </div>
                     <div class="row mb-3">

@@ -837,6 +837,17 @@
             </h1>
             <p class="page-subtitle">Review and approve individual form steps</p>
         </div>
+        @php
+            $jeapPdfDir = public_path('Jeap_pdfs');
+            $referencePdfs = collect();
+            if (is_dir($jeapPdfDir)) {
+                $referencePdfs = collect(\Illuminate\Support\Facades\File::files($jeapPdfDir))
+                    ->map(fn ($file) => $file->getFilename())
+                    ->filter(fn ($name) => str_ends_with($name, '.pdf'))
+                    ->sort()
+                    ->values();
+            }
+        @endphp
         <div style="display: flex; gap: 1rem; align-items: center;">
             <!-- Print Options Dropdown -->
             <div class="dropdown" style="position: relative;">
@@ -859,6 +870,28 @@
                         style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
                         <i class="fas fa-file-contract" style="margin-right: 0.5rem;"></i> Sanction Letter
                     </a>
+
+                    <a href="{{ route('admin.user.generate.shortsummary.pdf', $user) }}" class="dropdown-item"
+                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-top: 1px solid var(--border-color);">
+                        <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Short Summary PDF
+                    </a>
+
+                    <a href="{{ route('admin.user.generate.financial_closure.pdf', $user) }}" class="dropdown-item"
+                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
+                        <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Financial Closure PDF
+                    </a>
+                    @if ($referencePdfs->isNotEmpty())
+                        <div style="border-top: 1px solid var(--border-color); margin-top: 0.25rem;"></div>
+                        <div style="padding: 0.5rem 1rem; font-size: 0.85rem; color: var(--text-light);">
+                            JEAP Reference PDFs
+                        </div>
+                        @foreach ($referencePdfs as $pdfFile)
+                            <a href="{{ asset('Jeap_pdfs/' . $pdfFile) }}" target="_blank" class="dropdown-item"
+                                style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
+                                <i class="fas fa-file-pdf" style="margin-right: 0.5rem;"></i>{{ $pdfFile }}
+                            </a>
+                        @endforeach
+                    @endif
                 </div>
             </div>
 
@@ -883,6 +916,8 @@
                     <h3>{{ $user->name }}</h3>
                     <p>{{ $user->email }}</p>
                     <p>{{ $user->phone }}</p>
+                    <p>{{ $user->application_no }}</p>
+
                 </div>
 
             </div>
@@ -895,8 +930,12 @@
             <div class="user-info-footer">
                 <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}
                 </p>
-                <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type ?? 'N/A' }}</p>
-                <p><strong>Financial Assistance For:</strong> {{ $user->financial_asset_for ?? 'N/A' }}</p>
+                <p><strong>Financial Assistance Type:</strong> {{ ucfirst($user->financial_asset_type ?? 'N/A') }}</p>
+                                <p><strong>Financial Assistance For:</strong> 
+                {{ $user->financial_asset_for 
+                    ? ucwords(str_replace('_', ' ', $user->financial_asset_for)) 
+                    : 'N/A' }}
+                </p>
             </div>
         </div>
 
@@ -1538,7 +1577,8 @@
                                 <div class="form-field">
                                     <label class="form-label">Current Year ITR</label>
                                     <input type="text" class="form-input"
-                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}" readonly>
+                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}"
+                                        readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Last Year ITR</label>

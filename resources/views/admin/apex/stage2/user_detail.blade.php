@@ -1915,11 +1915,66 @@
                                 </div>
                             </div>
                         </div>
-                    @endif
+                      @endif
 
-                    <!-- Bank Details of Applicant -->
-                    <div class="data-group">
-                        <h4>Bank Details of Applicant</h4>
+                      <div class="data-group">
+                          <h4>Sibling Assistance</h4>
+                          <div class="form-section">
+                              <div class="form-row">
+                                  <div class="form-field">
+                                      <label class="form-label">Sibling Assistance</label>
+                                      <input type="text" class="form-input"
+                                          value="{{ $user->fundingDetail->sibling_assistance ? ucfirst($user->fundingDetail->sibling_assistance) : 'N/A' }}"
+                                          readonly>
+                                  </div>
+                                  <div class="form-field">
+                                      <label class="form-label">Sibling Name</label>
+                                      <input type="text" class="form-input"
+                                          value="{{ $user->fundingDetail->sibling_name ?? 'N/A' }}" readonly>
+                                  </div>
+                                  <div class="form-field">
+                                      <label class="form-label">Sibling Number</label>
+                                      <input type="text" class="form-input"
+                                          value="{{ $user->fundingDetail->sibling_number ?? 'N/A' }}" readonly>
+                                  </div>
+                              </div>
+                              <div class="form-row">
+                                  <div class="form-field">
+                                      <label class="form-label">Sibling NGO Name</label>
+                                      <input type="text" class="form-input"
+                                          value="{{ $user->fundingDetail->sibling_ngo_name ?? 'N/A' }}" readonly>
+                                  </div>
+                                  <div class="form-field">
+                                      <label class="form-label">NGO Number</label>
+                                      <input type="text" class="form-input"
+                                          value="{{ $user->fundingDetail->ngo_number ?? 'N/A' }}" readonly>
+                                  </div>
+                                  <div class="form-field">
+                                      <label class="form-label">Sibling Loan Status</label>
+                                      <input type="text" class="form-input"
+                                          value="{{ $user->fundingDetail->sibling_loan_status ? ucfirst($user->fundingDetail->sibling_loan_status) : 'N/A' }}"
+                                          readonly>
+                                  </div>
+                              </div>
+                              <div class="form-row">
+                                  <div class="form-field">
+                                      <label class="form-label">Sibling Applied Year</label>
+                                      <input type="text" class="form-input"
+                                          value="{{ $user->fundingDetail->sibling_applied_year ?? 'N/A' }}" readonly>
+                                  </div>
+                                  <div class="form-field">
+                                      <label class="form-label">Sibling Applied Amount (Rs)</label>
+                                      <input type="text" class="form-input"
+                                          value="@if (is_numeric($user->fundingDetail->sibling_applied_amount)) {{ number_format($user->fundingDetail->sibling_applied_amount) }} @else {{ $user->fundingDetail->sibling_applied_amount ?? 'N/A' }} @endif"
+                                          readonly>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+
+                      <!-- Bank Details of Applicant -->
+                      <div class="data-group">
+                          <h4>Bank Details of Applicant</h4>
                         <div class="form-section">
                             <div class="form-row">
                                 <div class="form-field">

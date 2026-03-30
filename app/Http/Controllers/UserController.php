@@ -306,7 +306,7 @@ class UserController extends Controller
         // Handle image upload (only once)
         if ($request->hasFile('image')) {
             $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('images'), $imageName);
+            $request->image->move('images', $imageName);
             $data['image'] = 'images/' . $imageName;
         }
 

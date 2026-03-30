@@ -1,41 +1,141 @@
 @extends('admin.layouts.master')
 
 @php
-// Helper function to count users with workflow status safely
-function safeCount($callback, $default = 0) {
-    try {
-        return $callback();
-    } catch (\Exception $e) {
-        return $default;
+    // Helper function to count users with workflow status safely
+    function safeCount($callback, $default = 0)
+    {
+        try {
+            return $callback();
+        } catch (\Exception $e) {
+            return $default;
+        }
     }
-}
 
-// Pre-fetch counts to avoid multiple queries
-$totalUsers = safeCount(function() { return \App\Models\User::where('role', 'user')->count(); }, 0);
-$totalWorkflow = safeCount(function() { return \App\Models\User::where('role', 'user')->whereHas('workflowStatus')->count(); }, 0);
-$inProgress = safeCount(function() { return \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {$q->where('final_status', 'in_progress');})->count(); }, 0);
-$rejected = safeCount(function() { return \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {$q->where('final_status', 'rejected');})->count(); }, 0);
-$approved = safeCount(function() { return \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {$q->where('final_status', 'approved');})->count(); }, 0);
+    // Pre-fetch counts to avoid multiple queries
+    $totalUsers = safeCount(function () {
+        return \App\Models\User::where('role', 'user')->count();
+    }, 0);
+    $totalWorkflow = safeCount(function () {
+        return \App\Models\User::where('role', 'user')->whereHas('workflowStatus')->count();
+    }, 0);
+    $inProgress = safeCount(function () {
+        return \App\Models\User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('final_status', 'in_progress');
+            })
+            ->count();
+    }, 0);
+    $rejected = safeCount(function () {
+        return \App\Models\User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('final_status', 'rejected');
+            })
+            ->count();
+    }, 0);
+    $approved = safeCount(function () {
+        return \App\Models\User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('final_status', 'approved');
+            })
+            ->count();
+    }, 0);
 
-// Chapter stats
-$chapterApproved = safeCount(function() { return \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {$q->where('chapter_status', 'approved');})->count(); }, 0);
-$chapterPending = safeCount(function() { return \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {$q->where('chapter_status', 'pending')->where('current_stage', 'chapter');})->count(); }, 0);
+    // Chapter stats
+    $chapterApproved = safeCount(function () {
+        return \App\Models\User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('chapter_status', 'approved');
+            })
+            ->count();
+    }, 0);
+    $chapterPending = safeCount(function () {
+        return \App\Models\User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('chapter_status', 'pending')->where('current_stage', 'chapter');
+            })
+            ->count();
+    }, 0);
 
-// Working Committee stats
-$wcApproved = safeCount(function() { return \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {$q->where('working_committee_status', 'approved');})->count(); }, 0);
-$wcPending = safeCount(function() { return \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {$q->where('current_stage', 'working_committee')->where('final_status', 'in_progress');})->count(); }, 0);
-$wcHold = safeCount(function() { return \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {$q->where('working_committee_status', 'hold');})->count(); }, 0);
-$wcRejected = safeCount(function() { return \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {$q->where('working_committee_status', 'rejected');})->count(); }, 0);
+    // Working Committee stats
+    $wcApproved = safeCount(function () {
+        return \App\Models\User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('working_committee_status', 'approved');
+            })
+            ->count();
+    }, 0);
+    $wcPending = safeCount(function () {
+        return \App\Models\User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('current_stage', 'working_committee')->where('final_status', 'in_progress');
+            })
+            ->count();
+    }, 0);
+    $wcHold = safeCount(function () {
+        return \App\Models\User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('working_committee_status', 'hold');
+            })
+            ->count();
+    }, 0);
+    $wcRejected = safeCount(function () {
+        return \App\Models\User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('working_committee_status', 'rejected');
+            })
+            ->count();
+    }, 0);
 
-// Apex 1 stats
-$apex1Approved = safeCount(function() { return \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {$q->where('apex_1_status', 'approved');})->count(); }, 0);
-$apex1Pending = safeCount(function() { return \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {$q->where('apex_1_status', 'pending')->where('final_status', 'in_progress')->whereNull('apex_1_reject_remarks');})->count(); }, 0);
-$apex1Rejected = safeCount(function() { return \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {$q->where('apex_1_status', 'rejected');})->count(); }, 0);
+    // Apex 1 stats
+    $apex1Approved = safeCount(function () {
+        return \App\Models\User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('apex_1_status', 'approved');
+            })
+            ->count();
+    }, 0);
+    $apex1Pending = safeCount(function () {
+        return \App\Models\User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('apex_1_status', 'pending')
+                    ->where('final_status', 'in_progress')
+                    ->whereNull('apex_1_reject_remarks');
+            })
+            ->count();
+    }, 0);
+    $apex1Rejected = safeCount(function () {
+        return \App\Models\User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('apex_1_status', 'rejected');
+            })
+            ->count();
+    }, 0);
 
-// Apex 2 stats
-$apex2Approved = safeCount(function() { return \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {$q->where('apex_2_status', 'approved');})->count(); }, 0);
-$apex2Pending = safeCount(function() { return \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {$q->where('apex_2_status', 'pending')->where('final_status', 'in_progress')->where('current_stage', 'apex_2')->whereNull('apex_2_reject_remarks');})->count(); }, 0);
-$apex2Rejected = safeCount(function() { return \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {$q->where('apex_2_status', 'rejected');})->count(); }, 0);
+    // Apex 2 stats
+    $apex2Approved = safeCount(function () {
+        return \App\Models\User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('apex_2_status', 'approved');
+            })
+            ->count();
+    }, 0);
+    $apex2Pending = safeCount(function () {
+        return \App\Models\User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('apex_2_status', 'pending')
+                    ->where('final_status', 'in_progress')
+                    ->where('current_stage', 'apex_2')
+                    ->whereNull('apex_2_reject_remarks');
+            })
+            ->count();
+    }, 0);
+    $apex2Rejected = safeCount(function () {
+        return \App\Models\User::where('role', 'user')
+            ->whereHas('workflowStatus', function ($q) {
+                $q->where('apex_2_status', 'rejected');
+            })
+            ->count();
+    }, 0);
 @endphp
 
 @section('title', 'Admin Dashboard - JitoJeap')
@@ -665,7 +765,7 @@ $apex2Rejected = safeCount(function() { return \App\Models\User::where('role', '
                 <a class="nav-link tab-committee" href="{{ route('admin.committee.index') }}">
                     Working Committee
                 </a>
-            </li>  --}}
+            </li>
 
             <li class="nav-item">
                 <a class="nav-link tab-chapter" href="{{ route('admin.chapters.index') }}">
@@ -745,11 +845,15 @@ $apex2Rejected = safeCount(function() { return \App\Models\User::where('role', '
                             <div class="stat-card-title">Pending Reviews</div>
                             <div class="stat-card-value" style="color: #FBBA00;">
                                 @php
-                                try {
-                                    echo \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {$q->where('final_status', 'in_progress');})->count();
-                                } catch (\Exception $e) {
-                                    echo 0;
-                                }
+                                    try {
+                                        echo \App\Models\User::where('role', 'user')
+                                            ->whereHas('workflowStatus', function ($q) {
+                                                $q->where('final_status', 'in_progress');
+                                            })
+                                            ->count();
+                                    } catch (\Exception $e) {
+                                        echo 0;
+                                    }
                                 @endphp
                             </div>
                             <p class="stat-card-subtitle" style="color: #FBBA00;">Across all categories</p>
@@ -815,7 +919,7 @@ $apex2Rejected = safeCount(function() { return \App\Models\User::where('role', '
                                 <div>
                                     <div class="status-label">Appex Staff Approved</div>
                                     <div class="status-value">
-                                        {{ safeCount(function() { return \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) { $q->where('apex_1_status', 'approved'); })->count(); }, 0) }}
+                                        {{ safeCount(function () {return \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {$q->where('apex_1_status', 'approved');})->count();}, 0) }}
                                     </div>
                                 </div>
                             </a>

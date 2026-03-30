@@ -1118,6 +1118,65 @@
             <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
         </div>
+
+        <!-- Error Modal for Step Validation -->
+        <div class="modal fade" id="stepErrorModal" tabindex="-1" aria-labelledby="stepErrorModalLabel" aria-hidden="true" style="z-index: 9999;">
+            <div class="modal-dialog modal-dialog-centered" style="z-index: 10000;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="stepErrorModalLabel" style="color: #E31E24; font-weight: 600;">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>Warning
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-exclamation-circle" style="font-size: 3rem; color: #E31E24;"></i>
+                        </div>
+                        <p id="stepErrorMessage" style="color: #495057; font-size: 16px; margin-bottom: 0;">
+                            Please fill the previous step first.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" style="background: #393185; color: white; border: none;" data-bs-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Script to show error modal if session has error -->
+        @if(Session::has('error'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Remove any existing modal backdrops
+                    document.querySelectorAll('.modal-backdrop').forEach(function(backdrop) {
+                        backdrop.remove();
+                    });
+                    
+                    var errorMessage = '{{ Session::get('error') }}';
+                    document.getElementById('stepErrorMessage').textContent = errorMessage;
+                    
+                    var errorModal = new bootstrap.Modal(document.getElementById('stepErrorModal'), {
+                        backdrop: 'static',
+                        keyboard: true
+                    });
+                    errorModal.show();
+                    
+                    // Ensure modal is on top
+                    document.getElementById('stepErrorModal').addEventListener('shown.bs.modal', function() {
+                        document.querySelectorAll('.modal').forEach(function(modal) {
+                            if (modal.id !== 'stepErrorModal') {
+                                modal.style.zIndex = '1050';
+                            }
+                        });
+                        document.getElementById('stepErrorModal').style.zIndex = '9999';
+                        document.querySelector('#stepErrorModal .modal-dialog').style.zIndex = '10000';
+                    });
+                });
+            </script>
+        @endif
+
 </body>
 
 </html>

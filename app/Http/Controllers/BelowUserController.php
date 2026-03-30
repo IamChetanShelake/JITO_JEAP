@@ -1167,6 +1167,12 @@ class BelowUserController extends Controller
 
     public function step3store(Request $request)
     {
+        // Check if Step 2 (Education Details) is submitted
+        $educationDetail = \App\Models\EducationDetail::where('user_id', Auth::id())->first();
+        if (!$educationDetail || !in_array($educationDetail->submit_status, ['submited', 'submitted', 'approved'])) {
+            return redirect()->route('user.step2')->with('error', 'Please fill Step 2 (Education Details) first.');
+        }
+
         //dd($request->all());
         $request->validate([
             'number_family_members' => 'required|integer|min:1',
@@ -1397,6 +1403,12 @@ class BelowUserController extends Controller
 
     public function step4store(Request $request)
     {
+        // Check if Step 3 (Family Details) is submitted
+        $familyDetail = \App\Models\Familydetail::where('user_id', Auth::id())->first();
+        if (!$familyDetail || !in_array($familyDetail->submit_status, ['submited', 'submitted', 'approved'])) {
+            return redirect()->route('user.step3')->with('error', 'Please fill Step 3 (Family Details) first.');
+        }
+
         //dd($request->all());
         $request->validate([
             'funding' => 'nullable|array',
@@ -2379,6 +2391,13 @@ class BelowUserController extends Controller
 
     public function step5store(Request $request)
     {
+        // For below 1 lakh users, Step 5 is Documents (Step 6 in full flow)
+        // Check if Step 4 (Funding Details) is submitted
+        $fundingDetail = \App\Models\FundingDetail::where('user_id', Auth::id())->first();
+        if (!$fundingDetail || !in_array($fundingDetail->submit_status, ['submited', 'submitted', 'approved'])) {
+            return redirect()->route('user.step4')->with('error', 'Please fill Step 4 (Funding Details) first.');
+        }
+
         $user_id = Auth::id();
 
         // Fetch existing guarantor detail (for update case)
@@ -2586,6 +2605,13 @@ class BelowUserController extends Controller
 
     public function step6store(Request $request)
     {
+        // For below 1 lakh users, Step 6 is the final submission (Step 7 in full flow)
+        // Check if Step 5 (Documents) is submitted
+        $document = \App\Models\Document::where('user_id', Auth::id())->first();
+        if (!$document || !in_array($document->submit_status, ['submited', 'submitted', 'approved'])) {
+            return redirect()->route('user.step5')->with('error', 'Please fill Step 5 (Documents Upload) first.');
+        }
+
         Log::info('Step6Store: Method called', [
             'user_id' => Auth::id(),
             'request_method' => $request->method(),
@@ -3122,6 +3148,13 @@ class BelowUserController extends Controller
 
     public function step7store(Request $request)
     {
+        // For below 1 lakh users, Step 7 is the final submission
+        // Check if Step 6 (Documents) is submitted
+        $document = \App\Models\Document::where('user_id', Auth::id())->first();
+        if (!$document || !in_array($document->submit_status, ['submited', 'submitted', 'approved'])) {
+            return redirect()->route('user.step5')->with('error', 'Please fill Step 5 (Documents Upload) first.');
+        }
+
         $user_id = Auth::id();
 
         // Check if workflow status already exists for this user

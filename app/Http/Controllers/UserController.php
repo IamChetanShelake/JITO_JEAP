@@ -1213,6 +1213,12 @@ class UserController extends Controller
 
     public function step3store(Request $request)
     {
+        // Check if Step 2 (Education Details) is submitted
+        $educationDetail = \App\Models\EducationDetail::where('user_id', Auth::id())->first();
+        if (!$educationDetail || !in_array($educationDetail->submit_status, ['submited', 'submitted', 'approved'])) {
+            return redirect()->route('user.step2')->with('error', 'Please fill Step 2 (Education Details) first.');
+        }
+
         //dd($request->all());
         $request->validate([
             'number_family_members' => 'required|integer|min:1',
@@ -1448,6 +1454,12 @@ class UserController extends Controller
 
     public function step4store(Request $request)
     {
+        // Check if Step 3 (Family Details) is submitted
+        $familyDetail = \App\Models\Familydetail::where('user_id', Auth::id())->first();
+        if (!$familyDetail || !in_array($familyDetail->submit_status, ['submited', 'submitted', 'approved'])) {
+            return redirect()->route('user.step3')->with('error', 'Please fill Step 3 (Family Details) first.');
+        }
+
         //dd($request->all());
         $user_id = Auth::id();
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
@@ -2465,6 +2477,12 @@ class UserController extends Controller
 
     public function step5store(Request $request)
     {
+        // Check if Step 4 (Funding Details) is submitted
+        $fundingDetail = \App\Models\FundingDetail::where('user_id', Auth::id())->first();
+        if (!$fundingDetail || !in_array($fundingDetail->submit_status, ['submited', 'submitted', 'approved'])) {
+            return redirect()->route('user.step4')->with('error', 'Please fill Step 4 (Funding Details) first.');
+        }
+
         $user_id = Auth::id();
 
         // Fetch existing guarantor detail (for update case)
@@ -2679,6 +2697,24 @@ class UserController extends Controller
 
     public function step6store(Request $request)
     {
+        // Check if previous step is submitted based on loan type
+        $user_id = Auth::id();
+        $loanCategory = \App\Models\Loan_category::where('user_id', $user_id)->latest()->first();
+        $isBelowOneLakh = $loanCategory && $loanCategory->type === 'below';
+        
+        // For below 1 lakh, check step4 (Funding Details); for above 1 lakh, check step5 (Guarantor Details)
+        if ($isBelowOneLakh) {
+            $fundingDetail = \App\Models\FundingDetail::where('user_id', $user_id)->first();
+            if (!$fundingDetail || !in_array($fundingDetail->submit_status, ['submited', 'submitted', 'approved'])) {
+                return redirect()->route('user.step4')->with('error', 'Please fill Step 4 (Funding Details) first.');
+            }
+        } else {
+            $guarantorDetail = \App\Models\GuarantorDetail::where('user_id', $user_id)->first();
+            if (!$guarantorDetail || !in_array($guarantorDetail->submit_status, ['submited', 'submitted', 'approved'])) {
+                return redirect()->route('user.step5')->with('error', 'Please fill Step 5 (Guarantor Details) first.');
+            }
+        }
+
         Log::info('Step6StorePG: Method called', [
             'user_id' => Auth::id(),
             'request_method' => $request->method(),
@@ -2852,6 +2888,24 @@ class UserController extends Controller
 
     public function step6storeug(Request $request)
     {
+        // Check if previous step is submitted based on loan type
+        $user_id = Auth::id();
+        $loanCategory = \App\Models\Loan_category::where('user_id', $user_id)->latest()->first();
+        $isBelowOneLakh = $loanCategory && $loanCategory->type === 'below';
+        
+        // For below 1 lakh, check step4 (Funding Details); for above 1 lakh, check step5 (Guarantor Details)
+        if ($isBelowOneLakh) {
+            $fundingDetail = \App\Models\FundingDetail::where('user_id', $user_id)->first();
+            if (!$fundingDetail || !in_array($fundingDetail->submit_status, ['submited', 'submitted', 'approved'])) {
+                return redirect()->route('user.step4')->with('error', 'Please fill Step 4 (Funding Details) first.');
+            }
+        } else {
+            $guarantorDetail = \App\Models\GuarantorDetail::where('user_id', $user_id)->first();
+            if (!$guarantorDetail || !in_array($guarantorDetail->submit_status, ['submited', 'submitted', 'approved'])) {
+                return redirect()->route('user.step5')->with('error', 'Please fill Step 5 (Guarantor Details) first.');
+            }
+        }
+
         Log::info('Step6StoreUG: Method called', [
             'user_id' => Auth::id(),
             'request_method' => $request->method(),
@@ -3028,6 +3082,24 @@ class UserController extends Controller
 
     public function step6storeforeign(Request $request)
     {
+        // Check if previous step is submitted based on loan type
+        $user_id = Auth::id();
+        $loanCategory = \App\Models\Loan_category::where('user_id', $user_id)->latest()->first();
+        $isBelowOneLakh = $loanCategory && $loanCategory->type === 'below';
+        
+        // For below 1 lakh, check step4 (Funding Details); for above 1 lakh, check step5 (Guarantor Details)
+        if ($isBelowOneLakh) {
+            $fundingDetail = \App\Models\FundingDetail::where('user_id', $user_id)->first();
+            if (!$fundingDetail || !in_array($fundingDetail->submit_status, ['submited', 'submitted', 'approved'])) {
+                return redirect()->route('user.step4')->with('error', 'Please fill Step 4 (Funding Details) first.');
+            }
+        } else {
+            $guarantorDetail = \App\Models\GuarantorDetail::where('user_id', $user_id)->first();
+            if (!$guarantorDetail || !in_array($guarantorDetail->submit_status, ['submited', 'submitted', 'approved'])) {
+                return redirect()->route('user.step5')->with('error', 'Please fill Step 5 (Guarantor Details) first.');
+            }
+        }
+
         Log::info('Step6StoreForeign: Method called', [
             'user_id' => Auth::id(),
             'request_method' => $request->method(),
@@ -3518,6 +3590,12 @@ class UserController extends Controller
 
     public function step7store(Request $request)
     {
+        // Check if Step 6 (Documents) is submitted
+        $document = \App\Models\Document::where('user_id', Auth::id())->first();
+        if (!$document || !in_array($document->submit_status, ['submited', 'submitted', 'approved'])) {
+            return redirect()->route('user.step6')->with('error', 'Please fill Step 6 (Documents Upload) first.');
+        }
+
         $user_id = Auth::id();
 
         // Check if workflow status already exists for this user

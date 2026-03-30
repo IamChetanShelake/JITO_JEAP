@@ -1461,7 +1461,6 @@
                                                             <span class="photo-label">Guarantor-2 PAN Card *</span>
                                                             <input type="file" id="guarantor2_pan"
                                                                 name="guarantor2_pan" hidden accept=".jpg,.jpeg,.png,.pdf"
-                                                                @if (!$documents || !$documents->guarantor2_pan) required @endif
                                                                 @if ($documents && $documents->guarantor2_pan) data-filename="{{ basename($documents->guarantor2_pan) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('guarantor2_pan') }}</small>

@@ -213,10 +213,18 @@
                                             <div class="form-group mb-3">
                                                 <label for="university_name">University Name <span
                                                         style="color: red;">*</span></label>
-                                                <input type="text" id="university_name" class="form-control"
-                                                    name="university_name" placeholder="Enter University Name "
-                                                    value="{{ old('university_name', $educationDetail->university_name ?? '') }}"
-                                                    required>
+                                                <select id="university_name" class="form-control"
+                                                    name="university_name" required>
+                                                    <option value="" disabled
+                                                        {{ old('university_name', $educationDetail->university_name ?? '') ? '' : 'selected' }}>
+                                                        Select University Name</option>
+                                                    @foreach ($universities as $university)
+                                                        <option value="{{ $university->university_name }}"
+                                                            {{ (old('university_name') ?: $educationDetail->university_name ?? '') == $university->university_name ? 'selected' : '' }}>
+                                                            {{ $university->university_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
                                                 <small class="text-danger"
                                                     id="university_name_error">{{ $errors->first('university_name') }}</small>
                                             </div>

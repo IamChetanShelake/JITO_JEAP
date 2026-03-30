@@ -2679,7 +2679,7 @@ class UserController extends Controller
 
     public function step6store(Request $request)
     {
-        Log::info('Step6Store: Method called', [
+        Log::info('Step6StorePG: Method called', [
             'user_id' => Auth::id(),
             'request_method' => $request->method(),
             'content_type' => $request->header('Content-Type'),
@@ -2715,16 +2715,15 @@ class UserController extends Controller
                 'guarantor1_pan',
                 'guarantor2_aadhaar',
                 'guarantor2_pan',
-                'student_handwritten_statement',
-                'proof_funds_arranged',
-
+                // Removed: student_handwritten_statement, proof_funds_arranged from required
             ];
             foreach ($requiredFields as $field) {
-                $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
+                // Use !empty() instead of isset() to properly check for existing values (including NULL)
+                $rules[$field] = (!empty($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
             }
-            // $rules['guarantor2_pan'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
-            // $rules['student_handwritten_statement'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
-            // $rules['proof_funds_arranged'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+            // Override to make student_handwritten_statement and proof_funds_arranged optional
+            $rules['student_handwritten_statement'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+            $rules['proof_funds_arranged'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             $rules['other_documents'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             $rules['extra_curricular'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
 
@@ -2853,7 +2852,7 @@ class UserController extends Controller
 
     public function step6storeug(Request $request)
     {
-        Log::info('Step6Store: Method called', [
+        Log::info('Step6StoreUG: Method called', [
             'user_id' => Auth::id(),
             'request_method' => $request->method(),
             'content_type' => $request->header('Content-Type'),
@@ -2892,11 +2891,12 @@ class UserController extends Controller
 
             ];
             foreach ($requiredFields as $field) {
-                $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
+                // Use !empty() instead of isset() to properly check for existing values (including NULL)
+                $rules[$field] = (!empty($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
             }
-            // $rules['guarantor2_pan'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
-            // $rules['student_handwritten_statement'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
-            // $rules['proof_funds_arranged'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+            // Override student_handwritten_statement and proof_funds_arranged to be optional
+            $rules['student_handwritten_statement'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+            $rules['proof_funds_arranged'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             $rules['other_documents'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             $rules['extra_curricular'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
 
@@ -3028,7 +3028,7 @@ class UserController extends Controller
 
     public function step6storeforeign(Request $request)
     {
-        Log::info('Step6Store: Method called', [
+        Log::info('Step6StoreForeign: Method called', [
             'user_id' => Auth::id(),
             'request_method' => $request->method(),
             'content_type' => $request->header('Content-Type'),
@@ -3065,16 +3065,15 @@ class UserController extends Controller
                 'guarantor1_pan',
                 'guarantor2_aadhaar',
                 'guarantor2_pan',
-                'student_handwritten_statement',
-                'proof_funds_arranged'
-
+                // Removed: student_handwritten_statement, proof_funds_arranged from required
             ];
             foreach ($requiredFields as $field) {
-                $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
+                // Use !empty() instead of isset() to properly check for existing values (including NULL)
+                $rules[$field] = (!empty($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
             }
-            // $rules['guarantor2_pan'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
-            // $rules['student_handwritten_statement'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
-            // $rules['proof_funds_arranged'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+            // Override to make student_handwritten_statement and proof_funds_arranged optional
+            $rules['student_handwritten_statement'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+            $rules['proof_funds_arranged'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             $rules['other_documents'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             $rules['extra_curricular'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
 
@@ -3241,7 +3240,8 @@ class UserController extends Controller
             ];
 
             foreach ($requiredFields as $field) {
-                $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
+                // Use !empty() instead of isset() to properly check for existing values (including NULL)
+                $rules[$field] = (!empty($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
             }
 
             $request->validate($rules);
@@ -3484,6 +3484,36 @@ class UserController extends Controller
         $user = User::find($user_id);
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
         return view('user.step7', compact('type', 'user'));
+    }
+
+    /**
+     * Remove a specific document from the database
+     */
+    public function step6RemoveDocument(Request $request)
+    {
+        $request->validate([
+            'field_name' => 'required|string',
+        ]);
+
+        $user_id = Auth::id();
+        $fieldName = $request->input('field_name');
+
+        $document = Document::where('user_id', $user_id)->first();
+
+        if ($document && $document->$fieldName) {
+            // Delete the file from storage
+            $filePath = public_path($document->$fieldName);
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+
+            // Update the database field to null
+            $document->update([$fieldName => null]);
+
+            return response()->json(['success' => true, 'message' => 'Document removed successfully']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Document not found'], 404);
     }
 
     public function step7store(Request $request)

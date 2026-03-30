@@ -2627,7 +2627,8 @@ class BelowUserController extends Controller
 
             ];
             foreach ($requiredFields as $field) {
-                $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
+                // Use !empty() instead of isset() to properly check for existing values (including NULL)
+                $rules[$field] = (!empty($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
             }
             // $rules['guarantor2_pan'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             // $rules['student_handwritten_statement'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
@@ -2799,7 +2800,8 @@ class BelowUserController extends Controller
 
             ];
             foreach ($requiredFields as $field) {
-                $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
+                // Use !empty() instead of isset() to properly check for existing values (including NULL)
+                $rules[$field] = (!empty($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
             }
             // $rules['guarantor2_pan'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             // $rules['student_handwritten_statement'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
@@ -2977,7 +2979,8 @@ class BelowUserController extends Controller
 
             ];
             foreach ($requiredFields as $field) {
-                $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
+                // Use !empty() instead of isset() to properly check for existing values (including NULL)
+                $rules[$field] = (!empty($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
             }
             // $rules['guarantor2_pan'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             // $rules['student_handwritten_statement'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';

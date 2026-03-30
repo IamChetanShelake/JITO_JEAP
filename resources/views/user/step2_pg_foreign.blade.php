@@ -236,23 +236,7 @@
                                     <div class="row">
                                         <!-- Left Column -->
                                         <div class="col-md-6">
-                                            <div class="form-group mb-3">
-                                                <label for="course_name">Course Name <span
-                                                        style="color: red;">*</span></label>
-                                                <select id="course_name" class="form-control"
-                                                    name="course_name" required>
-                                                    <option value="" disabled
-                                                        {{ old('course_name', $educationDetail->course_name ?? '') ? '' : 'selected' }}>
-                                                        Select Course Name</option>
-                                                    @if($educationDetail && (old('course_name') || $educationDetail->course_name))
-                                                        <option value="{{ old('course_name', $educationDetail->course_name) }}" selected>
-                                                            {{ old('course_name', $educationDetail->course_name) }}
-                                                        </option>
-                                                    @endif
-                                                </select>
-                                                <small class="text-danger"
-                                                    id="course_name_error">{{ $errors->first('course_name') }}</small>
-                                            </div>
+                                            
                                             <div class="form-group mb-3">
                                                 <label for="university_name">University Name <span
                                                         style="color: red;">*</span></label>
@@ -286,6 +270,7 @@
                                                         @endphp
                                                         <option value="{{ $college->college_name }}"
                                                             data-courses='{{ json_encode($coursesData) }}'
+                                                            data-university="{{ $college->university_name }}"
                                                             {{ (old('college_name') ?: $educationDetail->college_name ?? '') == $college->college_name ? 'selected' : '' }}>
                                                             {{ $college->college_name }}
                                                         </option>
@@ -293,6 +278,26 @@
                                                 </select>
                                                 <small class="text-danger"
                                                     id="college_name_error">{{ $errors->first('college_name') }}</small>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label for="course_name">Course Name <span
+                                                        style="color: red;">*</span></label>
+                                                <select id="course_name" class="form-control"
+                                                    name="course_name" required
+                                                    data-existing-course="{{ $educationDetail->course_name ?? '' }}">
+                                                    <option value=""
+                                                        {{ empty(old('course_name')) && empty($educationDetail->course_name ?? '') ? 'selected' : '' }}
+                                                        disabled>
+                                                        Select Course Name</option>
+                                                    @if($educationDetail && old('course_name', $educationDetail->course_name ?? ''))
+                                                        <option value="{{ old('course_name', $educationDetail->course_name) }}" selected>
+                                                            {{ old('course_name', $educationDetail->course_name) }}
+                                                        </option>
+                                                    @endif
+                                                </select>
+                                                <small class="text-danger"
+                                                    id="course_name_error">{{ $errors->first('course_name') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="country">Country Name <span
@@ -1493,6 +1498,10 @@
                         
                         console.log('College changed, courses data:', coursesData);
                         
+                        // Get existing course_name from the data attribute (set by server)
+                        const existingCourseName = courseSelect.getAttribute('data-existing-course');
+                        console.log('Existing course name:', existingCourseName);
+                        
                         // Clear existing options
                         courseSelect.innerHTML = '<option value="" disabled selected>Select Course Name</option>';
                         
@@ -1509,6 +1518,10 @@
                                             const option = document.createElement('option');
                                             option.value = course;
                                             option.textContent = course;
+                                            // Check if this is the existing course
+                                            if (existingCourseName && course === existingCourseName) {
+                                                option.selected = true;
+                                            }
                                             courseSelect.appendChild(option);
                                         }
                                     });
@@ -1524,6 +1537,14 @@
                         } else {
                             // No courses data available, allow manual entry
                             courseSelect.innerHTML = '<option value="">Select Course Name</option>';
+                            // If there's an existing course and no courses from college, add it as manual entry
+                            if (existingCourseName) {
+                                const option = document.createElement('option');
+                                option.value = existingCourseName;
+                                option.textContent = existingCourseName;
+                                option.selected = true;
+                                courseSelect.appendChild(option);
+                            }
                         }
                     });
                     
@@ -2512,6 +2533,141 @@
         document.addEventListener('DOMContentLoaded', function() {
             toggleSchoolGradeFields();
             toggleJcGradeFields();
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const universitySelect = document.getElementById('university_name');
+            const collegeSelect = document.getElementById('college_name');
+            const courseSelect = document.getElementById('course_name');
+            
+            // Store all college data with courses
+            let allColleges = [];
+            
+            if (collegeSelect) {
+                // Collect all college options with their data
+                const originalOptions = collegeSelect.querySelectorAll('option');
+                originalOptions.forEach(option => {
+                    if (option.value) {
+                        let courses = [];
+                        try {
+                            if (option.dataset.courses) {
+                                courses = JSON.parse(option.dataset.courses);
+                            }
+                        } catch(e) {
+                            courses = [];
+                        }
+                        allColleges.push({
+                            value: option.value,
+                            text: option.text,
+                            university: option.dataset.university || '',
+                            courses: courses
+                        });
+                    }
+                });
+            }
+
+            // Function to filter colleges by university
+            function filterCollegesByUniversity(selectedUniversity, preserveSelection = false) {
+                if (!collegeSelect) return;
+                
+                // Get current selection to preserve if possible
+                const currentValue = collegeSelect.value;
+                
+                // Clear existing options
+                collegeSelect.innerHTML = '<option value="" disabled selected>Select College Name</option>';
+                
+                // Filter and add matching colleges
+                allColleges.forEach(college => {
+                    if (!selectedUniversity || college.university === selectedUniversity) {
+                        const option = document.createElement('option');
+                        option.value = college.value;
+                        option.textContent = college.text;
+                        option.dataset.courses = JSON.stringify(college.courses);
+                        option.dataset.university = college.university;
+                        collegeSelect.appendChild(option);
+                    }
+                });
+
+                // If we need to preserve selection and the current value exists in filtered options
+                if (preserveSelection && currentValue) {
+                    collegeSelect.value = currentValue;
+                }
+            }
+
+            // Function to filter courses by college
+            function filterCoursesByCollege(selectedCollegeValue, preserveSelection = false) {
+                if (!courseSelect) return;
+                
+                // Find the college in our stored data
+                const selectedCollege = allColleges.find(c => c.value === selectedCollegeValue);
+                
+                // If not found in stored data, try to get from current select options
+                if (!selectedCollege) {
+                    const option = collegeSelect.querySelector('option[value="' + selectedCollegeValue + '"]');
+                    if (option && option.dataset.courses) {
+                        try {
+                            const courses = JSON.parse(option.dataset.courses);
+                            populateCourseDropdown(courses, preserveSelection, selectedCollegeValue);
+                            return;
+                        } catch(e) {}
+                    }
+                }
+                
+                if (selectedCollege && selectedCollege.courses && selectedCollege.courses.length > 0) {
+                    populateCourseDropdown(selectedCollege.courses, preserveSelection, selectedCollegeValue);
+                }
+            }
+
+            function populateCourseDropdown(courses, preserveSelection = false, selectedValue = null) {
+                const currentValue = courseSelect.value;
+                courseSelect.innerHTML = '<option value="" disabled selected>Select Course Name</option>';
+                courses.forEach(course => {
+                    const option = document.createElement('option');
+                    option.value = course;
+                    option.textContent = course;
+                    courseSelect.appendChild(option);
+                });
+                
+                // Restore selection if needed
+                if (preserveSelection && currentValue) {
+                    courseSelect.value = currentValue;
+                }
+            }
+
+            // University change event
+            if (universitySelect) {
+                universitySelect.addEventListener('change', function() {
+                    filterCollegesByUniversity(this.value, false);
+                    // Reset course selection
+                    if (courseSelect) {
+                        courseSelect.innerHTML = '<option value="" disabled selected>Select Course Name</option>';
+                    }
+                });
+
+                // Initialize on page load - handle saved data
+                const selectedUniversity = universitySelect.value;
+                const savedCollege = collegeSelect ? collegeSelect.value : '';
+                const savedCourse = courseSelect ? courseSelect.value : '';
+                
+                if (selectedUniversity) {
+                    // Filter colleges by university and preserve the saved selection
+                    filterCollegesByUniversity(selectedUniversity, true);
+                    
+                    // If there's a saved college, load its courses
+                    if (savedCollege) {
+                        filterCoursesByCollege(savedCollege, true);
+                    }
+                }
+            }
+
+            // College change event - populate courses
+            if (collegeSelect && courseSelect) {
+                collegeSelect.addEventListener('change', function() {
+                    filterCoursesByCollege(this.value, false);
+                });
+            }
         });
     </script>
 @endsection

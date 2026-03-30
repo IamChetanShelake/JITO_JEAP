@@ -338,7 +338,7 @@
                     <div class="col-md-4">
                         <label for="search" class="form-label" style="font-weight: 500; color: var(--text-dark);">Search</label>
                         <input type="text" class="form-control" id="search" name="search" 
-                               placeholder="Search by name or Email..." 
+                               placeholder="Search by name, Email or application number..." 
                                value="{{ request('search') }}"
                                style="border-radius: 8px; border: 1px solid var(--border-color); padding: 0.6rem 1rem;">
                     </div>
@@ -351,7 +351,7 @@
                             <option value="below" {{ request('category') == 'below' ? 'selected' : '' }}>Below 100000</option>
                         </select>
                     </div>
-                    <!-- <div class="col-md-3">
+                    <div class="col-md-3">
                         <label for="financial_assistance_type" class="form-label" style="font-weight: 500; color: var(--text-dark);">Foreign</label>
                         <select class="form-select" id="financial_assistance_type" name="financial_assistance_type" 
                                 style="border-radius: 8px; border: 1px solid var(--border-color); padding: 0.6rem 1rem;">
@@ -359,7 +359,7 @@
                             <option value="domestic" {{ request('financial_assistance_type') == 'domestic' ? 'selected' : '' }}>Domestic</option>
                             <option value="foreign" {{ request('financial_assistance_type') == 'foreign' ? 'selected' : '' }}>Foreign Finance Assistant</option>
                         </select>
-                    </div> -->
+                    </div>
                     <div class="col-md-2 d-flex align-items-end">
                         <button type="submit" class="btn w-100" 
                                 style="background-color: var(--primary-purple); color: white; border-radius: 8px; padding: 0.6rem 1rem; font-weight: 500;">
@@ -393,6 +393,9 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td>
                                     <strong>{{ $user->name }}</strong>
+                                    @if($user->application_no)
+                                        <br>{{ $user->application_no }}
+                                    @endif
                                 </td>
                                 <td>{{ $user->email }}</td>
                                 <td>{{ $user->phone }}</td>

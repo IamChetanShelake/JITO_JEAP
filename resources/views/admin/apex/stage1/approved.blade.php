@@ -318,7 +318,7 @@
                     <div class="col-md-4">
                         <label for="search" class="form-label" style="font-weight: 500; color: var(--text-dark);">Search</label>
                         <input type="text" class="form-control" id="search" name="search" 
-                               placeholder="Search by name or Aadhar number..." 
+                               placeholder="Search by name or Aadhar number or application number..." 
                                value="{{ request('search') }}"
                                style="border-radius: 8px; border: 1px solid var(--border-color); padding: 0.6rem 1rem;">
                     </div>
@@ -357,10 +357,10 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th style="width: 5%;">Sr. No</th>
-                            <th style="width: 15%;">Name</th>
-                            <th style="width: 20%;">Aadhar Number</th>
-                            <th style="width: 20%;">phone</th>
+                            <th style="width: 2%;">Sr. No</th>
+                            <th style="width: 30%;">Name</th>
+                            <th style="width: 10%;">Aadhar Number</th>
+                            <th style="width: 10%;">phone</th>
                             <th style="width: 15%;">Financial Assistance Type</th>
                             <th style="width: 15%;">Financial Assistance For</th>
                             <th style="width: 12%;">Category</th>
@@ -375,6 +375,9 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td>
                                     <strong>{{ $user->name }}</strong>
+                                    @if($user->application_no)
+                                        <br>{{ $user->application_no }}
+                                    @endif
                                 </td>
                                 <td>{{ $user->aadhar_card_number }}</td>
                                 <td>{{ $user->phone }}</td>

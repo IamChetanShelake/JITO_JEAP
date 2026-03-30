@@ -2574,7 +2574,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                  ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -2623,7 +2624,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                  ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -2673,7 +2675,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                  ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4077,7 +4080,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                  ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4128,7 +4132,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                  ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4178,7 +4183,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                  ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4237,7 +4243,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                  ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4285,7 +4292,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                  ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4333,7 +4341,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                  ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4368,24 +4377,51 @@ class AdminController extends Controller
         return view('admin.working_committee.hold', compact('users'));
     }
 
-    public function workingCommitteeReject()
+    public function workingCommitteeReject(Request $request)
     {
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('working_committee_status', 'rejected');
-            })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            });
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                  ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
-        $loanCategoryByUser = Loan_category::whereIn('user_id', $users->pluck('id'))
-            ->orderByDesc('id')
-            ->get()
-            ->unique('user_id')
-            ->pluck('type', 'user_id');
-
-        $users->each(function ($user) use ($loanCategoryByUser) {
-            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
-        });
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.working_committee.hold', compact('users'));
     }
 
@@ -4621,7 +4657,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                  ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4667,7 +4704,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                  ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4701,17 +4739,52 @@ class AdminController extends Controller
         return view('admin.chapters.stage2.pending', compact('users'))->with('filterRoute', 'admin.chapter.draft'); // Reuse existing view
     }
 
-    public function chapterApexPending()
+    public function chapterApexPending(Request $request)
     {
         $chapter_id = request('chapter_id');
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->where('chapter_id', $chapter_id)
             ->where('submit_status', 'submited')
             ->where('application_status', 'submitted')
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('apex_1_status', 'pending');
-            })
-            ->get();
+            });
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                  ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
 
         $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.pending', compact('users'))->with('filterRoute', 'admin.chapter.apex-pending'); // Reuse existing view
@@ -4753,7 +4826,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                  ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4802,7 +4876,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                  ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -5392,7 +5467,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                  ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -5441,7 +5517,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('email', 'like', '%' . $search . '%');
+                  ->orWhere('email', 'like', '%' . $search . '%')
+                  ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -5492,7 +5569,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                  ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 

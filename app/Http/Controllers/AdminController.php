@@ -4225,27 +4225,95 @@ class AdminController extends Controller
         return view('admin.chapters.stage2.user_detail', compact('user', 'data', 'inter_date', 'loanCategory'));
     }
 
-    public function workingCommitteeApproved()
+    public function workingCommitteeApproved(Request $request)
     {
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('working_committee_status', 'approved');
-            })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            });
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
         $this->attachLatestLoanCategoryType($users);
         return view('admin.working_committee.approved', compact('users'));
     }
 
-    public function workingCommitteePending()
+    public function workingCommitteePending(Request $request)
     {
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($query) {
                 $query->where('current_stage', 'working_committee')
                     ->where('final_status', 'in_progress');
-            })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            });
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
         $this->attachLatestLoanCategoryType($users);
@@ -4253,13 +4321,47 @@ class AdminController extends Controller
         return view('admin.working_committee.pending', compact('users'));
     }
 
-    public function workingCommitteeHold()
+    public function workingCommitteeHold(Request $request)
     {
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('working_committee_status', 'hold');
-            })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            });
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
         $this->attachLatestLoanCategoryType($users);
@@ -5276,72 +5378,152 @@ class AdminController extends Controller
 
 
 
-    public function apexStage2Approved()
+    public function apexStage2Approved(Request $request)
     {
         // Get users where final_status = 'approved'
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('apex_2_status', 'approved');
             })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
-            ->get();
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
 
-        $loanCategoryByUser = Loan_category::whereIn('user_id', $users->pluck('id'))
-            ->orderByDesc('id')
-            ->get()
-            ->unique('user_id')
-            ->pluck('type', 'user_id');
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+            });
+        }
 
-        $users->each(function ($user) use ($loanCategoryByUser) {
-            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
-        });
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
+
+        $this->attachLatestLoanCategoryType($users);
+
         return view('admin.apex.stage2.approved', compact('users'));
     }
 
-    public function apexStage2Pending()
+    public function apexStage2Pending(Request $request)
     {
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($query) {
                 $query->where('current_stage', 'apex_2')
                     ->where('apex_2_status', 'pending')->whereNull('apex_2_reject_remarks');
             })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
-            ->get();
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
 
-        $loanCategoryByUser = Loan_category::whereIn('user_id', $users->pluck('id'))
-            ->orderByDesc('id')
-            ->get()
-            ->unique('user_id')
-            ->pluck('type', 'user_id');
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        }
 
-        $users->each(function ($user) use ($loanCategoryByUser) {
-            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
-        });
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
+
+        $this->attachLatestLoanCategoryType($users);
 
         return view('admin.apex.stage2.pending', compact('users'));
     }
 
 
-    public function apexStage2Hold()
+    public function apexStage2Hold(Request $request)
     {
         // Get users where final_status = 'rejected'
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('apex_2_status', 'rejected')
-                    ->where('current_stage', 'apex_2');;
+                    ->where('current_stage', 'apex_2');
             })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
-            ->get();
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
 
-        $loanCategoryByUser = Loan_category::whereIn('user_id', $users->pluck('id'))
-            ->orderByDesc('id')
-            ->get()
-            ->unique('user_id')
-            ->pluck('type', 'user_id');
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%');
+            });
+        }
 
-        $users->each(function ($user) use ($loanCategoryByUser) {
-            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
-        });
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
+
+        $this->attachLatestLoanCategoryType($users);
+
         return view('admin.apex.stage2.hold', compact('users'));
     }
 

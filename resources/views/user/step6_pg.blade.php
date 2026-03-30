@@ -155,7 +155,8 @@
                                                             <span class="photo-label">CBSE/ICSE/SSC/IB/IGCSE *</span>
                                                             <input type="file" id="uploadInput1"
                                                                 name="ssc_cbse_icse_ib_igcse" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->ssc_cbse_icse_ib_igcse) required @endif
                                                                 @if ($documents && $documents->ssc_cbse_icse_ib_igcse) data-filename="{{ basename($documents->ssc_cbse_icse_ib_igcse) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('ssc_cbse_icse_ib_igcse') }}</small>
@@ -216,7 +217,8 @@
                                                             <span class="photo-label">HSC/CBSE/ICSE/IB/IGCSE *</span>
                                                             <input type="file" id="uploadInput2"
                                                                 name="hsc_diploma_marksheet" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->hsc_diploma_marksheet) required @endif
                                                                 @if ($documents && $documents->hsc_diploma_marksheet) data-filename="{{ basename($documents->hsc_diploma_marksheet) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('hsc_diploma_marksheet') }}</small>
@@ -274,7 +276,8 @@
 
                                                             <input type="file" id="graduation"
                                                                 name="graduate_post_graduate_marksheet" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->graduate_post_graduate_marksheet) required @endif
                                                                 @if ($documents && $documents->graduate_post_graduate_marksheet) data-filename="{{ basename($documents->graduate_post_graduate_marksheet) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('graduate_post_graduate_marksheet') }}</small>
@@ -466,7 +469,8 @@
                                                             </span>
                                                             <input type="file" id="admission_letter_fees_structure"
                                                                 name="admission_letter_fees_structure" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->admission_letter_fees_structure) required @endif
                                                                 @if ($documents && $documents->admission_letter_fees_structure) data-filename="{{ basename($documents->admission_letter_fees_structure) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('admission_letter_fees_structure') }}</small>
@@ -517,7 +521,8 @@
                                                             <span class="photo-label">Aadhaar Card of Applicant *</span>
                                                             <input type="file" id="aadhaar_applicant"
                                                                 name="aadhaar_applicant" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->aadhaar_applicant) required @endif
                                                                 @if ($documents && $documents->aadhaar_applicant) data-filename="{{ basename($documents->aadhaar_applicant) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('aadhaar_applicant') }}</small>
@@ -568,7 +573,8 @@
                                                             <span class="photo-label">Pancard of Applicant *</span>
 
                                                             <input type="file" id="pan_applicant" name="pan_applicant"
-                                                                hidden accept=".jpg,.jpeg,.png,.pdf" required
+                                                                hidden accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->pan_applicant) required @endif
                                                                 @if ($documents && $documents->pan_applicant) data-filename="{{ basename($documents->pan_applicant) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('pan_applicant') }}</small>
@@ -623,7 +629,8 @@
                                                             </span>
                                                             <input type="file" id="student_bank_details_statement"
                                                                 name="student_bank_details_statement" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->student_bank_details_statement) required @endif
                                                                 @if ($documents && $documents->student_bank_details_statement) data-filename="{{ basename($documents->student_bank_details_statement) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('student_bank_details_statement') }}</small>
@@ -699,7 +706,8 @@
                                                             </span>
                                                             <input type="file" id="jito_group_recommendation"
                                                                 name="jito_group_recommendation" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->jito_group_recommendation) required @endif
                                                                 @if ($documents && $documents->jito_group_recommendation) data-filename="{{ basename($documents->jito_group_recommendation) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('jito_group_recommendation') }}</small>
@@ -777,7 +785,8 @@
 
                                                             <input type="file" id="jain_sangh_certificate"
                                                                 name="jain_sangh_certificate" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->jain_sangh_certificate) required @endif
                                                                 @if ($documents && $documents->jain_sangh_certificate) data-filename="{{ basename($documents->jain_sangh_certificate) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('jain_sangh_certificate') }}</small>
@@ -835,7 +844,8 @@
                                                             </span>
                                                             <input type="file" id="electricity_bill"
                                                                 name="electricity_bill" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->electricity_bill) required @endif
                                                                 @if ($documents && $documents->electricity_bill) data-filename="{{ basename($documents->electricity_bill) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('electricity_bill') }}</small>
@@ -892,7 +902,8 @@
                                                             </span>
                                                             <input type="file" id="itr_acknowledgement_father"
                                                                 name="itr_acknowledgement_father" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->itr_acknowledgement_father) required @endif
                                                                 @if ($documents && $documents->itr_acknowledgement_father) data-filename="{{ basename($documents->itr_acknowledgement_father) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('itr_acknowledgement_father') }}</small>
@@ -947,7 +958,8 @@
                                                             </span>
                                                             <input type="file" id="itr_computation_father"
                                                                 name="itr_computation_father" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->itr_computation_father) required @endif
                                                                 @if ($documents && $documents->itr_computation_father) data-filename="{{ basename($documents->itr_computation_father) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('itr_computation_father') }}</small>
@@ -1005,7 +1017,8 @@
                                                             </span>
                                                             <input type="file" id="form16_salary_income_father"
                                                                 name="form16_salary_income_father" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->form16_salary_income_father) required @endif
                                                                 @if ($documents && $documents->form16_salary_income_father) data-filename="{{ basename($documents->form16_salary_income_father) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('form16_salary_income_father') }}</small>
@@ -1074,7 +1087,8 @@
                                                             </span>
                                                             <input type="file" id="bank_statement_father_12months"
                                                                 name="bank_statement_father_12months" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->bank_statement_father_12months) required @endif
                                                                 @if ($documents && $documents->bank_statement_father_12months) data-filename="{{ basename($documents->bank_statement_father_12months) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('bank_statement_father_12months') }}</small>
@@ -1132,7 +1146,8 @@
                                                             </span>
                                                             <input type="file" id="bank_statement_mother_12months"
                                                                 name="bank_statement_mother_12months" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->bank_statement_mother_12months) required @endif
                                                                 @if ($documents && $documents->bank_statement_mother_12months) data-filename="{{ basename($documents->bank_statement_mother_12months) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('bank_statement_mother_12months') }}</small>
@@ -1186,7 +1201,8 @@
                                                                 Mother *</span>
                                                             <input type="file" id="aadhaar_father_mother"
                                                                 name="aadhaar_father_mother" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->aadhaar_father_mother) required @endif
                                                                 @if ($documents && $documents->aadhaar_father_mother) data-filename="{{ basename($documents->aadhaar_father_mother) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('aadhaar_father_mother') }}</small>
@@ -1237,7 +1253,8 @@
                                                             <span class="photo-label">PAN Card of Father / Mother *</span>
                                                             <input type="file" id="pan_father_mother"
                                                                 name="pan_father_mother" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->pan_father_mother) required @endif
                                                                 @if ($documents && $documents->pan_father_mother) data-filename="{{ basename($documents->pan_father_mother) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('pan_father_mother') }}</small>
@@ -1290,7 +1307,8 @@
                                                             <span class="photo-label">Guarantor-1 Aadhaar Card *</span>
                                                             <input type="file" id="guarantor1_aadhaar"
                                                                 name="guarantor1_aadhaar" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->guarantor1_aadhaar) required @endif
                                                                 @if ($documents && $documents->guarantor1_aadhaar) data-filename="{{ basename($documents->guarantor1_aadhaar) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('guarantor1_aadhaar') }}</small>
@@ -1341,7 +1359,7 @@
                                                             <span class="photo-label">Guarantor-1 PAN Card *</span>
                                                             <input type="file" id="guarantor1_pan"
                                                                 name="guarantor1_pan" hidden accept=".jpg,.jpeg,.png,.pdf"
-                                                                required
+                                                                @if (!$documents || !$documents->guarantor1_pan) required @endif
                                                                 @if ($documents && $documents->guarantor1_pan) data-filename="{{ basename($documents->guarantor1_pan) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('guarantor1_pan') }}</small>
@@ -1391,7 +1409,8 @@
                                                             <span class="photo-label">Guarantor-2 Aadhaar Card *</span>
                                                             <input type="file" id="guarantor2_aadhaar"
                                                                 name="guarantor2_aadhaar" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->guarantor2_aadhaar) required @endif
                                                                 @if ($documents && $documents->guarantor2_aadhaar) data-filename="{{ basename($documents->guarantor2_aadhaar) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('guarantor2_aadhaar') }}</small>
@@ -1442,6 +1461,7 @@
                                                             <span class="photo-label">Guarantor-2 PAN Card *</span>
                                                             <input type="file" id="guarantor2_pan"
                                                                 name="guarantor2_pan" hidden accept=".jpg,.jpeg,.png,.pdf"
+                                                                @if (!$documents || !$documents->guarantor2_pan) required @endif
                                                                 @if ($documents && $documents->guarantor2_pan) data-filename="{{ basename($documents->guarantor2_pan) }}" @endif>
                                                             <small
                                                                 class="text-danger">{{ $errors->first('guarantor2_pan') }}</small>

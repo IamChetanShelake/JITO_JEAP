@@ -661,9 +661,9 @@ $apex2Rejected = safeCount(function() { return \App\Models\User::where('role', '
                     <i class="fas fa-users"></i> Apex
                 </a>
             </li>
-            {{--  <li class="nav-item">
-                <a class="nav-link tab-files" href="{{ route('admin.files.report') }}">
-                    <i class="fas fa-folder"></i> Files Report
+            <li class="nav-item">
+                <a class="nav-link tab-committee" href="{{ route('admin.committee.index') }}">
+                    Working Committee
                 </a>
             </li>  --}}
 

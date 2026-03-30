@@ -13,7 +13,7 @@
 
         .photo-upload-box {
             width: 100%;
-            height: 100% !important;
+            height: auto;
             border: 1px solid #d9d9d9;
             border-radius: 7px;
             padding: 20px 18px 0px 12px;
@@ -680,83 +680,7 @@
                                                 @endif
                                             </div>
 
-                                            {{-- Jain Sangh Certificate --}}
-                                            <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-9">
-                                                            <span class="photo-label">Jain Sangh Certificate
-                                                                *&nbsp;&nbsp;
-                                                                {{--  <svg width="25" height="25"
-                                                                    viewBox="0 0 19 19" fill="none"
-                                                                    xmlns="http://www.w3.org/2000/svg">
-                                                                    <path fill-rule="evenodd" clip-rule="evenodd"
-                                                                        d="M9.5 19C12.0196 19 14.4359 17.9991 16.2175 16.2175C17.9991 14.4359 19 12.0196 19 9.5C19 6.98044 17.9991 4.56408 16.2175 2.78249C14.4359 1.00089 12.0196 0 9.5 0C6.98044 0 4.56408 1.00089 2.78249 2.78249C1.00089 4.56408 0 6.98044 0 9.5C0 12.0196 1.00089 14.4359 2.78249 16.2175C4.56408 17.9991 6.98044 19 9.5 19ZM13.7696 11.2779L9.97907 15.0684C9.85182 15.1956 9.67925 15.267 9.49932 15.267C9.31939 15.267 9.14682 15.1956 9.01957 15.0684L5.23043 11.2779C5.13583 11.183 5.07144 11.0622 5.04538 10.9308C5.01933 10.7993 5.03276 10.6631 5.084 10.5393C5.13523 10.4155 5.22198 10.3096 5.33329 10.2351C5.44461 10.1605 5.57551 10.1205 5.7095 10.1202H8.14286V5.08929C8.14286 4.72935 8.28584 4.38415 8.54035 4.12964C8.79487 3.87513 9.14006 3.73214 9.5 3.73214C9.85994 3.73214 10.2051 3.87513 10.4596 4.12964C10.7142 4.38415 10.8571 4.72935 10.8571 5.08929V10.1202H13.2905C13.4245 10.1205 13.5554 10.1605 13.6667 10.2351C13.778 10.3096 13.8648 10.4155 13.916 10.5393C13.9672 10.6631 13.9807 10.7993 13.9546 10.9308C13.9286 11.0622 13.8642 11.183 13.7696 11.2779Z"
-                                                                        fill="#009846" />
-                                                                </svg>  --}}
 
-                                                                <a href="{{ asset('SANGH-CERTIFICATE-FORM.pdf') }}"
-                                                                    download>
-                                                                    <svg width="25" height="25"
-                                                                        viewBox="0 0 19 19" fill="none"
-                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                        style="cursor: pointer;">
-
-                                                                        <path fill-rule="evenodd" clip-rule="evenodd"
-                                                                            d="M9.5 19C12.0196 19 14.4359 17.9991 16.2175 16.2175C17.9991 14.4359 19 12.0196 19 9.5C19 6.98044 17.9991 4.56408 16.2175 2.78249C14.4359 1.00089 12.0196 0 9.5 0C6.98044 0 4.56408 1.00089 2.78249 2.78249C1.00089 4.56408 0 6.98044 0 9.5C0 12.0196 1.00089 14.4359 2.78249 16.2175C4.56408 17.9991 6.98044 19 9.5 19ZM13.7696 11.2779L9.97907 15.0684C9.85182 15.1956 9.67925 15.267 9.49932 15.267C9.31939 15.267 9.14682 15.1956 9.01957 15.0684L5.23043 11.2779C5.13583 11.183 5.07144 11.0622 5.04538 10.9308C5.01933 10.7993 5.03276 10.6631 5.084 10.5393C5.13523 10.4155 5.22198 10.3096 5.33329 10.2351C5.44461 10.1605 5.57551 10.1205 5.7095 10.1202H8.14286V5.08929C8.14286 4.72935 8.28584 4.38415 8.54035 4.12964C8.79487 3.87513 9.14006 3.73214 9.5 3.73214C9.85994 3.73214 10.2051 3.87513 10.4596 4.12964C10.7142 4.38415 10.8571 4.72935 10.8571 5.08929V10.1202H13.2905C13.4245 10.1205 13.5554 10.1605 13.6667 10.2351C13.778 10.3096 13.8648 10.4155 13.916 10.5393C13.9672 10.6631 13.9807 10.7993 13.9546 10.9308C13.9286 11.0622 13.8642 11.183 13.7696 11.2779Z"
-                                                                            fill="#009846" />
-                                                                    </svg>
-                                                                </a>
-                                                                <br></span>
-                                                            <span class="photo-label" style="color:gray;font-size:12px;">
-                                                                We accept only last 1 year Jain sang Certificate
-                                                            </span>
-
-                                                            <input type="file" id="jain_sangh_certificate"
-                                                                @if ($documents && $documents->jain_sangh_certificate) data-filename="{{ basename($documents->jain_sangh_certificate) }}" @endif
-                                                                name="jain_sangh_certificate" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required>
-                                                            <small
-                                                                class="text-danger">{{ $errors->first('jain_sangh_certificate') }}</small>
-                                                        </div>
-                                                        <div class="col-3">
-
-                                                            <label for="jain_sangh_certificate" class="upload-btn">
-                                                                <span class="upload-icon">⭱</span> Upload
-                                                            </label>
-                                                            <label class="uploaded-btn" style="display: none;">
-                                                                <span class="upload-icon">✔</span>
-                                                                Upload
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-12 align-items-center">
-                                                            <div class="upload-status" style="display:none;">
-                                                                <div class="row">
-                                                                    <div class="col-9">
-                                                                        <div class="upload-summary"></div>
-                                                                    </div>
-                                                                    <div class="col-3">
-                                                                        <button type="button"
-                                                                            class="remove-upload btn bt-sm"
-                                                                            style="display:none;">
-                                                                            <i class="bi bi-trash"></i>
-                                                                            Remove</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                @if ($documents && $documents->jain_sangh_certificate)
-                                                    <div class="existing-document mt-2">
-                                                        <a href="{{ asset($documents->jain_sangh_certificate) }}"
-                                                            target="_blank" class="btn btn-sm btn-success">View Existing
-                                                            Document</a>
-                                                    </div>
-                                                @endif
-                                            </div>
                                             {{-- Electricity Bill - latest  --}}
                                             <div class="form-group mb-3">
                                                 <div class="photo-upload-box">
@@ -1191,6 +1115,84 @@
                                                 @if ($documents && $documents->pan_father_mother)
                                                     <div class="existing-document mt-2">
                                                         <a href="{{ asset($documents->pan_father_mother) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            {{-- Jain Sangh Certificate --}}
+                                            <div class="form-group mb-3">
+                                                <div class="photo-upload-box">
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-9">
+                                                            <span class="photo-label">Jain Sangh Certificate
+                                                                *&nbsp;&nbsp;
+                                                                {{--  <svg width="25" height="25"
+                                                                    viewBox="0 0 19 19" fill="none"
+                                                                    xmlns="http://www.w3.org/2000/svg">
+                                                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                        d="M9.5 19C12.0196 19 14.4359 17.9991 16.2175 16.2175C17.9991 14.4359 19 12.0196 19 9.5C19 6.98044 17.9991 4.56408 16.2175 2.78249C14.4359 1.00089 12.0196 0 9.5 0C6.98044 0 4.56408 1.00089 2.78249 2.78249C1.00089 4.56408 0 6.98044 0 9.5C0 12.0196 1.00089 14.4359 2.78249 16.2175C4.56408 17.9991 6.98044 19 9.5 19ZM13.7696 11.2779L9.97907 15.0684C9.85182 15.1956 9.67925 15.267 9.49932 15.267C9.31939 15.267 9.14682 15.1956 9.01957 15.0684L5.23043 11.2779C5.13583 11.183 5.07144 11.0622 5.04538 10.9308C5.01933 10.7993 5.03276 10.6631 5.084 10.5393C5.13523 10.4155 5.22198 10.3096 5.33329 10.2351C5.44461 10.1605 5.57551 10.1205 5.7095 10.1202H8.14286V5.08929C8.14286 4.72935 8.28584 4.38415 8.54035 4.12964C8.79487 3.87513 9.14006 3.73214 9.5 3.73214C9.85994 3.73214 10.2051 3.87513 10.4596 4.12964C10.7142 4.38415 10.8571 4.72935 10.8571 5.08929V10.1202H13.2905C13.4245 10.1205 13.5554 10.1605 13.6667 10.2351C13.778 10.3096 13.8648 10.4155 13.916 10.5393C13.9672 10.6631 13.9807 10.7993 13.9546 10.9308C13.9286 11.0622 13.8642 11.183 13.7696 11.2779Z"
+                                                                        fill="#009846" />
+                                                                </svg>  --}}
+
+                                                                <a href="{{ asset('SANGH-CERTIFICATE-FORM.pdf') }}"
+                                                                    download>
+                                                                    <svg width="25" height="25"
+                                                                        viewBox="0 0 19 19" fill="none"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        style="cursor: pointer;">
+
+                                                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                            d="M9.5 19C12.0196 19 14.4359 17.9991 16.2175 16.2175C17.9991 14.4359 19 12.0196 19 9.5C19 6.98044 17.9991 4.56408 16.2175 2.78249C14.4359 1.00089 12.0196 0 9.5 0C6.98044 0 4.56408 1.00089 2.78249 2.78249C1.00089 4.56408 0 6.98044 0 9.5C0 12.0196 1.00089 14.4359 2.78249 16.2175C4.56408 17.9991 6.98044 19 9.5 19ZM13.7696 11.2779L9.97907 15.0684C9.85182 15.1956 9.67925 15.267 9.49932 15.267C9.31939 15.267 9.14682 15.1956 9.01957 15.0684L5.23043 11.2779C5.13583 11.183 5.07144 11.0622 5.04538 10.9308C5.01933 10.7993 5.03276 10.6631 5.084 10.5393C5.13523 10.4155 5.22198 10.3096 5.33329 10.2351C5.44461 10.1605 5.57551 10.1205 5.7095 10.1202H8.14286V5.08929C8.14286 4.72935 8.28584 4.38415 8.54035 4.12964C8.79487 3.87513 9.14006 3.73214 9.5 3.73214C9.85994 3.73214 10.2051 3.87513 10.4596 4.12964C10.7142 4.38415 10.8571 4.72935 10.8571 5.08929V10.1202H13.2905C13.4245 10.1205 13.5554 10.1605 13.6667 10.2351C13.778 10.3096 13.8648 10.4155 13.916 10.5393C13.9672 10.6631 13.9807 10.7993 13.9546 10.9308C13.9286 11.0622 13.8642 11.183 13.7696 11.2779Z"
+                                                                            fill="#009846" />
+                                                                    </svg>
+                                                                </a>
+                                                                <br></span>
+                                                            <span class="photo-label" style="color:gray;font-size:12px;">
+                                                                We accept only last 1 year Jain sang Certificate
+                                                            </span>
+
+                                                            <input type="file" id="jain_sangh_certificate"
+                                                                @if ($documents && $documents->jain_sangh_certificate) data-filename="{{ basename($documents->jain_sangh_certificate) }}" @endif
+                                                                name="jain_sangh_certificate" hidden
+                                                                accept=".jpg,.jpeg,.png,.pdf" required>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('jain_sangh_certificate') }}</small>
+                                                        </div>
+                                                        <div class="col-3">
+
+                                                            <label for="jain_sangh_certificate" class="upload-btn">
+                                                                <span class="upload-icon">⭱</span> Upload
+                                                            </label>
+                                                            <label class="uploaded-btn" style="display: none;">
+                                                                <span class="upload-icon">✔</span>
+                                                                Upload
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-12 align-items-center">
+                                                            <div class="upload-status" style="display:none;">
+                                                                <div class="row">
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
+                                                                            <i class="bi bi-trash"></i>
+                                                                            Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @if ($documents && $documents->jain_sangh_certificate)
+                                                    <div class="existing-document mt-2">
+                                                        <a href="{{ asset($documents->jain_sangh_certificate) }}"
                                                             target="_blank" class="btn btn-sm btn-success">View Existing
                                                             Document</a>
                                                     </div>
@@ -1690,7 +1692,6 @@
                     uploadStatus.style.display = 'block';
                     removeBtn.style.display = 'inline-block';
                 } else {
-                    photoUploadBox.style.height = '50px';
                     uploadStatus.style.display = 'none';
                     removeBtn.style.display = 'none';
                     uploadSummary.innerHTML = '';
@@ -1718,7 +1719,6 @@
                 });
 
                 fileInput.value = '';
-                photoUploadBox.style.height = '50px';
                 uploadStatus.style.display = 'none';
                 removeBtn.style.display = 'none';
                 uploadSummary.innerHTML = '';

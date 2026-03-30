@@ -15,7 +15,6 @@ class OurTestimonial extends Model
     protected $fillable = [
         'title',
         'image',
-        'about',
         'feedback',
         'name',
         'date',

@@ -240,18 +240,10 @@
                                             <div class="form-group mb-3">
                                                 <label for="university_name">University Name <span
                                                         style="color: red;">*</span></label>
-                                                <select id="university_name" class="form-control"
-                                                    name="university_name" required>
-                                                    <option value="" disabled
-                                                        {{ old('university_name', $educationDetail->university_name ?? '') ? '' : 'selected' }}>
-                                                        Select University Name</option>
-                                                    @foreach ($universities as $university)
-                                                        <option value="{{ $university->university_name }}"
-                                                            {{ (old('university_name') ?: $educationDetail->university_name ?? '') == $university->university_name ? 'selected' : '' }}>
-                                                            {{ $university->university_name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
+                                                <input type="text" id="university_name" class="form-control"
+                                                    name="university_name" placeholder="Enter University Name"
+                                                    value="{{ old('university_name', $educationDetail->university_name ?? '') }}"
+                                                    required>
                                                 <small class="text-danger"
                                                     id="university_name_error">{{ $errors->first('university_name') }}</small>
                                             </div>
@@ -280,6 +272,25 @@
                                                     id="college_name_error">{{ $errors->first('college_name') }}</small>
                                             </div>
 
+                                            <div class="form-group mb-3">
+                                                <label for="course_name">Course Name <span
+                                                        style="color: red;">*</span></label>
+                                                <select id="course_name" class="form-control"
+                                                    name="course_name" required
+                                                    data-existing-course="{{ $educationDetail->course_name ?? '' }}">
+                                                    <option value=""
+                                                        {{ empty(old('course_name')) && empty($educationDetail->course_name ?? '') ? 'selected' : '' }}
+                                                        disabled>
+                                                        Select Course Name</option>
+                                                    @if($educationDetail && old('course_name', $educationDetail->course_name ?? ''))
+                                                        <option value="{{ old('course_name', $educationDetail->course_name) }}" selected>
+                                                            {{ old('course_name', $educationDetail->course_name) }}
+                                                        </option>
+                                                    @endif
+                                                </select>
+                                                <small class="text-danger"
+                                                    id="course_name_error">{{ $errors->first('course_name') }}</small>
+                                            </div>
                                             <div class="form-group mb-3">
                                                 <label for="course_name">Course Name <span
                                                         style="color: red;">*</span></label>

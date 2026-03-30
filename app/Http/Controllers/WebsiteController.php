@@ -213,6 +213,6 @@ class WebsiteController extends Controller
             $request->message
         ));
 
-        return redirect()->route('contact')->with('success', 'Thank you for contacting us! We will get back to you soon.');
+        return redirect()->route('contact')->with('success', 'Your message has been sent successfully! We will get back to you soon.');
     }
 }

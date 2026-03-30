@@ -191,6 +191,9 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::put('/website/home/our-testimonial/{id}', [AdminController::class, 'updateOurTestimonial'])->name('website.home.our-testimonials.update');
     Route::delete('/website/home/our-testimonial/{id}', [AdminController::class, 'deleteOurTestimonial'])->name('website.home.our-testimonials.delete');
     Route::get('/website/home/success-stories', [AdminController::class, 'websiteHomeSuccessStories'])->name('website.home.success-stories');
+    Route::post('/website/home/success-stories', [AdminController::class, 'storeSuccessStory'])->name('website.home.success-stories.store');
+    Route::put('/website/home/success-stories/{id}', [AdminController::class, 'updateSuccessStory'])->name('website.home.success-stories.update');
+    Route::delete('/website/home/success-stories/{id}', [AdminController::class, 'deleteSuccessStory'])->name('website.home.success-stories.delete');
     Route::get('/website/about', [AdminController::class, 'websiteAbout'])->name('website.about');
 
     // About Sub-Pages
@@ -217,6 +220,9 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::put('/website/about/zone-chairmen/update/{id}', [AdminController::class, 'updateZoneChairmen'])->name('website.about.zone-chairmen.update');
     Route::delete('/website/about/zone-chairmen/delete/{id}', [AdminController::class, 'deleteZoneChairmen'])->name('website.about.zone-chairmen.delete');
     Route::get('/website/about/testimonials-success', [AdminController::class, 'websiteAboutTestimonialsSuccess'])->name('website.about.testimonials-success');
+    Route::post('/website/about/testimonials-success', [AdminController::class, 'storeTestimonialsSuccess'])->name('website.about.testimonials-success.store');
+    Route::put('/website/about/testimonials-success/{id}', [AdminController::class, 'updateTestimonialsSuccess'])->name('website.about.testimonials-success.update');
+    Route::delete('/website/about/testimonials-success/{id}', [AdminController::class, 'deleteTestimonialsSuccess'])->name('website.about.testimonials-success.delete');
 
     Route::get('/website/application', [AdminController::class, 'websiteApplication'])->name('website.application');
     

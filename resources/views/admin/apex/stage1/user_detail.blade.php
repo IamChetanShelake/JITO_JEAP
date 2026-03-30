@@ -480,8 +480,7 @@
         }
 
         .data-item {
-            display: flex;
-            justify-content: space-between;
+
             align-items: center;
             padding: 1rem 0;
             border-bottom: 1px solid #e9ecef;
@@ -500,7 +499,7 @@
         .data-value {
             color: var(--text-light);
             flex: 1;
-            text-align: right;
+            text-align: left;
         }
 
         .table-container {
@@ -842,8 +841,8 @@
             $referencePdfs = collect();
             if (is_dir($jeapPdfDir)) {
                 $referencePdfs = collect(\Illuminate\Support\Facades\File::files($jeapPdfDir))
-                    ->map(fn ($file) => $file->getFilename())
-                    ->filter(fn ($name) => str_ends_with($name, '.pdf'))
+                    ->map(fn($file) => $file->getFilename())
+                    ->filter(fn($name) => str_ends_with($name, '.pdf'))
                     ->sort()
                     ->values();
             }
@@ -2454,7 +2453,7 @@
                             @if ($user->workflowStatus->apex_staff_remark)
                                 <div class="data-item">
                                     <div class="data-label">Apex Staff Remarks</div>
-                                    <div class="data-value">{{ $user->workflowStatus->apex_staff_remark }}</div>
+                                    <div class="data-value">{!! $user->workflowStatus->apex_staff_remark !!}</div>
                                 </div>
                             @endif
                         </div>

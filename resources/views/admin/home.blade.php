@@ -1411,7 +1411,7 @@
         <!-- Row 4: 3rd Stage Document -->
         <div class="row g-3 mt-1">
             <div class="col-lg-6">
-                @if (in_array($activeGuard, ['admin', 'accountant']))
+                @if (in_array($activeGuard, ['admin', 'accountant','apex']))
                     <div class="approval-section">
                         <div class="approval-header">
                             <div class="approval-title initiatives-title">

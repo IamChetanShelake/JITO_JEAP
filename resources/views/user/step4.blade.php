@@ -457,7 +457,7 @@
                                                     <tr>
                                                         <td colspan="5"
                                                             style="font-weight: 600; border: none; text-align: right; color: #393185;">
-                                                            Total â‚¹</td>
+                                                            Total</td>
                                                         <td style="border: none;"><input type="number"
                                                                 class="form-control form-control-sm"
                                                                 style="font-weight: 600;" placeholder="00" min="0"

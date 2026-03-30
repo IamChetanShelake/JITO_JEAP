@@ -169,9 +169,8 @@
 
                                 {{ session('success') }}
 
-                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
+                                <button type="button" class="btn-close custom-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
                             </div>
                         @endif
                         <div class="row mb-3">
@@ -1902,7 +1901,8 @@
                         <div class="modal-content" style="border:2px solid #dc3545;">
                             <div class="modal-header" style="border-bottom:1px solid #dc3545; background-color: #dc3545; color: white;">
                                 <h5 class="modal-title" id="totalExpensesErrorModalLabel" style="color: white;">Not Eligible</h5>
-                                <button type="button" class="btn-close btn-close-white" aria-label="Close"></button>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                    aria-label="Close" onclick="closeTotalExpensesModal()"></button>
                             </div>
                             <div class="modal-body">
                                 <p style="color: #dc3545; font-weight: 600; font-size: 16px;">
@@ -1912,7 +1912,8 @@
                                 </p>
                             </div>
                             <div class="modal-footer" style="border-top:1px solid #dc3545; display: flex; justify-content: space-between;">
-                                <button type="button" class="btn btn-outline-danger" onclick="clearTableValuesAndCloseModal()" style="border-color: #dc3545; color: #dc3545;">Cancel</button>
+                                <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal"
+                                    onclick="clearTableValuesAndCloseModal()" style="border-color: #dc3545; color: #dc3545;">Cancel</button>
                                 <button type="button" class="btn btn-outline-primary" onclick="redirectToAbove1Lakh()" style="border-color: #007bff; color: #007bff;">Select Above 1 Lakh Application</button>
                             </div>
                         </div>
@@ -1937,6 +1938,30 @@
             }
         }
 
+        function closeTotalExpensesModal() {
+            const modalEl = document.getElementById('totalExpensesErrorModal');
+            if (!modalEl) return;
+
+            if (window.bootstrap && bootstrap.Modal) {
+                const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                modal.hide();
+            }
+
+            setTimeout(() => {
+                const modalBackdrop = document.querySelector('.modal-backdrop');
+                if (modalBackdrop) {
+                    modalBackdrop.remove();
+                }
+                document.body.classList.remove('modal-open');
+                document.body.style.paddingRight = '';
+
+                if (modalEl.parentNode) {
+                    modalEl.parentNode.removeChild(modalEl);
+                }
+                window.location.reload();
+            }, 150);
+        }
+
         function clearTableValuesAndCloseModal() {
             // Clear all input fields in the table
             const tableInputs = document.querySelectorAll('#yearWiseTable input[type="number"]');
@@ -1947,32 +1972,7 @@
             // Recalculate totals after clearing
             calculateTotalExpenses();
 
-            // Close the modal
-            const modalEl = document.getElementById('totalExpensesErrorModal');
-            if (modalEl) {
-                // Method 1: Try Bootstrap modal API
-                if (window.bootstrap && bootstrap.Modal) {
-                    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                    modal.hide();
-                }
-
-                // Method 2: Manual removal as fallback
-                setTimeout(() => {
-                    const modalBackdrop = document.querySelector('.modal-backdrop');
-                    if (modalBackdrop) {
-                        modalBackdrop.remove();
-                    }
-                    document.body.classList.remove('modal-open');
-                    document.body.style.paddingRight = '';
-
-                    // Remove the modal element after animation
-                    setTimeout(() => {
-                        if (modalEl.parentNode) {
-                            modalEl.parentNode.removeChild(modalEl);
-                        }
-                    }, 150);
-                }, 100);
-            }
+            closeTotalExpensesModal();
         }
 
         function clearTableValues() {

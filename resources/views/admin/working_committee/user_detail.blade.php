@@ -788,6 +788,15 @@
 @endsection
 
 @section('content')
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
     <div class="page-header">
         <div class="page-title-section">
             <h1 class="page-title">
@@ -2276,8 +2285,8 @@
                                             $extension = pathinfo($documentPath, PATHINFO_EXTENSION);
                                         @endphp
                                         @if (in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp']))
-                                            <a href="{{ asset('storage/' . $documentPath) }}" target="_blank">
-                                                <img src="{{ asset('storage/' . $documentPath) }}" alt="Document"
+                                            <a href="{{ asset('working_committee_documents/' . $documentPath) }}" target="_blank">
+                                                <img src="{{ asset('working_committee_documents/' . $documentPath) }}" alt="Document"
                                                     style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; border-radius: 4px;">
                                             </a>
                                         @elseif (strtolower($extension) === 'pdf')
@@ -2763,7 +2772,7 @@
                             <div class="form-row">
                                 <div class="form-field form-field-full">
                                     <label class="form-label" style="color: #f57c00;">Hold Remarks</label>
-                                    <textarea class="form-textarea" readonly style="border-color: #ffc107; background: rgba(255, 193, 7, 0.05);">{!! $user->workflowStatus->working_committee_hold_remarks !!}</textarea>
+                                    <textarea class="form-textarea" readonly style="border-color: #ffc107; background: rgba(255, 193, 7, 0.05);">{{ strip_tags($user->workflowStatus->working_committee_hold_remarks) }}</textarea>
                                 </div>
                             </div>
                             <div class="form-row">

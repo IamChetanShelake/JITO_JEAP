@@ -2679,6 +2679,7 @@ class UserController extends Controller
 
     public function step6store(Request $request)
     {
+       // dd($request);
         Log::info('Step6StorePG: Method called', [
             'user_id' => Auth::id(),
             'request_method' => $request->method(),
@@ -2852,6 +2853,7 @@ class UserController extends Controller
 
     public function step6storeug(Request $request)
     {
+       // dd($request);
         Log::info('Step6StoreUG: Method called', [
             'user_id' => Auth::id(),
             'request_method' => $request->method(),
@@ -3026,7 +3028,184 @@ class UserController extends Controller
     }
 
 
-    public function step6storeforeign(Request $request)
+    // public function step6storeforeign(Request $request)
+    // {
+    //     dd($request);
+    //     Log::info('Step6StoreForeign: Method called', [
+    //         'user_id' => Auth::id(),
+    //         'request_method' => $request->method(),
+    //         'content_type' => $request->header('Content-Type'),
+    //         'files_count' => count($request->allFiles()),
+    //         'all_files' => array_keys($request->allFiles()),
+    //         'has_csrf' => $request->has('_token'),
+    //         'csrf_token' => $request->input('_token') ? 'present' : 'missing'
+    //     ]);
+
+    //     try {
+    //         $existing = Document::where('user_id', Auth::id())->first();
+    //         $rules = [];
+    //         $requiredFields = [
+    //             'ssc_cbse_icse_ib_igcse',
+    //             'hsc_diploma_marksheet',
+    //             'graduate_post_graduate_marksheet',
+    //             'admission_letter_fees_structure',
+    //             'passport_applicant',
+    //             'visa_applicant',
+    //             'aadhaar_applicant',
+    //             'pan_applicant',
+    //             'student_bank_details_statement',
+    //             'jito_group_recommendation',
+    //             'jain_sangh_certificate',
+    //             'electricity_bill',
+    //             'itr_acknowledgement_father',
+    //             'itr_computation_father',
+    //             'form16_salary_income_father',
+    //             'bank_statement_father_12months',
+    //             'bank_statement_mother_12months',
+    //             'aadhaar_father_mother',
+    //             'pan_father_mother',
+    //             'guarantor1_aadhaar',
+    //             'guarantor1_pan',
+    //             'guarantor2_aadhaar',
+    //             'guarantor2_pan',
+    //             // Removed: student_handwritten_statement, proof_funds_arranged from required
+    //         ];
+    //         foreach ($requiredFields as $field) {
+    //             // Use !empty() instead of isset() to properly check for existing values (including NULL)
+    //             $rules[$field] = (!empty($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
+    //         }
+    //         // Override to make student_handwritten_statement and proof_funds_arranged optional
+    //         $rules['student_handwritten_statement'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+    //         $rules['proof_funds_arranged'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+    //         $rules['other_documents'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+    //         $rules['extra_curricular'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+
+    //         $request->validate($rules);
+
+    //         $user_id = Auth::id();
+    //         $isResubmission = $this->isStepResubmission('step6');
+
+    //         $data = [
+    //             'user_id' => $user_id,
+    //             'status' => 'step6_completed',
+    //             'submit_status' => 'submited',
+    //         ];
+
+    //         // Handle file uploads
+    //         $files = [
+    //             'ssc_cbse_icse_ib_igcse',
+    //             'hsc_diploma_marksheet',
+    //             'graduate_post_graduate_marksheet',
+    //             'admission_letter_fees_structure',
+    //             'passport_applicant',
+    //             'visa_applicant',
+    //             'aadhaar_applicant',
+    //             'pan_applicant',
+    //             'student_bank_details_statement',
+    //             'jito_group_recommendation',
+    //             'jain_sangh_certificate',
+    //             'electricity_bill',
+    //             'itr_acknowledgement_father',
+    //             'itr_computation_father',
+    //             'form16_salary_income_father',
+    //             'bank_statement_father_12months',
+    //             'bank_statement_mother_12months',
+    //             'aadhaar_father_mother',
+    //             'pan_father_mother',
+    //             'guarantor1_aadhaar',
+    //             'guarantor1_pan',
+    //             'guarantor2_aadhaar',
+    //             'guarantor2_pan',
+    //             'student_handwritten_statement',
+    //             'proof_funds_arranged',
+    //             'other_documents',
+    //             'extra_curricular'
+    //         ];
+
+    //         foreach ($files as $file) {
+    //             if ($request->hasFile($file)) {
+    //                 $fileName = time() . '_' . $file . '.' . $request->$file->extension();
+    //                 $request->$file->move('user_document_images', $fileName);
+    //                 $data[$file] = 'user_document_images/' . $fileName;
+    //             }
+    //         }
+
+    //         $document = Document::where('user_id', $user_id)->first();
+
+    //         if ($document) {
+    //             $document->update($data);
+    //             $message = 'Documents updated successfully!';
+    //         } else {
+    //             Document::create($data);
+    //             $message = 'Documents uploaded successfully!';
+    //         }
+
+
+    //         // Get user for logging
+    //         $user = User::find($user_id);
+
+    //         // Log step completion
+    //         $this->logUserActivity(
+    //             processType: $isResubmission
+    //                 ? 'step6_resubmission'
+    //                 : 'step6_completion',
+
+    //             processAction: $isResubmission
+    //                 ? 'resubmitted'
+    //                 : 'completed',
+
+    //             processDescription: $isResubmission
+    //                 ? 'User resubmitted Document Upload after correction'
+    //                 : 'User submitted Document Upload step6',
+    //             module: 'application',
+    //             oldValues: null,
+    //             newValues: null,
+    //             additionalData: [
+    //                 'user_id' => $user->id,
+    //                 'user_name' => $user->name,
+    //                 'user_email' => $user->email,
+    //                 'step' => 'step6',
+    //                 'step_name' => 'Document Upload',
+    //                 'documents_uploaded' => array_keys(array_filter($data, function ($key) {
+    //                     return strpos($key, '_') !== false && !in_array($key, ['user_id', 'status', 'submit_status']);
+    //                 }, ARRAY_FILTER_USE_KEY)),
+    //                 'total_documents' => count(array_filter($data, function ($key) {
+    //                     return strpos($key, '_') !== false && !in_array($key, ['user_id', 'status', 'submit_status']);
+    //                 }, ARRAY_FILTER_USE_KEY))
+    //             ],
+
+    //             // 🎯 TARGET → Shivam
+    //             targetUserId: $user->id,
+
+    //             // 👮 ACTOR → Ramesh
+    //             actorId: $user->id,
+    //             actorName: $user->name,
+    //             actorRole: $user->role
+    //         );
+    //         // Check if all steps are submitted (no resubmit remaining)
+    //         $this->checkAndUpdateWorkflowStatus();
+
+    //         Log::info('Step6Store: Document created successfully', ['user_id' => $user_id, 'document_id' => Document::latest()->first()->id]);
+
+    //         return redirect()->route('user.step7')->with('success', $message);
+    //     } catch (\Illuminate\Validation\ValidationException $e) {
+    //         Log::error('Step6Store: Validation failed', [
+    //             'user_id' => Auth::id(),
+    //             'errors' => $e->errors()
+    //         ]);
+    //         throw $e;
+    //     } catch (\Exception $e) {
+    //         Log::error('Step6Store: Unexpected error', [
+    //             'user_id' => Auth::id(),
+    //             'error' => $e->getMessage(),
+    //             'trace' => $e->getTraceAsString()
+    //         ]);
+    //         throw $e;
+    //     }
+    // }
+
+
+public function step6storeforeign(Request $request)
     {
         Log::info('Step6StoreForeign: Method called', [
             'user_id' => Auth::id(),

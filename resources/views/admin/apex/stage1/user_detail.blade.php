@@ -837,7 +837,7 @@
             <p class="page-subtitle">Review and approve individual form steps</p>
         </div>
         @php
-            $jeapPdfDir = public_path('Jeap_pdfs');
+            $jeapPdfDir = 'Jeap_pdfs';
             $referencePdfs = collect();
             if (is_dir($jeapPdfDir)) {
                 $referencePdfs = collect(\Illuminate\Support\Facades\File::files($jeapPdfDir))

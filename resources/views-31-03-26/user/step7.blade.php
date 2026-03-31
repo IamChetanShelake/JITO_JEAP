@@ -1,0 +1,538 @@
+@extends('user.layout.master')
+@section('step')
+    <button class="btn btn-purple me-2" style="background-color: #393185; color: white;">Step 7 of
+        7</button>
+@endsection
+@section('content')
+    <!-- Main Content -->
+    <div class="col-lg-9 main-content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    @php
+                        // Get loan category type to determine if below 1 lakh
+                        $loanCategory = \App\Models\Loan_category::where('user_id', auth()->id())
+                            ->latest()
+                            ->first();
+                        $isBelowOneLakh = $loanCategory && strtolower(trim($loanCategory->type)) === 'below';
+                         $isDomesticGraduation = $user->financial_asset_type === 'domestic' && $user->financial_asset_for === 'graduation';
+                         $isDomesticPg = $user->financial_asset_type === 'domestic' && $user->financial_asset_for === 'post_graduation';
+                         // Check domestic + post_graduation FIRST (uses DocumentBelowPg table)
+                         $useDocumentBelowPg = $isDomesticPg;
+                         // Check below or domestic + graduation (uses DocumentsBelow table)
+                         $useDocumentsBelow = !$useDocumentBelowPg && ($isBelowOneLakh || $isDomesticGraduation);
+                    @endphp
+                    <form method="POST" action="{{ route('user.step7.store') }}" enctype="multipart/form-data">
+                        @csrf
+                        @if (session('success'))
+                            <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
+                                id="successAlert">
+
+                                {{ session('success') }}
+
+                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
+
+                        @if (session('upload_success'))
+                            <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
+                                id="uploadSuccessAlert">
+
+                                {{ session('upload_success') }}
+
+                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
+                        <div class="row mb-3">
+                            <div class="col-md-5 offset-md-1">
+
+                                <select class="form-control" name="financial_asset_type" id="financial_asset_type"
+                                    style="border:2px solid #393185;border-radius:15px;" readonly required>
+                                    <option disabled
+                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') ? '' : 'selected' }}
+                                        hidden>Financial Asst Type *</option>
+                                    <option value="domestic"
+                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'domestic' ? 'selected' : '' }}
+                                        hidden>
+                                        Domestic</option>
+                                    <option value="foreign_finance_assistant"
+                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'foreign_finance_assistant' ? 'selected' : '' }}
+                                        hidden>
+                                        Foreign Financial Assistance</option>
+                                </select>
+                                <small class="text-danger">{{ $errors->first('financial_asset_type') }}</small>
+                            </div>
+                            <div class="col-md-5">
+                                <select class="form-control" name="financial_asset_for" id="financial_asset_for"
+                                    style="border:2px solid #393185;border-radius:15px;" readonly required>
+                                    <option disabled
+                                        {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') ? '' : 'selected' }}
+                                        hidden>Financial Asst For *</option>
+                                    <option value="graduation"
+                                        {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'graduation' ? 'selected' : '' }}
+                                        hidden>
+                                        Graduation</option>
+                                    <option value="post_graduation"
+                                        {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'post_graduation' ? 'selected' : '' }}
+                                        hidden>
+                                        Post Graduation</option>
+                                </select>
+                                <small class="text-danger">{{ $errors->first('financial_asset_for') }}</small>
+                            </div>
+                        </div>
+                        <div class="card form-card">
+                            <div class="card-body">
+
+                                <div class="step-card">
+                                    <div class="card-icon">
+                                        <i class="bi bi-eye"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-title">Review & Submit </h3>
+                                        <p class="card-subtitle">Please read and accept the terms before submitting your
+                                            review.</p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    {{-- <div class="col-md-12"> --}}
+                                    <div style="margin-top: 20px;padding:0 20px;">
+                                        <h4 style="font-size: 16px;font-weight:600;color:#353535;">Terms and Conditions
+                                        </h4>
+                                        <p style="margin-bottom: 14px;color:#494C4E;">
+                                            1) A needy and deserving Jain student.
+                                        </p>
+                                        <p style="margin-bottom: 14px;color:#494C4E;">
+                                            2) Age between 18 and 30 years.
+                                        </p>
+                                        <p style="margin-bottom: 14px;color:#494C4E;">
+                                            3) Minimum eligibility criteria require an overall academic score of 60% [10th,
+                                            12th & Graduation (Only for Post Graduation)]
+                                        </p>
+                                        <p style="margin-bottom: 14px;color:#494C4E;">
+                                            4) Domestic students: For Undergraduate (UG) or Postgraduate (PG) courses in
+                                            India.(Only UGC/AICTE/NAAC accredited courses or universities)
+                                        </p>
+                                        <p style="margin-bottom: 14px;color:#494C4E;">
+                                            5) Foreign students: For Postgraduate (PG) courses, applications only from the
+                                            Universities approved by our management, top 25 globally (QS rankings) are
+                                            eligible and our listed in JEAP Website.</br>For more details visit: [Foreign
+                                            University List](https://jitojeap.in/foreign/)
+                                        </p>
+                                        <p style="margin-bottom: 14px;color:#494C4E;">
+                                            6) I confirm that if I receive a sanction from JITO-JEAP in the future, I will
+                                            submit the required number of bank cheques as informed to me. I have also read
+                                            and reviewed the attached list of approved banks from JEAP.
+                                        </p>
+                                        {{-- <p style="margin-bottom: 14px;color:#494C4E;">
+                                            I commit to maintaining satisfactory academic performance and will provide
+                                            my
+                                            academic reports to JITO as and when requested.
+                                        </p>
+                                        <p style="margin-bottom: 14px;color:#494C4E;">
+                                            I agree to participate in JITO community service activities and contribute
+                                            to
+                                            the Jain community as per my capabilities.
+                                        </p> --}}
+                                    </div>
+
+                                    <!-- Preview Section -->
+                                    <div style="margin-top: 32px;padding:0 20px;">
+                                        <h4 style="font-size: 16px;font-weight:600;color:#353535;">Preview
+                                        </h4>
+                                        <div class="row" style="margin-top: 16px;color:#393185;">
+                                            <div class="col-4 col-md-2" style="text-align: center; ">
+                                                <a href="{{ route('user.step1') }}"
+                                                    style="text-decoration: none; color: inherit;">
+                                                    <div
+                                                        style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px; @if ($user->submit_status == 'submited') background-color: green;color:white; @elseif($user->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->submit_status == 'approved') background-color: orange;color:white; @endif">
+                                                        1
+                                                    </div>
+                                                    <span class="mt-4">Personal Details</span>
+                                                </a>
+                                            </div>
+
+                                            <div class="col-4 col-md-2" style="text-align: center; color:#393185;">
+                                                <a href="{{ route('user.step3') }}"
+                                                    style="text-decoration: none; color: inherit;">
+                                                    <div
+                                                        style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px;
+                                                        @if ($user->educationDetail && $user->educationDetail->submit_status == 'submited') background-color: green;color:white; @elseif($user->educationDetail && $user->educationDetail->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->educationDetail && $user->educationDetail->submit_status == 'approved') background-color: orange;color:white; @endif
+                                                        ">
+                                                        2
+                                                    </div>
+                                                    <span>Education Details</span>
+                                                </a>
+                                            </div>
+                                            <div class="col-4 col-md-2" style="text-align: center; color:#393185;">
+                                                <a href="{{ route('user.step2') }}"
+                                                    style="text-decoration: none; color: inherit;">
+                                                    <div
+                                                        style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px;  @if ($user->familyDetail && $user->familyDetail->submit_status == 'submited') background-color: green;color:white; @elseif($user->familyDetail && $user->familyDetail->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->familyDetail && $user->familyDetail->submit_status == 'approved') background-color: orange;color:white; @endif">
+                                                        3
+                                                    </div>
+                                                    <span>Family Details</span>
+                                                </a>
+                                            </div>
+                                            <div class="col-4 col-md-2" style="text-align: center; color:#393185;">
+                                                <a href="{{ route('user.step4') }}"
+                                                    style="text-decoration: none; color: inherit;">
+                                                    <div
+                                                        style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px; @if ($user->fundingDetail && $user->fundingDetail->submit_status == 'submited') background-color: green;color:white; @elseif($user->fundingDetail && $user->fundingDetail->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->fundingDetail && $user->fundingDetail->submit_status == 'approved') background-color: orange;color:white; @endif">
+                                                        4
+                                                    </div>
+                                                    <span>Funding Details</span>
+                                                </a>
+                                            </div>
+                                            @if(!$isBelowOneLakh)
+                                            <div class="col-4 col-md-2" style="text-align: center; color:#393185;">
+                                                <a href="" style="text-decoration: none; color: inherit;">
+                                                    <div
+                                                        style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px; @if ($user->guarantorDetail && $user->guarantorDetail->submit_status == 'submited') background-color: green;color:white; @elseif($user->guarantorDetail && $user->guarantorDetail->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->guarantorDetail && $user->guarantorDetail->submit_status == 'approved') background-color: orange;color:white; @endif">
+                                                        5
+                                                    </div>
+                                                    <span>Guarantor Details</span>
+                                                </a>
+                                            </div>
+                                            @endif
+                                            <div class="col-4 col-md-2" style="text-align: center; color:#393185;">
+                                                <a href="" style="text-decoration: none; color: inherit;">
+                                                    <div
+                                                        style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px; @if ($useDocumentsBelow ? ($user->document && $user->document->submit_status == 'submited') : ($useDocumentBelowPg ? ($user->document && $user->document->submit_status == 'submited') : ($user->document && $user->document->submit_status == 'submited'))) background-color: green;color:white; @elseif ($useDocumentsBelow ? ($user->document && $user->document->submit_status == 'resubmit') : ($useDocumentBelowPg ? ($user->document && $user->document->submit_status == 'resubmit') : ($user->document && $user->document->submit_status == 'resubmit'))) background-color: red;color:white; @elseif ($useDocumentsBelow ? ($user->document && $user->document->submit_status == 'approved') : ($useDocumentBelowPg ? ($user->document && $user->document->submit_status == 'approved') : ($user->document && $user->document->submit_status == 'approved'))) background-color: orange;color:white; @endif">
+                                                        {{ !$isBelowOneLakh ? '6' : '5' }}
+                                                    </div>
+                                                    <span>Documents Upload</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Declaration Checkboxes -->
+                                    <div style="margin-top: 32px;padding:0 20px;">
+                                        <h4 style="font-size: 18px;font-weight:600;color:#353535;">I Hereby declare That:
+                                        </h4>
+                                        <div style="margin-top: 16px;">
+                                            <ol style="margin-bottom: 16px;">
+                                                <li>The details in this form are true and correct to the best of my
+                                                    knowledge.</li>
+                                                <li>I give my consent to my son / daughter / ward for going to for further
+                                                    studies.</li>
+                                                <li>If my Financial Assistance Application is approved, I agree to abide by
+                                                    the terms and conditions of the JITO-JEAP –Domestic/Foreign Education
+                                                    Financial Assistance Application.</li>
+                                                <li>In case of any change in the above information, I will inform the
+                                                    Institution immediately in writing within three days.</li>
+                                                <li>I also undertake to keep the office bearers/Trustees informed of my
+                                                    correct address and that of my Parents/Guarantors and recommenders from
+                                                    time to time.</li>
+                                                <li>I will send my second stage documents duly completed.</li>
+                                                <li>The amount of Financial Assistance will be utilized for education
+                                                    purpose only.</li>
+                                                <li>I /we agree that JEAP may reject our Financial Assistance application
+                                                    without giving any reasons thereof and that JEAP shall not be held
+                                                    responsible/liable in any manner whatsoever to us for rejection or any
+                                                    delay in notifying us of such rejection including any costs, losses,
+                                                    damages, or expenses or consequences caused by such rejection of
+                                                    financial assistance application.</li>
+                                                <li>I have read all FAQs mentioned on website and accepting the same.</li>
+                                                <li>I have read all the instructions properly and agree to submit the
+                                                    required documents as per the policy and timelines.</li>
+                                            </ol>
+                                            <label style="display: block; margin-bottom: 12px; font-weight: normal;">
+                                                <input type="checkbox" name="declaration" required
+                                                    style="margin-right: 8px;border-color:#393185; width:18px;height:18px;background:#988DFF1F;">
+                                                I agree to all the above declarations.
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Ready to Submit Card -->
+                                    <div
+                                        style="background-color: #FEF6E0; border-radius: 14px; padding: 24px; margin-top: 32px;border:1px solid #FBBA00;">
+                                        <h5 style="color: red; margin-bottom: 12px;">Ready to Submit?</h5>
+                                        <p style="color: red; margin-bottom: 15px;">
+                                            Once you submit this application, you will receive a confirmation email with
+                                            your application reference number. Our team will review your application and
+                                            contact you within 7-10 business days.
+                                        </p>
+                                        <p style="color: red; margin-bottom: 0;">
+                                            If you do not receive a response within 5 working days, please contact us at
+                                            support.jitojeap@jito.org
+                                        </p>
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+
+
+ 
+                            {{-- </div> --}}
+                        </div>
+                        <div class="d-flex justify-content-between mt-4 mb-4">
+                            <button type="button" class="btn " style="background:#988DFF1F;color:gray;"><svg
+                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                    stroke="gray" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M15 18l-6-6 6-6" />
+                                </svg>
+
+                                Previous</button>
+                            {{-- @if (
+                                   $user->submit_status == 'submited' &&
+                                    ($user->educationDetail && $user->educationDetail->submit_status == 'submited') &&
+                                    ($user->familyDetail && $user->familyDetail->submit_status == 'submited') &&
+                                    ($user->fundingDetail && $user->fundingDetail->submit_status == 'submited') &&
+                                    ($user->guarantorDetail && in_array($user->guarantorDetail->submit_status, ['submited', 'skipped'])) &&
+                                    ($useDocumentsBelow ? ($user->documentsBelow && $user->documentsBelow->submit_status == "submited") : ($useDocumentBelowPg ? ($user->documentBelowPg && $user->documentBelowPg->submit_status == "submited") : ($user->document && $user->document->submit_status == "submited"))) &&
+                                    $user->application_status != 'submitted') --}}
+                                    @php
+                                       $isGuarantorValid = $isBelowOneLakh || 
+                                       in_array(optional($user->guarantorDetail)->submit_status, ['submited', 'skipped']);
+                                    @endphp
+
+                                    @if (
+                                        $user->submit_status == 'submited' &&
+                                        ($user->educationDetail && $user->educationDetail->submit_status == 'submited') &&
+                                        ($user->familyDetail && $user->familyDetail->submit_status == 'submited') &&
+                                        ($user->fundingDetail && $user->fundingDetail->submit_status == 'submited') &&
+                                        $isGuarantorValid &&
+                                        ($useDocumentsBelow ? ($user->document && $user->document->submit_status == "submited") : ($useDocumentBelowPg ? ($user->document && $user->document->submit_status == "submited") : ($user->document && $user->document->submit_status == "submited"))) &&
+                                        $user->application_status != 'submitted'
+                                    )
+                                 <button type="submit" class="btn"
+                                     style="background:#F0FDF4;color:#009846;border:1px solid #009846"><i
+                                         class="bi bi-check-lg" style="color: green; font-size: 24px;"></i>
+
+                                     Submit Application
+
+                                 </button>
+                             @elseif($user->application_status == 'submitted')
+                                 <button type="button" class="btn"
+                                     style="background:green;color:white;border:1px solid green" disabled><i
+                                         class="bi bi-check-lg" style="color: white; font-size: 24px;"></i>
+
+                                     Application Submitted
+                                 </button>
+                             @else
+                                 <button type="button" class="btn"
+                                     style="background:#F0FDF4;color:red;border:1px solid red" data-toggle="modal"
+                                     data-target="#stepWarningModal">
+                                     <i class="bi bi-check-lg" style="color: red; font-size: 24px;"></i>
+                                     Submit Application
+                                 </button>
+                                 <div class="modal fade" id="stepWarningModal" tabindex="-1" role="dialog"
+                                     aria-labelledby="stepWarningModalLabel" aria-hidden="true">
+                                     <div class="modal-dialog modal-dialog-centered" role="document">
+                                         <div class="modal-content" style="border:2px solid #2E2A85;">
+
+                                             <div class="modal-header" style="border-bottom:1px solid #2E2A85;">
+                                                 <h5 class="modal-title" id="stepWarningModalLabel"
+                                                     style="color:#2E2A85;">
+                                                     Incomplete Application
+                                                 </h5>
+                                                 <button type="button" class="close" data-dismiss="modal"
+                                                     aria-label="Close">
+                                                     <span aria-hidden="true">&times;</span>
+                                                 </button>
+                                             </div>
+
+                                             <div class="modal-body">
+                                                 <p style="color:red; font-weight:500;">
+                                                     @if ($isBelowOneLakh)
+                                                         Please submit all 5 steps first.
+                                                         Only after completing all steps will the application be submitted.
+                                                     @else
+                                                         Please submit all 6 steps first.
+                                                         Only after completing all steps will the application be submitted.
+                                                     @endif
+                                                 </p>
+                                             </div>
+
+                                             <div class="modal-footer" style="border-top:1px solid #2E2A85;">
+                                                 <button type="button" class="btn btn-outline-primary"
+                                                     data-dismiss="modal" style="border-color:#2E2A85; color:#2E2A85;">
+                                                     OK
+                                                 </button>
+                                             </div>
+
+                                         </div>
+                                     </div>
+                                 </div>
+
+                                 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+                                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+                                 {{-- <button type="submit" class="btn"
+                                     style="background:#F0FDF4;color:#009846;border:1px solid #009846"><i
+                                         class="bi bi-check-lg" style="color: green; font-size: 24px;"></i>
+
+                                     Submit Application
+
+                                 </button> --}}
+                             @endif
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SweetAlert2 Library -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Show SweetAlert2 success message only when Step 7 form is submitted
+        // This ensures it only shows after form submission, not when navigating to Step 7
+        @if (session('success') && session('step7_submitted'))
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Application Submitted Successfully!',
+                    html: `
+                        <div style="text-align: left; margin-top: 15px;">
+                            <p style="margin-bottom: 10px; font-size: 16px;">Thank you for submitting your application!</p>
+                            <p style="margin-bottom: 10px; font-size: 14px;">Your application has been successfully submitted.</p>
+                            <p style="margin-bottom: 10px; font-size: 14px;">You will receive a confirmation email with your application reference number shortly.</p>
+                            <p style="margin-bottom: 0; font-size: 14px;">Our team will review your application and contact you within 7-10 business days.</p>
+                        </div>
+                    `,
+                    icon: 'success',
+                    iconColor: '#009846',
+                    background: '#ffffff',
+                    color: '#333333',
+                    confirmButtonText: 'Go to Dashboard',
+                    confirmButtonColor: '#009846',
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'animated fadeIn',
+                        confirmButton: 'swal2-confirm-btn'
+                    },
+                    buttonsStyling: false,
+                    customButtons: {
+                        confirm: {
+                            text: 'Go to Dashboard',
+                            className: 'swal2-confirm-btn'
+                        }
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '{{ route('user.home') }}';
+                    }
+                });
+            });
+        @endif
+    </script>
+
+    <style>
+        /* Custom SweetAlert2 styling to match your brand */
+        .swal2-popup {
+            border-radius: 12px !important;
+            padding: 20px !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+        }
+
+        .swal2-title {
+            color: #009846 !important;
+            font-size: 24px !important;
+            font-weight: 700 !important;
+            margin-bottom: 10px !important;
+        }
+
+        .swal2-html-container {
+            text-align: left !important;
+            font-size: 16px !important;
+            line-height: 1.5 !important;
+            color: #333333 !important;
+        }
+
+        .swal2-icon.swal2-success {
+            border-color: #009846 !important;
+            color: #009846 !important;
+        }
+
+        .swal2-icon.swal2-success::after {
+            background-color: #009846 !important;
+        }
+
+        .swal2-icon.swal2-success .swal2-success-ring {
+            border-color: rgba(0, 152, 70, 0.3) !important;
+        }
+
+        .swal2-confirm {
+            background-color: #009846 !important;
+            border-color: #009846 !important;
+            color: white !important;
+            border-radius: 8px !important;
+            padding: 12px 30px !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 6px rgba(0, 152, 70, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .swal2-confirm:hover {
+            background-color: #007a38 !important;
+            border-color: #007a38 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 12px rgba(0, 152, 70, 0.4) !important;
+        }
+
+        .swal2-confirm:active {
+            transform: translateY(0) !important;
+            box-shadow: 0 2px 4px rgba(0, 152, 70, 0.3) !important;
+        }
+
+        .swal2-close {
+            color: #009846 !important;
+            font-size: 28px !important;
+            font-weight: 300 !important;
+            opacity: 1 !important;
+        }
+
+        .swal2-close:hover {
+            color: #007a38 !important;
+            background-color: transparent !important;
+        }
+
+        /* Animation for the success icon */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .swal2-icon.swal2-success {
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .swal2-popup {
+                width: 90% !important;
+                margin: 10px !important;
+            }
+
+            .swal2-title {
+                font-size: 20px !important;
+            }
+
+            .swal2-html-container {
+                font-size: 14px !important;
+            }
+        }
+    </style>
+@endsection

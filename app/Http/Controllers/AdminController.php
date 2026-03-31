@@ -2868,7 +2868,7 @@ class AdminController extends Controller
             'repayment_type' => 'required|in:yearly,half_yearly,quarterly,monthly',
             'no_of_cheques_to_be_collected' => 'required|integer|min:1',
             'repayment_starting_from' => 'required|date',
-            'remarks_for_approval' => 'required|string|max:2000',
+            'remarks_for_approval' => 'required|string',
             'can_be_jito_member' => 'nullable|in:yes,no',
             'jito_member_date' => 'nullable|date',
             'can_be_jeap_donor' => 'nullable|in:yes,no',
@@ -3832,7 +3832,7 @@ class AdminController extends Controller
     public function holdStage(Request $request, User $user, $stage)
     {
         $request->validate([
-            'admin_remark'   => 'required|string|max:2000',
+            'admin_remark'   => 'required|string',
             'resubmit_steps' => 'nullable|array',
             'resubmit_steps.*' => 'in:personal,education,family,funding,guarantor,documents,final',
         ]);
@@ -5616,7 +5616,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'user_id' => 'required|integer',
-            'admin_remark' => 'required|string|max:2000',
+            'admin_remark' => 'required|string',
         ]);
 
         $editRequest = \App\Models\EditBankDetailRequest::where('user_id', $request->user_id)
@@ -5766,11 +5766,11 @@ class AdminController extends Controller
             'courier_action' => 'required|in:approve,hold',
             'courier_approved_by' => 'required_if:courier_action,approve|nullable|integer|exists:admin_panel.apex_leadership,id',
             'courier_hold_by' => 'required_if:courier_action,hold|nullable|integer|exists:admin_panel.apex_leadership,id',
-            'courier_receive_hold_remark' => 'nullable|string|max:2000',
+            'courier_receive_hold_remark' => 'nullable|string',
             'courier_cheque_received' => 'required_if:courier_action,approve|nullable|integer|min:0',
             'courier_cheque_pending' => 'required_if:courier_action,approve|nullable|integer|min:0',
             'courier_send_back' => 'nullable|in:0,1',
-            'courier_send_back_reason' => 'nullable|string|max:2000',
+            'courier_send_back_reason' => 'nullable|string',
             'courier_send_back_date' => 'nullable|date',
         ]);
 
@@ -5793,14 +5793,14 @@ class AdminController extends Controller
             $chequePending = $pdcDetail->courier_cheque_pending;
 
             $request->validate([
-                'courier_receive_hold_remark' => 'required|string|max:2000',
+                'courier_receive_hold_remark' => 'required|string',
             ]);
 
             $holdBy = ApexLeadership::query()->find($request->courier_hold_by);
             $sendBack = $request->input('courier_send_back') === '1';
             if ($sendBack) {
                 $request->validate([
-                    'courier_send_back_reason' => 'required|string|max:2000',
+                    'courier_send_back_reason' => 'required|string',
                     'courier_send_back_date' => 'required|date',
                 ]);
             }
@@ -6094,7 +6094,7 @@ class AdminController extends Controller
     public function approveThirdStageDocument(Request $request, User $user)
     {
         $request->validate([
-            'admin_remark' => 'nullable|string|max:2000',
+            'admin_remark' => 'nullable|string',
         ]);
 
         $thirdStageDocument = ThirdStageDocument::where('user_id', $user->id)->first();
@@ -6137,7 +6137,7 @@ class AdminController extends Controller
     public function sendBackThirdStageDocument(Request $request, User $user)
     {
         $request->validate([
-            'admin_remark' => 'required|string|max:2000',
+            'admin_remark' => 'required|string',
         ]);
 
         $thirdStageDocument = ThirdStageDocument::where('user_id', $user->id)->first();
@@ -6279,7 +6279,7 @@ class AdminController extends Controller
     public function approvePdc(Request $request, User $user)
     {
         $request->validate([
-            'admin_remark' => 'nullable|string|max:2000',
+            'admin_remark' => 'nullable|string',
         ]);
 
         $pdcDetail = \App\Models\PdcDetail::where('user_id', $user->id)->first();
@@ -6345,7 +6345,7 @@ class AdminController extends Controller
     public function sendBackPdc(Request $request, User $user)
     {
         $request->validate([
-            'admin_remark' => 'required|string|max:2000',
+            'admin_remark' => 'required|string',
         ]);
 
         $pdcDetail = \App\Models\PdcDetail::where('user_id', $user->id)->first();

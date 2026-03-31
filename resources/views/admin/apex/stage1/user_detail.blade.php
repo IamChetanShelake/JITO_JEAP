@@ -929,6 +929,13 @@
             <div class="user-info-footer">
                 <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}
                 </p>
+                @if($loanCategory)
+                <p><strong>Loan Category:</strong>
+                    <span class="loan-type-badge {{ $loanCategory->type === 'below' ? 'loan-type-below' : 'loan-type-above' }}">
+                        {{ $loanCategory->type === 'below' ? 'Below 1 Lakh' : 'Above 1 Lakh' }}
+                    </span>
+                </p>
+                @endif
                 <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type 
                     ? ucwords(str_replace('_', ' ', $user->financial_asset_type)) 
                     : 'N/A' }}</p>

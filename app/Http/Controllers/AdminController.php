@@ -198,7 +198,7 @@ class AdminController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('uploads/empowering-dreams'), $imageName);
+            $image->move('uploads/empowering-dreams', $imageName);
             $imagePath = 'uploads/empowering-dreams/' . $imageName;
         }
 
@@ -212,7 +212,7 @@ class AdminController extends Controller
                 $file = $featureImageFiles[$index];
                 if ($file && $file->isValid()) {
                     $fileName = time() . '_feature_' . $index . '_' . $file->getClientOriginalName();
-                    $file->move(public_path('uploads/empowering-dreams/features'), $fileName);
+                    $file->move('uploads/empowering-dreams/features', $fileName);
                     $featureImages[$index] = 'uploads/empowering-dreams/features/' . $fileName;
                 }
             }
@@ -253,11 +253,11 @@ class AdminController extends Controller
         if ($request->hasFile('image')) {
             // Delete old image if exists
             if ($dream->image && file_exists(public_path($dream->image))) {
-                unlink(public_path($dream->image));
+                unlink($dream->image);
             }
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('uploads/empowering-dreams'), $imageName);
+            $image->move('uploads/empowering-dreams', $imageName);
             $imagePath = 'uploads/empowering-dreams/' . $imageName;
         }
 

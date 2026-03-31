@@ -350,7 +350,7 @@
                     <div class="col-md-4">
                         <label for="search" class="form-label">Search</label>
                         <input type="text" class="form-control" id="search" name="search" 
-                               placeholder="Search by name or Aadhar number..." 
+                               placeholder="Search by name, Aadhar number or application number..." 
                                value="{{ request('search') }}">
                     </div>
                     <div class="col-md-3">
@@ -370,8 +370,9 @@
                         </select>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-filter me-1"></i> Filter
+                        <button type="submit" class="btn w-100" 
+                                style="background-color: var(--primary-purple); color: white; border-radius: 8px; padding: 0.6rem 1rem; font-weight: 500;">
+                            <i class="fas fa-search me-1"></i> Filter
                         </button>
                     </div>
                 </div>
@@ -404,6 +405,9 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td>
                                     <strong>{{ $user->name }}</strong>
+                                    @if($user->application_no)
+                                        <br>{{ $user->application_no }}
+                                    @endif
                                 </td>
                                 <td>{{ $user->aadhar_card_number }}</td>
                                 <td>{{ $user->financial_asset_type

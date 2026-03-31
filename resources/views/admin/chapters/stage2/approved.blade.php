@@ -340,7 +340,7 @@
                     <div class="col-md-4">
                         <label for="search" class="form-label" style="font-weight: 500; color: var(--text-dark);">Search</label>
                         <input type="text" class="form-control" id="search" name="search" 
-                               placeholder="Search by name or Aadhar number..." 
+                               placeholder="Search by name or Aadhar number or application number..." 
                                value="{{ request('search') }}"
                                style="border-radius: 8px; border: 1px solid var(--border-color); padding: 0.6rem 1rem;">
                     </div>
@@ -397,6 +397,9 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td>
                                     <strong>{{ $user->name }}</strong>
+                                    @if($user->application_no)
+                                        <br>{{ $user->application_no }}
+                                    @endif
                                 </td>
                                 <td>{{ $user->aadhar_card_number }}</td>
                                 <td>{{ $user->financial_asset_type 

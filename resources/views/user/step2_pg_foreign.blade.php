@@ -236,7 +236,7 @@
                                     <div class="row">
                                         <!-- Left Column -->
                                         <div class="col-md-6">
-                                            
+
                                             <div class="form-group mb-3">
                                                 <label for="university_name">University Name <span
                                                         style="color: red;">*</span></label>
@@ -1451,7 +1451,7 @@
 
                 <div class="d-flex justify-content-between mt-4 mb-4">
                     <a href="{{ route('user.step1') }}" class="btn"
-                        style="background:#988DFF1F;color:gray;border:1px solid lightgray;" id="prevBtn">
+                        style="background:#988DFF1F;color:gray;border:1px solid lightgray;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
                             stroke="gray" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M15 18l-6-6 6-6" />
@@ -1490,28 +1490,28 @@
             function handleCollegeChange() {
                 const collegeSelect = document.getElementById('college_name');
                 const courseSelect = document.getElementById('course_name');
-                
+
                 if (collegeSelect && courseSelect) {
                     collegeSelect.addEventListener('change', function() {
                         const selectedOption = this.options[this.selectedIndex];
                         const coursesData = selectedOption.getAttribute('data-courses');
-                        
+
                         console.log('College changed, courses data:', coursesData);
-                        
+
                         // Get existing course_name from the data attribute (set by server)
                         const existingCourseName = courseSelect.getAttribute('data-existing-course');
                         console.log('Existing course name:', existingCourseName);
-                        
+
                         // Clear existing options
                         courseSelect.innerHTML = '<option value="" disabled selected>Select Course Name</option>';
-                        
+
                         // Check if courses data exists and is not empty
                         if (coursesData && coursesData !== 'null' && coursesData !== '' && coursesData !== '[]' && coursesData !== '{}') {
                             try {
                                 const coursesArray = JSON.parse(coursesData);
                                 // Handle both array and object formats
                                 const courses = Array.isArray(coursesArray) ? coursesArray : Object.values(coursesArray);
-                                
+
                                 if (courses && courses.length > 0) {
                                     courses.forEach(function(course) {
                                         if (course) {
@@ -1547,15 +1547,15 @@
                             }
                         }
                     });
-                    
+
                     if (collegeSelect.value) {
                         collegeSelect.dispatchEvent(new Event('change'));
                     }
                 }
             }
-            
+
             handleCollegeChange();
-            
+
             // Function to toggle qualification fields
             function toggleQualificationFields() {
                 const qualificationsSelect = document.querySelector('select[name="qualifications"]');
@@ -2541,10 +2541,10 @@
             const universitySelect = document.getElementById('university_name');
             const collegeSelect = document.getElementById('college_name');
             const courseSelect = document.getElementById('course_name');
-            
+
             // Store all college data with courses
             let allColleges = [];
-            
+
             if (collegeSelect) {
                 // Collect all college options with their data
                 const originalOptions = collegeSelect.querySelectorAll('option');
@@ -2571,13 +2571,13 @@
             // Function to filter colleges by university
             function filterCollegesByUniversity(selectedUniversity, preserveSelection = false) {
                 if (!collegeSelect) return;
-                
+
                 // Get current selection to preserve if possible
                 const currentValue = collegeSelect.value;
-                
+
                 // Clear existing options
                 collegeSelect.innerHTML = '<option value="" disabled selected>Select College Name</option>';
-                
+
                 // Filter and add matching colleges
                 allColleges.forEach(college => {
                     if (!selectedUniversity || college.university === selectedUniversity) {
@@ -2599,10 +2599,10 @@
             // Function to filter courses by college
             function filterCoursesByCollege(selectedCollegeValue, preserveSelection = false) {
                 if (!courseSelect) return;
-                
+
                 // Find the college in our stored data
                 const selectedCollege = allColleges.find(c => c.value === selectedCollegeValue);
-                
+
                 // If not found in stored data, try to get from current select options
                 if (!selectedCollege) {
                     const option = collegeSelect.querySelector('option[value="' + selectedCollegeValue + '"]');
@@ -2614,7 +2614,7 @@
                         } catch(e) {}
                     }
                 }
-                
+
                 if (selectedCollege && selectedCollege.courses && selectedCollege.courses.length > 0) {
                     populateCourseDropdown(selectedCollege.courses, preserveSelection, selectedCollegeValue);
                 }
@@ -2629,7 +2629,7 @@
                     option.textContent = course;
                     courseSelect.appendChild(option);
                 });
-                
+
                 // Restore selection if needed
                 if (preserveSelection && currentValue) {
                     courseSelect.value = currentValue;
@@ -2650,11 +2650,11 @@
                 const selectedUniversity = universitySelect.value;
                 const savedCollege = collegeSelect ? collegeSelect.value : '';
                 const savedCourse = courseSelect ? courseSelect.value : '';
-                
+
                 if (selectedUniversity) {
                     // Filter colleges by university and preserve the saved selection
                     filterCollegesByUniversity(selectedUniversity, true);
-                    
+
                     // If there's a saved college, load its courses
                     if (savedCollege) {
                         filterCoursesByCollege(savedCollege, true);
@@ -2671,3 +2671,4 @@
         });
     </script>
 @endsection
+

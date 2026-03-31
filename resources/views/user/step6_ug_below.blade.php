@@ -760,7 +760,7 @@
                                 <!-- End Documents Section -->
 
                                 <div class="d-flex justify-content-between mt-4 mb-4">
-                                    <a href="{{ route('user.step6') }}" class="btn"
+                                    <a href="{{ route('user.step4') }}" class="btn"
                                         style="background:#988DFF1F;color:gray;border:1px solid lightgray;">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
                                             stroke="gray" stroke-width="2" viewBox="0 0 24 24">

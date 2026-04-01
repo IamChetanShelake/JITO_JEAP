@@ -3,7 +3,7 @@
 @section('content')
     <section>
         <div class="desktop-margin" style="position: relative; background-color: #393186; padding: 80px 0;">
-            
+
             <style>
                 /* Marquee Animation for Note */
                 .marquee-container {
@@ -12,13 +12,13 @@
                     white-space: nowrap;
                     position: relative;
                 }
-                
+
                 .marquee-content {
                     display: inline-block;
                     animation: marquee 50s linear infinite;
                     padding-left: 100%;
                 }
-                
+
                 .marquee-content:hover {
                     animation-play-state: paused;
                 }
@@ -117,7 +117,7 @@
         </div>
         @endforeach
     </div>
-    
+
     {{-- ADDED ONE SINGLE LINE HERE --}}
     <div class="dotted-connector"></div>
 </div>
@@ -141,8 +141,8 @@
     position: absolute;
     top: 40px;
     /* Adjusted to start at the first icon and end at the last icon */
-    left: 12%; 
-    width: 76%; 
+    left: 12%;
+    width: 76%;
     height: 3px;
     background-image: radial-gradient(circle, white 2px, transparent 2px);
     background-size: 10px 1px;
@@ -241,7 +241,7 @@
                             if ($totalCount >= 6) { $cardWidth = '16.666%'; } elseif ($totalCount == 5) { $cardWidth = '20%'; } elseif ($totalCount == 4) { $cardWidth = '25%'; } elseif ($totalCount == 3) { $cardWidth = '33.333%'; } else { $cardWidth = '25%'; }
                             $iconSvg = '';
                             $iconImage = null;
-                            
+
                             // Check for uploaded image first
                             if (!empty($instruction->icon_image)) {
                                 $iconImage = asset('storage/' . $instruction->icon_image);
@@ -399,7 +399,7 @@
             </div>
         </div>
     </section>
-    
+
     {{-- ============================= FIXED WORKING COMMITTEE MODAL ============================= --}}
     @foreach($workingCommittee as $member)
     @if(!empty($member->description))
@@ -407,11 +407,11 @@
         {{-- REMOVED modal-sm, added centered --}}
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content" style="background: #393186; border-radius: 15px; border: 2px solid #FFD800; max-width: 600px; margin: 1.75rem auto;">
-                
+
                 {{-- HEADER: Image, Name, Designation --}}
                 <div class="modal-header text-center" style="border-bottom: 1px solid rgba(255,255,255,0.2); display: block; position: relative; padding: 30px;">
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; top: 15px; right: 15px;"></button>
-                    
+
                     {{-- Image Logic Fixed and Enlarged --}}
                     <div style="margin-bottom: 15px;">
                         @if(!empty($member->photo))
@@ -420,25 +420,25 @@
                             <img src="{{ asset('website/images/wc11.png') }}" alt="{{ $member->name }}" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #FFD800;">
                         @endif
                     </div>
-                    
+
                     <h5 class="modal-title" id="wcModalLabel{{ $member->id }}" style="color: #FFD800; font-family: 'Times New Roman', Times, serif; font-size: 24px; font-weight: bold;">
                         {{ $member->name }}
                     </h5>
-                    
+
                     @if(!empty($member->designation))
                         <p style="color: #ffffff; font-size: 16px; margin: 5px 0 0;">
                             {{ $member->designation }}
                         </p>
                     @endif
                 </div>
-                
+
                 {{-- BODY: Description --}}
                 <div class="modal-body" style="padding: 25px;">
                     <p style="color: #ffffff; font-size: 15px; line-height: 1.7; text-align: justify; margin-bottom: 0; white-space: pre-wrap;">
                         {!! nl2br(e($member->description)) !!}
                     </p>
                 </div>
-                
+
                 {{-- FOOTER: Close Button --}}
                 <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.2); justify-content: center; padding: 15px;">
                     <button type="button" class="btn" data-bs-dismiss="modal" style="background: #FFD800; color: #393186; font-weight: bold; padding: 10px 40px; border-radius: 5px;">
@@ -450,7 +450,7 @@
     </div>
     @endif
     @endforeach
-    
+
     {{-- =============================ABOUT US SECTION================= --}}
     <section style="padding: 100px 0; background: #ffffff;">
         <div class="container" style="display: flex; flex-direction: column; gap: 30px;">
@@ -609,7 +609,7 @@
         .testimonial-card:hover p { color: #ffffff !important; }
         .testimonial-card:hover .testimonial-img { border-color: #FFD800 !important; }
     </style>
-    
+
     {{-- ============================= OUR TESTIMONIALS SECTION ============================= --}}
     <section>
         <div class="container mt-5 mb-5">
@@ -629,7 +629,7 @@
             <div class="row justify-content-center align-items-stretch">
                 @forelse($testimonials as $index => $testimonial)
                 @php
-                    $bgColors = ['#ffffff', '#ffffff', '#ffffff']; 
+                    $bgColors = ['#ffffff', '#ffffff', '#ffffff'];
                     $titleColors = ['#393186', '#393186', '#393186'];
                     $borderColors = ['#D7D7D7', '#D7D7D7', '#D7D7D7'];
                     $textColors = ['#5B5B5B', '#5B5B5B', '#5B5B5B'];

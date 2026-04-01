@@ -436,11 +436,11 @@ class AdminController extends Controller
                 if (isset($featureImageFiles[$index]) && $featureImageFiles[$index]->isValid()) {
                     // Delete old feature image if exists
                     if (isset($featureImages[$index]) && file_exists(public_path($featureImages[$index]))) {
-                        unlink(public_path($featureImages[$index]));
+                        unlink($featureImages[$index]);
                     }
                     $file = $featureImageFiles[$index];
                     $fileName = time() . '_feature_' . $index . '_' . $file->getClientOriginalName();
-                    $file->move(public_path('uploads/empowering-dreams/features'), $fileName);
+                    $file->move('uploads/empowering-dreams/features', $fileName);
                     $featureImages[$index] = 'uploads/empowering-dreams/features/' . $fileName;
                 }
             }
@@ -470,7 +470,7 @@ class AdminController extends Controller
 
         // Delete image if exists
         if ($dream->image && file_exists(public_path($dream->image))) {
-            unlink(public_path($dream->image));
+            unlink($dream->image);
         }
 
         $dream->delete();
@@ -787,7 +787,7 @@ class AdminController extends Controller
             if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
                 $photo = $request->file('photo');
                 $photoName = time() . '_' . $photo->getClientOriginalName();
-                $photo->move(public_path('uploads/working-committee'), $photoName);
+                $photo->move('uploads/working-committee', $photoName);
                 $photoPath = 'uploads/working-committee/' . $photoName;
             }
 
@@ -832,11 +832,11 @@ class AdminController extends Controller
             if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
                 // Delete old photo if exists
                 if ($member->photo && file_exists(public_path($member->photo))) {
-                    unlink(public_path($member->photo));
+                    unlink($member->photo);
                 }
                 $photo = $request->file('photo');
                 $photoName = time() . '_' . $photo->getClientOriginalName();
-                $photo->move(public_path('uploads/working-committee'), $photoName);
+                $photo->move('uploads/working-committee', $photoName);
                 $member->photo = 'uploads/working-committee/' . $photoName;
             }
 
@@ -864,7 +864,7 @@ class AdminController extends Controller
 
             // Delete photo if exists
             if ($member->photo && file_exists(public_path($member->photo))) {
-                unlink(public_path($member->photo));
+                unlink($member->photo);
             }
 
             $member->delete();
@@ -908,7 +908,7 @@ class AdminController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('uploads/empowering-dreams'), $imageName);
+            $image->move('uploads/empowering-dreams', $imageName);
             $imagePath = 'uploads/empowering-dreams/' . $imageName;
         }
 
@@ -951,11 +951,11 @@ class AdminController extends Controller
         $imagePath = $dream->image;
         if ($request->hasFile('image')) {
             if ($dream->image && file_exists(public_path($dream->image))) {
-                unlink(public_path($dream->image));
+                unlink($dream->image);
             }
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('uploads/empowering-dreams'), $imageName);
+            $image->move('uploads/empowering-dreams', $imageName);
             $imagePath = 'uploads/empowering-dreams/' . $imageName;
         }
 
@@ -983,7 +983,7 @@ class AdminController extends Controller
         $dream = EmpoweringDream::on('admin_panel')->findOrFail($id);
 
         if ($dream->image && file_exists(public_path($dream->image))) {
-            unlink(public_path($dream->image));
+            unlink($dream->image);
         }
 
         $dream->delete();
@@ -1016,7 +1016,7 @@ class AdminController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('uploads/achievement-impact'), $imageName);
+            $image->move('uploads/achievement-impact', $imageName);
             $imagePath = 'uploads/achievement-impact/' . $imageName;
         }
 
@@ -1049,11 +1049,11 @@ class AdminController extends Controller
         $imagePath = $achievement->image;
         if ($request->hasFile('image')) {
             if ($achievement->image && file_exists(public_path($achievement->image))) {
-                unlink(public_path($achievement->image));
+                unlink($achievement->image);
             }
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('uploads/achievement-impact'), $imageName);
+            $image->move('uploads/achievement-impact', $imageName);
             $imagePath = 'uploads/achievement-impact/' . $imageName;
         }
 
@@ -1075,7 +1075,7 @@ class AdminController extends Controller
         $achievement = AchievementImpact::findOrFail($id);
 
         if ($achievement->image && file_exists(public_path($achievement->image))) {
-            unlink(public_path($achievement->image));
+            unlink($achievement->image);
         }
 
         $achievement->delete();
@@ -1105,7 +1105,7 @@ class AdminController extends Controller
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('website/photo-gallery'), $imageName);
+                $image->move('website/photo-gallery', $imageName);
                 $imagePaths[] = 'website/photo-gallery/' . $imageName;
             }
         }
@@ -1131,7 +1131,7 @@ class AdminController extends Controller
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('website/photo-gallery'), $imageName);
+                $image->move('website/photo-gallery', $imageName);
                 $imagePaths[] = 'website/photo-gallery/' . $imageName;
             }
         }
@@ -1154,7 +1154,7 @@ class AdminController extends Controller
         $images = json_decode($gallery->images, true) ?? [];
         foreach ($images as $image) {
             if (file_exists(public_path($image))) {
-                unlink(public_path($image));
+                unlink($image);
             }
         }
 
@@ -1192,7 +1192,7 @@ class AdminController extends Controller
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 $image = $request->file('image');
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('uploads/testimonials'), $imageName);
+                $image->move('uploads/testimonials', $imageName);
                 $imagePath = 'uploads/testimonials/' . $imageName;
             }
 
@@ -1242,11 +1242,11 @@ class AdminController extends Controller
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 // Delete old image if exists
                 if ($testimonial->image && file_exists(public_path($testimonial->image))) {
-                    unlink(public_path($testimonial->image));
+                    unlink($testimonial->image);
                 }
                 $image = $request->file('image');
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('uploads/testimonials'), $imageName);
+                $image->move('uploads/testimonials', $imageName);
                 $imagePath = 'uploads/testimonials/' . $imageName;
             }
 
@@ -1279,7 +1279,7 @@ class AdminController extends Controller
 
             // Delete image if exists
             if ($testimonial->image && file_exists(public_path($testimonial->image))) {
-                unlink(public_path($testimonial->image));
+                unlink($testimonial->image);
             }
 
             $testimonial->delete();
@@ -1319,7 +1319,7 @@ class AdminController extends Controller
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 $image = $request->file('image');
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('uploads/success-stories'), $imageName);
+                $image->move('uploads/success-stories', $imageName);
                 $imagePath = 'uploads/success-stories/' . $imageName;
             }
 
@@ -1363,11 +1363,11 @@ class AdminController extends Controller
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 // Delete old image if exists
                 if ($story->image && file_exists(public_path($story->image))) {
-                    unlink(public_path($story->image));
+                    unlink($story->image);
                 }
                 $image = $request->file('image');
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('uploads/success-stories'), $imageName);
+                $image->move('uploads/success-stories', $imageName);
                 $imagePath = 'uploads/success-stories/' . $imageName;
             }
 
@@ -1397,7 +1397,7 @@ class AdminController extends Controller
 
             // Delete image if exists
             if ($story->image && file_exists(public_path($story->image))) {
-                unlink(public_path($story->image));
+                unlink($story->image);
             }
 
             $story->delete();
@@ -1449,7 +1449,7 @@ class AdminController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('uploads/about-jito'), $imageName);
+            $image->move('uploads/about-jito', $imageName);
             $imagePath = 'uploads/about-jito/' . $imageName;
         }
 
@@ -1487,11 +1487,11 @@ class AdminController extends Controller
         $imagePath = $item->image;
         if ($request->hasFile('image')) {
             if ($item->image && file_exists(public_path($item->image))) {
-                unlink(public_path($item->image));
+                unlink($item->image);
             }
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('uploads/about-jito'), $imageName);
+            $image->move('uploads/about-jito', $imageName);
             $imagePath = 'uploads/about-jito/' . $imageName;
         }
 
@@ -1515,7 +1515,7 @@ class AdminController extends Controller
     {
         $item = AdminAboutJitoWebsite::findOrFail($id);
         if ($item->image && file_exists(public_path($item->image))) {
-            unlink(public_path($item->image));
+            unlink($item->image);
         }
         $item->delete();
 
@@ -1605,7 +1605,7 @@ class AdminController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time().'_'.$image->getClientOriginalName();
-            $image->move(public_path('uploads/jeap'), $imageName);
+            $image->move('uploads/jeap', $imageName);
             $imagePath = 'uploads/jeap/'.$imageName;
         }
 
@@ -1615,7 +1615,7 @@ class AdminController extends Controller
             foreach ($request->file('images') as $img) {
                 if ($img) {
                     $imageName = time().'_'.uniqid().'_'.$img->getClientOriginalName();
-                    $img->move(public_path('uploads/jeap'), $imageName);
+                    $img->move('uploads/jeap', $imageName);
                     $imagesPaths[] = 'uploads/jeap/'.$imageName;
                 }
             }
@@ -1660,11 +1660,11 @@ class AdminController extends Controller
 
         if ($request->hasFile('image')) {
             if ($item->image && file_exists(public_path($item->image))) {
-                unlink(public_path($item->image));
+                unlink($item->image);
             }
             $image = $request->file('image');
             $imageName = time().'_'.$image->getClientOriginalName();
-            $image->move(public_path('uploads/jeap'), $imageName);
+            $image->move('uploads/jeap', $imageName);
             $imagePath = 'uploads/jeap/'.$imageName;
         }
 
@@ -1674,7 +1674,7 @@ class AdminController extends Controller
             foreach ($request->file('images') as $img) {
                 if ($img) {
                     $imageName = time() . '_' . uniqid() . '_' . $img->getClientOriginalName();
-                    $img->move(public_path('uploads/jeap'), $imageName);
+                    $img->move('uploads/jeap', $imageName);
                     $imagesPaths[] = 'uploads/jeap/' . $imageName;
                 }
             }
@@ -1709,14 +1709,14 @@ class AdminController extends Controller
         $item = \App\Models\JeapWebsite::findOrFail($id);
 
         if ($item->image && file_exists(public_path($item->image))) {
-            unlink(public_path($item->image));
+            unlink($item->image);
         }
 
         // Delete additional images
         if ($item->images) {
             foreach ($item->images as $img) {
                 if (file_exists(public_path($img))) {
-                    unlink(public_path($img));
+                    unlink($img);
                 }
             }
         }
@@ -1739,7 +1739,7 @@ class AdminController extends Controller
 
             // Delete the file
             if (file_exists(public_path($imagePath))) {
-                unlink(public_path($imagePath));
+                unlink($imagePath);
             }
 
             // Remove from array
@@ -1778,7 +1778,7 @@ class AdminController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time().'_'.$image->getClientOriginalName();
-            $image->move(public_path('uploads/board-of-directors'), $imageName);
+            $image->move('uploads/board-of-directors', $imageName);
             $imagePath = 'uploads/board-of-directors/'.$imageName;
         }
 
@@ -1810,11 +1810,11 @@ class AdminController extends Controller
 
         if ($request->hasFile('image')) {
             if ($item->image && file_exists(public_path($item->image))) {
-                unlink(public_path($item->image));
+                unlink($item->image);
             }
             $image = $request->file('image');
             $imageName = time().'_'.$image->getClientOriginalName();
-            $image->move(public_path('uploads/board-of-directors'), $imageName);
+            $image->move('uploads/board-of-directors', $imageName);
             $imagePath = 'uploads/board-of-directors/'.$imageName;
         }
 
@@ -1836,7 +1836,7 @@ class AdminController extends Controller
         $item = BoardOfDirectors::findOrFail($id);
 
         if ($item->image && file_exists(public_path($item->image))) {
-            unlink(public_path($item->image));
+            unlink($item->image);
         }
 
         $item->delete();
@@ -1870,7 +1870,7 @@ class AdminController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time().'_'.$image->getClientOriginalName();
-            $image->move(public_path('uploads/zone-chairmen'), $imageName);
+            $image->move('uploads/zone-chairmen', $imageName);
             $imagePath = 'uploads/zone-chairmen/'.$imageName;
         }
 
@@ -1902,11 +1902,11 @@ class AdminController extends Controller
 
         if ($request->hasFile('image')) {
             if ($item->image && file_exists(public_path($item->image))) {
-                unlink(public_path($item->image));
+                unlink($item->image);
             }
             $image = $request->file('image');
             $imageName = time().'_'.$image->getClientOriginalName();
-            $image->move(public_path('uploads/zone-chairmen'), $imageName);
+            $image->move('uploads/zone-chairmen', $imageName);
             $imagePath = 'uploads/zone-chairmen/'.$imageName;
         }
 
@@ -1928,7 +1928,7 @@ class AdminController extends Controller
         $item = ZoneChairmen::findOrFail($id);
 
         if ($item->image && file_exists(public_path($item->image))) {
-            unlink(public_path($item->image));
+            unlink($item->image);
         }
 
         $item->delete();
@@ -1969,7 +1969,7 @@ class AdminController extends Controller
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 $image = $request->file('image');
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('uploads/testimonials'), $imageName);
+                $image->move('uploads/testimonials', $imageName);
                 $imagePath = 'uploads/testimonials/' . $imageName;
             }
 
@@ -2041,11 +2041,11 @@ class AdminController extends Controller
             $imagePath = $item->image;
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 if ($item->image && file_exists(public_path($item->image))) {
-                    unlink(public_path($item->image));
+                    unlink($item->image);
                 }
                 $image = $request->file('image');
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('uploads/testimonials'), $imageName);
+                $image->move('uploads/testimonials', $imageName);
                 $imagePath = 'uploads/testimonials/' . $imageName;
             }
 
@@ -2092,7 +2092,7 @@ class AdminController extends Controller
             }
 
             if ($item->image && file_exists(public_path($item->image))) {
-                unlink(public_path($item->image));
+                unlink($item->image);
             }
 
             $item->delete();
@@ -6925,13 +6925,13 @@ class AdminController extends Controller
         if ($request->hasFile('first_cheque_image')) {
             // Delete old image if exists
             if ($pdcDetail->first_cheque_image && file_exists(public_path($pdcDetail->first_cheque_image))) {
-                unlink(public_path($pdcDetail->first_cheque_image));
+                unlink($pdcDetail->first_cheque_image);
             }
 
             // Upload new image
             $file = $request->file('first_cheque_image');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('pdc_cheques'), $filename);
+            $file->move('pdc_cheques', $filename);
             $chequeImagePath = 'pdc_cheques/' . $filename;
         }
 

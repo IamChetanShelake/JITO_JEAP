@@ -622,6 +622,8 @@ Route::get('/industrial', [WebsiteController::class, 'industrial'])->name('indus
 
 
 Route::get('/contact', [WebsiteController::class, 'contact'])->name('contact');
+Route::get('/privacy-policy', [WebsiteController::class, 'privacyPolicy'])->name('privacy.policy');
+Route::get('/terms-conditions', [WebsiteController::class, 'termsConditions'])->name('terms.conditions');
 Route::post('/contact', [WebsiteController::class, 'contactStore'])->name('contact.store');
 
 

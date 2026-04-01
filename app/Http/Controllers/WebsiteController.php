@@ -215,4 +215,14 @@ class WebsiteController extends Controller
 
         return redirect()->route('contact')->with('success', 'Your message has been sent successfully! We will get back to you soon.');
     }
+
+    public function privacyPolicy()
+    {
+        return view('website.privacy-policy');
+    }
+
+    public function termsConditions()
+    {
+        return view('website.terms-conditions');
+    }
 }

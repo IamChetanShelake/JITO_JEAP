@@ -252,7 +252,7 @@ class AdminController extends Controller
         $imagePath = $dream->image;
         if ($request->hasFile('image')) {
             // Delete old image if exists
-            if ($dream->image && file_exists($dream->image)) {
+            if ($dream->image && file_exists(public_path($dream->image))) {
                 unlink($dream->image);
             }
             $image = $request->file('image');
@@ -270,12 +270,12 @@ class AdminController extends Controller
             if (!empty($feature)) {
                 if (isset($featureImageFiles[$index]) && $featureImageFiles[$index]->isValid()) {
                     // Delete old feature image if exists
-                    if (isset($featureImages[$index]) && file_exists($featureImages[$index])) {
-                        unlink($featureImages[$index]);
+                    if (isset($featureImages[$index]) && file_exists(public_path($featureImages[$index]))) {
+                        unlink(public_path($featureImages[$index]));
                     }
                     $file = $featureImageFiles[$index];
                     $fileName = time() . '_feature_' . $index . '_' . $file->getClientOriginalName();
-                    $file->move('uploads/empowering-dreams/features', $fileName);
+                    $file->move(public_path('uploads/empowering-dreams/features'), $fileName);
                     $featureImages[$index] = 'uploads/empowering-dreams/features/' . $fileName;
                 }
             }
@@ -304,8 +304,8 @@ class AdminController extends Controller
         $dream = EmpoweringDream::on('admin_panel')->findOrFail($id);
 
         // Delete image if exists
-        if ($dream->image && file_exists($dream->image)) {
-            unlink($dream->image);
+        if ($dream->image && file_exists(public_path($dream->image))) {
+            unlink(public_path($dream->image));
         }
 
         $dream->delete();
@@ -359,10 +359,31 @@ class AdminController extends Controller
                 } else {
                     // It's an image file (png, jpg, jpeg, gif, webp, etc.)
                     try {
-                        $filename = 'key-instruction-' . time() . '.' . $extension;
-                        $path = $file->storeAs('key-instructions', $filename, 'public');
-                        $iconImage = $path;
-                        \Illuminate\Support\Facades\Log::info('Icon image stored at: ' . $path);
+                        // $filename = 'key-instruction-' . time() . '.' . $extension;
+                        // $path = $file->storeAs('key-instructions', $filename, 'public');
+                        // $iconImage = $path;
+                        // \Illuminate\Support\Facades\Log::info('Icon image stored at: ' . $path);
+                        
+                      $filename = 'key-instruction-' . time() . '.' . $extension;
+
+                    // ✅ define properly
+                    $destinationPath = 'key-instructions';
+                    
+                    // folder create
+                    if (!file_exists($destinationPath)) {
+                        mkdir($destinationPath, 0777, true);
+                    }
+                    
+                    // move file
+                    $file->move($destinationPath, $filename);
+                    
+                    // store path
+                    $iconImage = 'key-instructions/' . $filename;
+                    
+                    // log
+                    //\Illuminate\Support\Facades\Log::info('Icon image stored at: ' . $iconImage);
+
+
                     } catch (\Exception $e) {
                         \Illuminate\Support\Facades\Log::error('Error storing icon image: ' . $e->getMessage());
                     }
@@ -399,71 +420,169 @@ class AdminController extends Controller
     /**
      * Update Key Instruction
      */
+    // public function updateKeyInstruction(\Illuminate\Http\Request $request, $id)
+    // {
+    //     $validated = $request->validate([
+    //         'title' => 'required|string|max:255',
+    //         'description' => 'required|string',
+    //         'color' => 'required|string|max:20',
+    //         'display_order' => 'nullable|integer|min:0',
+    //     ]);
+
+    //     $keyInstruction = \App\Models\KeyInstruction::findOrFail($id);
+
+    //     // Handle file upload if a new file is uploaded
+    //     if ($request->hasFile('icon') && $request->file('icon')->isValid()) {
+    //         $file = $request->file('icon');
+    //         $extension = $file->getClientOriginalExtension();
+
+    //         // Check if it's an SVG file
+    //         if (in_array(strtolower($extension), ['svg', 'xml'])) {
+    //             try {
+    //                 $iconSvg = file_get_contents($file->getRealPath());
+
+    //                 // Modify SVG to set proper sizing
+    //                 $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
+    //                 $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
+    //                 $iconSvg = preg_replace('/(<svg)/i', '$1 width="40" height="40"', $iconSvg);
+
+    //                 $keyInstruction->icon_svg = $iconSvg;
+    //                 $keyInstruction->icon_image = null;
+    //                 $keyInstruction->icon = 'custom';
+    //             } catch (\Exception $e) {
+    //                 // If there's an error, keep the existing icon
+    //                 if ($request->has('existing_icon_svg')) {
+    //                     $keyInstruction->icon_svg = $request->input('existing_icon_svg');
+    //                 }
+    //             }
+    //         } else {
+    //             // It's an image file (png, jpg, jpeg, gif, webp, etc.)
+    //             try {
+    //                 // Delete old image if exists
+    //                 if ($keyInstruction->icon_image) {
+    //                     \Illuminate\Support\Facades\Storage::disk('public')->delete($keyInstruction->icon_image);
+    //                 }
+
+    //                 // $filename = 'key-instruction-' . time() . '.' . $extension;
+    //                 // $path = $file->storeAs('key-instructions', $filename, 'public');
+    //                 // $keyInstruction->icon_image = $path;
+    //                 // $keyInstruction->icon_svg = null;
+    //                 // $keyInstruction->icon = 'custom';
+    //               $filename = 'key-instruction-' . time() . '.' . $extension;
+
+    //                 // ✅ define properly
+    //                 $destinationPath = 'key-instructions';
+                    
+    //                 // folder create
+    //                 if (!file_exists($destinationPath)) {
+    //                     mkdir($destinationPath, 0777, true);
+    //                 }
+                    
+    //                 // move file
+    //                 $file->move($destinationPath, $filename);
+                    
+    //                 // store path
+    //                 $iconImage = 'key-instructions/' . $filename;
+
+
+    //             } catch (\Exception $e) {
+    //                 \Illuminate\Support\Facades\Log::error('Error storing icon image: ' . $e->getMessage());
+    //             }
+    //         }
+    //     } elseif ($request->has('existing_icon_svg')) {
+    //         // Keep existing icon SVG
+    //         $keyInstruction->icon_svg = $request->input('existing_icon_svg');
+    //     }
+
+    //     $keyInstruction->title = $validated['title'];
+    //     $keyInstruction->description = $validated['description'];
+    //     $keyInstruction->color = $validated['color'];
+    //     $keyInstruction->display_order = $validated['display_order'] ?? 0;
+    //     $keyInstruction->save();
+
+    //     return redirect()->route('admin.website.home.key-instruction')->with('success', 'Key Instruction updated successfully!');
+    // }
+    
+    
     public function updateKeyInstruction(\Illuminate\Http\Request $request, $id)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'color' => 'required|string|max:20',
-            'display_order' => 'nullable|integer|min:0',
-        ]);
+{
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'required|string',
+        'color' => 'required|string|max:20',
+        'display_order' => 'nullable|integer|min:0',
+    ]);
 
-        $keyInstruction = \App\Models\KeyInstruction::findOrFail($id);
+    $keyInstruction = \App\Models\KeyInstruction::findOrFail($id);
 
-        // Handle file upload if a new file is uploaded
-        if ($request->hasFile('icon') && $request->file('icon')->isValid()) {
-            $file = $request->file('icon');
-            $extension = $file->getClientOriginalExtension();
+    if ($request->hasFile('icon') && $request->file('icon')->isValid()) {
+        $file = $request->file('icon');
+        $extension = strtolower($file->getClientOriginalExtension());
 
-            // Check if it's an SVG file
-            if (in_array(strtolower($extension), ['svg', 'xml'])) {
-                try {
-                    $iconSvg = file_get_contents($file->getRealPath());
+        // ✅ SVG Handling
+        if (in_array($extension, ['svg', 'xml'])) {
+            try {
+                $iconSvg = file_get_contents($file->getRealPath());
 
-                    // Modify SVG to set proper sizing
-                    $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
-                    $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
-                    $iconSvg = preg_replace('/(<svg)/i', '$1 width="40" height="40"', $iconSvg);
+                $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
+                $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
+                $iconSvg = preg_replace('/(<svg)/i', '$1 width="40" height="40"', $iconSvg);
 
-                    $keyInstruction->icon_svg = $iconSvg;
-                    $keyInstruction->icon_image = null;
-                    $keyInstruction->icon = 'custom';
-                } catch (\Exception $e) {
-                    // If there's an error, keep the existing icon
-                    if ($request->has('existing_icon_svg')) {
-                        $keyInstruction->icon_svg = $request->input('existing_icon_svg');
-                    }
-                }
-            } else {
-                // It's an image file (png, jpg, jpeg, gif, webp, etc.)
-                try {
-                    // Delete old image if exists
-                    if ($keyInstruction->icon_image) {
-                        \Illuminate\Support\Facades\Storage::disk('public')->delete($keyInstruction->icon_image);
-                    }
+                $keyInstruction->icon_svg = $iconSvg;
+                $keyInstruction->icon_image = null;
+                $keyInstruction->icon = 'custom';
 
-                    $filename = 'key-instruction-' . time() . '.' . $extension;
-                    $path = $file->storeAs('key-instructions', $filename, 'public');
-                    $keyInstruction->icon_image = $path;
-                    $keyInstruction->icon_svg = null;
-                    $keyInstruction->icon = 'custom';
-                } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::error('Error storing icon image: ' . $e->getMessage());
-                }
+            } catch (\Exception $e) {
+                \Log::error('SVG Error: ' . $e->getMessage());
             }
-        } elseif ($request->has('existing_icon_svg')) {
-            // Keep existing icon SVG
-            $keyInstruction->icon_svg = $request->input('existing_icon_svg');
+
+        } else {
+            // ✅ Image Handling
+            try {
+                // 🔥 delete old image (public folder)
+                if ($keyInstruction->icon_image) {
+                    $oldPath = public_path($keyInstruction->icon_image);
+                    if (file_exists($oldPath)) {
+                        unlink($oldPath);
+                    }
+                }
+
+                $filename = 'key-instruction-' . time() . '.' . $extension;
+
+                // ✅ correct path
+                $destinationPath = 'key-instructions';
+
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0777, true);
+                }
+
+                $file->move($destinationPath, $filename);
+
+                // ✅ store in DB
+                $keyInstruction->icon_image = 'key-instructions/' . $filename;
+                $keyInstruction->icon_svg = null;
+                $keyInstruction->icon = 'custom';
+
+            } catch (\Exception $e) {
+                \Log::error('Image Upload Error: ' . $e->getMessage());
+            }
         }
 
-        $keyInstruction->title = $validated['title'];
-        $keyInstruction->description = $validated['description'];
-        $keyInstruction->color = $validated['color'];
-        $keyInstruction->display_order = $validated['display_order'] ?? 0;
-        $keyInstruction->save();
-
-        return redirect()->route('admin.website.home.key-instruction')->with('success', 'Key Instruction updated successfully!');
+    } elseif ($request->has('existing_icon_svg')) {
+        $keyInstruction->icon_svg = $request->input('existing_icon_svg');
     }
+
+    // ✅
+    $keyInstruction->title = $validated['title'];
+    $keyInstruction->description = $validated['description'];
+    $keyInstruction->color = $validated['color'];
+    $keyInstruction->display_order = $validated['display_order'] ?? 0;
+
+    $keyInstruction->save();
+
+    return redirect()->route('admin.website.home.key-instruction')
+        ->with('success', 'Key Instruction updated successfully!');
+}
 
     /**
      * Delete Key Instruction
@@ -504,7 +623,7 @@ class AdminController extends Controller
             if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
                 $photo = $request->file('photo');
                 $photoName = time() . '_' . $photo->getClientOriginalName();
-                $photo->move('uploads/working-committee', $photoName);
+                $photo->move(public_path('uploads/working-committee'), $photoName);
                 $photoPath = 'uploads/working-committee/' . $photoName;
             }
 
@@ -548,12 +667,12 @@ class AdminController extends Controller
 
             if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
                 // Delete old photo if exists
-                if ($member->photo && file_exists($member->photo)) {
-                    unlink($member->photo);
+                if ($member->photo && file_exists(public_path($member->photo))) {
+                    unlink(public_path($member->photo));
                 }
                 $photo = $request->file('photo');
                 $photoName = time() . '_' . $photo->getClientOriginalName();
-                $photo->move('uploads/working-committee', $photoName);
+                $photo->move(public_path('uploads/working-committee'), $photoName);
                 $member->photo = 'uploads/working-committee/' . $photoName;
             }
 
@@ -580,8 +699,8 @@ class AdminController extends Controller
             $member = \App\Models\WorkingCommittee::findOrFail($id);
 
             // Delete photo if exists
-            if ($member->photo && file_exists($member->photo)) {
-                unlink($member->photo);
+            if ($member->photo && file_exists(public_path($member->photo))) {
+                unlink(public_path($member->photo));
             }
 
             $member->delete();
@@ -625,7 +744,7 @@ class AdminController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move('uploads/empowering-dreams', $imageName);
+            $image->move(public_path('uploads/empowering-dreams'), $imageName);
             $imagePath = 'uploads/empowering-dreams/' . $imageName;
         }
 
@@ -667,12 +786,12 @@ class AdminController extends Controller
 
         $imagePath = $dream->image;
         if ($request->hasFile('image')) {
-            if ($dream->image && file_exists($dream->image)) {
-                unlink($dream->image);
+            if ($dream->image && file_exists(public_path($dream->image))) {
+                unlink(public_path($dream->image));
             }
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move('uploads/empowering-dreams', $imageName);
+            $image->move(public_path('uploads/empowering-dreams'), $imageName);
             $imagePath = 'uploads/empowering-dreams/' . $imageName;
         }
 
@@ -699,8 +818,8 @@ class AdminController extends Controller
     {
         $dream = EmpoweringDream::on('admin_panel')->findOrFail($id);
 
-        if ($dream->image && file_exists($dream->image)) {
-            unlink($dream->image);
+        if ($dream->image && file_exists(public_path($dream->image))) {
+            unlink(public_path($dream->image));
         }
 
         $dream->delete();
@@ -733,7 +852,7 @@ class AdminController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move('uploads/achievement-impact', $imageName);
+            $image->move(public_path('uploads/achievement-impact'), $imageName);
             $imagePath = 'uploads/achievement-impact/' . $imageName;
         }
 
@@ -765,12 +884,12 @@ class AdminController extends Controller
 
         $imagePath = $achievement->image;
         if ($request->hasFile('image')) {
-            if ($achievement->image && file_exists($achievement->image)) {
-                unlink($achievement->image);
+            if ($achievement->image && file_exists(public_path($achievement->image))) {
+                unlink(public_path($achievement->image));
             }
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move('uploads/achievement-impact', $imageName);
+            $image->move(public_path('uploads/achievement-impact'), $imageName);
             $imagePath = 'uploads/achievement-impact/' . $imageName;
         }
 
@@ -791,8 +910,8 @@ class AdminController extends Controller
     {
         $achievement = AchievementImpact::findOrFail($id);
 
-        if ($achievement->image && file_exists($achievement->image)) {
-            unlink($achievement->image);
+        if ($achievement->image && file_exists(public_path($achievement->image))) {
+            unlink(public_path($achievement->image));
         }
 
         $achievement->delete();
@@ -822,7 +941,7 @@ class AdminController extends Controller
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move('website/photo-gallery', $imageName);
+                $image->move(public_path('website/photo-gallery'), $imageName);
                 $imagePaths[] = 'website/photo-gallery/' . $imageName;
             }
         }
@@ -848,7 +967,7 @@ class AdminController extends Controller
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move('website/photo-gallery', $imageName);
+                $image->move(public_path('website/photo-gallery'), $imageName);
                 $imagePaths[] = 'website/photo-gallery/' . $imageName;
             }
         }
@@ -870,8 +989,8 @@ class AdminController extends Controller
         // Delete images from storage
         $images = json_decode($gallery->images, true) ?? [];
         foreach ($images as $image) {
-            if (file_exists($image)) {
-                unlink($image);
+            if (file_exists(public_path($image))) {
+                unlink(public_path($image));
             }
         }
 
@@ -909,7 +1028,7 @@ class AdminController extends Controller
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 $image = $request->file('image');
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move('uploads/testimonials', $imageName);
+                $image->move(public_path('uploads/testimonials'), $imageName);
                 $imagePath = 'uploads/testimonials/' . $imageName;
             }
 
@@ -958,12 +1077,12 @@ class AdminController extends Controller
             $imagePath = $testimonial->image;
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 // Delete old image if exists
-                if ($testimonial->image && file_exists($testimonial->image)) {
-                    unlink($testimonial->image);
+                if ($testimonial->image && file_exists(public_path($testimonial->image))) {
+                    unlink(public_path($testimonial->image));
                 }
                 $image = $request->file('image');
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move('uploads/testimonials', $imageName);
+                $image->move(public_path('uploads/testimonials'), $imageName);
                 $imagePath = 'uploads/testimonials/' . $imageName;
             }
 
@@ -995,8 +1114,8 @@ class AdminController extends Controller
             $testimonial = \App\Models\OurTestimonial::findOrFail($id);
 
             // Delete image if exists
-            if ($testimonial->image && file_exists($testimonial->image)) {
-                unlink($testimonial->image);
+            if ($testimonial->image && file_exists(public_path($testimonial->image))) {
+                unlink(public_path($testimonial->image));
             }
 
             $testimonial->delete();
@@ -1036,7 +1155,7 @@ class AdminController extends Controller
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 $image = $request->file('image');
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move('uploads/success-stories', $imageName);
+                $image->move(public_path('uploads/success-stories'), $imageName);
                 $imagePath = 'uploads/success-stories/' . $imageName;
             }
 
@@ -1079,8 +1198,8 @@ class AdminController extends Controller
             $imagePath = $story->image;
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 // Delete old image if exists
-                if ($story->image && file_exists($story->image)) {
-                    unlink($story->image);
+                if ($story->image && file_exists(public_path($story->image))) {
+                    unlink(public_path($story->image));
                 }
                 $image = $request->file('image');
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
@@ -1166,7 +1285,7 @@ class AdminController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move('uploads/about-jito', $imageName);
+            $image->move(public_path('uploads/about-jito'), $imageName);
             $imagePath = 'uploads/about-jito/' . $imageName;
         }
 
@@ -1203,12 +1322,12 @@ class AdminController extends Controller
 
         $imagePath = $item->image;
         if ($request->hasFile('image')) {
-            if ($item->image && file_exists($item->image)) {
-                unlink($item->image);
+            if ($item->image && file_exists(public_path($item->image))) {
+                unlink(public_path($item->image));
             }
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move('uploads/about-jito', $imageName);
+            $image->move(public_path('uploads/about-jito'), $imageName);
             $imagePath = 'uploads/about-jito/' . $imageName;
         }
 
@@ -1231,8 +1350,8 @@ class AdminController extends Controller
     public function deleteAboutJito($id)
     {
         $item = AdminAboutJitoWebsite::findOrFail($id);
-        if ($item->image && file_exists($item->image)) {
-            unlink($item->image);
+        if ($item->image && file_exists(public_path($item->image))) {
+            unlink(public_path($item->image));
         }
         $item->delete();
 
@@ -1322,7 +1441,7 @@ class AdminController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time().'_'.$image->getClientOriginalName();
-            $image->move('uploads/jeap', $imageName);
+            $image->move(public_path('uploads/jeap'), $imageName);
             $imagePath = 'uploads/jeap/'.$imageName;
         }
 
@@ -1332,7 +1451,7 @@ class AdminController extends Controller
             foreach ($request->file('images') as $img) {
                 if ($img) {
                     $imageName = time().'_'.uniqid().'_'.$img->getClientOriginalName();
-                    $img->move('uploads/jeap', $imageName);
+                    $img->move(public_path('uploads/jeap'), $imageName);
                     $imagesPaths[] = 'uploads/jeap/'.$imageName;
                 }
             }
@@ -1376,12 +1495,12 @@ class AdminController extends Controller
         $imagePath = $item->image;
 
         if ($request->hasFile('image')) {
-            if ($item->image && file_exists($item->image)) {
-                unlink($item->image);
+            if ($item->image && file_exists(public_path($item->image))) {
+                unlink(public_path($item->image));
             }
             $image = $request->file('image');
             $imageName = time().'_'.$image->getClientOriginalName();
-            $image->move('uploads/jeap', $imageName);
+            $image->move(public_path('uploads/jeap'), $imageName);
             $imagePath = 'uploads/jeap/'.$imageName;
         }
 
@@ -1425,15 +1544,15 @@ class AdminController extends Controller
     {
         $item = \App\Models\JeapWebsite::findOrFail($id);
 
-        if ($item->image && file_exists($item->image)) {
-            unlink($item->image);
+        if ($item->image && file_exists(public_path($item->image))) {
+            unlink(public_path($item->image));
         }
 
         // Delete additional images
         if ($item->images) {
             foreach ($item->images as $img) {
-                if (file_exists($img)) {
-                    unlink($img);
+                if (file_exists(public_path($img))) {
+                    unlink(public_path($img));
                 }
             }
         }
@@ -1455,8 +1574,8 @@ class AdminController extends Controller
             $imagePath = $item->images[$imageIndex];
 
             // Delete the file
-            if (file_exists($imagePath)) {
-                unlink($imagePath);
+            if (file_exists(public_path($imagePath))) {
+                unlink(public_path($imagePath));
             }
 
             // Remove from array
@@ -1495,7 +1614,7 @@ class AdminController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time().'_'.$image->getClientOriginalName();
-            $image->move('uploads/board-of-directors', $imageName);
+            $image->move(public_path('uploads/board-of-directors'), $imageName);
             $imagePath = 'uploads/board-of-directors/'.$imageName;
         }
 
@@ -1526,12 +1645,12 @@ class AdminController extends Controller
         $imagePath = $item->image;
 
         if ($request->hasFile('image')) {
-            if ($item->image && file_exists($item->image)) {
-                unlink($item->image);
+            if ($item->image && file_exists(public_path($item->image))) {
+                unlink(public_path($item->image));
             }
             $image = $request->file('image');
             $imageName = time().'_'.$image->getClientOriginalName();
-            $image->move('uploads/board-of-directors', $imageName);
+            $image->move(public_path('uploads/board-of-directors'), $imageName);
             $imagePath = 'uploads/board-of-directors/'.$imageName;
         }
 
@@ -1552,8 +1671,8 @@ class AdminController extends Controller
     {
         $item = BoardOfDirectors::findOrFail($id);
 
-        if ($item->image && file_exists($item->image)) {
-            unlink($item->image);
+        if ($item->image && file_exists(public_path($item->image))) {
+            unlink(public_path($item->image));
         }
 
         $item->delete();
@@ -1587,7 +1706,7 @@ class AdminController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time().'_'.$image->getClientOriginalName();
-            $image->move('uploads/zone-chairmen', $imageName);
+            $image->move(public_path('uploads/zone-chairmen'), $imageName);
             $imagePath = 'uploads/zone-chairmen/'.$imageName;
         }
 
@@ -1618,12 +1737,12 @@ class AdminController extends Controller
         $imagePath = $item->image;
 
         if ($request->hasFile('image')) {
-            if ($item->image && file_exists($item->image)) {
-                unlink($item->image);
+            if ($item->image && file_exists(public_path($item->image))) {
+                unlink(public_path($item->image));
             }
             $image = $request->file('image');
             $imageName = time().'_'.$image->getClientOriginalName();
-            $image->move('uploads/zone-chairmen', $imageName);
+            $image->move(public_path('uploads/zone-chairmen'), $imageName);
             $imagePath = 'uploads/zone-chairmen/'.$imageName;
         }
 
@@ -1644,8 +1763,8 @@ class AdminController extends Controller
     {
         $item = ZoneChairmen::findOrFail($id);
 
-        if ($item->image && file_exists($item->image)) {
-            unlink($item->image);
+        if ($item->image && file_exists(public_path($item->image))) {
+            unlink(public_path($item->image));
         }
 
         $item->delete();
@@ -1686,7 +1805,7 @@ class AdminController extends Controller
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 $image = $request->file('image');
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move('uploads/testimonials', $imageName);
+                $image->move(public_path('uploads/testimonials'), $imageName);
                 $imagePath = 'uploads/testimonials/' . $imageName;
             }
 
@@ -1757,12 +1876,12 @@ class AdminController extends Controller
             // Handle image upload
             $imagePath = $item->image;
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
-                if ($item->image && file_exists($item->image)) {
-                    unlink($item->image);
+                if ($item->image && file_exists(public_path($item->image))) {
+                    unlink(public_path($item->image));
                 }
                 $image = $request->file('image');
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move('uploads/testimonials', $imageName);
+                $image->move(public_path('uploads/testimonials'), $imageName);
                 $imagePath = 'uploads/testimonials/' . $imageName;
             }
 
@@ -1808,8 +1927,8 @@ class AdminController extends Controller
                 $item = \App\Models\SuccessStory::findOrFail($id);
             }
 
-            if ($item->image && file_exists($item->image)) {
-                unlink($item->image);
+            if ($item->image && file_exists(public_path($item->image))) {
+                unlink(public_path($item->image));
             }
 
             $item->delete();
@@ -6584,14 +6703,14 @@ class AdminController extends Controller
 
         if ($request->hasFile('first_cheque_image')) {
             // Delete old image if exists
-            if ($pdcDetail->first_cheque_image && file_exists($pdcDetail->first_cheque_image)) {
-                unlink($pdcDetail->first_cheque_image);
+            if ($pdcDetail->first_cheque_image && file_exists(public_path($pdcDetail->first_cheque_image))) {
+                unlink(public_path($pdcDetail->first_cheque_image));
             }
 
             // Upload new image
             $file = $request->file('first_cheque_image');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move('pdc_cheques', $filename);
+            $file->move(public_path('pdc_cheques'), $filename);
             $chequeImagePath = 'pdc_cheques/' . $filename;
         }
 

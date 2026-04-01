@@ -1330,6 +1330,109 @@
                             </div>
                         </div>
 
+                        <!-- Completed Qualifications -->
+                        <div class="data-group">
+                            <h4>Completed Qualifications</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Qualification</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ ucfirst($user->educationDetail->qualifications ?? 'N/A') }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Institution / College Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->qualification_institution ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">University Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->qualification_university ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Course Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->qualification_course_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Start Year</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->qualification_start_year ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">End Year</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->qualification_end_year ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Marksheet Type</label>
+                                        @php
+                                            $marksheetType = $user->educationDetail->marksheet_type
+                                                ? json_decode($user->educationDetail->marksheet_type, true)
+                                                : [];
+                                            $marksheetType = is_array($marksheetType) ? $marksheetType : [];
+                                            $marksheetLabel = empty($marksheetType)
+                                                ? 'N/A'
+                                                : implode(', ', array_map(function ($type) {
+                                                    return $type === 'semester' ? 'Semester-based' : 'Year-based';
+                                                }, $marksheetType));
+                                        @endphp
+                                        <input type="text" class="form-input" value="{{ $marksheetLabel }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="table-container">
+                                    @php
+                                        $edu = $user->educationDetail;
+                                        $marksheetType = $edu->marksheet_type ? json_decode($edu->marksheet_type, true) : [];
+                                        $marksheetType = is_array($marksheetType) ? $marksheetType : [];
+                                        $marksObtained = $edu->marks_obtained ? json_decode($edu->marks_obtained, true) : [];
+                                        $outOf = $edu->out_of ? json_decode($edu->out_of, true) : [];
+                                        $percentage = $edu->percentage ? json_decode($edu->percentage, true) : [];
+                                        $cgpa = $edu->cgpa ? json_decode($edu->cgpa, true) : [];
+                                        $rowCount = max(
+                                            count(is_array($marksObtained) ? $marksObtained : []),
+                                            count(is_array($outOf) ? $outOf : []),
+                                            count(is_array($percentage) ? $percentage : []),
+                                            count(is_array($cgpa) ? $cgpa : [])
+                                        );
+                                        $isSemester = in_array('semester', $marksheetType, true);
+                                        $rowLabel = $isSemester ? 'Sem' : 'Year';
+                                    @endphp
+                                    @if ($rowCount > 0)
+                                        <table class="custom-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Year / Sem</th>
+                                                    <th>Marks Obtained</th>
+                                                    <th>Out Of</th>
+                                                    <th>Percentage</th>
+                                                    <th>CGPA</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @for ($i = 0; $i < $rowCount; $i++)
+                                                    <tr>
+                                                        <td>{{ $i + 1 }} {{ $rowLabel }}</td>
+                                                        <td class="amount-cell">{{ $marksObtained[$i] ?? 'N/A' }}</td>
+                                                        <td class="amount-cell">{{ $outOf[$i] ?? 'N/A' }}</td>
+                                                        <td class="amount-cell">{{ $percentage[$i] ?? 'N/A' }}</td>
+                                                        <td class="amount-cell">{{ $cgpa[$i] ?? 'N/A' }}</td>
+                                                    </tr>
+                                                @endfor
+                                            </tbody>
+                                        </table>
+                                    @else
+                                        <div class="no-data">
+                                            <p>No marksheet data available.</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Financial Summary Table -->
                         <div class="data-group">
                             <h4>Financial Summary Table</h4>

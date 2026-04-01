@@ -98,6 +98,60 @@ class AdminController extends Controller
         });
     }
 
+    private function resolveApplicationProgressStatus(User $user): string
+    {
+        $submittedStatuses = ['submited', 'submitted', 'approved'];
+
+        $personalSubmitted = in_array((string) $user->submit_status, $submittedStatuses, true);
+        $educationSubmitted = $user->educationDetail
+            && in_array((string) $user->educationDetail->submit_status, $submittedStatuses, true);
+        $familySubmitted = $user->familyDetail
+            && in_array((string) $user->familyDetail->submit_status, $submittedStatuses, true);
+        $fundingSubmitted = $user->fundingDetail
+            && in_array((string) $user->fundingDetail->submit_status, $submittedStatuses, true);
+
+        $guarantorRequired = ($user->loan_category_type ?? null) !== 'below';
+        $guarantorSubmitted = !$guarantorRequired
+            || ($user->guarantorDetail
+                && in_array((string) $user->guarantorDetail->submit_status, $submittedStatuses, true));
+
+        $documentSubmitted = $user->document
+            && in_array((string) $user->document->submit_status, $submittedStatuses, true);
+
+        $applicationSubmitted = in_array((string) $user->application_status, ['submitted', 'approved'], true);
+
+        if (!$personalSubmitted) {
+            return 'draft';
+        }
+        if (!$educationSubmitted) {
+            return 'personal_details_submitted';
+        }
+        if (!$familySubmitted) {
+            return 'education_details_submitted';
+        }
+        if (!$fundingSubmitted) {
+            return 'family_details_submitted';
+        }
+        if ($guarantorRequired && !$guarantorSubmitted) {
+            return 'funding_details_submitted';
+        }
+        if (!$documentSubmitted) {
+            return $guarantorRequired ? 'guarantor_details_submitted' : 'funding_details_submitted';
+        }
+        if (!$applicationSubmitted) {
+            return 'documents_submitted';
+        }
+
+        return 'submitted';
+    }
+
+    private function attachApplicationProgressStatus($users): void
+    {
+        $users->each(function ($user) {
+            $user->application_progress_status = $this->resolveApplicationProgressStatus($user);
+        });
+    }
+
     public function index(Request $request)
     {
         // Calculate disbursement counts for dashboard
@@ -2842,9 +2896,12 @@ class AdminController extends Controller
     public function apexStage1Pending(Request $request)
     {
         $query = User::where('role', 'user')
-            ->whereHas('workflowStatus', function ($query) {
-                $query->where('current_stage', 'apex_1')
-                    ->where('apex_1_status', 'pending')->whereNull('apex_1_reject_remarks');
+            ->where(function ($query) {
+                $query->whereDoesntHave('workflowStatus')
+                    ->orWhereHas('workflowStatus', function ($workflowQuery) {
+                        $workflowQuery->where('current_stage', 'apex_1')
+                            ->where('apex_1_status', 'pending');
+                    });
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
 
@@ -2885,6 +2942,7 @@ class AdminController extends Controller
         $users = $query->get();
 
         $this->attachLatestLoanCategoryType($users);
+        $this->attachApplicationProgressStatus($users);
 
         return view('admin.apex.stage1.pending', compact('users'));
     }
@@ -2951,6 +3009,7 @@ class AdminController extends Controller
             ->get();
 
         $this->attachLatestLoanCategoryType($users);
+        $this->attachApplicationProgressStatus($users);
 
         return view('admin.apex.stage1.pending', compact('users'));
     }

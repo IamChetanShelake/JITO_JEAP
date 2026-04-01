@@ -408,25 +408,41 @@
                                         {{ $user->loan_category_type === 'below' ? 'Below 1 Lakh' : 'Above 1 Lakh' }}
                                     </span>
                                 </td>
-                                @if ($user->workflowStatus->apex_1_reject_remarks != null)
+                                @php
+                                    $progressStatus = $user->application_progress_status ?? 'draft';
+                                    $statusLabels = [
+                                        'draft' => 'Draft',
+                                        'personal_details_submitted' => 'Personal Details Submitted',
+                                        'education_details_submitted' => 'Education Details Submitted',
+                                        'family_details_submitted' => 'Family Details Submitted',
+                                        'funding_details_submitted' => 'Funding Details Submitted',
+                                        'guarantor_details_submitted' => 'Guarantor Details Submitted',
+                                        'documents_submitted' => 'Documents Submitted',
+                                        'submitted' => 'Submitted',
+                                    ];
+                                    $statusClasses = [
+                                        'draft' => 'btn-secondary',
+                                        'personal_details_submitted' => 'btn-info',
+                                        'education_details_submitted' => 'btn-info',
+                                        'family_details_submitted' => 'btn-info',
+                                        'funding_details_submitted' => 'btn-info',
+                                        'guarantor_details_submitted' => 'btn-info',
+                                        'documents_submitted' => 'btn-info',
+                                        'submitted' => 'btn-success',
+                                    ];
+                                @endphp
+                                @if (optional($user->workflowStatus)->apex_1_reject_remarks != null)
                                     <td>
                                         <span class="status-badge btn btn-warning">
                                             <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
-                                            resubmitted
+                                            Resubmitted
                                         </span>
                                     </td>
-                                @elseif($user->application_status == 'submitted')
+                                @else
                                     <td>
-                                        <span class="status-badge btn btn-info">
+                                        <span class="status-badge btn {{ $statusClasses[$progressStatus] ?? 'btn-info' }}">
                                             <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
-                                            Submitted
-                                        </span>
-                                    </td>
-                                @elseif($user->application_status == 'draft')
-                                    <td>
-                                        <span class="status-badge btn btn-secondary">
-                                            <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
-                                            Draft
+                                            {{ $statusLabels[$progressStatus] ?? ucwords(str_replace('_', ' ', $progressStatus)) }}
                                         </span>
                                     </td>
                                 @endif

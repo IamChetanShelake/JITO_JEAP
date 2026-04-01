@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Mail\AdminUserRegisteredMail;
 use App\Mail\SendBackForCorrectionMail;
 use App\Mail\ThirdStageDocumentCorrectionMail;
 use App\Mail\WorkingCommitteeApprovedMail;
@@ -279,12 +278,6 @@ class AdminController extends Controller
         $year = date('Y');
         $applicationNo = 'JITO-JEAP/' . $year . '/' . str_pad($user->id, 4, '0', STR_PAD_LEFT);
         $user->update(['application_no' => $applicationNo]);
-
-        try {
-            Mail::to($user->email)->send(new AdminUserRegisteredMail($user, $request->password));
-        } catch (\Throwable $e) {
-            report($e);
-        }
 
         return redirect()
             ->route('admin.user-registration.create')
@@ -831,7 +824,7 @@ class AdminController extends Controller
 
             if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
                 // Delete old photo if exists
-                if ($member->photo && file_exists(public_path($member->photo))) {
+                if ($member->photo && file_exists($member->photo)){
                     unlink($member->photo);
                 }
                 $photo = $request->file('photo');
@@ -863,7 +856,7 @@ class AdminController extends Controller
             $member = \App\Models\WorkingCommittee::findOrFail($id);
 
             // Delete photo if exists
-            if ($member->photo && file_exists(public_path($member->photo))) {
+            if ($member->photo && file_exists($member->photo)) {
                 unlink($member->photo);
             }
 
@@ -950,7 +943,7 @@ class AdminController extends Controller
 
         $imagePath = $dream->image;
         if ($request->hasFile('image')) {
-            if ($dream->image && file_exists(public_path($dream->image))) {
+            if ($dream->image && file_exists($dream->image)) {
                 unlink($dream->image);
             }
             $image = $request->file('image');
@@ -982,7 +975,7 @@ class AdminController extends Controller
     {
         $dream = EmpoweringDream::on('admin_panel')->findOrFail($id);
 
-        if ($dream->image && file_exists(public_path($dream->image))) {
+        if ($dream->image && file_exists($dream->image)) {
             unlink($dream->image);
         }
 
@@ -1048,7 +1041,7 @@ class AdminController extends Controller
 
         $imagePath = $achievement->image;
         if ($request->hasFile('image')) {
-            if ($achievement->image && file_exists(public_path($achievement->image))) {
+            if ($achievement->image && file_exists($achievement->image)) {
                 unlink($achievement->image);
             }
             $image = $request->file('image');
@@ -1074,7 +1067,7 @@ class AdminController extends Controller
     {
         $achievement = AchievementImpact::findOrFail($id);
 
-        if ($achievement->image && file_exists(public_path($achievement->image))) {
+        if ($achievement->image && file_exists($achievement->image)) {
             unlink($achievement->image);
         }
 
@@ -1153,7 +1146,7 @@ class AdminController extends Controller
         // Delete images from storage
         $images = json_decode($gallery->images, true) ?? [];
         foreach ($images as $image) {
-            if (file_exists(public_path($image))) {
+            if (file_exists($image)) {
                 unlink($image);
             }
         }
@@ -1241,7 +1234,7 @@ class AdminController extends Controller
             $imagePath = $testimonial->image;
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 // Delete old image if exists
-                if ($testimonial->image && file_exists(public_path($testimonial->image))) {
+                if ($testimonial->image && file_exists($testimonial->image)) {
                     unlink($testimonial->image);
                 }
                 $image = $request->file('image');
@@ -1278,7 +1271,7 @@ class AdminController extends Controller
             $testimonial = \App\Models\OurTestimonial::findOrFail($id);
 
             // Delete image if exists
-            if ($testimonial->image && file_exists(public_path($testimonial->image))) {
+            if ($testimonial->image && file_exists($testimonial->image)) {
                 unlink($testimonial->image);
             }
 
@@ -1362,7 +1355,7 @@ class AdminController extends Controller
             $imagePath = $story->image;
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 // Delete old image if exists
-                if ($story->image && file_exists(public_path($story->image))) {
+                if ($story->image && file_exists($story->image)) {
                     unlink($story->image);
                 }
                 $image = $request->file('image');
@@ -1396,7 +1389,7 @@ class AdminController extends Controller
             $story = \App\Models\SuccessStory::findOrFail($id);
 
             // Delete image if exists
-            if ($story->image && file_exists(public_path($story->image))) {
+            if ($story->image && file_exists($story->image)) {
                 unlink($story->image);
             }
 
@@ -1486,7 +1479,7 @@ class AdminController extends Controller
 
         $imagePath = $item->image;
         if ($request->hasFile('image')) {
-            if ($item->image && file_exists(public_path($item->image))) {
+            if ($item->image && file_exists($item->image)) {
                 unlink($item->image);
             }
             $image = $request->file('image');
@@ -1514,7 +1507,7 @@ class AdminController extends Controller
     public function deleteAboutJito($id)
     {
         $item = AdminAboutJitoWebsite::findOrFail($id);
-        if ($item->image && file_exists(public_path($item->image))) {
+        if ($item->image && file_exists($item->image)) {
             unlink($item->image);
         }
         $item->delete();
@@ -1659,7 +1652,7 @@ class AdminController extends Controller
         $imagePath = $item->image;
 
         if ($request->hasFile('image')) {
-            if ($item->image && file_exists(public_path($item->image))) {
+            if ($item->image && file_exists($item->image)) {
                 unlink($item->image);
             }
             $image = $request->file('image');
@@ -1673,9 +1666,9 @@ class AdminController extends Controller
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $img) {
                 if ($img) {
-                    $imageName = time() . '_' . uniqid() . '_' . $img->getClientOriginalName();
-                    $img->move('uploads/jeap', $imageName);
-                    $imagesPaths[] = 'uploads/jeap/' . $imageName;
+                    $imageName = time().'_'.uniqid().'_'.$img->getClientOriginalName();
+                    $img->move(public_path('uploads/jeap'), $imageName);
+                    $imagesPaths[] = 'uploads/jeap/'.$imageName;
                 }
             }
         }
@@ -1708,14 +1701,14 @@ class AdminController extends Controller
     {
         $item = \App\Models\JeapWebsite::findOrFail($id);
 
-        if ($item->image && file_exists(public_path($item->image))) {
+        if ($item->image && file_exists($item->image)) {
             unlink($item->image);
         }
 
         // Delete additional images
         if ($item->images) {
             foreach ($item->images as $img) {
-                if (file_exists(public_path($img))) {
+                if (file_exists($img)) {
                     unlink($img);
                 }
             }
@@ -1738,7 +1731,7 @@ class AdminController extends Controller
             $imagePath = $item->images[$imageIndex];
 
             // Delete the file
-            if (file_exists(public_path($imagePath))) {
+            if (file_exists($imagePath)) {
                 unlink($imagePath);
             }
 

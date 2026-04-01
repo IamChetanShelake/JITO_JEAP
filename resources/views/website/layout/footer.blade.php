@@ -102,6 +102,14 @@
                             style="color: #2D2D2D; text-decoration: none; font-family: Arial; font-size: 14px; font-weight: 600;">▶
                             &nbsp;&nbsp; Contact</a>
                     </li>
+                    <li style="margin-bottom: 10px;"><a href="{{ route('privacy.policy') }}"
+                            style="color: #2D2D2D; text-decoration: none; font-family: Arial; font-size: 14px; font-weight: 600;">▶
+                            &nbsp;&nbsp; Privacy Policy</a>
+                    </li>
+                    <li style="margin-bottom: 10px;"><a href="{{ route('terms.conditions') }}"
+                            style="color: #2D2D2D; text-decoration: none; font-family: Arial; font-size: 14px; font-weight: 600;">▶
+                            &nbsp;&nbsp; Terms & Conditions</a>
+                    </li>
                 </ul>
 
             </div>

@@ -343,6 +343,43 @@
         </a>
     </div>
 
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ route('admin.working_committee.hold') }}" id="filterForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="search" class="form-label">Search</label>
+                        <input type="text" class="form-control" id="search" name="search" 
+                               placeholder="Search by name, Aadhar number or application number..." 
+                               value="{{ request('search') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" name="category">
+                            <option value="">All Categories</option>
+                            <option value="above" {{ request('category') == 'above' ? 'selected' : '' }}>Above 100000</option>
+                            <option value="below" {{ request('category') == 'below' ? 'selected' : '' }}>Below 100000</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="financial_assistance_type" class="form-label">Foreign</label>
+                        <select class="form-select" id="financial_assistance_type" name="financial_assistance_type">
+                            <option value="">All Types</option>
+                            <option value="domestic" {{ request('financial_assistance_type') == 'domestic' ? 'selected' : '' }}>Domestic</option>
+                            <option value="foreign" {{ request('financial_assistance_type') == 'foreign' ? 'selected' : '' }}>Foreign Finance Assistant</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn w-100" 
+                                style="background-color: var(--primary-purple); color: white; border-radius: 8px; padding: 0.6rem 1rem; font-weight: 500;">
+                            <i class="fas fa-search me-1"></i> Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="card">
         <div class="table-container">
             <div class="table-responsive">
@@ -368,10 +405,17 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td>
                                     <strong>{{ $user->name }}</strong>
+                                    @if($user->application_no)
+                                        <br>{{ $user->application_no }}
+                                    @endif
                                 </td>
                                 <td>{{ $user->aadhar_card_number }}</td>
-                                <td>{{ $user->financial_asset_type }}</td>
-                                <td>{{ $user->financial_asset_for }}</td>
+                                <td>{{ $user->financial_asset_type
+                    ? ucwords(str_replace('_', ' ', $user->financial_asset_type)) 
+                    : 'N/A' }}</td>
+                                <td>{{ $user->financial_asset_for 
+                    ? ucwords(str_replace('_', ' ', $user->financial_asset_for)) 
+                    : 'N/A' }}</td>
                                 <td>
                                     <span
                                         class="loan-type-badge {{ $user->loan_category_type === 'below' ? 'loan-type-below' : ($user->loan_category_type === 'above' ? 'loan-type-above' : '') }}">

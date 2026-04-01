@@ -11,11 +11,12 @@ class KeyInstruction extends Model
 
     protected $connection = 'admin_panel';
 
-    protected $table = 'key_instrctions';
+    protected $table = 'key_instructions';
 
     protected $fillable = [
         'icon',
         'icon_svg',
+        'icon_image',
         'title',
         'description',
         'color',

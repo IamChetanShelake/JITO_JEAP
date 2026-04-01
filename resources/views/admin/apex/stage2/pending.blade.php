@@ -322,7 +322,7 @@
         <div class="page-title-section">
             <h1 class="page-title">
                 <i class="fas fa-users" style="color: var(--primary-purple); margin-right: 0.5rem;"></i>
-                Apex Stage 1 - Pending Forms
+                Apex Stage 2 - Pending Forms
             </h1>
             <p class="page-subtitle">List of pending user forms for approval</p>
         </div>
@@ -332,6 +332,43 @@
     </div>
 
     <div class="card">
+        <div class="card-body" style="padding: 1.5rem; border-bottom: 1px solid var(--border-color);">
+            <form method="GET" action="{{ route('admin.apex.stage2.pending') }}" id="filterForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="search" class="form-label" style="font-weight: 500; color: var(--text-dark);">Search</label>
+                        <input type="text" class="form-control" id="search" name="search" 
+                               placeholder="Search by name, Email or application number..." 
+                               value="{{ request('search') }}"
+                               style="border-radius: 8px; border: 1px solid var(--border-color); padding: 0.6rem 1rem;">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="category" class="form-label" style="font-weight: 500; color: var(--text-dark);">Category</label>
+                        <select class="form-select" id="category" name="category" 
+                                style="border-radius: 8px; border: 1px solid var(--border-color); padding: 0.6rem 1rem;">
+                            <option value="">All Categories</option>
+                            <option value="above" {{ request('category') == 'above' ? 'selected' : '' }}>Above 100000</option>
+                            <option value="below" {{ request('category') == 'below' ? 'selected' : '' }}>Below 100000</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="financial_assistance_type" class="form-label" style="font-weight: 500; color: var(--text-dark);">Foreign</label>
+                        <select class="form-select" id="financial_assistance_type" name="financial_assistance_type" 
+                                style="border-radius: 8px; border: 1px solid var(--border-color); padding: 0.6rem 1rem;">
+                            <option value="">All Types</option>
+                            <option value="domestic" {{ request('financial_assistance_type') == 'domestic' ? 'selected' : '' }}>Domestic</option>
+                            <option value="foreign" {{ request('financial_assistance_type') == 'foreign' ? 'selected' : '' }}>Foreign Finance Assistant</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn w-100" 
+                                style="background-color: var(--primary-purple); color: white; border-radius: 8px; padding: 0.6rem 1rem; font-weight: 500;">
+                            <i class="fas fa-search me-1"></i> Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
         <div class="table-container">
             <div class="table-responsive">
                 <div class="scroll-hint">
@@ -356,6 +393,9 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td>
                                     <strong>{{ $user->name }}</strong>
+                                    @if($user->application_no)
+                                        <br>{{ $user->application_no }}
+                                    @endif
                                 </td>
                                 <td>{{ $user->email }}</td>
                                 <td>{{ $user->phone }}</td>

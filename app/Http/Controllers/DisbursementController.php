@@ -262,126 +262,262 @@ class DisbursementController extends Controller
     /**
      * Store a new disbursement
      */
+    // public function store(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'disbursement_schedule_id' => 'required',
+    //         'disbursement_date' => 'required|date',
+    //         'amount' => 'required|numeric|min:0',
+    //         'jito_jeap_bank_id' => 'required',
+    //         'utr_number' => 'required|string|max:255',
+    //         'remarks' => 'nullable|string|max:1000',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Validation failed',
+    //             'errors' => $validator->errors()
+    //         ], 422);
+    //     }
+
+    //     try {
+    //         $logData = null;
+
+    //         DB::transaction(function () use ($request, &$logData) {
+    //             // Get schedule from admin_panel connection
+    //             $schedule = DB::connection('admin_panel')
+    //                 ->table('disbursement_schedules')
+    //                 ->where('id', $request->disbursement_schedule_id)
+    //                 ->first();
+
+    //             if (!$schedule) {
+    //                 throw new \Exception('Disbursement schedule not found');
+    //             }
+
+    //             if ((int) $schedule->installment_no === 2) {
+    //                 $thirdStageDocument = ThirdStageDocument::where('user_id', $schedule->user_id)->latest('id')->first();
+    //                 if (!$thirdStageDocument || $thirdStageDocument->status !== 'approved') {
+    //                     throw new \Exception('Third Stage Documents must be approved before the second disbursement.');
+    //                 }
+    //             }
+
+    //             // Check if disbursement already exists for this schedule
+    //             $existingDisbursement = DB::connection('admin_panel')
+    //                 ->table('disbursements')
+    //                 ->where('disbursement_schedule_id', $request->disbursement_schedule_id)
+    //                 ->first();
+
+    //             if ($existingDisbursement) {
+    //                 throw new \Exception('Disbursement already exists for this schedule');
+    //             }
+
+    //             // Validate amount doesn't exceed planned amount
+    //             if ($request->amount > $schedule->planned_amount) {
+    //                 throw new \Exception('Disbursement amount cannot exceed planned amount');
+    //             }
+
+    //             // Create the disbursement in admin_panel connection
+    //             $disbursementId = DB::connection('admin_panel')
+    //                 ->table('disbursements')
+    //                 ->insertGetId([
+    //                     'disbursement_schedule_id' => $request->disbursement_schedule_id,
+    //                     'user_id' => $schedule->user_id,
+    //                     'jito_jeap_bank_id' => $request->jito_jeap_bank_id,
+    //                     'disbursement_date' => $request->disbursement_date,
+    //                     'amount' => $request->amount,
+    //                     'utr_number' => $request->utr_number,
+    //                     'remarks' => $request->remarks,
+    //                     'created_at' => now(),
+    //                     'updated_at' => now()
+    //                 ]);
+
+    //             // Update schedule status to completed
+    //             DB::connection('admin_panel')
+    //                 ->table('disbursement_schedules')
+    //                 ->where('id', $request->disbursement_schedule_id)
+    //                 ->update(['status' => 'completed', 'updated_at' => now()]);
+
+    //             // Update workflow status if this is the first disbursement
+    //             $this->updateWorkflowStatus($schedule->user_id);
+
+    //             $logData = [
+    //                 'disbursement_id' => $disbursementId,
+    //                 'user_id' => (int) $schedule->user_id,
+    //                 'disbursement_schedule_id' => (int) $request->disbursement_schedule_id,
+    //                 'disbursement_date' => $request->disbursement_date,
+    //                 'amount' => (float) $request->amount,
+    //                 'jito_jeap_bank_id' => (int) $request->jito_jeap_bank_id,
+    //                 'utr_number' => $request->utr_number,
+    //                 'remarks' => $request->remarks,
+    //             ];
+    //         });
+
+    //         if ($logData) {
+    //             $actor = Auth::user();
+
+    //             $this->logUserActivity(
+    //                 processType: 'disbursement',
+    //                 processAction: 'created',
+    //                 processDescription: 'Disbursement of amount ' . $logData['amount'] . ' recorded successfully',
+    //                 module: 'disbursement',
+    //                 oldValues: null,
+    //                 newValues: null,
+    //                 additionalData: $logData,
+    //                 targetUserId: $logData['user_id'],
+    //                 actorId: (int) ($actor?->id ?? 0),
+    //                 actorName: $actor?->name ?? 'System',
+    //                 actorRole: $actor?->role ?? 'system'
+    //             );
+    //         }
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Disbursement recorded successfully! Status updated.'
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => $e->getMessage()
+    //         ], 422);
+    //     }
+    // }
+    
     public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'disbursement_schedule_id' => 'required',
-            'disbursement_date' => 'required|date',
-            'amount' => 'required|numeric|min:0',
-            'jito_jeap_bank_id' => 'required',
-            'utr_number' => 'required|string|max:255',
-            'remarks' => 'nullable|string|max:1000',
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        'disbursement_schedule_id' => 'required',
+        'disbursement_date' => 'required|date',
+        'amount' => 'required|numeric|min:0',
+        'jito_jeap_bank_id' => 'required',
+        'utr_number' => 'required|string|max:255',
+        'remarks' => 'nullable|string',
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $validator->errors()
+        ], 422);
+    }
 
-        try {
-            $logData = null;
+    try {
+        $logData = null;
 
-            DB::transaction(function () use ($request, &$logData) {
-                // Get schedule from admin_panel connection
-                $schedule = DB::connection('admin_panel')
-                    ->table('disbursement_schedules')
-                    ->where('id', $request->disbursement_schedule_id)
-                    ->first();
+        DB::transaction(function () use ($request, &$logData) {
+            // Get schedule from admin_panel connection
+            $schedule = DB::connection('admin_panel')
+                ->table('disbursement_schedules')
+                ->where('id', $request->disbursement_schedule_id)
+                ->first();
 
-                if (!$schedule) {
-                    throw new \Exception('Disbursement schedule not found');
-                }
-
-                if ((int) $schedule->installment_no === 2) {
-                    $thirdStageDocument = ThirdStageDocument::where('user_id', $schedule->user_id)->latest('id')->first();
-                    if (!$thirdStageDocument || $thirdStageDocument->status !== 'approved') {
-                        throw new \Exception('Third Stage Documents must be approved before the second disbursement.');
-                    }
-                }
-
-                // Check if disbursement already exists for this schedule
-                $existingDisbursement = DB::connection('admin_panel')
-                    ->table('disbursements')
-                    ->where('disbursement_schedule_id', $request->disbursement_schedule_id)
-                    ->first();
-
-                if ($existingDisbursement) {
-                    throw new \Exception('Disbursement already exists for this schedule');
-                }
-
-                // Validate amount doesn't exceed planned amount
-                if ($request->amount > $schedule->planned_amount) {
-                    throw new \Exception('Disbursement amount cannot exceed planned amount');
-                }
-
-                // Create the disbursement in admin_panel connection
-                $disbursementId = DB::connection('admin_panel')
-                    ->table('disbursements')
-                    ->insertGetId([
-                        'disbursement_schedule_id' => $request->disbursement_schedule_id,
-                        'user_id' => $schedule->user_id,
-                        'jito_jeap_bank_id' => $request->jito_jeap_bank_id,
-                        'disbursement_date' => $request->disbursement_date,
-                        'amount' => $request->amount,
-                        'utr_number' => $request->utr_number,
-                        'remarks' => $request->remarks,
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ]);
-
-                // Update schedule status to completed
-                DB::connection('admin_panel')
-                    ->table('disbursement_schedules')
-                    ->where('id', $request->disbursement_schedule_id)
-                    ->update(['status' => 'completed', 'updated_at' => now()]);
-
-                // Update workflow status if this is the first disbursement
-                $this->updateWorkflowStatus($schedule->user_id);
-
-                $logData = [
-                    'disbursement_id' => $disbursementId,
-                    'user_id' => (int) $schedule->user_id,
-                    'disbursement_schedule_id' => (int) $request->disbursement_schedule_id,
-                    'disbursement_date' => $request->disbursement_date,
-                    'amount' => (float) $request->amount,
-                    'jito_jeap_bank_id' => (int) $request->jito_jeap_bank_id,
-                    'utr_number' => $request->utr_number,
-                    'remarks' => $request->remarks,
-                ];
-            });
-
-            if ($logData) {
-                $actor = Auth::user();
-
-                $this->logUserActivity(
-                    processType: 'disbursement',
-                    processAction: 'created',
-                    processDescription: 'Disbursement of amount ' . $logData['amount'] . ' recorded successfully',
-                    module: 'disbursement',
-                    oldValues: null,
-                    newValues: null,
-                    additionalData: $logData,
-                    targetUserId: $logData['user_id'],
-                    actorId: (int) ($actor?->id ?? 0),
-                    actorName: $actor?->name ?? 'System',
-                    actorRole: $actor?->role ?? 'system'
-                );
+            if (!$schedule) {
+                throw new \Exception('Disbursement schedule not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Disbursement recorded successfully! Status updated.'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 422);
+            // ==========================================
+            // NEW CODE: Enforce Sequential Disbursement
+            // ==========================================
+            $previousIncomplete = DB::connection('admin_panel')
+                ->table('disbursement_schedules')
+                ->where('user_id', $schedule->user_id)
+                ->where('installment_no', '<', $schedule->installment_no)
+                ->where('status', '!=', 'completed')
+                ->exists();
+
+            if ($previousIncomplete) {
+                throw new \Exception('Cannot disburse. You must complete all previous installments first.');
+            }
+            // ==========================================
+
+            if ((int) $schedule->installment_no === 2) {
+                $thirdStageDocument = ThirdStageDocument::where('user_id', $schedule->user_id)->latest('id')->first();
+                if (!$thirdStageDocument || $thirdStageDocument->status !== 'approved') {
+                    throw new \Exception('Third Stage Documents must be approved before the second disbursement.');
+                }
+            }
+
+            // Check if disbursement already exists for this schedule
+            $existingDisbursement = DB::connection('admin_panel')
+                ->table('disbursements')
+                ->where('disbursement_schedule_id', $request->disbursement_schedule_id)
+                ->first();
+
+            if ($existingDisbursement) {
+                throw new \Exception('Disbursement already exists for this schedule');
+            }
+
+            // Validate amount doesn't exceed planned amount
+            if ($request->amount > $schedule->planned_amount) {
+                throw new \Exception('Disbursement amount cannot exceed planned amount');
+            }
+
+            // Create the disbursement in admin_panel connection
+            $disbursementId = DB::connection('admin_panel')
+                ->table('disbursements')
+                ->insertGetId([
+                    'disbursement_schedule_id' => $request->disbursement_schedule_id,
+                    'user_id' => $schedule->user_id,
+                    'jito_jeap_bank_id' => $request->jito_jeap_bank_id,
+                    'disbursement_date' => $request->disbursement_date,
+                    'amount' => $request->amount,
+                    'utr_number' => $request->utr_number,
+                    'remarks' => $request->remarks,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+            // Update schedule status to completed
+            DB::connection('admin_panel')
+                ->table('disbursement_schedules')
+                ->where('id', $request->disbursement_schedule_id)
+                ->update(['status' => 'completed', 'updated_at' => now()]);
+
+            // Update workflow status if this is the first disbursement
+            $this->updateWorkflowStatus($schedule->user_id);
+
+            $logData = [
+                'disbursement_id' => $disbursementId,
+                'user_id' => (int) $schedule->user_id,
+                'disbursement_schedule_id' => (int) $request->disbursement_schedule_id,
+                'disbursement_date' => $request->disbursement_date,
+                'amount' => (float) $request->amount,
+                'jito_jeap_bank_id' => (int) $request->jito_jeap_bank_id,
+                'utr_number' => $request->utr_number,
+                'remarks' => $request->remarks,
+            ];
+        });
+
+        if ($logData) {
+            $actor = Auth::user();
+
+            $this->logUserActivity(
+                processType: 'disbursement',
+                processAction: 'created',
+                processDescription: 'Disbursement of amount ' . $logData['amount'] . ' recorded successfully',
+                module: 'disbursement',
+                oldValues: null,
+                newValues: null,
+                additionalData: $logData,
+                targetUserId: $logData['user_id'],
+                actorId: (int) ($actor?->id ?? 0),
+                actorName: $actor?->name ?? 'System',
+                actorRole: $actor?->role ?? 'system'
+            );
         }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Disbursement recorded successfully! Status updated.'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 422);
     }
+}
 
     /**
      * Show disbursement details for a specific user with disbursement modal

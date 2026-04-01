@@ -67,6 +67,8 @@ class User extends Authenticatable
         return $this->hasOne(Document::class);
     }
 
+    // Document relationship - now using single documents table for all
+
     public function workflowStatus()
     {
         return $this->hasOne(ApplicationWorkflowStatus::class);
@@ -98,6 +100,11 @@ class User extends Authenticatable
 
     public function disbursementSchedules()
     {
-        return $this->hasMany(DisbursementSchedule::class, 'user_id');
+        return $this->hasMany(DisbursementSchedule::class);
+    }
+
+    public function repayments()
+    {
+        return $this->hasMany(Repayment::class);
     }
 }

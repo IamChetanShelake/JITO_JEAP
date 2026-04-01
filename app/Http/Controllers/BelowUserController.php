@@ -11,6 +11,8 @@ use App\Models\Document;
 use App\Models\PdcDetail;
 use App\Models\Familydetail;
 use App\Models\ReviewSubmit;
+use App\Models\Chapter;
+use App\Mail\NewStudentRegisteredForChapterMail;
 use Illuminate\Http\Request;
 use App\Models\FundingDetail;
 use App\Models\Loan_category;
@@ -25,6 +27,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use App\Models\ApplicationWorkflowStatus;
+use App\Models\UniversityWebsite;
+use App\Models\CollegeWebsite;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 
@@ -282,6 +286,19 @@ class BelowUserController extends Controller
 
         $user->update($data);
 
+        // Send email notification to chapter when student submits step1
+        try {
+            if ($user->chapter_id) {
+                $chapter = Chapter::on('admin_panel')->find($user->chapter_id);
+                if ($chapter && $chapter->email) {
+                    Mail::to($chapter->email)->send(new NewStudentRegisteredForChapterMail($user, $chapter));
+                }
+            }
+        } catch (\Throwable $e) {
+            // Log error but don't block the user flow
+            Log::error('Failed to send chapter notification email: ' . $e->getMessage());
+        }
+
         // Check if all steps are submitted (no resubmit remaining)
         $this->checkAndUpdateWorkflowStatus();
 
@@ -318,12 +335,26 @@ class BelowUserController extends Controller
         $familyDetail = Familydetail::where('user_id', $user_id)->first();
         $fundingDetail = FundingDetail::where('user_id', $user_id)->first();
         $educationDetail = EducationDetail::where('user_id', $user_id)->first();
+        
+        // Fetch universities based on financial_asset_type
+        $universityType = ($user->financial_asset_type == 'domestic') ? 'domestic' : 'foreign';
+        $universities = UniversityWebsite::where('university_type', $universityType)
+            ->where('status', true)
+            ->orderBy('university_name', 'asc')
+            ->get();
+        
+        // Fetch colleges based on financial_asset_type
+        $colleges = CollegeWebsite::where('college_type', $universityType)
+            ->where('status', true)
+            ->orderBy('college_name', 'asc')
+            ->get();
+        
         if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'graduation') {
-            return view('user.step2_ug', compact('type', 'user', 'familyDetail', 'fundingDetail', 'educationDetail'));
+            return view('user.step2_ug', compact('type', 'user', 'familyDetail', 'fundingDetail', 'educationDetail', 'universities', 'colleges'));
         } else if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'post_graduation') {
-            return view('user.step2_pg', compact('type', 'user', 'familyDetail', 'fundingDetail', 'educationDetail'));
+            return view('user.step2_pg', compact('type', 'user', 'familyDetail', 'fundingDetail', 'educationDetail', 'universities', 'colleges'));
         } else if ($user->financial_asset_type == 'foreign_finance_assistant' && $user->financial_asset_for == 'post_graduation') {
-            return view('user.step2_pg_foreign', compact('type', 'user', 'familyDetail', 'fundingDetail', 'educationDetail'));
+            return view('user.step2_pg_foreign', compact('type', 'user', 'familyDetail', 'fundingDetail', 'educationDetail', 'universities', 'colleges'));
         }
         //  return view('user.step2', compact('type', 'familyDetail', 'fundingDetail', 'user'));
     }
@@ -1151,6 +1182,12 @@ class BelowUserController extends Controller
 
     public function step3store(Request $request)
     {
+        // Check if Step 2 (Education Details) is submitted
+        $educationDetail = \App\Models\EducationDetail::where('user_id', Auth::id())->first();
+        if (!$educationDetail || !in_array($educationDetail->submit_status, ['submited', 'submitted', 'approved'])) {
+            return redirect()->route('user.step2')->with('error', 'Please fill Step 2 (Education Details) first.');
+        }
+
         //dd($request->all());
         $request->validate([
             'number_family_members' => 'required|integer|min:1',
@@ -1381,6 +1418,12 @@ class BelowUserController extends Controller
 
     public function step4store(Request $request)
     {
+        // Check if Step 3 (Family Details) is submitted
+        $familyDetail = \App\Models\Familydetail::where('user_id', Auth::id())->first();
+        if (!$familyDetail || !in_array($familyDetail->submit_status, ['submited', 'submitted', 'approved'])) {
+            return redirect()->route('user.step3')->with('error', 'Please fill Step 3 (Family Details) first.');
+        }
+
         //dd($request->all());
         $request->validate([
             'funding' => 'nullable|array',
@@ -2363,6 +2406,13 @@ class BelowUserController extends Controller
 
     public function step5store(Request $request)
     {
+        // For below 1 lakh users, Step 5 is Documents (Step 6 in full flow)
+        // Check if Step 4 (Funding Details) is submitted
+        $fundingDetail = \App\Models\FundingDetail::where('user_id', Auth::id())->first();
+        if (!$fundingDetail || !in_array($fundingDetail->submit_status, ['submited', 'submitted', 'approved'])) {
+            return redirect()->route('user.step4')->with('error', 'Please fill Step 4 (Funding Details) first.');
+        }
+
         $user_id = Auth::id();
 
         // Fetch existing guarantor detail (for update case)
@@ -2547,18 +2597,36 @@ class BelowUserController extends Controller
         $type = Loan_category::where('user_id', $user_id)->latest()->first()->type;
         $user = User::find($user_id);
         $documents = Document::where('user_id', $user_id)->first();
-        if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'graduation') {
-            return view('user.step6_ug', compact('type', 'user', 'documents'));
-        } else if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'post_graduation') {
-            return view('user.step6_pg', compact('type', 'user', 'documents'));
-        } else if ($user->financial_asset_type == 'foreign_finance_assistant' && $user->financial_asset_for == 'post_graduation') {
-            return view('user.step6_pg_foreign', compact('type', 'user', 'documents'));
+        
+        if ($type == 'below') {
+            // Below 1 lakh category
+            if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'graduation') {
+                return view('user.step6_ug_below', compact('type', 'user', 'documents'));
+            } else if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'post_graduation') {
+                return view('user.step6_pg_below', compact('type', 'user', 'documents'));
+            }
+        } else {
+            // Above 1 lakh category (existing logic)
+            if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'graduation') {
+                return view('user.step6_ug', compact('type', 'user', 'documents'));
+            } else if ($user->financial_asset_type == 'domestic' && $user->financial_asset_for == 'post_graduation') {
+                return view('user.step6_pg', compact('type', 'user', 'documents'));
+            } else if ($user->financial_asset_type == 'foreign_finance_assistant' && $user->financial_asset_for == 'post_graduation') {
+                return view('user.step6_pg_foreign', compact('type', 'user', 'documents'));
+            }
         }
         // return view('user.step6', compact('type', 'user'));
     }
 
     public function step6store(Request $request)
     {
+        // For below 1 lakh users, Step 6 is the final submission (Step 7 in full flow)
+        // Check if Step 5 (Documents) is submitted
+        $document = \App\Models\Document::where('user_id', Auth::id())->first();
+        if (!$document || !in_array($document->submit_status, ['submited', 'submitted', 'approved'])) {
+            return redirect()->route('user.step5')->with('error', 'Please fill Step 5 (Documents Upload) first.');
+        }
+
         Log::info('Step6Store: Method called', [
             'user_id' => Auth::id(),
             'request_method' => $request->method(),
@@ -2600,7 +2668,8 @@ class BelowUserController extends Controller
 
             ];
             foreach ($requiredFields as $field) {
-                $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
+                // Use !empty() instead of isset() to properly check for existing values (including NULL)
+                $rules[$field] = (!empty($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
             }
             // $rules['guarantor2_pan'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             // $rules['student_handwritten_statement'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
@@ -2772,7 +2841,8 @@ class BelowUserController extends Controller
 
             ];
             foreach ($requiredFields as $field) {
-                $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
+                // Use !empty() instead of isset() to properly check for existing values (including NULL)
+                $rules[$field] = (!empty($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
             }
             // $rules['guarantor2_pan'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             // $rules['student_handwritten_statement'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
@@ -2950,7 +3020,8 @@ class BelowUserController extends Controller
 
             ];
             foreach ($requiredFields as $field) {
-                $rules[$field] = (isset($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
+                // Use !empty() instead of isset() to properly check for existing values (including NULL)
+                $rules[$field] = (!empty($existing->$field) ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120';
             }
             // $rules['guarantor2_pan'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
             // $rules['student_handwritten_statement'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
@@ -3092,6 +3163,13 @@ class BelowUserController extends Controller
 
     public function step7store(Request $request)
     {
+        // For below 1 lakh users, Step 7 is the final submission
+        // Check if Step 6 (Documents) is submitted
+        $document = \App\Models\Document::where('user_id', Auth::id())->first();
+        if (!$document || !in_array($document->submit_status, ['submited', 'submitted', 'approved'])) {
+            return redirect()->route('user.step5')->with('error', 'Please fill Step 5 (Documents Upload) first.');
+        }
+
         $user_id = Auth::id();
 
         // Check if workflow status already exists for this user
@@ -3115,6 +3193,19 @@ class BelowUserController extends Controller
         // Update user's application_status to 'submitted' or similar
         $user = User::find($user_id);
         $user->update(['application_status' => 'submitted']);
+
+        // Send email notification to chapter when application is fully submitted
+        try {
+            if ($user->chapter_id) {
+                $chapter = Chapter::on('admin_panel')->find($user->chapter_id);
+                if ($chapter && $chapter->email) {
+                    Mail::to($chapter->email)->send(new NewStudentRegisteredForChapterMail($user, $chapter));
+                }
+            }
+        } catch (\Throwable $e) {
+            // Log error but don't block the user flow
+            Log::error('Failed to send chapter notification email on final submit: ' . $e->getMessage());
+        }
 
         // Get user for logging
         $user = User::find($user_id);

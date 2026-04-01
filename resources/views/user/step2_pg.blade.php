@@ -169,9 +169,8 @@
 
                                 {{ session('success') }}
 
-                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
+                                <button type="button" class="btn-close custom-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
                             </div>
                         @endif
                         <div class="row mb-3">
@@ -236,35 +235,67 @@
                                         <!-- Left Column -->
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
-                                                <label for="course_name">Course Name <span
-                                                        style="color: red;">*</span></label>
-                                                <input type="text" id="course_name" class="form-control"
-                                                    name="course_name" placeholder="Enter Course Name "
-                                                    value="{{ old('course_name', $educationDetail->course_name ?? '') }}"
-                                                    required>
-                                                <small class="text-danger"
-                                                    id="course_name_error">{{ $errors->first('course_name') }}</small>
-                                            </div>
-                                            <div class="form-group mb-3">
                                                 <label for="university_name">University Name <span
                                                         style="color: red;">*</span></label>
-                                                <input type="text" id="university_name" class="form-control"
-                                                    name="university_name" placeholder="Enter University Name "
-                                                    value="{{ old('university_name', $educationDetail->university_name ?? '') }}"
-                                                    required>
+                                                <select id="university_name" class="form-control"
+                                                    name="university_name" required>
+                                                    <option value="" disabled
+                                                        {{ old('university_name', $educationDetail->university_name ?? '') ? '' : 'selected' }}>
+                                                        Select University Name</option>
+                                                    @foreach ($universities as $university)
+                                                        <option value="{{ $university->university_name }}"
+                                                            {{ (old('university_name') ?: $educationDetail->university_name ?? '') == $university->university_name ? 'selected' : '' }}>
+                                                            {{ $university->university_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
                                                 <small class="text-danger"
                                                     id="university_name_error">{{ $errors->first('university_name') }}</small>
                                             </div>
+                                            
+                                            
 
                                             <div class="form-group mb-3">
                                                 <label for="college_name">College Name <span
                                                         style="color: red;">*</span></label>
-                                                <input type="text" id="college_name" class="form-control"
-                                                    name="college_name" placeholder="Enter College Name "
-                                                    value="{{ old('college_name', $educationDetail->college_name ?? '') }}"
-                                                    required>
+                                                <select id="college_name" class="form-control"
+                                                    name="college_name" required>
+                                                    <option value="" disabled
+                                                        {{ old('college_name', $educationDetail->college_name ?? '') ? '' : 'selected' }}>
+                                                        Select College Name</option>
+                                                    @foreach ($colleges as $college)
+                                                        @php
+                                                            $coursesData = is_array($college->courses) ? $college->courses : (is_string($college->courses) ? json_decode($college->courses, true) : []);
+                                                        @endphp
+                                                        <option value="{{ $college->college_name }}"
+                                                            data-courses='{{ json_encode($coursesData) }}'
+                                                            data-university="{{ $college->university_name }}"
+                                                            {{ (old('college_name') ?: $educationDetail->college_name ?? '') == $college->college_name ? 'selected' : '' }}>
+                                                            {{ $college->college_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
                                                 <small class="text-danger"
                                                     id="college_name_error">{{ $errors->first('college_name') }}</small>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="course_name">Course Name <span
+                                                        style="color: red;">*</span></label>
+                                                <select id="course_name" class="form-control"
+                                                    name="course_name" required
+                                                    data-existing-course="{{ $educationDetail->course_name ?? '' }}">
+                                                    <option value=""
+                                                        {{ empty(old('course_name')) && empty($educationDetail->course_name ?? '') ? 'selected' : '' }}
+                                                        disabled>
+                                                        Select Course Name</option>
+                                                    @if($educationDetail && old('course_name', $educationDetail->course_name ?? ''))
+                                                        <option value="{{ old('course_name', $educationDetail->course_name) }}" selected>
+                                                            {{ old('course_name', $educationDetail->course_name) }}
+                                                        </option>
+                                                    @endif
+                                                </select>
+                                                <small class="text-danger"
+                                                    id="course_name_error">{{ $errors->first('course_name') }}</small>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="country">Country Name <span
@@ -1328,8 +1359,8 @@
                 </div>
 
                 <div class="d-flex justify-content-between mt-4 mb-4">
-                    <a href="{{ route('user.step2') }}" class="btn"
-                        style="background:#988DFF1F;color:gray;border:1px solid lightgray;">
+                    <a href="{{ route('user.step1') }}" class="btn"
+                        style="background:#988DFF1F;color:gray;border:1px solid lightgray;" id="prevBtn">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
                             stroke="gray" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M15 18l-6-6 6-6" />
@@ -1363,6 +1394,77 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Function to handle college selection and populate courses
+            function handleCollegeChange() {
+                const collegeSelect = document.getElementById('college_name');
+                const courseSelect = document.getElementById('course_name');
+                
+                if (collegeSelect && courseSelect) {
+                    collegeSelect.addEventListener('change', function() {
+                        const selectedOption = this.options[this.selectedIndex];
+                        const coursesData = selectedOption.getAttribute('data-courses');
+                        
+                        console.log('College changed, courses data:', coursesData);
+                        
+                        // Get existing course_name from the data attribute (set by server)
+                        const existingCourseName = courseSelect.getAttribute('data-existing-course');
+                        console.log('Existing course name:', existingCourseName);
+                        
+                        // Clear existing options
+                        courseSelect.innerHTML = '<option value="" disabled selected>Select Course Name</option>';
+                        
+                        // Check if courses data exists and is not empty
+                        if (coursesData && coursesData !== 'null' && coursesData !== '' && coursesData !== '[]' && coursesData !== '{}') {
+                            try {
+                                const coursesArray = JSON.parse(coursesData);
+                                // Handle both array and object formats
+                                const courses = Array.isArray(coursesArray) ? coursesArray : Object.values(coursesArray);
+                                
+                                if (courses && courses.length > 0) {
+                                    courses.forEach(function(course) {
+                                        if (course) {
+                                            const option = document.createElement('option');
+                                            option.value = course;
+                                            option.textContent = course;
+                                            // Check if this is the existing course
+                                            if (existingCourseName && course === existingCourseName) {
+                                                option.selected = true;
+                                            }
+                                            courseSelect.appendChild(option);
+                                        }
+                                    });
+                                    console.log('Courses populated:', courses);
+                                } else {
+                                    // No courses available, allow manual entry
+                                    courseSelect.innerHTML = '<option value="">Select Course Name</option>';
+                                }
+                            } catch (e) {
+                                console.error('Error parsing courses:', e);
+                                courseSelect.innerHTML = '<option value="">Select Course Name</option>';
+                            }
+                        } else {
+                            // No courses data available, allow manual entry
+                            courseSelect.innerHTML = '<option value="">Select Course Name</option>';
+                            // If there's an existing course and no courses from college, add it as manual entry
+                            if (existingCourseName) {
+                                const option = document.createElement('option');
+                                option.value = existingCourseName;
+                                option.textContent = existingCourseName;
+                                option.selected = true;
+                                courseSelect.appendChild(option);
+                            }
+                        }
+                    });
+                    
+                    // Trigger change on page load if college is already selected
+                    if (collegeSelect.value) {
+                        collegeSelect.dispatchEvent(new Event('change'));
+                    }
+                }
+            }
+            
+            handleCollegeChange();
+            
             // Function to toggle qualification fields
             function toggleQualificationFields() {
                 const qualificationsSelect = document.querySelector('select[name="qualifications"]');
@@ -1818,7 +1920,8 @@
                         <div class="modal-content" style="border:2px solid #dc3545;">
                             <div class="modal-header" style="border-bottom:1px solid #dc3545; background-color: #dc3545; color: white;">
                                 <h5 class="modal-title" id="totalExpensesErrorModalLabel" style="color: white;">Not Eligible</h5>
-                                <button type="button" class="btn-close btn-close-white" aria-label="Close"></button>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                    aria-label="Close" onclick="closeTotalExpensesModal()"></button>
                             </div>
                             <div class="modal-body">
                                 <p style="color: #dc3545; font-weight: 600; font-size: 16px;">
@@ -1828,7 +1931,8 @@
                                 </p>
                             </div>
                             <div class="modal-footer" style="border-top:1px solid #dc3545; display: flex; justify-content: space-between;">
-                                <button type="button" class="btn btn-outline-danger" onclick="clearTableValuesAndCloseModal()" style="border-color: #dc3545; color: #dc3545;">Cancel</button>
+                                <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal"
+                                    onclick="clearTableValuesAndCloseModal()" style="border-color: #dc3545; color: #dc3545;">Cancel</button>
                                 <button type="button" class="btn btn-outline-primary" onclick="redirectToAbove1Lakh()" style="border-color: #007bff; color: #007bff;">Select Above 1 Lakh Application</button>
                             </div>
                         </div>
@@ -1853,6 +1957,30 @@
             }
         }
 
+        function closeTotalExpensesModal() {
+            const modalEl = document.getElementById('totalExpensesErrorModal');
+            if (!modalEl) return;
+
+            if (window.bootstrap && bootstrap.Modal) {
+                const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                modal.hide();
+            }
+
+            setTimeout(() => {
+                const modalBackdrop = document.querySelector('.modal-backdrop');
+                if (modalBackdrop) {
+                    modalBackdrop.remove();
+                }
+                document.body.classList.remove('modal-open');
+                document.body.style.paddingRight = '';
+
+                if (modalEl.parentNode) {
+                    modalEl.parentNode.removeChild(modalEl);
+                }
+                window.location.reload();
+            }, 150);
+        }
+
         function clearTableValuesAndCloseModal() {
             // Clear all input fields in the table
             const tableInputs = document.querySelectorAll('#yearWiseTable input[type="number"]');
@@ -1863,32 +1991,7 @@
             // Recalculate totals after clearing
             calculateTotalExpenses();
 
-            // Close the modal
-            const modalEl = document.getElementById('totalExpensesErrorModal');
-            if (modalEl) {
-                // Method 1: Try Bootstrap modal API
-                if (window.bootstrap && bootstrap.Modal) {
-                    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                    modal.hide();
-                }
-
-                // Method 2: Manual removal as fallback
-                setTimeout(() => {
-                    const modalBackdrop = document.querySelector('.modal-backdrop');
-                    if (modalBackdrop) {
-                        modalBackdrop.remove();
-                    }
-                    document.body.classList.remove('modal-open');
-                    document.body.style.paddingRight = '';
-
-                    // Remove the modal element after animation
-                    setTimeout(() => {
-                        if (modalEl.parentNode) {
-                            modalEl.parentNode.removeChild(modalEl);
-                        }
-                    }, 150);
-                }, 100);
-            }
+            closeTotalExpensesModal();
         }
 
         function clearTableValues() {
@@ -2423,6 +2526,141 @@
         document.addEventListener('DOMContentLoaded', function() {
             toggleSchoolGradeFields();
             toggleJcGradeFields();
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const universitySelect = document.getElementById('university_name');
+            const collegeSelect = document.getElementById('college_name');
+            const courseSelect = document.getElementById('course_name');
+            
+            // Store all college data with courses
+            let allColleges = [];
+            
+            if (collegeSelect) {
+                // Collect all college options with their data
+                const originalOptions = collegeSelect.querySelectorAll('option');
+                originalOptions.forEach(option => {
+                    if (option.value) {
+                        let courses = [];
+                        try {
+                            if (option.dataset.courses) {
+                                courses = JSON.parse(option.dataset.courses);
+                            }
+                        } catch(e) {
+                            courses = [];
+                        }
+                        allColleges.push({
+                            value: option.value,
+                            text: option.text,
+                            university: option.dataset.university || '',
+                            courses: courses
+                        });
+                    }
+                });
+            }
+
+            // Function to filter colleges by university
+            function filterCollegesByUniversity(selectedUniversity, preserveSelection = false) {
+                if (!collegeSelect) return;
+                
+                // Get current selection to preserve if possible
+                const currentValue = collegeSelect.value;
+                
+                // Clear existing options
+                collegeSelect.innerHTML = '<option value="" disabled selected>Select College Name</option>';
+                
+                // Filter and add matching colleges
+                allColleges.forEach(college => {
+                    if (!selectedUniversity || college.university === selectedUniversity) {
+                        const option = document.createElement('option');
+                        option.value = college.value;
+                        option.textContent = college.text;
+                        option.dataset.courses = JSON.stringify(college.courses);
+                        option.dataset.university = college.university;
+                        collegeSelect.appendChild(option);
+                    }
+                });
+
+                // If we need to preserve selection and the current value exists in filtered options
+                if (preserveSelection && currentValue) {
+                    collegeSelect.value = currentValue;
+                }
+            }
+
+            // Function to filter courses by college
+            function filterCoursesByCollege(selectedCollegeValue, preserveSelection = false) {
+                if (!courseSelect) return;
+                
+                // Find the college in our stored data
+                const selectedCollege = allColleges.find(c => c.value === selectedCollegeValue);
+                
+                // If not found in stored data, try to get from current select options
+                if (!selectedCollege) {
+                    const option = collegeSelect.querySelector('option[value="' + selectedCollegeValue + '"]');
+                    if (option && option.dataset.courses) {
+                        try {
+                            const courses = JSON.parse(option.dataset.courses);
+                            populateCourseDropdown(courses, preserveSelection, selectedCollegeValue);
+                            return;
+                        } catch(e) {}
+                    }
+                }
+                
+                if (selectedCollege && selectedCollege.courses && selectedCollege.courses.length > 0) {
+                    populateCourseDropdown(selectedCollege.courses, preserveSelection, selectedCollegeValue);
+                }
+            }
+
+            function populateCourseDropdown(courses, preserveSelection = false, selectedValue = null) {
+                const currentValue = courseSelect.value;
+                courseSelect.innerHTML = '<option value="" disabled selected>Select Course Name</option>';
+                courses.forEach(course => {
+                    const option = document.createElement('option');
+                    option.value = course;
+                    option.textContent = course;
+                    courseSelect.appendChild(option);
+                });
+                
+                // Restore selection if needed
+                if (preserveSelection && currentValue) {
+                    courseSelect.value = currentValue;
+                }
+            }
+
+            // University change event
+            if (universitySelect) {
+                universitySelect.addEventListener('change', function() {
+                    filterCollegesByUniversity(this.value, false);
+                    // Reset course selection
+                    if (courseSelect) {
+                        courseSelect.innerHTML = '<option value="" disabled selected>Select Course Name</option>';
+                    }
+                });
+
+                // Initialize on page load - handle saved data
+                const selectedUniversity = universitySelect.value;
+                const savedCollege = collegeSelect ? collegeSelect.value : '';
+                const savedCourse = courseSelect ? courseSelect.value : '';
+                
+                if (selectedUniversity) {
+                    // Filter colleges by university and preserve the saved selection
+                    filterCollegesByUniversity(selectedUniversity, true);
+                    
+                    // If there's a saved college, load its courses
+                    if (savedCollege) {
+                        filterCoursesByCollege(savedCollege, true);
+                    }
+                }
+            }
+
+            // College change event - populate courses
+            if (collegeSelect && courseSelect) {
+                collegeSelect.addEventListener('change', function() {
+                    filterCoursesByCollege(this.value, false);
+                });
+            }
         });
     </script>
 @endsection

@@ -3,36 +3,64 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AdminUserRegisteredMail;
 use App\Mail\SendBackForCorrectionMail;
 use App\Mail\ThirdStageDocumentCorrectionMail;
 use App\Mail\WorkingCommitteeApprovedMail;
-use App\Models\ApplicationWorkflowStatus;
-use App\Models\Chapter;
-use App\Models\ChapterInterviewAnswer;
+use App\Models\AchievementImpact;
+use App\Models\AdminAboutJitoWebsite;
+use App\Models\AdminContact;
+use App\Models\AdminFaq;
+use App\Models\AdminJitoStats;
 use App\Models\AdminNotification;
 use App\Models\AdminUser;
 use App\Models\ApexLeadership;
+
+use App\Models\ApplicationWorkflowStatus;
+use App\Models\BeDonorDetail;
+use App\Models\BoardOfDirectors;
+use App\Models\Chapter;
+use App\Models\ChapterInterviewAnswer;
+use App\Models\CollegeWebsite;
+use App\Models\CourseWebsite;
 use App\Models\DisbursementSchedule;
+
+use App\Models\EditBankDetailRequest;
 use App\Models\EducationDetail;
 use App\Models\EmpoweringDream;
-use App\Models\Logs;
+use App\Models\JeapWebsite;
+use App\Models\KeyInstruction;
 use App\Models\Loan_category;
+use App\Models\Logs;
+
+
+
+
+
+use App\Models\OurTestimonial;
+use App\Models\PdcCourierHistory;
 use App\Models\PdcDetail;
-use App\Models\User;
-use App\Models\WorkingCommitteeApprovalHistory;
+use App\Models\PhotoGallery;
+use App\Models\SuccessStory;
 use App\Models\ThirdStageDocument;
+use App\Models\UniversityWebsite;
+use App\Models\User;
+use App\Models\WorkingCommittee;
+use App\Models\WorkingCommitteeApproval;
+use App\Models\WorkingCommitteeApprovalHistory;
+use App\Models\ZoneChairmen;
 use App\Traits\LogsUserActivity;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-
-
-
-
-
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 
@@ -102,12 +130,150 @@ class AdminController extends Controller
         ]);
     }
 
+    public function showUserRegistrationForm(Request $request)
+    {
+        $adminRegisteredUsers = User::query()
+            ->where('admin_registered', true)
+            ->orderByDesc('id')
+            ->get();
+
+        return view('admin.user_registration.create', [
+            'activeGuard' => $request->active_guard,
+            'adminRegisteredUsers' => $adminRegisteredUsers,
+        ]);
+    }
+
+    public function storeUserRegistration(Request $request)
+    {
+        $request->merge([
+            'pan_card' => strtoupper((string) $request->pan_card),
+        ]);
+
+        $validator = Validator::make($request->all(), [
+            'pan_card' => ['required', 'string', 'regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/', 'unique:users,pan_card'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8'],
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . config('services.surepass.token'),
+            ])->post('https://kyc-api.surepass.io/api/v1/pan/pan-comprehensive', [
+                'id_number' => $request->pan_card,
+            ]);
+
+            if (!$response->successful()) {
+                return redirect()->back()
+                    ->withErrors(['pan_card' => 'PAN verification failed. Please try again.'])
+                    ->withInput();
+            }
+
+            $apiData = $response->json();
+
+            if (!isset($apiData['data']['dob'])) {
+                return redirect()->back()
+                    ->withErrors(['pan_card' => 'Unable to retrieve date of birth from PAN.'])
+                    ->withInput();
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withErrors(['pan_card' => 'API error occurred. Please try again later.'])
+                ->withInput();
+        }
+
+        $additionalData = [];
+        $age = null;
+        if (isset($apiData['data']['full_name'])) {
+            $additionalData['name'] = $apiData['data']['full_name'];
+        }
+        if (isset($apiData['data']['dob'])) {
+            $additionalData['d_o_b'] = $apiData['data']['dob'];
+            $dob = Carbon::parse($apiData['data']['dob']);
+            $age = $dob->age;
+        }
+        if ($age !== null) {
+            $additionalData['age'] = $age;
+        }
+        if (isset($apiData['data']['gender'])) {
+            $additionalData['gender'] = strtolower($apiData['data']['gender']) === 'm'
+                ? 'male'
+                : (strtolower($apiData['data']['gender']) === 'f' ? 'female' : null);
+        }
+        if (isset($apiData['data']['masked_aadhaar'])) {
+            $additionalData['aadhar_card_number'] = $apiData['data']['masked_aadhaar'];
+        }
+
+        $user = User::create([
+            'name' => $additionalData['name'] ?? null,
+            'd_o_b' => $additionalData['d_o_b'] ?? null,
+            'age' => $additionalData['age'] ?? null,
+            'gender' => $additionalData['gender'] ?? null,
+            'aadhar_card_number' => $additionalData['aadhar_card_number'] ?? null,
+            'pan_card' => $request->pan_card,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'admin_registered' => true,
+        ]);
+
+        $year = date('Y');
+        $applicationNo = 'JITO-JEAP/' . $year . '/' . str_pad($user->id, 4, '0', STR_PAD_LEFT);
+        $user->update(['application_no' => $applicationNo]);
+
+        try {
+            Mail::to($user->email)->send(new AdminUserRegisteredMail($user, $request->password));
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        return redirect()
+            ->route('admin.user-registration.create')
+            ->with('success', 'User registered successfully.');
+    }
+
     /**
      * Website Management Index
      */
     public function websiteIndex()
     {
-        return view('admin.website.index');
+        // Get statistics for website sections
+        $stats = [
+            'home' => [
+                'empowering_dreams' => \App\Models\EmpoweringDream::on('admin_panel')->count(),
+                'key_instructions' => \App\Models\KeyInstruction::on('admin_panel')->count(),
+                'working_committee' => \App\Models\WorkingCommittee::on('admin_panel')->count(),
+                'empowering_future' => \App\Models\EmpoweringFutureWebsite::on('admin_panel')->count(),
+                'achievement_impact' => \App\Models\AchievementImpact::on('admin_panel')->count(),
+                'photo_gallery' => \App\Models\PhotoGallery::on('admin_panel')->count(),
+                'our_testimonials' => \App\Models\OurTestimonial::on('admin_panel')->count(),
+                'success_stories' => \App\Models\SuccessStory::on('admin_panel')->count(),
+            ],
+            'about' => [
+                'jito' => \App\Models\AdminAboutJitoWebsite::on('admin_panel')->count(),
+                'jeap' => \App\Models\JeapWebsite::on('admin_panel')->count(),
+                'board_of_directors' => \App\Models\BoardOfDirectors::on('admin_panel')->count(),
+                'zone_chairmen' => \App\Models\ZoneChairmen::on('admin_panel')->count(),
+                'testimonials_success' => \App\Models\OurTestimonial::on('admin_panel')->count(),
+            ],
+            'application' => [
+                'faqs' => \App\Models\AdminFaq::on('admin_panel')->count(),
+            ],
+            'other' => [
+                'contact' => \App\Models\AdminContact::on('admin_panel')->count(),
+                'universities' => \App\Models\UniversityWebsite::on('admin_panel')->count(),
+                'courses' => \App\Models\CourseWebsite::on('admin_panel')->count(),
+                'colleges' => \App\Models\CollegeWebsite::on('admin_panel')->count(),
+                'be_donor_details' => \App\Models\BeDonorDetail::on('admin_panel')->count(),
+            ],
+        ];
+
+        return view('admin.website.index', compact('stats'));
     }
 
     /**
@@ -123,7 +289,7 @@ class AdminController extends Controller
      */
     public function websiteHomeEmpoweringDreams()
     {
-        $empoweringDreams = EmpoweringDream::orderBy('order', 'asc')->get();
+        $empoweringDreams = EmpoweringDream::on('admin_panel')->orderBy('order', 'asc')->get();
         return view('admin.website.home.empowering-dreams', compact('empoweringDreams'));
     }
 
@@ -133,12 +299,8 @@ class AdminController extends Controller
     public function storeEmpoweringDream(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string',
             'description' => 'required|string',
-            'vision' => 'nullable|string',
-            'vision_description' => 'nullable|string',
-            'mission' => 'nullable|string',
-            'mission_description' => 'nullable|string',
             'features' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
@@ -147,20 +309,33 @@ class AdminController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('uploads/empowering-dreams'), $imageName);
+            $image->move('uploads/empowering-dreams', $imageName);
             $imagePath = 'uploads/empowering-dreams/' . $imageName;
         }
 
-        EmpoweringDream::create([
+        // Handle feature images
+        $featureImages = [];
+        $features = array_map('trim', explode(',', $request->features));
+        $featureImageFiles = $request->file('feature_images', []);
+
+        foreach ($features as $index => $feature) {
+            if (!empty($feature) && isset($featureImageFiles[$index])) {
+                $file = $featureImageFiles[$index];
+                if ($file && $file->isValid()) {
+                    $fileName = time() . '_feature_' . $index . '_' . $file->getClientOriginalName();
+                    $file->move('uploads/empowering-dreams/features', $fileName);
+                    $featureImages[$index] = 'uploads/empowering-dreams/features/' . $fileName;
+                }
+            }
+        }
+
+        EmpoweringDream::on('admin_panel')->create([
             'title' => $request->title,
             'description' => $request->description,
-            'vision' => $request->vision,
-            'vision_description' => $request->vision_description,
-            'mission' => $request->mission,
-            'mission_description' => $request->mission_description,
             'features' => $request->features,
+            'feature_images' => json_encode($featureImages),
             'image' => $imagePath,
-            'order' => EmpoweringDream::max('order') + 1,
+            'order' => EmpoweringDream::on('admin_panel')->max('order') + 1,
             'status' => true,
         ]);
 
@@ -173,7 +348,7 @@ class AdminController extends Controller
     public function updateEmpoweringDream(Request $request, $id)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string',
             'description' => 'required|string',
             'vision' => 'nullable|string',
             'vision_description' => 'nullable|string',
@@ -183,18 +358,38 @@ class AdminController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $dream = EmpoweringDream::findOrFail($id);
+        $dream = EmpoweringDream::on('admin_panel')->findOrFail($id);
 
         $imagePath = $dream->image;
         if ($request->hasFile('image')) {
             // Delete old image if exists
             if ($dream->image && file_exists(public_path($dream->image))) {
-                unlink(public_path($dream->image));
+                unlink($dream->image);
             }
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('uploads/empowering-dreams'), $imageName);
+            $image->move('uploads/empowering-dreams', $imageName);
             $imagePath = 'uploads/empowering-dreams/' . $imageName;
+        }
+
+        // Handle feature images
+        $featureImages = json_decode($dream->feature_images, true) ?? [];
+        $features = array_map('trim', explode(',', $request->features));
+        $featureImageFiles = $request->file('feature_images', []);
+
+        foreach ($features as $index => $feature) {
+            if (!empty($feature)) {
+                if (isset($featureImageFiles[$index]) && $featureImageFiles[$index]->isValid()) {
+                    // Delete old feature image if exists
+                    if (isset($featureImages[$index]) && file_exists(public_path($featureImages[$index]))) {
+                        unlink(public_path($featureImages[$index]));
+                    }
+                    $file = $featureImageFiles[$index];
+                    $fileName = time() . '_feature_' . $index . '_' . $file->getClientOriginalName();
+                    $file->move(public_path('uploads/empowering-dreams/features'), $fileName);
+                    $featureImages[$index] = 'uploads/empowering-dreams/features/' . $fileName;
+                }
+            }
         }
 
         $dream->update([
@@ -205,6 +400,7 @@ class AdminController extends Controller
             'mission' => $request->mission,
             'mission_description' => $request->mission_description,
             'features' => $request->features,
+            'feature_images' => json_encode($featureImages),
             'image' => $imagePath,
         ]);
 
@@ -216,7 +412,7 @@ class AdminController extends Controller
      */
     public function deleteEmpoweringDream($id)
     {
-        $dream = EmpoweringDream::findOrFail($id);
+        $dream = EmpoweringDream::on('admin_panel')->findOrFail($id);
 
         // Delete image if exists
         if ($dream->image && file_exists(public_path($dream->image))) {
@@ -244,27 +440,64 @@ class AdminController extends Controller
     {
         try {
             $validated = $request->validate([
-                'icon' => 'nullable|file|mimes:svg,xml',
+                'icon' => 'nullable|file',
                 'title' => 'required|string|max:255',
                 'description' => 'required|string',
                 'color' => 'required|string|max:20',
                 'display_order' => 'nullable|integer|min:0',
             ]);
 
-            // Handle SVG file upload
             $iconSvg = '';
-            if ($request->hasFile('icon') && $request->file('icon')->isValid()) {
-                try {
-                    $file = $request->file('icon');
-                    $iconSvg = file_get_contents($file->getRealPath());
+            $iconImage = null;
 
-                    // Modify SVG to set proper sizing
-                    $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
-                    $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
-                    $iconSvg = preg_replace('/(<svg)/i', '$1 width="40" height="40"', $iconSvg);
-                } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::error('Error processing icon: ' . $e->getMessage());
-                    $iconSvg = '';
+            if ($request->hasFile('icon') && $request->file('icon')->isValid()) {
+                $file = $request->file('icon');
+                $extension = strtolower($file->getClientOriginalExtension());
+
+                // Check if it's an SVG file
+                if (in_array($extension, ['svg', 'xml'])) {
+                    try {
+                        $iconSvg = file_get_contents($file->getRealPath());
+
+                        // Modify SVG to set proper sizing
+                        $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
+                        $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
+                        $iconSvg = preg_replace('/(<svg)/i', '$1 width="40" height="40"', $iconSvg);
+                    } catch (\Exception $e) {
+                        \Illuminate\Support\Facades\Log::error('Error processing icon: ' . $e->getMessage());
+                        $iconSvg = '';
+                    }
+                } else {
+                    // It's an image file (png, jpg, jpeg, gif, webp, etc.)
+                    try {
+                        // $filename = 'key-instruction-' . time() . '.' . $extension;
+                        // $path = $file->storeAs('key-instructions', $filename, 'public');
+                        // $iconImage = $path;
+                        // \Illuminate\Support\Facades\Log::info('Icon image stored at: ' . $path);
+
+                      $filename = 'key-instruction-' . time() . '.' . $extension;
+
+                    // ✅ define properly
+                    $destinationPath = 'key-instructions';
+
+                    // folder create
+                    if (!file_exists($destinationPath)) {
+                        mkdir($destinationPath, 0777, true);
+                    }
+
+                    // move file
+                    $file->move($destinationPath, $filename);
+
+                    // store path
+                    $iconImage = 'key-instructions/' . $filename;
+
+                    // log
+                    //\Illuminate\Support\Facades\Log::info('Icon image stored at: ' . $iconImage);
+
+
+                    } catch (\Exception $e) {
+                        \Illuminate\Support\Facades\Log::error('Error storing icon image: ' . $e->getMessage());
+                    }
                 }
             } else {
                 // Use a default SVG icon
@@ -278,6 +511,7 @@ class AdminController extends Controller
             $keyInstruction = \App\Models\KeyInstruction::create([
                 'icon' => 'custom',
                 'icon_svg' => $iconSvg,
+                'icon_image' => $iconImage,
                 'title' => $validated['title'],
                 'description' => $validated['description'],
                 'color' => $validated['color'],
@@ -285,7 +519,7 @@ class AdminController extends Controller
                 'is_active' => 1,
             ]);
 
-            \Illuminate\Support\Facades\Log::info('Key Instruction created successfully: ' . $keyInstruction->id);
+            \Illuminate\Support\Facades\Log::info('Key Instruction created successfully: ' . $keyInstruction->id . ' | icon_image: ' . ($iconImage ?? 'null') . ' | icon_svg: ' . (empty($iconSvg) ? 'empty' : 'present'));
 
             return redirect()->route('admin.website.home.key-instruction')->with('success', 'Key Instruction added successfully!');
         } catch (\Exception $e) {
@@ -297,49 +531,168 @@ class AdminController extends Controller
     /**
      * Update Key Instruction
      */
+    // public function updateKeyInstruction(\Illuminate\Http\Request $request, $id)
+    // {
+    //     $validated = $request->validate([
+    //         'title' => 'required|string|max:255',
+    //         'description' => 'required|string',
+    //         'color' => 'required|string|max:20',
+    //         'display_order' => 'nullable|integer|min:0',
+    //     ]);
+
+    //     $keyInstruction = \App\Models\KeyInstruction::findOrFail($id);
+
+    //     // Handle file upload if a new file is uploaded
+    //     if ($request->hasFile('icon') && $request->file('icon')->isValid()) {
+    //         $file = $request->file('icon');
+    //         $extension = $file->getClientOriginalExtension();
+
+    //         // Check if it's an SVG file
+    //         if (in_array(strtolower($extension), ['svg', 'xml'])) {
+    //             try {
+    //                 $iconSvg = file_get_contents($file->getRealPath());
+
+    //                 // Modify SVG to set proper sizing
+    //                 $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
+    //                 $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
+    //                 $iconSvg = preg_replace('/(<svg)/i', '$1 width="40" height="40"', $iconSvg);
+
+    //                 $keyInstruction->icon_svg = $iconSvg;
+    //                 $keyInstruction->icon_image = null;
+    //                 $keyInstruction->icon = 'custom';
+    //             } catch (\Exception $e) {
+    //                 // If there's an error, keep the existing icon
+    //                 if ($request->has('existing_icon_svg')) {
+    //                     $keyInstruction->icon_svg = $request->input('existing_icon_svg');
+    //                 }
+    //             }
+    //         } else {
+    //             // It's an image file (png, jpg, jpeg, gif, webp, etc.)
+    //             try {
+    //                 // Delete old image if exists
+    //                 if ($keyInstruction->icon_image) {
+    //                     \Illuminate\Support\Facades\Storage::disk('public')->delete($keyInstruction->icon_image);
+    //                 }
+
+    //                 // $filename = 'key-instruction-' . time() . '.' . $extension;
+    //                 // $path = $file->storeAs('key-instructions', $filename, 'public');
+    //                 // $keyInstruction->icon_image = $path;
+    //                 // $keyInstruction->icon_svg = null;
+    //                 // $keyInstruction->icon = 'custom';
+    //               $filename = 'key-instruction-' . time() . '.' . $extension;
+
+    //                 // ✅ define properly
+    //                 $destinationPath = 'key-instructions';
+    //                 // folder create
+    //                 if (!file_exists($destinationPath)) {
+    //                     mkdir($destinationPath, 0777, true);
+    //                 }
+
+    //                 // move file
+    //                 $file->move($destinationPath, $filename);
+
+    //                 // store path
+    //                 $iconImage = 'key-instructions/' . $filename;
+
+
+    //             } catch (\Exception $e) {
+    //                 \Illuminate\Support\Facades\Log::error('Error storing icon image: ' . $e->getMessage());
+    //             }
+    //         }
+    //     } elseif ($request->has('existing_icon_svg')) {
+    //         // Keep existing icon SVG
+    //         $keyInstruction->icon_svg = $request->input('existing_icon_svg');
+    //     }
+
+    //     $keyInstruction->title = $validated['title'];
+    //     $keyInstruction->description = $validated['description'];
+    //     $keyInstruction->color = $validated['color'];
+    //     $keyInstruction->display_order = $validated['display_order'] ?? 0;
+    //     $keyInstruction->save();
+
+    //     return redirect()->route('admin.website.home.key-instruction')->with('success', 'Key Instruction updated successfully!');
+    // }
+
+
     public function updateKeyInstruction(\Illuminate\Http\Request $request, $id)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'color' => 'required|string|max:20',
-            'display_order' => 'nullable|integer|min:0',
-        ]);
+{
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'required|string',
+        'color' => 'required|string|max:20',
+        'display_order' => 'nullable|integer|min:0',
+    ]);
 
-        $keyInstruction = \App\Models\KeyInstruction::findOrFail($id);
+    $keyInstruction = \App\Models\KeyInstruction::findOrFail($id);
 
-        // Handle SVG file upload if a new file is uploaded
-        if ($request->hasFile('icon') && $request->file('icon')->isValid()) {
+    if ($request->hasFile('icon') && $request->file('icon')->isValid()) {
+        $file = $request->file('icon');
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        // ✅ SVG Handling
+        if (in_array($extension, ['svg', 'xml'])) {
             try {
-                $file = $request->file('icon');
                 $iconSvg = file_get_contents($file->getRealPath());
 
-                // Modify SVG to set proper sizing
                 $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
                 $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
                 $iconSvg = preg_replace('/(<svg)/i', '$1 width="40" height="40"', $iconSvg);
 
                 $keyInstruction->icon_svg = $iconSvg;
+                $keyInstruction->icon_image = null;
                 $keyInstruction->icon = 'custom';
+
             } catch (\Exception $e) {
-                // If there's an error, keep the existing icon
-                if ($request->has('existing_icon_svg')) {
-                    $keyInstruction->icon_svg = $request->input('existing_icon_svg');
-                }
+                \Log::error('SVG Error: ' . $e->getMessage());
             }
-        } elseif ($request->has('existing_icon_svg')) {
-            // Keep existing icon SVG
-            $keyInstruction->icon_svg = $request->input('existing_icon_svg');
+
+        } else {
+            // ✅ Image Handling
+            try {
+                // 🔥 delete old image (public folder)
+                if ($keyInstruction->icon_image) {
+                    $oldPath = public_path($keyInstruction->icon_image);
+                    if (file_exists($oldPath)) {
+                        unlink($oldPath);
+                    }
+                }
+
+                $filename = 'key-instruction-' . time() . '.' . $extension;
+
+                // ✅ correct path
+                $destinationPath = 'key-instructions';
+
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0777, true);
+                }
+
+                $file->move($destinationPath, $filename);
+
+                // ✅ store in DB
+                $keyInstruction->icon_image = 'key-instructions/' . $filename;
+                $keyInstruction->icon_svg = null;
+                $keyInstruction->icon = 'custom';
+
+            } catch (\Exception $e) {
+                \Log::error('Image Upload Error: ' . $e->getMessage());
+            }
         }
 
-        $keyInstruction->title = $validated['title'];
-        $keyInstruction->description = $validated['description'];
-        $keyInstruction->color = $validated['color'];
-        $keyInstruction->display_order = $validated['display_order'] ?? 0;
-        $keyInstruction->save();
-
-        return redirect()->route('admin.website.home.key-instruction')->with('success', 'Key Instruction updated successfully!');
+    } elseif ($request->has('existing_icon_svg')) {
+        $keyInstruction->icon_svg = $request->input('existing_icon_svg');
     }
+
+    // ✅
+    $keyInstruction->title = $validated['title'];
+    $keyInstruction->description = $validated['description'];
+    $keyInstruction->color = $validated['color'];
+    $keyInstruction->display_order = $validated['display_order'] ?? 0;
+
+    $keyInstruction->save();
+
+    return redirect()->route('admin.website.home.key-instruction')
+        ->with('success', 'Key Instruction updated successfully!');
+}
 
     /**
      * Delete Key Instruction
@@ -473,7 +826,7 @@ class AdminController extends Controller
      */
     public function websiteHomeEmpoweringFuture()
     {
-        $empoweringDreams = EmpoweringDream::orderBy('order')->get();
+        $empoweringDreams = EmpoweringDream::on('admin_panel')->orderBy('order')->get();
         $response = response()->view('admin.website.home.empowering-future', compact('empoweringDreams'));
         $response->header('Cache-Control', 'no-cache, no-store, must-revalidate');
         $response->header('Pragma', 'no-cache');
@@ -489,9 +842,9 @@ class AdminController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'vision' => 'nullable|string',
+
             'vision_description' => 'nullable|string',
-            'mission' => 'nullable|string',
+
             'mission_description' => 'nullable|string',
             'features' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -505,7 +858,7 @@ class AdminController extends Controller
             $imagePath = 'uploads/empowering-dreams/' . $imageName;
         }
 
-        EmpoweringDream::create([
+        EmpoweringDream::on('admin_panel')->create([
             'title' => $request->title,
             'description' => $request->description,
             'vision' => $request->input('vision', ''),
@@ -514,7 +867,7 @@ class AdminController extends Controller
             'mission_description' => $request->input('mission_description', ''),
             'features' => $request->input('features', ''),
             'image' => $imagePath,
-            'order' => EmpoweringDream::max('order') + 1,
+            'order' => EmpoweringDream::on('admin_panel')->max('order') + 1,
             'status' => true,
         ]);
 
@@ -539,7 +892,7 @@ class AdminController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $dream = EmpoweringDream::findOrFail($id);
+        $dream = EmpoweringDream::on('admin_panel')->findOrFail($id);
 
         $imagePath = $dream->image;
         if ($request->hasFile('image')) {
@@ -573,7 +926,7 @@ class AdminController extends Controller
      */
     public function deleteEmpoweringFuture($id)
     {
-        $dream = EmpoweringDream::findOrFail($id);
+        $dream = EmpoweringDream::on('admin_panel')->findOrFail($id);
 
         if ($dream->image && file_exists(public_path($dream->image))) {
             unlink(public_path($dream->image));
@@ -589,7 +942,91 @@ class AdminController extends Controller
      */
     public function websiteHomeAchievementImpact()
     {
-        return view('admin.website.home.achievement-impact');
+        $achievementImpacts = AchievementImpact::orderBy('order', 'asc')->get();
+        return view('admin.website.home.achievement-impact', compact('achievementImpacts'));
+    }
+
+    /**
+     * Store Achievement Impact Data
+     */
+    public function storeAchievementImpact(Request $request)
+    {
+        $request->validate([
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'numbers' => 'nullable|array',
+            'number_texts' => 'nullable|array',
+        ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/achievement-impact'), $imageName);
+            $imagePath = 'uploads/achievement-impact/' . $imageName;
+        }
+
+        AchievementImpact::create([
+            'description' => $request->description,
+            'image' => $imagePath,
+            'numbers' => json_encode($request->numbers ?? []),
+            'number_texts' => json_encode($request->number_texts ?? []),
+            'order' => AchievementImpact::max('order') + 1,
+            'status' => true,
+        ]);
+
+        return redirect()->back()->with('success', 'Data added successfully!');
+    }
+
+    /**
+     * Update Achievement Impact Data
+     */
+    public function updateAchievementImpact(Request $request, $id)
+    {
+        $request->validate([
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'numbers' => 'nullable|array',
+            'number_texts' => 'nullable|array',
+        ]);
+
+        $achievement = AchievementImpact::findOrFail($id);
+
+        $imagePath = $achievement->image;
+        if ($request->hasFile('image')) {
+            if ($achievement->image && file_exists(public_path($achievement->image))) {
+                unlink(public_path($achievement->image));
+            }
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/achievement-impact'), $imageName);
+            $imagePath = 'uploads/achievement-impact/' . $imageName;
+        }
+
+        $achievement->update([
+            'description' => $request->description,
+            'image' => $imagePath,
+            'numbers' => json_encode($request->numbers ?? []),
+            'number_texts' => json_encode($request->number_texts ?? []),
+        ]);
+
+        return redirect()->back()->with('success', 'Data updated successfully!');
+    }
+
+    /**
+     * Delete Achievement Impact Data
+     */
+    public function deleteAchievementImpact($id)
+    {
+        $achievement = AchievementImpact::findOrFail($id);
+
+        if ($achievement->image && file_exists(public_path($achievement->image))) {
+            unlink(public_path($achievement->image));
+        }
+
+        $achievement->delete();
+
+        return redirect()->back()->with('success', 'Data deleted successfully!');
     }
 
     /**
@@ -597,7 +1034,79 @@ class AdminController extends Controller
      */
     public function websiteHomePhotoGallery()
     {
-        return view('admin.website.home.photo-gallery');
+        $photoGalleries = PhotoGallery::orderBy('order', 'asc')->get();
+        return view('admin.website.home.photo-gallery', compact('photoGalleries'));
+    }
+
+    /**
+     * Store Photo Gallery
+     */
+    public function storePhotoGallery(Request $request)
+    {
+        $request->validate([
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        $imagePaths = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('website/photo-gallery'), $imageName);
+                $imagePaths[] = 'website/photo-gallery/' . $imageName;
+            }
+        }
+
+        PhotoGallery::create([
+            'images' => json_encode($imagePaths),
+            'order' => PhotoGallery::max('order') + 1,
+            'status' => true,
+        ]);
+
+        return redirect()->route('admin.website.home.photo-gallery')->with('success', 'Photos added successfully');
+    }
+
+    /**
+     * Update Photo Gallery
+     */
+    public function updatePhotoGallery(Request $request, $id)
+    {
+        $gallery = PhotoGallery::findOrFail($id);
+
+        $imagePaths = json_decode($gallery->images, true) ?? [];
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('website/photo-gallery'), $imageName);
+                $imagePaths[] = 'website/photo-gallery/' . $imageName;
+            }
+        }
+
+        $gallery->update([
+            'images' => json_encode($imagePaths),
+        ]);
+
+        return redirect()->route('admin.website.home.photo-gallery')->with('success', 'Photos updated successfully');
+    }
+
+    /**
+     * Delete Photo Gallery
+     */
+    public function deletePhotoGallery($id)
+    {
+        $gallery = PhotoGallery::findOrFail($id);
+
+        // Delete images from storage
+        $images = json_decode($gallery->images, true) ?? [];
+        foreach ($images as $image) {
+            if (file_exists(public_path($image))) {
+                unlink(public_path($image));
+            }
+        }
+
+        $gallery->delete();
+
+        return redirect()->route('admin.website.home.photo-gallery')->with('success', 'Photo Gallery deleted successfully');
     }
 
     /**
@@ -605,7 +1114,129 @@ class AdminController extends Controller
      */
     public function websiteHomeOurTestimonial()
     {
-        return view('admin.website.home.our-testimonial');
+        $testimonials = \App\Models\OurTestimonial::orderBy('display_order', 'asc')->orderBy('created_at', 'desc')->get();
+        return view('admin.website.home.our-testimonial', compact('testimonials'));
+    }
+
+    /**
+     * Store Our Testimonial
+     */
+    public function storeOurTestimonial(\Illuminate\Http\Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'feedback' => 'required|string',
+                'title' => 'nullable|string|max:255',
+                'date' => 'nullable|date',
+                'display_order' => 'nullable|integer|min:0',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+
+            // Handle image upload
+            $imagePath = null;
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                $image = $request->file('image');
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/testimonials'), $imageName);
+                $imagePath = 'uploads/testimonials/' . $imageName;
+            }
+
+            if (!isset($validated['display_order']) || $validated['display_order'] == 0) {
+                $validated['display_order'] = (\App\Models\OurTestimonial::max('display_order') ?? 0) + 1;
+            }
+
+            $testimonial = \App\Models\OurTestimonial::create([
+                'title' => $validated['title'] ?? null,
+                'image' => $imagePath,
+                'feedback' => $validated['feedback'],
+                'name' => $validated['name'],
+                'date' => $validated['date'] ?? null,
+                'display_order' => $validated['display_order'] ?? 0,
+                'is_active' => 1,
+            ]);
+
+            \Illuminate\Support\Facades\Log::info('Our Testimonial created successfully: ' . $testimonial->id);
+
+            return redirect()->route('admin.website.home.our-testimonial')->with('success', 'Testimonial added successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error storing testimonial: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Update Our Testimonial
+     */
+    public function updateOurTestimonial(\Illuminate\Http\Request $request, $id)
+    {
+        try {
+            $testimonial = \App\Models\OurTestimonial::findOrFail($id);
+
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'feedback' => 'required|string',
+                'title' => 'nullable|string|max:255',
+                'date' => 'nullable|date',
+                'display_order' => 'nullable|integer|min:0',
+                'is_active' => 'nullable|boolean',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+
+            // Handle image upload
+            $imagePath = $testimonial->image;
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                // Delete old image if exists
+                if ($testimonial->image && file_exists(public_path($testimonial->image))) {
+                    unlink(public_path($testimonial->image));
+                }
+                $image = $request->file('image');
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/testimonials'), $imageName);
+                $imagePath = 'uploads/testimonials/' . $imageName;
+            }
+
+            $testimonial->update([
+                'title' => $validated['title'] ?? null,
+                'image' => $imagePath,
+                'feedback' => $validated['feedback'],
+                'name' => $validated['name'],
+                'date' => $validated['date'] ?? null,
+                'display_order' => $validated['display_order'] ?? 0,
+                'is_active' => $validated['is_active'] ?? true,
+            ]);
+
+            \Illuminate\Support\Facades\Log::info('Our Testimonial updated successfully: ' . $id);
+
+            return redirect()->route('admin.website.home.our-testimonial')->with('success', 'Testimonial updated successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error updating testimonial: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Delete Our Testimonial
+     */
+    public function deleteOurTestimonial($id)
+    {
+        try {
+            $testimonial = \App\Models\OurTestimonial::findOrFail($id);
+
+            // Delete image if exists
+            if ($testimonial->image && file_exists(public_path($testimonial->image))) {
+                unlink(public_path($testimonial->image));
+            }
+
+            $testimonial->delete();
+
+            \Illuminate\Support\Facades\Log::info('Our Testimonial deleted successfully: ' . $id);
+
+            return redirect()->route('admin.website.home.our-testimonial')->with('success', 'Testimonial deleted successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error deleting testimonial: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -613,7 +1244,117 @@ class AdminController extends Controller
      */
     public function websiteHomeSuccessStories()
     {
-        return view('admin.website.home.success-stories');
+        $successStories = \App\Models\SuccessStory::orderBy('display_order', 'asc')->orderBy('created_at', 'desc')->get();
+        return view('admin.website.home.success-stories', compact('successStories'));
+    }
+
+    /**
+     * Store Success Story
+     */
+    public function storeSuccessStory(\Illuminate\Http\Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'video_link' => 'nullable|url',
+                'display_order' => 'nullable|integer|min:0',
+            ]);
+
+            // Handle image upload
+            $imagePath = null;
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                $image = $request->file('image');
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/success-stories'), $imageName);
+                $imagePath = 'uploads/success-stories/' . $imageName;
+            }
+
+            if (!isset($validated['display_order']) || $validated['display_order'] == 0) {
+                $validated['display_order'] = (\App\Models\SuccessStory::max('display_order') ?? 0) + 1;
+            }
+
+            $story = \App\Models\SuccessStory::create([
+                'image' => $imagePath,
+                'video_link' => $validated['video_link'] ?? null,
+                'display_order' => $validated['display_order'] ?? 0,
+                'is_active' => 1,
+            ]);
+
+            \Illuminate\Support\Facades\Log::info('Success Story created successfully: ' . $story->id);
+
+            return redirect()->route('admin.website.home.success-stories')->with('success', 'Success Story added successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error storing success story: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Update Success Story
+     */
+    public function updateSuccessStory(\Illuminate\Http\Request $request, $id)
+    {
+        try {
+            $story = \App\Models\SuccessStory::findOrFail($id);
+
+            $validated = $request->validate([
+                'video_link' => 'nullable|url',
+                'display_order' => 'nullable|integer|min:0',
+                'is_active' => 'nullable|boolean',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+
+            // Handle image upload
+            $imagePath = $story->image;
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                // Delete old image if exists
+                if ($story->image && file_exists(public_path($story->image))) {
+                    unlink(public_path($story->image));
+                }
+                $image = $request->file('image');
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/success-stories'), $imageName);
+                $imagePath = 'uploads/success-stories/' . $imageName;
+            }
+
+            $story->update([
+                'image' => $imagePath,
+                'video_link' => $validated['video_link'] ?? null,
+                'display_order' => $validated['display_order'] ?? 0,
+                'is_active' => $validated['is_active'] ?? true,
+            ]);
+
+            \Illuminate\Support\Facades\Log::info('Success Story updated successfully: ' . $id);
+
+            return redirect()->route('admin.website.home.success-stories')->with('success', 'Success Story updated successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error updating success story: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Delete Success Story
+     */
+    public function deleteSuccessStory($id)
+    {
+        try {
+            $story = \App\Models\SuccessStory::findOrFail($id);
+
+            // Delete image if exists
+            if ($story->image && file_exists(public_path($story->image))) {
+                unlink(public_path($story->image));
+            }
+
+            $story->delete();
+
+            \Illuminate\Support\Facades\Log::info('Success Story deleted successfully: ' . $id);
+
+            return redirect()->route('admin.website.home.success-stories')->with('success', 'Success Story deleted successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error deleting success story: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -622,6 +1363,690 @@ class AdminController extends Controller
     public function websiteAbout()
     {
         return view('admin.website.about');
+    }
+
+    /**
+     * Website About - Jito Page
+     */
+    public function websiteAboutJito()
+    {
+        $items = AdminAboutJitoWebsite::orderBy('display_order')->get();
+        $stats = AdminJitoStats::orderBy('display_order')->get();
+        return view('admin.website.about.jito', compact('items', 'stats'));
+    }
+
+    /**
+     * Store Jito About Section
+     */
+    public function storeAboutJito(Request $request)
+    {
+        $request->validate([
+            'title' => 'nullable|string|max:255',
+            'paragraphs' => 'required|array|min:1',
+            'paragraphs.*' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'number' => 'nullable|string|max:255',
+            'stat_text' => 'nullable|string|max:255',
+            'display_order' => 'nullable|integer|min:0',
+            'status' => 'nullable|boolean',
+        ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/about-jito'), $imageName);
+            $imagePath = 'uploads/about-jito/' . $imageName;
+        }
+
+        AdminAboutJitoWebsite::create([
+            'title' => $request->title,
+            'paragraphs' => $request->paragraphs,
+            'image' => $imagePath,
+            'number' => $request->number,
+            'stat_text' => $request->stat_text,
+            'display_order' => $request->display_order ?? (AdminAboutJitoWebsite::max('display_order') + 1),
+            'status' => $request->status ?? true,
+        ]);
+
+        return redirect()->back()->with('success', 'Data added successfully!');
+    }
+
+    /**
+     * Update Jito About Section
+     */
+    public function updateAboutJito(Request $request, $id)
+    {
+        $request->validate([
+            'title' => 'nullable|string|max:255',
+            'paragraphs' => 'required|array|min:1',
+            'paragraphs.*' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'number' => 'nullable|string|max:255',
+            'stat_text' => 'nullable|string|max:255',
+            'display_order' => 'nullable|integer|min:0',
+            'status' => 'nullable|boolean',
+        ]);
+
+        $item = AdminAboutJitoWebsite::findOrFail($id);
+
+        $imagePath = $item->image;
+        if ($request->hasFile('image')) {
+            if ($item->image && file_exists(public_path($item->image))) {
+                unlink(public_path($item->image));
+            }
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/about-jito'), $imageName);
+            $imagePath = 'uploads/about-jito/' . $imageName;
+        }
+
+        $item->update([
+            'title' => $request->title,
+            'paragraphs' => $request->paragraphs,
+            'image' => $imagePath,
+            'number' => $request->number,
+            'stat_text' => $request->stat_text,
+            'display_order' => $request->display_order ?? $item->display_order,
+            'status' => $request->status ?? $item->status,
+        ]);
+
+        return redirect()->back()->with('success', 'Data updated successfully!');
+    }
+
+    /**
+     * Delete Jito About Section
+     */
+    public function deleteAboutJito($id)
+    {
+        $item = AdminAboutJitoWebsite::findOrFail($id);
+        if ($item->image && file_exists(public_path($item->image))) {
+            unlink(public_path($item->image));
+        }
+        $item->delete();
+
+        return redirect()->back()->with('success', 'Data deleted successfully!');
+    }
+
+    /**
+     * Store Jito Stats
+     */
+    public function storeJitoStats(Request $request)
+    {
+        $request->validate([
+            'number' => 'required|string|max:255',
+            'text' => 'required|string|max:255',
+            'display_order' => 'nullable|integer|min:0',
+            'status' => 'nullable|boolean',
+        ]);
+
+        AdminJitoStats::create([
+            'number' => $request->number,
+            'text' => $request->text,
+            'display_order' => $request->display_order ?? (AdminJitoStats::max('display_order') + 1),
+            'status' => $request->status ?? true,
+        ]);
+
+        return redirect()->back()->with('success', 'Stat added successfully!');
+    }
+
+    /**
+     * Update Jito Stats
+     */
+    public function updateJitoStats(Request $request, $id)
+    {
+        $request->validate([
+            'number' => 'required|string|max:255',
+            'text' => 'required|string|max:255',
+            'display_order' => 'nullable|integer|min:0',
+            'status' => 'nullable|boolean',
+        ]);
+
+        $item = AdminJitoStats::findOrFail($id);
+
+        $item->update([
+            'number' => $request->number,
+            'text' => $request->text,
+            'display_order' => $request->display_order ?? $item->display_order,
+            'status' => $request->status ?? $item->status,
+        ]);
+
+        return redirect()->back()->with('success', 'Stat updated successfully!');
+    }
+
+    /**
+     * Delete Jito Stats
+     */
+    public function deleteJitoStats($id)
+    {
+        $item = AdminJitoStats::findOrFail($id);
+        $item->delete();
+
+        return redirect()->back()->with('success', 'Stat deleted successfully!');
+    }
+
+    /**
+     * Website About - Jeap Page
+     */
+    public function websiteAboutJeap()
+    {
+        $items = \App\Models\JeapWebsite::orderBy('display_order', 'asc')->get();
+        return view('admin.website.about.jeap', compact('items'));
+    }
+
+    /**
+     * Store JEAP Data
+     */
+    public function storeJeap(Request $request)
+    {
+        $request->validate([
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'images.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+        ]);
+
+        $imagePath = null;
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time().'_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/jeap'), $imageName);
+            $imagePath = 'uploads/jeap/'.$imageName;
+        }
+
+        // Handle multiple images
+        $imagesPaths = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $img) {
+                if ($img) {
+                    $imageName = time().'_'.uniqid().'_'.$img->getClientOriginalName();
+                    $img->move(public_path('uploads/jeap'), $imageName);
+                    $imagesPaths[] = 'uploads/jeap/'.$imageName;
+                }
+            }
+        }
+
+        // Filter out empty values and re-index arrays
+        $smallTitles = array_values(array_filter($request->small_titles ?? [], function ($value) {
+            return $value !== null && $value !== '';
+        }));
+
+        $smallDescriptions = array_values(array_filter($request->small_descriptions ?? [], function ($value) {
+            return $value !== null && $value !== '';
+        }));
+
+        \App\Models\JeapWebsite::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'small_titles' => !empty($smallTitles) ? $smallTitles : null,
+            'small_descriptions' => !empty($smallDescriptions) ? $smallDescriptions : null,
+            'image' => $imagePath,
+            'images' => !empty($imagesPaths) ? $imagesPaths : null
+        ]);
+
+        return back()->with('success', 'JEAP Data Added Successfully');
+    }
+
+    /**
+     * Update JEAP Data
+     */
+    public function updateJeap(Request $request, $id)
+    {
+        $item = \App\Models\JeapWebsite::findOrFail($id);
+
+        $request->validate([
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'images.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+        ]);
+
+        $imagePath = $item->image;
+
+        if ($request->hasFile('image')) {
+            if ($item->image && file_exists(public_path($item->image))) {
+                unlink(public_path($item->image));
+            }
+            $image = $request->file('image');
+            $imageName = time().'_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/jeap'), $imageName);
+            $imagePath = 'uploads/jeap/'.$imageName;
+        }
+
+        // Handle multiple images
+        $imagesPaths = $item->images ? $item->images : [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $img) {
+                if ($img) {
+                    $imageName = time() . '_' . uniqid() . '_' . $img->getClientOriginalName();
+                    $img->move(public_path('uploads/jeap'), $imageName);
+                    $imagesPaths[] = 'uploads/jeap/' . $imageName;
+                }
+            }
+        }
+
+        // Filter out empty values and re-index arrays
+        $smallTitles = array_values(array_filter($request->small_titles ?? [], function ($value) {
+            return $value !== null && $value !== '';
+        }));
+
+        $smallDescriptions = array_values(array_filter($request->small_descriptions ?? [], function ($value) {
+            return $value !== null && $value !== '';
+        }));
+
+        $item->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'small_titles' => !empty($smallTitles) ? $smallTitles : null,
+            'small_descriptions' => !empty($smallDescriptions) ? $smallDescriptions : null,
+            'image' => $imagePath,
+            'images' => !empty($imagesPaths) ? $imagesPaths : null
+        ]);
+
+        return back()->with('success', 'JEAP Data Updated Successfully');
+    }
+
+    /**
+     * Delete JEAP Data
+     */
+    public function deleteJeap($id)
+    {
+        $item = \App\Models\JeapWebsite::findOrFail($id);
+
+        if ($item->image && file_exists(public_path($item->image))) {
+            unlink(public_path($item->image));
+        }
+
+        // Delete additional images
+        if ($item->images) {
+            foreach ($item->images as $img) {
+                if (file_exists(public_path($img))) {
+                    unlink(public_path($img));
+                }
+            }
+        }
+
+        $item->delete();
+
+        return back()->with('success', 'JEAP Data Deleted Successfully');
+    }
+
+    /**
+     * Delete single image from JEAP
+     */
+    public function deleteJeapImage($id)
+    {
+        $item = \App\Models\JeapWebsite::findOrFail($id);
+        $imageIndex = request()->input('image_index');
+
+        if ($item->images && isset($item->images[$imageIndex])) {
+            $imagePath = $item->images[$imageIndex];
+
+            // Delete the file
+            if (file_exists(public_path($imagePath))) {
+                unlink(public_path($imagePath));
+            }
+
+            // Remove from array
+            $images = $item->images;
+            unset($images[$imageIndex]);
+            $item->images = array_values($images);
+            $item->save();
+        }
+
+        return back()->with('success', 'Image Deleted Successfully');
+    }
+
+    /**
+     * Website About - Board of Directors Page
+     */
+    public function websiteAboutBoardOfDirectors()
+    {
+        $items = BoardOfDirectors::orderBy('display_order', 'asc')->get();
+        return view('admin.website.about.board-of-directors', compact('items'));
+    }
+
+    /**
+     * Store Board of Directors Data
+     */
+    public function storeBoardOfDirectors(Request $request)
+    {
+        $request->validate([
+            'name' => 'nullable|string|max:255',
+            'post' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+        ]);
+
+        $imagePath = null;
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time().'_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/board-of-directors'), $imageName);
+            $imagePath = 'uploads/board-of-directors/'.$imageName;
+        }
+
+        BoardOfDirectors::create([
+            'name' => $request->name,
+            'post' => $request->post,
+            'email' => $request->email,
+            'image' => $imagePath
+        ]);
+
+        return back()->with('success', 'Board of Directors Data Added Successfully');
+    }
+
+    /**
+     * Update Board of Directors Data
+     */
+    public function updateBoardOfDirectors(Request $request, $id)
+    {
+        $item = BoardOfDirectors::findOrFail($id);
+
+        $request->validate([
+            'name' => 'nullable|string|max:255',
+            'post' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+        ]);
+
+        $imagePath = $item->image;
+
+        if ($request->hasFile('image')) {
+            if ($item->image && file_exists(public_path($item->image))) {
+                unlink(public_path($item->image));
+            }
+            $image = $request->file('image');
+            $imageName = time().'_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/board-of-directors'), $imageName);
+            $imagePath = 'uploads/board-of-directors/'.$imageName;
+        }
+
+        $item->update([
+            'name' => $request->name,
+            'post' => $request->post,
+            'email' => $request->email,
+            'image' => $imagePath
+        ]);
+
+        return back()->with('success', 'Board of Directors Data Updated Successfully');
+    }
+
+    /**
+     * Delete Board of Directors Data
+     */
+    public function deleteBoardOfDirectors($id)
+    {
+        $item = BoardOfDirectors::findOrFail($id);
+
+        if ($item->image && file_exists(public_path($item->image))) {
+            unlink(public_path($item->image));
+        }
+
+        $item->delete();
+
+        return back()->with('success', 'Board of Directors Data Deleted Successfully');
+    }
+
+    /**
+     * Website About - Zone Chairmen Page
+     */
+    public function websiteAboutZoneChairmen()
+    {
+        $items = ZoneChairmen::orderBy('display_order', 'asc')->get();
+        return view('admin.website.about.zone-chairmen', compact('items'));
+    }
+
+    /**
+     * Store Zone Chairmen Data
+     */
+    public function storeZoneChairmen(Request $request)
+    {
+        $request->validate([
+            'name' => 'nullable|string|max:255',
+            'post' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+        ]);
+
+        $imagePath = null;
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time().'_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/zone-chairmen'), $imageName);
+            $imagePath = 'uploads/zone-chairmen/'.$imageName;
+        }
+
+        ZoneChairmen::create([
+            'name' => $request->name,
+            'post' => $request->post,
+            'email' => $request->email,
+            'image' => $imagePath
+        ]);
+
+        return back()->with('success', 'Zone Chairmen Data Added Successfully');
+    }
+
+    /**
+     * Update Zone Chairmen Data
+     */
+    public function updateZoneChairmen(Request $request, $id)
+    {
+        $item = ZoneChairmen::findOrFail($id);
+
+        $request->validate([
+            'name' => 'nullable|string|max:255',
+            'post' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+        ]);
+
+        $imagePath = $item->image;
+
+        if ($request->hasFile('image')) {
+            if ($item->image && file_exists(public_path($item->image))) {
+                unlink(public_path($item->image));
+            }
+            $image = $request->file('image');
+            $imageName = time().'_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/zone-chairmen'), $imageName);
+            $imagePath = 'uploads/zone-chairmen/'.$imageName;
+        }
+
+        $item->update([
+            'name' => $request->name,
+            'post' => $request->post,
+            'email' => $request->email,
+            'image' => $imagePath
+        ]);
+
+        return back()->with('success', 'Zone Chairmen Data Updated Successfully');
+    }
+
+    /**
+     * Delete Zone Chairmen Data
+     */
+    public function deleteZoneChairmen($id)
+    {
+        $item = ZoneChairmen::findOrFail($id);
+
+        if ($item->image && file_exists(public_path($item->image))) {
+            unlink(public_path($item->image));
+        }
+
+        $item->delete();
+
+        return back()->with('success', 'Zone Chairmen Data Deleted Successfully');
+    }
+
+    /**
+     * Website About - Testimonials / Success Story Page
+     */
+    public function websiteAboutTestimonialsSuccess()
+    {
+        $testimonials = \App\Models\OurTestimonial::orderBy('display_order', 'asc')->orderBy('created_at', 'desc')->get();
+        $successStories = \App\Models\SuccessStory::orderBy('display_order', 'asc')->orderBy('created_at', 'desc')->get();
+        return view('admin.website.about.testimonials-success', compact('testimonials', 'successStories'));
+    }
+
+    /**
+     * Store Testimonials or Success Story
+     */
+    public function storeTestimonialsSuccess(\Illuminate\Http\Request $request)
+    {
+        try {
+            $type = $request->input('type', 'testimonial');
+
+            $validated = $request->validate([
+                'type' => 'required|in:testimonial,success_story',
+                'name' => 'required|string|max:255' . ($type == 'testimonial' ? '' : '|nullable'),
+                'title' => 'nullable|string|max:255',
+                'feedback' => 'required|string',
+                'date' => 'nullable|date',
+                'display_order' => 'nullable|integer|min:0',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+
+            // Handle image upload
+            $imagePath = null;
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                $image = $request->file('image');
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/testimonials'), $imageName);
+                $imagePath = 'uploads/testimonials/' . $imageName;
+            }
+
+            if (!isset($validated['display_order']) || $validated['display_order'] == 0) {
+                if ($type == 'testimonial') {
+                    $validated['display_order'] = (\App\Models\OurTestimonial::max('display_order') ?? 0) + 1;
+                } else {
+                    $validated['display_order'] = (\App\Models\SuccessStory::max('display_order') ?? 0) + 1;
+                }
+            }
+
+            if ($type == 'testimonial') {
+                \App\Models\OurTestimonial::create([
+                    'title' => $validated['title'] ?? null,
+                    'image' => $imagePath,
+                    'feedback' => $validated['feedback'],
+                    'name' => $validated['name'],
+                    'date' => $validated['date'] ?? null,
+                    'display_order' => $validated['display_order'] ?? 0,
+                    'is_active' => 1,
+                ]);
+            } else {
+                \App\Models\SuccessStory::create([
+                    'title' => $validated['title'] ?? null,
+                    'image' => $imagePath,
+                    'description' => $validated['feedback'],
+                    'name' => $validated['name'] ?? null,
+                    'date' => $validated['date'] ?? null,
+                    'display_order' => $validated['display_order'] ?? 0,
+                    'is_active' => 1,
+                ]);
+            }
+
+            \Illuminate\Support\Facades\Log::info('Testimonial/Success Story created successfully');
+
+            return redirect()->route('admin.website.about.testimonials-success')->with('success', 'Added successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error storing testimonial/success story: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Update Testimonials or Success Story
+     */
+    public function updateTestimonialsSuccess(\Illuminate\Http\Request $request, $id)
+    {
+        try {
+            $type = $request->input('type', 'testimonial');
+
+            $validated = $request->validate([
+                'type' => 'required|in:testimonial,success_story',
+                'name' => 'required|string|max:255' . ($type == 'testimonial' ? '' : '|nullable'),
+                'title' => 'nullable|string|max:255',
+                'feedback' => 'required|string',
+                'date' => 'nullable|date',
+                'display_order' => 'nullable|integer|min:0',
+                'is_active' => 'nullable|boolean',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+
+            if ($type == 'testimonial') {
+                $item = \App\Models\OurTestimonial::findOrFail($id);
+            } else {
+                $item = \App\Models\SuccessStory::findOrFail($id);
+            }
+
+            // Handle image upload
+            $imagePath = $item->image;
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                if ($item->image && file_exists(public_path($item->image))) {
+                    unlink(public_path($item->image));
+                }
+                $image = $request->file('image');
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/testimonials'), $imageName);
+                $imagePath = 'uploads/testimonials/' . $imageName;
+            }
+
+            if ($type == 'testimonial') {
+                $item->update([
+                    'title' => $validated['title'] ?? null,
+                    'image' => $imagePath,
+                    'feedback' => $validated['feedback'],
+                    'name' => $validated['name'],
+                    'date' => $validated['date'] ?? null,
+                    'display_order' => $validated['display_order'] ?? 0,
+                    'is_active' => $validated['is_active'] ?? 1,
+                ]);
+            } else {
+                $item->update([
+                    'title' => $validated['title'] ?? null,
+                    'image' => $imagePath,
+                    'description' => $validated['feedback'],
+                    'name' => $validated['name'] ?? null,
+                    'date' => $validated['date'] ?? null,
+                    'display_order' => $validated['display_order'] ?? 0,
+                    'is_active' => $validated['is_active'] ?? 1,
+                ]);
+            }
+
+            return redirect()->route('admin.website.about.testimonials-success')->with('success', 'Updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Delete Testimonials or Success Story
+     */
+    public function deleteTestimonialsSuccess($id)
+    {
+        try {
+            $type = request()->input('type', 'testimonial');
+
+            if ($type == 'testimonial') {
+                $item = \App\Models\OurTestimonial::findOrFail($id);
+            } else {
+                $item = \App\Models\SuccessStory::findOrFail($id);
+            }
+
+            if ($item->image && file_exists(public_path($item->image))) {
+                unlink(public_path($item->image));
+            }
+
+            $item->delete();
+
+            return redirect()->route('admin.website.about.testimonials-success')->with('success', 'Deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -637,7 +2062,79 @@ class AdminController extends Controller
      */
     public function websiteContact()
     {
-        return view('admin.website.contact');
+        $items = \App\Models\AdminContact::orderBy('id', 'desc')->get();
+        return view('admin.website.contact', compact('items'));
+    }
+
+    /**
+     * Store Contact
+     */
+    public function storeContact(Request $request)
+    {
+        $request->validate([
+            'title' => 'nullable|string',
+            'description' => 'nullable|string',
+        ]);
+
+        // Filter out empty small_titles and small_descriptions
+        $smallTitles = array_filter($request->small_titles ?? [], function ($value) {
+            return !is_null($value) && $value !== '';
+        });
+        $smallDescriptions = array_filter($request->small_descriptions ?? [], function ($value) {
+            return !is_null($value) && $value !== '';
+        });
+
+        \App\Models\AdminContact::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'small_titles' => array_values($smallTitles),
+            'small_descriptions' => array_values($smallDescriptions),
+            'is_active' => $request->is_active ?? true,
+        ]);
+
+        return back()->with('success', 'Contact Data Added Successfully');
+    }
+
+    /**
+     * Update Contact
+     */
+    public function updateContact(Request $request, $id)
+    {
+        $request->validate([
+            'title' => 'nullable|string',
+            'description' => 'nullable|string',
+        ]);
+
+        $contact = \App\Models\AdminContact::findOrFail($id);
+
+        // Filter out empty small_titles and small_descriptions
+        $smallTitles = array_filter($request->small_titles ?? [], function ($value) {
+            return !is_null($value) && $value !== '';
+        });
+        $smallDescriptions = array_filter($request->small_descriptions ?? [], function ($value) {
+            return !is_null($value) && $value !== '';
+        });
+
+        $contact->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'small_titles' => array_values($smallTitles),
+            'small_descriptions' => array_values($smallDescriptions),
+            'is_active' => $request->is_active ?? true,
+        ]);
+
+        return back()->with('success', 'Contact Data Updated Successfully');
+    }
+
+    /**
+     * Delete Contact
+     */
+    public function deleteContact($id)
+    {
+        $contact = \App\Models\AdminContact::findOrFail($id);
+        $contact->delete();
+
+        return back()->with('success', 'Contact Data Deleted Successfully');
     }
 
     /**
@@ -646,6 +2143,78 @@ class AdminController extends Controller
     public function websiteDonor()
     {
         return view('admin.website.donor');
+    }
+
+    /**
+     * Website Be Donor Page Management
+     */
+    public function websiteBeDonor()
+    {
+        $beDonorDetails = BeDonorDetail::orderBy('display_order')->get();
+        return view('admin.website.be-donor', compact('beDonorDetails'));
+    }
+
+    /**
+     * Store Be Donor Detail
+     */
+    public function storeBeDonorDetail(Request $request)
+    {
+        $request->validate([
+            'benefit' => 'required|string|max:255',
+            'description' => 'required|string',
+        ]);
+
+        $beDonorDetail = new BeDonorDetail();
+        $beDonorDetail->icon = $request->icon;
+        $beDonorDetail->benefit = $request->benefit;
+        $beDonorDetail->description = $request->description;
+        $beDonorDetail->become_member_step = $request->become_member_step;
+        $beDonorDetail->what_to_do = $request->what_to_do;
+        $beDonorDetail->display_order = $request->display_order ?? 0;
+        $beDonorDetail->save();
+
+        return redirect()->route('admin.website.be-donor')->with('success', 'Data added successfully!');
+    }
+
+    /**
+     * Update Be Donor Detail
+     */
+    public function updateBeDonorDetail(Request $request, $id)
+    {
+        $request->validate([
+            'benefit' => 'required|string|max:255',
+            'description' => 'required|string',
+        ]);
+
+        $beDonorDetail = BeDonorDetail::findOrFail($id);
+        $beDonorDetail->icon = $request->icon;
+        $beDonorDetail->benefit = $request->benefit;
+        $beDonorDetail->description = $request->description;
+        $beDonorDetail->become_member_step = $request->become_member_step;
+        $beDonorDetail->what_to_do = $request->what_to_do;
+        $beDonorDetail->display_order = $request->display_order ?? 0;
+        $beDonorDetail->save();
+
+        return redirect()->route('admin.website.be-donor')->with('success', 'Data updated successfully!');
+    }
+
+    /**
+     * Delete Be Donor Detail
+     */
+    public function deleteBeDonorDetail($id)
+    {
+        $beDonorDetail = BeDonorDetail::findOrFail($id);
+        $beDonorDetail->delete();
+
+        return redirect()->route('admin.website.be-donor')->with('success', 'Data deleted successfully!');
+    }
+
+    /**
+     * Website Our Donor Page Management
+     */
+    public function websiteOurDonor()
+    {
+        return view('admin.website.our-donor');
     }
 
     /**
@@ -661,7 +2230,292 @@ class AdminController extends Controller
      */
     public function websiteUniversity()
     {
-        return view('admin.website.university');
+        $universities = UniversityWebsite::orderBy('id', 'desc')->get();
+        return view('admin.website.university', compact('universities'));
+    }
+
+    /**
+     * Store University Data
+     */
+    public function storeUniversity(Request $request)
+    {
+        $request->validate([
+            'university_name' => 'required|string|max:255',
+
+            'university_type' => 'required|in:domestic,foreign',
+            'country' => 'required|string|max:255',
+            'state' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+        ]);
+
+        UniversityWebsite::create([
+            'university_name' => $request->university_name,
+
+            'university_type' => $request->university_type,
+            'country' => $request->country,
+            'state' => $request->state,
+            'city' => $request->city,
+            'status' => true,
+        ]);
+
+        return redirect()->route('admin.website.university')->with('success', 'University added successfully!');
+    }
+
+    /**
+     * Update University Data
+     */
+    public function updateUniversity(Request $request, $id)
+    {
+        $request->validate([
+            'university_name' => 'required|string|max:255',
+
+            'university_type' => 'required|in:domestic,foreign',
+            'country' => 'required|string|max:255',
+            'state' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+        ]);
+
+        $university = UniversityWebsite::findOrFail($id);
+        $university->update([
+            'university_name' => $request->university_name,
+
+            'university_type' => $request->university_type,
+            'country' => $request->country,
+            'state' => $request->state,
+            'city' => $request->city,
+        ]);
+
+        return redirect()->route('admin.website.university')->with('success', 'University updated successfully!');
+    }
+
+    /**
+     * Delete University Data
+     */
+    public function deleteUniversity($id)
+    {
+        $university = UniversityWebsite::findOrFail($id);
+        $university->delete();
+
+        return redirect()->route('admin.website.university')->with('success', 'University deleted successfully!');
+    }
+
+    /**
+     * Toggle University Status
+     */
+    public function toggleUniversityStatus($id)
+    {
+        $university = UniversityWebsite::findOrFail($id);
+        $university->status = !$university->status;
+        $university->save();
+
+        return redirect()->route('admin.website.university')->with('success', 'University status updated successfully!');
+    }
+
+    /**
+     * Website Course Page Management
+     */
+    public function websiteCourse()
+    {
+        $courses = CourseWebsite::orderBy('id', 'desc')->get();
+        return view('admin.website.course', compact('courses'));
+    }
+
+    /**
+     * Store Course Data
+     */
+    public function storeCourse(Request $request)
+    {
+        $request->validate([
+            'course_name' => 'required|string|max:255',
+        ]);
+
+        // Check if course already exists
+        $existingCourse = CourseWebsite::where('course_name', $request->course_name)->first();
+        if ($existingCourse) {
+            return redirect()->route('admin.website.course')->with('error', 'Course already exists!');
+        }
+
+        CourseWebsite::create([
+            'course_name' => $request->course_name,
+            'duration' => $request->duration,
+            'status' => true,
+        ]);
+
+        return redirect()->route('admin.website.course')->with('success', 'Course added successfully!');
+    }
+
+    /**
+     * Update Course Data
+     */
+    public function updateCourse(Request $request, $id)
+    {
+        $request->validate([
+            'course_name' => 'required|string|max:255',
+        ]);
+
+        $course = CourseWebsite::findOrFail($id);
+        $course->update([
+            'course_name' => $request->course_name,
+            'duration' => $request->duration,
+        ]);
+
+        return redirect()->route('admin.website.course')->with('success', 'Course updated successfully!');
+    }
+
+    /**
+     * Delete Course Data
+     */
+    public function deleteCourse($id)
+    {
+        $course = CourseWebsite::findOrFail($id);
+        $course->delete();
+
+        return redirect()->route('admin.website.course')->with('success', 'Course deleted successfully!');
+    }
+
+    /**
+     * Website College Page Management
+     */
+    public function websiteCollege()
+    {
+        $colleges = CollegeWebsite::orderBy('id', 'desc')->get();
+        $universities = UniversityWebsite::where('status', true)->orderBy('university_name', 'asc')->get();
+        $courses = CourseWebsite::orderBy('course_name', 'asc')->get();
+        return view('admin.website.college', compact('colleges', 'universities', 'courses'));
+    }
+
+    /**
+     * Store College Data
+     */
+    public function storeCollege(Request $request)
+    {
+        $request->validate([
+            'college_name' => 'required|string|max:255',
+            'university_name' => 'required|string|max:255',
+            'college_type' => 'required|in:domestic,foreign',
+            'country' => 'required|string|max:255',
+            'state' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+        ]);
+
+        CollegeWebsite::create([
+            'college_name' => $request->college_name,
+            'university_name' => $request->university_name,
+            'college_type' => $request->college_type,
+            'country' => $request->country,
+            'state' => $request->state,
+            'city' => $request->city,
+            'courses' => json_encode($request->courses ?? []),
+            'status' => true,
+        ]);
+
+        return redirect()->route('admin.website.college')->with('success', 'College added successfully!');
+    }
+
+    /**
+     * Update College Data
+     */
+    public function updateCollege(Request $request, $id)
+    {
+        $request->validate([
+            'college_name' => 'required|string|max:255',
+            'university_name' => 'required|string|max:255',
+            'college_type' => 'required|in:domestic,foreign',
+            'country' => 'required|string|max:255',
+            'state' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+        ]);
+
+        $college = CollegeWebsite::findOrFail($id);
+        $college->update([
+            'college_name' => $request->college_name,
+            'university_name' => $request->university_name,
+            'college_type' => $request->college_type,
+            'country' => $request->country,
+            'state' => $request->state,
+            'city' => $request->city,
+            'courses' => json_encode($request->courses ?? []),
+        ]);
+
+        return redirect()->route('admin.website.college')->with('success', 'College updated successfully!');
+    }
+
+    /**
+     * Delete College Data
+     */
+    public function deleteCollege($id)
+    {
+        $college = CollegeWebsite::findOrFail($id);
+        $college->delete();
+
+        return redirect()->route('admin.website.college')->with('success', 'College deleted successfully!');
+    }
+
+    /**
+     * Website Application - FAQs Page
+     */
+    public function websiteApplicationFaqs()
+    {
+        $faqs = \App\Models\AdminFaq::orderBy('sort_order', 'asc')->orderBy('id', 'desc')->get();
+        return view('admin.website.application.faqs', compact('faqs'));
+    }
+
+    /**
+     * Store FAQ
+     */
+    public function storeFaq(Request $request)
+    {
+        $request->validate([
+            'question' => 'required|string',
+            'answer' => 'required|string',
+        ]);
+
+        $maxOrder = \App\Models\AdminFaq::max('sort_order') ?? 0;
+
+        \App\Models\AdminFaq::create([
+            'question' => $request->question,
+            'answer' => $request->answer,
+            'question_hi' => $request->question_hi,
+            'answer_hi' => $request->answer_hi,
+            'sort_order' => $maxOrder + 1,
+            'is_active' => $request->is_active ?? true,
+        ]);
+
+        return back()->with('success', 'FAQ Added Successfully');
+    }
+
+    /**
+     * Update FAQ
+     */
+    public function updateFaq(Request $request, $id)
+    {
+        $request->validate([
+            'question' => 'required|string',
+            'answer' => 'required|string',
+        ]);
+
+        $faq = \App\Models\AdminFaq::findOrFail($id);
+
+        $faq->update([
+            'question' => $request->question,
+            'answer' => $request->answer,
+            'question_hi' => $request->question_hi,
+            'answer_hi' => $request->answer_hi,
+            'is_active' => $request->is_active ?? true,
+        ]);
+
+        return back()->with('success', 'FAQ Updated Successfully');
+    }
+
+    /**
+     * Delete FAQ
+     */
+    public function deleteFaq($id)
+    {
+        $faq = \App\Models\AdminFaq::findOrFail($id);
+        $faq->delete();
+
+        return back()->with('success', 'FAQ Deleted Successfully');
     }
 
     /**
@@ -935,30 +2789,100 @@ class AdminController extends Controller
         }
     }
 
-    public function apexStage1Approved()
+    public function apexStage1Approved(Request $request)
     {
         // Get users where final_status = 'approved'
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('apex_1_status', 'approved');
             })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
-            ->get();
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
 
         $this->attachLatestLoanCategoryType($users);
 
         return view('admin.apex.stage1.approved', compact('users'));
     }
 
-    public function apexStage1Pending()
+    public function apexStage1Pending(Request $request)
     {
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($query) {
                 $query->where('current_stage', 'apex_1')
                     ->where('apex_1_status', 'pending')->whereNull('apex_1_reject_remarks');
             })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
-            ->get();
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
 
         $this->attachLatestLoanCategoryType($users);
 
@@ -966,15 +2890,50 @@ class AdminController extends Controller
     }
 
 
-    public function apexStage1Hold()
+    public function apexStage1Hold(Request $request)
     {
         // Get users where final_status = 'rejected'
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('apex_1_status', 'rejected');
             })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
-            ->get();
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
 
         $this->attachLatestLoanCategoryType($users);
         return view('admin.apex.stage1.hold', compact('users'));
@@ -1141,7 +3100,7 @@ class AdminController extends Controller
             'repayment_type' => 'required|in:yearly,half_yearly,quarterly,monthly',
             'no_of_cheques_to_be_collected' => 'required|integer|min:1',
             'repayment_starting_from' => 'required|date',
-            'remarks_for_approval' => 'required|string|max:2000',
+            'remarks_for_approval' => 'required|string',
             'can_be_jito_member' => 'nullable|in:yes,no',
             'jito_member_date' => 'nullable|date',
             'can_be_jeap_donor' => 'nullable|in:yes,no',
@@ -2105,7 +4064,7 @@ class AdminController extends Controller
     public function holdStage(Request $request, User $user, $stage)
     {
         $request->validate([
-            'admin_remark'   => 'required|string|max:2000',
+            'admin_remark'   => 'required|string',
             'resubmit_steps' => 'nullable|array',
             'resubmit_steps.*' => 'in:personal,education,family,funding,guarantor,documents,final',
         ]);
@@ -2333,7 +4292,7 @@ class AdminController extends Controller
         return back()->with('success', 'Application unheld successfully. Status reset to pending.');
     }
 
-    public function chapterPending()
+    public function chapterPending(Request $request)
     {
         $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($query) {
@@ -2341,18 +4300,53 @@ class AdminController extends Controller
                     ->where('final_status', 'in_progress')
                     ->where('chapter_status', 'pending');
             });
-        if (request('chapter_id')) {
-            $query->where('chapter_id', request('chapter_id'));
+        if ($request->filled('chapter_id')) {
+            $query->where('chapter_id', $request->input('chapter_id'));
         }
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
         $this->attachLatestLoanCategoryType($users);
 
-        return view('admin.chapters.stage2.pending', compact('users'));
+        return view('admin.chapters.stage2.pending', compact('users'))->with('filterRoute', 'admin.chapter.pending');
     }
 
-    public function chapterApproved()
+    public function chapterApproved(Request $request)
     {
         $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
@@ -2361,14 +4355,49 @@ class AdminController extends Controller
         if (request('chapter_id')) {
             $query->where('chapter_id', request('chapter_id'));
         }
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
         $this->attachLatestLoanCategoryType($users);
-        return view('admin.chapters.stage2.approved', compact('users'));
+        return view('admin.chapters.stage2.approved', compact('users'))->with('filterRoute', 'admin.chapter.approved');
     }
 
-    public function chapterHold()
+    public function chapterHold(Request $request)
     {
         $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
@@ -2377,12 +4406,46 @@ class AdminController extends Controller
         if (request('chapter_id')) {
             $query->where('chapter_id', request('chapter_id'));
         }
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
-
         $this->attachLatestLoanCategoryType($users);
-        return view('admin.chapters.stage2.hold', compact('users'));
+        return view('admin.chapters.stage2.hold', compact('users'))->with('filterRoute', 'admin.chapter.hold');
     }
 
     public function chapterUserDetail(User $user)
@@ -2397,27 +4460,97 @@ class AdminController extends Controller
         return view('admin.chapters.stage2.user_detail', compact('user', 'data', 'inter_date', 'loanCategory'));
     }
 
-    public function workingCommitteeApproved()
+    public function workingCommitteeApproved(Request $request)
     {
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('working_committee_status', 'approved');
-            })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            });
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
         $this->attachLatestLoanCategoryType($users);
         return view('admin.working_committee.approved', compact('users'));
     }
 
-    public function workingCommitteePending()
+    public function workingCommitteePending(Request $request)
     {
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($query) {
                 $query->where('current_stage', 'working_committee')
                     ->where('final_status', 'in_progress');
-            })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            });
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
         $this->attachLatestLoanCategoryType($users);
@@ -2425,37 +4558,99 @@ class AdminController extends Controller
         return view('admin.working_committee.pending', compact('users'));
     }
 
-    public function workingCommitteeHold()
+    public function workingCommitteeHold(Request $request)
     {
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('working_committee_status', 'hold');
-            })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            });
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
         $this->attachLatestLoanCategoryType($users);
         return view('admin.working_committee.hold', compact('users'));
     }
 
-    public function workingCommitteeReject()
+    public function workingCommitteeReject(Request $request)
     {
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('working_committee_status', 'rejected');
-            })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            });
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
-        $loanCategoryByUser = Loan_category::whereIn('user_id', $users->pluck('id'))
-            ->orderByDesc('id')
-            ->get()
-            ->unique('user_id')
-            ->pluck('type', 'user_id');
-
-        $users->each(function ($user) use ($loanCategoryByUser) {
-            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
-        });
+        $this->attachLatestLoanCategoryType($users);
         return view('admin.working_committee.hold', compact('users'));
     }
 
@@ -2679,44 +4874,149 @@ class AdminController extends Controller
         return view('admin.chapters.chapter_details', compact('chapter'));
     }
 
-    public function chapterTotalApplied()
+    public function chapterTotalApplied(Request $request)
     {
-        $chapter_id = request('chapter_id');
-        $users = User::where('role', 'user')
+        $chapter_id = $request->input('chapter_id');
+        $query = User::where('role', 'user')
             ->where('chapter_id', $chapter_id)
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
-            ->get();
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
 
         $this->attachLatestLoanCategoryType($users);
         return view('admin.chapters.stage2.approved', compact('users')); // Reuse existing view
     }
 
-    public function chapterDraft()
+    public function chapterDraft(Request $request)
     {
-        $chapter_id = request('chapter_id');
-        $users = User::where('role', 'user')
+        $chapter_id = $request->input('chapter_id');
+        $query = User::where('role', 'user')
             ->where('chapter_id', $chapter_id)
-            ->where('application_status', 'draft')
-            ->get();
+            ->where('application_status', 'draft');
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
 
         $this->attachLatestLoanCategoryType($users);
-        return view('admin.chapters.stage2.pending', compact('users')); // Reuse existing view
+        return view('admin.chapters.stage2.pending', compact('users'))->with('filterRoute', 'admin.chapter.draft'); // Reuse existing view
     }
 
-    public function chapterApexPending()
+    public function chapterApexPending(Request $request)
     {
         $chapter_id = request('chapter_id');
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->where('chapter_id', $chapter_id)
             ->where('submit_status', 'submited')
             ->where('application_status', 'submitted')
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('apex_1_status', 'pending');
-            })
-            ->get();
+            });
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
 
         $this->attachLatestLoanCategoryType($users);
-        return view('admin.chapters.stage2.pending', compact('users')); // Reuse existing view
+        return view('admin.chapters.stage2.pending', compact('users'))->with('filterRoute', 'admin.chapter.apex-pending'); // Reuse existing view
     }
 
     public function chapterWorkingCommitteePending()
@@ -2734,10 +5034,10 @@ class AdminController extends Controller
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
         $this->attachLatestLoanCategoryType($users);
-        return view('admin.chapters.stage2.pending', compact('users')); // Reuse existing view
+        return view('admin.chapters.stage2.pending', compact('users'))->with('filterRoute', 'admin.chapter.working-committee-pending'); // Reuse existing view
     }
 
-    public function chapterWorkingCommitteeApproved()
+    public function chapterWorkingCommitteeApproved(Request $request)
     {
         $chapter_id = request('chapter_id');
         $query = User::where('role', 'user')
@@ -2749,26 +5049,96 @@ class AdminController extends Controller
         if (request('chapter_id')) {
             $query->where('chapter_id', request('chapter_id'));
         }
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
         $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
         $this->attachLatestLoanCategoryType($users);
-        return view('admin.chapters.stage2.approved', compact('users')); // Reuse existing view
+        return view('admin.chapters.stage2.approved', compact('users'))->with('filterRoute', 'admin.chapter.working-committee-approved'); // Reuse existing view
     }
 
-    public function chapterResubmit()
+    public function chapterResubmit(Request $request)
     {
         $chapter_id = request('chapter_id');
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->where('chapter_id', $chapter_id)
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('apex_1_status', 'rejected');
-            })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
+            });
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
             ->get();
 
         $this->attachLatestLoanCategoryType($users);
-        return view('admin.chapters.stage2.hold', compact('users')); // Reuse existing view
+        return view('admin.chapters.stage2.hold', compact('users'))->with('filterRoute', 'admin.chapter.resubmit'); // Reuse existing view
     }
 
     public function chapterUserDashboard()
@@ -2899,6 +5269,387 @@ class AdminController extends Controller
         return $pdf->stream($filename);
     }
 
+    // public function generateShortSummaryPDF(User $user)
+    // {
+    //     // Load relations
+    //     $user->load([
+    //         'workflowStatus',
+    //         'educationDetail',
+    //         'disbursementSchedules.disbursement', // IMPORTANT
+    //         'repayments'
+    //     ]);
+
+    //     $workflow = $user->workflowStatus;
+    //     $educationDetail = $user->educationDetail;
+
+    //     // Working committee
+    //     $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
+
+    //     // =========================
+    //     // 🔹 DISBURSEMENT DATA
+    //     // =========================
+    //     $disbursementSchedules = $user->disbursementSchedules
+    //         ->sortBy('installment_no')
+    //         ->values();
+
+    //     $disbursements = $disbursementSchedules
+    //         ->map(function ($schedule) {
+    //             return $schedule->disbursement;
+    //         })
+    //         ->filter()
+    //         ->values();
+
+    //     $paidDisbursementSchedules = $disbursementSchedules
+    //         ->filter(fn($schedule) => (bool) $schedule->disbursement)
+    //         ->values();
+
+    //     $totalDisbursed = $disbursements->sum('amount');
+
+    //     // First disbursement
+    //     $firstDisbursement = $disbursements->sortBy('disbursement_date')->first();
+    //     $firstSchedule = $disbursementSchedules->first();
+
+    //     // =========================
+    //     // 🔹 REPAYMENT DATA
+    //     // =========================
+    //     $repayments = $user->repayments
+    //         ->sortBy('payment_date')
+    //         ->values();
+
+    //     $paidRepayments = $repayments->filter(function ($repayment) {
+    //         return strtolower(trim((string) $repayment->status)) === 'paid';
+    //     });
+
+    //     $totalRepaid = $paidRepayments->sum('amount');
+
+    //     // =========================
+    //     // 🔹 REPAYMENT SUMMARY (NEW LOGIC)
+    //     // =========================
+
+    //     // Only paid repayments (sorted)
+    //     $paidRepayments = $repayments
+    //         ->filter(function ($r) {
+    //             return strtolower(trim((string)$r->status)) === 'paid';
+    //         })
+    //         ->sortBy('payment_date')
+    //         ->values();
+
+
+
+    //     // =========================
+    //     // 🔹 COMBINED REPAYMENT SCHEDULE
+    //     // =========================
+
+    //     // =========================
+    //     // 🔹 PHASE-WISE SUMMARY (FINAL)
+    //     // =========================
+
+    //     $repaymentRows = [];
+
+    //     $installmentAmounts = $workingCommitteeApproval->installment_amount ?? [];
+    //     $monthsArray = $workingCommitteeApproval->no_of_months ?? [];
+    //     $totalsArray = $workingCommitteeApproval->total ?? [];
+
+    //     $startDate = \Carbon\Carbon::parse($workingCommitteeApproval->repayment_starting_from);
+
+
+    //     // Running outstanding
+    //     $totalExpected = array_sum($totalsArray); // 300000
+    //     $runningOutstanding = $totalExpected;
+
+    //     // Paid repayments
+    //     $payments = $repayments
+    //         ->filter(fn($r) => strtolower(trim($r->status)) === 'paid')
+    //         ->sortBy('payment_date')
+    //         ->values();
+
+    //     $totalPaid = $payments->sum('amount');
+
+    //     $runningOutstanding = $totalDisbursed;
+
+    //     $currentDate = $startDate->copy();
+
+    //     $totalExpected = array_sum($totalsArray);
+
+    //     foreach ($totalsArray as $index => $totalAmount) {
+
+    //         $months = (int) ($monthsArray[$index] ?? 0);
+
+    //         // Calculate how much paid falls into this phase
+    //         $phasePaid = 0;
+
+    //         foreach ($payments as $payment) {
+    //             if (
+    //                 $payment->payment_date >= $currentDate &&
+    //                 $payment->payment_date < $currentDate->copy()->addMonths($months)
+    //             ) {
+
+    //                 $phasePaid += $payment->amount;
+    //             }
+    //         }
+
+    //         $runningOutstanding -= $phasePaid;
+
+    //         $repaymentRows[] = [
+    //             'date' => $currentDate->copy(),
+    //             'expected' => (float) $totalAmount,
+    //             'paid' => $phasePaid,
+    //             'outstanding' => max($runningOutstanding, 0),
+    //         ];
+
+    //         // Move to next phase start date
+    //         $currentDate->addMonths($months);
+    //     }
+
+    //     // Total paid
+    //     $totalPaid = $repayments
+    //         ->filter(fn($r) => strtolower(trim($r->status)) === 'paid')
+    //         ->sum('amount');
+
+    //     $pdcInstallments = $this->getPdcInstallmentsWithStatus($user);
+
+    //     // Outstanding
+    //     $outstanding = $totalExpected - $totalPaid;
+
+    //     // =========================
+    //     // 🔹 PASS TO VIEW
+    //     // =========================
+    //     $pdf = Pdf::loadView('pdf.jeap-short-summary', compact(
+    //         'user',
+    //         'workflow',
+    //         'educationDetail',
+    //         'workingCommitteeApproval',
+    //         'disbursements',
+    //         'disbursementSchedules',
+    //         'paidDisbursementSchedules',
+    //         'firstDisbursement',
+    //         'firstSchedule',
+    //         'repayments',
+    //         'pdcInstallments',
+    //         'totalDisbursed',
+    //         'totalRepaid',
+    //         'outstanding',
+    //         'repaymentRows',
+    //         'totalPaid',
+    //         'totalExpected'
+    //     ));
+
+    //     $pdf->setPaper('a4', 'portrait');
+
+    //     return $pdf->stream('JEAP_Short_Summary_' . $user->id . '.pdf');
+    // }
+
+    public function generateShortSummaryPDF(User $user)
+    {
+        // Load relations
+        $user->load([
+            'workflowStatus',
+            'educationDetail',
+            'disbursementSchedules.disbursement',
+            'repayments'
+        ]);
+
+        $workflow = $user->workflowStatus;
+        $educationDetail = $user->educationDetail;
+
+        // Working committee
+        $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
+
+        // =========================
+        // 🔹 DISBURSEMENT DATA
+        // =========================
+        $disbursementSchedules = $user->disbursementSchedules
+            ->sortBy('installment_no')
+            ->values();
+
+        $disbursements = $disbursementSchedules
+            ->map(fn($schedule) => $schedule->disbursement)
+            ->filter()
+            ->values();
+
+
+        $paidDisbursementSchedules = $disbursementSchedules
+            ->filter(fn($schedule) => (bool) $schedule->disbursement)
+            ->values();
+
+        $totalDisbursed = $disbursements->sum('amount');
+
+        $firstDisbursement = $disbursements->sortBy('disbursement_date')->first();
+        $firstSchedule = $disbursementSchedules->first();
+
+        // =========================
+        // 🔹 REPAYMENT DATA
+        // =========================
+        $repayments = $user->repayments
+            ->sortBy('payment_date')
+            ->values();
+
+        // =========================
+        // 🔹 PHASE-WISE REPAYMENT SUMMARY
+        // =========================
+
+        // Safe array handling (in case casting not applied)
+        $installmentAmounts = is_array($workingCommitteeApproval->installment_amount)
+            ? $workingCommitteeApproval->installment_amount
+            : json_decode($workingCommitteeApproval->installment_amount, true);
+
+        $monthsArray = is_array($workingCommitteeApproval->no_of_months)
+            ? $workingCommitteeApproval->no_of_months
+            : json_decode($workingCommitteeApproval->no_of_months, true);
+
+        $totalsArray = is_array($workingCommitteeApproval->total)
+            ? $workingCommitteeApproval->total
+            : json_decode($workingCommitteeApproval->total, true);
+
+        // Start date
+        $startDate = \Carbon\Carbon::parse($workingCommitteeApproval->repayment_starting_from);
+
+        // ✅ TOTAL EXPECTED (IMPORTANT)
+        $totalExpected = array_sum($totalsArray);
+
+        // Paid repayments
+        $payments = $repayments
+            ->filter(fn($r) => strtolower(trim($r->status)) === 'paid')
+            ->sortBy('payment_date')
+            ->values();
+
+        $totalPaid = $payments->sum('amount');
+
+        // Running outstanding starts from TOTAL EXPECTED
+        $runningOutstanding = $totalExpected;
+
+        $repaymentRows = [];
+        $currentDate = $startDate->copy();
+
+        $remainingPayments = $payments->values();
+
+
+        foreach ($totalsArray as $index => $totalAmount) {
+
+            $months = (int) ($monthsArray[$index] ?? 0);
+
+            $expected = (float) $totalAmount;
+            $phasePaid = 0;
+
+            $paymentDate = null; // ✅ track payment date
+
+            while ($remainingPayments->isNotEmpty() && $expected > 0) {
+
+                $payment = $remainingPayments->shift(); // full object
+
+                if (!$paymentDate) {
+                    $paymentDate = $payment->payment_date; // ✅ first payment date
+                }
+
+                if ($payment->amount <= $expected) {
+                    $phasePaid += $payment->amount;
+                    $expected -= $payment->amount;
+                } else {
+                    $phasePaid += $expected;
+
+                    // push remaining back
+                    $remainingPayments->prepend((object)[
+                        'amount' => $payment->amount - $expected,
+                        'payment_date' => $payment->payment_date
+                    ]);
+
+                    $expected = 0;
+                }
+            }
+
+            $runningOutstanding -= $phasePaid;
+
+            $repaymentRows[] = [
+                // ✅ IMPORTANT CHANGE HERE
+                'date' => $phasePaid > 0
+                    ? \Carbon\Carbon::parse($paymentDate)
+                    : $currentDate->copy(),
+
+                'expected' => (float) $totalAmount,
+                'paid' => $phasePaid,
+                'outstanding' => max($runningOutstanding, 0),
+            ];
+
+            $currentDate->addMonths($months);
+        }
+
+        // Final outstanding
+        $outstanding = $totalExpected - $totalPaid;
+
+        // =========================
+        // 🔹 OTHER DATA
+        // =========================
+        $pdcInstallments = $this->getPdcInstallmentsWithStatus($user);
+
+        // =========================
+        // 🔹 PASS TO VIEW
+        // =========================
+        $pdf = Pdf::loadView('pdf.jeap-short-summary', compact(
+            'user',
+            'workflow',
+            'educationDetail',
+            'workingCommitteeApproval',
+            'disbursements',
+            'disbursementSchedules',
+            'paidDisbursementSchedules',
+            'firstDisbursement',
+            'firstSchedule',
+            'repayments',
+            'pdcInstallments',
+            'totalDisbursed',
+            'repaymentRows',
+            'totalPaid',
+            'totalExpected',
+            'outstanding'
+        ));
+
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->stream('JEAP_Short_Summary_' . $user->id . '.pdf');
+    }
+
+    public function generateFinancialClosurePDF(User $user)
+    {
+        $user->load(['repayments']);
+
+        $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
+
+        $userNumber = $user->application_no;
+
+        if (!$workingCommitteeApproval) {
+            abort(404, 'Approval data not found');
+        }
+
+        $totalsArray = is_array($workingCommitteeApproval->total)
+            ? $workingCommitteeApproval->total
+            : json_decode($workingCommitteeApproval->total, true);
+
+        $totalExpected = array_sum($totalsArray);
+
+        $payments = $user->repayments
+            ->filter(fn($r) => strtolower(trim($r->status)) === 'paid');
+
+        $totalPaid = $payments->sum('amount');
+
+        // ❗ Closure check
+        if ($totalPaid < $totalExpected) {
+            return back()->with('error', 'Loan is not fully repaid yet.');
+        }
+
+        // ✅ Closure date = LAST payment date
+        $closureDate = $payments->sortByDesc('payment_date')->first()->payment_date;
+
+        $pdf = Pdf::loadView('pdf.financial-closure-report', [
+            'user' => $user,
+            'totalExpected' => $totalExpected,
+            'totalPaid' => $totalPaid,
+            'closureDate' => $closureDate,
+            'approval' => $workingCommitteeApproval,
+            'userNumber' => $userNumber
+        ]);
+
+        return $pdf->stream('Financial_Closure_Report_' . $user->id . '.pdf');
+    }
     public function viewSanctionLetter(User $user)
     {
         // Load all related data
@@ -2931,72 +5682,155 @@ class AdminController extends Controller
 
 
 
-    public function apexStage2Approved()
+    public function apexStage2Approved(Request $request)
     {
         // Get users where final_status = 'approved'
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('apex_2_status', 'approved');
             })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
-            ->get();
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
 
-        $loanCategoryByUser = Loan_category::whereIn('user_id', $users->pluck('id'))
-            ->orderByDesc('id')
-            ->get()
-            ->unique('user_id')
-            ->pluck('type', 'user_id');
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
 
-        $users->each(function ($user) use ($loanCategoryByUser) {
-            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
-        });
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
+
+        $this->attachLatestLoanCategoryType($users);
+
         return view('admin.apex.stage2.approved', compact('users'));
     }
 
-    public function apexStage2Pending()
+    public function apexStage2Pending(Request $request)
     {
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($query) {
                 $query->where('current_stage', 'apex_2')
                     ->where('apex_2_status', 'pending')->whereNull('apex_2_reject_remarks');
             })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
-            ->get();
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
 
-        $loanCategoryByUser = Loan_category::whereIn('user_id', $users->pluck('id'))
-            ->orderByDesc('id')
-            ->get()
-            ->unique('user_id')
-            ->pluck('type', 'user_id');
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
 
-        $users->each(function ($user) use ($loanCategoryByUser) {
-            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
-        });
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
+
+        $this->attachLatestLoanCategoryType($users);
 
         return view('admin.apex.stage2.pending', compact('users'));
     }
 
 
-    public function apexStage2Hold()
+    public function apexStage2Hold(Request $request)
     {
         // Get users where final_status = 'rejected'
-        $users = User::where('role', 'user')
+        $query = User::where('role', 'user')
             ->whereHas('workflowStatus', function ($q) {
                 $q->where('apex_2_status', 'rejected')
-                    ->where('current_stage', 'apex_2');;
+                    ->where('current_stage', 'apex_2');
             })
-            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document'])
-            ->get();
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
 
-        $loanCategoryByUser = Loan_category::whereIn('user_id', $users->pluck('id'))
-            ->orderByDesc('id')
-            ->get()
-            ->unique('user_id')
-            ->pluck('type', 'user_id');
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
 
-        $users->each(function ($user) use ($loanCategoryByUser) {
-            $user->loan_category_type = $loanCategoryByUser[$user->id] ?? null;
-        });
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
+
+        $this->attachLatestLoanCategoryType($users);
+
         return view('admin.apex.stage2.hold', compact('users'));
     }
 
@@ -3033,11 +5867,20 @@ class AdminController extends Controller
         $pdcDetail = \App\Models\PdcDetail::where('user_id', $user->id)->first();
         $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
         $courierDocumentChecklist = $this->getUploadedCourierDocumentChecklist($user, $loanCategory);
+        $chequeTotal = $this->getChequeTotalForUser($user);
+        $courierHistory = $pdcDetail
+            ? $pdcDetail->courierHistories()->with('actor')->orderBy('action_at')->get()
+            : collect();
+        $apexUsers = ApexLeadership::query()
+            ->where('status', true)
+            ->where('show_hide', true)
+            ->orderBy('name')
+            ->get();
 
         // Load edit bank detail request if exists
         $editBankDetailRequest = \App\Models\EditBankDetailRequest::where('user_id', $user->id)->latest()->first();
 
-        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory', 'editBankDetailRequest', 'courierDocumentChecklist'));
+        return view('admin.apex.stage2.user_detail', compact('user', 'pdcDetail', 'loanCategory', 'editBankDetailRequest', 'courierDocumentChecklist', 'chequeTotal', 'courierHistory', 'apexUsers'));
     }
 
     /**
@@ -3080,7 +5923,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'user_id' => 'required|integer',
-            'admin_remark' => 'required|string|max:2000',
+            'admin_remark' => 'required|string',
         ]);
 
         $editRequest = \App\Models\EditBankDetailRequest::where('user_id', $request->user_id)
@@ -3112,7 +5955,7 @@ class AdminController extends Controller
     public function storeCourierReceive(Request $request, User $user)
     {
         $request->validate([
-            'courier_received_by' => 'required|string|max:255',
+            'courier_received_by' => 'required|string|max:255|exists:admin_panel.apex_leadership,name',
             'courier_received_date' => 'required|date',
         ]);
 
@@ -3122,6 +5965,12 @@ class AdminController extends Controller
             return back()->with('error', 'PDC details not found.');
         }
 
+        if ($pdcDetail->courier_receive_status === 'approved') {
+            return back()->with('error', 'Courier is already approved. Further receive entries are not allowed.');
+        }
+
+        $isResent = $pdcDetail->courier_receive_status === 'hold';
+
         $oldValues = $pdcDetail->only([
             'courier_received_by',
             'courier_received_date',
@@ -3130,6 +5979,14 @@ class AdminController extends Controller
             'courier_receive_processed_by',
             'courier_receive_processed_at',
             'courier_receive_verified_documents',
+            'courier_receive_approved_by',
+            'courier_receive_approved_at',
+            'courier_cheque_total',
+            'courier_cheque_received',
+            'courier_cheque_pending',
+            'courier_send_back',
+            'courier_send_back_reason',
+            'courier_send_back_date',
             'status',
             'admin_reject_remark',
         ]);
@@ -3142,6 +5999,14 @@ class AdminController extends Controller
             'courier_receive_processed_by' => null,
             'courier_receive_processed_at' => null,
             'courier_receive_verified_documents' => null,
+            'courier_receive_approved_by' => null,
+            'courier_receive_approved_at' => null,
+            'courier_cheque_total' => null,
+            'courier_cheque_received' => null,
+            'courier_cheque_pending' => null,
+            'courier_send_back' => null,
+            'courier_send_back_reason' => null,
+            'courier_send_back_date' => null,
             'status' => 'submitted',
             'admin_reject_remark' => null,
         ]);
@@ -3154,8 +6019,29 @@ class AdminController extends Controller
             'courier_receive_processed_by',
             'courier_receive_processed_at',
             'courier_receive_verified_documents',
+            'courier_receive_approved_by',
+            'courier_receive_approved_at',
+            'courier_cheque_total',
+            'courier_cheque_received',
+            'courier_cheque_pending',
+            'courier_send_back',
+            'courier_send_back_reason',
+            'courier_send_back_date',
             'status',
             'admin_reject_remark',
+        ]);
+
+        PdcCourierHistory::create([
+            'pdc_detail_id' => $pdcDetail->id,
+            'user_id' => $user->id,
+            'action' => $isResent ? 'resent_received' : 'received',
+            'action_by' => Auth::id(),
+            'action_at' => now(),
+            'data' => [
+                'courier_received_by' => $request->courier_received_by,
+                'courier_received_date' => $request->courier_received_date,
+                'is_resend' => $isResent,
+            ],
         ]);
 
         $actor = Auth::user();
@@ -3185,7 +6071,14 @@ class AdminController extends Controller
     {
         $request->validate([
             'courier_action' => 'required|in:approve,hold',
-            'courier_receive_hold_remark' => 'nullable|string|max:2000',
+            'courier_approved_by' => 'required_if:courier_action,approve|nullable|integer|exists:admin_panel.apex_leadership,id',
+            'courier_hold_by' => 'required_if:courier_action,hold|nullable|integer|exists:admin_panel.apex_leadership,id',
+            'courier_receive_hold_remark' => 'nullable|string',
+            'courier_cheque_received' => 'required_if:courier_action,approve|nullable|integer|min:0',
+            'courier_cheque_pending' => 'required_if:courier_action,approve|nullable|integer|min:0',
+            'courier_send_back' => 'nullable|in:0,1',
+            'courier_send_back_reason' => 'nullable|string',
+            'courier_send_back_date' => 'nullable|date',
         ]);
 
         $pdcDetail = PdcDetail::where('user_id', $user->id)->first();
@@ -3198,10 +6091,26 @@ class AdminController extends Controller
             return back()->with('error', 'Please save courier receive details before approval or hold.');
         }
 
+        $chequeTotal = $this->getChequeTotalForUser($user, $pdcDetail);
+        $chequeReceived = null;
+        $chequePending = null;
+
         if ($request->courier_action === 'hold') {
+            $chequeReceived = $pdcDetail->courier_cheque_received;
+            $chequePending = $pdcDetail->courier_cheque_pending;
+
             $request->validate([
-                'courier_receive_hold_remark' => 'required|string|max:2000',
+                'courier_receive_hold_remark' => 'required|string',
             ]);
+
+            $holdBy = ApexLeadership::query()->find($request->courier_hold_by);
+            $sendBack = $request->input('courier_send_back') === '1';
+            if ($sendBack) {
+                $request->validate([
+                    'courier_send_back_reason' => 'required|string',
+                    'courier_send_back_date' => 'required|date',
+                ]);
+            }
 
             $oldValues = $pdcDetail->only([
                 'courier_receive_status',
@@ -3209,6 +6118,12 @@ class AdminController extends Controller
                 'courier_receive_processed_by',
                 'courier_receive_processed_at',
                 'courier_receive_verified_documents',
+                'courier_cheque_total',
+                'courier_cheque_received',
+                'courier_cheque_pending',
+                'courier_send_back',
+                'courier_send_back_reason',
+                'courier_send_back_date',
                 'status',
                 'admin_reject_remark',
             ]);
@@ -3216,9 +6131,15 @@ class AdminController extends Controller
             $pdcDetail->update([
                 'courier_receive_status' => 'hold',
                 'courier_receive_hold_remark' => $request->courier_receive_hold_remark,
-                'courier_receive_processed_by' => Auth::id(),
+                'courier_receive_processed_by' => $holdBy?->id,
                 'courier_receive_processed_at' => now(),
                 'courier_receive_verified_documents' => null,
+                'courier_cheque_total' => $chequeTotal,
+                'courier_cheque_received' => $chequeReceived,
+                'courier_cheque_pending' => $chequePending,
+                'courier_send_back' => $sendBack,
+                'courier_send_back_reason' => $sendBack ? $request->courier_send_back_reason : null,
+                'courier_send_back_date' => $sendBack ? $request->courier_send_back_date : null,
                 'status' => 'correction_required',
                 'admin_reject_remark' => $request->courier_receive_hold_remark,
             ]);
@@ -3229,8 +6150,32 @@ class AdminController extends Controller
                 'courier_receive_processed_by',
                 'courier_receive_processed_at',
                 'courier_receive_verified_documents',
+                'courier_cheque_total',
+                'courier_cheque_received',
+                'courier_cheque_pending',
+                'courier_send_back',
+                'courier_send_back_reason',
+                'courier_send_back_date',
                 'status',
                 'admin_reject_remark',
+            ]);
+
+            PdcCourierHistory::create([
+                'pdc_detail_id' => $pdcDetail->id,
+                'user_id' => $user->id,
+                'action' => 'hold',
+                'action_by' => Auth::id(),
+                'action_at' => now(),
+                'data' => [
+                    'hold_reason' => $request->courier_receive_hold_remark,
+                    'hold_by' => $holdBy?->name,
+                    'send_back' => $sendBack,
+                    'send_back_reason' => $sendBack ? $request->courier_send_back_reason : null,
+                    'send_back_date' => $sendBack ? $request->courier_send_back_date : null,
+                    'cheque_total' => $chequeTotal,
+                    'cheque_received' => $chequeReceived,
+                    'cheque_pending' => $chequePending,
+                ],
             ]);
 
             $actor = Auth::user();
@@ -3255,13 +6200,29 @@ class AdminController extends Controller
             }
 
             try {
-                Mail::to($user->email)->send(new SendBackForCorrectionMail($user, $request->courier_receive_hold_remark));
-                Log::info("Courier receive hold email sent to user {$user->id} ({$user->email})");
+                if ($sendBack) {
+                    Mail::to($user->email)->send(new SendBackForCorrectionMail($user, $request->courier_receive_hold_remark));
+                    Log::info("Courier receive hold email sent to user {$user->id} ({$user->email})");
+                }
             } catch (\Exception $e) {
                 Log::error("Failed to send courier receive hold email to user {$user->id}: " . $e->getMessage());
             }
 
-            return back()->with('success', 'Courier receive marked as hold and mail sent to the student.');
+            return back()->with(
+                'success',
+                $sendBack
+                    ? 'Courier receive marked as hold and mail sent to the student.'
+                    : 'Courier receive marked as hold.'
+            );
+        }
+
+        $chequeReceived = (int) $request->courier_cheque_received;
+        $chequePending = (int) $request->courier_cheque_pending;
+
+        if ($chequeTotal !== null && ($chequeReceived + $chequePending) !== (int) $chequeTotal) {
+            return back()->withErrors([
+                'courier_cheque_received' => 'Received + pending cheques must equal total cheques (' . $chequeTotal . ').',
+            ]);
         }
 
         $loanCategory = \App\Models\Loan_category::where('user_id', $user->id)->latest()->first();
@@ -3272,28 +6233,9 @@ class AdminController extends Controller
             ->values()
             ->all();
 
-        if (empty($expectedDocuments)) {
-            throw ValidationException::withMessages([
-                'courier_verified_documents' => 'No uploaded documents were found for courier approval.',
-            ]);
-        }
-
-        sort($expectedDocuments);
-        sort($approvedDocuments);
-
-        // Filter out 'Other' from expected documents (it's optional for approval)
-        $requiredDocuments = array_filter($expectedDocuments, function ($doc) {
-            return strtolower(trim($doc)) !== 'other';
-        });
-        $requiredDocuments = array_values($requiredDocuments);
-
-        // Check if all required documents (except 'Other') are selected
-        $missingDocuments = array_diff($requiredDocuments, $approvedDocuments);
-
-        if (!empty($missingDocuments)) {
-            throw ValidationException::withMessages([
-                'courier_verified_documents' => 'Please select all documents except "Other" for approving. Missing: ' . implode(', ', $missingDocuments),
-            ]);
+        // Allow partial selection; just normalize to expected values when available.
+        if (!empty($expectedDocuments)) {
+            $approvedDocuments = array_values(array_intersect($expectedDocuments, $approvedDocuments));
         }
 
         $oldValues = $pdcDetail->only([
@@ -3302,16 +6244,30 @@ class AdminController extends Controller
             'courier_receive_processed_by',
             'courier_receive_processed_at',
             'courier_receive_verified_documents',
+            'courier_cheque_total',
+            'courier_cheque_received',
+            'courier_cheque_pending',
+            'courier_receive_approved_by',
+            'courier_receive_approved_at',
             'status',
             'admin_reject_remark',
         ]);
 
+        $approvedBy = ApexLeadership::query()->find($request->courier_approved_by);
         $pdcDetail->update([
             'courier_receive_status' => 'approved',
             'courier_receive_hold_remark' => null,
-            'courier_receive_processed_by' => Auth::id(),
+            'courier_receive_processed_by' => $approvedBy?->id,
             'courier_receive_processed_at' => now(),
             'courier_receive_verified_documents' => $approvedDocuments,
+            'courier_cheque_total' => $chequeTotal,
+            'courier_cheque_received' => $chequeReceived,
+            'courier_cheque_pending' => $chequePending,
+            'courier_receive_approved_by' => $approvedBy?->id,
+            'courier_receive_approved_at' => now(),
+            'courier_send_back' => null,
+            'courier_send_back_reason' => null,
+            'courier_send_back_date' => null,
             'status' => $pdcDetail->status === 'approved' ? 'approved' : 'submitted',
             'admin_reject_remark' => null,
         ]);
@@ -3322,8 +6278,28 @@ class AdminController extends Controller
             'courier_receive_processed_by',
             'courier_receive_processed_at',
             'courier_receive_verified_documents',
+            'courier_cheque_total',
+            'courier_cheque_received',
+            'courier_cheque_pending',
+            'courier_receive_approved_by',
+            'courier_receive_approved_at',
             'status',
             'admin_reject_remark',
+        ]);
+
+        PdcCourierHistory::create([
+            'pdc_detail_id' => $pdcDetail->id,
+            'user_id' => $user->id,
+            'action' => 'approved',
+            'action_by' => Auth::id(),
+            'action_at' => now(),
+            'data' => [
+                'approved_documents' => $approvedDocuments,
+                'approved_by' => $approvedBy?->name,
+                'cheque_total' => $chequeTotal,
+                'cheque_received' => $chequeReceived,
+                'cheque_pending' => $chequePending,
+            ],
         ]);
 
         $actor = Auth::user();
@@ -3425,7 +6401,7 @@ class AdminController extends Controller
     public function approveThirdStageDocument(Request $request, User $user)
     {
         $request->validate([
-            'admin_remark' => 'nullable|string|max:2000',
+            'admin_remark' => 'nullable|string',
         ]);
 
         $thirdStageDocument = ThirdStageDocument::where('user_id', $user->id)->first();
@@ -3468,7 +6444,7 @@ class AdminController extends Controller
     public function sendBackThirdStageDocument(Request $request, User $user)
     {
         $request->validate([
-            'admin_remark' => 'required|string|max:2000',
+            'admin_remark' => 'required|string',
         ]);
 
         $thirdStageDocument = ThirdStageDocument::where('user_id', $user->id)->first();
@@ -3511,6 +6487,56 @@ class AdminController extends Controller
         }
 
         return back()->with('success', 'Third stage documents sent back for correction.');
+    }
+
+    public function generateThirdStageDocumentPDF(User $user)
+    {
+        $user->load(['thirdStageDocument', 'disbursementSchedules.disbursement']);
+
+        $thirdStageDocument = $user->thirdStageDocument;
+
+        if (!$thirdStageDocument) {
+            return back()->with('error', 'Third stage documents not found.');
+        }
+
+        if ($thirdStageDocument->status !== 'approved') {
+            return back()->with('error', 'PDF can only be generated after third stage documents are approved.');
+        }
+
+        $workingCommitteeApproval = WorkingCommitteeApproval::where('user_id', $user->id)->first();
+
+        $schedules = $user->disbursementSchedules
+            ->sortBy(fn($schedule) => $schedule->installment_no ?? 0)
+            ->values();
+
+        $firstSchedule = $schedules->first();
+        $secondSchedule = $schedules->where('installment_no', 2)->first() ?? $schedules->skip(1)->first();
+
+        $firstDisbursementAmount = $this->resolveThirdStageScheduleAmount($firstSchedule);
+        $secondDisbursementAmount = $this->resolveThirdStageScheduleAmount($secondSchedule);
+
+        $pdf = Pdf::loadView('pdf.third-stage-documents', [
+            'user' => $user,
+            'thirdStageDocument' => $thirdStageDocument,
+            'workingCommitteeApproval' => $workingCommitteeApproval,
+            'firstDisbursementAmount' => $firstDisbursementAmount,
+            'secondDisbursementAmount' => $secondDisbursementAmount,
+        ]);
+
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->stream('Third_Stage_Documents_' . $user->id . '.pdf');
+    }
+
+    private function resolveThirdStageScheduleAmount($schedule): float
+    {
+        if (!$schedule) {
+            return 0.0;
+        }
+
+        $amount = optional($schedule->disbursement)->amount ?? $schedule->planned_amount ?? 0;
+
+        return (float) $amount;
     }
 
     // =====================================================
@@ -3560,7 +6586,7 @@ class AdminController extends Controller
     public function approvePdc(Request $request, User $user)
     {
         $request->validate([
-            'admin_remark' => 'nullable|string|max:2000',
+            'admin_remark' => 'nullable|string',
         ]);
 
         $pdcDetail = \App\Models\PdcDetail::where('user_id', $user->id)->first();
@@ -3626,7 +6652,7 @@ class AdminController extends Controller
     public function sendBackPdc(Request $request, User $user)
     {
         $request->validate([
-            'admin_remark' => 'required|string|max:2000',
+            'admin_remark' => 'required|string',
         ]);
 
         $pdcDetail = \App\Models\PdcDetail::where('user_id', $user->id)->first();
@@ -3837,7 +6863,7 @@ class AdminController extends Controller
             ->with('success', 'PDC details updated successfully');
     }
 
-    private function getLockedPdcInstallments(User $user)
+    private function getPdcInstallmentsWithStatus(User $user, bool $onlyPaidOrPartial = false)
     {
         $pdcDetail = PdcDetail::query()
             ->where('user_id', $user->id)
@@ -3882,27 +6908,54 @@ class AdminController extends Controller
             ->where('status', '!=', 'bounced')
             ->sum('amount');
 
-        return $installments
-            ->map(function ($installment) use (&$remainingPaidAmount) {
-                if ($remainingPaidAmount >= $installment->amount && $installment->amount > 0) {
-                    $installment->status = 'paid';
-                    $remainingPaidAmount -= $installment->amount;
-                } elseif ($remainingPaidAmount > 0 && $installment->amount > 0) {
-                    $installment->status = 'partial';
-                    $remainingPaidAmount = 0;
-                } else {
-                    $installment->status = 'pending';
-                }
+        $annotated = $installments->map(function ($installment) use (&$remainingPaidAmount) {
+            if ($remainingPaidAmount >= $installment->amount && $installment->amount > 0) {
+                $installment->status = 'paid';
+                $remainingPaidAmount -= $installment->amount;
+            } elseif ($remainingPaidAmount > 0 && $installment->amount > 0) {
+                $installment->status = 'partial';
+                $remainingPaidAmount = 0;
+            } else {
+                $installment->status = 'pending';
+            }
 
-                return $installment;
-            })
-            ->whereIn('status', ['paid', 'partial'])
-            ->values();
+            return $installment;
+        });
+
+        if ($onlyPaidOrPartial) {
+            return $annotated->whereIn('status', ['paid', 'partial'])->values();
+        }
+
+        return $annotated->values();
+    }
+
+    private function getLockedPdcInstallments(User $user)
+    {
+        return $this->getPdcInstallmentsWithStatus($user, true);
     }
 
     private function isCourierReceiveApproved(?PdcDetail $pdcDetail): bool
     {
         return $pdcDetail && $pdcDetail->courier_receive_status === 'approved';
+    }
+
+    private function getChequeTotalForUser(User $user, ?PdcDetail $pdcDetail = null): ?int
+    {
+        $approval = \App\Models\WorkingCommitteeApproval::query()
+            ->where('user_id', $user->id)
+            ->orderByDesc('id')
+            ->first();
+
+        if ($approval && $approval->no_of_cheques_to_be_collected) {
+            return (int) $approval->no_of_cheques_to_be_collected;
+        }
+
+        $pdcDetail = $pdcDetail ?: PdcDetail::where('user_id', $user->id)->first();
+        if ($pdcDetail && is_array($pdcDetail->cheque_details)) {
+            return count($pdcDetail->cheque_details);
+        }
+
+        return null;
     }
 
     private function getUploadedCourierDocumentChecklist(User $user, ?Loan_category $loanCategory = null): array
@@ -4135,5 +7188,11 @@ class AdminController extends Controller
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
         ]);
+    }
+
+    // about
+    public function websiteAboutEmpoweringDreams()
+    {
+        return view('admin.website.about.empowering-dreams');
     }
 }

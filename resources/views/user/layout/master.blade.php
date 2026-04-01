@@ -451,6 +451,17 @@
                         @endif
                     </b></span>
             </a>
+            @php
+                $jeapPdfDir = public_path('Jeap_pdfs');
+                $referencePdfs = collect();
+                if (is_dir($jeapPdfDir)) {
+                    $referencePdfs = collect(\Illuminate\Support\Facades\File::files($jeapPdfDir))
+                        ->map(fn($file) => $file->getFilename())
+                        ->filter(fn($name) => str_ends_with($name, '.pdf'))
+                        ->sort()
+                        ->values();
+                }
+            @endphp
             <div class="ms-auto d-flex align-items-center">
                 <!-- Print Options Dropdown -->
                 <div class="dropdown p-2" style="position: relative;">
@@ -472,6 +483,27 @@
                             style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
                             <i class="fas fa-file-contract" style="margin-right: 0.5rem;"></i> Sanction Letter
                         </a>
+                        <a href="{{ route('admin.user.generate.shortsummary.pdf', $user) }}" class="dropdown-item"
+                            style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-top: 1px solid var(--border-color);">
+                            <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Short Summary PDF
+                        </a>
+
+                        <a href="{{ route('admin.user.generate.financial_closure.pdf', $user) }}" class="dropdown-item"
+                            style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
+                            <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Financial Closure PDF
+                        </a>
+                        @if ($referencePdfs->isNotEmpty())
+                            <div style="border-top: 1px solid var(--border-color); margin-top: 0.25rem;"></div>
+                            <div style="padding: 0.5rem 1rem; font-size: 0.85rem; color: var(--text-light);">
+                                JEAP Reference PDFs
+                            </div>
+                            @foreach ($referencePdfs as $pdfFile)
+                                <a href="{{ asset('Jeap_pdfs/' . $pdfFile) }}" target="_blank" class="dropdown-item"
+                                    style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
+                                    <i class="fas fa-file-pdf" style="margin-right: 0.5rem;"></i>{{ $pdfFile }}
+                                </a>
+                            @endforeach
+                        @endif
                     </div>
                 </div>
                 <a href="{{ route('user.logs') }}" class="btn btn-purple me-2"
@@ -559,16 +591,35 @@
 
                     @php
                         $educationDetail = \App\Models\EducationDetail::where('user_id', auth()->id())->first();
-                        $family = \App\Models\FamilyDetail::where('user_id', auth()->id())->first();
+                        $family = \App\Models\Familydetail::where('user_id', auth()->id())->first();
                         $fundingDetail = \App\Models\FundingDetail::where('user_id', auth()->id())->first();
                         $guarantorDetail = \App\Models\GuarantorDetail::where('user_id', auth()->id())->first();
-                        $document = \App\Models\Document::where('user_id', auth()->id())->first();
-                        $reviewSubmit = \App\Models\ReviewSubmit::where('user_id', auth()->id())->first();
+
                         // Get loan category type to determine if below 1 lakh
                         $loanCategory = \App\Models\Loan_category::where('user_id', auth()->id())
                             ->latest()
                             ->first();
                         $isBelowOneLakh = $loanCategory && $loanCategory->type === 'below';
+
+                        // Get user to check financial asset type and for
+                        $currentUser = \App\Models\User::find(auth()->id());
+                        $isDomesticGraduation =
+                            $currentUser &&
+                            $currentUser->financial_asset_type === 'domestic' &&
+                            $currentUser->financial_asset_for === 'graduation';
+                        $isDomesticPg =
+                            $currentUser &&
+                            $currentUser->financial_asset_type === 'domestic' &&
+                            $currentUser->financial_asset_for === 'post_graduation';
+                        // Check domestic + post_graduation FIRST (uses DocumentBelowPg table)
+                        $useDocumentBelowPg = $isDomesticPg;
+                        // Check below or domestic + graduation (uses DocumentsBelow table)
+                        $useDocumentsBelow = !$useDocumentBelowPg && ($isBelowOneLakh || $isDomesticGraduation);
+
+                        // Use main documents table for all cases now
+                        $document = \App\Models\Document::where('user_id', auth()->id())->first();
+
+                        $reviewSubmit = \App\Models\ReviewSubmit::where('user_id', auth()->id())->first();
                     @endphp
                     {{--
                     <li class="{{ request()->routeIs('user.step2') ? 'active' : '' }}">
@@ -712,43 +763,44 @@
                     </li>
 
                     @if (!$isBelowOneLakh)
-                    <li class="{{ request()->routeIs('user.step5') ? 'active' : '' }}">
-                        <a href="{{ route('user.step5') }}">
-                            <div
-                                class="step-icon
+                        <li class="{{ request()->routeIs('user.step5') ? 'active' : '' }}">
+                            <a href="{{ route('user.step5') }}">
+                                <div
+                                    class="step-icon
 @if ($guarantorDetail && in_array($guarantorDetail->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
 @if ($guarantorDetail && $guarantorDetail->submit_status === 'resubmit') resubmit-step @endif
 @if (request()->routeIs('user.step5')) active-step @endif">
 
-                                @if ($guarantorDetail && in_array($guarantorDetail->submit_status, ['submited', 'submitted', 'approved']))
-                                    <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
-                                            fill="white" />
-                                    </svg>
-                                @elseif ($guarantorDetail && $guarantorDetail->submit_status === 'resubmit')
-                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
-                                        title="{{ $guarantorDetail->admin_remark ?? 'On Hold' }}"></i>
-                                @else
-                                    <i class="bi bi-check2-square"></i>
-                                @endif
+                                    @if ($guarantorDetail && in_array($guarantorDetail->submit_status, ['submited', 'submitted', 'approved']))
+                                        <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
+                                                fill="white" />
+                                        </svg>
+                                    @elseif ($guarantorDetail && $guarantorDetail->submit_status === 'resubmit')
+                                        <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
+                                            title="{{ $guarantorDetail->admin_remark ?? 'On Hold' }}"></i>
+                                    @else
+                                        <i class="bi bi-check2-square"></i>
+                                    @endif
 
-                            </div>
-                            <div class="step-content">
-                                <div class="step-number">Step 5</div>
-                                <div class="step-title">Guarantor Details</div>
-                            </div>
-                        </a>
-                    </li>
+                                </div>
+                                <div class="step-content">
+                                    <div class="step-number">Step 5</div>
+                                    <div class="step-title">Guarantor Details</div>
+                                </div>
+                            </a>
+                        </li>
                     @endif
 
                     <li class="{{ request()->routeIs('user.step6') ? 'active' : '' }}">
                         <a href="{{ route('user.step6') }}">
                             <div
                                 class="step-icon
-@if ($document && in_array($document->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
-@if ($document && $document->submit_status === 'resubmit') resubmit-step @endif
-@if (request()->routeIs('user.step6')) active-step @endif">
+                            @if ($document && in_array($document->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
+                            @if ($document && $document->submit_status === 'resubmit') resubmit-step @endif
+                            @if (request()->routeIs('user.step6')) active-step @endif">
 
                                 @if ($document && in_array($document->submit_status, ['submited', 'submitted', 'approved']))
                                     <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
@@ -883,8 +935,14 @@
                                 ->where('user_id', $userId)
                                 ->where('installment_no', 2)
                                 ->first();
-                            if ($firstDisbursementCompleted && $secondSchedule && !empty($secondSchedule->planned_date)) {
-                                $openDate = \Carbon\Carbon::parse($secondSchedule->planned_date)->subMonth()->startOfDay();
+                            if (
+                                $firstDisbursementCompleted &&
+                                $secondSchedule &&
+                                !empty($secondSchedule->planned_date)
+                            ) {
+                                $openDate = \Carbon\Carbon::parse($secondSchedule->planned_date)
+                                    ->subMonth()
+                                    ->startOfDay();
                                 $thirdStageEligible = now()->startOfDay()->gte($openDate);
                             }
                         }
@@ -895,8 +953,7 @@
                             <a href="{{ route('user.step9') }}">
                                 <div
                                     class="step-icon
-                                    @if ($thirdStageDocument &&
-                                            in_array($thirdStageDocument->status, ['submitted', 'approved'])) completed-step @endif
+                                    @if ($thirdStageDocument && in_array($thirdStageDocument->status, ['submitted', 'approved'])) completed-step @endif
                                     @if ($thirdStageDocument && $thirdStageDocument->status === 'rejected') resubmit-step @endif
                                     @if (request()->routeIs('user.step9')) active-step @endif">
 
@@ -1061,6 +1118,65 @@
             <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
         </div>
+
+        <!-- Error Modal for Step Validation -->
+        <div class="modal fade" id="stepErrorModal" tabindex="-1" aria-labelledby="stepErrorModalLabel" aria-hidden="true" style="z-index: 9999;">
+            <div class="modal-dialog modal-dialog-centered" style="z-index: 10000;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="stepErrorModalLabel" style="color: #E31E24; font-weight: 600;">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>Warning
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-exclamation-circle" style="font-size: 3rem; color: #E31E24;"></i>
+                        </div>
+                        <p id="stepErrorMessage" style="color: #495057; font-size: 16px; margin-bottom: 0;">
+                            Please fill the previous step first.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" style="background: #393185; color: white; border: none;" data-bs-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Script to show error modal if session has error -->
+        @if(Session::has('error'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Remove any existing modal backdrops
+                    document.querySelectorAll('.modal-backdrop').forEach(function(backdrop) {
+                        backdrop.remove();
+                    });
+                    
+                    var errorMessage = '{{ Session::get('error') }}';
+                    document.getElementById('stepErrorMessage').textContent = errorMessage;
+                    
+                    var errorModal = new bootstrap.Modal(document.getElementById('stepErrorModal'), {
+                        backdrop: 'static',
+                        keyboard: true
+                    });
+                    errorModal.show();
+                    
+                    // Ensure modal is on top
+                    document.getElementById('stepErrorModal').addEventListener('shown.bs.modal', function() {
+                        document.querySelectorAll('.modal').forEach(function(modal) {
+                            if (modal.id !== 'stepErrorModal') {
+                                modal.style.zIndex = '1050';
+                            }
+                        });
+                        document.getElementById('stepErrorModal').style.zIndex = '9999';
+                        document.querySelector('#stepErrorModal .modal-dialog').style.zIndex = '10000';
+                    });
+                });
+            </script>
+        @endif
+
 </body>
 
 </html>

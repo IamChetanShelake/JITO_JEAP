@@ -816,6 +816,13 @@
                                 <span class="nav-text">Dashboard</span>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ str_contains(Route::currentRouteName() ?? '', 'admin.user-registration') ? 'active' : '' }}"
+                                href="{{ route('admin.user-registration.create') }}">
+                                <i class="fas fa-user-plus"></i>
+                                <span class="nav-text">User Registration</span>
+                            </a>
+                        </li>
                     @endif
 
                     @if ($activeGuard === 'chapter')

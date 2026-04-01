@@ -480,8 +480,7 @@
         }
 
         .data-item {
-            display: flex;
-            justify-content: space-between;
+
             align-items: center;
             padding: 1rem 0;
             border-bottom: 1px solid #e9ecef;
@@ -500,7 +499,7 @@
         .data-value {
             color: var(--text-light);
             flex: 1;
-            text-align: right;
+            text-align: left;
         }
 
         .table-container {
@@ -837,6 +836,17 @@
             </h1>
             <p class="page-subtitle">Review and approve individual form steps</p>
         </div>
+        @php
+            $jeapPdfDir = 'Jeap_pdfs';
+            $referencePdfs = collect();
+            if (is_dir($jeapPdfDir)) {
+                $referencePdfs = collect(\Illuminate\Support\Facades\File::files($jeapPdfDir))
+                    ->map(fn($file) => $file->getFilename())
+                    ->filter(fn($name) => str_ends_with($name, '.pdf'))
+                    ->sort()
+                    ->values();
+            }
+        @endphp
         <div style="display: flex; gap: 1rem; align-items: center;">
             <!-- Print Options Dropdown -->
             <div class="dropdown" style="position: relative;">
@@ -859,6 +869,28 @@
                         style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
                         <i class="fas fa-file-contract" style="margin-right: 0.5rem;"></i> Sanction Letter
                     </a>
+
+                    <a href="{{ route('admin.user.generate.shortsummary.pdf', $user) }}" class="dropdown-item"
+                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-top: 1px solid var(--border-color);">
+                        <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Short Summary PDF
+                    </a>
+
+                    <a href="{{ route('admin.user.generate.financial_closure.pdf', $user) }}" class="dropdown-item"
+                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
+                        <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Financial Closure PDF
+                    </a>
+                    @if ($referencePdfs->isNotEmpty())
+                        <div style="border-top: 1px solid var(--border-color); margin-top: 0.25rem;"></div>
+                        <div style="padding: 0.5rem 1rem; font-size: 0.85rem; color: var(--text-light);">
+                            JEAP Reference PDFs
+                        </div>
+                        @foreach ($referencePdfs as $pdfFile)
+                            <a href="{{ asset('Jeap_pdfs/' . $pdfFile) }}" target="_blank" class="dropdown-item"
+                                style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
+                                <i class="fas fa-file-pdf" style="margin-right: 0.5rem;"></i>{{ $pdfFile }}
+                            </a>
+                        @endforeach
+                    @endif
                 </div>
             </div>
 
@@ -883,6 +915,8 @@
                     <h3>{{ $user->name }}</h3>
                     <p>{{ $user->email }}</p>
                     <p>{{ $user->phone }}</p>
+                    <p>{{ $user->application_no }}</p>
+
                 </div>
 
             </div>
@@ -895,8 +929,19 @@
             <div class="user-info-footer">
                 <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}
                 </p>
-                <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type ?? 'N/A' }}</p>
-                <p><strong>Financial Assistance For:</strong> {{ $user->financial_asset_for ?? 'N/A' }}</p>
+                @if($loanCategory)
+                <p><strong>Category:</strong>
+                    <span class="loan-type-badge {{ $loanCategory->type === 'below' ? 'loan-type-below' : 'loan-type-above' }}">
+                        {{ $loanCategory->type === 'below' ? 'Below 1 Lakh' : 'Above 1 Lakh' }}
+                    </span>
+                </p>
+                @endif
+                <p><strong>Financial Assistance Type:</strong>
+                    {{ $user->financial_asset_type ? ucwords(str_replace('_', ' ', $user->financial_asset_type)) : 'N/A' }}
+                </p>
+                <p><strong>Financial Assistance For:</strong>
+                    {{ $user->financial_asset_for ? ucwords(str_replace('_', ' ', $user->financial_asset_for)) : 'N/A' }}
+                </p>
             </div>
         </div>
 
@@ -1154,6 +1199,26 @@
                                     <label class="form-label">Aadhar/Pan Address</label>
                                     <textarea class="form-textarea" readonly>{{ $user->aadhar_address ?? 'N/A' }}</textarea>
                                 </div>
+                                <div class="form-field">
+                                    <label class="form-label">Zone</label>
+                                    <input type="text" class="form-input" value="{{ $user->zone ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Chapter Chairman</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->chapter_chairman ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Chapter Contact</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->chapter_contact ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Postal Address</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->postal_address ?? 'N/A' }}" readonly>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1235,20 +1300,62 @@
                             </div>
                         </div>
 
-                        <!-- Financial Summary Table -->
+                                                <!-- Financial Summary Table -->
                         <div class="data-group">
                             <h4>Financial Summary Table</h4>
                             <div class="table-container">
+                                @php
+                                    $edu = $user->educationDetail;
+                                    $yearColumns = [
+                                        1 => [
+                                            $edu->group_1_year1 ?? 0,
+                                            $edu->group_2_year1 ?? 0,
+                                            $edu->group_3_year1 ?? 0,
+                                            $edu->group_4_year1 ?? 0,
+                                        ],
+                                        2 => [
+                                            $edu->group_1_year2 ?? 0,
+                                            $edu->group_2_year2 ?? 0,
+                                            $edu->group_3_year2 ?? 0,
+                                            $edu->group_4_year2 ?? 0,
+                                        ],
+                                        3 => [
+                                            $edu->group_1_year3 ?? 0,
+                                            $edu->group_2_year3 ?? 0,
+                                            $edu->group_3_year3 ?? 0,
+                                            $edu->group_4_year3 ?? 0,
+                                        ],
+                                        4 => [
+                                            $edu->group_1_year4 ?? 0,
+                                            $edu->group_2_year4 ?? 0,
+                                            $edu->group_3_year4 ?? 0,
+                                            $edu->group_4_year4 ?? 0,
+                                        ],
+                                        5 => [
+                                            $edu->group_1_year5 ?? 0,
+                                            $edu->group_2_year5 ?? 0,
+                                            $edu->group_3_year5 ?? 0,
+                                            $edu->group_4_year5 ?? 0,
+                                        ],
+                                    ];
+
+                                    $showYear = [];
+                                    foreach ($yearColumns as $year => $values) {
+                                        $showYear[$year] = collect($values)->contains(function ($value) {
+                                            return (float) $value > 0;
+                                        });
+                                    }
+                                @endphp
                                 <table class="custom-table">
                                     <thead>
                                         <tr>
                                             <th>Sr No</th>
                                             <th>Group Name</th>
-                                            <th>1 Year</th>
-                                            <th>2 Year</th>
-                                            <th>3 Year</th>
-                                            <th>4 Year</th>
-                                            <th>5 Year</th>
+                                            @if ($showYear[1]) <th>1 Year</th> @endif
+                                            @if ($showYear[2]) <th>2 Year</th> @endif
+                                            @if ($showYear[3]) <th>3 Year</th> @endif
+                                            @if ($showYear[4]) <th>4 Year</th> @endif
+                                            @if ($showYear[5]) <th>5 Year</th> @endif
                                             <th>Total</th>
                                         </tr>
                                     </thead>
@@ -1256,73 +1363,111 @@
                                         <tr>
                                             <td>1</td>
                                             <td>Tuition Fees</td>
+                                            @if ($showYear[1])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_1_year1 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[2])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_1_year2 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[3])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_1_year3 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[4])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_1_year4 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[5])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_1_year5 ?? 0) }}</td>
+                                            @endif
                                             <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_1_year1 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_1_year2 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_1_year3 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_1_year4 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_1_year5 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_1_total ?? 0) }}</td>
+                                                ₹{{ number_format($edu->group_1_total ?? 0) }}</td>
                                         </tr>
                                         <tr>
                                             <td>2</td>
                                             <td>Living Expenses</td>
+                                            @if ($showYear[1])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_2_year1 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[2])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_2_year2 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[3])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_2_year3 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[4])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_2_year4 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[5])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_2_year5 ?? 0) }}</td>
+                                            @endif
                                             <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_2_year1 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_2_year2 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_2_year3 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_2_year4 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_2_year5 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_2_total ?? 0) }}</td>
+                                                ₹{{ number_format($edu->group_2_total ?? 0) }}</td>
                                         </tr>
                                         <tr>
                                             <td>3</td>
                                             <td>Other Expenses</td>
+                                            @if ($showYear[1])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_3_year1 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[2])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_3_year2 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[3])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_3_year3 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[4])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_3_year4 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[5])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_3_year5 ?? 0) }}</td>
+                                            @endif
                                             <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_3_year1 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_3_year2 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_3_year3 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_3_year4 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_3_year5 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_3_total ?? 0) }}</td>
+                                                ₹{{ number_format($edu->group_3_total ?? 0) }}</td>
                                         </tr>
                                         <tr>
                                             <td>4</td>
                                             <td>Total Expenses</td>
+                                            @if ($showYear[1])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_4_year1 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[2])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_4_year2 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[3])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_4_year3 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[4])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_4_year4 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[5])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($edu->group_4_year5 ?? 0) }}</td>
+                                            @endif
                                             <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_4_year1 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_4_year2 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_4_year3 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_4_year4 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_4_year5 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_4_total ?? 0) }}</td>
+                                                ₹{{ number_format($edu->group_4_total ?? 0) }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
-
-                        <!-- School Information -->
+                        </div>\n                        <!-- School Information -->
                         <div class="data-group">
                             <h4>School / 10th Grade Information</h4>
                             <div class="form-section">
@@ -1363,6 +1508,11 @@
                                     </div>
                                 </div>
                                 <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">CGPA Out Of</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->school_cgpa_out_of ?? 'N/A' }}" readonly>
+                                    </div>
                                     <div class="form-field">
                                         <label class="form-label">CGPA</label>
                                         <input type="text" class="form-input"
@@ -1418,6 +1568,11 @@
                                             value="{{ $user->educationDetail->jc_percentage ?? 'N/A' }}%" readonly>
                                     </div>
                                     <div class="form-field">
+                                        <label class="form-label">CGPA Out Of</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->jc_cgpa_out_of ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
                                         <label class="form-label">CGPA</label>
                                         <input type="text" class="form-input"
                                             value="{{ $user->educationDetail->jc_CGPA ?? 'N/A' }}" readonly>
@@ -1446,6 +1601,41 @@
                                         <label class="form-label">Work Profile</label>
                                         <input type="text" class="form-input"
                                             value="{{ $user->educationDetail->work_profile ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Duration Start Year</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->duration_start_year ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Duration End Year</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->duration_end_year ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Work Location City</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->work_location_city ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Work Country</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->work_country ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Work type</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->work_type ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Salary Amount</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->salary_amount ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Yearly Gross Income</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->yearly_gross_income ?? 'N/A' }}" readonly>
                                     </div>
                                 </div>
                             </div>
@@ -1538,7 +1728,8 @@
                                 <div class="form-field">
                                     <label class="form-label">Current Year ITR</label>
                                     <input type="text" class="form-input"
-                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}" readonly>
+                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}"
+                                        readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Last Year ITR</label>
@@ -1848,6 +2039,61 @@
                         </div>
                     @endif
 
+                    <div class="data-group">
+                        <h4>Sibling Assistance</h4>
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Sibling Assistance</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->sibling_assistance ? ucfirst($user->fundingDetail->sibling_assistance) : 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Sibling Name</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->sibling_name ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Sibling Number</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->sibling_number ?? 'N/A' }}" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Sibling NGO Name</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->sibling_ngo_name ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">NGO Number</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->ngo_number ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Sibling Loan Status</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->sibling_loan_status ? ucfirst($user->fundingDetail->sibling_loan_status) : 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Sibling Applied Year</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->sibling_applied_year ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Sibling Applied Amount (Rs)</label>
+                                    <input type="text" class="form-input"
+                                        value="@if (is_numeric($user->fundingDetail->sibling_applied_amount)) {{ number_format($user->fundingDetail->sibling_applied_amount) }} @else {{ $user->fundingDetail->sibling_applied_amount ?? 'N/A' }} @endif"
+                                        readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Bank Details of Applicant -->
                     <div class="data-group">
                         <h4>Bank Details of Applicant</h4>
@@ -1992,7 +2238,7 @@
                                     <div class="form-field">
                                         <label class="form-label">PAN Card No</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->guarantorDetail->g_one_pan_card_no ?? 'N/A' }}" readonly>
+                                            value="{{ $user->guarantorDetail->g_one_pan ?? 'N/A' }}" readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">PAN Upload</label>
@@ -2080,7 +2326,7 @@
                                     <div class="form-field">
                                         <label class="form-label">PAN Card No</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->guarantorDetail->g_two_pan_card_no ?? 'N/A' }}" readonly>
+                                            value="{{ $user->guarantorDetail->g_two_pan ?? 'N/A' }}" readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">PAN Upload</label>
@@ -2357,7 +2603,7 @@
                             @if ($user->workflowStatus->apex_staff_remark)
                                 <div class="data-item">
                                     <div class="data-label">Apex Staff Remarks</div>
-                                    <div class="data-value">{{ $user->workflowStatus->apex_staff_remark }}</div>
+                                    <div class="data-value">{!! $user->workflowStatus->apex_staff_remark !!}</div>
                                 </div>
                             @endif
                         </div>
@@ -2466,23 +2712,25 @@
                                                 style="width: 16px; height: 16px;">
                                             Step 4: Funding Details
                                         </label>
-                                        <label
-                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                            <input type="checkbox" name="resubmit_steps[]" value="guarantor"
-                                                style="width: 16px; height: 16px;">
-                                            Step 5: Guarantor Details
-                                        </label>
+                                        @if (!$isBelowLoan)
+                                            <label
+                                                style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                                <input type="checkbox" name="resubmit_steps[]" value="guarantor"
+                                                    style="width: 16px; height: 16px;">
+                                                Step 5: Guarantor Details
+                                            </label>
+                                        @endif
                                         <label
                                             style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
                                             <input type="checkbox" name="resubmit_steps[]" value="documents"
                                                 style="width: 16px; height: 16px;">
-                                            Step 6: Documents
+                                            Step {{ $isBelowLoan ? 5 : 6 }}: Documents
                                         </label>
                                         <label
                                             style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
                                             <input type="checkbox" name="resubmit_steps[]" value="final"
                                                 style="width: 16px; height: 16px;">
-                                            Step 7: Final Submission
+                                            Step {{ $isBelowLoan ? 6 : 7 }}: Final Submission
                                         </label>
                                     </div>
                                     <p style="font-size: 0.75rem; color: var(--text-light); margin: 0.5rem 0 0 0;">
@@ -2735,3 +2983,5 @@
         </div>
     </div>
 </div>
+
+

@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\Auth\CustomForgotPasswordController;
+use App\Http\Controllers\Auth\ConfirmPasswordController;
+use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DisbursementController;
@@ -21,6 +27,7 @@ use App\Http\Controllers\InitiativeController;
 use App\Http\Controllers\AccountantController;
 use App\Http\Controllers\AdminNotificationController;
 use App\Http\Controllers\ApplicationViewController;
+use App\Http\Controllers\SnapshotReportController;
 
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\WebsiteController;
@@ -70,6 +77,15 @@ Route::prefix('donor')->name('donor.')->group(function () {
 
 Auth::routes();
 
+// Custom Password Reset Routes with OTP
+Route::get('/password/reset', [CustomForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/password/email', [CustomForgotPasswordController::class, 'sendOtp'])->name('password.sendotp');
+Route::get('/password/verify', [CustomForgotPasswordController::class, 'showVerifyOtpForm'])->name('password.verifyotp.form');
+Route::post('/password/verify', [CustomForgotPasswordController::class, 'verifyOtp'])->name('password.verifyotp');
+Route::post('/password/resend', [CustomForgotPasswordController::class, 'resendOtp'])->name('password.resendotp');
+Route::get('/password/reset/{token}', [CustomForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/password/reset', [CustomForgotPasswordController::class, 'reset'])->name('password.update');
+
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 // Dynamic view system for applications (protected by admin middleware)
@@ -86,6 +102,12 @@ Route::middleware(['admin', 'auth.active'])->group(function () {
 Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/home', [AdminController::class, 'index'])->name('home');
+
+    // Admin User Registration
+    Route::get('/user-registration', [AdminController::class, 'showUserRegistrationForm'])
+        ->name('user-registration.create');
+    Route::post('/user-registration', [AdminController::class, 'storeUserRegistration'])
+        ->name('user-registration.store');
 
     // Apex Stage 1 Forms
     Route::get('/apex-stage1/approved', [AdminController::class, 'apexStage1Approved'])->name('apex.stage1.approved');
@@ -138,7 +160,7 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // Working Committee Routes
     Route::resource('committee', WorkingCommitteeController::class);
 
-    // Zone Routes
+    // Zone Routes  
     Route::resource('zones', ZoneController::class);
 
     // Website Management Routes
@@ -163,16 +185,88 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::put('/website/home/empowering-future/{id}', [AdminController::class, 'updateEmpoweringFuture'])->name('website.home.empowering-future.update');
     Route::delete('/website/home/empowering-future/{id}', [AdminController::class, 'deleteEmpoweringFuture'])->name('website.home.empowering-future.delete');
     Route::get('/website/home/achievement-impact', [AdminController::class, 'websiteHomeAchievementImpact'])->name('website.home.achievement-impact');
+    Route::post('/website/home/achievement-impact', [AdminController::class, 'storeAchievementImpact'])->name('website.home.achievement-impact.store');
+    Route::put('/website/home/achievement-impact/{id}', [AdminController::class, 'updateAchievementImpact'])->name('website.home.achievement-impact.update');
+    Route::delete('/website/home/achievement-impact/{id}', [AdminController::class, 'deleteAchievementImpact'])->name('website.home.achievement-impact.delete');
     Route::get('/website/home/photo-gallery', [AdminController::class, 'websiteHomePhotoGallery'])->name('website.home.photo-gallery');
+    Route::post('/website/home/photo-gallery', [AdminController::class, 'storePhotoGallery'])->name('website.home.photo-gallery.store');
+    Route::put('/website/home/photo-gallery/{id}', [AdminController::class, 'updatePhotoGallery'])->name('website.home.photo-gallery.update');
+    Route::delete('/website/home/photo-gallery/{id}', [AdminController::class, 'deletePhotoGallery'])->name('website.home.photo-gallery.delete');
     Route::get('/website/home/our-testimonial', [AdminController::class, 'websiteHomeOurTestimonial'])->name('website.home.our-testimonial');
+    Route::post('/website/home/our-testimonial', [AdminController::class, 'storeOurTestimonial'])->name('website.home.our-testimonials.store');
+    Route::put('/website/home/our-testimonial/{id}', [AdminController::class, 'updateOurTestimonial'])->name('website.home.our-testimonials.update');
+    Route::delete('/website/home/our-testimonial/{id}', [AdminController::class, 'deleteOurTestimonial'])->name('website.home.our-testimonials.delete');
     Route::get('/website/home/success-stories', [AdminController::class, 'websiteHomeSuccessStories'])->name('website.home.success-stories');
-
+    Route::post('/website/home/success-stories', [AdminController::class, 'storeSuccessStory'])->name('website.home.success-stories.store');
+    Route::put('/website/home/success-stories/{id}', [AdminController::class, 'updateSuccessStory'])->name('website.home.success-stories.update');
+    Route::delete('/website/home/success-stories/{id}', [AdminController::class, 'deleteSuccessStory'])->name('website.home.success-stories.delete');
     Route::get('/website/about', [AdminController::class, 'websiteAbout'])->name('website.about');
+
+    // About Sub-Pages
+    Route::get('/website/about/jito', [AdminController::class, 'websiteAboutJito'])->name('website.about.jito');
+    Route::post('/website/about/jito', [AdminController::class, 'storeAboutJito'])->name('website.about.jito.store');
+    Route::put('/website/about/jito/{id}', [AdminController::class, 'updateAboutJito'])->name('website.about.jito.update');
+    Route::delete('/website/about/jito/{id}', [AdminController::class, 'deleteAboutJito'])->name('website.about.jito.delete');
+
+    Route::post('/website/about/jito/stats', [AdminController::class, 'storeJitoStats'])->name('website.about.jito.stats.store');
+    Route::put('/website/about/jito/stats/{id}', [AdminController::class, 'updateJitoStats'])->name('website.about.jito.stats.update');
+    Route::delete('/website/about/jito/stats/{id}', [AdminController::class, 'deleteJitoStats'])->name('website.about.jito.stats.delete');
+
+    Route::get('/website/about/board-of-directors', [AdminController::class, 'websiteAboutBoardOfDirectors'])->name('website.about.board-of-directors');
+    Route::post('/website/about/board-of-directors/store', [AdminController::class, 'storeBoardOfDirectors'])->name('website.about.board-of-directors.store');
+    Route::put('/website/about/board-of-directors/update/{id}', [AdminController::class, 'updateBoardOfDirectors'])->name('website.about.board-of-directors.update');
+    Route::delete('/website/about/board-of-directors/delete/{id}', [AdminController::class, 'deleteBoardOfDirectors'])->name('website.about.board-of-directors.delete');
+    Route::get('/website/about/jeap', [AdminController::class, 'websiteAboutJeap'])->name('website.about.jeap');
+    Route::post('/website/about/jeap/store', [AdminController::class, 'storeJeap'])->name('website.about.jeap.store');
+    Route::put('/website/about/jeap/update/{id}', [AdminController::class, 'updateJeap'])->name('website.about.jeap.update');
+    Route::delete('/website/about/jeap/delete/{id}', [AdminController::class, 'deleteJeap'])->name('website.about.jeap.delete');
+    Route::get('/website/about/jeap/delete-image/{id}', [AdminController::class, 'deleteJeapImage'])->name('website.about.jeap.delete-image');
+    Route::get('/website/about/zone-chairmen', [AdminController::class, 'websiteAboutZoneChairmen'])->name('website.about.zone-chairmen');
+    Route::post('/website/about/zone-chairmen/store', [AdminController::class, 'storeZoneChairmen'])->name('website.about.zone-chairmen.store');
+    Route::put('/website/about/zone-chairmen/update/{id}', [AdminController::class, 'updateZoneChairmen'])->name('website.about.zone-chairmen.update');
+    Route::delete('/website/about/zone-chairmen/delete/{id}', [AdminController::class, 'deleteZoneChairmen'])->name('website.about.zone-chairmen.delete');
+    Route::get('/website/about/testimonials-success', [AdminController::class, 'websiteAboutTestimonialsSuccess'])->name('website.about.testimonials-success');
+    Route::post('/website/about/testimonials-success', [AdminController::class, 'storeTestimonialsSuccess'])->name('website.about.testimonials-success.store');
+    Route::put('/website/about/testimonials-success/{id}', [AdminController::class, 'updateTestimonialsSuccess'])->name('website.about.testimonials-success.update');
+    Route::delete('/website/about/testimonials-success/{id}', [AdminController::class, 'deleteTestimonialsSuccess'])->name('website.about.testimonials-success.delete');
+
     Route::get('/website/application', [AdminController::class, 'websiteApplication'])->name('website.application');
+    
+    // Application Sub-Pages - FAQs
+    Route::get('/website/application/faqs', [AdminController::class, 'websiteApplicationFaqs'])->name('website.application.faqs');
+    Route::post('/website/application/faqs/store', [AdminController::class, 'storeFaq'])->name('website.application.faqs.store');
+    Route::put('/website/application/faqs/update/{id}', [AdminController::class, 'updateFaq'])->name('website.application.faqs.update');
+    Route::delete('/website/application/faqs/delete/{id}', [AdminController::class, 'deleteFaq'])->name('website.application.faqs.delete');
+
     Route::get('/website/contact', [AdminController::class, 'websiteContact'])->name('website.contact');
+    Route::post('/website/contact/store', [AdminController::class, 'storeContact'])->name('website.contact.store');
+    Route::put('/website/contact/update/{id}', [AdminController::class, 'updateContact'])->name('website.contact.update');
+    Route::delete('/website/contact/delete/{id}', [AdminController::class, 'deleteContact'])->name('website.contact.delete');
+
     Route::get('/website/donor', [AdminController::class, 'websiteDonor'])->name('website.donor');
+    Route::get('/website/be-donor', [AdminController::class, 'websiteBeDonor'])->name('website.be-donor');
+    Route::post('/website/be-donor', [AdminController::class, 'storeBeDonorDetail'])->name('website.be-donor.store');
+    Route::put('/website/be-donor/{id}', [AdminController::class, 'updateBeDonorDetail'])->name('website.be-donor.update');
+    Route::delete('/website/be-donor/{id}', [AdminController::class, 'deleteBeDonorDetail'])->name('website.be-donor.delete');
+    Route::get('/website/our-donor', [AdminController::class, 'websiteOurDonor'])->name('website.our-donor');
     Route::get('/website/gallery', [AdminController::class, 'websiteGallery'])->name('website.gallery');
     Route::get('/website/university', [AdminController::class, 'websiteUniversity'])->name('website.university');
+    Route::post('/website/university', [AdminController::class, 'storeUniversity'])->name('website.university.store');
+    Route::put('/website/university/{id}', [AdminController::class, 'updateUniversity'])->name('website.university.update');
+    Route::delete('/website/university/{id}', [AdminController::class, 'deleteUniversity'])->name('website.university.delete');
+    Route::post('/website/university/{id}/toggle-status', [AdminController::class, 'toggleUniversityStatus'])->name('website.university.toggle-status');
+
+    Route::get('/website/course', [AdminController::class, 'websiteCourse'])->name('website.course');
+    Route::post('/website/course', [AdminController::class, 'storeCourse'])->name('website.course.store');
+    Route::put('/website/course/{id}', [AdminController::class, 'updateCourse'])->name('website.course.update');
+    Route::delete('/website/course/{id}', [AdminController::class, 'deleteCourse'])->name('website.course.delete');
+
+    Route::get('/website/college', [AdminController::class, 'websiteCollege'])->name('website.college');
+    Route::post('/website/college', [AdminController::class, 'storeCollege'])->name('website.college.store');
+    Route::put('/website/college/{id}', [AdminController::class, 'updateCollege'])->name('website.college.update');
+    Route::delete('/website/college/{id}', [AdminController::class, 'deleteCollege'])->name('website.college.delete');
+
+
 
     // Chapter Statistics
     Route::get('/chapters/stats', [AdminController::class, 'chapterStats'])->name('chapters.stats');
@@ -245,6 +339,10 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
 
     // Generate Summary PDF
     Route::get('/user/{user}/generate-summary-pdf', [AdminController::class, 'generateSummaryPDF'])->name('user.generate.summary.pdf');
+
+    Route::get('/user/{user}/generate-short-summary-pdf', [AdminController::class, 'generateShortSummaryPDF'])->name('user.generate.shortsummary.pdf');
+
+    Route::get('/financial-closure/{user}', [AdminController::class, 'generateFinancialClosurePDF'])->name('user.generate.financial_closure.pdf');
 
     // View Sanction Letter
     Route::get('/user/{user}/sanction-letter', [AdminController::class, 'viewSanctionLetter'])->name('user.sanction.letter');
@@ -327,6 +425,7 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/reports/jeap-disbursement', [App\Http\Controllers\ReportController::class, 'jeapDisbursement'])->name('reports.jeap_disbursement');
     Route::get('/reports/financial-graph-report', [App\Http\Controllers\ReportController::class, 'financialGraphReport'])
         ->name('reports.financial_graph_report');
+    Route::get('/reports/snapshot', [SnapshotReportController::class, 'generate'])->name('reports.snapshot');
 });
 
 // User Routes - Protected by auth and user middleware
@@ -395,6 +494,17 @@ Route::middleware(['auth', 'user'])
 
         Route::post('/Step6Storeforeign/', [UserController::class, 'step6storeforeign'])
             ->name('step6.storeforeign');
+
+        // Step 6 - Document Upload for Below 1 Lakh
+        Route::post('/Step6Storeugbelow/', [UserController::class, 'step6storeugbelow'])
+            ->name('step6.storeugbelow');
+
+        Route::post('/Step6Storepgbelow/', [UserController::class, 'step6storepgbelow'])
+            ->name('step6.storepgbelow');
+
+        // Delete/Remove Document
+        Route::post('/Step6RemoveDocument/', [UserController::class, 'step6RemoveDocument'])
+            ->name('removeDocument');
 
 
         Route::get('/Step7', [UserController::class, 'step7'])
@@ -480,6 +590,7 @@ Route::get('/', function () {
 
 Route::prefix('about')->group(function () {
     Route::get('/JITO', [WebsiteController::class, 'aboutJito'])->name('jito');
+    Route::get('/JITO/data', [WebsiteController::class, 'aboutJitoData'])->name('jito.data');
     Route::get('/JEAP', [WebsiteController::class, 'aboutJeap'])->name('jeap');
     Route::get('/Board-Of-Directors', [WebsiteController::class, 'boardOfDirectors'])->name('boardOfDirectors');
     Route::get('/Zone-Chairmen', [WebsiteController::class, 'zoneChairmen'])->name('zoneChairmen');
@@ -517,6 +628,9 @@ Route::get('/industrial', [WebsiteController::class, 'industrial'])->name('indus
 
 
 Route::get('/contact', [WebsiteController::class, 'contact'])->name('contact');
+Route::get('/privacy-policy', [WebsiteController::class, 'privacyPolicy'])->name('privacy.policy');
+Route::get('/terms-conditions', [WebsiteController::class, 'termsConditions'])->name('terms.conditions');
+Route::post('/contact', [WebsiteController::class, 'contactStore'])->name('contact.store');
 
 
 

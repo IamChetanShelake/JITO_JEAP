@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('key_instructions', function (Blueprint $table) {
-            if (!Schema::hasColumn('key_instructions', 'is_active')) {
-                $table->boolean('is_active')->default(true)->after('order');
-            }
-            if (!Schema::hasColumn('key_instructions', 'display_order')) {
-                $table->integer('display_order')->default(0)->after('is_active');
-            }
-        });
+        if (Schema::hasTable('key_instructions')) {
+            Schema::table('key_instructions', function (Blueprint $table) {
+                if (!Schema::hasColumn('key_instructions', 'is_active')) {
+                    $table->boolean('is_active')->default(true)->after('order');
+                }
+                if (!Schema::hasColumn('key_instructions', 'display_order')) {
+                    $table->integer('display_order')->default(0)->after('is_active');
+                }
+            });
+        }
     }
 
     /**

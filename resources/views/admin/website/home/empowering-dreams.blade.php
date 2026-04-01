@@ -139,16 +139,7 @@
                                             <textarea class="form-control" id="description{{ $dream->id }}" name="description" rows="4" required>{{ $dream->description }}</textarea>
                                         </div>
                                     </div>
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <label for="vision_description{{ $dream->id }}" class="form-label">Vision Description</label>
-                                            <textarea class="form-control" id="vision_description{{ $dream->id }}" name="vision_description" rows="3" placeholder="Enter vision description">{{ $dream->vision_description }}</textarea>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="mission_description{{ $dream->id }}" class="form-label">Mission Description</label>
-                                            <textarea class="form-control" id="mission_description{{ $dream->id }}" name="mission_description" rows="3" placeholder="Enter mission description">{{ $dream->mission_description }}</textarea>
-                                        </div>
-                                    </div>
+                                  
                                     <div class="row mb-3">
                                         <div class="col-md-12">
                                             <label for="features{{ $dream->id }}" class="form-label">Features <span class="text-danger">*</span></label>

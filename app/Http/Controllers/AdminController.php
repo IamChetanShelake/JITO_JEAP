@@ -2896,12 +2896,9 @@ class AdminController extends Controller
     public function apexStage1Pending(Request $request)
     {
         $query = User::where('role', 'user')
-            ->where(function ($query) {
-                $query->whereDoesntHave('workflowStatus')
-                    ->orWhereHas('workflowStatus', function ($workflowQuery) {
-                        $workflowQuery->where('current_stage', 'apex_1')
-                            ->where('apex_1_status', 'pending');
-                    });
+            ->whereHas('workflowStatus', function ($query) {
+                $query->where('current_stage', 'apex_1')
+                    ->where('apex_1_status', 'pending')->whereNull('apex_1_reject_remarks');
             })
             ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
 
@@ -2945,6 +2942,61 @@ class AdminController extends Controller
         $this->attachApplicationProgressStatus($users);
 
         return view('admin.apex.stage1.pending', compact('users'));
+    }
+
+    public function apexStage1Draft(Request $request)
+    {
+        $query = User::where('role', 'user')
+            ->whereDoesntHave('workflowStatus')
+            ->where(function ($query) {
+                $query->whereNull('submit_status')
+                    ->orWhere('submit_status', '!=', 'submited');
+            })
+            ->with(['workflowStatus', 'familyDetail', 'educationDetail', 'fundingDetail', 'guarantorDetail', 'document']);
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter using loanCategories relationship
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            if ($category === 'below') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'below');
+                });
+            } elseif ($category === 'above') {
+                $query->whereHas('loanCategory', function ($q) {
+                    $q->where('type', 'above');
+                });
+            }
+        }
+
+        // Apply financial assistance type filter
+        if ($request->filled('financial_assistance_type')) {
+            $financialType = $request->input('financial_assistance_type');
+            if ($financialType === 'domestic') {
+                $query->where('financial_asset_type', 'domestic');
+            } elseif ($financialType === 'foreign') {
+                $query->where('financial_asset_type', 'foreign_finance_assistant');
+            }
+        }
+
+        $users = $query->get();
+
+        $this->attachLatestLoanCategoryType($users);
+        $this->attachApplicationProgressStatus($users);
+
+        return view('admin.apex.stage1.pending', compact('users'))
+            ->with('filterRoute', 'admin.apex.stage1.draft')
+            ->with('pageTitle', 'Apex Stage 1 - Draft Forms')
+            ->with('pageSubtitle', 'Users who only registered and have not submitted any step');
     }
 
 

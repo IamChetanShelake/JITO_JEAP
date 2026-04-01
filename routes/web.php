@@ -112,6 +112,7 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // Apex Stage 1 Forms
     Route::get('/apex-stage1/approved', [AdminController::class, 'apexStage1Approved'])->name('apex.stage1.approved');
     Route::get('/apex-stage1/pending', [AdminController::class, 'apexStage1Pending'])->name('apex.stage1.pending');
+    Route::get('/apex-stage1/draft', [AdminController::class, 'apexStage1Draft'])->name('apex.stage1.draft');
     Route::get('/apex-stage1/hold', [AdminController::class, 'apexStage1Hold'])->name('apex.stage1.hold');
     Route::get('/apex-stage1/user/{user}', [AdminController::class, 'apexStage1UserDetail'])->name('apex.stage1.user.detail');
     Route::get('/apex-stage1/resubmitted', [AdminController::class, 'apexStage1Resubmitted'])->name('apex.stage1.resubmitted');

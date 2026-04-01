@@ -115,16 +115,18 @@
         }
 
         .user-avatar {
-            width: 60px;
-            height: 60px;
+            width: 75px;
+            height: 75px;
             border-radius: 50%;
-            background: var(--primary-purple);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
+        }
+
+        background: var(--primary-purple);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
         }
 
         .user-details h3 {
@@ -906,7 +908,11 @@
             <div class="user-info-header">
                 <div class="user-avatar">
                     @if ($user->image)
-                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img" style="width:90px;">
+                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img"
+                            style="    width: 75px;
+                            height: 75px;
+                            border-radius: 50%;
+                        ">
                     @else
                         {{ strtoupper(substr($user->name, 0, 1)) }}
                     @endif
@@ -929,12 +935,13 @@
             <div class="user-info-footer">
                 <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}
                 </p>
-                @if($loanCategory)
-                <p><strong>Category:</strong>
-                    <span class="loan-type-badge {{ $loanCategory->type === 'below' ? 'loan-type-below' : 'loan-type-above' }}">
-                        {{ $loanCategory->type === 'below' ? 'Below 1 Lakh' : 'Above 1 Lakh' }}
-                    </span>
-                </p>
+                @if ($loanCategory)
+                    <p><strong>Category:</strong>
+                        <span
+                            class="loan-type-badge {{ $loanCategory->type === 'below' ? 'loan-type-below' : 'loan-type-above' }}">
+                            {{ $loanCategory->type === 'below' ? 'Below 1 Lakh' : 'Above 1 Lakh' }}
+                        </span>
+                    </p>
                 @endif
                 <p><strong>Financial Assistance Type:</strong>
                     {{ $user->financial_asset_type ? ucwords(str_replace('_', ' ', $user->financial_asset_type)) : 'N/A' }}
@@ -1308,34 +1315,40 @@
                                     <div class="form-field">
                                         <label class="form-label">Qualification</label>
                                         <input type="text" class="form-input"
-                                            value="{{ ucfirst($user->educationDetail->qualifications ?? 'N/A') }}" readonly>
+                                            value="{{ ucfirst($user->educationDetail->qualifications ?? 'N/A') }}"
+                                            readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">Institution / College Name</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->educationDetail->qualification_institution ?? 'N/A' }}" readonly>
+                                            value="{{ $user->educationDetail->qualification_institution ?? 'N/A' }}"
+                                            readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">University Name</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->educationDetail->qualification_university ?? 'N/A' }}" readonly>
+                                            value="{{ $user->educationDetail->qualification_university ?? 'N/A' }}"
+                                            readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">Course Name</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->educationDetail->qualification_course_name ?? 'N/A' }}" readonly>
+                                            value="{{ $user->educationDetail->qualification_course_name ?? 'N/A' }}"
+                                            readonly>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-field">
                                         <label class="form-label">Start Year</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->educationDetail->qualification_start_year ?? 'N/A' }}" readonly>
+                                            value="{{ $user->educationDetail->qualification_start_year ?? 'N/A' }}"
+                                            readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">End Year</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->educationDetail->qualification_end_year ?? 'N/A' }}" readonly>
+                                            value="{{ $user->educationDetail->qualification_end_year ?? 'N/A' }}"
+                                            readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">Marksheet Type</label>
@@ -1346,9 +1359,12 @@
                                             $marksheetType = is_array($marksheetType) ? $marksheetType : [];
                                             $marksheetLabel = empty($marksheetType)
                                                 ? 'N/A'
-                                                : implode(', ', array_map(function ($type) {
-                                                    return $type === 'semester' ? 'Semester-based' : 'Year-based';
-                                                }, $marksheetType));
+                                                : implode(
+                                                    ', ',
+                                                    array_map(function ($type) {
+                                                        return $type === 'semester' ? 'Semester-based' : 'Year-based';
+                                                    }, $marksheetType),
+                                                );
                                         @endphp
                                         <input type="text" class="form-input" value="{{ $marksheetLabel }}" readonly>
                                     </div>
@@ -1356,9 +1372,13 @@
                                 <div class="table-container">
                                     @php
                                         $edu = $user->educationDetail;
-                                        $marksheetType = $edu->marksheet_type ? json_decode($edu->marksheet_type, true) : [];
+                                        $marksheetType = $edu->marksheet_type
+                                            ? json_decode($edu->marksheet_type, true)
+                                            : [];
                                         $marksheetType = is_array($marksheetType) ? $marksheetType : [];
-                                        $marksObtained = $edu->marks_obtained ? json_decode($edu->marks_obtained, true) : [];
+                                        $marksObtained = $edu->marks_obtained
+                                            ? json_decode($edu->marks_obtained, true)
+                                            : [];
                                         $outOf = $edu->out_of ? json_decode($edu->out_of, true) : [];
                                         $percentage = $edu->percentage ? json_decode($edu->percentage, true) : [];
                                         $cgpa = $edu->cgpa ? json_decode($edu->cgpa, true) : [];
@@ -1366,7 +1386,7 @@
                                             count(is_array($marksObtained) ? $marksObtained : []),
                                             count(is_array($outOf) ? $outOf : []),
                                             count(is_array($percentage) ? $percentage : []),
-                                            count(is_array($cgpa) ? $cgpa : [])
+                                            count(is_array($cgpa) ? $cgpa : []),
                                         );
                                         $isSemester = in_array('semester', $marksheetType, true);
                                         $rowLabel = $isSemester ? 'Sem' : 'Year';
@@ -1454,11 +1474,21 @@
                                         <tr>
                                             <th>Sr No</th>
                                             <th>Group Name</th>
-                                            @if ($showYear[1]) <th>1 Year</th> @endif
-                                            @if ($showYear[2]) <th>2 Year</th> @endif
-                                            @if ($showYear[3]) <th>3 Year</th> @endif
-                                            @if ($showYear[4]) <th>4 Year</th> @endif
-                                            @if ($showYear[5]) <th>5 Year</th> @endif
+                                            @if ($showYear[1])
+                                                <th>1 Year</th>
+                                            @endif
+                                            @if ($showYear[2])
+                                                <th>2 Year</th>
+                                            @endif
+                                            @if ($showYear[3])
+                                                <th>3 Year</th>
+                                            @endif
+                                            @if ($showYear[4])
+                                                <th>4 Year</th>
+                                            @endif
+                                            @if ($showYear[5])
+                                                <th>5 Year</th>
+                                            @endif
                                             <th>Total</th>
                                         </tr>
                                     </thead>
@@ -1570,7 +1600,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                        </div>\n                        <!-- School Information -->
+                        </div>\n <!-- School Information -->
                         <div class="data-group">
                             <h4>School / 10th Grade Information</h4>
                             <div class="form-section">
@@ -3086,5 +3116,3 @@
         </div>
     </div>
 </div>
-
-

@@ -855,7 +855,10 @@
             <div class="user-info-header">
                 <div class="user-avatar">
                     @if ($user->image)
-                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img"  style="width:90px;">
+                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img"  style="    width: 75px;
+                            height: 75px;
+                            border-radius: 50%;
+                        ">
                     @else
                         {{ strtoupper(substr($user->name, 0, 1)) }}
                     @endif

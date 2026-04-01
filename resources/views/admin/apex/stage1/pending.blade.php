@@ -1,6 +1,6 @@
 @extends('admin.layouts.master')
 
-@section('title', 'Apex Stage 1 - Pending Forms - JitoJeap Admin')
+@section('title', ($pageTitle ?? 'Apex Stage 1 - Pending Forms') . ' - JitoJeap Admin')
 
 @section('styles')
     <style>
@@ -324,9 +324,9 @@
         <div class="page-title-section">
             <h1 class="page-title">
                 <i class="fas fa-users" style="color: var(--primary-purple); margin-right: 0.5rem;"></i>
-                Apex Stage 1 - Pending Forms
+                {{ $pageTitle ?? 'Apex Stage 1 - Pending Forms' }}
             </h1>
-            <p class="page-subtitle">List of pending user forms for approval</p>
+            <p class="page-subtitle">{{ $pageSubtitle ?? 'List of pending user forms for approval' }}</p>
         </div>
         <a href="{{ route('admin.home') }}" class="back-btn">
             <i class="fas fa-arrow-left"></i> Back to Dashboard
@@ -335,7 +335,7 @@
 
     <div class="card">
         <div class="card-body" style="padding: 1.5rem; border-bottom: 1px solid var(--border-color);">
-            <form method="GET" action="{{ route('admin.apex.stage1.pending') }}" id="filterForm">
+            <form method="GET" action="{{ route($filterRoute ?? 'admin.apex.stage1.pending') }}" id="filterForm">
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label for="search" class="form-label" style="font-weight: 500; color: var(--text-dark);">Search</label>

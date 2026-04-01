@@ -910,7 +910,7 @@
                             <div class="progress-bar-custom"
                                 style="width: 80%; background: linear-gradient(90deg, #495049, #6e796f);"></div>
                         </div>
-                        <div class="status-badges" style="grid-template-columns: repeat(4, 1fr);">
+                        <div class="status-badges" style="grid-template-columns: repeat(5, 1fr);">
                             <a href="{{ route('admin.apex.stage1.approved') }}" class="status-badge approved"
                                 style="text-decoration: none; color: inherit;">
                                 <div class="status-icon approved">
@@ -923,13 +923,30 @@
                                     </div>
                                 </div>
                             </a>
-                            <a href="{{ route('admin.apex.stage1.pending') }}" class="status-badge pending"
+                            <a href="{{ route('admin.apex.stage1.draft') }}" class="status-badge pending"
                                 style="text-decoration: none; color: inherit;">
                                 <div class="status-icon pending">
                                     <i class="fas fa-clock"></i>
                                 </div>
                                 <div>
                                     <div class="status-label">Draft</div>
+                                    <div class="status-value">
+                                        {{ \App\Models\User::where('role', 'user')
+                                            ->whereDoesntHave('workflowStatus')
+                                            ->where(function ($q) {
+                                                $q->whereNull('submit_status')->orWhere('submit_status', '!=', 'submited');
+                                            })
+                                            ->count() }}
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="{{ route('admin.apex.stage1.pending') }}" class="status-badge pending"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="status-icon pending">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div>
+                                    <div class="status-label">Pending</div>
                                     <div class="status-value">
                                         {{ \App\Models\User::where('role', 'user')->whereHas('workflowStatus', function ($q) {
                                                 $q->where('apex_1_status', 'pending')->where('final_status', 'in_progress')->whereNull('apex_1_reject_remarks');

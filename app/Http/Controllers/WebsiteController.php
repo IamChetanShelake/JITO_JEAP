@@ -91,7 +91,8 @@ class WebsiteController extends Controller
         $items = BoardOfDirectors::where('status', true)
             ->orderBy('display_order', 'asc')
             ->get();
-        return view('website.boardOfDirectors', compact('items'));
+        $empoweringDreams = EmpoweringDream::on('admin_panel')->where('status', true)->orderBy('order', 'asc')->get();
+        return view('website.boardOfDirectors', compact('items', 'empoweringDreams'));
     }
     public function documentchecklist()
     {

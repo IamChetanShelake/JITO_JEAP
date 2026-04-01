@@ -290,23 +290,23 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-12">
+                        <!-- <div class="col-md-12">
                             <label for="vision" class="form-label">Vision of JEAP</label>
                             <textarea class="form-control" id="vision" name="vision" rows="3" placeholder="Enter vision of JEAP"></textarea>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="row mb-3">
                         <div class="col-md-12">
                             <label for="vision_description" class="form-label">Vision Description of JEAP</label>
                             <textarea class="form-control" id="vision_description" name="vision_description" rows="3" placeholder="Enter vision of JEAP"></textarea>
                         </div>
                     </div>
-                    <div class="row mb-3">
+                    <!-- <div class="row mb-3">
                         <div class="col-md-12">
                             <label for="mission" class="form-label">Mission of JEAP</label>
                             <textarea class="form-control" id="mission" name="mission" rows="3" placeholder="Enter mission of JEAP"></textarea>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="row mb-3">
                         <div class="col-md-12">
                             <label for="mission_description" class="form-label">Mission Description of JEAP</label>

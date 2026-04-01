@@ -40,7 +40,7 @@
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td class="text-center">
                         @if(!empty($instruction->icon_image))
-                            <img src="{{ asset('storage/' . $instruction->icon_image) }}" alt="Icon" style="width: 40px; height: 40px; object-fit: contain; background: {{ $instruction->color ?? '#000' }}; border-radius: 50%;">
+                            <img src="{{ asset($instruction->icon_image) }}" alt="Icon" style="width: 40px; height: 40px; object-fit: contain; background: {{ $instruction->color ?? '#000' }}; border-radius: 50%;">
                         @elseif(!empty($instruction->icon_svg))
                             <div class="icon-preview" style="width: 40px; height: 40px; margin: 0 auto; display: flex; align-items: center; justify-content: center; background: {{ $instruction->color ?? '#000' }}; border-radius: 50%;">
                                 {!! $instruction->icon_svg !!}
@@ -83,7 +83,7 @@
                             <div class="modal-body">
                                 <div class="text-center mb-3">
                                     @if(!empty($instruction->icon_image))
-                                        <img src="{{ asset('storage/' . $instruction->icon_image) }}" alt="Icon" style="width: 80px; height: 80px; object-fit: contain; background: {{ $instruction->color ?? '#000' }}; border-radius: 50%;">
+                                        <img src="{{ asset($instruction->icon_image) }}" alt="Icon" style="width: 80px; height: 80px; object-fit: contain; background: {{ $instruction->color ?? '#000' }}; border-radius: 50%;">
                                     @elseif(!empty($instruction->icon_svg))
                                         <div class="icon-preview" style="width: 80px; height: 80px; margin: 0 auto; display: flex; align-items: center; justify-content: center; background: {{ $instruction->color ?? '#000' }}; border-radius: 50%;">
                                             {!! $instruction->icon_svg !!}
@@ -124,7 +124,7 @@
                                             @if(!empty($instruction->icon_image))
                                                 <div class="mt-2">
                                                     <label class="form-label">Current Icon (Image):</label><br>
-                                                    <img src="{{ asset('storage/' . $instruction->icon_image) }}" alt="Icon" style="width: 50px; height: 50px; object-fit: contain; background: {{ $instruction->color ?? '#000' }}; border-radius: 50%;">
+                                                    <img src="{{ asset($instruction->icon_image) }}" alt="Icon" style="width: 50px; height: 50px; object-fit: contain; background: {{ $instruction->color ?? '#000' }}; border-radius: 50%;">
                                                 </div>
                                             @elseif(!empty($instruction->icon_svg))
                                                 <div class="mt-2">

@@ -54,9 +54,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 
@@ -124,6 +127,107 @@ class AdminController extends Controller
             'thirdStageResubmitted' => $thirdStageCounts['resubmitted'],
             'thirdStageTotal' => $thirdStageCounts['total'],
         ]);
+    }
+
+    public function showUserRegistrationForm(Request $request)
+    {
+        $adminRegisteredUsers = User::query()
+            ->where('admin_registered', true)
+            ->orderByDesc('id')
+            ->get();
+
+        return view('admin.user_registration.create', [
+            'activeGuard' => $request->active_guard,
+            'adminRegisteredUsers' => $adminRegisteredUsers,
+        ]);
+    }
+
+    public function storeUserRegistration(Request $request)
+    {
+        $request->merge([
+            'pan_card' => strtoupper((string) $request->pan_card),
+        ]);
+
+        $validator = Validator::make($request->all(), [
+            'pan_card' => ['required', 'string', 'regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/', 'unique:users,pan_card'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8'],
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . config('services.surepass.token'),
+            ])->post('https://kyc-api.surepass.io/api/v1/pan/pan-comprehensive', [
+                'id_number' => $request->pan_card,
+            ]);
+
+            if (!$response->successful()) {
+                return redirect()->back()
+                    ->withErrors(['pan_card' => 'PAN verification failed. Please try again.'])
+                    ->withInput();
+            }
+
+            $apiData = $response->json();
+
+            if (!isset($apiData['data']['dob'])) {
+                return redirect()->back()
+                    ->withErrors(['pan_card' => 'Unable to retrieve date of birth from PAN.'])
+                    ->withInput();
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withErrors(['pan_card' => 'API error occurred. Please try again later.'])
+                ->withInput();
+        }
+
+        $additionalData = [];
+        $age = null;
+        if (isset($apiData['data']['full_name'])) {
+            $additionalData['name'] = $apiData['data']['full_name'];
+        }
+        if (isset($apiData['data']['dob'])) {
+            $additionalData['d_o_b'] = $apiData['data']['dob'];
+            $dob = Carbon::parse($apiData['data']['dob']);
+            $age = $dob->age;
+        }
+        if ($age !== null) {
+            $additionalData['age'] = $age;
+        }
+        if (isset($apiData['data']['gender'])) {
+            $additionalData['gender'] = strtolower($apiData['data']['gender']) === 'm'
+                ? 'male'
+                : (strtolower($apiData['data']['gender']) === 'f' ? 'female' : null);
+        }
+        if (isset($apiData['data']['masked_aadhaar'])) {
+            $additionalData['aadhar_card_number'] = $apiData['data']['masked_aadhaar'];
+        }
+
+        $user = User::create([
+            'name' => $additionalData['name'] ?? null,
+            'd_o_b' => $additionalData['d_o_b'] ?? null,
+            'age' => $additionalData['age'] ?? null,
+            'gender' => $additionalData['gender'] ?? null,
+            'aadhar_card_number' => $additionalData['aadhar_card_number'] ?? null,
+            'pan_card' => $request->pan_card,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'admin_registered' => true,
+        ]);
+
+        $year = date('Y');
+        $applicationNo = 'JITO-JEAP/' . $year . '/' . str_pad($user->id, 4, '0', STR_PAD_LEFT);
+        $user->update(['application_no' => $applicationNo]);
+
+        return redirect()
+            ->route('admin.user-registration.create')
+            ->with('success', 'User registered successfully.');
     }
 
     /**
@@ -363,23 +467,23 @@ class AdminController extends Controller
                         // $path = $file->storeAs('key-instructions', $filename, 'public');
                         // $iconImage = $path;
                         // \Illuminate\Support\Facades\Log::info('Icon image stored at: ' . $path);
-                        
+
                       $filename = 'key-instruction-' . time() . '.' . $extension;
 
                     // ✅ define properly
                     $destinationPath = 'key-instructions';
-                    
+
                     // folder create
                     if (!file_exists($destinationPath)) {
                         mkdir($destinationPath, 0777, true);
                     }
-                    
+
                     // move file
                     $file->move($destinationPath, $filename);
-                    
+
                     // store path
                     $iconImage = 'key-instructions/' . $filename;
-                    
+
                     // log
                     //\Illuminate\Support\Facades\Log::info('Icon image stored at: ' . $iconImage);
 
@@ -472,15 +576,14 @@ class AdminController extends Controller
 
     //                 // ✅ define properly
     //                 $destinationPath = 'key-instructions';
-                    
     //                 // folder create
     //                 if (!file_exists($destinationPath)) {
     //                     mkdir($destinationPath, 0777, true);
     //                 }
-                    
+
     //                 // move file
     //                 $file->move($destinationPath, $filename);
-                    
+
     //                 // store path
     //                 $iconImage = 'key-instructions/' . $filename;
 
@@ -502,8 +605,8 @@ class AdminController extends Controller
 
     //     return redirect()->route('admin.website.home.key-instruction')->with('success', 'Key Instruction updated successfully!');
     // }
-    
-    
+
+
     public function updateKeyInstruction(\Illuminate\Http\Request $request, $id)
 {
     $validated = $request->validate([
@@ -1420,7 +1523,7 @@ class AdminController extends Controller
      */
     public function websiteAboutJeap()
     {
-        $items = \App\Models\JeapWebsite::orderBy('display_order','asc')->get();
+        $items = \App\Models\JeapWebsite::orderBy('display_order', 'asc')->get();
         return view('admin.website.about.jeap', compact('items'));
     }
 
@@ -1458,11 +1561,11 @@ class AdminController extends Controller
         }
 
         // Filter out empty values and re-index arrays
-        $smallTitles = array_values(array_filter($request->small_titles ?? [], function($value) {
+        $smallTitles = array_values(array_filter($request->small_titles ?? [], function ($value) {
             return $value !== null && $value !== '';
         }));
 
-        $smallDescriptions = array_values(array_filter($request->small_descriptions ?? [], function($value) {
+        $smallDescriptions = array_values(array_filter($request->small_descriptions ?? [], function ($value) {
             return $value !== null && $value !== '';
         }));
 
@@ -1475,7 +1578,7 @@ class AdminController extends Controller
             'images' => !empty($imagesPaths) ? $imagesPaths : null
         ]);
 
-        return back()->with('success','JEAP Data Added Successfully');
+        return back()->with('success', 'JEAP Data Added Successfully');
     }
 
     /**
@@ -1510,18 +1613,18 @@ class AdminController extends Controller
             foreach ($request->file('images') as $img) {
                 if ($img) {
                     $imageName = time().'_'.uniqid().'_'.$img->getClientOriginalName();
-                    $img->move('uploads/jeap', $imageName);
+                    $img->move(public_path('uploads/jeap'), $imageName);
                     $imagesPaths[] = 'uploads/jeap/'.$imageName;
                 }
             }
         }
 
         // Filter out empty values and re-index arrays
-        $smallTitles = array_values(array_filter($request->small_titles ?? [], function($value) {
+        $smallTitles = array_values(array_filter($request->small_titles ?? [], function ($value) {
             return $value !== null && $value !== '';
         }));
 
-        $smallDescriptions = array_values(array_filter($request->small_descriptions ?? [], function($value) {
+        $smallDescriptions = array_values(array_filter($request->small_descriptions ?? [], function ($value) {
             return $value !== null && $value !== '';
         }));
 
@@ -1534,7 +1637,7 @@ class AdminController extends Controller
             'images' => !empty($imagesPaths) ? $imagesPaths : null
         ]);
 
-        return back()->with('success','JEAP Data Updated Successfully');
+        return back()->with('success', 'JEAP Data Updated Successfully');
     }
 
     /**
@@ -1559,7 +1662,7 @@ class AdminController extends Controller
 
         $item->delete();
 
-        return back()->with('success','JEAP Data Deleted Successfully');
+        return back()->with('success', 'JEAP Data Deleted Successfully');
     }
 
     /**
@@ -1585,7 +1688,7 @@ class AdminController extends Controller
             $item->save();
         }
 
-        return back()->with('success','Image Deleted Successfully');
+        return back()->with('success', 'Image Deleted Successfully');
     }
 
     /**
@@ -1789,7 +1892,7 @@ class AdminController extends Controller
     {
         try {
             $type = $request->input('type', 'testimonial');
-            
+
             $validated = $request->validate([
                 'type' => 'required|in:testimonial,success_story',
                 'name' => 'required|string|max:255' . ($type == 'testimonial' ? '' : '|nullable'),
@@ -1855,7 +1958,7 @@ class AdminController extends Controller
     {
         try {
             $type = $request->input('type', 'testimonial');
-            
+
             $validated = $request->validate([
                 'type' => 'required|in:testimonial,success_story',
                 'name' => 'required|string|max:255' . ($type == 'testimonial' ? '' : '|nullable'),
@@ -1920,7 +2023,7 @@ class AdminController extends Controller
     {
         try {
             $type = request()->input('type', 'testimonial');
-            
+
             if ($type == 'testimonial') {
                 $item = \App\Models\OurTestimonial::findOrFail($id);
             } else {
@@ -1967,10 +2070,10 @@ class AdminController extends Controller
         ]);
 
         // Filter out empty small_titles and small_descriptions
-        $smallTitles = array_filter($request->small_titles ?? [], function($value) {
+        $smallTitles = array_filter($request->small_titles ?? [], function ($value) {
             return !is_null($value) && $value !== '';
         });
-        $smallDescriptions = array_filter($request->small_descriptions ?? [], function($value) {
+        $smallDescriptions = array_filter($request->small_descriptions ?? [], function ($value) {
             return !is_null($value) && $value !== '';
         });
 
@@ -1998,10 +2101,10 @@ class AdminController extends Controller
         $contact = \App\Models\AdminContact::findOrFail($id);
 
         // Filter out empty small_titles and small_descriptions
-        $smallTitles = array_filter($request->small_titles ?? [], function($value) {
+        $smallTitles = array_filter($request->small_titles ?? [], function ($value) {
             return !is_null($value) && $value !== '';
         });
-        $smallDescriptions = array_filter($request->small_descriptions ?? [], function($value) {
+        $smallDescriptions = array_filter($request->small_descriptions ?? [], function ($value) {
             return !is_null($value) && $value !== '';
         });
 
@@ -2693,8 +2796,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
-                  ->orWhere('application_no', 'like', '%' . $search . '%');
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -2743,8 +2846,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
-                  ->orWhere('application_no', 'like', '%' . $search . '%');
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -2794,8 +2897,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
-                  ->orWhere('application_no', 'like', '%' . $search . '%');
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4199,8 +4302,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
-                  ->orWhere('application_no', 'like', '%' . $search . '%');
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4251,8 +4354,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
-                  ->orWhere('application_no', 'like', '%' . $search . '%');
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4302,8 +4405,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
-                  ->orWhere('application_no', 'like', '%' . $search . '%');
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4362,8 +4465,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
-                  ->orWhere('application_no', 'like', '%' . $search . '%');
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4411,8 +4514,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
-                  ->orWhere('application_no', 'like', '%' . $search . '%');
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4460,8 +4563,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
-                  ->orWhere('application_no', 'like', '%' . $search . '%');
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4508,8 +4611,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
-                  ->orWhere('application_no', 'like', '%' . $search . '%');
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4776,8 +4879,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
-                  ->orWhere('application_no', 'like', '%' . $search . '%');
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4823,8 +4926,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
-                  ->orWhere('application_no', 'like', '%' . $search . '%');
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4874,8 +4977,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
-                  ->orWhere('application_no', 'like', '%' . $search . '%');
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4945,8 +5048,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
-                  ->orWhere('application_no', 'like', '%' . $search . '%');
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -4995,8 +5098,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
-                  ->orWhere('application_no', 'like', '%' . $search . '%');
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -5586,8 +5689,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
-                  ->orWhere('application_no', 'like', '%' . $search . '%');
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -5636,8 +5739,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('email', 'like', '%' . $search . '%')
-                  ->orWhere('application_no', 'like', '%' . $search . '%');
+                    ->orWhere('email', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -5688,8 +5791,8 @@ class AdminController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
-                  ->orWhere('application_no', 'like', '%' . $search . '%');
+                    ->orWhere('aadhar_card_number', 'like', '%' . $search . '%')
+                    ->orWhere('application_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -6396,7 +6499,7 @@ class AdminController extends Controller
         $workingCommitteeApproval = WorkingCommitteeApproval::where('user_id', $user->id)->first();
 
         $schedules = $user->disbursementSchedules
-            ->sortBy(fn ($schedule) => $schedule->installment_no ?? 0)
+            ->sortBy(fn($schedule) => $schedule->installment_no ?? 0)
             ->values();
 
         $firstSchedule = $schedules->first();
@@ -7080,9 +7183,9 @@ class AdminController extends Controller
         ]);
     }
 
-   // about
+    // about
     public function websiteAboutEmpoweringDreams()
     {
-       return view('admin.website.about.empowering-dreams');
+        return view('admin.website.about.empowering-dreams');
     }
 }

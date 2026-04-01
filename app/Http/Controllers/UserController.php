@@ -14,6 +14,8 @@ use App\Models\Familydetail;
 use App\Models\ReviewSubmit;
 use App\Models\EditBankDetailRequest;
 use App\Models\JitoJeapBank;
+use App\Models\Chapter;
+use App\Mail\NewStudentRegisteredForChapterMail;
 use Illuminate\Http\Request;
 use App\Models\FundingDetail;
 use App\Models\Loan_category;
@@ -311,6 +313,19 @@ class UserController extends Controller
         }
 
         $user->update($data);
+
+        // Send email notification to chapter when student submits step1
+        try {
+            if ($user->chapter_id) {
+                $chapter = Chapter::on('admin_panel')->find($user->chapter_id);
+                if ($chapter && $chapter->email) {
+                    Mail::to($chapter->email)->send(new NewStudentRegisteredForChapterMail($user, $chapter));
+                }
+            }
+        } catch (\Throwable $e) {
+            // Log error but don't block the user flow
+            Log::error('Failed to send chapter notification email: ' . $e->getMessage());
+        }
 
         // Check if all steps are submitted (no resubmit remaining)
         $this->checkAndUpdateWorkflowStatus();
@@ -3796,6 +3811,19 @@ public function step6storeforeign(Request $request)
         // Update user's application_status to 'submitted' or similar
         $user = User::find($user_id);
         $user->update(['application_status' => 'submitted']);
+
+        // Send email notification to chapter when application is fully submitted
+        try {
+            if ($user->chapter_id) {
+                $chapter = Chapter::on('admin_panel')->find($user->chapter_id);
+                if ($chapter && $chapter->email) {
+                    Mail::to($chapter->email)->send(new NewStudentRegisteredForChapterMail($user, $chapter));
+                }
+            }
+        } catch (\Throwable $e) {
+            // Log error but don't block the user flow
+            Log::error('Failed to send chapter notification email on final submit: ' . $e->getMessage());
+        }
 
         // Get user for logging
         $user = User::find($user_id);

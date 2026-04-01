@@ -92,7 +92,7 @@
         @php
             $features = [];
             $featureImages = [];
-            $firstDream = $empoweringDreams->first();
+            $firstDream = isset($empoweringDreams) ? $empoweringDreams->first() : null;
             if ($firstDream && $firstDream->features) {
                 $features = array_map('trim', explode(',', $firstDream->features));
                 $featureImages = json_decode($firstDream->feature_images, true) ?? [];

@@ -599,6 +599,7 @@
                                                 Funding Details
                                             </label>
                                         </div>
+                                        @if($user->loan_category_type !== 'below')
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" value="guarantor"
                                                 id="guarantor{{ $user->id }}" name="resubmit_steps[]">
@@ -606,6 +607,7 @@
                                                 Guarantor Details
                                             </label>
                                         </div>
+                                        @endif
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" value="documents"
                                                 id="documents{{ $user->id }}" name="resubmit_steps[]">

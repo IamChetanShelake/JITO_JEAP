@@ -103,6 +103,12 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // Dashboard
     Route::get('/home', [AdminController::class, 'index'])->name('home');
 
+    // Admin User Registration
+    Route::get('/user-registration', [AdminController::class, 'showUserRegistrationForm'])
+        ->name('user-registration.create');
+    Route::post('/user-registration', [AdminController::class, 'storeUserRegistration'])
+        ->name('user-registration.store');
+
     // Apex Stage 1 Forms
     Route::get('/apex-stage1/approved', [AdminController::class, 'apexStage1Approved'])->name('apex.stage1.approved');
     Route::get('/apex-stage1/pending', [AdminController::class, 'apexStage1Pending'])->name('apex.stage1.pending');

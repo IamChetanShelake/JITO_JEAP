@@ -364,24 +364,24 @@ class AdminController extends Controller
                         // $iconImage = $path;
                         // \Illuminate\Support\Facades\Log::info('Icon image stored at: ' . $path);
 
-                        $filename = 'key-instruction-' . time() . '.' . $extension;
+                      $filename = 'key-instruction-' . time() . '.' . $extension;
 
-                        // ✅ define properly
-                        $destinationPath = 'key-instructions';
+                    // ✅ define properly
+                    $destinationPath = 'key-instructions';
 
-                        // folder create
-                        if (!file_exists($destinationPath)) {
-                            mkdir($destinationPath, 0777, true);
-                        }
+                    // folder create
+                    if (!file_exists($destinationPath)) {
+                        mkdir($destinationPath, 0777, true);
+                    }
 
-                        // move file
-                        $file->move($destinationPath, $filename);
+                    // move file
+                    $file->move($destinationPath, $filename);
 
-                        // store path
-                        $iconImage = 'key-instructions/' . $filename;
+                    // store path
+                    $iconImage = 'key-instructions/' . $filename;
 
-                        // log
-                        //\Illuminate\Support\Facades\Log::info('Icon image stored at: ' . $iconImage);
+                    // log
+                    //\Illuminate\Support\Facades\Log::info('Icon image stored at: ' . $iconImage);
 
 
                     } catch (\Exception $e) {
@@ -472,7 +472,6 @@ class AdminController extends Controller
 
     //                 // ✅ define properly
     //                 $destinationPath = 'key-instructions';
-
     //                 // folder create
     //                 if (!file_exists($destinationPath)) {
     //                     mkdir($destinationPath, 0777, true);
@@ -505,80 +504,84 @@ class AdminController extends Controller
 
 
     public function updateKeyInstruction(\Illuminate\Http\Request $request, $id)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'color' => 'required|string|max:20',
-            'display_order' => 'nullable|integer|min:0',
-        ]);
+{
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'required|string',
+        'color' => 'required|string|max:20',
+        'display_order' => 'nullable|integer|min:0',
+    ]);
 
-        $keyInstruction = \App\Models\KeyInstruction::findOrFail($id);
+    $keyInstruction = \App\Models\KeyInstruction::findOrFail($id);
 
-        if ($request->hasFile('icon') && $request->file('icon')->isValid()) {
-            $file = $request->file('icon');
-            $extension = strtolower($file->getClientOriginalExtension());
+    if ($request->hasFile('icon') && $request->file('icon')->isValid()) {
+        $file = $request->file('icon');
+        $extension = strtolower($file->getClientOriginalExtension());
 
-            // ✅ SVG Handling
-            if (in_array($extension, ['svg', 'xml'])) {
-                try {
-                    $iconSvg = file_get_contents($file->getRealPath());
+        // ✅ SVG Handling
+        if (in_array($extension, ['svg', 'xml'])) {
+            try {
+                $iconSvg = file_get_contents($file->getRealPath());
 
-                    $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
-                    $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
-                    $iconSvg = preg_replace('/(<svg)/i', '$1 width="40" height="40"', $iconSvg);
+                $iconSvg = preg_replace('/(<svg[^>]*)\s+width="[^"]*"/i', '$1', $iconSvg);
+                $iconSvg = preg_replace('/(<svg[^>]*)\s+height="[^"]*"/i', '$1', $iconSvg);
+                $iconSvg = preg_replace('/(<svg)/i', '$1 width="40" height="40"', $iconSvg);
 
-                    $keyInstruction->icon_svg = $iconSvg;
-                    $keyInstruction->icon_image = null;
-                    $keyInstruction->icon = 'custom';
-                } catch (\Exception $e) {
-                    \Log::error('SVG Error: ' . $e->getMessage());
-                }
-            } else {
-                // ✅ Image Handling
-                try {
-                    // 🔥 delete old image (public folder)
-                    if ($keyInstruction->icon_image) {
-                        $oldPath = public_path($keyInstruction->icon_image);
-                        if (file_exists($oldPath)) {
-                            unlink($oldPath);
-                        }
-                    }
+                $keyInstruction->icon_svg = $iconSvg;
+                $keyInstruction->icon_image = null;
+                $keyInstruction->icon = 'custom';
 
-                    $filename = 'key-instruction-' . time() . '.' . $extension;
-
-                    // ✅ correct path
-                    $destinationPath = 'key-instructions';
-
-                    if (!file_exists($destinationPath)) {
-                        mkdir($destinationPath, 0777, true);
-                    }
-
-                    $file->move($destinationPath, $filename);
-
-                    // ✅ store in DB
-                    $keyInstruction->icon_image = 'key-instructions/' . $filename;
-                    $keyInstruction->icon_svg = null;
-                    $keyInstruction->icon = 'custom';
-                } catch (\Exception $e) {
-                    \Log::error('Image Upload Error: ' . $e->getMessage());
-                }
+            } catch (\Exception $e) {
+                \Log::error('SVG Error: ' . $e->getMessage());
             }
-        } elseif ($request->has('existing_icon_svg')) {
-            $keyInstruction->icon_svg = $request->input('existing_icon_svg');
+
+        } else {
+            // ✅ Image Handling
+            try {
+                // 🔥 delete old image (public folder)
+                if ($keyInstruction->icon_image) {
+                    $oldPath = public_path($keyInstruction->icon_image);
+                    if (file_exists($oldPath)) {
+                        unlink($oldPath);
+                    }
+                }
+
+                $filename = 'key-instruction-' . time() . '.' . $extension;
+
+                // ✅ correct path
+                $destinationPath = 'key-instructions';
+
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0777, true);
+                }
+
+                $file->move($destinationPath, $filename);
+
+                // ✅ store in DB
+                $keyInstruction->icon_image = 'key-instructions/' . $filename;
+                $keyInstruction->icon_svg = null;
+                $keyInstruction->icon = 'custom';
+
+            } catch (\Exception $e) {
+                \Log::error('Image Upload Error: ' . $e->getMessage());
+            }
         }
 
-        // ✅
-        $keyInstruction->title = $validated['title'];
-        $keyInstruction->description = $validated['description'];
-        $keyInstruction->color = $validated['color'];
-        $keyInstruction->display_order = $validated['display_order'] ?? 0;
-
-        $keyInstruction->save();
-
-        return redirect()->route('admin.website.home.key-instruction')
-            ->with('success', 'Key Instruction updated successfully!');
+    } elseif ($request->has('existing_icon_svg')) {
+        $keyInstruction->icon_svg = $request->input('existing_icon_svg');
     }
+
+    // ✅
+    $keyInstruction->title = $validated['title'];
+    $keyInstruction->description = $validated['description'];
+    $keyInstruction->color = $validated['color'];
+    $keyInstruction->display_order = $validated['display_order'] ?? 0;
+
+    $keyInstruction->save();
+
+    return redirect()->route('admin.website.home.key-instruction')
+        ->with('success', 'Key Instruction updated successfully!');
+}
 
     /**
      * Delete Key Instruction
@@ -1436,9 +1439,9 @@ class AdminController extends Controller
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imageName = time().'_'.$image->getClientOriginalName();
             $image->move(public_path('uploads/jeap'), $imageName);
-            $imagePath = 'uploads/jeap/' . $imageName;
+            $imagePath = 'uploads/jeap/'.$imageName;
         }
 
         // Handle multiple images
@@ -1446,9 +1449,9 @@ class AdminController extends Controller
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $img) {
                 if ($img) {
-                    $imageName = time() . '_' . uniqid() . '_' . $img->getClientOriginalName();
+                    $imageName = time().'_'.uniqid().'_'.$img->getClientOriginalName();
                     $img->move(public_path('uploads/jeap'), $imageName);
-                    $imagesPaths[] = 'uploads/jeap/' . $imageName;
+                    $imagesPaths[] = 'uploads/jeap/'.$imageName;
                 }
             }
         }
@@ -1495,9 +1498,9 @@ class AdminController extends Controller
                 unlink(public_path($item->image));
             }
             $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imageName = time().'_'.$image->getClientOriginalName();
             $image->move(public_path('uploads/jeap'), $imageName);
-            $imagePath = 'uploads/jeap/' . $imageName;
+            $imagePath = 'uploads/jeap/'.$imageName;
         }
 
         // Handle multiple images
@@ -1609,9 +1612,9 @@ class AdminController extends Controller
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imageName = time().'_'.$image->getClientOriginalName();
             $image->move(public_path('uploads/board-of-directors'), $imageName);
-            $imagePath = 'uploads/board-of-directors/' . $imageName;
+            $imagePath = 'uploads/board-of-directors/'.$imageName;
         }
 
         BoardOfDirectors::create([
@@ -1645,9 +1648,9 @@ class AdminController extends Controller
                 unlink(public_path($item->image));
             }
             $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imageName = time().'_'.$image->getClientOriginalName();
             $image->move(public_path('uploads/board-of-directors'), $imageName);
-            $imagePath = 'uploads/board-of-directors/' . $imageName;
+            $imagePath = 'uploads/board-of-directors/'.$imageName;
         }
 
         $item->update([
@@ -1701,9 +1704,9 @@ class AdminController extends Controller
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imageName = time().'_'.$image->getClientOriginalName();
             $image->move(public_path('uploads/zone-chairmen'), $imageName);
-            $imagePath = 'uploads/zone-chairmen/' . $imageName;
+            $imagePath = 'uploads/zone-chairmen/'.$imageName;
         }
 
         ZoneChairmen::create([
@@ -1737,9 +1740,9 @@ class AdminController extends Controller
                 unlink(public_path($item->image));
             }
             $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imageName = time().'_'.$image->getClientOriginalName();
             $image->move(public_path('uploads/zone-chairmen'), $imageName);
-            $imagePath = 'uploads/zone-chairmen/' . $imageName;
+            $imagePath = 'uploads/zone-chairmen/'.$imageName;
         }
 
         $item->update([

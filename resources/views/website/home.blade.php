@@ -244,7 +244,7 @@
 
                             // Check for uploaded image first
                             if (!empty($instruction->icon_image)) {
-                                $iconImage = asset('storage/' . $instruction->icon_image);
+                                $iconImage = asset($instruction->icon_image);
                             } elseif (!empty($instruction->icon_svg)) {
                                 $iconSvg = preg_replace('/(<svg)/i', '$1 width="35" height="39" viewBox="0 0 24 24"', $instruction->icon_svg);
                                 $iconSvg = preg_replace('/stroke="[^"]*"/i', 'stroke="white"', $iconSvg);
@@ -258,7 +258,7 @@
                             }
                         @endphp
                         <div class="key-card-wrapper" style="flex: 0 0 auto; width: calc({{ $cardWidth }} - 17px); min-width: 180px;">
-                            <div class="key-card" data-color="{{ $borderColor }}" style="--card-color: {{ $borderColor }}; position: relative; background: #ffffff; border-radius: 0px; border: 2px solid {{ $borderColor }}; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px 25px 30px; height: 240px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.borderColor=this.dataset.color; this.style.backgroundColor=this.dataset.color; this.querySelector('.card-title').style.color='#fff'; this.querySelector('.card-text').style.color='#fff'; this.querySelector('.icon-circle').style.backgroundColor='#ffffff'; this.querySelector('.icon-circle').style.borderColor=this.dataset.color; this.querySelector('.icon-circle').style.borderWidth='3px';" onmouseout="this.style.borderColor=this.dataset.color; this.style.backgroundColor='#ffffff'; this.querySelector('.card-title').style.color='#3E3E3E'; this.querySelector('.card-text').style.color='#5B5B5B'; this.querySelector('.icon-circle').style.backgroundColor=this.dataset.color; this.querySelector('.icon-circle').style.borderColor='#ffff'; this.querySelector('.icon-circle').style.borderWidth='5px';">
+                            <div class="key-card" data-color="{{ $borderColor }}" style="--card-color: {{ $borderColor }}; position: relative; background: #ffffff; border-radius: 0px; border: 2px solid {{ $borderColor }}; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px 25px 30px; height: 240px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.borderColor=this.dataset.color; this.style.backgroundColor=this.dataset.color; this.querySelector('.card-title').style.color='#fff'; this.querySelector('.card-text').style.color='#fff';" onmouseout="this.style.borderColor=this.dataset.color; this.style.backgroundColor='#ffffff'; this.querySelector('.card-title').style.color='#3E3E3E'; this.querySelector('.card-text').style.color='#5B5B5B';">
                                 <div class="icon-circle" style="position: absolute; top: -55px; left: 50%; transform: translateX(-50%); background: {{ $borderColor }}; border-radius: 50%; border: 5px solid #ffff; width: 110px; height: 110px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.3s ease; overflow: visible;">
                                     @if($iconImage)
                                         <img src="{{ $iconImage }}" alt="Icon" style="width: 80px; height: 80px; object-fit: contain; border-radius: 50%;">

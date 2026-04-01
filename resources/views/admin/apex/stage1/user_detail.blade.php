@@ -929,6 +929,13 @@
             <div class="user-info-footer">
                 <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}
                 </p>
+                @if($loanCategory)
+                <p><strong>Loan Category:</strong>
+                    <span class="loan-type-badge {{ $loanCategory->type === 'below' ? 'loan-type-below' : 'loan-type-above' }}">
+                        {{ $loanCategory->type === 'below' ? 'Below 1 Lakh' : 'Above 1 Lakh' }}
+                    </span>
+                </p>
+                @endif
                 <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type 
                     ? ucwords(str_replace('_', ' ', $user->financial_asset_type)) 
                     : 'N/A' }}</p>
@@ -1194,6 +1201,26 @@
                                     <label class="form-label">Aadhar/Pan Address</label>
                                     <textarea class="form-textarea" readonly>{{ $user->aadhar_address ?? 'N/A' }}</textarea>
                                 </div>
+                                <div class="form-field">
+                                    <label class="form-label">Zone</label>
+                                    <input type="text" class="form-input" value="{{ $user->zone ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Chapter Chairman</label>
+                                    <input type="text" class="form-input" value="{{ $user->chapter_chairman ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Chapter Contact</label>
+                                    <input type="text" class="form-input" value="{{ $user->chapter_contact ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Postal Address</label>
+                                    <input type="text" class="form-input" value="{{ $user->postal_address ?? 'N/A' }}"
+                                        readonly>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1404,6 +1431,11 @@
                                 </div>
                                 <div class="form-row">
                                     <div class="form-field">
+                                        <label class="form-label">CGPA Out Of</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->school_cgpa_out_of ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
                                         <label class="form-label">CGPA</label>
                                         <input type="text" class="form-input"
                                             value="{{ $user->educationDetail->school_CGPA ?? 'N/A' }}" readonly>
@@ -1458,6 +1490,11 @@
                                             value="{{ $user->educationDetail->jc_percentage ?? 'N/A' }}%" readonly>
                                     </div>
                                     <div class="form-field">
+                                        <label class="form-label">CGPA Out Of</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->jc_cgpa_out_of ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
                                         <label class="form-label">CGPA</label>
                                         <input type="text" class="form-input"
                                             value="{{ $user->educationDetail->jc_CGPA ?? 'N/A' }}" readonly>
@@ -1486,6 +1523,41 @@
                                         <label class="form-label">Work Profile</label>
                                         <input type="text" class="form-input"
                                             value="{{ $user->educationDetail->work_profile ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Duration Start Year</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->duration_start_year ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Duration End Year</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->duration_end_year ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Work Location City</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->work_location_city ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Work Country</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->work_country ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Work type</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->work_type ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Salary Amount</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->salary_amount ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Yearly Gross Income</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->yearly_gross_income ?? 'N/A' }}" readonly>
                                     </div>
                                 </div>
                             </div>
@@ -2088,7 +2160,7 @@
                                     <div class="form-field">
                                         <label class="form-label">PAN Card No</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->guarantorDetail->g_one_pan_card_no ?? 'N/A' }}" readonly>
+                                            value="{{ $user->guarantorDetail->g_one_pan ?? 'N/A' }}" readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">PAN Upload</label>
@@ -2176,7 +2248,7 @@
                                     <div class="form-field">
                                         <label class="form-label">PAN Card No</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->guarantorDetail->g_two_pan_card_no ?? 'N/A' }}" readonly>
+                                            value="{{ $user->guarantorDetail->g_two_pan ?? 'N/A' }}" readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">PAN Upload</label>

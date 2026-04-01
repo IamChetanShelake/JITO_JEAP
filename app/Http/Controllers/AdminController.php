@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Mail\AdminUserRegisteredMail;
 use App\Mail\SendBackForCorrectionMail;
 use App\Mail\ThirdStageDocumentCorrectionMail;
 use App\Mail\WorkingCommitteeApprovedMail;
@@ -225,12 +224,6 @@ class AdminController extends Controller
         $year = date('Y');
         $applicationNo = 'JITO-JEAP/' . $year . '/' . str_pad($user->id, 4, '0', STR_PAD_LEFT);
         $user->update(['application_no' => $applicationNo]);
-
-        try {
-            Mail::to($user->email)->send(new AdminUserRegisteredMail($user, $request->password));
-        } catch (\Throwable $e) {
-            report($e);
-        }
 
         return redirect()
             ->route('admin.user-registration.create')

@@ -1334,16 +1334,58 @@
                         <div class="data-group">
                             <h4>Financial Summary Table</h4>
                             <div class="table-container">
+                                @php
+                                    $edu = $user->educationDetail;
+                                    $yearColumns = [
+                                        1 => [
+                                            $edu->group_1_year1 ?? 0,
+                                            $edu->group_2_year1 ?? 0,
+                                            $edu->group_3_year1 ?? 0,
+                                            $edu->group_4_year1 ?? 0,
+                                        ],
+                                        2 => [
+                                            $edu->group_1_year2 ?? 0,
+                                            $edu->group_2_year2 ?? 0,
+                                            $edu->group_3_year2 ?? 0,
+                                            $edu->group_4_year2 ?? 0,
+                                        ],
+                                        3 => [
+                                            $edu->group_1_year3 ?? 0,
+                                            $edu->group_2_year3 ?? 0,
+                                            $edu->group_3_year3 ?? 0,
+                                            $edu->group_4_year3 ?? 0,
+                                        ],
+                                        4 => [
+                                            $edu->group_1_year4 ?? 0,
+                                            $edu->group_2_year4 ?? 0,
+                                            $edu->group_3_year4 ?? 0,
+                                            $edu->group_4_year4 ?? 0,
+                                        ],
+                                        5 => [
+                                            $edu->group_1_year5 ?? 0,
+                                            $edu->group_2_year5 ?? 0,
+                                            $edu->group_3_year5 ?? 0,
+                                            $edu->group_4_year5 ?? 0,
+                                        ],
+                                    ];
+
+                                    $showYear = [];
+                                    foreach ($yearColumns as $year => $values) {
+                                        $showYear[$year] = collect($values)->contains(function ($value) {
+                                            return (float) $value > 0;
+                                        });
+                                    }
+                                @endphp
                                 <table class="custom-table">
                                     <thead>
                                         <tr>
                                             <th>Sr No</th>
                                             <th>Group Name</th>
-                                            <th>1 Year</th>
-                                            <th>2 Year</th>
-                                            <th>3 Year</th>
-                                            <th>4 Year</th>
-                                            <th>5 Year</th>
+                                            @if ($showYear[1]) <th>1 Year</th> @endif
+                                            @if ($showYear[2]) <th>2 Year</th> @endif
+                                            @if ($showYear[3]) <th>3 Year</th> @endif
+                                            @if ($showYear[4]) <th>4 Year</th> @endif
+                                            @if ($showYear[5]) <th>5 Year</th> @endif
                                             <th>Total</th>
                                         </tr>
                                     </thead>
@@ -1351,64 +1393,104 @@
                                         <tr>
                                             <td>1</td>
                                             <td>Tuition Fees</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_1_year1 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_1_year2 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_1_year3 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_1_year4 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_1_year5 ?? 0) }}</td>
+                                            @if ($showYear[1])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_1_year1 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[2])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_1_year2 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[3])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_1_year3 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[4])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_1_year4 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[5])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_1_year5 ?? 0) }}</td>
+                                            @endif
                                             <td class="amount-cell">
                                                 ₹{{ number_format($user->educationDetail->group_1_total ?? 0) }}</td>
                                         </tr>
                                         <tr>
                                             <td>2</td>
                                             <td>Living Expenses</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_2_year1 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_2_year2 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_2_year3 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_2_year4 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_2_year5 ?? 0) }}</td>
+                                            @if ($showYear[1])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_2_year1 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[2])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_2_year2 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[3])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_2_year3 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[4])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_2_year4 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[5])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_2_year5 ?? 0) }}</td>
+                                            @endif
                                             <td class="amount-cell">
                                                 ₹{{ number_format($user->educationDetail->group_2_total ?? 0) }}</td>
                                         </tr>
                                         <tr>
                                             <td>3</td>
                                             <td>Other Expenses</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_3_year1 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_3_year2 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_3_year3 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_3_year4 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_3_year5 ?? 0) }}</td>
+                                            @if ($showYear[1])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_3_year1 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[2])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_3_year2 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[3])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_3_year3 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[4])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_3_year4 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[5])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_3_year5 ?? 0) }}</td>
+                                            @endif
                                             <td class="amount-cell">
                                                 ₹{{ number_format($user->educationDetail->group_3_total ?? 0) }}</td>
                                         </tr>
                                         <tr>
                                             <td>4</td>
                                             <td>Total Expenses</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_4_year1 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_4_year2 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_4_year3 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_4_year4 ?? 0) }}</td>
-                                            <td class="amount-cell">
-                                                ₹{{ number_format($user->educationDetail->group_4_year5 ?? 0) }}</td>
+                                            @if ($showYear[1])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_4_year1 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[2])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_4_year2 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[3])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_4_year3 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[4])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_4_year4 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[5])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_4_year5 ?? 0) }}</td>
+                                            @endif
                                             <td class="amount-cell">
                                                 ₹{{ number_format($user->educationDetail->group_4_total ?? 0) }}</td>
                                         </tr>

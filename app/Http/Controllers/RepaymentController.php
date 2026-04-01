@@ -6,6 +6,7 @@ use App\Traits\LogsUserActivity;
 use App\Models\Loan_category;
 use App\Models\PdcDetail;
 use App\Models\User;
+use App\Services\RepaymentInstallmentResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -565,22 +566,13 @@ class RepaymentController extends Controller
             return collect();
         }
 
-        return collect($chequeDetails)
-            ->filter(fn($item) => is_array($item))
-            ->map(function (array $item, int $index) {
-                return (object) [
-                    'installment_no' => (int) ($item['row_number'] ?? ($index + 1)),
-                    'cheque_date' => $item['cheque_date'] ?? null,
-                    'amount' => (float) ($item['amount'] ?? 0),
-                    'bank_name' => $item['bank_name'] ?? null,
-                    'ifsc' => $item['ifsc'] ?? null,
-                    'account_number' => $item['account_number'] ?? null,
-                    'cheque_number' => $item['cheque_number'] ?? null,
-                    'parents_jnt_ac_name' => $item['parents_jnt_ac_name'] ?? null,
-                ];
-            })
-            ->sortBy('installment_no')
-            ->values();
+        $totalRepaidAmount = DB::connection('admin_panel')
+            ->table('repayments')
+            ->where('user_id', $userId)
+            ->where('status', '!=', 'bounced')
+            ->sum('amount');
+
+        return RepaymentInstallmentResolver::resolve($chequeDetails, (float) $totalRepaidAmount);
     }
 
     /**

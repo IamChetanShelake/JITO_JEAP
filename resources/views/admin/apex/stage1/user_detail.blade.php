@@ -2634,23 +2634,25 @@
                                                 style="width: 16px; height: 16px;">
                                             Step 4: Funding Details
                                         </label>
+                                        @if(!$isBelowLoan)
                                         <label
                                             style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
                                             <input type="checkbox" name="resubmit_steps[]" value="guarantor"
                                                 style="width: 16px; height: 16px;">
                                             Step 5: Guarantor Details
                                         </label>
+                                        @endif
                                         <label
                                             style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
                                             <input type="checkbox" name="resubmit_steps[]" value="documents"
                                                 style="width: 16px; height: 16px;">
-                                            Step 6: Documents
+                                            Step {{ $isBelowLoan ? 5 : 6 }}: Documents
                                         </label>
                                         <label
                                             style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
                                             <input type="checkbox" name="resubmit_steps[]" value="final"
                                                 style="width: 16px; height: 16px;">
-                                            Step 7: Final Submission
+                                            Step {{ $isBelowLoan ? 6 : 7 }}: Final Submission
                                         </label>
                                     </div>
                                     <p style="font-size: 0.75rem; color: var(--text-light); margin: 0.5rem 0 0 0;">

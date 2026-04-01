@@ -2840,12 +2840,14 @@
                                                 style="width: 16px; height: 16px;">
                                             Funding Details
                                         </label>
+                                        @if(!$isBelowLoan)
                                         <label
                                             style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
                                             <input type="checkbox" name="resubmit_steps[]" value="guarantor"
                                                 style="width: 16px; height: 16px;">
                                             Guarantor Details
                                         </label>
+                                        @endif
                                         <label
                                             style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
                                             <input type="checkbox" name="resubmit_steps[]" value="documents"

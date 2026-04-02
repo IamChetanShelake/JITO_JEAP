@@ -1153,16 +1153,16 @@
                     document.querySelectorAll('.modal-backdrop').forEach(function(backdrop) {
                         backdrop.remove();
                     });
-                    
+
                     var errorMessage = '{{ Session::get('error') }}';
                     document.getElementById('stepErrorMessage').textContent = errorMessage;
-                    
+
                     var errorModal = new bootstrap.Modal(document.getElementById('stepErrorModal'), {
                         backdrop: 'static',
                         keyboard: true
                     });
                     errorModal.show();
-                    
+
                     // Ensure modal is on top
                     document.getElementById('stepErrorModal').addEventListener('shown.bs.modal', function() {
                         document.querySelectorAll('.modal').forEach(function(modal) {

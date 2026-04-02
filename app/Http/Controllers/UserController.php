@@ -4127,7 +4127,7 @@ public function step6storeforeign(Request $request)
 
         $request->validate($rules);
 
-        $uploadDir = public_path('third_stage_documents/' . $user_id);
+        $uploadDir = 'third_stage_documents/' . $user_id;
         if (!File::exists($uploadDir)) {
             File::makeDirectory($uploadDir, 0755, true);
         }

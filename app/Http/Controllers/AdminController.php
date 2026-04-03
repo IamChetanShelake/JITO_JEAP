@@ -1959,7 +1959,7 @@ class AdminController extends Controller
             $type = $request->input('type', 'testimonial');
 
             $validated = $request->validate([
-                'type' => 'required|in:testimonial,success_story',
+                
                 'name' => 'required|string|max:255' . ($type == 'testimonial' ? '' : '|nullable'),
                 'title' => 'nullable|string|max:255',
                 'feedback' => 'required|string',
@@ -2130,7 +2130,7 @@ class AdminController extends Controller
     public function storeContact(Request $request)
     {
         $request->validate([
-            'title' => 'nullable|string',
+            'title' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);
 

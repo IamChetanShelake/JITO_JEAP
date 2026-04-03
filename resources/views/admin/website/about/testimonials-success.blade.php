@@ -260,6 +260,7 @@
             </div>
             <form action="{{ route('admin.website.about.testimonials-success.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
+                <input type="hidden" name="type" value="testimonial">
                 <div class="modal-body">
                     <div class="row mb-3">
                         <div class="col-md-12">

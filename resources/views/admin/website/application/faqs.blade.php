@@ -4,46 +4,16 @@
 @section('website-content')
     <div class="col-12">
         <div class="card">
-            <div class="card-header">
-                <h2>FAQ's Management</h2>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">FAQ's Management</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFaqModal">
+                    <i class="fas fa-plus"></i> Add FAQ
+                </button>
             </div>
             <div class="card-body">
                 @if(session('success'))
                     <div class="alert alert-success">{{ session('success') }}</div>
                 @endif
-
-                <!-- Add New FAQ Form -->
-                <div class="mb-4">
-                    <h4>Add New FAQ</h4>
-                    <form action="{{ route('admin.website.application.faqs.store') }}" method="POST">
-                        @csrf
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label for="question" class="form-label">Question</label>
-                                    <input type="text" class="form-control" id="question" name="question" required>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label for="answer" class="form-label">Answer</label>
-                                    <textarea class="form-control" id="answer" name="answer" rows="3" required></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="1" checked>
-                                <label class="form-check-label" for="is_active">Active</label>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Add FAQ</button>
-                    </form>
-                </div>
-
-                <hr>
 
                 <!-- FAQ List -->
                 <h4>Existing FAQs</h4>
@@ -72,6 +42,9 @@
                                         @endif
                                     </td>
                                     <td class="text-center align-middle">
+                                        <button class="btn btn-sm btn-info text-white" title="View" data-bs-toggle="modal" data-bs-target="#viewModal{{ $faq->id }}">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
                                         <button class="btn btn-sm btn-warning" title="Edit" data-bs-toggle="modal" data-bs-target="#editModal{{ $faq->id }}">
                                             <i class="fas fa-edit"></i>
                                         </button>
@@ -84,6 +57,45 @@
                                         </form>
                                     </td>
                                 </tr>
+
+                                <!-- View Modal -->
+                                <div class="modal fade" id="viewModal{{ $faq->id }}" tabindex="-1" aria-labelledby="viewModalLabel{{ $faq->id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="viewModalLabel{{ $faq->id }}">FAQ Details</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row mb-3">
+                                                    <div class="col-md-12">
+                                                        <strong>Question:</strong>
+                                                        <p>{{ $faq->question }}</p>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="col-md-12">
+                                                        <strong>Answer:</strong>
+                                                        <p>{{ $faq->answer }}</p>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="col-md-12">
+                                                        <strong>Status:</strong>
+                                                        @if($faq->is_active)
+                                                            <span class="badge bg-success">Active</span>
+                                                        @else
+                                                            <span class="badge bg-secondary">Inactive</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <!-- Edit Modal -->
                                 <div class="modal fade" id="editModal{{ $faq->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $faq->id }}" aria-hidden="true">
@@ -106,10 +118,11 @@
                                                         <textarea class="form-control" id="answer{{ $faq->id }}" name="answer" rows="5" required>{{ $faq->answer }}</textarea>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <div class="form-check">
-                                                            <input type="checkbox" class="form-check-input" id="is_active{{ $faq->id }}" name="is_active" value="1" {{ $faq->is_active ? 'checked' : '' }}>
-                                                            <label class="form-check-label" for="is_active{{ $faq->id }}">Active</label>
-                                                        </div>
+                                                        <label for="is_active{{ $faq->id }}" class="form-label">Status</label>
+                                                        <select class="form-select" id="is_active{{ $faq->id }}" name="is_active">
+                                                            <option value="1" {{ $faq->is_active ? 'selected' : '' }}>Active</option>
+                                                            <option value="0" {{ !$faq->is_active ? 'selected' : '' }}>Inactive</option>
+                                                        </select>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
@@ -128,6 +141,41 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add FAQ Modal -->
+    <div class="modal fade" id="addFaqModal" tabindex="-1" aria-labelledby="addFaqModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addFaqModalLabel">Add New FAQ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('admin.website.application.faqs.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="question" class="form-label">Question <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="question" name="question" required placeholder="Enter question">
+                        </div>
+                        <div class="mb-3">
+                            <label for="answer" class="form-label">Answer <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="answer" name="answer" rows="5" required placeholder="Enter answer"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="1" checked>
+                                <label class="form-check-label" for="is_active">Active</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add FAQ</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

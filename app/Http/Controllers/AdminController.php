@@ -1453,7 +1453,7 @@ class AdminController extends Controller
             'number' => $request->number,
             'stat_text' => $request->stat_text,
             'display_order' => $request->display_order ?? (AdminAboutJitoWebsite::max('display_order') + 1),
-            'status' => $request->status ?? true,
+            'status' => $request->status == '1' ? true : false,
         ]);
 
         return redirect()->back()->with('success', 'Data added successfully!');
@@ -1495,7 +1495,7 @@ class AdminController extends Controller
             'number' => $request->number,
             'stat_text' => $request->stat_text,
             'display_order' => $request->display_order ?? $item->display_order,
-            'status' => $request->status ?? $item->status,
+            'status' => $request->status == '1' ? true : false,
         ]);
 
         return redirect()->back()->with('success', 'Data updated successfully!');
@@ -1531,7 +1531,7 @@ class AdminController extends Controller
             'number' => $request->number,
             'text' => $request->text,
             'display_order' => $request->display_order ?? (AdminJitoStats::max('display_order') + 1),
-            'status' => $request->status ?? true,
+            'status' => $request->status == '1' ? true : false,
         ]);
 
         return redirect()->back()->with('success', 'Stat added successfully!');
@@ -1555,7 +1555,7 @@ class AdminController extends Controller
             'number' => $request->number,
             'text' => $request->text,
             'display_order' => $request->display_order ?? $item->display_order,
-            'status' => $request->status ?? $item->status,
+            'status' => $request->status == '1' ? true : false,
         ]);
 
         return redirect()->back()->with('success', 'Stat updated successfully!');
@@ -1592,6 +1592,17 @@ class AdminController extends Controller
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'images.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
         ]);
+
+        // Check if at least one field has data
+        $hasTitle = !empty($request->title);
+        $hasDescription = !empty($request->description);
+        $hasSmallTitles = !empty(array_filter($request->small_titles ?? [], fn($v) => !is_null($v) && $v !== ''));
+        $hasSmallDescriptions = !empty(array_filter($request->small_descriptions ?? [], fn($v) => !is_null($v) && $v !== ''));
+        $hasImage = $request->hasFile('image');
+
+        if (!$hasTitle && !$hasDescription && !$hasSmallTitles && !$hasSmallDescriptions && !$hasImage) {
+            return back()->with('error', 'Please fill at least one field before saving.');
+        }
 
         $imagePath = null;
 

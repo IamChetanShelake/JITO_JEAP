@@ -80,6 +80,20 @@
                                     <p>{{ $paragraph }}</p>
                                 @endforeach
 
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <strong>Display Order:</strong> {{ $item->display_order ?? 0 }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Status:</strong>
+                                        @if($item->status)
+                                            <span class="badge bg-success">Active</span>
+                                        @else
+                                            <span class="badge bg-danger">Inactive</span>
+                                        @endif
+                                    </div>
+                                </div>
+
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -136,6 +150,29 @@
                                                     <img src="{{ asset($item->image) }}" alt="Current" class="img-thumbnail" style="max-width: 150px;">
                                                 </div>
                                             @endif
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="number{{ $item->id }}" class="form-label">Number</label>
+                                            <input type="text" class="form-control" id="number{{ $item->id }}" name="number" value="{{ $item->number ?? '' }}">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="stat_text{{ $item->id }}" class="form-label">Stat Text</label>
+                                            <input type="text" class="form-control" id="stat_text{{ $item->id }}" name="stat_text" value="{{ $item->stat_text ?? '' }}">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="display_order{{ $item->id }}" class="form-label">Display Order</label>
+                                            <input type="number" class="form-control" id="display_order{{ $item->id }}" name="display_order" value="{{ $item->display_order ?? 0 }}" min="0">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="status{{ $item->id }}" class="form-label">Status</label>
+                                            <select class="form-select" id="status{{ $item->id }}" name="status">
+                                                <option value="1" {{ $item->status ? 'selected' : '' }}>Active</option>
+                                                <option value="0" {{ !$item->status ? 'selected' : '' }}>Inactive</option>
+                                            </select>
                                         </div>
                                     </div>
 
@@ -226,6 +263,25 @@
                             <input type="file" class="form-control" id="image" name="image" accept="image/*">
                         </div>
                     </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="number" class="form-label">Number</label>
+                            <input type="text" class="form-control" id="number" name="number">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="stat_text" class="form-label">Stat Text</label>
+                            <input type="text" class="form-control" id="stat_text" name="stat_text">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="1" selected>Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
 
                 </div>
                 <div class="modal-footer">
@@ -309,6 +365,9 @@
                             @endif
                         </td>
                         <td class="text-center align-middle">
+                            <button class="btn btn-sm btn-info text-white" title="View" data-bs-toggle="modal" data-bs-target="#viewStatModal{{ $stat->id }}">
+                                <i class="fas fa-eye"></i>
+                            </button>
                             <button class="btn btn-sm btn-warning" title="Edit" data-bs-toggle="modal" data-bs-target="#editStatModal{{ $stat->id }}">
                                 <i class="fas fa-edit"></i>
                             </button>
@@ -318,9 +377,49 @@
                         </td>
                     </tr>
 
+                    <!-- View Stat Modal -->
+                    <div class="modal fade" id="viewStatModal{{ $stat->id }}" tabindex="-1" aria-labelledby="viewStatModalLabel{{ $stat->id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="viewStatModalLabel{{ $stat->id }}">Stat Details</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-12">
+                                            <strong>Number:</strong> {{ $stat->number }}
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-12">
+                                            <strong>Text:</strong> {{ $stat->text }}
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <strong>Display Order:</strong> {{ $stat->display_order }}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Status:</strong>
+                                            @if($stat->status)
+                                                <span class="badge bg-success">Active</span>
+                                            @else
+                                                <span class="badge bg-danger">Inactive</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Edit Stat Modal -->
                     <div class="modal fade" id="editStatModal{{ $stat->id }}" tabindex="-1" aria-labelledby="editStatModalLabel{{ $stat->id }}" aria-hidden="true">
-                        <div class="modal-dialog">
+                        <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="editStatModalLabel{{ $stat->id }}">Edit Stat</h5>
@@ -346,11 +445,11 @@
                                                 <input type="number" class="form-control" id="display_order{{ $stat->id }}" name="display_order" value="{{ $stat->display_order }}" min="0">
                                             </div>
                                             <div class="col-md-6">
-                                                <label class="form-label">Status</label>
-                                                <div class="form-check mt-2">
-                                                    <input class="form-check-input" type="checkbox" id="status{{ $stat->id }}" name="status" value="1" {{ $stat->status ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="status{{ $stat->id }}">Active</label>
-                                                </div>
+                                                <label for="status{{ $stat->id }}" class="form-label">Status</label>
+                                                <select class="form-select" id="status{{ $stat->id }}" name="status">
+                                                    <option value="1" {{ $stat->status ? 'selected' : '' }}>Active</option>
+                                                    <option value="0" {{ !$stat->status ? 'selected' : '' }}>Inactive</option>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -403,7 +502,7 @@
 
     <!-- Add Stat Modal -->
     <div class="modal fade" id="addStatModal" tabindex="-1" aria-labelledby="addStatModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="addStatModalLabel">Add New Stat</h5>
@@ -428,11 +527,11 @@
                                 <input type="number" class="form-control" id="display_order" name="display_order" placeholder="0" min="0">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Status</label>
-                                <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" id="status" name="status" value="1" checked>
-                                    <label class="form-check-label" for="status">Active</label>
-                                </div>
+                                <label for="status" class="form-label">Status</label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="1" selected>Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
                             </div>
                         </div>
                     </div>

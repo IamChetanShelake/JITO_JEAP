@@ -154,7 +154,7 @@
                                                     style="color: red;">*</span></label>
                                             <input type="text" class="form-control" id="name" name="name"
                                                 placeholder="Enter Applicant's Name"
-                                                value="{{ old('name', $user->name ?? '') }}" required>
+                                                value="{{ old('name', $user->name ?? '') }}" readonly>
                                             <small class="text-danger">{{ $errors->first('name') }}</small>
                                         </div>
 

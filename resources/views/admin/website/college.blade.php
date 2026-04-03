@@ -240,10 +240,13 @@
                                         <div class="col-md-12">
                                             <label class="form-label">Courses</label>
                                             <div class="row">
+                                                @php
+                                                    $collegeCourses = is_array($college->courses) ? $college->courses : json_decode($college->courses, true) ?? [];
+                                                @endphp
                                                 @forelse($courses ?? [] as $course)
                                                 <div class="col-md-4 mb-2">
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" id="course_{{ $college->id }}_{{ $course->id }}" name="courses[]" value="{{ $course->course_name }}" {{ (is_array($college->courses) && in_array($course->course_name, $college->courses)) ? 'checked' : '' }}>
+                                                        <input class="form-check-input" type="checkbox" id="course_{{ $college->id }}_{{ $course->id }}" name="courses[]" value="{{ $course->course_name }}" {{ in_array($course->course_name, $collegeCourses) ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="course_{{ $college->id }}_{{ $course->id }}">
                                                             {{ $course->course_name }}
                                                         </label>

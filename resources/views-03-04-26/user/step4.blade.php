@@ -1,0 +1,1139 @@
+@extends('user.layout.master')
+@section('step')
+    <button class="btn btn-purple me-2" style="background-color: #393185; color: white;">Step 4 of
+        7</button>
+@endsection
+
+<script>
+    // Pass existing funding data from database to JavaScript
+    const existingFundingData = @json($existingFundingData ?? []);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to populate funding table with existing data
+        function populateFundingTable() {
+            existingFundingData.forEach((funding, index) => {
+                if (funding) {
+                    // Update status select
+                    const statusSelect = document.querySelector(
+                        `select[name="funding[${index}][status]"]`);
+                    if (statusSelect && funding.status) {
+                        statusSelect.value = funding.status;
+                    }
+
+                    // Update institute name
+                    const instituteInput = document.querySelector(
+                        `input[name="funding[${index}][institute_name]"]`);
+                    if (instituteInput && funding.institute_name) {
+                        instituteInput.value = funding.institute_name;
+                    }
+
+                    // Update contact person
+                    const contactInput = document.querySelector(
+                        `input[name="funding[${index}][contact_person]"]`);
+                    if (contactInput && funding.contact_person) {
+                        contactInput.value = funding.contact_person;
+                    }
+
+                    // Update contact number
+                    const contactNoInput = document.querySelector(
+                        `input[name="funding[${index}][contact_no]"]`);
+                    if (contactNoInput && funding.contact_no) {
+                        contactNoInput.value = funding.contact_no;
+                    }
+
+                    // Update amount
+                    const amountInput = document.querySelector(
+                        `input[name="funding[${index}][amount]"]`);
+                    if (amountInput && funding.amount) {
+                        amountInput.value = funding.amount;
+                    }
+                }
+            });
+        }
+
+        // Function to toggle sibling assistance fields
+        function toggleSiblingAssistanceFields() {
+            const siblingAssistanceSelect = document.querySelector('select[name="sibling_assistance"]');
+            const siblingAssistanceFields = document.querySelectorAll('.sibling-fields');
+
+            if (siblingAssistanceSelect && siblingAssistanceSelect.value === 'yes') {
+                siblingAssistanceFields.forEach(field => {
+                    field.style.display = 'block';
+                });
+            } else {
+                siblingAssistanceFields.forEach(field => {
+                    field.style.display = 'none';
+                });
+            }
+        }
+
+        // Event listener for sibling assistance dropdown
+        document.querySelector('select[name="sibling_assistance"]').addEventListener('change',
+            toggleSiblingAssistanceFields);
+
+        // Initialize sibling assistance fields on page load
+        toggleSiblingAssistanceFields();
+
+        // Function to calculate total amount
+        function calculateTotal() {
+            const amountInputs = document.querySelectorAll('tbody input[type="number"]:not([readonly])');
+            let total = 0;
+            amountInputs.forEach(input => {
+                const value = parseFloat(input.value) || 0;
+                total += value;
+            });
+            const totalInput = document.querySelector('tbody input[readonly]');
+            if (totalInput) {
+                totalInput.value = total;
+            }
+        }
+
+        // Event listeners for amount inputs
+        const amountInputs = document.querySelectorAll('tbody input[type="number"]:not([readonly])');
+        amountInputs.forEach(input => {
+            input.addEventListener('input', calculateTotal);
+        });
+
+        // Initialize total and populate table on page load
+        calculateTotal();
+        populateFundingTable();
+    });
+</script>
+@section('content')
+    <style>
+        .section-divider {
+            height: 1px;
+            background: #e9ecef;
+            margin: 30px 0;
+        }
+
+        input[readonly],
+        textarea[readonly] {
+            background: #f1f1f1;
+            cursor: not-allowed;
+        }
+    </style>
+    <!-- Main Content -->
+    <div class="col-lg-9 main-content">
+        <!-- Hold Remark Alert -->
+        @if ($fundingDetail && $fundingDetail->submit_status === 'resubmit' && $fundingDetail->admin_remark)
+            <div class="alert alert-warning alert-dismissible fade show" role="alert"
+                style="background-color: #fff3cd; border-color: #ffeaa7; color: #856404; border-radius: 8px; margin-bottom: 20px;">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                    <div style="min-width: 0;">
+                        <strong><i class="bi bi-exclamation-triangle-fill"></i> Hold Notice:</strong>
+                        <p
+                            style="margin: 8px 0 4px 0; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            {{ trim(preg_replace('/\s+/', ' ', strip_tags($fundingDetail->admin_remark))) }}
+                        </p>
+                        <button type="button" class="btn btn-link p-0" data-bs-toggle="modal"
+                            data-bs-target="#holdRemarkModal">
+                            View More
+                        </button>
+                    </div>
+                    <button type="button" class="btn-close ms-2 flex-shrink-0" data-bs-dismiss="alert"
+                        aria-label="Close"></button>
+                </div>
+            </div>
+
+            <div class="modal fade" id="holdRemarkModal" tabindex="-1" aria-labelledby="holdRemarkModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="holdRemarkModalLabel">Hold Notice</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            {!! $fundingDetail->admin_remark !!}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <form method="POST" action="{{ route('user.step4.store') }}" enctype="multipart/form-data" novalidate>
+                        @csrf
+                        @if (session('success'))
+                            <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
+                                id="successAlert">
+
+                                {{ session('success') }}
+
+                                <button type="button" class="close custom-close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
+                        @if (!$isBelowOneLakh)
+                            <div class="row mb-3">
+                                <div class="col-md-5 offset-md-1">
+
+                                    <select class="form-control" name="financial_asset_type" id="financial_asset_type"
+                                        style="border:2px solid #393185;border-radius:15px;" readonly required>
+                                        <option disabled
+                                            {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') ? '' : 'selected' }}
+                                            hidden>Financial Asst Type *</option>
+                                        <option value="domestic"
+                                            {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'domestic' ? 'selected' : '' }}
+                                            hidden>
+                                            Domestic</option>
+                                        <option value="foreign_finance_assistant"
+                                            {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'foreign_finance_assistant' ? 'selected' : '' }}
+                                            hidden>
+                                            Foreign Financial Assistance</option>
+                                    </select>
+                                    <small class="text-danger">{{ $errors->first('financial_asset_type') }}</small>
+                                </div>
+                                <div class="col-md-5">
+                                    <select class="form-control" name="financial_asset_for" id="financial_asset_for"
+                                        style="border:2px solid #393185;border-radius:15px;" readonly required>
+                                        <option disabled
+                                            {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') ? '' : 'selected' }}
+                                            hidden>Financial Asst For *</option>
+                                        <option value="graduation"
+                                            {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'graduation' ? 'selected' : '' }}
+                                            hidden>
+                                            Graduation</option>
+                                        <option value="post_graduation"
+                                            {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'post_graduation' ? 'selected' : '' }}
+                                            hidden>
+                                            Post Graduation</option>
+                                    </select>
+                                    <small class="text-danger">{{ $errors->first('financial_asset_for') }}</small>
+                                </div>
+                            </div>
+                        @endif
+                        <div class="card form-card">
+                            <div class="card-body">
+
+                                <div class="step-card">
+                                    <div class="card-icon">
+                                        <i class="bi bi-currency-rupee"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-title">Funding Details</h3>
+                                        <p class="card-subtitle">Information about your funding sources</p>
+                                    </div>
+                                </div>
+
+                                {{-- <!-- Section 1: Amount Fields -->
+                                <div class="education-section">
+                                    <div class="row">
+                                        <!-- Left Column -->
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <select class="form-control" name="amount_requested_year">
+                                                    <option value=""
+                                                        {{ !old('amount_requested_year') ? 'selected' : '' }} disabled
+                                                        hidden>Amount requested for year *</option>
+                                                    <option value="year1"
+                                                        {{ old('amount_requested_year') == 'year1' ? 'selected' : '' }}>1st
+                                                        Year</option>
+                                                    <option value="year2"
+                                                        {{ old('amount_requested_year') == 'year2' ? 'selected' : '' }}>2nd
+                                                        Year</option>
+                                                    <option value="year3"
+                                                        {{ old('amount_requested_year') == 'year3' ? 'selected' : '' }}>3rd
+                                                        Year</option>
+                                                    <option value="year4"
+                                                        {{ old('amount_requested_year') == 'year4' ? 'selected' : '' }}>4th
+                                                        Year</option>
+                                                    <option value="year5"
+                                                        {{ old('amount_requested_year') == 'year4' ? 'selected' : '' }}>5th
+                                                        Year</option>
+                                                    <option value="year6"
+                                                        {{ old('amount_requested_year') == 'year4' ? 'selected' : '' }}>6th
+                                                        Year</option>
+                                                </select>
+                                                <small
+                                                    class="text-danger">{{ $errors->first('amount_requested_year') }}</small>
+                                            </div>
+                                        </div>
+
+                                            <!-- Right Column -->
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <input type="text" class="form-control" name="sibling_ngo_name"
+                                                        placeholder="NGO name? *" value="{{ old('sibling_ngo_name') }}">
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('sibling_ngo_name') }}</small>
+                                                </div>
+
+                                <!-- Section Divider -->
+                                <div class="section-divider"></div> --}}
+
+                                <!-- Section 2: Funding Details Table -->
+                                @if (!$isBelowOneLakh)
+                                    <div class="education-section">
+                                        {{-- <h4 class="title" style="color:#4C4C4C;font-size:18px;">Funding Details</h4> --}}
+
+                                        <div class="table-responsive">
+                                            <table class="table"
+                                                style="background: white; border: none; border-collapse: collapse;font-size: 15px;">
+                                                <thead style="background-color: #f8f9fa;">
+                                                    <tr style="border-bottom: 1px solid lightgray;">
+                                                        <th class="text-start"
+                                                            style="width: 22%; font-weight: 600; color: #4C4C4C; border: none;">
+                                                            Particulars</th>
+                                                        <th class="text-start"
+                                                            style="width: 13%; font-weight: 600; color: #4C4C4C; border: none;">
+                                                            Status</th>
+                                                        <th class="text-start"
+                                                            style="width: 18%; font-weight: 600; color: #4C4C4C; border: none;">
+                                                            Name of Trust/Institute</th>
+                                                        <th class="text-start"
+                                                            style="width: 19%; font-weight: 600; color: #4C4C4C; border: none;">
+                                                            Name of contact person</th>
+                                                        <th class="text-start"
+                                                            style="width: 13%; font-weight: 600; color: #4C4C4C; border: none;">
+                                                            Contact No</th>
+                                                        <th class="text-start"
+                                                            style="width: 13%; font-weight: 600; color: #393185; border: none;">
+                                                            Amount (Rs)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <!-- Row 1: Own family funding -->
+                                                    <tr style="border-bottom: 1px solid lightgray;">
+                                                        <td style="font-weight: 500; border: none;">Own family funding
+                                                            (Father +
+                                                            Mother)</td>
+                                                        <td style="border: none;">
+                                                            <select class="form-control form-control-sm"
+                                                                name="funding[0][status]">
+                                                                <option value="">Select Status</option>
+                                                                <option value="applied">Applied</option>
+                                                                <option value="approved">Approved</option>
+                                                                <option value="received">Received</option>
+                                                                <option value="pending">Pending</option>
+                                                            </select>
+                                                        </td>
+                                                        <td style="border: none;"><input type="text"
+                                                                class="form-control form-control-sm"
+                                                                placeholder="Name of Trust/Institute"
+                                                                name="funding[0][institute_name]"></td>
+                                                        <td style="border: none;"><input type="text"
+                                                                class="form-control form-control-sm"
+                                                                placeholder="Name of contact person"
+                                                                name="funding[0][contact_person]"></td>
+                                                        <td style="border: none;"><input type="text"
+                                                                class="form-control form-control-sm"
+                                                                placeholder="Contact No" name="funding[0][contact_no]">
+                                                        </td>
+                                                        <td style="border: none;"><input type="number"
+                                                                class="form-control form-control-sm" placeholder="00"
+                                                                min="0" name="funding[0][amount]"></td>
+                                                    </tr>
+
+                                                    <!-- Row 2: Bank Loan -->
+                                                    <tr
+                                                        style="border-bottom: 1px solid lightgray; background-color: #f8f9fa;">
+                                                        <td style="font-weight: 500; border: none;">Bank Loan</td>
+                                                        <td style="border: none;">
+                                                            <select class="form-control form-control-sm"
+                                                                name="funding[1][status]">
+                                                                <option value="">Select Status</option>
+                                                                <option value="applied">Applied</option>
+                                                                <option value="approved">Approved</option>
+                                                                <option value="received">Received</option>
+                                                                <option value="pending">Pending</option>
+                                                            </select>
+                                                        </td>
+                                                        <td style="border: none;"><input type="text"
+                                                                class="form-control form-control-sm"
+                                                                placeholder="Name of Trust/Institute"
+                                                                name="funding[1][institute_name]"></td>
+                                                        <td style="border: none;"><input type="text"
+                                                                class="form-control form-control-sm"
+                                                                placeholder="Name of contact person"
+                                                                name="funding[1][contact_person]"></td>
+                                                        <td style="border: none;"><input type="text"
+                                                                class="form-control form-control-sm"
+                                                                placeholder="Contact No" name="funding[1][contact_no]">
+                                                        </td>
+                                                        <td style="border: none;"><input type="number"
+                                                                class="form-control form-control-sm" placeholder="00"
+                                                                min="0" name="funding[1][amount]"></td>
+                                                    </tr>
+
+                                                    <!-- Row 3: Other Assistance (1) -->
+                                                    <tr style="border-bottom: 1px solid lightgray;">
+                                                        <td style="font-weight: 500; border: none;">Other Assistance (1)
+                                                        </td>
+                                                        <td style="border: none;">
+                                                            <select class="form-control form-control-sm"
+                                                                name="funding[2][status]">
+                                                                <option value="">Select Status</option>
+                                                                <option value="applied">Applied</option>
+                                                                <option value="approved">Approved</option>
+                                                                <option value="received">Received</option>
+                                                                <option value="pending">Pending</option>
+                                                            </select>
+                                                        </td>
+                                                        <td style="border: none;"><input type="text"
+                                                                class="form-control form-control-sm"
+                                                                placeholder="Name of Trust/Institute"
+                                                                name="funding[2][institute_name]"></td>
+                                                        <td style="border: none;"><input type="text"
+                                                                class="form-control form-control-sm"
+                                                                placeholder="Name of contact person"
+                                                                name="funding[2][contact_person]"></td>
+                                                        <td style="border: none;"><input type="text"
+                                                                class="form-control form-control-sm"
+                                                                placeholder="Contact No" name="funding[2][contact_no]">
+                                                        </td>
+                                                        <td style="border: none;"><input type="number"
+                                                                class="form-control form-control-sm" placeholder="00"
+                                                                min="0" name="funding[2][amount]"></td>
+                                                    </tr>
+
+                                                    <!-- Row 4: Other Assistance (2) -->
+                                                    <tr
+                                                        style="border-bottom: 1px solid lightgray; background-color: #f8f9fa;">
+                                                        <td style="font-weight: 500; border: none;">Other Assistance (2)
+                                                        </td>
+                                                        <td style="border: none;">
+                                                            <select class="form-control form-control-sm"
+                                                                name="funding[3][status]">
+                                                                <option value="">Select Status</option>
+                                                                <option value="applied">Applied</option>
+                                                                <option value="approved">Approved</option>
+                                                                <option value="received">Received</option>
+                                                                <option value="pending">Pending</option>
+                                                            </select>
+                                                        </td>
+                                                        <td style="border: none;"><input type="text"
+                                                                class="form-control form-control-sm"
+                                                                placeholder="Name of Trust/Institute"
+                                                                name="funding[3][institute_name]"></td>
+                                                        <td style="border: none;"><input type="text"
+                                                                class="form-control form-control-sm"
+                                                                placeholder="Name of contact person"
+                                                                name="funding[3][contact_person]"></td>
+                                                        <td style="border: none;"><input type="text"
+                                                                class="form-control form-control-sm"
+                                                                placeholder="Contact No" name="funding[3][contact_no]">
+                                                        </td>
+                                                        <td style="border: none;"><input type="number"
+                                                                class="form-control form-control-sm" placeholder="00"
+                                                                min="0" name="funding[3][amount]"></td>
+                                                    </tr>
+
+                                                    <!-- Row 5: Local Assistance -->
+                                                    <tr style="border-bottom: 1px solid lightgray;">
+                                                        <td style="font-weight: 500; border: none;">Local Assistance</td>
+                                                        <td style="border: none;">
+                                                            <select class="form-control form-control-sm"
+                                                                name="funding[4][status]">
+                                                                <option value="">Select Status</option>
+                                                                <option value="applied">Applied</option>
+                                                                <option value="approved">Approved</option>
+                                                                <option value="received">Received</option>
+                                                                <option value="pending">Pending</option>
+                                                            </select>
+                                                        </td>
+                                                        <td style="border: none;"><input type="text"
+                                                                class="form-control form-control-sm"
+                                                                placeholder="Name of Trust/Institute"
+                                                                name="funding[4][institute_name]"></td>
+                                                        <td style="border: none;"><input type="text"
+                                                                class="form-control form-control-sm"
+                                                                placeholder="Name of contact person"
+                                                                name="funding[4][contact_person]"></td>
+                                                        <td style="border: none;"><input type="text"
+                                                                class="form-control form-control-sm"
+                                                                placeholder="Contact No" name="funding[4][contact_no]">
+                                                        </td>
+                                                        <td style="border: none;"><input type="number"
+                                                                class="form-control form-control-sm" placeholder="00"
+                                                                min="0" name="funding[4][amount]"></td>
+                                                    </tr>
+
+                                                    <!-- Total Row -->
+                                                    <tr>
+                                                        <td colspan="5"
+                                                            style="font-weight: 600; border: none; text-align: right; color: #393185;">
+                                                            Total </td>
+                                                        <td style="border: none;"><input type="number"
+                                                                class="form-control form-control-sm"
+                                                                style="font-weight: 600;" placeholder="00" min="0"
+                                                                readonly></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <!-- Section Divider -->
+                                @if (!$isBelowOneLakh)
+                                    <div class="section-divider"></div>
+                                @endif
+
+                                <!-- Section 3: Brother/Sister Assistance -->
+                                {{--  @if (!$isBelowOneLakh)  --}}
+                                <div class="education-section">
+                                    <h4 class="title" style="color:#4C4C4C;font-size:18px;">Have your Brother/Sister
+                                        received financial assistance<br> from JITO JEAP/ JATF/SEED or JITO Chapter?
+                                    </h4>
+                                    <div id="sibling-assistance-fields">
+
+                                        <div class="row">
+
+                                            <!-- Left Column -->
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <label for="sibling_assistance">Yes/No <span
+                                                            style="color: red">*</span></label>
+                                                    <select class="form-control" name="sibling_assistance">
+                                                        <option value=""
+                                                            {{ !old('sibling_assistance') && !$fundingDetail ? 'selected' : '' }}
+                                                            disabled hidden>
+                                                            Yes/No
+                                                        </option>
+                                                        <option value="yes"
+                                                            {{ old('sibling_assistance') == 'yes' || ($fundingDetail && $fundingDetail->sibling_assistance === 'yes') ? 'selected' : '' }}>
+                                                            Yes
+                                                        </option>
+                                                        <option value="no"
+                                                            {{ old('sibling_assistance') == 'no' || ($fundingDetail && $fundingDetail->sibling_assistance === 'no') ? 'selected' : '' }}>
+                                                            No
+                                                        </option>
+                                                    </select>
+                                                    <small
+                                                        class="text-danger">{{ $errors->first('sibling_assistance') }}</small>
+                                                </div>
+                                                <div class="sibling-fields" style="display:none;">
+                                                    <div class="form-group mb-3">
+                                                        <label for="sibling_name">Sibling name <span
+                                                                style="color: red">*</span></label>
+                                                        <input type="text" class="form-control" name="sibling_name"
+                                                            placeholder="Sibling name "
+                                                            value="{{ old('sibling_name', $fundingDetail->sibling_name ?? '') }}">
+                                                    </div>
+
+                                                    <div class="form-group mb-3">
+                                                        <label for="sibling_number">Sibling number <span
+                                                                style="color: red">*</span></label>
+                                                        <input type="text" class="form-control" name="sibling_number"
+                                                            placeholder="Sibling number "
+                                                            value="{{ old('sibling_number', $fundingDetail->sibling_number ?? '') }}">
+                                                    </div>
+
+                                                    <div class="form-group mb-3">
+                                                        <label for="sibling_ngo_name">NGO name <span
+                                                                style="color: red">*</span></label>
+                                                        <input type="text" class="form-control"
+                                                            name="sibling_ngo_name" placeholder="NGO name "
+                                                            value="{{ old('sibling_ngo_name', $fundingDetail->sibling_ngo_name ?? '') }}">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Right Column -->
+                                            <div class="col-md-6">
+                                                <div class="sibling-fields" style="display:none;">
+                                                    <div class="form-group mb-3">
+                                                        <label for="ngo_number">NGO Phone number <span
+                                                                style="color: red">*</span></label>
+                                                        <input type="text" class="form-control" name="ngo_number"
+                                                            placeholder="NGO Phone number "
+                                                            value="{{ old('ngo_number', $fundingDetail->ngo_number ?? '') }}">
+                                                    </div>
+
+
+                                                    <div class="form-group mb-3">
+                                                        <label for="sibling_loan_status">Loan status <span
+                                                                style="color: red">*</span></label>
+                                                        <select class="form-control" name="sibling_loan_status">
+                                                            <option value=""
+                                                                {{ !old('sibling_loan_status') && !$fundingDetail ? 'selected' : '' }}
+                                                                disabled hidden>Loan status</option>
+                                                            <option value="applied"
+                                                                {{ old('sibling_loan_status') == 'applied' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'applied') ? 'selected' : '' }}>
+                                                                Applied</option>
+                                                            <option value="approved"
+                                                                {{ old('sibling_loan_status') == 'approved' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'approved') ? 'selected' : '' }}>
+                                                                Approved</option>
+                                                            <option value="sanctioned"
+                                                                {{ old('sibling_loan_status') == 'sanctioned' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'sanctioned') ? 'selected' : '' }}>
+                                                                Sanctioned</option>
+                                                            <option value="disbursed"
+                                                                {{ old('sibling_loan_status') == 'disbursed' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'disbursed') ? 'selected' : '' }}>
+                                                                Disbursed</option>
+                                                            <option value="closed"
+                                                                {{ old('sibling_loan_status') == 'closed' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'closed') ? 'selected' : '' }}>
+                                                                Closed</option>
+                                                            <option value="not applicable"
+                                                                {{ old('sibling_loan_status') == 'not applicable' || ($fundingDetail && $fundingDetail->sibling_loan_status === 'not applicable') ? 'selected' : '' }}>
+                                                                Not Applicable</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="form-group mb-3">
+                                                        <label for="sibling_applied_year">Sanction for year <span
+                                                                style="color: red">*</span></label>
+                                                        <input type="text" class="form-control"
+                                                            name="sibling_applied_year" placeholder="Sanction for year "
+                                                            value="{{ old('sibling_applied_year', $fundingDetail->sibling_applied_year ?? '') }}">
+                                                    </div>
+
+                                                    <div class="form-group mb-3">
+                                                        <label for="sibling_applied_amount">Sanction amount <span
+                                                                style="color: red">*</span></label>
+                                                        <input type="number" class="form-control"
+                                                            name="sibling_applied_amount" placeholder="Sanction amount "
+                                                            min="0"
+                                                            value="{{ old('sibling_applied_amount', $fundingDetail->sibling_applied_amount ?? '') }}">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                {{--  @endif  --}}
+
+                                <!-- Declaration Section -->
+                                <div class="education-section"
+                                    style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid red;">
+                                    <h4 class="title" style="color:#4C4C4C;font-size:18px;">Declaration</h4>
+                                    <div class="form-group">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="bank_cheque_declaration"
+                                                name="bank_cheque_declaration" value="1"
+                                                {{ old('bank_cheque_declaration') ? 'checked' : '' }} required>
+                                            <label class="form-check-label" for="bank_cheque_declaration"
+                                                style="color:red">
+                                                I confirm that if I receive a sanction from JITO-JEAP in the future, I will
+                                                submit the required number of bank cheques as informed to me. I have also
+                                                read and reviewed the attached list of approved banks from JEAP.
+                                            </label>
+                                            <!-- Download Icon -->
+                                            <a href="{{ asset('Bank_List.pdf') }}" download class="ms-2">
+                                                <i class="bi bi-download" style="color:green; font-size:20px;"></i>
+                                            </a>
+                                        </div>
+                                        <small class="text-danger">{{ $errors->first('bank_cheque_declaration') }}</small>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+                            @if (false)
+                                <!-- Section Divider -->
+                                <div class="section-divider"></div>
+
+                                <!-- Section 4: Bank Details -->
+                                <div class="education-section">
+                                    <h4 class="title" style="color:#4C4C4C;font-size:18px;">Bank Details of Applicant
+                                    </h4>
+
+                                    <!-- Important Note Box -->
+                                    <div
+                                        style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 12px; margin-bottom: 20px;">
+                                        <p class="mb-0" style="color: #E31E24; font-size: 15px;">
+                                            <b>Note </b>: Kindly share the studentâ€™s bank details. Please ensure the
+                                            account is
+                                            a major account in the studentâ€™s name, as minor accounts are not valid. If the
+                                            application is sanctioned, post-dated cheques (PDCs) will be required and the
+                                            details will be verified. Any mismatch may lead to action by management. So,
+                                            request
+                                            you to provide correct details.
+                                            <br><br>
+                                            We only accept cheques of Government Nationalized bank and Private banks (HDFC
+                                            Bank,
+                                            ICICI Bank, Kotak Mahindra Bank, Axis Bank, IndusInd Bank, IDBI Bank, Yes Bank,
+                                            IDFC
+                                            First Bank, etc).
+                                        </p>
+                                    </div>
+
+                                    <div class="row">
+                                        <!-- Validation Messages Container -->
+                                        <div id="bankValidationMessage" class="alert alert-dismissible fade show"
+                                            role="alert" style="display: none; margin-bottom: 20px;">
+                                            <span id="bankValidationText"></span>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                aria-label="Close"></button>
+                                        </div>
+
+                                        <!-- Left Column -->
+                                        <div class="col-md-6">
+
+                                            <div class="form-group mb-3">
+                                                <label for="bank_name">Bank Name <span style="color: red">*</span></label>
+
+                                                <select class="form-control" name="bank_name" id="bank_name" required>
+                                                    <option value="" hidden>Select Bank</option>
+
+                                                    @foreach ($banks as $bank)
+                                                        <option value="{{ $bank->name }}"
+                                                            data-ifsc="{{ strtoupper(substr($bank->ifsc_code, 0, 4)) }}"
+                                                            {{ old('bank_name') == $bank->name || ($fundingDetail && $fundingDetail->bank_name === $bank->name) ? 'selected' : '' }}>
+                                                            {{ $bank->name }}
+                                                        </option>
+                                                    @endforeach
+
+                                                    <option value="OTHER">Other</option>
+                                                </select>
+
+                                                <small class="text-danger">{{ $errors->first('bank_name') }}</small>
+                                            </div>
+                                            {{-- <div class="form-group mb-3">
+                                            <label for="account_holder_name">Account Holder's Name <span
+                                                    style="color: red">*</span></label>
+                                            <input type="text" class="form-control" name="account_holder_name"
+                                                placeholder="Account Holder's Name "
+                                                value="{{ old('account_holder_name', $fundingDetail->account_holder_name ?? '') }}">
+                                            <small class="text-danger">{{ $errors->first('account_holder_name') }}</small>
+                                        </div> --}}
+                                            <div class="form-group mb-3">
+                                                <label for="ifsc_code">IFSC Code <span style="color: red">*</span></label>
+                                                <input type="text" class="form-control" name="ifsc_code"
+                                                    id="ifsc_code" placeholder="IFSC Code "
+                                                    value="{{ old('ifsc_code', $fundingDetail->ifsc_code ?? '') }}">
+                                                <small class="text-danger">{{ $errors->first('ifsc_code') }}</small>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label for="account_number">Account Number <span
+                                                        style="color: red">*</span></label>
+                                                <input type="text" class="form-control" name="account_number"
+                                                    id="account_number" placeholder="Account Number "
+                                                    value="{{ old('account_number', $fundingDetail->account_number ?? '') }}">
+                                                <small class="text-danger">{{ $errors->first('account_number') }}</small>
+                                            </div>
+
+                                        </div>
+
+                                        <!-- Right Column -->
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label for="account_holder_name">Account Holder's Name <span
+                                                        style="color: red">*</span></label>
+                                                <input type="text" class="form-control" name="account_holder_name"
+                                                    id="account_holder_name" placeholder="Account Holder's Name "
+                                                    value="{{ old('account_holder_name', $fundingDetail->account_holder_name ?? '') }}">
+                                                <small
+                                                    class="text-danger">{{ $errors->first('account_holder_name') }}</small>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="branch_name">Branch Name <span
+                                                        style="color: red">*</span></label>
+                                                <input type="text" class="form-control" name="branch_name"
+                                                    id="branch_name" placeholder="Branch Name "
+                                                    value="{{ old('branch_name', $fundingDetail->branch_name ?? '') }}">
+                                                <small class="text-danger">{{ $errors->first('branch_name') }}</small>
+                                            </div>
+
+                                            {{-- <div class="form-group mb-3">
+                                            <label for="ifsc_code">IFSC Code <span style="color: red">*</span></label>
+                                            <input type="text" class="form-control" name="ifsc_code"
+                                                placeholder="IFSC Code "
+                                                value="{{ old('ifsc_code', $fundingDetail->ifsc_code ?? '') }}">
+                                            <small class="text-danger">{{ $errors->first('ifsc_code') }}</small>
+                                        </div> --}}
+
+                                            <div class="form-group mb-3">
+                                                <label for="bank_address">Bank Address <span
+                                                        style="color: red">*</span></label>
+                                                <textarea class="form-control" name="bank_address" id="bank_address" rows="3" placeholder="Bank Address "
+                                                    style="resize: vertical;">{{ old('bank_address', $fundingDetail->bank_address ?? '') }}</textarea>
+                                                <small class="text-danger">{{ $errors->first('bank_address') }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                </div>
+                <div class="modal fade" id="otherBankModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <h5 class="modal-title">Important Information</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+                            </div>
+
+                            <div class="modal-body">
+                                <p class="text-danger fw-bold">
+                                    Currently, we will accept the bank details you have provided.
+                                    However, <b>before the loan is sanctioned</b>, you will be required
+                                    to open a bank account with one of our registered banks listed below.
+                                </p>
+
+                                <hr>
+
+                                <h6>Our Registered Banks:</h6>
+                                <ul>
+                                    @foreach ($banks as $bank)
+                                        <li>{{ $bank->name }}</li>
+                                    @endforeach
+                                </ul>
+
+                                <p class="mt-3 text-muted">
+                                    Note: If you select <b>Other Bank</b>, bank verification and auto-fill
+                                    will not be available. All bank details must be entered manually.
+                                </p>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                <div class="d-flex justify-content-between mt-4 mb-4">
+                    {{--  <button type="button" class="btn " style="background:#988DFF1F;color:gray;"><svg
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                            stroke="gray" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+
+                        Previous</button>  --}}
+                    <a href="{{ route('user.step3') }}" class="btn"
+                        style="background:#988DFF1F;color:gray;border:1px solid #393185;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                            stroke="gray" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                        Previous
+                    </a>
+                    @if ($user->fundingDetail && $user->workflowStatus->apex_1_status == 'approved')
+                        <button type="button" class="btn"
+                            style="background:#F0FDF4;color:#009846;border:1px solid #009846" disabled>
+                            <i class="bi bi-check-lg" style="color: green; font-size: 24px;"></i>
+                            Approved
+                        </button>
+                    @elseif ($user->fundingDetail && $user->fundingDetail->submit_status == 'resubmit')
+                        <button type="submit" class="btn" style="background:#F0FDF4;color:red;border:1px solid red">
+                            <i class="bi bi-arrow-clockwise" style="color: red; font-size: 24px;"></i>
+                            Resubmit
+                        </button>
+                    @else
+                        <button type="submit" class="btn" style="background:#393185;color:white;">Next Step <svg
+                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                stroke="white" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M9 6l6 6-6 6" />
+                            </svg>
+                        </button>
+                    @endif
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to toggle sibling assistance fields
+            function toggleSiblingAssistanceFields() {
+                const siblingAssistanceSelect = document.querySelector('select[name="sibling_assistance"]');
+                const siblingAssistanceFields = document.querySelectorAll('.sibling-fields');
+
+                if (siblingAssistanceSelect && siblingAssistanceSelect.value === 'yes') {
+                    siblingAssistanceFields.forEach(field => {
+                        field.style.display = 'block';
+                    });
+                } else {
+                    siblingAssistanceFields.forEach(field => {
+                        field.style.display = 'none';
+                    });
+
+                    // Clear sibling fields when "No" is selected to avoid validation errors
+                    const siblingInputs = document.querySelectorAll(
+                        'input[name*="sibling_"], input[name="ngo_number"], select[name="sibling_loan_status"]');
+                    siblingInputs.forEach(input => {
+                        if (input.name !== 'sibling_assistance') {
+                            input.value = '';
+                        }
+                    });
+                }
+            }
+
+            // Event listener for sibling assistance dropdown
+            const siblingSelect = document.querySelector('select[name="sibling_assistance"]');
+            if (siblingSelect) {
+                siblingSelect.addEventListener('change', toggleSiblingAssistanceFields);
+            }
+
+            // Form submission handler - ensure sibling fields are cleared before submission
+            const form = document.querySelector('form[action="{{ route('user.step4.store') }}"]');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const siblingAssistanceSelect = document.querySelector(
+                        'select[name="sibling_assistance"]');
+
+                    // If "No" is selected, clear all sibling fields
+                    if (siblingAssistanceSelect && siblingAssistanceSelect.value === 'no') {
+                        const siblingInputs = document.querySelectorAll(
+                            'input[name*="sibling_"], input[name="ngo_number"], select[name="sibling_loan_status"]'
+                        );
+                        siblingInputs.forEach(input => {
+                            if (input.name !== 'sibling_assistance') {
+                                input.value = '';
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Initialize sibling assistance fields on page load
+            toggleSiblingAssistanceFields();
+
+            // Function to calculate total amount
+            function calculateTotal() {
+                const amountInputs = document.querySelectorAll('tbody input[type="number"]:not([readonly])');
+                let total = 0;
+                amountInputs.forEach(input => {
+                    const value = parseFloat(input.value) || 0;
+                    total += value;
+                });
+                const totalInput = document.querySelector('tbody input[readonly]');
+                if (totalInput) {
+                    totalInput.value = total;
+                }
+            }
+
+            // Event listeners for amount inputs
+            const amountInputs = document.querySelectorAll('tbody input[type="number"]:not([readonly])');
+            amountInputs.forEach(input => {
+                input.addEventListener('input', calculateTotal);
+            });
+
+            // Initialize total on page load
+            calculateTotal();
+
+        });
+    </script>
+    {{--  <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const bankSelect = document.getElementById('bank_name');
+            const ifscInput = document.getElementById('ifsc_code');
+            const accountInput = document.getElementById('account_number');
+
+            let isOtherBank = false;
+
+            bankSelect.addEventListener('change', function() {
+
+                const selectedValue = this.value;
+
+                if (selectedValue === 'OTHER') {
+                    isOtherBank = true;
+
+                    // Open modal
+                    const modal = new bootstrap.Modal(document.getElementById('otherBankModal'));
+                    modal.show();
+
+                    // Clear auto-filled fields
+                    document.getElementById('account_holder_name').value = '';
+                    document.getElementById('branch_name').value = '';
+                    document.getElementById('bank_address').value = '';
+
+                } else {
+                    isOtherBank = false;
+                }
+            });
+
+            function validateIFSCWithSelectedBank() {
+
+                if (isOtherBank) {
+                    // âŒ Other bank à¤…à¤¸à¤²à¥à¤¯à¤¾à¤¸ API call à¤¨à¤¾à¤¹à¥€
+                    return false;
+                }
+
+                const selectedOption = bankSelect.options[bankSelect.selectedIndex];
+                const bankIfscPrefix = selectedOption.getAttribute('data-ifsc');
+                const userIfsc = ifscInput.value.trim().toUpperCase().substring(0, 4);
+
+                if (!bankIfscPrefix || userIfsc.length < 4) {
+                    return false;
+                }
+
+                if (bankIfscPrefix !== userIfsc) {
+
+                    showBankError(
+                        'The IFSC code you entered does not match the selected registered bank. Please check and enter a valid IFSC code.'
+                    );
+
+
+                    return false;
+                }
+
+                return true;
+            }
+
+            function showBankError(message) {
+                const msgDiv = document.getElementById('bankValidationMessage');
+                const msgText = document.getElementById('bankValidationText');
+
+                msgDiv.className = 'alert alert-danger alert-dismissible fade show';
+                msgDiv.style.display = 'block';
+                msgText.innerHTML = `<strong>Error:</strong> ${message}`;
+            }
+
+            // IFSC blur event
+            ifscInput.addEventListener('blur', function() {
+
+                if (!validateIFSCWithSelectedBank()) {
+                    return;
+                }
+
+                // âœ… IFSC match à¤à¤¾à¤²à¤¾ à¤¤à¤°à¤š API hit à¤¹à¥‹à¤ˆà¤²
+                validateBankAccount(); // à¤¤à¥à¤à¤¾ existing function
+            });
+
+            accountInput.addEventListener('blur', function() {
+                if (!isOtherBank) {
+                    validateBankAccount();
+                }
+            });
+
+        });
+    </script>  --}}
+    {{--  <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const bankSelect = document.getElementById('bank_name');
+            const ifscInput = document.getElementById('ifsc_code');
+            const accountInput = document.getElementById('account_number');
+
+            let isOtherBank = false;
+            let ifscMatched = false;
+
+            bankSelect.addEventListener('change', function() {
+
+                const selectedValue = this.value;
+
+                if (selectedValue === 'OTHER') {
+
+                    isOtherBank = true;
+                    ifscMatched = false;
+
+                    const modal = new bootstrap.Modal(document.getElementById('otherBankModal'));
+                    modal.show();
+
+                } else {
+
+                    isOtherBank = false;
+                }
+            });
+
+            function validateIFSCWithSelectedBank() {
+
+                if (isOtherBank) {
+                    return false;
+                }
+
+                const selectedOption = bankSelect.options[bankSelect.selectedIndex];
+                const bankIfscPrefix = selectedOption.getAttribute('data-ifsc');
+
+                const userIfsc = ifscInput.value.trim().toUpperCase().substring(0, 4);
+
+                if (!bankIfscPrefix || userIfsc.length < 4) {
+                    return false;
+                }
+
+                if (bankIfscPrefix !== userIfsc) {
+
+                    ifscMatched = false;
+
+                    showBankError(
+                        'The IFSC code you entered does not match the selected registered bank.'
+                    );
+
+                    return false;
+                }
+
+                ifscMatched = true;
+
+                return true;
+            }
+
+            function showBankError(message) {
+
+                const msgDiv = document.getElementById('bankValidationMessage');
+                const msgText = document.getElementById('bankValidationText');
+
+                msgDiv.className = 'alert alert-danger alert-dismissible fade show';
+                msgDiv.style.display = 'block';
+
+                msgText.innerHTML = `<strong>Error:</strong> ${message}`;
+            }
+
+            // IFSC blur
+            //  ifscInput.addEventListener('blur', function() {
+
+            //   validateIFSCWithSelectedBank();
+
+            //  });
+
+
+
+            // IFSC blur
+            ifscInput.addEventListener('blur', function() {
+
+                // OTHER bank select à¤…à¤¸à¥‡à¤² à¤¤à¤° IFSC validation à¤•à¤°à¥‚ à¤¨à¤•à¤¾
+                if (isOtherBank) {
+                    return;
+                }
+
+                validateIFSCWithSelectedBank();
+
+            });
+
+            // Account blur
+            accountInput.addEventListener('blur', function() {
+
+                if (isOtherBank) {
+                    return;
+                }
+
+                if (!ifscMatched) {
+                    return;
+                }
+
+                // âœ… IFSC match à¤à¤¾à¤²à¤¾ à¤†à¤£à¤¿ dynamic bank à¤…à¤¸à¥‡à¤² à¤¤à¤°à¤š API call
+                validateBankAccount();
+
+            });
+
+        });
+
+        bankSelect.addEventListener('change', function() {
+
+            const selectedValue = this.value;
+
+            if (selectedValue === 'OTHER') {
+
+                isOtherBank = true;
+
+                // user manually fill à¤•à¤°à¥‚ à¤¶à¤•à¤¤à¥‹
+                document.getElementById('account_holder_name').removeAttribute('readonly');
+                document.getElementById('branch_name').removeAttribute('readonly');
+                document.getElementById('bank_address').removeAttribute('readonly');
+
+            } else {
+
+                isOtherBank = false;
+
+                // dynamic bank à¤…à¤¸à¤²à¥à¤¯à¤¾à¤¸ user edit à¤•à¤°à¥‚ à¤¶à¤•à¤£à¤¾à¤° à¤¨à¤¾à¤¹à¥€
+                document.getElementById('account_holder_name').setAttribute('readonly', true);
+                document.getElementById('branch_name').setAttribute('readonly', true);
+                document.getElementById('bank_address').setAttribute('readonly', true);
+            }
+
+        });
+    </script>  --}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+@endsection

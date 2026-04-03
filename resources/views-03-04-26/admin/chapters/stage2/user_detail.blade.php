@@ -1,6 +1,7 @@
 @extends('admin.layouts.master')
 
-@section('title', 'User Form Details - JitoJeap Admin')
+
+@section('title', 'Chapter User Details - JitoJeap Admin')
 
 @section('styles')
     <link rel="stylesheet" href="{{ asset('summernotes/summernote-lite.min.css') }}">
@@ -115,18 +116,16 @@
         }
 
         .user-avatar {
-            width: 75px;
-            height: 75px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-        }
-
-        background: var(--primary-purple);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.5rem;
-        font-weight: bold;
+            background: var(--primary-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
         }
 
         .user-details h3 {
@@ -221,7 +220,7 @@
 
         .step-content.active {
             display: block;
-            width: 1130px;
+            width: 1085px;
         }
 
         .step-header {
@@ -334,9 +333,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .form-section {
-            padding: 1.5rem;
-        }
+
 
         .form-row {
             display: flex;
@@ -482,7 +479,8 @@
         }
 
         .data-item {
-
+            display: flex;
+            justify-content: space-between;
             align-items: center;
             padding: 1rem 0;
             border-bottom: 1px solid #e9ecef;
@@ -501,7 +499,7 @@
         .data-value {
             color: var(--text-light);
             flex: 1;
-            text-align: left;
+            text-align: right;
         }
 
         .table-container {
@@ -579,8 +577,6 @@
         .workflow-action-card {
             background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
             border-radius: 12px;
-            padding: 2rem;
-            margin-top: 1.5rem;
             border: 1px solid rgba(57, 49, 133, 0.1);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
         }
@@ -716,15 +712,6 @@
             font-size: 0.9rem;
         }
 
-        /* Dropdown Styles */
-        .dropdown-item:hover {
-            background-color: var(--bg-light);
-        }
-
-        .dropdown-item:last-child {
-            border-bottom: none;
-        }
-
         @media (max-width: 768px) {
             .action-form-row {
                 flex-direction: column;
@@ -772,17 +759,6 @@
                 border-bottom-color: var(--primary-red);
                 border-right-color: transparent;
             }
-
-            .document-grid {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px 24px;
-            }
-
-            .document-grid .form-row {
-                margin: 0;
-            }
-
         }
 
         .top-summary-layout {
@@ -804,6 +780,17 @@
             order: 1;
         }
 
+        @media (max-width: 991.98px) {
+            .top-summary-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .top-card-user,
+            .top-card-workflow {
+                order: unset;
+            }
+        }
+
         /* Document button highlighting styles */
         .doc-button {
             transition: all 0.3s ease;
@@ -815,18 +802,9 @@
             font-weight: 600 !important;
             border-color: var(--primary-purple) !important;
         }
-
-        @media (max-width: 991.98px) {
-            .top-summary-layout {
-                grid-template-columns: 1fr;
-            }
-
-            .top-card-user,
-            .top-card-workflow {
-                order: unset;
-            }
-        }
     </style>
+    <!-- SweetAlert CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endsection
 
 @section('content')
@@ -834,82 +812,50 @@
         <div class="page-title-section">
             <h1 class="page-title">
                 <i class="fas fa-user" style="color: var(--primary-purple); margin-right: 0.5rem;"></i>
-                User Form Details
+                Chapter User Details
             </h1>
-            <p class="page-subtitle">Review and approve individual form steps</p>
+            <p class="page-subtitle">Review and approve chapter steps</p>
         </div>
-        @php
-            $jeapPdfDir = 'Jeap_pdfs';
-            $referencePdfs = collect();
-            if (is_dir($jeapPdfDir)) {
-                $referencePdfs = collect(\Illuminate\Support\Facades\File::files($jeapPdfDir))
-                    ->map(fn($file) => $file->getFilename())
-                    ->filter(fn($name) => str_ends_with($name, '.pdf'))
-                    ->sort()
-                    ->values();
-            }
-        @endphp
         <div style="display: flex; gap: 1rem; align-items: center;">
-            <!-- Print Options Dropdown -->
-            <div class="dropdown" style="position: relative;">
-                <button class="back-btn" style="background-color: var(--primary-yellow); color: #333;"
-                    onclick="toggleDropdown()">
-                    <i class="fas fa-print"></i> Print Options <i class="fas fa-chevron-down"
-                        style="margin-left: 0.5rem;"></i>
-                </button>
-                <div id="printDropdown" class="dropdown-content"
-                    style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 200px;">
-                    <a href="{{ route('admin.user.generate.pdf', $user) }}" class="dropdown-item"
-                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
-                        <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Application PDF
-                    </a>
-                    <a href="{{ route('admin.user.generate.summary.pdf', $user) }}" class="dropdown-item"
-                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
-                        <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Summary PDF
-                    </a>
-                    <a href="{{ route('admin.user.sanction.letter', $user) }}" target="_blank" class="dropdown-item"
-                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
-                        <i class="fas fa-file-contract" style="margin-right: 0.5rem;"></i> Sanction Letter
-                    </a>
-
-                    <a href="{{ route('admin.user.generate.shortsummary.pdf', $user) }}" class="dropdown-item"
-                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-top: 1px solid var(--border-color);">
-                        <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Short Summary PDF
-                    </a>
-
-                    <a href="{{ route('admin.user.generate.financial_closure.pdf', $user) }}" class="dropdown-item"
-                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
-                        <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Financial Closure PDF
-                    </a>
-                    @if ($referencePdfs->isNotEmpty())
-                        <div style="border-top: 1px solid var(--border-color); margin-top: 0.25rem;"></div>
-                        <div style="padding: 0.5rem 1rem; font-size: 0.85rem; color: var(--text-light);">
-                            JEAP Reference PDFs
-                        </div>
-                        @foreach ($referencePdfs as $pdfFile)
-                            <a href="{{ asset('Jeap_pdfs/' . $pdfFile) }}" target="_blank" class="dropdown-item"
-                                style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
-                                <i class="fas fa-file-pdf" style="margin-right: 0.5rem;"></i>{{ $pdfFile }}
-                            </a>
-                        @endforeach
-                    @endif
-                </div>
-            </div>
-
+            <a href="{{ route('admin.user.generate.pdf', $user) }}" class="back-btn"
+                style="background-color: var(--primary-blue);">
+                <i class="fas fa-download"></i> Download PDF
+            </a>
             <a href="{{ route('admin.home') }}" class="back-btn">
                 <i class="fas fa-arrow-left"></i> Back to Dashboard
             </a>
         </div>
     </div>
 
+    {{-- <!-- User Info Card -->
+    <div class="user-info-card">
+        <div class="user-info-header">
+            <div class="user-avatar">
+                {{ strtoupper(substr($user->name, 0, 1)) }}
+            </div>
+            <div class="user-details">
+                <h3>{{ $user->name }}</h3>
+                <p>{{ $user->email }}</p>
+                <p>{{ $user->mobile }}</p>
+            </div>
+        </div>
+        <div class="user-info-footer">
+            <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}</p>
+            <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type ?? 'N/A' }}</p>
+            <p><strong>Financial Assistance For:</strong> {{ $user->financial_asset_for ?? 'N/A' }}</p>
+        </div>
+    </div> --}}
+
+
+    <!-- User Info Card -->
+    <!-- User Info Card -->
     <div class="top-summary-layout">
         <!-- User Info Card (Right) -->
         <div class="user-info-card top-card-user">
             <div class="user-info-header">
                 <div class="user-avatar">
                     @if ($user->image)
-                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img"
-                            style="width: 75px;
+                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img"  style="    width: 75px;
                             height: 75px;
                             border-radius: 50%;
                         ">
@@ -922,7 +868,6 @@
                     <p>{{ $user->email }}</p>
                     <p>{{ $user->phone }}</p>
                     <p>{{ $user->application_no }}</p>
-
                 </div>
 
             </div>
@@ -935,20 +880,19 @@
             <div class="user-info-footer">
                 <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}
                 </p>
-                @if ($loanCategory)
-                    <p><strong>Category:</strong>
-                        <span
-                            class="loan-type-badge {{ $loanCategory->type === 'below' ? 'loan-type-below' : 'loan-type-above' }}">
-                            {{ $loanCategory->type === 'below' ? 'Below 1 Lakh' : 'Above 1 Lakh' }}
-                        </span>
-                    </p>
+                @if($loanCategory)
+                <p><strong>Loan Category:</strong>
+                    <span class="loan-type-badge {{ $loanCategory->type === 'below' ? 'loan-type-below' : 'loan-type-above' }}">
+                        {{ $loanCategory->type === 'below' ? 'Below 1 Lakh' : 'Above 1 Lakh' }}
+                    </span>
+                </p>
                 @endif
-                <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type
-                    ? ucwords(str_replace('_', ' ', $user->financial_asset_type))
+                <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type 
+                    ? ucwords(str_replace('_', ' ', $user->financial_asset_type)) 
                     : 'N/A' }}</p>
-                                <p><strong>Financial Assistance For:</strong>
-                {{ $user->financial_asset_for
-                    ? ucwords(str_replace('_', ' ', $user->financial_asset_for))
+                                <p><strong>Financial Assistance For:</strong> 
+                {{ $user->financial_asset_for 
+                    ? ucwords(str_replace('_', ' ', $user->financial_asset_for)) 
                     : 'N/A' }}
                 </p>
             </div>
@@ -973,15 +917,153 @@
         </div>
     </div>
 
+    <!-- Workflow Status Card -->
+    <div class="user-info-card">
+
+        @if (
+            $user->workflowStatus &&
+                (($user->workflowStatus->current_stage === 'chapter' &&
+                    $user->workflowStatus->final_status === 'in_progress') ||
+                    in_array($user->workflowStatus->chapter_status, ['approved', 'rejected'])))
+
+            <div class="data-group">
+                {{-- <h4>Final Chapter Decision</h4> --}}
+                <div class="form-section">
+
+                    {{-- Show decision result if already decided --}}
+                    @if ($user->workflowStatus->chapter_status === 'approved')
+                        <div class="workflow-action-card">
+                            <h4 class="action-title">Chapter Decision - Approved</h4>
+                            <div
+                                style="padding: 1rem; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 12px; border: 2px solid #4CAF50;">
+                                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                    <i class="fas fa-check-circle" style="color: #2E7D32; font-size: 2rem;"></i>
+                                    <div>
+                                        <h5 style="color: #2E7D32; margin: 0; font-size: 1.2rem;">Application Approved</h5>
+                                        <p style="color: #2E7D32; margin: 0.25rem 0 0 0;">Chapter decision has been made
+                                            successfully</p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    style="background: rgba(76, 175, 80, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                                    <div
+                                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                        <div>
+                                            <strong style="color: #2E7D32;">Interview Date:</strong><br>
+                                            {{ $inter_date ? \Carbon\Carbon::parse($inter_date->updated_at)->format('d M Y') : 'N/A' }}
+                                        </div>
+                                        <div>
+                                            <strong style="color: #2E7D32;">Total Expense:</strong><br>
+                                            ₹{{ $data ? number_format($data->group_4_total) : 'N/A' }}
+                                        </div>
+                                        <div>
+                                            <strong style="color: #2E7D32;">Assistance Amount:</strong><br>
+                                            ₹{{ $user->workflowStatus->chapter_assistance_amount ? number_format($user->workflowStatus->chapter_assistance_amount) : 'N/A' }}
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                <div
+                                    style="margin-top: 1rem; padding: 0.5rem; background: rgba(255,255,255,0.6); border-radius: 6px; text-align: center;">
+                                    <small style="color: #666;">Approved on:
+                                        {{ $user->workflowStatus->chapter_updated_at ? \Carbon\Carbon::parse($user->workflowStatus->chapter_updated_at)->format('d M Y H:i') : 'N/A' }}</small>
+                                </div>
+                            </div>
+                        @elseif($user->workflowStatus->chapter_status === 'rejected')
+                            <div class="workflow-action-card">
+                                <h4 class="action-title">Chapter Decision - Rejected</h4>
+                                <div
+                                    style="padding: 2rem; background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%); border-radius: 12px; border: 2px solid #f44336;">
+                                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                        <i class="fas fa-times-circle" style="color: #c62828; font-size: 2rem;"></i>
+                                        <div>
+                                            <h5 style="color: #c62828; margin: 0; font-size: 1.2rem;">Application Rejected
+                                            </h5>
+                                            <p style="color: #c62828; margin: 0.25rem 0 0 0;">Chapter decision has been made
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    @if ($user->workflowStatus->chapter_reject_remarks)
+                                        <div
+                                            style="margin-top: 1rem; padding: 1rem; background: rgba(255,255,255,0.8); border-radius: 8px;">
+                                            <strong style="color: #c62828;">Rejection Remarks:</strong><br>
+                                            <p style="margin: 0.5rem 0 0 0; color: #2c3e50;">
+                                                {{ $user->workflowStatus->chapter_reject_remarks }}</p>
+                                        </div>
+                                    @endif
+
+                                    <div
+                                        style="margin-top: 1rem; padding: 0.5rem; background: rgba(255,255,255,0.6); border-radius: 6px; text-align: center;">
+                                        <small style="color: #666;">Rejected on:
+                                            {{ $user->workflowStatus->chapter_updated_at ? \Carbon\Carbon::parse($user->workflowStatus->chapter_updated_at)->format('d M Y H:i') : 'N/A' }}</small>
+                                    </div>
+                                </div>
+                            @else
+                                {{-- Show the decision form for pending approval --}}
+                                <div
+                                    style="padding: 2rem; background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%); border-radius: 12px; border: 1px solid rgba(57, 49, 133, 0.1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06); margin-top: 1.5rem;">
+                                    <h4 class="action-title">Chapter Decision</h4>
+
+                                    <!-- Approve Form -->
+                                    {{-- <div class="action-form-row">
+                                            <textarea name="admin_remark"
+                                                    placeholder="Approval remark (optional but recommended)"
+                                                    rows="3"
+                                                    class="remark-input"></textarea>
+                                            <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'chapter']) }}"
+                                                method="POST">
+                                                @csrf
+                                                <input type="hidden" name="admin_remark" id="approve_remark">
+                                                <button type="submit" class="btn btn-approve">
+                                                    <i class="fas fa-check"></i>
+                                                    Approve Chapter
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                        <div class="divider"></div>
+
+                                        <!-- Reject Form -->
+                                        <div class="action-form-row">
+                                            <textarea name="admin_remark"
+                                                    placeholder="Rejection remark (required)"
+                                                    rows="3"
+                                                    class="remark-input"
+                                                    required></textarea>
+                                            <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'chapter']) }}"
+                                                method="POST">
+                                                @csrf
+                                                <input type="hidden" name="admin_remark" id="reject_remark">
+                                                <button type="submit" class="btn btn-reject">
+                                                    <i class="fas fa-times"></i>
+                                                    Reject Chapter
+                                                </button>
+                                            </form>
+                                        </div> --}}
+                                </div>
+                    @endif
+                </div>
+            </div>
+        @endif
+    </div>
+
+    <!-- Success/Error Messages Display -->
 
     @php
         $isBelowLoan = $loanCategory && $loanCategory->type === 'below';
     @endphp
 
+
+
     <!-- Steps Container -->
     <div class="steps-container">
         <!-- Step Navigation -->
         <div class="step-nav">
+
             <div class="step-nav-item active step-1" onclick="showStep(1)">
                 <span class="step-number">1</span>
                 <span class="step-title">Personal Details</span>
@@ -1012,13 +1094,90 @@
                 <span class="step-number">{{ $isBelowLoan ? 6 : 7 }}</span>
                 <span class="step-title">Final Submission</span>
             </div>
-            <div class="step-nav-item step-8" onclick="showStep(8)">
-                <span class="step-number">{{ $isBelowLoan ? 7 : 8 }}</span>
-                <span class="step-title">Apex Decision</span>
+            <div class="step-nav-item step-interview" onclick="showStep('interview')">
+                <span class="step-number"><i class="fas fa-microphone" style="font-size: 0.8rem;"></i></span>
+                <span class="step-title">Interview</span>
+            </div>
+            <div class="step-nav-item step-decision" onclick="showStep('decision')">
+                <span class="step-number"><i class="fas fa-gavel" style="font-size: 0.8rem;"></i></span>
+                <span class="step-title">Decision</span>
             </div>
         </div>
 
         <div class="content-area">
+
+            <!-- Interview Step -->
+            <div class="step-content" id="step-interview">
+                <div class="step-header">
+                    <h2 class="step-title-large">Chapter Interview</h2>
+                    <div class="step-status">
+                        <span class="status-badge status-approved">
+                            <i class="fas fa-microphone" style="font-size: 0.6rem;"></i>
+                            Interview Required
+                        </span>
+                    </div>
+                </div>
+
+                <div class="data-group">
+                    <h4>Interview Assessment</h4>
+                    <div class="form-section">
+                        <div
+                            style="margin-bottom: 2rem; padding: 2rem; background: linear-gradient(135deg, #f3e5f5 0%, #e3f2fd 100%); border-radius: 12px; border: 2px solid #7B1FA2;">
+                            <h5
+                                style="color: #7B1FA2; margin: 0 0 1.5rem 0; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-comments"></i>
+                                Pre-Interview Questions & Answers
+                            </h5>
+
+                            <form id="interview-form">
+                                @csrf
+                                <input type="hidden" name="user_id" value="{{ $user->id }}">
+                                <input type="hidden" name="workflow_id" value="{{ $user->workflowStatus->id ?? '' }}">
+
+                                <div id="interview-questions">
+                                    <!-- Questions will be loaded here -->
+                                </div>
+
+                                <div
+                                    style="margin-top: 3rem; padding-top: 1.5rem; border-top: 2px solid rgba(123, 31, 162, 0.2); display: flex; gap: 1rem; justify-content: center;">
+                                    <button type="button" onclick="saveInterviewAnswers()" class="btn"
+                                        style="background: linear-gradient(135deg, #7B1FA2, #1976D2); color: white; border: none; padding: 1rem 2rem; font-size: 1rem;">
+                                        <i class="fas fa-save"></i>
+                                        Save Interview Answers
+                                    </button>
+                                    {{-- <button type="button" onclick="loadInterviewAnswers()" class="btn" style="background: #757575; color: white; border: none; padding: 1rem 2rem; font-size: 1rem;">
+                                <i class="fas fa-sync"></i>
+                                Refresh Answers
+                            </button> --}}
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Interview Summary -->
+                        <div class="data-item"
+                            style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-top: 2rem;">
+                            <div class="data-label" style="font-weight: 600; color: #7B1FA2; font-size: 1.1rem;">
+                                <i class="fas fa-clipboard-check"></i>
+                                Interview Status
+                            </div>
+                            <div class="data-value" style="text-align: right;">
+                                @php
+                                    $interviewCount = \App\Models\ChapterInterviewAnswer::where('user_id', $user->id)
+                                        ->where('workflow_id', $user->workflowStatus->id ?? 0)
+                                        ->count();
+                                @endphp
+                                <span style="font-weight: 600; color: {{ $interviewCount > 0 ? '#4CAF50' : '#FF9800' }};">
+                                    {{ $interviewCount }}/14 Questions Answered
+                                </span>
+                                @if ($interviewCount > 0)
+                                    <br><small style="color: #666;">Last updated:
+                                        {{ \App\Models\ChapterInterviewAnswer::where('user_id', $user->id)->where('workflow_id', $user->workflowStatus->id ?? 0)->latest()->first()?->updated_at?->format('d M Y H:i') ?? 'N/A' }}</small>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Step 1: Personal Details -->
 
@@ -1317,40 +1476,34 @@
                                     <div class="form-field">
                                         <label class="form-label">Qualification</label>
                                         <input type="text" class="form-input"
-                                            value="{{ ucfirst($user->educationDetail->qualifications ?? 'N/A') }}"
-                                            readonly>
+                                            value="{{ ucfirst($user->educationDetail->qualifications ?? 'N/A') }}" readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">Institution / College Name</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->educationDetail->qualification_institution ?? 'N/A' }}"
-                                            readonly>
+                                            value="{{ $user->educationDetail->qualification_institution ?? 'N/A' }}" readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">University Name</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->educationDetail->qualification_university ?? 'N/A' }}"
-                                            readonly>
+                                            value="{{ $user->educationDetail->qualification_university ?? 'N/A' }}" readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">Course Name</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->educationDetail->qualification_course_name ?? 'N/A' }}"
-                                            readonly>
+                                            value="{{ $user->educationDetail->qualification_course_name ?? 'N/A' }}" readonly>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-field">
                                         <label class="form-label">Start Year</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->educationDetail->qualification_start_year ?? 'N/A' }}"
-                                            readonly>
+                                            value="{{ $user->educationDetail->qualification_start_year ?? 'N/A' }}" readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">End Year</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->educationDetail->qualification_end_year ?? 'N/A' }}"
-                                            readonly>
+                                            value="{{ $user->educationDetail->qualification_end_year ?? 'N/A' }}" readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">Marksheet Type</label>
@@ -1361,12 +1514,9 @@
                                             $marksheetType = is_array($marksheetType) ? $marksheetType : [];
                                             $marksheetLabel = empty($marksheetType)
                                                 ? 'N/A'
-                                                : implode(
-                                                    ', ',
-                                                    array_map(function ($type) {
-                                                        return $type === 'semester' ? 'Semester-based' : 'Year-based';
-                                                    }, $marksheetType),
-                                                );
+                                                : implode(', ', array_map(function ($type) {
+                                                    return $type === 'semester' ? 'Semester-based' : 'Year-based';
+                                                }, $marksheetType));
                                         @endphp
                                         <input type="text" class="form-input" value="{{ $marksheetLabel }}" readonly>
                                     </div>
@@ -1374,13 +1524,9 @@
                                 <div class="table-container">
                                     @php
                                         $edu = $user->educationDetail;
-                                        $marksheetType = $edu->marksheet_type
-                                            ? json_decode($edu->marksheet_type, true)
-                                            : [];
+                                        $marksheetType = $edu->marksheet_type ? json_decode($edu->marksheet_type, true) : [];
                                         $marksheetType = is_array($marksheetType) ? $marksheetType : [];
-                                        $marksObtained = $edu->marks_obtained
-                                            ? json_decode($edu->marks_obtained, true)
-                                            : [];
+                                        $marksObtained = $edu->marks_obtained ? json_decode($edu->marks_obtained, true) : [];
                                         $outOf = $edu->out_of ? json_decode($edu->out_of, true) : [];
                                         $percentage = $edu->percentage ? json_decode($edu->percentage, true) : [];
                                         $cgpa = $edu->cgpa ? json_decode($edu->cgpa, true) : [];
@@ -1388,7 +1534,7 @@
                                             count(is_array($marksObtained) ? $marksObtained : []),
                                             count(is_array($outOf) ? $outOf : []),
                                             count(is_array($percentage) ? $percentage : []),
-                                            count(is_array($cgpa) ? $cgpa : []),
+                                            count(is_array($cgpa) ? $cgpa : [])
                                         );
                                         $isSemester = in_array('semester', $marksheetType, true);
                                         $rowLabel = $isSemester ? 'Sem' : 'Year';
@@ -1602,7 +1748,9 @@
                                     </tbody>
                                 </table>
                             </div>
-                        </div><!-- School Information -->
+                        </div>
+
+                        <!-- School Information -->
                         <div class="data-group">
                             <h4>School / 10th Grade Information</h4>
                             <div class="form-section">
@@ -1784,7 +1932,7 @@
             @endif
         </div>
 
-        <!-- Step 3: Education Details (continued) -->
+        <!-- Step 3: Family Details -->
         <div class="step-content" id="step-3">
             <div class="step-header">
                 <h2 class="step-title-large">Step 3: Family Details</h2>
@@ -1863,8 +2011,7 @@
                                 <div class="form-field">
                                     <label class="form-label">Current Year ITR</label>
                                     <input type="text" class="form-input"
-                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}"
-                                        readonly>
+                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}" readonly>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Last Year ITR</label>
@@ -2172,66 +2319,66 @@
                                 </div>
                             </div>
                         </div>
-                      @endif
+                    @endif
 
-                      <div class="data-group">
-                          <h4>Sibling Assistance</h4>
-                          <div class="form-section">
-                              <div class="form-row">
-                                  <div class="form-field">
-                                      <label class="form-label">Sibling Assistance</label>
-                                      <input type="text" class="form-input"
-                                          value="{{ $user->fundingDetail->sibling_assistance ? ucfirst($user->fundingDetail->sibling_assistance) : 'N/A' }}"
-                                          readonly>
-                                  </div>
-                                  <div class="form-field">
-                                      <label class="form-label">Sibling Name</label>
-                                      <input type="text" class="form-input"
-                                          value="{{ $user->fundingDetail->sibling_name ?? 'N/A' }}" readonly>
-                                  </div>
-                                  <div class="form-field">
-                                      <label class="form-label">Sibling Number</label>
-                                      <input type="text" class="form-input"
-                                          value="{{ $user->fundingDetail->sibling_number ?? 'N/A' }}" readonly>
-                                  </div>
-                              </div>
-                              <div class="form-row">
-                                  <div class="form-field">
-                                      <label class="form-label">Sibling NGO Name</label>
-                                      <input type="text" class="form-input"
-                                          value="{{ $user->fundingDetail->sibling_ngo_name ?? 'N/A' }}" readonly>
-                                  </div>
-                                  <div class="form-field">
-                                      <label class="form-label">NGO Number</label>
-                                      <input type="text" class="form-input"
-                                          value="{{ $user->fundingDetail->ngo_number ?? 'N/A' }}" readonly>
-                                  </div>
-                                  <div class="form-field">
-                                      <label class="form-label">Sibling Loan Status</label>
-                                      <input type="text" class="form-input"
-                                          value="{{ $user->fundingDetail->sibling_loan_status ? ucfirst($user->fundingDetail->sibling_loan_status) : 'N/A' }}"
-                                          readonly>
-                                  </div>
-                              </div>
-                              <div class="form-row">
-                                  <div class="form-field">
-                                      <label class="form-label">Sibling Applied Year</label>
-                                      <input type="text" class="form-input"
-                                          value="{{ $user->fundingDetail->sibling_applied_year ?? 'N/A' }}" readonly>
-                                  </div>
-                                  <div class="form-field">
-                                      <label class="form-label">Sibling Applied Amount (Rs)</label>
-                                      <input type="text" class="form-input"
-                                          value="@if (is_numeric($user->fundingDetail->sibling_applied_amount)) {{ number_format($user->fundingDetail->sibling_applied_amount) }} @else {{ $user->fundingDetail->sibling_applied_amount ?? 'N/A' }} @endif"
-                                          readonly>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
+                    <div class="data-group">
+                        <h4>Sibling Assistance</h4>
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Sibling Assistance</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->sibling_assistance ? ucfirst($user->fundingDetail->sibling_assistance) : 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Sibling Name</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->sibling_name ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Sibling Number</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->sibling_number ?? 'N/A' }}" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Sibling NGO Name</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->sibling_ngo_name ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">NGO Number</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->ngo_number ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Sibling Loan Status</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->sibling_loan_status ? ucfirst($user->fundingDetail->sibling_loan_status) : 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Sibling Applied Year</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->sibling_applied_year ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Sibling Applied Amount (Rs)</label>
+                                    <input type="text" class="form-input"
+                                        value="@if (is_numeric($user->fundingDetail->sibling_applied_amount)) {{ number_format($user->fundingDetail->sibling_applied_amount) }} @else {{ $user->fundingDetail->sibling_applied_amount ?? 'N/A' }} @endif"
+                                        readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                      <!-- Bank Details of Applicant -->
-                      <div class="data-group">
-                          <h4>Bank Details of Applicant</h4>
+                    <!-- Bank Details of Applicant -->
+                    <div class="data-group">
+                        <h4>Bank Details of Applicant</h4>
                         <div class="form-section">
                             <div class="form-row">
                                 <div class="form-field">
@@ -2289,16 +2436,16 @@
                             {{ $user->guarantorDetail ? ucfirst($user->guarantorDetail->submit_status) : 'Pending' }}
                         </span>
                         {{-- <div class="action-buttons">
-                    <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="btn-approve">Approve</button>
-                    </form>
-                    <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
-                        @csrf
-                        <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
-                        <button type="submit" class="btn-hold">Hold</button>
-                    </form>
-                </div> --}}
+                        <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="btn-approve">Approve</button>
+                        </form>
+                        <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
+                            @csrf
+                            <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
+                            <button type="submit" class="btn-hold">Hold</button>
+                        </form>
+                    </div> --}}
                     </div>
                 </div>
 
@@ -2481,13 +2628,13 @@
                         </div>
 
                         {{-- <div class="data-group">
-                <h4>Power of Attorney</h4>
-                <div class="data-item"><div class="data-label">Name</div><div class="data-value">{{ $user->guarantorDetail->attorney_name ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Relation</div><div class="data-value">{{ $user->guarantorDetail->attorney_relation_with_student ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Phone</div><div class="data-value">{{ $user->guarantorDetail->attorney_phone ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Email</div><div class="data-value">{{ $user->guarantorDetail->attorney_email ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Address</div><div class="data-value">{{ $user->guarantorDetail->attorney_address ?? 'N/A' }}</div></div>
-            </div> --}}
+                    <h4>Power of Attorney</h4>
+                    <div class="data-item"><div class="data-label">Name</div><div class="data-value">{{ $user->guarantorDetail->attorney_name ?? 'N/A' }}</div></div>
+                    <div class="data-item"><div class="data-label">Relation</div><div class="data-value">{{ $user->guarantorDetail->attorney_relation_with_student ?? 'N/A' }}</div></div>
+                    <div class="data-item"><div class="data-label">Phone</div><div class="data-value">{{ $user->guarantorDetail->attorney_phone ?? 'N/A' }}</div></div>
+                    <div class="data-item"><div class="data-label">Email</div><div class="data-value">{{ $user->guarantorDetail->attorney_email ?? 'N/A' }}</div></div>
+                    <div class="data-item"><div class="data-label">Address</div><div class="data-value">{{ $user->guarantorDetail->attorney_address ?? 'N/A' }}</div></div>
+                </div> --}}
                     </div>
                 @else
                     <div class="no-data">
@@ -2588,9 +2735,7 @@
                                             @endphp
                                             <button class="doc-button"
                                                 onclick="selectDocument(event, '{{ $href }}', '{{ $label }}')"
-                                                style="text-align: left; padding: 0.75rem 1rem; background: white; color: var(--text-dark); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 400;"
-                                                onmouseover="if (!this.classList.contains('active')) this.style.background = 'var(--bg-light)'"
-                                                onmouseout="if (!this.classList.contains('active')) this.style.background = 'white'">
+                                                style="text-align: left; padding: 0.75rem 1rem; background: white; color: var(--text-dark); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 400;">
                                                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                                                     <i class="fas fa-file-alt" style="font-size: 0.8rem;"></i>
                                                     {{ $label }}
@@ -2694,292 +2839,405 @@
             </div>
         </div>
 
-
-        <!-- Step 8: Apex Decision -->
-        <div class="step-content" id="step-8">
+        <!-- Chapter Decision Step -->
+        <div class="step-content" id="step-decision">
             <div class="step-header">
-                <h2 class="step-title-large">Step {{ $isBelowLoan ? 7 : 8 }}: Apex Decision</h2>
+                <h2 class="step-title-large">Chapter Decision</h2>
                 <div class="step-status">
-                    @if ($user->workflowStatus && $user->workflowStatus->apex_1_status === 'approved')
-                        <span class="status-badge status-approved">
-                            <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
-                            Approved
-                        </span>
-                    @elseif($user->workflowStatus && $user->workflowStatus->apex_1_status === 'rejected')
-                        <span class="status-badge status-hold">
-                            <i class="fas fa-times-circle" style="font-size: 0.6rem;"></i>
-                            Send Back For Correction
-                        </span>
-                    @else
-                        <span class="status-badge status-pending">
-                            <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
-                            Decision Required
-                        </span>
-                    @endif
+                    <span class="status-badge status-approved">
+                        <i class="fas fa-gavel" style="font-size: 0.6rem;"></i>
+                        Decision Required
+                    </span>
                 </div>
             </div>
 
-            @if ($user->workflowStatus && $user->workflowStatus->apex_1_status === 'approved')
-                <!-- Approved Decision Display -->
-                <div class="form-data">
-                    <div class="data-group">
-                        <h4>✅ Application Approved</h4>
-                        <div class="form-section">
-                            {{-- <div class="data-item">
-                            <div class="data-label">Approval Date</div>
-                            <div class="data-value">{{ $user->workflowStatus->apex_1_updated_at ? $user->workflowStatus->apex_1_updated_at->format('d M Y H:i') : 'N/A' }}</div>
-                        </div> --}}
-                            @if ($user->workflowStatus->apex_1_approval_remarks)
-                                <div class="data-item">
-                                    <div class="data-label">Apex Approval Remarks</div>
-                                    <div class="data-value">{!! $user->workflowStatus->apex_1_approval_remarks !!}</div>
-                                </div>
-                            @endif
-                            @if ($user->workflowStatus->apex_staff_remark)
-                                <div class="data-item">
-                                    <div class="data-label">Apex Staff Remarks</div>
-                                    <div class="data-value">{!! $user->workflowStatus->apex_staff_remark !!}</div>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            @elseif($user->workflowStatus && $user->workflowStatus->apex_1_status === 'rejected')
-                <!-- Rejected Decision Display -->
-                <div class="form-data">
-                    <div class="data-group">
-                        <h4>❌ Application Send Back For Correction</h4>
-                        <div class="form-section">
+            <div class="data-group">
+                <h4>Final Chapter Decision</h4>
+                <div class="form-section">
+                    @if (!in_array($user->workflowStatus->chapter_status ?? '', ['approved', 'rejected']))
+                        <div style="margin-bottom: 2rem; padding: 2rem; border-radius: 12px; border: 2px solid #4CAF50;">
+                            <h5
+                                style="color: #2E7D32; margin: 0 0 1.5rem 0; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-balance-scale"></i>
+                                Make Your Final Decision
+                            </h5>
 
-                            @if ($user->workflowStatus->apex_1_reject_remarks)
-                                <div>
-                                    <div class="data-label p-2">Send Back For Correction Remarks:-</div>
-                                    <div class="p-2">{!! $user->workflowStatus->apex_1_reject_remarks !!}</div>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            @elseif(
-                $user->workflowStatus &&
-                    $user->workflowStatus->current_stage === 'apex_1' &&
-                    $user->workflowStatus->final_status === 'in_progress')
-                <!-- Validation Errors Display -->
-                @if ($errors->any())
-                    <div
-                        style="background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.2); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
-                        <h5 style="color: var(--primary-red); margin: 0 0 0.5rem 0; font-size: 0.9rem;">⚠️ Validation
-                            Errors:</h5>
-                        <ul style="margin: 0; padding-left: 1.2rem; color: var(--primary-red); font-size: 0.85rem;">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+                            <!-- Decision Forms Container -->
+                            <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
 
-                <div class="workflow-action-card">
-                    <h4 class="action-title">Apex 1 Decision</h4>
-
-                    <!-- Approve Form -->
-                    <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}"
-                        method="POST">
-                        @csrf
-                        <div class="action-form-row">
-                            <div style="flex: 2;">
-                                <textarea name="admin_remark" placeholder="Approval remark (optional but recommended)" rows="3"
-                                    class="remark-input"></textarea>
-
-                                <div style="margin-top: 1rem;">
-                                    <label class="form-label"
-                                        style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Apex
-                                        Staff Remark</label>
-                                    <textarea name="apex_staff_remark" placeholder="Optional apex staff remark" rows="3" class="remark-input"></textarea>
-                                </div>
-
-
-                            </div>
-                            <button type="submit" class="btn btn-approve">
-                                <i class="fas fa-check"></i>
-                                Approve Application
-                            </button>
-                        </div>
-                    </form>
-
-                    <div class="divider"></div>
-
-                    <!-- Reject Form -->
-                    <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}"
-                        method="POST">
-                        @csrf
-                        <div class="action-form-row">
-                            <div style="flex: 2;">
-                                <textarea name="admin_remark" placeholder="Rejection remark (required)" rows="3" class="remark-input"
-                                    required></textarea>
-
+                                <!-- Approve Form -->
                                 <div
-                                    style="margin-top: 1rem; padding: 1rem; background: rgba(244, 67, 54, 0.05); border-radius: 8px; border: 1px solid rgba(244, 67, 54, 0.1);">
-                                    <h5 style="color: var(--primary-red); margin: 0 0 0.5rem 0; font-size: 0.9rem;">Select
-                                        steps to resubmit:</h5>
+                                    style="flex: 1; min-width: 300px; padding: 2rem;  border-radius: 12px; border: 2px solid #4CAF50;">
+                                    <h6
+                                        style="color: #2E7D32; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                                        <i class="fas fa-check-circle"></i>
+                                        Approve Application
+                                    </h6>
+                                    <form
+                                        action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'chapter']) }}"
+                                        method="POST">
+                                        @csrf
+                                        <div class="form-row" style="margin-bottom: 1rem;">
+                                            <div class="form-field form-field-full">
+                                                <label class="form-label" style="color: #2E7D32;">Interview Date</label>
+                                                <input type="date" name="interview_date" class="form-input" required
+                                                    value="{{ $inter_date ? \Carbon\Carbon::parse($inter_date->updated_at)->format('Y-m-d') : '' }}"
+                                                    style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row" style="margin-bottom: 1rem;">
+                                            <div class="form-field form-field-full">
+                                                <label class="form-label" style="color: #2E7D32;">Total Expence</label>
+                                                <input type="text" class="form-input"
+                                                    value="{{ $data->group_4_total ?? 'NA' }}" readonly
+                                                    style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row" style="margin-bottom: 1rem;">
+                                            <div class="form-field form-field-full">
+                                                <label class="form-label" style="color: #2E7D32;">Chapter Remarks
+                                                    (Question 14)</label>
+                                                <textarea class="remark-input" readonly
+                                                    style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05); resize: vertical; min-height: 80px;">{{ strip_tags(\App\Models\ChapterInterviewAnswer::where('user_id', $user->id)->where('workflow_id', $user->workflowStatus->id ?? 0)->where('question_no', 14)->first()?->answer_text ?? 'Not answered') }}</textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row" style="margin-bottom: 1rem;">
+                                            <div class="form-field form-field-full">
+                                                <label class="form-label" style="color: #2E7D32;">Recommended Finantial
+                                                    Assistance
+                                                    Amount</label>
+                                                <input type="number" name="assistance_amount" class="form-input"
+                                                    placeholder="Provide Assistance Amount" required
+                                                    style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row" style="margin-bottom: 1rem;">
+                                            <div class="form-field form-field-full">
+                                                <label class="form-label" style="color: #2E7D32;">Approval
+                                                    Remarks</label>
+                                                <textarea name="admin_remark" placeholder="Provide approval remarks (optional but recommended)" rows="4"
+                                                    class="remark-input" style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);"></textarea>
+                                            </div>
+                                        </div>
+
+
+                                        <!-- Approval Checkboxes -->
+                                        {{-- <div
+                                    style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(76, 175, 80, 0.1); border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.3);">
+                                    <h6 style="color: #2E7D32; margin: 0 0 0.5rem 0; font-size: 0.9rem;">Verify before
+                                        approval:</h6>
                                     <div
                                         style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
                                         <label
-                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #2E7D32;">
+                                            <input type="checkbox" name="approved_steps[]" value="personal"
+                                                style="width: 16px; height: 16px;" required>
+                                            Personal Details
+                                        </label>
+                                        <label
+                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #2E7D32;">
+                                            <input type="checkbox" name="approved_steps[]" value="education"
+                                                style="width: 16px; height: 16px;" required>
+                                            Education Details
+                                        </label>
+                                        <label
+                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #2E7D32;">
+                                            <input type="checkbox" name="approved_steps[]" value="family"
+                                                style="width: 16px; height: 16px;" required>
+                                            Family Details
+                                        </label>
+                                        <label
+                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #2E7D32;">
+                                            <input type="checkbox" name="approved_steps[]" value="funding"
+                                                style="width: 16px; height: 16px;" required>
+                                            Funding Details
+                                        </label>
+                                        <label
+                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #2E7D32;">
+                                            <input type="checkbox" name="approved_steps[]" value="guarantor"
+                                                style="width: 16px; height: 16px;" required>
+                                            Guarantor Details
+                                        </label>
+                                        <label
+                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #2E7D32;">
+                                            <input type="checkbox" name="approved_steps[]" value="documents"
+                                                style="width: 16px; height: 16px;" required>
+                                            Documents
+                                        </label>
+                                        <label
+                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #2E7D32;">
+                                            <input type="checkbox" name="approved_steps[]" value="final"
+                                                style="width: 16px; height: 16px;" required>
+                                            Final Submission
+                                        </label>
+                                    </div>
+                                    <p
+                                        style="font-size: 0.75rem; color: #2E7D32; margin: 0.5rem 0 0 0; font-style: italic;">
+                                        All steps must be verified before approval
+                                    </p>
+                                </div> --}}
+
+                                        <button type="submit" class="btn btn-approve" style="width: 100%;">
+                                            <i class="fas fa-check"></i>
+                                            Approve & Moving to Working Committee
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <!-- Reject Form -->
+                                {{-- <div
+                            style="flex: 1; min-width: 300px; padding: 2rem;  border-radius: 12px; border: 2px solid #f44336;">
+                            <h6
+                                style="color: #c62828; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-times-circle"></i>
+                                Reject Application
+                            </h6>
+                            <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'chapter']) }}"
+                                method="POST">
+                                @csrf
+                                <div class="form-row" style="margin-bottom: 1rem;">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label" style="color: #c62828;">Rejection Remarks *</label>
+                                        <textarea name="admin_remark" placeholder="Provide detailed rejection remarks (required)" rows="4"
+                                            class="remark-input" style="border: 2px solid #f44336; background: rgba(244, 67, 54, 0.05);" required></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Rejection Checkboxes -->
+                                <div
+                                    style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(244, 67, 54, 0.1); border-radius: 8px; border: 1px solid rgba(244, 67, 54, 0.3);">
+                                    <h6 style="color: #c62828; margin: 0 0 0.5rem 0; font-size: 0.9rem;">Select steps to
+                                        resubmit:</h6>
+                                    <div
+                                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+                                        <label
+                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
                                             <input type="checkbox" name="resubmit_steps[]" value="personal"
                                                 style="width: 16px; height: 16px;">
-                                            Step 1: Personal Details
+                                            Personal Details
                                         </label>
                                         <label
-                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
                                             <input type="checkbox" name="resubmit_steps[]" value="education"
                                                 style="width: 16px; height: 16px;">
-                                            Step 2: Education Details
+                                            Education Details
                                         </label>
                                         <label
-                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
                                             <input type="checkbox" name="resubmit_steps[]" value="family"
                                                 style="width: 16px; height: 16px;">
-                                            Step 3: Family Details
+                                            Family Details
                                         </label>
                                         <label
-                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
                                             <input type="checkbox" name="resubmit_steps[]" value="funding"
                                                 style="width: 16px; height: 16px;">
-                                            Step 4: Funding Details
+                                            Funding Details
                                         </label>
                                         @if(!$isBelowLoan)
                                         <label
-                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
                                             <input type="checkbox" name="resubmit_steps[]" value="guarantor"
                                                 style="width: 16px; height: 16px;">
-                                            Step 5: Guarantor Details
+                                            Guarantor Details
                                         </label>
                                         @endif
                                         <label
-                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
                                             <input type="checkbox" name="resubmit_steps[]" value="documents"
                                                 style="width: 16px; height: 16px;">
-                                            Step {{ $isBelowLoan ? 5 : 6 }}: Documents
+                                            Documents
                                         </label>
                                         <label
-                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
+                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #c62828;">
                                             <input type="checkbox" name="resubmit_steps[]" value="final"
                                                 style="width: 16px; height: 16px;">
-                                            Step {{ $isBelowLoan ? 6 : 7 }}: Final Submission
+                                            Final Submission
                                         </label>
                                     </div>
-                                    <p style="font-size: 0.75rem; color: var(--text-light); margin: 0.5rem 0 0 0;">
-                                        Leave unchecked to reject the entire application permanently.
+                                    <p
+                                        style="font-size: 0.75rem; color: #c62828; margin: 0.5rem 0 0 0; font-style: italic;">
+                                        Leave unchecked to reject permanently
                                     </p>
                                 </div>
+
+                                <button type="submit" class="btn btn-reject" style="width: 100%;">
+                                    <i class="fas fa-times"></i>
+                                    Reject Application
+                                </button>
+                            </form>
+                        </div> --}}
                             </div>
-                            <button type="submit" class="btn btn-reject">
-                                <i class="fas fa-times"></i>
-                                Send Back For Correction
-                            </button>
-                        </div>
-                    </form>
+
+                            <!-- Decision Summary -->
+                            <div class="data-item"
+                                style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-top: 2rem; border: 1px solid #e9ecef;">
+                                <div class="data-label" style="font-weight: 600; color: #1976D2; font-size: 1.1rem;">
+                                    <i class="fas fa-chart-line"></i>
+                                    Application Summary
+                                </div>
+                                <div class="data-value" style="text-align: left;">
+                                    <div
+                                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 0.5rem;">
+                                        <div style="text-align: center;">
+                                            <div style="font-size: 1.2rem; font-weight: bold; color: #4CAF50;">
+                                                @php
+                                                    $approvedCount = 0;
+                                                    if ($user->submit_status === 'approved') {
+                                                        $approvedCount++;
+                                                    }
+                                                    if (
+                                                        $user->educationDetail &&
+                                                        $user->educationDetail->submit_status === 'approved'
+                                                    ) {
+                                                        $approvedCount++;
+                                                    }
+                                                    if (
+                                                        $user->familyDetail &&
+                                                        $user->familyDetail->submit_status === 'approved'
+                                                    ) {
+                                                        $approvedCount++;
+                                                    }
+                                                    if (
+                                                        $user->fundingDetail &&
+                                                        $user->fundingDetail->submit_status === 'approved'
+                                                    ) {
+                                                        $approvedCount++;
+                                                    }
+                                                    if (
+                                                        $user->guarantorDetail &&
+                                                        $user->guarantorDetail->submit_status === 'approved'
+                                                    ) {
+                                                        $approvedCount++;
+                                                    }
+                                                    if (
+                                                        $user->document &&
+                                                        $user->document->submit_status === 'approved'
+                                                    ) {
+                                                        $approvedCount++;
+                                                    }
+                                                    if (
+                                                        $user->document &&
+                                                        $user->document->submit_status === 'approved'
+                                                    ) {
+                                                        $approvedCount++;
+                                                    } // final
+                                                @endphp
+                                                {{ $approvedCount }}/7
+                                            </div>
+                                            <div style="font-size: 0.8rem; color: #666;">Steps Approved</div>
+                                        </div>
+                                        <div style="text-align: center;">
+                                            <div style="font-size: 1.2rem; font-weight: bold; color: #FF9800;">
+                                                @php
+                                                    $interviewCount = \App\Models\ChapterInterviewAnswer::where(
+                                                        'user_id',
+                                                        $user->id,
+                                                    )
+                                                        ->where('workflow_id', $user->workflowStatus->id ?? 0)
+                                                        ->count();
+                                                @endphp
+                                                {{ $interviewCount }}/14
+                                            </div>
+                                            <div style="font-size: 0.8rem; color: #666;">Interview Q&A</div>
+                                        </div>
+                                        <div style="text-align: center;">
+                                            <div style="font-size: 1.2rem; font-weight: bold; color: #1976D2;">
+                                                {{ $user->workflowStatus ? ucfirst(str_replace('_', ' ', $user->workflowStatus->current_stage)) : 'N/A' }}
+                                            </div>
+                                            <div style="font-size: 0.8rem; color: #666;">Current Stage</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <!-- Show submitted decision details -->
+                            <div
+                                style="margin-bottom: 2rem; padding: 2rem; border-radius: 12px; border: 2px solid #4CAF50;">
+                                <h5
+                                    style="color: #2E7D32; margin: 0 0 1.5rem 0; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-check-circle"></i>
+                                    Decision Submitted - {{ ucfirst($user->workflowStatus->chapter_status ?? 'N/A') }}
+                                </h5>
+
+                                <div class="form-row" style="margin-bottom: 1rem;">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label" style="color: #2E7D32;">Interview Date</label>
+                                        <input type="date" class="form-input"
+                                            value="{{ $user->workflowStatus->chapter_interview_date ? \Carbon\Carbon::parse($user->workflowStatus->chapter_interview_date)->format('Y-m-d') : '' }}"
+                                            readonly
+                                            style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">
+                                    </div>
+                                </div>
+
+                                <div class="form-row" style="margin-bottom: 1rem;">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label" style="color: #2E7D32;">Total Expense</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $data->group_4_total ?? 'NA' }}" readonly
+                                            style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">
+                                    </div>
+                                </div>
+
+                                <div class="form-row" style="margin-bottom: 1rem;">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label" style="color: #2E7D32;">Chapter Remarks (Question
+                                            14)</label>
+                                        <textarea class="remark-input" readonly
+                                            style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05); resize: vertical; min-height: 80px;">{{ strip_tags(\App\Models\ChapterInterviewAnswer::where('user_id', $user->id)->where('workflow_id', $user->workflowStatus->id ?? 0)->where('question_no', 14)->first()?->answer_text ?? 'Not answered') }}</textarea>
+                                    </div>
+                                </div>
+
+                                <div class="form-row" style="margin-bottom: 1rem;">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label" style="color: #2E7D32;">Recommended Financial
+                                            Assistance Amount</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->workflowStatus->chapter_assistance_amount ? '₹' . number_format($user->workflowStatus->chapter_assistance_amount) : '' }}"
+                                            readonly
+                                            style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">
+                                    </div>
+                                </div>
+
+                                <div class="form-row" style="margin-bottom: 1rem;">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label" style="color: #2E7D32;">Approval Remarks</label>
+                                        <textarea readonly rows="4" class="remark-input"
+                                            style="border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.05);">{{ strip_tags($user->workflowStatus->chapter_approval_remarks ?? '') }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                    @endif
                 </div>
-            @else
-                <div class="no-data">
-                    <p>Decision not available for this application.</p>
-                </div>
-            @endif
+            </div>
         </div>
 
     </div> <!-- content-area -->
-
     </div>
+
+    <!-- Document Modal -->
+    <div id="documentModal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+        <div
+            style="position:relative; max-width:90%; max-height:90%; background:white; border-radius:8px; overflow:hidden;">
+            <button onclick="closeModal()"
+                style="position:absolute; top:10px; right:10px; background:red; color:white; border:none; border-radius:50%; width:30px; height:30px; cursor:pointer; z-index:1001;">&times;</button>
+            <iframe id="documentFrame" src=""
+                style="width:100%; height:600px; border:none; display:block;"></iframe>
+            <img id="documentImage" src=""
+                style="max-width:100%; max-height:600px; display:none; object-fit:contain;" alt="Document Image">
+        </div>
+    </div>
+
 @endsection
 
-
-<!-- SweetAlert CDN -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="{{ asset('summernotes/summernote-lite.min.js') }}"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
-    // SweetAlert for session messages
-    @if (session('success'))
-        Swal.fire({
-            icon: 'success',
-            title: 'Success!',
-            text: '{{ session('success') }}',
-            timer: 3000,
-            timerProgressBar: true,
-            showConfirmButton: true,
-            confirmButtonColor: '#4CAF50'
-        });
-    @endif
-
-    @if (session('error'))
-        Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: '{{ session('error') }}',
-            timer: 3000,
-            timerProgressBar: true,
-            showConfirmButton: true,
-            confirmButtonColor: '#f44336'
-        });
-    @endif
-
-    function showStep(stepNumber) {
-        // Hide all step contents
-        document.querySelectorAll('.step-content').forEach(content => {
-            content.classList.remove('active');
-        });
-
-        // Remove active class from all nav items
-        document.querySelectorAll('.step-nav-item').forEach(item => {
-            item.classList.remove('active');
-        });
-
-        // Show selected step content
-        document.getElementById('step-' + stepNumber).classList.add('active');
-
-        // Add active class to selected nav item
-        document.querySelector('.step-' + stepNumber).classList.add('active');
-    }
-
-    // Auto-scroll to active step on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        const activeStep = document.querySelector('.step-nav-item.active');
-        if (activeStep) {
-            activeStep.scrollIntoView({
-                behavior: 'smooth',
-                block: 'nearest',
-                inline: 'center'
-            });
-        }
-
-        // Toggle all checkboxes function
-        function toggleAllCheckboxes(selectAll, type) {
-            let selector;
-            if (type === 'approve') {
-                selector = 'input[name="approved_steps[]"]';
-            } else {
-                selector = 'input[name="resubmit_steps[]"]';
-            }
-            const checkboxes = document.querySelectorAll(selector);
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = selectAll;
-            });
-        }
-
-        // Sync textarea values for forms
-        const approveForm = document.querySelector('form[action*="approve"]');
-        const rejectForm = document.querySelector('form[action*="reject"]');
-        const approveTextarea = approveForm ? approveForm.querySelector('textarea[name="admin_remark"]') : null;
-        const rejectTextarea = rejectForm ? rejectForm.querySelector('textarea[name="admin_remark"]') : null;
-
-        if (approveForm && approveTextarea) {
-            approveForm.addEventListener('submit', function() {
-                document.getElementById('approve_remark').value = approveTextarea.value;
-            });
-        }
-    });
-
     // Select document and highlight it
     function selectDocument(event, url, title) {
         event.preventDefault();
@@ -2999,7 +3257,6 @@
         openModal(url, title);
     }
 
-    // Document preview function for right-side display
     let currentDocUrl = '';
 
     function openModal(url, title = 'Document Preview') {
@@ -3059,25 +3316,250 @@
         }
     }
 
-    // Dropdown toggle function
-    function toggleDropdown() {
-        const dropdown = document.getElementById('printDropdown');
-        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('documentModal');
+        if (event.target == modal) {
+            closeModal();
+        }
     }
 
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(event) {
-        const dropdown = document.getElementById('printDropdown');
-        const button = event.target.closest('.dropdown button');
-        if (!button && dropdown.style.display === 'block') {
-            dropdown.style.display = 'none';
+    function showStep(stepNumber) {
+        document.querySelectorAll('.step-content').forEach(content => {
+            content.classList.remove('active');
+        });
+
+        document.querySelectorAll('.step-nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+
+        // Handle both numeric steps (1, 2, 3...) and string steps (interview)
+        const stepId = (typeof stepNumber === 'string') ? stepNumber : stepNumber;
+        const stepElement = document.getElementById('step-' + stepId);
+        const navElement = document.querySelector('.step-' + stepId);
+
+        if (stepElement) {
+            stepElement.classList.add('active');
         }
+        if (navElement) {
+            navElement.classList.add('active');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const activeStep = document.querySelector('.step-nav-item.active');
+        if (activeStep) {
+            activeStep.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'center'
+            });
+        }
+
+        // Sync textarea values to hidden inputs for workflow forms
+        const approveForm = document.querySelector('form[action*="approve"]');
+        const rejectForm = document.querySelector('form[action*="reject"]');
+        const approveTextarea = document.querySelector('.action-form-row textarea');
+        const rejectTextarea = document.querySelectorAll('.action-form-row textarea')[1];
+
+        if (approveForm && approveTextarea) {
+            approveForm.addEventListener('submit', function() {
+                document.getElementById('approve_remark').value = approveTextarea.value;
+            });
+        }
+
+        if (rejectForm && rejectTextarea) {
+            rejectForm.addEventListener('submit', function() {
+                document.getElementById('reject_remark').value = rejectTextarea.value;
+            });
+        }
+
+
+
+        // Load interview questions and answers
+        loadInterviewQuestions();
+        loadInterviewAnswers();
     });
+
+    // Chapter Interview Functions
+    const interviewQuestions = [
+        "Please introduce about your family?",
+        "What is father's occupation? And his monthly earning?",
+        "What is mother's occupation? And her monthly earning?",
+        "Share details about other family (bro/sis) (if joint family -uncle) if any?",
+        "Please speak about yourself?",
+        "Course you are going to pursue, reason to choose such course what is the job opportunity in this?",
+        "Basic questions on Family expenses if any?",
+        "Own/Rented house, EMI/Rent detail?",
+        "Also ask if any loan applied from any other organization /NGO/ or bank and what is the amount?",
+        "Why did you choose to apply for a loan from JITO JEAP organization and what is expectation?",
+        "Is there anything else you would like to share or discuss regarding your loan application?",
+        "Please call to both guarantor and confirm that they are standing as a guarantor for the students, and they know them both?",
+        "Please call to reference for the family check details?",
+        "Remarks / Reports from Chapter?"
+    ];
+
+    function loadInterviewQuestions() {
+        const container = document.getElementById('interview-questions');
+        if (!container) return;
+
+        let html = '';
+        interviewQuestions.forEach((question, index) => {
+            const questionNo = index + 1;
+            html += `
+            <div class="form-row" style="margin-bottom: 1.5rem; padding: 1.5rem; background: rgba(255,255,255,0.95); border-radius: 10px; border-left: 5px solid #7B1FA2; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                <div class="form-field form-field-full">
+                    <label class="form-label" style="font-weight: 600; color: #7B1FA2; margin-bottom: 0.75rem; font-size: 1rem; display: block;">
+                        <span style="background: #7B1FA2; color: white; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem; margin-right: 0.5rem;">Q${questionNo}</span>
+                        ${question}
+                    </label>
+                    <textarea
+                        name="answers[${questionNo}]"
+                        class="form-input interview-answer"
+                        data-question-no="${questionNo}"
+                        data-question-text="${question}"
+                        rows="4"
+                        placeholder="Enter your detailed answer here..."
+                        style="resize: vertical; min-height: 100px; border: 2px solid #e9ecef; border-radius: 8px; padding: 1rem;"
+                    ></textarea>
+                </div>
+            </div>
+        `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    async function loadInterviewAnswers() {
+        const userId = document.querySelector('input[name="user_id"]').value;
+        const workflowId = document.querySelector('input[name="workflow_id"]').value;
+
+        if (!userId || !workflowId) return;
+
+        try {
+            const response = await fetch(`/admin/chapter/interview/answers/${userId}/${workflowId}`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                        'content'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const answers = await response.json();
+
+                // Fill in the answers
+                answers.forEach(answer => {
+                    const textarea = document.querySelector(
+                        `textarea[data-question-no="${answer.question_no}"]`
+                    );
+
+                    if (textarea) {
+                        $(textarea).summernote('code', answer.answer_text);
+                    }
+                });
+
+            }
+        } catch (error) {
+            console.error('Error loading interview answers:', error);
+        }
+    }
+
+    async function saveInterviewAnswers() {
+        const userId = document.querySelector('input[name="user_id"]').value;
+        const workflowId = document.querySelector('input[name="workflow_id"]').value;
+
+        if (!userId || !workflowId) {
+            alert('User or workflow information is missing');
+            return;
+        }
+
+        const answers = [];
+        const textareas = document.querySelectorAll('.interview-answer');
+
+        textareas.forEach(textarea => {
+            const answerText = textarea.value.trim();
+            if (answerText) {
+                answers.push({
+                    question_no: parseInt(textarea.dataset.questionNo),
+                    question_text: textarea.dataset.questionText,
+                    answer_text: answerText
+                });
+            }
+        });
+
+        if (answers.length === 0) {
+            alert('Please provide at least one answer');
+            return;
+        }
+
+        try {
+            const saveButton = document.querySelector('button[onclick="saveInterviewAnswers()"]');
+            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            saveButton.disabled = true;
+
+            const response = await fetch('/admin/chapter/interview/save', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                        'content'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    workflow_id: workflowId,
+                    answers: answers,
+                    answered_by: 'chapter'
+                })
+            });
+
+            if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Saved!',
+                    text: 'Interview answers saved successfully!',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: true,
+                    confirmButtonColor: '#4CAF50'
+                });
+            } else {
+                const error = await response.json();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Error saving answers: ' + (error.message || 'Unknown error'),
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: true,
+                    confirmButtonColor: '#f44336'
+                });
+            }
+        } catch (error) {
+            console.error('Error saving interview answers:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Error saving answers. Please try again.',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: true,
+                confirmButtonColor: '#f44336'
+            });
+        } finally {
+            const saveButton = document.querySelector('button[onclick="saveInterviewAnswers()"]');
+            saveButton.innerHTML = '<i class="fas fa-save"></i> Save Interview Answers';
+            saveButton.disabled = false;
+        }
+    }
 </script>
 
 <script>
     $(document).ready(function() {
-        $('textarea[name="admin_remark"], textarea[name="apex_staff_remark"]').each(function() {
+        $('textarea:not([readonly]):not([disabled]):not(.swal2-textarea)').each(function() {
             const $textarea = $(this);
             if ($textarea.next('.note-editor').length) {
                 return;
@@ -3097,24 +3579,6 @@
     });
 </script>
 
-<!-- Document Modal (Backward compatibility) -->
-<div id="documentModal"
-    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
-    <div
-        style="position:relative; max-width:90%; max-height:90%; background:white; border-radius:8px; overflow:hidden; display: flex; flex-direction: column;">
-        <div
-            style="padding: 1rem; background: var(--primary-purple); color: white; display: flex; justify-content: space-between; align-items: center;">
-            <h4 id="modalTitle" style="margin: 0; font-size: 1.1rem; font-weight: 600;">Document Preview</h4>
-            <button onclick="closeModal()"
-                style="background: rgba(255,255,255,0.2); color:white; border:none; border-radius:50%; width:30px; height:30px; cursor:pointer; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div style="flex: 1; overflow: hidden;">
-            <iframe id="documentFrame" src=""
-                style="width:100%; height:100%; border:none; display:block;"></iframe>
-            <img id="documentImage" src=""
-                style="max-width:100%; max-height:100%; display:none; object-fit:contain;" alt="Document Image">
-        </div>
-    </div>
-</div>
+
+
+

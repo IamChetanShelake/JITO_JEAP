@@ -5559,11 +5559,6 @@ class AdminController extends Controller
         // Working committee
         $workingCommitteeApproval = \App\Models\WorkingCommitteeApproval::where('user_id', $user->id)->first();
 
-
-        // Check if user is approved at working committee level
-        if (!$workingCommitteeApproval || $workingCommitteeApproval->approval_status !== 'approved') {
-            return redirect()->back()->with('error', 'Short Summary is only available for working committee approved applications.');
-        }
         // =========================
         // 🔹 DISBURSEMENT DATA
         // =========================

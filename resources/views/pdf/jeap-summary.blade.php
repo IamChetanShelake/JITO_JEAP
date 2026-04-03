@@ -86,7 +86,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <img src="{{ public_path('jitojeaplogo.png') }}" alt="JITO JEAP Logo" style="height: 60px; margin-bottom: 10px;">
+        <img src="/home/jitojeap/public_html/jitojeaplogo.png" alt="JITO JEAP Logo" style="height: 60px; margin-bottom: 10px;">
         <h1>JITO EDUCATION ASSISTANCE PROGRAM</h1>
         <h2>SUMMARY</h2>
         <p><strong>Application no.: {{ str_pad($user->application_no, 4, '0', STR_PAD_LEFT) }}</strong></p>

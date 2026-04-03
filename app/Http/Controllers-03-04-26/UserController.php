@@ -2140,6 +2140,10 @@ class UserController extends Controller
         $field = $request->field;
         $guarantorId = $request->guarantor_id; // 👈 current guarantor
 
+        if ($field === 'pan') {
+            $value = strtoupper($value);
+        }
+
         // ===== USERS TABLE =====
         $userFieldMap = [
             'name'   => 'name',
@@ -2152,8 +2156,14 @@ class UserController extends Controller
         if (isset($userFieldMap[$field])) {
             $col = $userFieldMap[$field];
 
-            if (!empty($user->$col) && trim($user->$col) === $value) {
-                return response()->json(['exists' => true, 'source' => 'user']);
+            if ($field === 'pan') {
+                if (User::where($col, $value)->exists()) {
+                    return response()->json(['exists' => true, 'source' => 'user']);
+                }
+            } else {
+                if (!empty($user->$col) && trim($user->$col) === $value) {
+                    return response()->json(['exists' => true, 'source' => 'user']);
+                }
             }
         }
 
@@ -2186,20 +2196,11 @@ class UserController extends Controller
         }
 
         // ===== GUARANTOR DETAILS (OVERALL SYSTEM CHECK) =====
-        $guarantorFieldMap = [
-            'name'   => 'name',
-            'email'  => 'email',
-            'mobile' => 'mobile',
-            'pan'    => 'pan_card',
-            'aadhar' => 'aadhar_no',
-        ];
-
-        if (isset($guarantorFieldMap[$field])) {
-
-            $query = GuarantorDetail::where(
-                $guarantorFieldMap[$field],
-                $value
-            );
+        if ($field === 'pan') {
+            $query = GuarantorDetail::where(function ($q) use ($value) {
+                $q->where('g_one_pan', $value)
+                    ->orWhere('g_two_pan', $value);
+            });
 
             // ❗ self guarantor exclude
             if ($guarantorId) {
@@ -2211,6 +2212,33 @@ class UserController extends Controller
                     'exists' => true,
                     'source' => 'guarantor'
                 ]);
+            }
+        } else {
+            $guarantorFieldMap = [
+                'name'   => 'name',
+                'email'  => 'email',
+                'mobile' => 'mobile',
+                'pan'    => 'pan_card',
+                'aadhar' => 'aadhar_no',
+            ];
+
+            if (isset($guarantorFieldMap[$field])) {
+                $query = GuarantorDetail::where(
+                    $guarantorFieldMap[$field],
+                    $value
+                );
+
+                // ❗ self guarantor exclude
+                if ($guarantorId) {
+                    $query->where('id', '!=', $guarantorId);
+                }
+
+                if ($query->exists()) {
+                    return response()->json([
+                        'exists' => true,
+                        'source' => 'guarantor'
+                    ]);
+                }
             }
         }
 
@@ -2333,7 +2361,27 @@ class UserController extends Controller
     //         'g_one_email' => 'required|email|max:255|unique:guarantor_details,g_one_email',
     //         'g_one_relation_with_student' => 'required|string|max:255',
     //         'g_one_aadhar_card_number' => 'required|digits:12',
-    //         'g_one_pan' => 'required|string|max:10',
+    //            'g_one_pan' => [
+                'required',
+                'string',
+                'max:10',
+                function ($attribute, $value, $fail) use ($guarantorDetail) {
+                    if (User::where('pan_card', $value)->exists()) {
+                        $fail('This PAN is already used in users.');
+                        return;
+                    }
+                    $query = GuarantorDetail::where(function ($q) use ($value) {
+                        $q->where('g_one_pan', $value)
+                            ->orWhere('g_two_pan', $value);
+                    });
+                    if ($guarantorDetail) {
+                        $query->where('id', '!=', $guarantorDetail->id);
+                    }
+                    if ($query->exists()) {
+                        $fail('This PAN is already used in guarantor details.');
+                    }
+                },
+            ],
     //         'g_one_d_o_b' => 'required|date',
     //         'g_one_srvice' => 'required|string|max:255',
     //         'g_one_income' => 'required|numeric|min:0',
@@ -2352,7 +2400,27 @@ class UserController extends Controller
     //         'g_two_email' => 'required|email|max:255|unique:guarantor_details,g_two_email',
     //         'g_two_relation_with_student' => 'required|string|max:255',
     //         'g_two_aadhar_card_number' => 'required|digits:12',
-    //         'g_two_pan' => 'required|string|max:10',
+    //            'g_two_pan' => [
+                'required',
+                'string',
+                'max:10',
+                function ($attribute, $value, $fail) use ($guarantorDetail) {
+                    if (User::where('pan_card', $value)->exists()) {
+                        $fail('This PAN is already used in users.');
+                        return;
+                    }
+                    $query = GuarantorDetail::where(function ($q) use ($value) {
+                        $q->where('g_one_pan', $value)
+                            ->orWhere('g_two_pan', $value);
+                    });
+                    if ($guarantorDetail) {
+                        $query->where('id', '!=', $guarantorDetail->id);
+                    }
+                    if ($query->exists()) {
+                        $fail('This PAN is already used in guarantor details.');
+                    }
+                },
+            ],
     //         'g_two_d_o_b' => 'required|date',
     //         'g_two_srvice' => 'required|string|max:255',
     //         'g_two_income' => 'required|numeric|min:0',
@@ -2498,6 +2566,12 @@ class UserController extends Controller
             return redirect()->route('user.step4')->with('error', 'Please fill Step 4 (Funding Details) first.');
         }
 
+        $request->merge([
+            'g_one_pan' => strtoupper(trim((string) $request->g_one_pan)),
+            'g_two_pan' => strtoupper(trim((string) $request->g_two_pan)),
+        ]);
+
+
         $user_id = Auth::id();
 
         // Fetch existing guarantor detail (for update case)
@@ -2534,7 +2608,27 @@ class UserController extends Controller
 
             'g_one_relation_with_student' => 'required|string|max:255',
             'g_one_aadhar_card_number' => 'required|digits:12',
-            'g_one_pan' => 'required|string|max:10',
+            'g_one_pan' => [
+                'required',
+                'string',
+                'max:10',
+                function ($attribute, $value, $fail) use ($guarantorDetail) {
+                    if (User::where('pan_card', $value)->exists()) {
+                        $fail('This PAN is already used in users.');
+                        return;
+                    }
+                    $query = GuarantorDetail::where(function ($q) use ($value) {
+                        $q->where('g_one_pan', $value)
+                            ->orWhere('g_two_pan', $value);
+                    });
+                    if ($guarantorDetail) {
+                        $query->where('id', '!=', $guarantorDetail->id);
+                    }
+                    if ($query->exists()) {
+                        $fail('This PAN is already used in guarantor details.');
+                    }
+                },
+            ],
             'g_one_d_o_b' => 'required|date',
             'g_one_srvice' => 'required|string|max:255',
             'g_one_income' => 'required|numeric|min:0',
@@ -2567,7 +2661,27 @@ class UserController extends Controller
 
             'g_two_relation_with_student' => 'required|string|max:255',
             'g_two_aadhar_card_number' => 'required|digits:12',
-            'g_two_pan' => 'required|string|max:10',
+            'g_two_pan' => [
+                'required',
+                'string',
+                'max:10',
+                function ($attribute, $value, $fail) use ($guarantorDetail) {
+                    if (User::where('pan_card', $value)->exists()) {
+                        $fail('This PAN is already used in users.');
+                        return;
+                    }
+                    $query = GuarantorDetail::where(function ($q) use ($value) {
+                        $q->where('g_one_pan', $value)
+                            ->orWhere('g_two_pan', $value);
+                    });
+                    if ($guarantorDetail) {
+                        $query->where('id', '!=', $guarantorDetail->id);
+                    }
+                    if ($query->exists()) {
+                        $fail('This PAN is already used in guarantor details.');
+                    }
+                },
+            ],
             'g_two_d_o_b' => 'required|date',
             'g_two_srvice' => 'required|string|max:255',
             'g_two_income' => 'required|numeric|min:0',
@@ -4127,7 +4241,7 @@ public function step6storeforeign(Request $request)
 
         $request->validate($rules);
 
-        $uploadDir ='third_stage_documents/' . $user_id;
+        $uploadDir = 'third_stage_documents/' . $user_id;
         if (!File::exists($uploadDir)) {
             File::makeDirectory($uploadDir, 0755, true);
         }
@@ -4867,3 +4981,6 @@ public function step6storeforeign(Request $request)
         // return redirect()->route('user.step7');
     }
 }
+
+
+

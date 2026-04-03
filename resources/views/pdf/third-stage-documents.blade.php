@@ -123,7 +123,7 @@
     @endphp
 
     <div class="header">
-        <img src="{{ public_path('jitojeaplogo.png') }}" alt="JITO JEAP Logo">
+        <img src="/home/jitojeap/public_html/jitojeaplogo.png" alt="JITO JEAP Logo">
         <h1>JITO EDUCATION ASSISTANCE PROGRAM</h1>
         <h2>THIRD STAGE DOCUMENTS REPORT</h2>
         <p><strong>{{ strtoupper($user->financial_asset_type === 'foreign_finance_assistant' ? 'FOREIGN SECOND DISBURSEMENT' : 'DOMESTIC') }}</strong>

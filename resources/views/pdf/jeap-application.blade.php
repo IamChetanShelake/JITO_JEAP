@@ -159,7 +159,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <img src="{{ public_path('jitojeaplogo.png') }}" alt="JITO JEAP Logo" style="height: 60px; margin-bottom: 10px;">
+        <img src="/home/jitojeap/public_html/jitojeaplogo.png" alt="JITO JEAP Logo" style="height: 60px; margin-bottom: 10px;">
         <h1>JITO EDUCATION ASSISTANCE PROGRAM</h1>
         <h2>Application Form Report</h2>
 

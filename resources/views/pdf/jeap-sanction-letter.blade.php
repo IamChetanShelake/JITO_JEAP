@@ -260,7 +260,7 @@
             </div>
 
             <div class="header-right">
-                <img src="{{ public_path('jitojeaplogo.png') }}" alt="JITO Logo">
+                <img src="/home/jitojeap/public_html/jitojeaplogo.png" alt="Logo" style="width:100px;">
             </div>
         </div>
 
@@ -721,8 +721,9 @@
 
         <!-- CHEQUE IMAGE -->
         <div style="text-align:center;margin:20px 0;">
-            <img src="{{ public_path('user/cheque.jpeg') }}" alt="Cheque Sample"
-                style="max-width:100%;border:1px solid #ccc;">
+            <img src="/home/jitojeap/public_html/user/cheque.jpeg" alt="Cheque Sample" style="max-width:100%;border:1px solid #ccc;">
+            <!--<img src="{{ public_path('user/cheque.jpeg') }}" alt="Cheque Sample"-->
+            <!--    style="max-width:100%;border:1px solid #ccc;">-->
         </div>
 
         <!-- PRINT NOTE -->
@@ -739,7 +740,7 @@
 
         <!-- CHEQUE IMAGE -->
         <div style="text-align:center;margin-bottom:20px;">
-            <img src="{{ public_path('user/cheque2.jpeg') }}" alt="Payment Letter Cheque Sample"
+            <img src="/home/jitojeap/public_html/user/cheque2.jpeg" alt="Payment Letter Cheque Sample"
                 style="max-width:100%;border:1px solid #ccc;">
         </div>
 

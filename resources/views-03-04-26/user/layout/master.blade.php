@@ -452,7 +452,7 @@
                     </b></span>
             </a>
             @php
-                $jeapPdfDir = $jeapPdfDir = base_path('../public_html/Jeap_pdfs');
+                $jeapPdfDir = public_path('Jeap_pdfs');
                 $referencePdfs = collect();
                 if (is_dir($jeapPdfDir)) {
                     $referencePdfs = collect(\Illuminate\Support\Facades\File::files($jeapPdfDir))
@@ -483,20 +483,14 @@
                             style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
                             <i class="fas fa-file-contract" style="margin-right: 0.5rem;"></i> Sanction Letter
                         </a>
-                        <a href="{{ route('user.user.generate.shortsummary.pdf', $user) }}" class="dropdown-item"
+                        <a href="{{ route('admin.user.generate.shortsummary.pdf', $user) }}" class="dropdown-item"
                             style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-top: 1px solid var(--border-color);">
                             <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Short Summary PDF
                         </a>
-                        
 
-                        <a href="{{ route('user.user.generate.financial_closure.pdf', $user) }}" class="dropdown-item"
+                        <a href="{{ route('admin.user.generate.financial_closure.pdf', $user) }}" class="dropdown-item"
                             style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
                             <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Financial Closure PDF
-                        </a>
-                        
-                        <a href="{{ route('user.third_stage_documents.generate_pdf', $user) }}" class="dropdown-item"
-                            style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
-                            <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Third Stage Document PDF
                         </a>
                         @if ($referencePdfs->isNotEmpty())
                             <div style="border-top: 1px solid var(--border-color); margin-top: 0.25rem;"></div>
@@ -835,40 +829,21 @@
                                 class="step-icon
                                  @if (auth()->check() && in_array(auth()->user()->application_status, ['submited', 'submitted', 'approved'])) completed-step @endif
                                 @if (auth()->check() && auth()->user()->application_status === 'resubmit') resubmit-step @endif
-                                @if (request()->routeIs('user.step1')) active-step @endif">
+                                @if (request()->routeIs('user.step7')) active-step @endif">
 
                                 @if (auth()->check() && in_array(auth()->user()->application_status, ['submited', 'submitted', 'approved']))
-                                    {{-- Tick SVG --}}
                                     <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
                                             fill="white" />
                                     </svg>
                                 @elseif (auth()->check() && auth()->user()->application_status === 'resubmit')
-                                    {{-- Cross Icon --}}
                                     <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
                                         title="{{ auth()->user()->admin_remark ?? 'On Hold' }}"></i>
                                 @else
-                                    {{-- Default Icon --}}
                                     <i class="bi bi-eye"></i>
                                 @endif
-                                {{--
-@if ($reviewSubmit && in_array($reviewSubmit->submit_status, ['submited', 'submitted', 'approved'])) completed-step @endif
-@if ($reviewSubmit && $reviewSubmit->submit_status === 'resubmit') resubmit-step @endif
-@if (request()->routeIs('user.step7')) active-step @endif">
 
-                                @if ($reviewSubmit && in_array($reviewSubmit->submit_status, ['submited', 'submitted', 'approved']))
-                                    <svg width="34" height="23" viewBox="0 0 34 23" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M0 11.5L4.25 7.66667L12.75 15.3333L29.75 0L34 3.83333L12.75 23L0 11.5Z"
-                                            fill="white" />
-                                    </svg>
-                                @elseif ($reviewSubmit && $reviewSubmit->submit_status === 'resubmit')
-                                    <i class="bi bi-x-lg" style="color: white; font-size: 24px;"
-                                        title="{{ $reviewSubmit->admin_remark ?? 'On Hold' }}"></i>
-                                @else
-                                    <i class="bi bi-eye"></i>
-                                @endif --}}
 
                             </div>
                             <div class="step-content">
@@ -1126,14 +1101,16 @@
         </div>
 
         <!-- Error Modal for Step Validation -->
-        <div class="modal fade" id="stepErrorModal" tabindex="-1" aria-labelledby="stepErrorModalLabel" aria-hidden="true" style="z-index: 9999;">
+        <div class="modal fade" id="stepErrorModal" tabindex="-1" aria-labelledby="stepErrorModalLabel"
+            aria-hidden="true" style="z-index: 9999;">
             <div class="modal-dialog modal-dialog-centered" style="z-index: 10000;">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="stepErrorModalLabel" style="color: #E31E24; font-weight: 600;">
                             <i class="bi bi-exclamation-triangle-fill me-2"></i>Warning
                         </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                     </div>
                     <div class="modal-body text-center">
                         <div class="mb-3">
@@ -1144,7 +1121,9 @@
                         </p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" style="background: #393185; color: white; border: none;" data-bs-dismiss="modal">OK</button>
+                        <button type="button" class="btn btn-primary"
+                            style="background: #393185; color: white; border: none;"
+                            data-bs-dismiss="modal">OK</button>
                     </div>
                 </div>
             </div>
@@ -1152,7 +1131,7 @@
 
 
         <!-- Script to show error modal if session has error -->
-        @if(Session::has('error'))
+        @if (Session::has('error'))
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     // Remove any existing modal backdrops
@@ -1182,7 +1161,6 @@
                 });
             </script>
         @endif
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 

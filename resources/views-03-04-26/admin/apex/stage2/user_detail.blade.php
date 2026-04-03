@@ -115,18 +115,16 @@
         }
 
         .user-avatar {
-            width: 75px;
-            height: 75px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-        }
-
-        background: var(--primary-purple);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.5rem;
-        font-weight: bold;
+            background: var(--primary-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
         }
 
         .user-details h3 {
@@ -482,7 +480,8 @@
         }
 
         .data-item {
-
+            display: flex;
+            justify-content: space-between;
             align-items: center;
             padding: 1rem 0;
             border-bottom: 1px solid #e9ecef;
@@ -501,7 +500,7 @@
         .data-value {
             color: var(--text-light);
             flex: 1;
-            text-align: left;
+            text-align: right;
         }
 
         .table-container {
@@ -652,6 +651,19 @@
             box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
         }
 
+        .btn[disabled],
+        .btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-approve[disabled],
+        .btn-approve.disabled {
+            background: linear-gradient(135deg, #9ccc9c, #8bc48b);
+        }
+
         .btn-reject {
             background: linear-gradient(135deg, var(--primary-red), #e53935);
             color: white;
@@ -773,16 +785,6 @@
                 border-right-color: transparent;
             }
 
-            .document-grid {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px 24px;
-            }
-
-            .document-grid .form-row {
-                margin: 0;
-            }
-
         }
 
         .top-summary-layout {
@@ -804,6 +806,17 @@
             order: 1;
         }
 
+        @media (max-width: 991.98px) {
+            .top-summary-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .top-card-user,
+            .top-card-workflow {
+                order: unset;
+            }
+        }
+
         /* Document button highlighting styles */
         .doc-button {
             transition: all 0.3s ease;
@@ -814,17 +827,6 @@
             color: white !important;
             font-weight: 600 !important;
             border-color: var(--primary-purple) !important;
-        }
-
-        @media (max-width: 991.98px) {
-            .top-summary-layout {
-                grid-template-columns: 1fr;
-            }
-
-            .top-card-user,
-            .top-card-workflow {
-                order: unset;
-            }
         }
     </style>
 @endsection
@@ -838,18 +840,18 @@
             </h1>
             <p class="page-subtitle">Review and approve individual form steps</p>
         </div>
-        @php
-            $jeapPdfDir = 'Jeap_pdfs';
-            $referencePdfs = collect();
-            if (is_dir($jeapPdfDir)) {
-                $referencePdfs = collect(\Illuminate\Support\Facades\File::files($jeapPdfDir))
-                    ->map(fn($file) => $file->getFilename())
-                    ->filter(fn($name) => str_ends_with($name, '.pdf'))
-                    ->sort()
-                    ->values();
-            }
-        @endphp
         <div style="display: flex; gap: 1rem; align-items: center;">
+            @php
+                $jeapPdfDir = public_path('Jeap_pdfs');
+                $referencePdfs = collect();
+                if (is_dir($jeapPdfDir)) {
+                    $referencePdfs = collect(\Illuminate\Support\Facades\File::files($jeapPdfDir))
+                        ->map(fn($file) => $file->getFilename())
+                        ->filter(fn($name) => str_ends_with($name, '.pdf'))
+                        ->sort()
+                        ->values();
+                }
+            @endphp
             <!-- Print Options Dropdown -->
             <div class="dropdown" style="position: relative;">
                 <button class="back-btn" style="background-color: var(--primary-yellow); color: #333;"
@@ -871,7 +873,6 @@
                         style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
                         <i class="fas fa-file-contract" style="margin-right: 0.5rem;"></i> Sanction Letter
                     </a>
-
                     <a href="{{ route('admin.user.generate.shortsummary.pdf', $user) }}" class="dropdown-item"
                         style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-top: 1px solid var(--border-color);">
                         <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Short Summary PDF
@@ -902,14 +903,34 @@
         </div>
     </div>
 
+    <!-- User Info Card -->
+    <div class="user-info-card">
+        <div class="user-info-header">
+            <div class="user-avatar">
+                {{ strtoupper(substr($user->name, 0, 1)) }}
+            </div>
+            <div class="user-details">
+                <h3>{{ $user->name }}</h3>
+                <p>{{ $user->email }}</p>
+                <p>{{ $user->mobile }}</p>
+                <p>{{ $user->application_no }}</p>
+            </div>
+        </div>
+
+        {{-- <a href="{{ route('admin.home') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a> --}}
+    </div>
+    </div>
+
+    <!-- User Info Card -->
     <div class="top-summary-layout">
         <!-- User Info Card (Right) -->
         <div class="user-info-card top-card-user">
             <div class="user-info-header">
                 <div class="user-avatar">
                     @if ($user->image)
-                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img"
-                            style="width: 75px;
+                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img" style="    width: 75px;
                             height: 75px;
                             border-radius: 50%;
                         ">
@@ -921,8 +942,6 @@
                     <h3>{{ $user->name }}</h3>
                     <p>{{ $user->email }}</p>
                     <p>{{ $user->phone }}</p>
-                    <p>{{ $user->application_no }}</p>
-
                 </div>
 
             </div>
@@ -935,20 +954,19 @@
             <div class="user-info-footer">
                 <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}
                 </p>
-                @if ($loanCategory)
-                    <p><strong>Category:</strong>
-                        <span
-                            class="loan-type-badge {{ $loanCategory->type === 'below' ? 'loan-type-below' : 'loan-type-above' }}">
-                            {{ $loanCategory->type === 'below' ? 'Below 1 Lakh' : 'Above 1 Lakh' }}
-                        </span>
-                    </p>
+                @if($loanCategory)
+                <p><strong>Loan Category:</strong>
+                    <span class="loan-type-badge {{ $loanCategory->type === 'below' ? 'loan-type-below' : 'loan-type-above' }}">
+                        {{ $loanCategory->type === 'below' ? 'Below 1 Lakh' : 'Above 1 Lakh' }}
+                    </span>
+                </p>
                 @endif
-                <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type
-                    ? ucwords(str_replace('_', ' ', $user->financial_asset_type))
+              <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type 
+                    ? ucwords(str_replace('_', ' ', $user->financial_asset_type)) 
                     : 'N/A' }}</p>
-                                <p><strong>Financial Assistance For:</strong>
-                {{ $user->financial_asset_for
-                    ? ucwords(str_replace('_', ' ', $user->financial_asset_for))
+                                <p><strong>Financial Assistance For:</strong> 
+                {{ $user->financial_asset_for 
+                    ? ucwords(str_replace('_', ' ', $user->financial_asset_for)) 
                     : 'N/A' }}
                 </p>
             </div>
@@ -977,6 +995,7 @@
     @php
         $isBelowLoan = $loanCategory && $loanCategory->type === 'below';
     @endphp
+
 
     <!-- Steps Container -->
     <div class="steps-container">
@@ -1014,8 +1033,13 @@
             </div>
             <div class="step-nav-item step-8" onclick="showStep(8)">
                 <span class="step-number">{{ $isBelowLoan ? 7 : 8 }}</span>
-                <span class="step-title">Apex Decision</span>
+                <span class="step-title">Courier Receive</span>
             </div>
+            <div class="step-nav-item step-9" onclick="showStep(9)">
+                <span class="step-number">{{ $isBelowLoan ? 8 : 9 }}</span>
+                <span class="step-title">PDC/Cheque Details</span>
+            </div>
+
         </div>
 
         <div class="content-area">
@@ -1317,40 +1341,34 @@
                                     <div class="form-field">
                                         <label class="form-label">Qualification</label>
                                         <input type="text" class="form-input"
-                                            value="{{ ucfirst($user->educationDetail->qualifications ?? 'N/A') }}"
-                                            readonly>
+                                            value="{{ ucfirst($user->educationDetail->qualifications ?? 'N/A') }}" readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">Institution / College Name</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->educationDetail->qualification_institution ?? 'N/A' }}"
-                                            readonly>
+                                            value="{{ $user->educationDetail->qualification_institution ?? 'N/A' }}" readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">University Name</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->educationDetail->qualification_university ?? 'N/A' }}"
-                                            readonly>
+                                            value="{{ $user->educationDetail->qualification_university ?? 'N/A' }}" readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">Course Name</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->educationDetail->qualification_course_name ?? 'N/A' }}"
-                                            readonly>
+                                            value="{{ $user->educationDetail->qualification_course_name ?? 'N/A' }}" readonly>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-field">
                                         <label class="form-label">Start Year</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->educationDetail->qualification_start_year ?? 'N/A' }}"
-                                            readonly>
+                                            value="{{ $user->educationDetail->qualification_start_year ?? 'N/A' }}" readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">End Year</label>
                                         <input type="text" class="form-input"
-                                            value="{{ $user->educationDetail->qualification_end_year ?? 'N/A' }}"
-                                            readonly>
+                                            value="{{ $user->educationDetail->qualification_end_year ?? 'N/A' }}" readonly>
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label">Marksheet Type</label>
@@ -1361,12 +1379,9 @@
                                             $marksheetType = is_array($marksheetType) ? $marksheetType : [];
                                             $marksheetLabel = empty($marksheetType)
                                                 ? 'N/A'
-                                                : implode(
-                                                    ', ',
-                                                    array_map(function ($type) {
-                                                        return $type === 'semester' ? 'Semester-based' : 'Year-based';
-                                                    }, $marksheetType),
-                                                );
+                                                : implode(', ', array_map(function ($type) {
+                                                    return $type === 'semester' ? 'Semester-based' : 'Year-based';
+                                                }, $marksheetType));
                                         @endphp
                                         <input type="text" class="form-input" value="{{ $marksheetLabel }}" readonly>
                                     </div>
@@ -1374,13 +1389,9 @@
                                 <div class="table-container">
                                     @php
                                         $edu = $user->educationDetail;
-                                        $marksheetType = $edu->marksheet_type
-                                            ? json_decode($edu->marksheet_type, true)
-                                            : [];
+                                        $marksheetType = $edu->marksheet_type ? json_decode($edu->marksheet_type, true) : [];
                                         $marksheetType = is_array($marksheetType) ? $marksheetType : [];
-                                        $marksObtained = $edu->marks_obtained
-                                            ? json_decode($edu->marks_obtained, true)
-                                            : [];
+                                        $marksObtained = $edu->marks_obtained ? json_decode($edu->marks_obtained, true) : [];
                                         $outOf = $edu->out_of ? json_decode($edu->out_of, true) : [];
                                         $percentage = $edu->percentage ? json_decode($edu->percentage, true) : [];
                                         $cgpa = $edu->cgpa ? json_decode($edu->cgpa, true) : [];
@@ -1388,7 +1399,7 @@
                                             count(is_array($marksObtained) ? $marksObtained : []),
                                             count(is_array($outOf) ? $outOf : []),
                                             count(is_array($percentage) ? $percentage : []),
-                                            count(is_array($cgpa) ? $cgpa : []),
+                                            count(is_array($cgpa) ? $cgpa : [])
                                         );
                                         $isSemester = in_array('semester', $marksheetType, true);
                                         $rowLabel = $isSemester ? 'Sem' : 'Year';
@@ -1602,7 +1613,9 @@
                                     </tbody>
                                 </table>
                             </div>
-                        </div><!-- School Information -->
+                        </div>
+
+                        <!-- School Information -->
                         <div class="data-group">
                             <h4>School / 10th Grade Information</h4>
                             <div class="form-section">
@@ -2289,16 +2302,16 @@
                             {{ $user->guarantorDetail ? ucfirst($user->guarantorDetail->submit_status) : 'Pending' }}
                         </span>
                         {{-- <div class="action-buttons">
-                    <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="btn-approve">Approve</button>
-                    </form>
-                    <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
-                        @csrf
-                        <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
-                        <button type="submit" class="btn-hold">Hold</button>
-                    </form>
-                </div> --}}
+                        <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="btn-approve">Approve</button>
+                        </form>
+                        <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
+                            @csrf
+                            <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
+                            <button type="submit" class="btn-hold">Hold</button>
+                        </form>
+                    </div> --}}
                     </div>
                 </div>
 
@@ -2481,13 +2494,13 @@
                         </div>
 
                         {{-- <div class="data-group">
-                <h4>Power of Attorney</h4>
-                <div class="data-item"><div class="data-label">Name</div><div class="data-value">{{ $user->guarantorDetail->attorney_name ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Relation</div><div class="data-value">{{ $user->guarantorDetail->attorney_relation_with_student ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Phone</div><div class="data-value">{{ $user->guarantorDetail->attorney_phone ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Email</div><div class="data-value">{{ $user->guarantorDetail->attorney_email ?? 'N/A' }}</div></div>
-                <div class="data-item"><div class="data-label">Address</div><div class="data-value">{{ $user->guarantorDetail->attorney_address ?? 'N/A' }}</div></div>
-            </div> --}}
+                    <h4>Power of Attorney</h4>
+                    <div class="data-item"><div class="data-label">Name</div><div class="data-value">{{ $user->guarantorDetail->attorney_name ?? 'N/A' }}</div></div>
+                    <div class="data-item"><div class="data-label">Relation</div><div class="data-value">{{ $user->guarantorDetail->attorney_relation_with_student ?? 'N/A' }}</div></div>
+                    <div class="data-item"><div class="data-label">Phone</div><div class="data-value">{{ $user->guarantorDetail->attorney_phone ?? 'N/A' }}</div></div>
+                    <div class="data-item"><div class="data-label">Email</div><div class="data-value">{{ $user->guarantorDetail->attorney_email ?? 'N/A' }}</div></div>
+                    <div class="data-item"><div class="data-label">Address</div><div class="data-value">{{ $user->guarantorDetail->attorney_address ?? 'N/A' }}</div></div>
+                </div> --}}
                     </div>
                 @else
                     <div class="no-data">
@@ -2588,9 +2601,7 @@
                                             @endphp
                                             <button class="doc-button"
                                                 onclick="selectDocument(event, '{{ $href }}', '{{ $label }}')"
-                                                style="text-align: left; padding: 0.75rem 1rem; background: white; color: var(--text-dark); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 400;"
-                                                onmouseover="if (!this.classList.contains('active')) this.style.background = 'var(--bg-light)'"
-                                                onmouseout="if (!this.classList.contains('active')) this.style.background = 'white'">
+                                                style="text-align: left; padding: 0.75rem 1rem; background: white; color: var(--text-dark); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 400;">
                                                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                                                     <i class="fas fa-file-alt" style="font-size: 0.8rem;"></i>
                                                     {{ $label }}
@@ -2648,16 +2659,16 @@
                         {{ $user->document ? ucfirst($user->document->submit_status) : 'Pending' }}
                     </span>
                     {{-- <div class="action-buttons">
-                    <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="btn-approve">Approve</button>
-                    </form>
-                    <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
-                        @csrf
-                        <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
-                        <button type="submit" class="btn-hold">Hold</button>
-                    </form>
-                </div> --}}
+                            <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
+                                @csrf
+                                <button type="submit" class="btn-approve">Approve</button>
+                            </form>
+                            <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
+                                @csrf
+                                <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
+                                <button type="submit" class="btn-hold">Hold</button>
+                            </form>
+                        </div> --}}
                 </div>
             </div>
 
@@ -2694,18 +2705,762 @@
             </div>
         </div>
 
-
-        <!-- Step 8: Apex Decision -->
+        <!-- Step 8: Courier Receive -->
         <div class="step-content" id="step-8">
+            @php
+                $isCourierApproved =
+                    isset($pdcDetail) && $pdcDetail && $pdcDetail->courier_receive_status === 'approved';
+                $isCourierHold = isset($pdcDetail) && $pdcDetail && $pdcDetail->courier_receive_status === 'hold';
+                $apexUserList = $apexUsers ?? collect();
+                $apexUserById = $apexUserList->keyBy('id');
+                $hasCourierReceive =
+                    isset($pdcDetail) &&
+                    $pdcDetail &&
+                    !empty($pdcDetail->courier_received_by) &&
+                    !empty($pdcDetail->courier_received_date);
+                $canReviewCourier =
+                    $hasCourierReceive && isset($pdcDetail) && $pdcDetail->courier_receive_status === 'pending';
+            @endphp
             <div class="step-header">
-                <h2 class="step-title-large">Step {{ $isBelowLoan ? 7 : 8 }}: Apex Decision</h2>
+                <h2 class="step-title-large">Step {{ $isBelowLoan ? 7 : 8 }}: Courier Receive</h2>
                 <div class="step-status">
-                    @if ($user->workflowStatus && $user->workflowStatus->apex_1_status === 'approved')
+                    @if ($isCourierApproved)
                         <span class="status-badge status-approved">
                             <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
                             Approved
                         </span>
-                    @elseif($user->workflowStatus && $user->workflowStatus->apex_1_status === 'rejected')
+                    @elseif($isCourierHold)
+                        <span class="status-badge status-hold">
+                            <i class="fas fa-times-circle" style="font-size: 0.6rem;"></i>
+                            On Hold
+                        </span>
+                    @else
+                        <span class="status-badge status-pending">
+                            <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                            {{ isset($pdcDetail) ? 'Pending Review' : 'Pending' }}
+                        </span>
+                    @endif
+                </div>
+            </div>
+
+            @if (isset($pdcDetail) && $pdcDetail)
+                <div class="form-data">
+                    <div class="data-group">
+                        <h4>Courier Receive</h4>
+                        <div class="form-section">
+                            @php
+                                $chequePendingCount = (int) ($pdcDetail->courier_cheque_pending ?? 0);
+                            @endphp
+
+                            @if ($isCourierApproved && $chequePendingCount > 0)
+                                <div style="margin-bottom: 1rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                    <a href="#courierReviewFormWrapper" class="btn btn-approve"
+                                        id="toggleCourierReviewFormBtn" style="text-decoration: none;"
+                                        data-cheque-total="{{ $chequeTotal ?? ($pdcDetail->courier_cheque_total ?? 0) }}"
+                                        data-cheque-received="{{ $pdcDetail->courier_cheque_received ?? 0 }}"
+                                        data-cheque-pending="{{ $pdcDetail->courier_cheque_pending ?? 0 }}">
+                                        <i class="fas fa-edit"></i>
+                                        Edit Cheque Details (Pending: {{ $chequePendingCount }})
+                                    </a>
+                                    {{--  <a href="{{ route('admin.pdc.edit', $user) }}" class="btn btn-approve"
+                                        style="text-decoration: none;">
+                                        <i class="fas fa-external-link-alt"></i>
+                                        Open Edit Page
+                                    </a>  --}}
+                                </div>
+                            @endif
+                            {{--  <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Courier Status</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $isCourierApproved ? 'Approved' : ($isCourierHold ? 'On Hold' : 'Pending') }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Courier Received By</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $pdcDetail->courier_received_by ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Received Date</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $pdcDetail->courier_received_date ? $pdcDetail->courier_received_date->format('d M Y') : 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>  --}}
+                            {{--  @if ($isCourierApproved)
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Approved By</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $apexUserById->get($pdcDetail->courier_receive_approved_by)->name ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Approved Date</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $pdcDetail->courier_receive_approved_at ? $pdcDetail->courier_receive_approved_at->format('d M Y H:i') : 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                            @elseif ($isCourierHold)
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Hold By</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $apexUserById->get($pdcDetail->courier_receive_processed_by)->name ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Hold Date</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $pdcDetail->courier_receive_processed_at ? $pdcDetail->courier_receive_processed_at->format('d M Y H:i') : 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                            @endif  --}}
+
+                            @if ($pdcDetail->courier_receive_hold_remark)
+                                <div class="form-row">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label">Hold Remark</label>
+                                        <textarea class="form-textarea" readonly>{{ strip_tags($pdcDetail->courier_receive_hold_remark) }}</textarea>
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{--  <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Total Cheques</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $chequeTotal ?? ($pdcDetail->courier_cheque_total ?? 'N/A') }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Cheques Received</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $pdcDetail->courier_cheque_received ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Cheques Pending</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $pdcDetail->courier_cheque_pending ?? 'N/A' }}" readonly>
+                                </div>
+                            </div>  --}}
+
+                            @if (!is_null($pdcDetail->courier_send_back))
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Send Back to Student</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $pdcDetail->courier_send_back ? 'Yes' : 'No' }}" readonly>
+                                    </div>
+                                    @if ($pdcDetail->courier_send_back)
+                                        <div class="form-field">
+                                            <label class="form-label">Send Back Date</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $pdcDetail->courier_send_back_date ? $pdcDetail->courier_send_back_date->format('d M Y') : 'N/A' }}"
+                                                readonly>
+                                        </div>
+                                        <div class="form-field form-field-full">
+                                            <label class="form-label">Send Back Reason</label>
+                                            <textarea class="form-textarea" readonly>{{ strip_tags($pdcDetail->courier_send_back_reason ?? '') }}</textarea>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+
+                            @if (!empty($pdcDetail->courier_receive_verified_documents))
+                                <div class="form-row">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label">Approved Document Checklist</label>
+                                        <div style="display: grid; gap: 0.5rem;">
+                                            @foreach ($pdcDetail->courier_receive_verified_documents as $verifiedDocument)
+                                                <label style="display: flex; gap: 0.5rem; align-items: center;">
+                                                    <input type="checkbox" checked disabled>
+                                                    <span>{{ $verifiedDocument }}</span>
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if (!$isCourierApproved)
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <form action="{{ route('admin.apex.stage2.courier_receive.store', $user) }}"
+                                            method="POST">
+                                            @csrf
+                                            <div style="display:flex; gap:10px;">
+                                                <div style="flex:1;">
+                                                    <label class="form-label">Courier Received By <span
+                                                            style="color: red;">*</span></label>
+                                                    <select name="courier_received_by" class="form-input" required>
+                                                        <option value="">Select Apex User</option>
+                                                        @foreach ($apexUserList as $apexUser)
+                                                            <option value="{{ $apexUser->name }}"
+                                                                {{ old('courier_received_by', $pdcDetail->courier_received_by ?? '') === $apexUser->name ? 'selected' : '' }}>
+                                                                {{ $apexUser->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div style="flex:1;">
+                                                    <label class="form-label">Received Date <span
+                                                            style="color: red;">*</span></label>
+                                                    <input type="date" name="courier_received_date" class="form-input"
+                                                        value="{{ old('courier_received_date', optional($pdcDetail->courier_received_date)->format('Y-m-d') ?? now()->format('Y-m-d')) }}"
+                                                        required>
+                                                </div>
+                                                <button type="submit" class="btn btn-approve">Save Courier
+                                                    Receive</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            @endif
+                            @php
+                                $showCourierReviewForm =
+                                    $canReviewCourier || ($isCourierApproved && $chequePendingCount > 0);
+                            @endphp
+                            @if ($showCourierReviewForm)
+                                <div class="form-field" id="courierReviewFormWrapper"
+                                    style="{{ $canReviewCourier ? '' : 'display: none;' }}">
+                                    <form id="courierReviewForm"
+                                        action="{{ route('admin.apex.stage2.courier_receive.review', $user) }}"
+                                        method="POST">
+                                        @csrf
+                                        <div style="display: grid; gap: 0.75rem;">
+                                            <div style="display: grid; gap: 1rem;">
+                                                <div class="data-group" style="margin: 0;">
+                                                    <h4>Approve Courier Receive</h4>
+                                                    <div class="form-section">
+                                                        <div style="display: grid; gap: 0.5rem;">
+                                                            <label class="form-label">Cheque Summary <span
+                                                                    style="color: red;">*</span></label>
+                                                            <div
+                                                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem;">
+                                                                <div>
+                                                                    <label class="form-label"
+                                                                        style="font-size: 0.85rem;">Total Cheques</label>
+                                                                    <input type="text" class="form-input"
+                                                                        value="{{ $chequeTotal ?? ($pdcDetail->courier_cheque_total ?? 'N/A') }}"
+                                                                        readonly>
+                                                                </div>
+                                                                <div>
+                                                                    <label class="form-label"
+                                                                        style="font-size: 0.85rem;">Cheques
+                                                                        Received</label>
+                                                                    <input type="number" min="0"
+                                                                        name="courier_cheque_received"
+                                                                        class="form-input"
+                                                                        value="{{ old('courier_cheque_received', $pdcDetail->courier_cheque_received ?? 0) }}">
+                                                                </div>
+                                                                <div>
+                                                                    <label class="form-label"
+                                                                        style="font-size: 0.85rem;">Cheques
+                                                                        Pending</label>
+                                                                    <input type="number" min="0"
+                                                                        name="courier_cheque_pending" class="form-input"
+                                                                        value="{{ old('courier_cheque_pending', $pdcDetail->courier_cheque_pending ?? 0) }}">
+                                                                </div>
+                                                            </div>
+                                                            <input type="hidden" name="courier_cheque_total"
+                                                                value="{{ $chequeTotal ?? ($pdcDetail->courier_cheque_total ?? '') }}">
+                                                            <div id="cheques-error"
+                                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                                            </div>
+                                                        </div>
+                                                        <div class="js-approve-extra">
+                                                            <label class="form-label">Approved By <span
+                                                                    style="color: red;">*</span></label>
+                                                            <select name="courier_approved_by" class="form-input">
+                                                                <option value="">Select Apex User</option>
+                                                                @foreach ($apexUserList as $apexUser)
+                                                                    <option value="{{ $apexUser->id }}"
+                                                                        {{ (string) old('courier_approved_by', $pdcDetail->courier_receive_approved_by ?? '') === (string) $apexUser->id ? 'selected' : '' }}>
+                                                                        {{ $apexUser->name }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                            <div id="approvedby-error"
+                                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                                            </div>
+                                                        </div>
+                                                        <div class="js-approve-extra">
+                                                            <label class="form-label"
+                                                                style="margin-top: 0.75rem;">Uploaded
+                                                                Documents Checklist</label>
+                                                            <div
+                                                                style="display: grid; gap: 0.5rem; max-height: 260px; overflow-y: auto; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px;">
+                                                                @forelse ($courierDocumentChecklist ?? [] as $documentItem)
+                                                                    <label>
+                                                                        <input type="checkbox"
+                                                                            name="courier_verified_documents[]"
+                                                                            value="{{ $documentItem['label'] }}"
+                                                                            {{ in_array($documentItem['label'], old('courier_verified_documents', $pdcDetail->courier_receive_verified_documents ?? []), true) ? 'checked' : '' }}>
+                                                                        <span
+                                                                            style="margin: 10px;">{{ $documentItem['label'] }}</span>
+                                                                    </label>
+                                                                @empty
+                                                                    <p style="margin: 0; color: var(--text-light);">No
+                                                                        uploaded
+                                                                        document list found for this student.</p>
+                                                                @endforelse
+                                                            </div>
+                                                            <!-- Error message for documents validation -->
+                                                            <div id="documents-error"
+                                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                                            </div>
+                                                            <div style="margin-top: 0.75rem;">
+                                                                <button type="submit" name="courier_action"
+                                                                    value="approve" class="btn btn-approve">
+                                                                    Approve Courier Receive
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="js-cheque-summary-only"
+                                                            style="margin-top: 0.75rem; display: none;">
+                                                            <button type="submit" name="courier_action"
+                                                                value="approve" class="btn btn-approve">
+                                                                Update Cheque Summary
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="data-group js-approve-extra" style="margin: 0;">
+                                                    <h4>Hold Courier Receive</h4>
+                                                    <div class="form-section" style="display: grid; gap: 0.75rem;">
+                                                        <div>
+                                                            <label class="form-label">Hold By <span
+                                                                    style="color: red;">*</span></label>
+                                                            <select name="courier_hold_by" class="form-input">
+                                                                <option value="">Select Apex User</option>
+                                                                @foreach ($apexUserList as $apexUser)
+                                                                    <option value="{{ $apexUser->id }}"
+                                                                        {{ (string) old('courier_hold_by') === (string) $apexUser->id ? 'selected' : '' }}>
+                                                                        {{ $apexUser->name }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                            <div id="holdby-error"
+                                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <label class="form-label">Hold Remark <span
+                                                                    style="color: red;">*</span>
+                                                                for hold only</label>
+                                                            <textarea name="courier_receive_hold_remark" rows="4" class="remark-input"
+                                                                placeholder="Required only when putting courier receive on hold">{{ old('courier_receive_hold_remark', $pdcDetail->courier_receive_hold_remark ?? '') }}</textarea>
+                                                            <!-- Error message for remark validation -->
+                                                            <div id="remark-error"
+                                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                                            </div>
+                                                        </div>
+                                                        <div style="display: grid; gap: 0.5rem;">
+                                                            <label class="form-label">Send Back to Student?</label>
+                                                            <select name="courier_send_back" class="form-input"
+                                                                id="courierSendBackSelect">
+                                                                <option value="0"
+                                                                    {{ old('courier_send_back', $pdcDetail->courier_send_back ? 1 : 0) == 0 ? 'selected' : '' }}>
+                                                                    No</option>
+                                                                <option value="1"
+                                                                    {{ old('courier_send_back', $pdcDetail->courier_send_back ? 1 : 0) == 1 ? 'selected' : '' }}>
+                                                                    Yes</option>
+                                                            </select>
+                                                        </div>
+                                                        <div id="courierSendBackFields"
+                                                            style="display: grid; gap: 0.5rem;">
+                                                            <div>
+                                                                <label class="form-label">Send Back Reason</label>
+                                                                <textarea name="courier_send_back_reason" rows="3" class="remark-input"
+                                                                    placeholder="Reason for sending back to student">{{ old('courier_send_back_reason', $pdcDetail->courier_send_back_reason ?? '') }}</textarea>
+                                                            </div>
+                                                            <div>
+                                                                <label class="form-label">Send Back Date</label>
+                                                                <input type="date" name="courier_send_back_date"
+                                                                    class="form-input"
+                                                                    value="{{ old('courier_send_back_date', optional($pdcDetail->courier_send_back_date)->format('Y-m-d')) }}">
+                                                            </div>
+                                                            <div id="sendback-error"
+                                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <button type="submit" name="courier_action"
+                                                                value="hold" class="btn btn-hold">
+                                                                Hold Courier Receive
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            @elseif ($hasCourierReceive && !$isCourierApproved)
+                                <div class="no-data">
+                                    <p>Courier receive has already been processed. To re-process, save new courier receive
+                                        details above.</p>
+                                </div>
+                            @elseif(!$isCourierApproved)
+                                <div class="no-data">
+                                    <p>Please save courier receive details to continue with approval or hold.</p>
+                                </div>
+                            @endif
+
+                        </div>
+                    </div>
+
+                </div>
+                @if (($courierHistory ?? collect())->isNotEmpty())
+                    <div class="data-group" style="margin-top: 1rem;">
+                        <h4>Courier History</h4>
+                        <div style="display: grid; gap: 0.75rem;">
+                            @foreach ($courierHistory as $history)
+                                <div style="padding: 0.75rem; border: 1px solid #e5e5e5; border-radius: 8px;">
+                                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.9rem;">
+                                        @php
+                                            $historyBy =
+                                                $history->data['approved_by'] ??
+                                                ($history->data['hold_by'] ??
+                                                    ($history->data['courier_received_by'] ?? null));
+                                        @endphp
+                                        <div><strong>Action:</strong>
+                                            {{ ucfirst(str_replace('_', ' ', $history->action)) }}</div>
+                                        <div><strong>By:</strong>
+                                            {{ $historyBy ?? ($history->actor->name ?? 'Admin #' . ($history->action_by ?? 'N/A')) }}
+                                        </div>
+                                        <div><strong>Date:</strong>
+                                            {{ $history->action_at ? $history->action_at->format('d M Y H:i') : 'N/A' }}
+                                        </div>
+                                    </div>
+                                    @if (!empty($history->data))
+                                        <div style="margin-top: 0.5rem; display: grid; gap: 0.35rem;">
+                                            @foreach ($history->data as $key => $value)
+                                                <div style="font-size: 0.85rem;">
+                                                    <strong>{{ ucwords(str_replace('_', ' ', $key)) }}:</strong>
+                                                    @if (is_array($value))
+                                                        {{ implode(', ', $value) }}
+                                                    @else
+                                                        {{ is_bool($value) ? ($value ? 'Yes' : 'No') : $value }}
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            @else
+                <div class="no-data">
+                    <p>Courier receive cannot be processed because PDC/Cheque Details are not submitted yet.</p>
+                </div>
+            @endif
+        </div>
+
+        <!-- Step 9: PDC/Cheque Details -->
+        <div class="step-content" id="step-9">
+            <div class="step-header">
+                <h2 class="step-title-large">Step {{ $isBelowLoan ? 8 : 9 }}: PDC/Cheque Details</h2>
+                <div class="step-status">
+                    @if (isset($pdcDetail) && $pdcDetail->status === 'approved')
+                        <span class="status-badge status-approved">
+                            <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
+                            Approved
+                        </span>
+                    @elseif(isset($pdcDetail) && $pdcDetail->status === 'rejected')
+                        <span class="status-badge status-hold">
+                            <i class="fas fa-times-circle" style="font-size: 0.6rem;"></i>
+                            Rejected
+                        </span>
+                    @else
+                        <span class="status-badge status-pending">
+                            <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                            {{ isset($pdcDetail) ? 'Submitted' : 'Pending' }}
+                        </span>
+                    @endif
+                    @if ($isCourierApproved)
+                        <a href="{{ route('admin.pdc.edit', $user) }}" class="dropdown-item"
+                            style="display: block; padding: 0.75rem 1rem; background: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);color:white; border-radius:15px;">
+                            <i class="fas fa-edit" style="margin-right: 0.5rem;"></i> Edit PDC/Cheque Details
+                        </a>
+                    @endif
+                </div>
+            </div>
+
+            @if (isset($pdcDetail) && $pdcDetail)
+                @if (!$isCourierApproved)
+                    <div class="data-group">
+                        <div class="no-data">
+                            <p>PDC/Cheque details are locked until Courier Receive is approved.</p>
+                        </div>
+                    </div>
+                @else
+                    <div class="form-data">
+                        <!-- Approval Details -->
+                        @if (isset($workingCommitteeApproval) && $workingCommitteeApproval)
+                            <div class="data-group">
+                                <h4>Approval Details</h4>
+                                <div class="form-section">
+                                    <div class="form-row">
+                                        <div class="form-field">
+                                            <label class="form-label">Approved Financial Assistance Amount</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $workingCommitteeApproval->approval_financial_assistance_amount ? '₹' . number_format($workingCommitteeApproval->approval_financial_assistance_amount) : 'N/A' }}"
+                                                readonly>
+                                        </div>
+                                        <div class="form-field">
+                                            <label class="form-label">Repayment Type</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ ucfirst($workingCommitteeApproval->repayment_type ?? 'N/A') }}"
+                                                readonly>
+                                        </div>
+                                        <div class="form-field">
+                                            <label class="form-label">No. of Cheques to be Collected</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $workingCommitteeApproval->no_of_cheques_to_be_collected ?? 'N/A' }}"
+                                                readonly>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-field">
+                                            <label class="form-label">Repayment Starting From</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $workingCommitteeApproval->repayment_starting_from ? \Carbon\Carbon::parse($workingCommitteeApproval->repayment_starting_from)->format('d M Y') : 'N/A' }}"
+                                                readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- First Cheque Image -->
+                        <div class="data-group">
+                            <h4>First Cheque Image</h4>
+                            <div class="form-section">
+                                @if ($pdcDetail->first_cheque_image)
+                                    @php
+                                        $chequeImagePath = $pdcDetail->first_cheque_image;
+                                        if (strpos($chequeImagePath, 'http') === 0) {
+                                            $chequeImageUrl = $chequeImagePath;
+                                        } else {
+                                            $chequeImageUrl = asset($chequeImagePath);
+                                        }
+                                        $fileExtension = strtolower(pathinfo($chequeImagePath, PATHINFO_EXTENSION));
+                                        $fileName =
+                                            'First_Cheque_' .
+                                            ($user->application_no ?? $user->id) .
+                                            '.' .
+                                            $fileExtension;
+                                    @endphp
+                                    <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                                        @if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif', 'webp']))
+                                            <!-- Image Preview -->
+                                            <div style="margin-bottom: 1rem;">
+                                                <img src="{{ $chequeImageUrl }}" alt="First Cheque Image"
+                                                    style="max-width: 400px; max-height: 300px; border: 2px solid #dee2e6; border-radius: 8px; object-fit: contain;">
+                                            </div>
+                                            <!-- Action Buttons -->
+                                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                                <a href="{{ $chequeImageUrl }}" target="_blank" class="btn"
+                                                    style="background: var(--primary-blue); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                                <a href="{{ $chequeImageUrl }}" download="{{ $fileName }}"
+                                                    class="btn"
+                                                    style="background: var(--primary-green); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                                    <i class="fas fa-download"></i> Download
+                                                </a>
+                                                <button onclick="printImage('{{ $chequeImageUrl }}')" class="btn"
+                                                    style="background: var(--primary-purple); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                                    <i class="fas fa-print"></i> Print
+                                                </button>
+                                            </div>
+                                        @elseif($fileExtension == 'pdf')
+                                            <!-- PDF Preview -->
+                                            <div style="margin-bottom: 1rem;">
+                                                <iframe src="{{ $chequeImageUrl }}"
+                                                    style="width: 100%; height: 400px; border: 2px solid #dee2e6; border-radius: 8px;"
+                                                    title="First Cheque PDF"></iframe>
+                                            </div>
+                                            <!-- Action Buttons -->
+                                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                                <a href="{{ $chequeImageUrl }}" target="_blank" class="btn"
+                                                    style="background: var(--primary-blue); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                                <a href="{{ $chequeImageUrl }}" download="{{ $fileName }}"
+                                                    class="btn"
+                                                    style="background: var(--primary-green); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                                    <i class="fas fa-download"></i> Download
+                                                </a>
+                                                <button onclick="printPDF('{{ $chequeImageUrl }}')" class="btn"
+                                                    style="background: var(--primary-purple); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                                    <i class="fas fa-print"></i> Print
+                                                </button>
+                                            </div>
+                                        @else
+                                            <span style="color: var(--text-light);">Unsupported file format</span>
+                                        @endif
+                                    </div>
+                                @else
+                                    <p style="color: var(--text-light);">No cheque image uploaded</p>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Cheque Details Table -->
+                        <div class="data-group">
+                            <h4>Cheque Details</h4>
+                            <div class="table-container">
+                                @php
+                                    $chequeDetails = json_decode($pdcDetail->cheque_details, true);
+                                @endphp
+                                @if ($chequeDetails && count($chequeDetails) > 0)
+                                    <table class="custom-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr No</th>
+                                                <th>Student Name</th>
+                                                <th>Application No.</th>
+                                                <th>Repayment Date</th>
+                                                <th>Amount (₹)</th>
+                                                <th>Bank Name</th>
+                                                <th>IFSC Code</th>
+                                                <th>Account Number</th>
+                                                <th>Cheque Number</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($chequeDetails as $index => $cheque)
+                                                <tr>
+                                                    <td>{{ $index + 1 }}</td>
+                                                    <td>{{ $user->name ?? 'N/A' }}</td>
+                                                    <td>{{ $user->application_no ?? 'N/A' }}</td>
+                                                    <td>{{ isset($cheque['cheque_date']) ? date('d M Y', strtotime($cheque['cheque_date'])) : 'N/A' }}
+                                                    </td>
+                                                    <td class="amount-cell">₹{{ number_format($cheque['amount'] ?? 0) }}
+                                                    </td>
+                                                    <td>{{ $cheque['bank_name'] ?? 'N/A' }}</td>
+                                                    <td>{{ $cheque['ifsc'] ?? 'N/A' }}</td>
+                                                    <td>{{ $cheque['account_number'] ?? 'N/A' }}</td>
+                                                    <td>{{ $cheque['cheque_number'] ?? 'N/A' }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <div class="no-data">
+                                        <p>No cheque details available.</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                @endif
+            @else
+                <div class="no-data">
+                    <p>PDC/Cheque Details not submitted yet.</p>
+                </div>
+            @endif
+
+            <!-- Edit Bank Detail Request Section -->
+            @if (isset($editBankDetailRequest) && $editBankDetailRequest)
+                <div class="form-data mt-4" style="border: 2px solid #FBBA00; border-radius: 15px; padding: 1.5rem;">
+                    <div class="data-group">
+                        <h4 style="color: white;">
+                            <i class="bi bi-pencil-square me-2"></i>
+                            Edit Bank Detail Request
+                        </h4>
+
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Status</label>
+                                    @if ($editBankDetailRequest->status === 'pending')
+                                        <span class="status-badge status-pending">
+                                            <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                                            Pending
+                                        </span>
+                                    @elseif($editBankDetailRequest->status === 'approved')
+                                        <span class="status-badge status-approved">
+                                            <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
+                                            Approved
+                                        </span>
+                                    @elseif($editBankDetailRequest->status === 'rejected')
+                                        <span class="status-badge status-hold">
+                                            <i class="fas fa-times-circle" style="font-size: 0.6rem;"></i>
+                                            Rejected
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="form-field text-end">
+                                    <label class="form-label">Submitted On</label>
+                                    <div class="data-value">
+                                        {{ $editBankDetailRequest->created_at ? \Carbon\Carbon::parse($editBankDetailRequest->created_at)->format('d M Y H:i') : 'N/A' }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if ($editBankDetailRequest->reason)
+                                <div class="form-field mt-3">
+                                    <label class="form-label">User Reason</label>
+                                    <div class="data-value"
+                                        style="background: #f8f9fa; padding: 1rem; border-radius: 8px;text-align: justify;">
+                                        {{ $editBankDetailRequest->reason }}
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if ($editBankDetailRequest->status === 'approved')
+                                <div class="alert alert-success mt-3" style="border-radius: 10px;">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    Request approved. User can now edit bank details.
+                                </div>
+                            @elseif($editBankDetailRequest->status === 'rejected')
+                                <div class="form-field mt-3">
+                                    <label class="form-label">Admin Remark</label>
+                                    <div class="data-value"
+                                        style="background: #f8d7da; padding: 1rem; border-radius: 8px; color: #721c24;">
+                                        {!! $editBankDetailRequest->admin_remark !!}
+                                    </div>
+                                </div>
+                            @elseif($editBankDetailRequest->status === 'pending')
+                                <div class="mt-4">
+                                    <div class="d-flex gap-3">
+                                        <button type="button" class="btn btn-approve"
+                                            onclick="approveEditBankRequest({{ $user->id }})">
+                                            <i class="fas fa-check me-1"></i> Approve Request
+                                        </button>
+                                        <button type="button" class="btn btn-reject"
+                                            onclick="showRejectModal({{ $user->id }})">
+                                            <i class="fas fa-times me-1"></i> Reject Request
+                                        </button>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+
+            <div class="step-header">
+                {{-- <h2 class="step-title-large">Step 9: Apex Decision</h2> --}}
+                <div class="step-status">
+                    @if ($user->workflowStatus && $user->workflowStatus->apex_2_status === 'approved')
+                        <span class="status-badge status-approved">
+                            <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
+                            Approved
+                        </span>
+                    @elseif($user->workflowStatus && $user->workflowStatus->apex_2_status === 'rejected')
                         <span class="status-badge status-hold">
                             <i class="fas fa-times-circle" style="font-size: 0.6rem;"></i>
                             Send Back For Correction
@@ -2719,7 +3474,7 @@
                 </div>
             </div>
 
-            @if ($user->workflowStatus && $user->workflowStatus->apex_1_status === 'approved')
+            @if ($user->workflowStatus && $user->workflowStatus->apex_2_status === 'approved')
                 <!-- Approved Decision Display -->
                 <div class="form-data">
                     <div class="data-group">
@@ -2729,32 +3484,35 @@
                             <div class="data-label">Approval Date</div>
                             <div class="data-value">{{ $user->workflowStatus->apex_1_updated_at ? $user->workflowStatus->apex_1_updated_at->format('d M Y H:i') : 'N/A' }}</div>
                         </div> --}}
-                            @if ($user->workflowStatus->apex_1_approval_remarks)
+                            @if ($user->workflowStatus->apex_2_approval_remarks)
                                 <div class="data-item">
                                     <div class="data-label">Apex Approval Remarks</div>
-                                    <div class="data-value">{!! $user->workflowStatus->apex_1_approval_remarks !!}</div>
+                                    <div class="data-value">
+                                        {{ strip_tags($user->workflowStatus->apex_2_approval_remarks) }}</div>
                                 </div>
                             @endif
                             @if ($user->workflowStatus->apex_staff_remark)
                                 <div class="data-item">
                                     <div class="data-label">Apex Staff Remarks</div>
-                                    <div class="data-value">{!! $user->workflowStatus->apex_staff_remark !!}</div>
+                                    <div class="data-value">
+                                        {{ strip_tags($user->workflowStatus->apex_staff_remark ?? 'N/A') }}</div>
                                 </div>
                             @endif
                         </div>
                     </div>
                 </div>
-            @elseif($user->workflowStatus && $user->workflowStatus->apex_1_status === 'rejected')
+            @elseif($user->workflowStatus && $user->workflowStatus->apex_2_status === 'rejected')
                 <!-- Rejected Decision Display -->
                 <div class="form-data">
                     <div class="data-group">
                         <h4>❌ Application Send Back For Correction</h4>
                         <div class="form-section">
 
-                            @if ($user->workflowStatus->apex_1_reject_remarks)
-                                <div>
-                                    <div class="data-label p-2">Send Back For Correction Remarks:-</div>
-                                    <div class="p-2">{!! $user->workflowStatus->apex_1_reject_remarks !!}</div>
+                            @if ($user->workflowStatus->apex_2_reject_remarks)
+                                <div class="data-item">
+                                    <div class="data-label">Send Back For Correction Remarks</div>
+                                    <div class="data-value">
+                                        {{ strip_tags($user->workflowStatus->apex_2_reject_remarks ?? 'N/A') }}</div>
                                 </div>
                             @endif
                         </div>
@@ -2762,7 +3520,7 @@
                 </div>
             @elseif(
                 $user->workflowStatus &&
-                    $user->workflowStatus->current_stage === 'apex_1' &&
+                    $user->workflowStatus->current_stage === 'apex_2' &&
                     $user->workflowStatus->final_status === 'in_progress')
                 <!-- Validation Errors Display -->
                 @if ($errors->any())
@@ -2779,113 +3537,83 @@
                 @endif
 
                 <div class="workflow-action-card">
-                    <h4 class="action-title">Apex 1 Decision</h4>
+                    <h4 class="action-title">Apex 2 Decision</h4>
+
+                    @php
+                        $isCourierApproved =
+                            isset($pdcDetail) && $pdcDetail && $pdcDetail->courier_receive_status === 'approved';
+                    @endphp
+
+                    @if (!$isCourierApproved)
+                        <div
+                            style="background: rgba(244, 67, 54, 0.08); border: 1px solid rgba(244, 67, 54, 0.2); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem;">
+                            <span style="color: var(--primary-red); font-size: 0.9rem; font-weight: 600;">
+                                Courier Receive must be approved before approving the application.
+                            </span>
+                        </div>
+                    @endif
 
                     <!-- Approve Form -->
-                    <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}"
+                    <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_2']) }}"
                         method="POST">
                         @csrf
                         <div class="action-form-row">
-                            <div style="flex: 2;">
+                            {{--  <div style="flex: 2;">
+                                <label class="form-label"
+                                    style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Approval
+                                    Remark</label>
                                 <textarea name="admin_remark" placeholder="Approval remark (optional but recommended)" rows="3"
                                     class="remark-input"></textarea>
 
                                 <div style="margin-top: 1rem;">
-                                    <label class="form-label"
-                                        style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Apex
-                                        Staff Remark</label>
-                                    <textarea name="apex_staff_remark" placeholder="Optional apex staff remark" rows="3" class="remark-input"></textarea>
-                                </div>
+                                <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Apex Staff Remark</label>
+                                <textarea name="apex_staff_remark"
+                                          placeholder="Optional apex staff remark"
+                                          rows="3"
+                                          class="remark-input"></textarea>
+                            </div>  --}}
 
 
-                            </div>
-                            <button type="submit" class="btn btn-approve">
-                                <i class="fas fa-check"></i>
-                                Approve Application
-                            </button>
                         </div>
-                    </form>
+                        <button type="submit" class="btn btn-approve"
+                            @if (!$isCourierApproved) disabled @endif>
+                            <i class="fas fa-check"></i>
+                            Approve Application
+                        </button>
+                </div>
+                </form>
 
-                    <div class="divider"></div>
+                {{--  <div class="divider"></div>
 
                     <!-- Reject Form -->
-                    <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}"
+                    <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_2']) }}"
                         method="POST">
                         @csrf
                         <div class="action-form-row">
                             <div style="flex: 2;">
-                                <textarea name="admin_remark" placeholder="Rejection remark (required)" rows="3" class="remark-input"
-                                    required></textarea>
-
-                                <div
-                                    style="margin-top: 1rem; padding: 1rem; background: rgba(244, 67, 54, 0.05); border-radius: 8px; border: 1px solid rgba(244, 67, 54, 0.1);">
-                                    <h5 style="color: var(--primary-red); margin: 0 0 0.5rem 0; font-size: 0.9rem;">Select
-                                        steps to resubmit:</h5>
-                                    <div
-                                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
-                                        <label
-                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                            <input type="checkbox" name="resubmit_steps[]" value="personal"
-                                                style="width: 16px; height: 16px;">
-                                            Step 1: Personal Details
-                                        </label>
-                                        <label
-                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                            <input type="checkbox" name="resubmit_steps[]" value="education"
-                                                style="width: 16px; height: 16px;">
-                                            Step 2: Education Details
-                                        </label>
-                                        <label
-                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                            <input type="checkbox" name="resubmit_steps[]" value="family"
-                                                style="width: 16px; height: 16px;">
-                                            Step 3: Family Details
-                                        </label>
-                                        <label
-                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                            <input type="checkbox" name="resubmit_steps[]" value="funding"
-                                                style="width: 16px; height: 16px;">
-                                            Step 4: Funding Details
-                                        </label>
-                                        @if(!$isBelowLoan)
-                                        <label
-                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                            <input type="checkbox" name="resubmit_steps[]" value="guarantor"
-                                                style="width: 16px; height: 16px;">
-                                            Step 5: Guarantor Details
-                                        </label>
-                                        @endif
-                                        <label
-                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                            <input type="checkbox" name="resubmit_steps[]" value="documents"
-                                                style="width: 16px; height: 16px;">
-                                            Step {{ $isBelowLoan ? 5 : 6 }}: Documents
-                                        </label>
-                                        <label
-                                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-dark);">
-                                            <input type="checkbox" name="resubmit_steps[]" value="final"
-                                                style="width: 16px; height: 16px;">
-                                            Step {{ $isBelowLoan ? 6 : 7 }}: Final Submission
-                                        </label>
-                                    </div>
-                                    <p style="font-size: 0.75rem; color: var(--text-light); margin: 0.5rem 0 0 0;">
-                                        Leave unchecked to reject the entire application permanently.
-                                    </p>
-                                </div>
+                                <label class="form-label"
+                                    style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Send
+                                    Back For Correction Remark <span style="color: var(--primary-red);">*</span></label>
+                                <textarea name="admin_remark" placeholder="Send back for correction remark (required)" rows="3"
+                                    class="remark-input" required></textarea>
                             </div>
                             <button type="submit" class="btn btn-reject">
                                 <i class="fas fa-times"></i>
                                 Send Back For Correction
                             </button>
                         </div>
-                    </form>
-                </div>
-            @else
-                <div class="no-data">
-                    <p>Decision not available for this application.</p>
-                </div>
-            @endif
+                    </form>  --}}
         </div>
+    @else
+        <div class="no-data">
+            <p>Decision not available for this application.</p>
+        </div>
+        @endif
+    </div>
+
+
+
+
 
     </div> <!-- content-area -->
 
@@ -3073,12 +3801,99 @@
             dropdown.style.display = 'none';
         }
     });
+
+    // Print Image function
+    function printImage(imageUrl) {
+        const printWindow = window.open('', '_blank', 'width=800,height=600');
+        printWindow.document.write('<html><head><title>Print Cheque Image</title>');
+        printWindow.document.write(
+            '<style>body{margin:0;padding:20px;text-align:center;} img{max-width:100%;height:auto;} @media print{body{margin:0;}}</style>'
+        );
+        printWindow.document.write('</head><body>');
+        printWindow.document.write('<img src="' + imageUrl + '" onload="window.print();window.close();">');
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+    }
+
+    // Print PDF function
+    function printPDF(pdfUrl) {
+        const printWindow = window.open(pdfUrl, '_blank');
+        if (printWindow) {
+            printWindow.onload = function() {
+                printWindow.print();
+            };
+        }
+    }
+
+    // Edit Bank Detail Request Functions
+    function approveEditBankRequest(userId) {
+        if (confirm(
+                'Are you sure you want to approve this edit bank detail request? The user will be able to edit their bank details.'
+            )) {
+            fetch('{{ route('admin.apex.stage2.approve.edit.bank.request') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Error approving request');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+        }
+    }
+
+    function showRejectModal(userId) {
+        const remark = prompt('Please enter the reason for rejection:');
+        if (remark === null || remark.trim() === '') {
+            return;
+        }
+
+        fetch('{{ route('admin.apex.stage2.reject.edit.bank.request') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    admin_remark: remark
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message || 'Error rejecting request');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+    }
 </script>
 
 <script>
     $(document).ready(function() {
-        $('textarea[name="admin_remark"], textarea[name="apex_staff_remark"]').each(function() {
+        $('textarea:not([readonly]):not([disabled]):not(.swal2-textarea)').each(function() {
             const $textarea = $(this);
+
             if ($textarea.next('.note-editor').length) {
                 return;
             }
@@ -3091,13 +3906,20 @@
                     ['para', ['ul', 'ol', 'paragraph']],
                     ['insert', ['link']],
                     ['view', ['codeview']]
-                ]
+                ],
+                callbacks: {
+                    onInit: function() {
+                        if ($(this).summernote('isEmpty')) {
+                            $(this).summernote('code', '');
+                        }
+                    }
+                }
             });
         });
     });
 </script>
 
-<!-- Document Modal (Backward compatibility) -->
+<!-- Document Modal -->
 <div id="documentModal"
     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
     <div
@@ -3118,3 +3940,255 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Courier Receive Review Form Validation
+    // Use interval to check for form existence since it's loaded dynamically
+    function initCourierReceiveValidation() {
+
+        const reviewForm = document.getElementById('courierReviewForm');
+        if (!reviewForm) return false;
+
+        if (reviewForm.dataset.validationInitialized) return true;
+        reviewForm.dataset.validationInitialized = 'true';
+
+        const remarkInput = reviewForm.querySelector('textarea[name="courier_receive_hold_remark"]');
+        const documentCheckboxes = reviewForm.querySelectorAll('input[name="courier_verified_documents[]"]');
+        const chequeTotalInput = reviewForm.querySelector('input[name="courier_cheque_total"]');
+        const chequeReceivedInput = reviewForm.querySelector('input[name="courier_cheque_received"]');
+        const chequePendingInput = reviewForm.querySelector('input[name="courier_cheque_pending"]');
+        const sendBackSelect = reviewForm.querySelector('#courierSendBackSelect');
+        const sendBackFields = document.getElementById('courierSendBackFields');
+        const sendBackReasonInput = reviewForm.querySelector('textarea[name="courier_send_back_reason"]');
+        const sendBackDateInput = reviewForm.querySelector('input[name="courier_send_back_date"]');
+        const approvedBySelect = reviewForm.querySelector('select[name="courier_approved_by"]');
+        const holdBySelect = reviewForm.querySelector('select[name="courier_hold_by"]');
+
+        const documentsErrorDiv = document.getElementById('documents-error');
+        const remarkErrorDiv = document.getElementById('remark-error');
+        const chequesErrorDiv = document.getElementById('cheques-error');
+        const sendBackErrorDiv = document.getElementById('sendback-error');
+        const approvedByErrorDiv = document.getElementById('approvedby-error');
+        const holdByErrorDiv = document.getElementById('holdby-error');
+
+        function showDocumentsError(message) {
+            documentsErrorDiv.textContent = message;
+            documentsErrorDiv.style.display = 'block';
+        }
+
+        function hideDocumentsError() {
+            documentsErrorDiv.style.display = 'none';
+        }
+
+        function showRemarkError(message) {
+            remarkErrorDiv.textContent = message;
+            remarkErrorDiv.style.display = 'block';
+        }
+
+        function hideRemarkError() {
+            remarkErrorDiv.style.display = 'none';
+        }
+
+        function showChequesError(message) {
+            chequesErrorDiv.textContent = message;
+            chequesErrorDiv.style.display = 'block';
+        }
+
+        function hideChequesError() {
+            chequesErrorDiv.style.display = 'none';
+        }
+
+        function showSendBackError(message) {
+            sendBackErrorDiv.textContent = message;
+            sendBackErrorDiv.style.display = 'block';
+        }
+
+        function hideSendBackError() {
+            sendBackErrorDiv.style.display = 'none';
+        }
+
+        function showApprovedByError(message) {
+            approvedByErrorDiv.textContent = message;
+            approvedByErrorDiv.style.display = 'block';
+        }
+
+        function hideApprovedByError() {
+            approvedByErrorDiv.style.display = 'none';
+        }
+
+        function showHoldByError(message) {
+            holdByErrorDiv.textContent = message;
+            holdByErrorDiv.style.display = 'block';
+        }
+
+        function hideHoldByError() {
+            holdByErrorDiv.style.display = 'none';
+        }
+
+        function toggleSendBackFields() {
+            if (!sendBackSelect || !sendBackFields) return;
+            const isSendBack = sendBackSelect.value === '1';
+            sendBackFields.style.display = isSendBack ? 'grid' : 'none';
+        }
+
+        toggleSendBackFields();
+        if (sendBackSelect) {
+            sendBackSelect.addEventListener('change', toggleSendBackFields);
+        }
+
+        reviewForm.addEventListener('submit', function(e) {
+
+            const action = e.submitter.value;
+
+            hideDocumentsError();
+            hideRemarkError();
+            hideChequesError();
+            hideSendBackError();
+            hideApprovedByError();
+            hideHoldByError();
+
+            const totalCheques = chequeTotalInput ? parseInt(chequeTotalInput.value, 10) : NaN;
+            const receivedCheques = chequeReceivedInput ? parseInt(chequeReceivedInput.value || '0', 10) : 0;
+            const pendingCheques = chequePendingInput ? parseInt(chequePendingInput.value || '0', 10) : 0;
+
+            // APPROVE VALIDATION
+            if (action === "approve") {
+
+                if (!Number.isNaN(totalCheques)) {
+                    if ((receivedCheques + pendingCheques) !== totalCheques) {
+                        e.preventDefault();
+                        showChequesError("Received + pending cheques must equal total cheques (" +
+                            totalCheques +
+                            ").");
+                        chequesErrorDiv.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        });
+                        return;
+                    }
+                }
+
+                if (approvedBySelect && approvedBySelect.value === "") {
+                    e.preventDefault();
+                    showApprovedByError("Please select who approved the courier receive.");
+                    approvedByErrorDiv.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+                    return;
+                }
+
+            }
+
+            // HOLD VALIDATION
+            if (action === "hold") {
+
+                if (holdBySelect && holdBySelect.value === "") {
+                    e.preventDefault();
+                    showHoldByError("Please select who put the courier receive on hold.");
+                    holdByErrorDiv.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+                    return;
+                }
+
+                const remarkValue = remarkInput.value.trim();
+
+                if (remarkValue === "") {
+
+                    e.preventDefault();
+
+                    showRemarkError(
+                        "Please provide a remark when putting Courier Receive on hold."
+                    );
+
+                    remarkErrorDiv.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+
+                    return;
+                }
+
+                const isSendBack = sendBackSelect && sendBackSelect.value === '1';
+                if (isSendBack) {
+                    const reasonValue = sendBackReasonInput ? sendBackReasonInput.value.trim() : "";
+                    const dateValue = sendBackDateInput ? sendBackDateInput.value.trim() : "";
+                    if (reasonValue === "" || dateValue === "") {
+                        e.preventDefault();
+                        showSendBackError(
+                            "Please provide reason and date when sending courier back to student.");
+                        sendBackErrorDiv.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        });
+                        return;
+                    }
+                }
+            }
+
+        });
+
+        return true;
+    }
+
+    // Initialize on DOM ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Try to initialize immediately
+        if (!initCourierReceiveValidation()) {
+            // If form not found, try again after delays
+            setTimeout(initCourierReceiveValidation, 500);
+            setTimeout(initCourierReceiveValidation, 1000);
+            setTimeout(initCourierReceiveValidation, 2000);
+        }
+    });
+
+    // Toggle courier review form for approved cases with pending cheques
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleBtn = document.getElementById('toggleCourierReviewFormBtn');
+        const wrapper = document.getElementById('courierReviewFormWrapper');
+        if (!toggleBtn || !wrapper) return;
+
+        toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            wrapper.style.display = 'block';
+
+            const receivedInput = wrapper.querySelector('input[name="courier_cheque_received"]');
+            const pendingInput = wrapper.querySelector('input[name="courier_cheque_pending"]');
+            const totalInput = wrapper.querySelector('input[name="courier_cheque_total"]');
+            const fullSections = wrapper.querySelectorAll('.js-approve-extra');
+            const summaryOnlySections = wrapper.querySelectorAll('.js-cheque-summary-only');
+
+            const total = toggleBtn.getAttribute('data-cheque-total');
+            const received = toggleBtn.getAttribute('data-cheque-received');
+            const pending = toggleBtn.getAttribute('data-cheque-pending');
+
+            if (totalInput && total !== null && total !== '') totalInput.value = total;
+            if (receivedInput && received !== null && received !== '') receivedInput.value = received;
+            if (pendingInput && pending !== null && pending !== '') pendingInput.value = pending;
+            fullSections.forEach(section => {
+                section.style.display = 'none';
+            });
+            summaryOnlySections.forEach(section => {
+                section.style.display = 'block';
+            });
+
+            wrapper.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        });
+    });
+
+    // Also try when step nav items are clicked
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.step-nav-item')) {
+            setTimeout(initCourierReceiveValidation, 300);
+        }
+    });
+</script>
+
+
+
+

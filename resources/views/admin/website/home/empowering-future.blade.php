@@ -46,7 +46,7 @@
                     <th width="18%">Vision of JEAP</th>
                     <th width="18%">Mission of JEAP</th>
                     <th width="5%">Order</th>
-                    <th width="5%">Status</th>
+                   
                     <th width="14%" class="text-center">Action</th>
                 </tr>
             </thead>
@@ -79,13 +79,7 @@
                         </div>
                     </td>
                     <td class="text-center align-middle">{{ $dream->order ?? 0 }}</td>
-                    <td class="text-center align-middle">
-                        @if($dream->status)
-                            <span class="badge bg-success">Active</span>
-                        @else
-                            <span class="badge bg-danger">Inactive</span>
-                        @endif
-                    </td>
+                   
                     <td class="text-center align-middle">
                         <button class="btn btn-sm btn-info text-white" title="View" data-bs-toggle="modal" data-bs-target="#viewModal{{ $dream->id }}">
                             <i class="fas fa-eye"></i>
@@ -128,14 +122,8 @@
                                 <h6>Mission Description of JEAP:</h6>
                                 <p>{{ $dream->mission_description ?? 'No mission description' }}</p>
                                 
-                                <h6>Status:</h6>
-                                <p>
-                                    @if($dream->status)
-                                        <span class="badge bg-success">Active</span>
-                                    @else
-                                        <span class="badge bg-danger">Inactive</span>
-                                    @endif
-                                </p>
+                                
+                                
                                 <h6>Display Order:</h6>
                                 <p>{{ $dream->order ?? 0 }}</p>
                             </div>
@@ -204,13 +192,7 @@
                                             <label for="order{{ $dream->id }}" class="form-label">Display Order</label>
                                             <input type="number" class="form-control" id="order{{ $dream->id }}" name="order" value="{{ $dream->order ?? 0 }}" min="0">
                                         </div>
-                                        <div class="col-md-6">
-                                            <label for="status{{ $dream->id }}" class="form-label">Status</label>
-                                            <select class="form-select" id="status{{ $dream->id }}" name="status">
-                                                <option value="1" {{ $dream->status ? 'selected' : '' }}>Active</option>
-                                                <option value="0" {{ !$dream->status ? 'selected' : '' }}>Inactive</option>
-                                            </select>
-                                        </div>
+                                        
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -319,13 +301,7 @@
                             <label for="order" class="form-label">Display Order</label>
                             <input type="number" class="form-control" id="order" name="order" value="0" min="0">
                         </div>
-                        <div class="col-md-6">
-                            <label for="status" class="form-label">Status</label>
-                            <select class="form-select" id="status" name="status">
-                                <option value="1" selected>Active</option>
-                                <option value="0">Inactive</option>
-                            </select>
-                        </div>
+                        
                     </div>
                 </div>
                 <div class="modal-footer">

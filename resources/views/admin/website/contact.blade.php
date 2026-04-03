@@ -40,7 +40,7 @@
 <th width="15%">Title</th>
 <th width="30%">Description</th>
 <th width="25%">Sections</th>
-<th width="10%">Status</th>
+
 <th width="20%" class="text-center">Action</th>
 
 </tr>
@@ -83,13 +83,7 @@
 
 </td>
 
-<td>
-@if($item->is_active)
-<span class="badge bg-success">Active</span>
-@else
-<span class="badge bg-danger">Inactive</span>
-@endif
-</td>
+
 
 <td class="text-center">
 
@@ -214,11 +208,7 @@ Add More
 
 <div class="mt-3">
 
-<label class="form-label">Status</label>
-<select class="form-select" name="is_active">
-<option value="1" {{ $item->is_active ? 'selected' : '' }}>Active</option>
-<option value="0" {{ !$item->is_active ? 'selected' : '' }}>Inactive</option>
-</select>
+
 
 </div>
 

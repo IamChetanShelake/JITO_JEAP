@@ -35,8 +35,7 @@
                     <th width="15%">Name</th>
                     <th width="15%">Designation</th>
                     <th width="35%">Description</th>
-                    <th width="5%">Order</th>
-                    <th width="5%">Status</th>
+                    <th width="10%">Order</th>
                     <th width="15%" class="text-center">Action</th>
                 </tr>
             </thead>
@@ -60,13 +59,6 @@
                         </div>
                     </td>
                     <td class="text-center align-middle">{{ $member->display_order ?? 0 }}</td>
-                    <td class="text-center align-middle">
-                        @if($member->status)
-                            <span class="badge bg-success">Active</span>
-                        @else
-                            <span class="badge bg-danger">Inactive</span>
-                        @endif
-                    </td>
                     <td class="text-center align-middle">
                         <button class="btn btn-sm btn-info text-white" title="View" data-bs-toggle="modal" data-bs-target="#viewModal{{ $member->id }}">
                             <i class="fas fa-eye"></i>
@@ -102,14 +94,6 @@
                                 <p>{{ $member->designation ?? 'N/A' }}</p>
                                 <h6>Description:</h6>
                                 <p>{{ $member->description ?? 'No description' }}</p>
-                                <h6>Status:</h6>
-                                <p>
-                                    @if($member->status)
-                                        <span class="badge bg-success">Active</span>
-                                    @else
-                                        <span class="badge bg-danger">Inactive</span>
-                                    @endif
-                                </p>
                                 <h6>Display Order:</h6>
                                 <p>{{ $member->display_order ?? 0 }}</p>
                             </div>
@@ -130,7 +114,6 @@
                             </div>
                             <form action="{{ route('admin.website.home.working-committee.update', $member->id) }}" method="POST" enctype="multipart/form-data">
                                 @csrf
-                                @method('PUT')
                                 @method('PUT')
                                 <div class="modal-body">
                                     <div class="row mb-3">
@@ -165,16 +148,9 @@
                                         </div>
                                     </div>
                                     <div class="row mb-3">
-                                        <div class="col-md-6">
+                                        <div class="col-md-12">
                                             <label for="display_order{{ $member->id }}" class="form-label">Display Order</label>
                                             <input type="number" class="form-control" id="display_order{{ $member->id }}" name="display_order" value="{{ $member->display_order ?? 0 }}" min="0">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="status{{ $member->id }}" class="form-label">Status</label>
-                                            <select class="form-select" id="status{{ $member->id }}" name="status">
-                                                <option value="1" {{ $member->status ? 'selected' : '' }}>Active</option>
-                                                <option value="0" {{ !$member->status ? 'selected' : '' }}>Inactive</option>
-                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -204,7 +180,6 @@
                                 <form action="{{ route('admin.website.home.working-committee.delete', $member->id) }}" method="POST" style="display: inline;">
                                     @csrf
                                     @method('DELETE')
-                                    @method('DELETE')
                                     <button type="submit" class="btn btn-danger">Delete</button>
                                 </form>
                             </div>
@@ -214,7 +189,7 @@
                 
                 @empty
                 <tr>
-                    <td colspan="7" class="text-center text-muted py-4">
+                    <td colspan="6" class="text-center text-muted py-4">
                         <i class="fas fa-inbox fa-2x mb-2"></i>
                         <p>No data found. Click "Add Data" to add your first record.</p>
                     </td>
@@ -262,16 +237,9 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <label for="display_order" class="form-label">Display Order</label>
                             <input type="number" class="form-control" id="display_order" name="display_order" value="0" min="0">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="status" class="form-label">Status</label>
-                            <select class="form-select" id="status" name="status">
-                                <option value="1" selected>Active</option>
-                                <option value="0">Inactive</option>
-                            </select>
                         </div>
                     </div>
                 </div>

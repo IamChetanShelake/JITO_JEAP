@@ -24,7 +24,7 @@
                                 <th>ID</th>
                                 <th>Question</th>
                                 <th>Answer</th>
-                                <th>Status</th>
+                               
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -34,13 +34,7 @@
                                     <td>{{ $faq->id }}</td>
                                     <td>{{ $faq->question }}</td>
                                     <td>{{ Str::limit($faq->answer, 100) }}</td>
-                                    <td>
-                                        @if($faq->is_active)
-                                            <span class="badge bg-success">Active</span>
-                                        @else
-                                            <span class="badge bg-secondary">Inactive</span>
-                                        @endif
-                                    </td>
+                                    
                                     <td class="text-center align-middle">
                                         <button class="btn btn-sm btn-info text-white" title="View" data-bs-toggle="modal" data-bs-target="#viewModal{{ $faq->id }}">
                                             <i class="fas fa-eye"></i>
@@ -79,16 +73,7 @@
                                                         <p>{{ $faq->answer }}</p>
                                                     </div>
                                                 </div>
-                                                <div class="row mb-3">
-                                                    <div class="col-md-12">
-                                                        <strong>Status:</strong>
-                                                        @if($faq->is_active)
-                                                            <span class="badge bg-success">Active</span>
-                                                        @else
-                                                            <span class="badge bg-secondary">Inactive</span>
-                                                        @endif
-                                                    </div>
-                                                </div>
+                                                
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -117,13 +102,7 @@
                                                         <label for="answer{{ $faq->id }}" class="form-label">Answer</label>
                                                         <textarea class="form-control" id="answer{{ $faq->id }}" name="answer" rows="5" required>{{ $faq->answer }}</textarea>
                                                     </div>
-                                                    <div class="mb-3">
-                                                        <label for="is_active{{ $faq->id }}" class="form-label">Status</label>
-                                                        <select class="form-select" id="is_active{{ $faq->id }}" name="is_active">
-                                                            <option value="1" {{ $faq->is_active ? 'selected' : '' }}>Active</option>
-                                                            <option value="0" {{ !$faq->is_active ? 'selected' : '' }}>Inactive</option>
-                                                        </select>
-                                                    </div>
+                                                    
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

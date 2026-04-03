@@ -25,7 +25,7 @@
                     <th width="15%">Title</th>
                     <th width="40%">Paragraphs</th>
                     <th width="20%">Order</th>
-                    <th width="15%">Status</th>
+                    
                     <th width="15%" class="text-center">Action</th>
                 </tr>
             </thead>
@@ -41,13 +41,7 @@
                         </div>
                     </td>
                     <td class="text-center align-middle">{{ $item->display_order ?? 0 }}</td>
-                    <td class="text-center align-middle">
-                        @if($item->status)
-                            <span class="badge bg-success">Active</span>
-                        @else
-                            <span class="badge bg-danger">Inactive</span>
-                        @endif
-                    </td>
+                   
                     <td class="text-center align-middle">
                         <button class="btn btn-sm btn-info text-white" title="View" data-bs-toggle="modal" data-bs-target="#viewModal{{ $item->id }}">
                             <i class="fas fa-eye"></i>
@@ -84,14 +78,7 @@
                                     <div class="col-md-6">
                                         <strong>Display Order:</strong> {{ $item->display_order ?? 0 }}
                                     </div>
-                                    <div class="col-md-6">
-                                        <strong>Status:</strong>
-                                        @if($item->status)
-                                            <span class="badge bg-success">Active</span>
-                                        @else
-                                            <span class="badge bg-danger">Inactive</span>
-                                        @endif
-                                    </div>
+                                   
                                 </div>
 
                             </div>
@@ -167,13 +154,7 @@
                                             <label for="display_order{{ $item->id }}" class="form-label">Display Order</label>
                                             <input type="number" class="form-control" id="display_order{{ $item->id }}" name="display_order" value="{{ $item->display_order ?? 0 }}" min="0">
                                         </div>
-                                        <div class="col-md-6">
-                                            <label for="status{{ $item->id }}" class="form-label">Status</label>
-                                            <select class="form-select" id="status{{ $item->id }}" name="status">
-                                                <option value="1" {{ $item->status ? 'selected' : '' }}>Active</option>
-                                                <option value="0" {{ !$item->status ? 'selected' : '' }}>Inactive</option>
-                                            </select>
-                                        </div>
+                                     
                                     </div>
 
                                 </div>
@@ -273,15 +254,7 @@
                             <input type="text" class="form-control" id="stat_text" name="stat_text">
                         </div>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label for="status" class="form-label">Status</label>
-                            <select class="form-select" id="status" name="status">
-                                <option value="1" selected>Active</option>
-                                <option value="0">Inactive</option>
-                            </select>
-                        </div>
-                    </div>
+                    
 
                 </div>
                 <div class="modal-footer">
@@ -347,7 +320,7 @@
                         <th width="15%">Order</th>
                         <th width="25%">Number</th>
                         <th width="25%">Text</th>
-                        <th width="15%">Status</th>
+                        
                         <th width="20%" class="text-center">Action</th>
                     </tr>
                 </thead>
@@ -357,13 +330,7 @@
                         <td class="align-middle text-center">{{ $stat->display_order ?? 0 }}</td>
                         <td class="align-middle"><strong>{{ $stat->number }}</strong></td>
                         <td class="align-middle">{{ $stat->text }}</td>
-                        <td class="text-center align-middle">
-                            @if($stat->status)
-                                <span class="badge bg-success">Active</span>
-                            @else
-                                <span class="badge bg-danger">Inactive</span>
-                            @endif
-                        </td>
+                        
                         <td class="text-center align-middle">
                             <button class="btn btn-sm btn-info text-white" title="View" data-bs-toggle="modal" data-bs-target="#viewStatModal{{ $stat->id }}">
                                 <i class="fas fa-eye"></i>
@@ -400,14 +367,7 @@
                                         <div class="col-md-6">
                                             <strong>Display Order:</strong> {{ $stat->display_order }}
                                         </div>
-                                        <div class="col-md-6">
-                                            <strong>Status:</strong>
-                                            @if($stat->status)
-                                                <span class="badge bg-success">Active</span>
-                                            @else
-                                                <span class="badge bg-danger">Inactive</span>
-                                            @endif
-                                        </div>
+                                      
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -444,13 +404,7 @@
                                                 <label for="display_order{{ $stat->id }}" class="form-label">Display Order</label>
                                                 <input type="number" class="form-control" id="display_order{{ $stat->id }}" name="display_order" value="{{ $stat->display_order }}" min="0">
                                             </div>
-                                            <div class="col-md-6">
-                                                <label for="status{{ $stat->id }}" class="form-label">Status</label>
-                                                <select class="form-select" id="status{{ $stat->id }}" name="status">
-                                                    <option value="1" {{ $stat->status ? 'selected' : '' }}>Active</option>
-                                                    <option value="0" {{ !$stat->status ? 'selected' : '' }}>Inactive</option>
-                                                </select>
-                                            </div>
+                                            
                                         </div>
                                     </div>
                                     <div class="modal-footer">
@@ -526,13 +480,7 @@
                                 <label for="display_order" class="form-label">Display Order</label>
                                 <input type="number" class="form-control" id="display_order" name="display_order" placeholder="0" min="0">
                             </div>
-                            <div class="col-md-6">
-                                <label for="status" class="form-label">Status</label>
-                                <select class="form-select" id="status" name="status">
-                                    <option value="1" selected>Active</option>
-                                    <option value="0">Inactive</option>
-                                </select>
-                            </div>
+                            
                         </div>
                     </div>
                     <div class="modal-footer">

@@ -896,6 +896,61 @@
 
             const API_ENDPOINT = 'https://kyc-api.surepass.io/api/v1/bank-verification/';
             const API_TOKEN = @json(config('services.surepass.token'));
+            const APPLICANT_NAME = @json($user->name ?? '');
+
+            function normalizeName(rawName) {
+                if (!rawName) return '';
+                let name = String(rawName).toUpperCase().trim();
+                name = name.replace(/[.,]/g, ' ');
+                name = name.replace(/\s+/g, ' ').trim();
+                // Remove common honorifics/titles from the start (can be repeated)
+                const titlePattern = /^(MR|MRS|MS|MISS|DR|PROF|SHRI|SRI|SMT|KM|KUM|KUMARI)\s+/;
+                while (titlePattern.test(name)) {
+                    name = name.replace(titlePattern, '').trim();
+                }
+                // Keep only letters and spaces, then collapse spaces
+                name = name.replace(/[^A-Z ]/g, ' ').replace(/\s+/g, ' ').trim();
+                return name;
+            }
+
+            function bankNameMatchesApplicant(apiName) {
+                return normalizeName(apiName) === normalizeName(APPLICANT_NAME);
+            }
+
+            function clearBankDetailsFields() {
+                const bankNameSelect = document.getElementById('bank_name');
+                const ifscInput = document.getElementById('ifsc_code');
+                const accountInput = document.getElementById('account_number');
+                const holderInput = document.getElementById('account_holder_name');
+                const branchInput = document.getElementById('branch_name');
+                const addressInput = document.getElementById('bank_address');
+
+                if (bankNameSelect) bankNameSelect.value = '';
+                if (ifscInput) ifscInput.value = '';
+                if (accountInput) accountInput.value = '';
+                if (holderInput) holderInput.value = '';
+                if (branchInput) branchInput.value = '';
+                if (addressInput) addressInput.value = '';
+            }
+
+            function showNameMismatchError() {
+                validationMessageDiv.className = 'alert alert-danger alert-dismissible fade show';
+                validationMessageDiv.style.display = 'block';
+                validationText.innerHTML =
+                    '<strong>Error:</strong> Applicant name and Account Holder name do not match';
+
+                const bankVerifyMsg = document.getElementById('bank-verify-msg');
+                if (bankVerifyMsg) {
+                    bankVerifyMsg.innerHTML =
+                        '<span class="text-danger">Applicant name and Account Holder name do not match</span>';
+                }
+            }
+
+            window.bankNameMatchesApplicant = bankNameMatchesApplicant;
+            window.showBankNameMismatch = function() {
+                showNameMismatchError();
+                clearBankDetailsFields();
+            };
 
             function validateBankAccount() {
 
@@ -943,6 +998,12 @@
                             // Success - populate fields
                             const responseData = data.data;
                             const ifscDetails = responseData.ifsc_details;
+
+                            if (!bankNameMatchesApplicant(responseData.full_name || '')) {
+                                showNameMismatchError();
+                                clearBankDetailsFields();
+                                return;
+                            }
 
                             // Populate fields
                             document.querySelector('input[name="account_holder_name"]').value = responseData
@@ -1024,6 +1085,13 @@
                         success: function(res) {
 
                             if (res.success) {
+                                if (window.bankNameMatchesApplicant &&
+                                    !window.bankNameMatchesApplicant(res.full_name || '')) {
+                                    if (window.showBankNameMismatch) {
+                                        window.showBankNameMismatch();
+                                    }
+                                    return;
+                                }
                                 $('#bank-verify-msg').html(
                                     `<span class="text-success">âœ” Bank verified successfully</span>`
                                 );
@@ -2002,6 +2070,19 @@
                     if (data.success && data.data && data.data.account_exists) {
                         const responseData = data.data;
                         const ifscDetails = responseData.ifsc_details || {};
+
+                        if (window.bankNameMatchesApplicant &&
+                            !window.bankNameMatchesApplicant(responseData.full_name || '')) {
+                            setEditValidationMessage(
+                                'danger',
+                                'Applicant name and Account Holder name do not match'
+                            );
+                            clearEditAutoFillFields();
+                            if (typeof resetEditBankModalFields === 'function') {
+                                resetEditBankModalFields();
+                            }
+                            return;
+                        }
 
                         editAccountHolderInput.value = responseData.full_name || '';
                         editBranchNameInput.value = ifscDetails.branch || '';

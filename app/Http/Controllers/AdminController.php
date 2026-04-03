@@ -2134,20 +2134,27 @@ class AdminController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        // Filter out empty small_titles and small_descriptions
-        $smallTitles = array_filter($request->small_titles ?? [], function ($value) {
-            return !is_null($value) && $value !== '';
-        });
-        $smallDescriptions = array_filter($request->small_descriptions ?? [], function ($value) {
-            return !is_null($value) && $value !== '';
-        });
+        // Get small_titles and small_descriptions arrays
+        $smallTitles = $request->small_titles ?? [];
+        $smallDescriptions = $request->small_descriptions ?? [];
+
+        // Filter out empty values but keep the data
+        $filteredTitles = [];
+        $filteredDescriptions = [];
+
+        foreach ($smallTitles as $index => $title) {
+            if (!empty(trim($title))) {
+                $filteredTitles[] = trim($title);
+                $filteredDescriptions[] = !empty($smallDescriptions[$index]) ? trim($smallDescriptions[$index]) : '';
+            }
+        }
 
         \App\Models\AdminContact::create([
             'title' => $request->title,
             'description' => $request->description,
-            'small_titles' => array_values($smallTitles),
-            'small_descriptions' => array_values($smallDescriptions),
-            'is_active' => $request->is_active ?? true,
+            'small_titles' => !empty($filteredTitles) ? $filteredTitles : null,
+            'small_descriptions' => !empty($filteredDescriptions) ? $filteredDescriptions : null,
+            'is_active' => $request->has('is_active') ? true : false,
         ]);
 
         return back()->with('success', 'Contact Data Added Successfully');

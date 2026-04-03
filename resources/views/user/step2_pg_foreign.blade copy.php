@@ -570,7 +570,7 @@
                                             <div id="current-education-fields" style="display: none;">
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control" name="current_course_name"
-                                                        placeholder="Current Course Name *"
+                                                        placeholder="Course Name *"
                                                         value="{{ old('current_course_name') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('current_course_name') }}</small>

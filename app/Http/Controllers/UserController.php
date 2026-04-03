@@ -180,7 +180,7 @@ class UserController extends Controller
             'phone' => 'required|string|max:15|unique:users,phone,' . auth()->id(),
             'alternate_phone' => 'nullable|string|max:15',
 
-            'email' => 'required|email|max:255|digits:12|unique:users,email,' . auth()->id(),
+            'email' => 'required|email|max:255|unique:users,email,' . auth()->id(),
             'alternate_email' => 'nullable|email|max:255',
 
             'flat_no' => 'nullable|string',

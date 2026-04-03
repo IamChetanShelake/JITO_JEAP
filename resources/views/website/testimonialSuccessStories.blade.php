@@ -42,7 +42,7 @@
         <div class="container mb-5">
             <div style="flex: 1 1 50%; max-width: 700px;">
                 <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
-                    <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
+                    <!-- <div style="width: 3px; height: 40px; background-color: #E31E25;"></div> -->
                     <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
                         <span style="color: #FFD800;">OUR</span> <span style="color: #393186;">TESTIMONIALS</span>
                     </h2>

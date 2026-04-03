@@ -37,7 +37,7 @@
             <!-- Board of Directors Section -->
             <div class="text-image-wrapper row align-items-center" style="">
                 <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
-                    <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
+                    <!-- <div style="width: 3px; height: 40px; background-color: #E31E25;"></div> -->
                     <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
                         <span style="color: #FFD800;">BOARD</span> <span style="color: #393186;">OF DIRECTORS</span>
                     </h2>

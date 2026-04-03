@@ -6,7 +6,7 @@
 <div class="welcome-card w-100">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3><i class="fas fa-rocket"></i> Empowering Future</h3>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEmpoweringDreamModal">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEmpoweringFutureModal">
             <i class="fas fa-plus"></i> Add Data
         </button>
     </div>
@@ -260,11 +260,11 @@
 </div>
 
 <!-- Add Data Modal -->
-<div class="modal fade" id="addEmpoweringDreamModal" tabindex="-1" aria-labelledby="addEmpoweringDreamModalLabel" aria-hidden="true">
+<div class="modal fade" id="addEmpoweringFutureModal" tabindex="-1" aria-labelledby="addEmpoweringFutureModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addEmpoweringDreamModalLabel">Add Empowering Dream</h5>
+                <h5 class="modal-title" id="addEmpoweringFutureModalLabel">Add Empowering Future</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="{{ route('admin.website.home.empowering-future.store') }}" method="POST" enctype="multipart/form-data">
@@ -314,7 +314,7 @@
                         </div>
                     </div>
                     
-                    <div class="row mb-3">
+                    <!-- <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="order" class="form-label">Display Order</label>
                             <input type="number" class="form-control" id="order" name="order" value="0" min="0">
@@ -326,7 +326,7 @@
                                 <option value="0">Inactive</option>
                             </select>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

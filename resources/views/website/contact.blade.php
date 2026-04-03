@@ -15,7 +15,7 @@
             <div class="row">
                 <div class="col-lg-12">
                     <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
-                        <a href="{{ route('index') }}"><i class='fas fa-angle-left' style='font-size:43px;color:#E31E25'></i></a>
+                        <!-- <a href="{{ route('index') }}"><i class='fas fa-angle-left' style='font-size:43px;color:#E31E25'></i></a> -->
                         <span style="color: #FFD800;">contact</span> <span style="color: #393186;">us</span>
                     </h2>
                 </div>
@@ -30,9 +30,9 @@
                 
                 <!-- Left Side: Contact Info (White Background) -->
                 <div class="col-lg-5" style="background-color: #ffffff; padding: 50px;">
-                    <h2 style="font-family: 'Times New Roman', Times, serif; font-weight: bold; font-size: 32px; margin-bottom: 10px;">
+                    <!-- <h2 style="font-family: 'Times New Roman', Times, serif; font-weight: bold; font-size: 32px; margin-bottom: 10px;">
                         <span style="color: #FFD800;">CONTACT</span> <span style="color: #393186;">US</span>
-                    </h2>
+                    </h2> -->
                     
                     @if($contactItems->count() > 0)
                         @foreach($contactItems as $contact)
@@ -149,6 +149,9 @@
                             {{ session('success') }}
                         </div>
                     @endif
+                    <h2 style="font-family: 'Times New Roman', Times, serif; font-weight: bold; font-size: 32px; margin-bottom: 10px;">
+                        <span style="color: #FFD800;">CONTACT</span> <span style="color: #FFD800;">US</span>
+                    </h2>
                     <form action="{{ route('contact.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
@@ -165,11 +168,11 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <input type="tel" name="phone" class="form-control" placeholder="Phone"
-                                    style="background-color: #ffffff; border: none; border-radius: 0; padding: 15px; font-size: 14px; color: #333;">
+                                    style="margin-top:-50px;background-color: #ffffff; border: none; border-radius: 0; padding: 15px; font-size: 14px; color: #333;">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <input type="text" name="subject" class="form-control" placeholder="Subject"
-                                    style="background-color: #ffffff; border: none; border-radius: 0; padding: 15px; font-size: 14px; color: #333;">
+                                    style="margin-top:-50px;background-color: #ffffff; border: none; border-radius: 0; padding: 15px; font-size: 14px; color: #333;">
                             </div>
                         </div>
 

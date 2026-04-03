@@ -56,7 +56,7 @@
                             <i class="fas fa-eye"></i> View
                         </button>
                         <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ $gallery->id }}">
-                            <i class="fas fa-edit"></i> Add More
+                            <i class="fas fa-edit"></i> Edit
                         </button>
                         <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $gallery->id }}">
                             <i class="fas fa-trash"></i> Delete
@@ -101,7 +101,7 @@
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="editModalLabel{{ $gallery->id }}">Add More Photos</h5>
+                                <h5 class="modal-title" id="editModalLabel{{ $gallery->id }}">Edit Photos</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <form action="{{ route('admin.website.home.photo-gallery.update', $gallery->id) }}" method="POST" enctype="multipart/form-data">
@@ -109,32 +109,49 @@
                                 @method('PUT')
                                 <div class="modal-body">
                                     <div class="mb-3">
-                                        <label class="form-label">Add More Images</label>
+                                        <label class="form-label">Add New Images</label>
                                         <input type="file" class="form-control" name="images[]" accept="image/*" multiple>
-                                        <small class="text-muted">Select multiple images to add more photos</small>
+                                        <small class="text-muted">Select multiple images to add new photos</small>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Current Photos</label>
+                                        <label class="form-label">Current Photos <span class="text-muted">(Click X to remove)</span></label>
                                         <div class="d-flex flex-wrap gap-2">
                                             @php
                                                 $images = json_decode($gallery->images, true) ?? [];
                                             @endphp
-                                            @foreach($images as $img)
+                                            @foreach($images as $imgKey => $img)
                                                 @if(file_exists(public_path($img)))
-                                                    <img src="{{ asset($img) }}" alt="Gallery" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">
+                                                    <div class="position-relative" style="width: 80px; height: 80px;">
+                                                        <img src="{{ asset($img) }}" alt="Gallery" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">
+                                                        <button type="button" class="btn btn-danger btn-sm position-absolute" style="top: -5px; right: -5px; padding: 2px 6px; font-size: 10px;" onclick="removeImage{{ $gallery->id }}('{{ $img }}', event)">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </div>
                                                 @endif
                                             @endforeach
                                         </div>
+                                        <input type="hidden" name="removed_images" id="removed_images{{ $gallery->id }}" value="">
                                     </div>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Add Photos</button>
+                                    <button type="submit" class="btn btn-primary">Update Photos</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
+
+                <script>
+                function removeImage{{ $gallery->id }}(imagePath, event) {
+                    var removedInput = document.getElementById('removed_images{{ $gallery->id }}');
+                    var currentRemoved = removedInput.value ? JSON.parse(removedInput.value) : [];
+                    currentRemoved.push(imagePath);
+                    removedInput.value = JSON.stringify(currentRemoved);
+                    
+                    event.target.closest('.position-relative').style.display = 'none';
+                }
+                </script>
 
                 <!-- Delete Modal -->
                 <div class="modal fade" id="deleteModal{{ $gallery->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $gallery->id }}" aria-hidden="true">

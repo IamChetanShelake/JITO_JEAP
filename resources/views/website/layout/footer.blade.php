@@ -4,7 +4,7 @@
         <div class="row row-30">
             <div class=" col-lg-4 align-self-center"><a class="brand" href="{{ route('index') }}"><img
                         class="brand-logo-light" src="{{ asset('jitojeaplogo.png') }}"
-                        srcset="{{ asset('jitojeaplogo.png') }}" alt="Voelas" style="width:200px;"></a>
+                        srcset="{{ asset('jitojeaplogo.png') }}" alt="Voelas" style="width:200px; margin-top:-100px"></a>
                 <p style="font-size: 18px; font-family:'Poppins';font-weight:600;">JITO Education Assistance Program</p>
                 <p style="text-align: justify;">We empower deserving and meritorious students to pursue higher education
                     in top institutions across
@@ -153,7 +153,7 @@
                 </h5>
                 <div class="event-detail">
                     <p class="event-detail-address big"
-                        style="font-family:Arial;color:#2D2D2D;font-size:18px;font-weight: 400;">JITO HOUSE, Plot No.
+                        style="font-family:Arial;color:#2D2D2D;font-size:18px;font-weight: 400; margin-top:-20px">JITO HOUSE, Plot No.
                         A-56, Road No. 1, MIDC MAROL, Near International by Tunga Hotel, Mulgaon, Andheri
                         (East), Mumbai - 400 093.<br>
                         Contact:+91 86559 88411<br>

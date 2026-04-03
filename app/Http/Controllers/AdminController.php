@@ -27,6 +27,7 @@ use App\Models\DisbursementSchedule;
 use App\Models\EditBankDetailRequest;
 use App\Models\EducationDetail;
 use App\Models\EmpoweringDream;
+use App\Models\EmpoweringFutureWebsite;
 use App\Models\JeapWebsite;
 use App\Models\KeyInstruction;
 use App\Models\Loan_category;
@@ -873,7 +874,7 @@ class AdminController extends Controller
      */
     public function websiteHomeEmpoweringFuture()
     {
-        $empoweringDreams = EmpoweringDream::on('admin_panel')->orderBy('order')->get();
+        $empoweringDreams = EmpoweringFutureWebsite::on('admin_panel')->orderBy('order')->get();
         $response = response()->view('admin.website.home.empowering-future', compact('empoweringDreams'));
         $response->header('Cache-Control', 'no-cache, no-store, must-revalidate');
         $response->header('Pragma', 'no-cache');
@@ -905,7 +906,7 @@ class AdminController extends Controller
             $imagePath = 'uploads/empowering-dreams/' . $imageName;
         }
 
-        EmpoweringDream::on('admin_panel')->create([
+        EmpoweringFutureWebsite::on('admin_panel')->create([
             'title' => $request->title,
             'description' => $request->description,
             'vision' => $request->input('vision', ''),
@@ -914,7 +915,7 @@ class AdminController extends Controller
             'mission_description' => $request->input('mission_description', ''),
             'features' => $request->input('features', ''),
             'image' => $imagePath,
-            'order' => EmpoweringDream::on('admin_panel')->max('order') + 1,
+            'order' => EmpoweringFutureWebsite::on('admin_panel')->max('order') + 1,
             'status' => true,
         ]);
 
@@ -939,7 +940,7 @@ class AdminController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $dream = EmpoweringDream::on('admin_panel')->findOrFail($id);
+        $dream = EmpoweringFutureWebsite::on('admin_panel')->findOrFail($id);
 
         $imagePath = $dream->image;
         if ($request->hasFile('image')) {
@@ -973,7 +974,7 @@ class AdminController extends Controller
      */
     public function deleteEmpoweringFuture($id)
     {
-        $dream = EmpoweringDream::on('admin_panel')->findOrFail($id);
+        $dream = EmpoweringFutureWebsite::on('admin_panel')->findOrFail($id);
 
         if ($dream->image && file_exists($dream->image)) {
             unlink($dream->image);
@@ -1120,6 +1121,20 @@ class AdminController extends Controller
         $gallery = PhotoGallery::findOrFail($id);
 
         $imagePaths = json_decode($gallery->images, true) ?? [];
+
+        $removedImages = $request->input('removed_images');
+        if ($removedImages) {
+            $removedArray = json_decode($removedImages, true) ?? [];
+            foreach ($removedArray as $imgToRemove) {
+                if (file_exists(public_path($imgToRemove))) {
+                    unlink(public_path($imgToRemove));
+                }
+                $imagePaths = array_filter($imagePaths, function($img) use ($imgToRemove) {
+                    return $img !== $imgToRemove;
+                });
+            }
+            $imagePaths = array_values($imagePaths);
+        }
 
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {

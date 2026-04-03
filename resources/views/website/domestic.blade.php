@@ -67,7 +67,7 @@
                 style="margin-top:-40px !important;">
                 <!-- Header -->
                 <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
-                    <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
+                    <!-- <div style="width: 3px; height: 40px; background-color: #E31E25;"></div> -->
                     <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
                         <span style="color: #FFD800;">Domestic</span> <span style="color: #393186;">(200 nirf)</span>
                     </h2>

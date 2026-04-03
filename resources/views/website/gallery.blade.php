@@ -24,7 +24,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="heading-line">
-                        <div class="accent-bar"></div>
+                        <!-- <div class="accent-bar"></div> -->
                         <div class="headline">
                             <h1><span class="yellow">PHOTO</span> <span class="purple">GALLERY</span></h1>
                         </div>

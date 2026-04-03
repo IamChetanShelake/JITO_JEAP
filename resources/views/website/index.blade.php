@@ -51,7 +51,7 @@
 
   <!-- Right: Login/Register Buttons -->
   <div style="display: flex; gap: 15px;">
-    <a href="{{ route('login') }}" style="border: 1px solid #888; padding: 6px 20px; border-radius: 6px; font-weight: 500; text-decoration: none; color: #333;">Login</a>
+    <a href="{{ route('login') }}" style=" border: 1px solid #888; padding: 6px 20px; border-radius: 6px; font-weight: 500; text-decoration: none; color: #333;">Login</a>
     <a href="{{ route('register') }}" style="background-color: #008c44; padding: 6px 20px; border-radius: 6px; font-weight: 500; text-decoration: none; color: white; box-shadow: 2px 2px 6px rgba(0,0,0,0.2);">REGISTER</a>
   </div>
 

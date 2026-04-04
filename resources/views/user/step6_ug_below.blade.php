@@ -79,7 +79,7 @@
                                 </button>
                             </div>
                         @endif
-                        
+
                         <div class="row mb-3">
                             <div class="col-md-5 offset-md-1">
                                 <select class="form-control" name="financial_asset_type" id="financial_asset_type"
@@ -164,7 +164,7 @@
 
                                 <!-- Documents Upload Section - Two Column Layout -->
                                 <div class="documents-section">
-                                    
+
                                     <!-- Row 1: SSC & HSC -->
                                     <div class="row mb-3">
                                         <div class="col-lg-6 col-md-6 col-sm-12">
@@ -175,7 +175,7 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">SSC Marksheet *</span>
                                                             <input type="file" id="ssc_marksheet" name="ssc_cbse_icse_ib_igcse" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" 
+                                                                accept=".jpg,.jpeg,.png,.pdf"
                                                                 @if(!($documents && $documents->ssc_cbse_icse_ib_igcse)) required @endif
                                                                 @if ($documents && $documents->ssc_cbse_icse_ib_igcse) data-filename="{{ basename($documents->ssc_cbse_icse_ib_igcse) }}" @endif>
                                                             <small class="text-danger">{{ $errors->first('ssc_cbse_icse_ib_igcse') }}</small>
@@ -219,7 +219,7 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">HSC / Diploma Marksheet *</span>
                                                             <input type="file" id="hsc_diploma_marksheet" name="hsc_diploma_marksheet" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" 
+                                                                accept=".jpg,.jpeg,.png,.pdf"
                                                                 @if(!($documents && $documents->hsc_diploma_marksheet)) required @endif
                                                                 @if ($documents && $documents->hsc_diploma_marksheet) data-filename="{{ basename($documents->hsc_diploma_marksheet) }}" @endif>
                                                             <small class="text-danger">{{ $errors->first('hsc_diploma_marksheet') }}</small>
@@ -266,7 +266,7 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">College – Fees Structure *</span>
                                                             <input type="file" id="college_fees_structure" name="admission_letter_fees_structure" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" 
+                                                                accept=".jpg,.jpeg,.png,.pdf"
                                                                 @if(!($documents && $documents->admission_letter_fees_structure)) required @endif
                                                                 @if ($documents && $documents->admission_letter_fees_structure) data-filename="{{ basename($documents->admission_letter_fees_structure) }}" @endif>
                                                             <small class="text-danger">{{ $errors->first('admission_letter_fees_structure') }}</small>
@@ -310,7 +310,7 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">Student Bank Details & Statement (Last 6 months / 1 year) *</span>
                                                             <input type="file" id="student_bank_details_statement" name="student_bank_details_statement" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" 
+                                                                accept=".jpg,.jpeg,.png,.pdf"
                                                                 @if(!($documents && $documents->student_bank_details_statement)) required @endif
                                                                 @if ($documents && $documents->student_bank_details_statement) data-filename="{{ basename($documents->student_bank_details_statement) }}" @endif>
                                                             <small class="text-danger">{{ $errors->first('student_bank_details_statement') }}</small>
@@ -354,7 +354,7 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">PAN Card – Applicant *</span>
                                                             <input type="file" id="pan_card_applicant" name="pan_applicant" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" 
+                                                                accept=".jpg,.jpeg,.png,.pdf"
                                                                 @if(!($documents && $documents->pan_applicant)) required @endif
                                                                 @if ($documents && $documents->pan_applicant) data-filename="{{ basename($documents->pan_applicant) }}" @endif>
                                                             <small class="text-danger">{{ $errors->first('pan_applicant') }}</small>
@@ -401,7 +401,7 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">Aadhaar Card – Applicant *</span>
                                                             <input type="file" id="aadhaar_card_applicant" name="aadhaar_applicant" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" 
+                                                                accept=".jpg,.jpeg,.png,.pdf"
                                                                 @if(!($documents && $documents->aadhaar_applicant)) required @endif
                                                                 @if ($documents && $documents->aadhaar_applicant) data-filename="{{ basename($documents->aadhaar_applicant) }}" @endif>
                                                             <small class="text-danger">{{ $errors->first('aadhaar_applicant') }}</small>
@@ -445,7 +445,7 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">Jain Sangh Certificate *</span>
                                                             <input type="file" id="jain_sangh_certificate" name="jain_sangh_certificate" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" 
+                                                                accept=".jpg,.jpeg,.png,.pdf"
                                                                 @if(!($documents && $documents->jain_sangh_certificate)) required @endif
                                                                 @if ($documents && $documents->jain_sangh_certificate) data-filename="{{ basename($documents->jain_sangh_certificate) }}" @endif>
                                                             <small class="text-danger">{{ $errors->first('jain_sangh_certificate') }}</small>
@@ -492,7 +492,7 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">Recommendation of JITO Member *</span>
                                                             <input type="file" id="jito_recommendation" name="jito_group_recommendation" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" 
+                                                                accept=".jpg,.jpeg,.png,.pdf"
                                                                 @if(!($documents && $documents->jito_group_recommendation)) required @endif
                                                                 @if ($documents && $documents->jito_group_recommendation) data-filename="{{ basename($documents->jito_group_recommendation) }}" @endif>
                                                             <small class="text-danger">{{ $errors->first('jito_group_recommendation') }}</small>
@@ -536,7 +536,7 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">Latest Electricity Bill *</span>
                                                             <input type="file" id="electricity_bill" name="electricity_bill" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" 
+                                                                accept=".jpg,.jpeg,.png,.pdf"
                                                                 @if(!($documents && $documents->electricity_bill)) required @endif
                                                                 @if ($documents && $documents->electricity_bill) data-filename="{{ basename($documents->electricity_bill) }}" @endif>
                                                             <small class="text-danger">{{ $errors->first('electricity_bill') }}</small>
@@ -583,7 +583,7 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">Aadhaar Card – Father / Mother / Guardian *</span>
                                                             <input type="file" id="aadhaar_card_parent" name="aadhaar_father_mother" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" 
+                                                                accept=".jpg,.jpeg,.png,.pdf"
                                                                 @if(!($documents && $documents->aadhaar_father_mother)) required @endif
                                                                 @if ($documents && $documents->aadhaar_father_mother) data-filename="{{ basename($documents->aadhaar_father_mother) }}" @endif>
                                                             <small class="text-danger">{{ $errors->first('aadhaar_father_mother') }}</small>
@@ -627,7 +627,7 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">PAN Card – Father / Mother / Guardian *</span>
                                                             <input type="file" id="pan_card_parent" name="pan_father_mother" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" 
+                                                                accept=".jpg,.jpeg,.png,.pdf"
                                                                 @if(!($documents && $documents->pan_father_mother)) required @endif
                                                                 @if ($documents && $documents->pan_father_mother) data-filename="{{ basename($documents->pan_father_mother) }}" @endif>
                                                             <small class="text-danger">{{ $errors->first('pan_father_mother') }}</small>
@@ -674,7 +674,7 @@
                                                         <div class="col-9">
                                                             <span class="photo-label">Form No. 16 OR Salary Slips (Last 6 months) *</span>
                                                             <input type="file" id="form_16_salary_slips" name="form16_salary_income_father" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" 
+                                                                accept=".jpg,.jpeg,.png,.pdf"
                                                                 @if(!($documents && $documents->form16_salary_income_father)) required @endif
                                                                 @if ($documents && $documents->form16_salary_income_father) data-filename="{{ basename($documents->form16_salary_income_father) }}" @endif>
                                                             <small class="text-danger">{{ $errors->first('form16_salary_income_father') }}</small>
@@ -789,7 +789,7 @@
                                                 <path d="M9 6l6 6-6 6" />
                                             </svg>
                                         </button>
-                                        <small id="uploadWarning" class="text-danger" style="display:none;">Please upload all required documents first.</small>
+                                       
                                     @endif
                                 </div>
                             </form>
@@ -820,7 +820,7 @@
                     'form16_salary_income_father',
                     'bank_statement_father_12months'
                 ];
-                
+
                 let allUploaded = true;
                 requiredFields.forEach(function(field) {
                     const input = document.querySelector('input[name="' + field + '"]');
@@ -828,10 +828,10 @@
                         allUploaded = false;
                     }
                 });
-                
+
                 const nextBtn = document.getElementById('nextStepBtn');
                 const warning = document.getElementById('uploadWarning');
-                
+
                 if (nextBtn) {
                     nextBtn.disabled = !allUploaded;
                     if (!allUploaded && warning) {
@@ -841,14 +841,14 @@
                     }
                 }
             }
-            
+
             document.querySelectorAll('input[type="file"]').forEach(function(input) {
                 input.addEventListener('change', function(e) {
                     const file = e.target.files[0];
                     if (file) {
                         const photoUploadBox = input.closest('.photo-upload-box');
                         if (!photoUploadBox) return;
-                        
+
                         const uploadStatus = photoUploadBox.querySelector('.upload-status');
                         const uploadButton = photoUploadBox.querySelector('.upload-btn');
                         const uploadedButton = photoUploadBox.querySelector('.uploaded-btn');
@@ -873,7 +873,7 @@
                         uploadedButton.style.borderRadius = '10px';
                         uploadStatus.style.display = 'block';
                         removeBtn.style.display = 'inline-block';
-                        
+
                         checkAllDocumentsUploaded();
                     }
                 });
@@ -891,7 +891,7 @@
                             uploadButton.style.display = 'block';
                             uploadedButton.style.display = 'none';
                             removeBtn.style.display = 'none';
-                            
+
                             // Remove document from database via AJAX
                             const fieldName = input.name;
                             if (input.dataset.filename && !input.files.length) {
@@ -912,7 +912,7 @@
                                 })
                                 .catch(error => console.error('Error:', error));
                             }
-                            
+
                             checkAllDocumentsUploaded();
                         });
                     }
@@ -921,7 +921,7 @@
                 if (input.dataset.filename) {
                     const photoUploadBox = input.closest('.photo-upload-box');
                     if (!photoUploadBox) return;
-                    
+
                     const uploadStatus = photoUploadBox.querySelector('.upload-status');
                     const uploadButton = photoUploadBox.querySelector('.upload-btn');
                     const uploadedButton = photoUploadBox.querySelector('.uploaded-btn');
@@ -949,7 +949,7 @@
                     removeBtn.style.display = 'inline-block';
                 }
             });
-            
+
             checkAllDocumentsUploaded();
         });
     </script>

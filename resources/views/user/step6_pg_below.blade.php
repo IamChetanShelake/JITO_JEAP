@@ -66,7 +66,8 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <form method="POST" action="{{ route('user.step6.storepgbelow') }}" enctype="multipart/form-data" novalidate>
+                    <form method="POST" action="{{ route('user.step6.storepgbelow') }}" enctype="multipart/form-data"
+                        novalidate>
                         @csrf
                         @if (session('success'))
                             <div class="alert alert-warning alert-dismissible fade show position-relative" role="alert"
@@ -144,7 +145,7 @@
                                     <div class="row mb-3">
                                         <!-- Left Column -->
                                         <div class="col-lg-6 col-md-6 col-sm-12 col-12">
-                                            
+
                                             <!-- 1. SSC Marksheet -->
                                             <div class="form-group mb-3">
                                                 <div class="photo-upload-box">
@@ -155,7 +156,8 @@
                                                                 name="ssc_cbse_icse_ib_igcse" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required
                                                                 @if ($documents && $documents->ssc_cbse_icse_ib_igcse) data-filename="{{ basename($documents->ssc_cbse_icse_ib_igcse) }}" @endif>
-                                                            <small class="text-danger">{{ $errors->first('ssc_cbse_icse_ib_igcse') }}</small>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('ssc_cbse_icse_ib_igcse') }}</small>
                                                         </div>
                                                         <div class="col-3">
                                                             <label for="ssc_marksheet" class="upload-btn">
@@ -170,9 +172,13 @@
                                                         <div class="col-12">
                                                             <div class="upload-status" style="display:none;">
                                                                 <div class="row">
-                                                                    <div class="col-9"><div class="upload-summary"></div></div>
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
                                                                     <div class="col-3">
-                                                                        <button type="button" class="remove-upload btn bt-sm" style="display:none;">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
                                                                             <i class="bi bi-trash"></i> Remove</button>
                                                                     </div>
                                                                 </div>
@@ -182,7 +188,9 @@
                                                 </div>
                                                 @if ($documents && $documents->ssc_cbse_icse_ib_igcse)
                                                     <div class="existing-document mt-2">
-                                                        <a href="{{ asset($documents->ssc_cbse_icse_ib_igcse) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
+                                                        <a href="{{ asset($documents->ssc_cbse_icse_ib_igcse) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
                                                     </div>
                                                 @endif
                                             </div>
@@ -193,10 +201,12 @@
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">HSC / Diploma Marksheet *</span>
-                                                            <input type="file" id="hsc_diploma_marksheet" name="hsc_diploma_marksheet" hidden
+                                                            <input type="file" id="hsc_diploma_marksheet"
+                                                                name="hsc_diploma_marksheet" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required
                                                                 @if ($documents && $documents->hsc_diploma_marksheet) data-filename="{{ basename($documents->hsc_diploma_marksheet) }}" @endif>
-                                                            <small class="text-danger">{{ $errors->first('hsc_diploma_marksheet') }}</small>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('hsc_diploma_marksheet') }}</small>
                                                         </div>
                                                         <div class="col-3">
                                                             <label for="hsc_diploma_marksheet" class="upload-btn">
@@ -211,9 +221,13 @@
                                                         <div class="col-12">
                                                             <div class="upload-status" style="display:none;">
                                                                 <div class="row">
-                                                                    <div class="col-9"><div class="upload-summary"></div></div>
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
                                                                     <div class="col-3">
-                                                                        <button type="button" class="remove-upload btn bt-sm" style="display:none;">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
                                                                             <i class="bi bi-trash"></i> Remove</button>
                                                                     </div>
                                                                 </div>
@@ -223,52 +237,62 @@
                                                 </div>
                                                 @if ($documents && $documents->hsc_diploma_marksheet)
                                                     <div class="existing-document mt-2">
-                                                        <a href="{{ asset($documents->hsc_diploma_marksheet) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
+                                                        <a href="{{ asset($documents->hsc_diploma_marksheet) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
                                                     </div>
                                                 @endif
                                             </div>
 
                                             <!-- 3. Graduation Marksheet (Only for Post Graduation) -->
                                             @if ($user->financial_asset_for == 'post_graduation')
-                                            <div class="form-group mb-3">
-                                                <div class="photo-upload-box">
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-9">
-                                                            <span class="photo-label">Graduation Marksheet *</span>
-                                                            <input type="file" id="graduation_marksheet" name="graduate_post_graduate_marksheet" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
-                                                                @if ($documents && $documents->graduate_post_graduate_marksheet) data-filename="{{ basename($documents->graduate_post_graduate_marksheet) }}" @endif>
-                                                            <small class="text-danger">{{ $errors->first('graduate_post_graduate_marksheet') }}</small>
+                                                <div class="form-group mb-3">
+                                                    <div class="photo-upload-box">
+                                                        <div class="row mb-2 align-items-center">
+                                                            <div class="col-9">
+                                                                <span class="photo-label">Graduation Marksheet *</span>
+                                                                <input type="file" id="graduation_marksheet"
+                                                                    name="graduate_post_graduate_marksheet" hidden
+                                                                    accept=".jpg,.jpeg,.png,.pdf" required
+                                                                    @if ($documents && $documents->graduate_post_graduate_marksheet) data-filename="{{ basename($documents->graduate_post_graduate_marksheet) }}" @endif>
+                                                                <small
+                                                                    class="text-danger">{{ $errors->first('graduate_post_graduate_marksheet') }}</small>
+                                                            </div>
+                                                            <div class="col-3">
+                                                                <label for="graduation_marksheet" class="upload-btn">
+                                                                    <span class="upload-icon">⭱</span> Upload
+                                                                </label>
+                                                                <label class="uploaded-btn" style="display: none;">
+                                                                    <span class="upload-icon">✔</span> Upload
+                                                                </label>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-3">
-                                                            <label for="graduation_marksheet" class="upload-btn">
-                                                                <span class="upload-icon">⭱</span> Upload
-                                                            </label>
-                                                            <label class="uploaded-btn" style="display: none;">
-                                                                <span class="upload-icon">✔</span> Upload
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2 align-items-center">
-                                                        <div class="col-12">
-                                                            <div class="upload-status" style="display:none;">
-                                                                <div class="row">
-                                                                    <div class="col-9"><div class="upload-summary"></div></div>
-                                                                    <div class="col-3">
-                                                                        <button type="button" class="remove-upload btn bt-sm" style="display:none;">
-                                                                            <i class="bi bi-trash"></i> Remove</button>
+                                                        <div class="row mb-2 align-items-center">
+                                                            <div class="col-12">
+                                                                <div class="upload-status" style="display:none;">
+                                                                    <div class="row">
+                                                                        <div class="col-9">
+                                                                            <div class="upload-summary"></div>
+                                                                        </div>
+                                                                        <div class="col-3">
+                                                                            <button type="button"
+                                                                                class="remove-upload btn bt-sm"
+                                                                                style="display:none;">
+                                                                                <i class="bi bi-trash"></i> Remove</button>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    @if ($documents && $documents->graduate_post_graduate_marksheet)
+                                                        <div class="existing-document mt-2">
+                                                            <a href="{{ asset($documents->graduate_post_graduate_marksheet) }}"
+                                                                target="_blank" class="btn btn-sm btn-success">View
+                                                                Existing Document</a>
+                                                        </div>
+                                                    @endif
                                                 </div>
-                                                @if ($documents && $documents->graduate_post_graduate_marksheet)
-                                                    <div class="existing-document mt-2">
-                                                        <a href="{{ asset($documents->graduate_post_graduate_marksheet) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
-                                                    </div>
-                                                @endif
-                                            </div>
                                             @endif
 
                                             <!-- 4. College – Fees Structure -->
@@ -277,10 +301,12 @@
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">College – Fees Structure *</span>
-                                                            <input type="file" id="college_fees_structure" name="admission_letter_fees_structure" hidden
+                                                            <input type="file" id="college_fees_structure"
+                                                                name="admission_letter_fees_structure" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required
                                                                 @if ($documents && $documents->admission_letter_fees_structure) data-filename="{{ basename($documents->admission_letter_fees_structure) }}" @endif>
-                                                            <small class="text-danger">{{ $errors->first('admission_letter_fees_structure') }}</small>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('admission_letter_fees_structure') }}</small>
                                                         </div>
                                                         <div class="col-3">
                                                             <label for="college_fees_structure" class="upload-btn">
@@ -295,9 +321,13 @@
                                                         <div class="col-12">
                                                             <div class="upload-status" style="display:none;">
                                                                 <div class="row">
-                                                                    <div class="col-9"><div class="upload-summary"></div></div>
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
                                                                     <div class="col-3">
-                                                                        <button type="button" class="remove-upload btn bt-sm" style="display:none;">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
                                                                             <i class="bi bi-trash"></i> Remove</button>
                                                                     </div>
                                                                 </div>
@@ -307,7 +337,9 @@
                                                 </div>
                                                 @if ($documents && $documents->admission_letter_fees_structure)
                                                     <div class="existing-document mt-2">
-                                                        <a href="{{ asset($documents->admission_letter_fees_structure) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
+                                                        <a href="{{ asset($documents->admission_letter_fees_structure) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
                                                     </div>
                                                 @endif
                                             </div>
@@ -318,10 +350,11 @@
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">PAN Card – Applicant *</span>
-                                                            <input type="file" id="pan_applicant" name="pan_applicant" hidden
-                                                                accept=".jpg,.jpeg,.png,.pdf" required
+                                                            <input type="file" id="pan_applicant" name="pan_applicant"
+                                                                hidden accept=".jpg,.jpeg,.png,.pdf" required
                                                                 @if ($documents && $documents->pan_applicant) data-filename="{{ basename($documents->pan_applicant) }}" @endif>
-                                                            <small class="text-danger">{{ $errors->first('pan_applicant') }}</small>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('pan_applicant') }}</small>
                                                         </div>
                                                         <div class="col-3">
                                                             <label for="pan_applicant" class="upload-btn">
@@ -336,9 +369,13 @@
                                                         <div class="col-12">
                                                             <div class="upload-status" style="display:none;">
                                                                 <div class="row">
-                                                                    <div class="col-9"><div class="upload-summary"></div></div>
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
                                                                     <div class="col-3">
-                                                                        <button type="button" class="remove-upload btn bt-sm" style="display:none;">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
                                                                             <i class="bi bi-trash"></i> Remove</button>
                                                                     </div>
                                                                 </div>
@@ -348,7 +385,8 @@
                                                 </div>
                                                 @if ($documents && $documents->pan_applicant)
                                                     <div class="existing-document mt-2">
-                                                        <a href="{{ asset($documents->pan_applicant) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
+                                                        <a href="{{ asset($documents->pan_applicant) }}" target="_blank"
+                                                            class="btn btn-sm btn-success">View Existing Document</a>
                                                     </div>
                                                 @endif
                                             </div>
@@ -359,10 +397,12 @@
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">Aadhaar Card – Applicant *</span>
-                                                            <input type="file" id="aadhaar_applicant" name="aadhaar_applicant" hidden
+                                                            <input type="file" id="aadhaar_applicant"
+                                                                name="aadhaar_applicant" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required
                                                                 @if ($documents && $documents->aadhaar_applicant) data-filename="{{ basename($documents->aadhaar_applicant) }}" @endif>
-                                                            <small class="text-danger">{{ $errors->first('aadhaar_applicant') }}</small>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('aadhaar_applicant') }}</small>
                                                         </div>
                                                         <div class="col-3">
                                                             <label for="aadhaar_applicant" class="upload-btn">
@@ -377,9 +417,13 @@
                                                         <div class="col-12">
                                                             <div class="upload-status" style="display:none;">
                                                                 <div class="row">
-                                                                    <div class="col-9"><div class="upload-summary"></div></div>
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
                                                                     <div class="col-3">
-                                                                        <button type="button" class="remove-upload btn bt-sm" style="display:none;">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
                                                                             <i class="bi bi-trash"></i> Remove</button>
                                                                     </div>
                                                                 </div>
@@ -389,7 +433,9 @@
                                                 </div>
                                                 @if ($documents && $documents->aadhaar_applicant)
                                                     <div class="existing-document mt-2">
-                                                        <a href="{{ asset($documents->aadhaar_applicant) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
+                                                        <a href="{{ asset($documents->aadhaar_applicant) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
                                                     </div>
                                                 @endif
                                             </div>
@@ -405,16 +451,24 @@
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">Jain Sangh Certificate *&nbsp;&nbsp;
-                                                                <a href="{{ asset('SANGH-CERTIFICATE-FORM.pdf') }}" download>
-                                                                    <svg width="25" height="25" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg" style="cursor: pointer;">
-                                                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M9.5 19C12.0196 19 14.4359 17.9991 16.2175 16.2175C17.9991 14.4359 19 12.0196 19 9.5C19 6.98044 17.9991 4.56408 16.2175 2.78249C14.4359 1.00089 12.0196 0 9.5 0C6.98044 0 4.56408 1.00089 2.78249 2.78249C1.00089 4.56408 0 6.98044 0 9.5C0 12.0196 1.00089 14.4359 2.78249 16.2175C4.56408 17.9991 6.98044 19 9.5 19ZM13.7696 11.2779L9.97907 15.0684C9.85182 15.1956 9.67925 15.267 9.49932 15.267C9.31939 15.267 9.14682 15.1956 9.01957 15.0684L5.23043 11.2779C5.13583 11.183 5.07144 11.0622 5.04538 10.9308C5.01933 10.7993 5.03276 10.6631 5.084 10.5393C5.13523 10.4155 5.22198 10.3096 5.33329 10.2351C5.44461 10.1605 5.57551 10.1205 5.7095 10.1202H8.14286V5.08929C8.14286 4.72935 8.28584 4.38415 8.54035 4.12964C8.79487 3.87513 9.14006 3.73214 9.5 3.73214C9.85994 3.73214 10.2051 3.87513 10.4596 4.12964C10.7142 4.38415 10.8571 4.72935 10.8571 5.08929V10.1202H13.2905C13.4245 10.1205 13.5554 10.1605 13.6667 10.2351C13.778 10.3096 13.8648 10.4155 13.916 10.5393C13.9672 10.6631 13.9807 10.7993 13.9546 10.9308C13.9286 11.0622 13.8642 11.183 13.7696 11.2779Z" fill="#009846" />
+                                                                <a href="{{ asset('SANGH-CERTIFICATE-FORM.pdf') }}"
+                                                                    download>
+                                                                    <svg width="25" height="25"
+                                                                        viewBox="0 0 19 19" fill="none"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        style="cursor: pointer;">
+                                                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                            d="M9.5 19C12.0196 19 14.4359 17.9991 16.2175 16.2175C17.9991 14.4359 19 12.0196 19 9.5C19 6.98044 17.9991 4.56408 16.2175 2.78249C14.4359 1.00089 12.0196 0 9.5 0C6.98044 0 4.56408 1.00089 2.78249 2.78249C1.00089 4.56408 0 6.98044 0 9.5C0 12.0196 1.00089 14.4359 2.78249 16.2175C4.56408 17.9991 6.98044 19 9.5 19ZM13.7696 11.2779L9.97907 15.0684C9.85182 15.1956 9.67925 15.267 9.49932 15.267C9.31939 15.267 9.14682 15.1956 9.01957 15.0684L5.23043 11.2779C5.13583 11.183 5.07144 11.0622 5.04538 10.9308C5.01933 10.7993 5.03276 10.6631 5.084 10.5393C5.13523 10.4155 5.22198 10.3096 5.33329 10.2351C5.44461 10.1605 5.57551 10.1205 5.7095 10.1202H8.14286V5.08929C8.14286 4.72935 8.28584 4.38415 8.54035 4.12964C8.79487 3.87513 9.14006 3.73214 9.5 3.73214C9.85994 3.73214 10.2051 3.87513 10.4596 4.12964C10.7142 4.38415 10.8571 4.72935 10.8571 5.08929V10.1202H13.2905C13.4245 10.1205 13.5554 10.1605 13.6667 10.2351C13.778 10.3096 13.8648 10.4155 13.916 10.5393C13.9672 10.6631 13.9807 10.7993 13.9546 10.9308C13.9286 11.0622 13.8642 11.183 13.7696 11.2779Z"
+                                                                            fill="#009846" />
                                                                     </svg>
                                                                 </a>
                                                             </span>
-                                                            <input type="file" id="jain_sangh_certificate" name="jain_sangh_certificate" hidden
+                                                            <input type="file" id="jain_sangh_certificate"
+                                                                name="jain_sangh_certificate" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required
                                                                 @if ($documents && $documents->jain_sangh_certificate) data-filename="{{ basename($documents->jain_sangh_certificate) }}" @endif>
-                                                            <small class="text-danger">{{ $errors->first('jain_sangh_certificate') }}</small>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('jain_sangh_certificate') }}</small>
                                                         </div>
                                                         <div class="col-3">
                                                             <label for="jain_sangh_certificate" class="upload-btn">
@@ -429,9 +483,13 @@
                                                         <div class="col-12">
                                                             <div class="upload-status" style="display:none;">
                                                                 <div class="row">
-                                                                    <div class="col-9"><div class="upload-summary"></div></div>
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
                                                                     <div class="col-3">
-                                                                        <button type="button" class="remove-upload btn bt-sm" style="display:none;">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
                                                                             <i class="bi bi-trash"></i> Remove</button>
                                                                     </div>
                                                                 </div>
@@ -441,7 +499,9 @@
                                                 </div>
                                                 @if ($documents && $documents->jain_sangh_certificate)
                                                     <div class="existing-document mt-2">
-                                                        <a href="{{ asset($documents->jain_sangh_certificate) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
+                                                        <a href="{{ asset($documents->jain_sangh_certificate) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
                                                     </div>
                                                 @endif
                                             </div>
@@ -451,17 +511,26 @@
                                                 <div class="photo-upload-box">
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
-                                                            <span class="photo-label">Recommendation of JITO Member *&nbsp;&nbsp;
-                                                                <a href="{{ asset('NEW_JITO RECOMMENDATION FORM FORMAT_20122025.pdf') }}" download>
-                                                                    <svg width="25" height="25" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg" style="cursor:pointer;">
-                                                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M9.5 19C12.0196 19 14.4359 17.9991 16.2175 16.2175C17.9991 14.4359 19 12.0196 19 9.5C19 6.98044 17.9991 4.56408 16.2175 2.78249C14.4359 1.00089 12.0196 0 9.5 0C6.98044 0 4.56408 1.00089 2.78249 2.78249C1.00089 4.56408 0 6.98044 0 9.5C0 12.0196 1.00089 14.4359 2.78249 16.2175C4.56408 17.9991 6.98044 19 9.5 19ZM13.7696 11.2779L9.97907 15.0684C9.85182 15.1956 9.67925 15.267 9.49932 15.267C9.31939 15.267 9.14682 15.1956 9.01957 15.0684L5.23043 11.2779C5.13583 11.183 5.07144 11.0622 5.04538 10.9308C5.01933 10.7993 5.03276 10.6631 5.084 10.5393C5.13523 10.4155 5.22198 10.3096 5.33329 10.2351C5.44461 10.1605 5.57551 10.1205 5.7095 10.1202H8.14286V5.08929C8.14286 4.72935 8.28584 4.38415 8.54035 4.12964C8.79487 3.87513 9.14006 3.73214 9.5 3.73214C9.85994 3.73214 10.2051 3.87513 10.4596 4.12964C10.7142 4.38415 10.8571 4.72935 10.8571 5.08929V10.1202H13.2905C13.4245 10.1205 13.5554 10.1605 13.6667 10.2351C13.778 10.3096 13.8648 10.4155 13.916 10.5393C13.9672 10.6631 13.9807 10.7993 13.9546 10.9308C13.9286 11.0622 13.8642 11.183 13.7696 11.2779Z" fill="#009846" />
+                                                            <span class="photo-label">Recommendation of JITO Member
+                                                                *&nbsp;&nbsp;
+                                                                <a href="{{ asset('NEW_JITO RECOMMENDATION FORM FORMAT_20122025.pdf') }}"
+                                                                    download>
+                                                                    <svg width="25" height="25"
+                                                                        viewBox="0 0 19 19" fill="none"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        style="cursor:pointer;">
+                                                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                            d="M9.5 19C12.0196 19 14.4359 17.9991 16.2175 16.2175C17.9991 14.4359 19 12.0196 19 9.5C19 6.98044 17.9991 4.56408 16.2175 2.78249C14.4359 1.00089 12.0196 0 9.5 0C6.98044 0 4.56408 1.00089 2.78249 2.78249C1.00089 4.56408 0 6.98044 0 9.5C0 12.0196 1.00089 14.4359 2.78249 16.2175C4.56408 17.9991 6.98044 19 9.5 19ZM13.7696 11.2779L9.97907 15.0684C9.85182 15.1956 9.67925 15.267 9.49932 15.267C9.31939 15.267 9.14682 15.1956 9.01957 15.0684L5.23043 11.2779C5.13583 11.183 5.07144 11.0622 5.04538 10.9308C5.01933 10.7993 5.03276 10.6631 5.084 10.5393C5.13523 10.4155 5.22198 10.3096 5.33329 10.2351C5.44461 10.1605 5.57551 10.1205 5.7095 10.1202H8.14286V5.08929C8.14286 4.72935 8.28584 4.38415 8.54035 4.12964C8.79487 3.87513 9.14006 3.73214 9.5 3.73214C9.85994 3.73214 10.2051 3.87513 10.4596 4.12964C10.7142 4.38415 10.8571 4.72935 10.8571 5.08929V10.1202H13.2905C13.4245 10.1205 13.5554 10.1605 13.6667 10.2351C13.778 10.3096 13.8648 10.4155 13.916 10.5393C13.9672 10.6631 13.9807 10.7993 13.9546 10.9308C13.9286 11.0622 13.8642 11.183 13.7696 11.2779Z"
+                                                                            fill="#009846" />
                                                                     </svg>
                                                                 </a>
                                                             </span>
-                                                            <input type="file" id="jito_recommendation" name="jito_group_recommendation" hidden
+                                                            <input type="file" id="jito_recommendation"
+                                                                name="jito_group_recommendation" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required
                                                                 @if ($documents && $documents->jito_group_recommendation) data-filename="{{ basename($documents->jito_group_recommendation) }}" @endif>
-                                                            <small class="text-danger">{{ $errors->first('jito_group_recommendation') }}</small>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('jito_group_recommendation') }}</small>
                                                         </div>
                                                         <div class="col-3">
                                                             <label for="jito_recommendation" class="upload-btn">
@@ -476,9 +545,13 @@
                                                         <div class="col-12">
                                                             <div class="upload-status" style="display:none;">
                                                                 <div class="row">
-                                                                    <div class="col-9"><div class="upload-summary"></div></div>
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
                                                                     <div class="col-3">
-                                                                        <button type="button" class="remove-upload btn bt-sm" style="display:none;">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
                                                                             <i class="bi bi-trash"></i> Remove</button>
                                                                     </div>
                                                                 </div>
@@ -488,7 +561,9 @@
                                                 </div>
                                                 @if ($documents && $documents->jito_group_recommendation)
                                                     <div class="existing-document mt-2">
-                                                        <a href="{{ asset($documents->jito_group_recommendation) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
+                                                        <a href="{{ asset($documents->jito_group_recommendation) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
                                                     </div>
                                                 @endif
                                             </div>
@@ -499,10 +574,12 @@
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
                                                             <span class="photo-label">Latest Electricity Bill *</span>
-                                                            <input type="file" id="electricity_bill" name="electricity_bill" hidden
+                                                            <input type="file" id="electricity_bill"
+                                                                name="electricity_bill" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required
                                                                 @if ($documents && $documents->electricity_bill) data-filename="{{ basename($documents->electricity_bill) }}" @endif>
-                                                            <small class="text-danger">{{ $errors->first('electricity_bill') }}</small>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('electricity_bill') }}</small>
                                                         </div>
                                                         <div class="col-3">
                                                             <label for="electricity_bill" class="upload-btn">
@@ -517,9 +594,13 @@
                                                         <div class="col-12">
                                                             <div class="upload-status" style="display:none;">
                                                                 <div class="row">
-                                                                    <div class="col-9"><div class="upload-summary"></div></div>
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
                                                                     <div class="col-3">
-                                                                        <button type="button" class="remove-upload btn bt-sm" style="display:none;">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
                                                                             <i class="bi bi-trash"></i> Remove</button>
                                                                     </div>
                                                                 </div>
@@ -529,7 +610,9 @@
                                                 </div>
                                                 @if ($documents && $documents->electricity_bill)
                                                     <div class="existing-document mt-2">
-                                                        <a href="{{ asset($documents->electricity_bill) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
+                                                        <a href="{{ asset($documents->electricity_bill) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
                                                     </div>
                                                 @endif
                                             </div>
@@ -539,11 +622,14 @@
                                                 <div class="photo-upload-box">
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
-                                                            <span class="photo-label">Aadhaar Card – Father / Mother / Guardian *</span>
-                                                            <input type="file" id="aadhaar_parent" name="aadhaar_father_mother" hidden
+                                                            <span class="photo-label">Aadhaar Card – Father / Mother /
+                                                                Guardian *</span>
+                                                            <input type="file" id="aadhaar_parent"
+                                                                name="aadhaar_father_mother" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required
                                                                 @if ($documents && $documents->aadhaar_father_mother) data-filename="{{ basename($documents->aadhaar_father_mother) }}" @endif>
-                                                            <small class="text-danger">{{ $errors->first('aadhaar_father_mother') }}</small>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('aadhaar_father_mother') }}</small>
                                                         </div>
                                                         <div class="col-3">
                                                             <label for="aadhaar_parent" class="upload-btn">
@@ -558,9 +644,13 @@
                                                         <div class="col-12">
                                                             <div class="upload-status" style="display:none;">
                                                                 <div class="row">
-                                                                    <div class="col-9"><div class="upload-summary"></div></div>
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
                                                                     <div class="col-3">
-                                                                        <button type="button" class="remove-upload btn bt-sm" style="display:none;">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
                                                                             <i class="bi bi-trash"></i> Remove</button>
                                                                     </div>
                                                                 </div>
@@ -570,7 +660,9 @@
                                                 </div>
                                                 @if ($documents && $documents->aadhaar_father_mother)
                                                     <div class="existing-document mt-2">
-                                                        <a href="{{ asset($documents->aadhaar_father_mother) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
+                                                        <a href="{{ asset($documents->aadhaar_father_mother) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
                                                     </div>
                                                 @endif
                                             </div>
@@ -580,11 +672,14 @@
                                                 <div class="photo-upload-box">
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
-                                                            <span class="photo-label">PAN Card – Father / Mother / Guardian *</span>
-                                                            <input type="file" id="pan_parent" name="pan_father_mother" hidden
+                                                            <span class="photo-label">PAN Card – Father / Mother / Guardian
+                                                                *</span>
+                                                            <input type="file" id="pan_parent"
+                                                                name="pan_father_mother" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required
                                                                 @if ($documents && $documents->pan_father_mother) data-filename="{{ basename($documents->pan_father_mother) }}" @endif>
-                                                            <small class="text-danger">{{ $errors->first('pan_father_mother') }}</small>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('pan_father_mother') }}</small>
                                                         </div>
                                                         <div class="col-3">
                                                             <label for="pan_parent" class="upload-btn">
@@ -599,9 +694,13 @@
                                                         <div class="col-12">
                                                             <div class="upload-status" style="display:none;">
                                                                 <div class="row">
-                                                                    <div class="col-9"><div class="upload-summary"></div></div>
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
                                                                     <div class="col-3">
-                                                                        <button type="button" class="remove-upload btn bt-sm" style="display:none;">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
                                                                             <i class="bi bi-trash"></i> Remove</button>
                                                                     </div>
                                                                 </div>
@@ -611,7 +710,9 @@
                                                 </div>
                                                 @if ($documents && $documents->pan_father_mother)
                                                     <div class="existing-document mt-2">
-                                                        <a href="{{ asset($documents->pan_father_mother) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
+                                                        <a href="{{ asset($documents->pan_father_mother) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
                                                     </div>
                                                 @endif
                                             </div>
@@ -621,11 +722,14 @@
                                                 <div class="photo-upload-box">
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
-                                                            <span class="photo-label">Form No. 16 (Last 6 months salary) OR Salary Slips *</span>
-                                                            <input type="file" id="form_16_salary" name="form16_salary_income_father" hidden
+                                                            <span class="photo-label">Form No. 16 (Last 6 months salary) OR
+                                                                Salary Slips *</span>
+                                                            <input type="file" id="form_16_salary"
+                                                                name="form16_salary_income_father" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required
                                                                 @if ($documents && $documents->form16_salary_income_father) data-filename="{{ basename($documents->form16_salary_income_father) }}" @endif>
-                                                            <small class="text-danger">{{ $errors->first('form16_salary_income_father') }}</small>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('form16_salary_income_father') }}</small>
                                                         </div>
                                                         <div class="col-3">
                                                             <label for="form_16_salary" class="upload-btn">
@@ -640,9 +744,13 @@
                                                         <div class="col-12">
                                                             <div class="upload-status" style="display:none;">
                                                                 <div class="row">
-                                                                    <div class="col-9"><div class="upload-summary"></div></div>
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
                                                                     <div class="col-3">
-                                                                        <button type="button" class="remove-upload btn bt-sm" style="display:none;">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
                                                                             <i class="bi bi-trash"></i> Remove</button>
                                                                     </div>
                                                                 </div>
@@ -652,7 +760,9 @@
                                                 </div>
                                                 @if ($documents && $documents->form16_salary_income_father)
                                                     <div class="existing-document mt-2">
-                                                        <a href="{{ asset($documents->form16_salary_income_father) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
+                                                        <a href="{{ asset($documents->form16_salary_income_father) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
                                                     </div>
                                                 @endif
                                             </div>
@@ -662,11 +772,14 @@
                                                 <div class="photo-upload-box">
                                                     <div class="row mb-2 align-items-center">
                                                         <div class="col-9">
-                                                            <span class="photo-label">Bank Statement of Father (Last 1 Year) OR Passbook Copy *</span>
-                                                            <input type="file" id="bank_statement_father" name="bank_statement_father_12months" hidden
+                                                            <span class="photo-label">Bank Statement of Father (Last 1
+                                                                Year) OR Passbook Copy *</span>
+                                                            <input type="file" id="bank_statement_father"
+                                                                name="bank_statement_father_12months" hidden
                                                                 accept=".jpg,.jpeg,.png,.pdf" required
                                                                 @if ($documents && $documents->bank_statement_father_12months) data-filename="{{ basename($documents->bank_statement_father_12months) }}" @endif>
-                                                            <small class="text-danger">{{ $errors->first('bank_statement_father_12months') }}</small>
+                                                            <small
+                                                                class="text-danger">{{ $errors->first('bank_statement_father_12months') }}</small>
                                                         </div>
                                                         <div class="col-3">
                                                             <label for="bank_statement_father" class="upload-btn">
@@ -681,9 +794,13 @@
                                                         <div class="col-12">
                                                             <div class="upload-status" style="display:none;">
                                                                 <div class="row">
-                                                                    <div class="col-9"><div class="upload-summary"></div></div>
+                                                                    <div class="col-9">
+                                                                        <div class="upload-summary"></div>
+                                                                    </div>
                                                                     <div class="col-3">
-                                                                        <button type="button" class="remove-upload btn bt-sm" style="display:none;">
+                                                                        <button type="button"
+                                                                            class="remove-upload btn bt-sm"
+                                                                            style="display:none;">
                                                                             <i class="bi bi-trash"></i> Remove</button>
                                                                     </div>
                                                                 </div>
@@ -693,7 +810,9 @@
                                                 </div>
                                                 @if ($documents && $documents->bank_statement_father_12months)
                                                     <div class="existing-document mt-2">
-                                                        <a href="{{ asset($documents->bank_statement_father_12months) }}" target="_blank" class="btn btn-sm btn-success">View Existing Document</a>
+                                                        <a href="{{ asset($documents->bank_statement_father_12months) }}"
+                                                            target="_blank" class="btn btn-sm btn-success">View Existing
+                                                            Document</a>
                                                     </div>
                                                 @endif
                                             </div>
@@ -716,7 +835,7 @@
                                 Previous
                             </a>
                             @if ($documents && in_array($documents->submit_status, ['submited', 'approved']))
-                                 <button type="submit" class="btn" style="background:#393185;color:white;">Next Step
+                                <button type="submit" class="btn" style="background:#393185;color:white;">Next Step
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
                                         stroke="white" stroke-width="2" viewBox="0 0 24 24">
                                         <path d="M9 6l6 6-6 6" />
@@ -729,14 +848,14 @@
                                     Resubmit Step 6
                                 </button>
                             @else
-                                <button type="submit" class="btn" id="nextStepBtn" style="background:#393185;color:white;" disabled>
+                                <button type="submit" class="btn" id="nextStepBtn"
+                                    style="background:#393185;color:white;" disabled>
                                     Next Step
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
                                         stroke="white" stroke-width="2" viewBox="0 0 24 24">
                                         <path d="M9 6l6 6-6 6" />
                                     </svg>
                                 </button>
-                                <small id="uploadWarning" class="text-danger" style="display:none;">Please upload all required documents first.</small>
                             @endif
                         </div>
                     </form>
@@ -763,7 +882,7 @@
                     'form16_salary_income_father',
                     'bank_statement_father_12months'
                 ];
-                
+
                 let allUploaded = true;
                 requiredFields.forEach(function(field) {
                     const input = document.querySelector('input[name="' + field + '"]');
@@ -771,10 +890,10 @@
                         allUploaded = false;
                     }
                 });
-                
+
                 const nextBtn = document.getElementById('nextStepBtn');
                 const warning = document.getElementById('uploadWarning');
-                
+
                 if (nextBtn) {
                     nextBtn.disabled = !allUploaded;
                     if (!allUploaded && warning) {
@@ -797,7 +916,8 @@
                 if (fileInput.files.length > 0) {
                     const file = fileInput.files[0];
                     const fileSizeKB = Math.round(file.size / 1024);
-                    const fileSizeText = fileSizeKB > 1024 ? (fileSizeKB / 1024).toFixed(2) + ' MB' : fileSizeKB + ' KB';
+                    const fileSizeText = fileSizeKB > 1024 ? (fileSizeKB / 1024).toFixed(2) + ' MB' : fileSizeKB +
+                        ' KB';
 
                     uploadSummary.innerHTML = `
                         <div class="text-success mb-1" style="word-break: break-all;">✔ Document uploaded successfully</div>
@@ -838,26 +958,28 @@
                 uploadSummary.innerHTML = '';
                 uploadButton.style.display = 'block';
                 uploadedButton.style.display = 'none';
-                
+
                 // Remove document from database via AJAX
                 const fieldName = fileInput.name;
                 if (fileInput.dataset.filename) {
-                    fetch('{{ route("user.removeDocument") }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({ field_name: fieldName })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            console.log('Document removed from database');
-                            checkAllDocumentsUploaded();
-                        }
-                    })
-                    .catch(error => console.error('Error:', error));
+                    fetch('{{ route('user.removeDocument') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                field_name: fieldName
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                console.log('Document removed from database');
+                                checkAllDocumentsUploaded();
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
                 }
             }
 
@@ -887,7 +1009,7 @@
                 if (dataFilename) {
                     const photoUploadBox = input.closest('.photo-upload-box');
                     if (!photoUploadBox) return;
-                    
+
                     const uploadStatus = photoUploadBox.querySelector('.upload-status');
                     const uploadButton = photoUploadBox.querySelector('.upload-btn');
                     const uploadedButton = photoUploadBox.querySelector('.uploaded-btn');
@@ -913,7 +1035,7 @@
                     removeBtn.style.display = 'inline-block';
                 }
             });
-            
+
             // Check on page load
             checkAllDocumentsUploaded();
         });

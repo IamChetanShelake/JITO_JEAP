@@ -751,7 +751,7 @@
 
         <!-- Navigation Tabs -->
         <ul class="nav nav-tabs-custom">
-            <li class="nav-item">
+            {{--  <li class="nav-item">
                 <a class="nav-link tab-dashboard" href="{{ route('admin.home') }}">
                     <i class="fas fa-th-large"></i> Dashboard
                 </a>
@@ -776,7 +776,7 @@
                 <a class="nav-link tab-committee" href="{{ route('admin.committee.index') }}">
                     <i class="fas fa-user-tie"></i> Working Committee
                 </a>
-            </li>
+            </li>  --}}
             <li class="nav-item">
                 <a class="nav-link tab-zone" href="{{ route('admin.files.report') }}">
                     <i class="fas fa-globe"></i> Files Report
@@ -931,12 +931,9 @@
                                 <div>
                                     <div class="status-label">Draft</div>
                                     <div class="status-value">
-                                        {{ \App\Models\User::where('role', 'user')
-                                            ->whereDoesntHave('workflowStatus')
-                                            ->where(function ($q) {
+                                        {{ \App\Models\User::where('role', 'user')->whereDoesntHave('workflowStatus')->where(function ($q) {
                                                 $q->whereNull('submit_status')->orWhere('submit_status', '!=', 'submited');
-                                            })
-                                            ->count() }}
+                                            })->count() }}
                                     </div>
                                 </div>
                             </a>
@@ -1428,7 +1425,7 @@
         <!-- Row 4: 3rd Stage Document -->
         <div class="row g-3 mt-1">
             <div class="col-lg-6">
-                @if (in_array($activeGuard, ['admin', 'accountant','apex']))
+                @if (in_array($activeGuard, ['admin', 'accountant', 'apex']))
                     <div class="approval-section">
                         <div class="approval-header">
                             <div class="approval-title initiatives-title">

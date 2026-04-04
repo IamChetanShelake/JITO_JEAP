@@ -161,7 +161,7 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     // Working Committee Routes
     Route::resource('committee', WorkingCommitteeController::class);
 
-    // Zone Routes  
+    // Zone Routes
     Route::resource('zones', ZoneController::class);
 
     // Website Management Routes
@@ -232,7 +232,7 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::delete('/website/about/testimonials-success/{id}', [AdminController::class, 'deleteTestimonialsSuccess'])->name('website.about.testimonials-success.delete');
 
     Route::get('/website/application', [AdminController::class, 'websiteApplication'])->name('website.application');
-    
+
     // Application Sub-Pages - FAQs
     Route::get('/website/application/faqs', [AdminController::class, 'websiteApplicationFaqs'])->name('website.application.faqs');
     Route::post('/website/application/faqs/store', [AdminController::class, 'storeFaq'])->name('website.application.faqs.store');
@@ -328,9 +328,9 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
         ->name('third_stage_documents.approve');
     Route::post('/third-stage-documents/user/{user}/send-back', [AdminController::class, 'sendBackThirdStageDocument'])
         ->name('third_stage_documents.sendback');
-        
+
     Route::get('/third-stage-documents/user/{user}/generate-pdf', [AdminController::class, 'generateThirdStageDocumentPDF'])
-            ->name('third_stage_documents.generate_pdf');
+        ->name('third_stage_documents.generate_pdf');
 
     // Third Stage Document PDF
     Route::get('/third-stage-documents/user/{user}/generate-pdf', [AdminController::class, 'generateThirdStageDocumentPDF'])
@@ -343,17 +343,17 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/chapter/dashboard', [AdminController::class, 'chapterUserDashboard'])->name('chapter.user.dashboard');
 
     // Generate Application PDF
-    Route::get('/user/{user}/generate-pdf', [AdminController::class, 'generateApplicationPDF'])->name('user.generate.pdf');
+    Route::get('/user/{user}/generate-pdf', [AdminController::class, 'generateApplicationPDF'])->name('generate.pdf');
 
     // Generate Summary PDF
-    Route::get('/user/{user}/generate-summary-pdf', [AdminController::class, 'generateSummaryPDF'])->name('user.generate.summary.pdf');
+    Route::get('/user/{user}/generate-summary-pdf', [AdminController::class, 'generateSummaryPDF'])->name('generate.summary.pdf');
 
-    Route::get('/user/{user}/generate-short-summary-pdf', [AdminController::class, 'generateShortSummaryPDF'])->name('user.generate.shortsummary.pdf');
+    Route::get('/user/{user}/generate-short-summary-pdf', [AdminController::class, 'generateShortSummaryPDF'])->name('generate.shortsummary.pdf');
 
-    Route::get('/financial-closure/{user}', [AdminController::class, 'generateFinancialClosurePDF'])->name('user.generate.financial_closure.pdf');
+    Route::get('/financial-closure/{user}', [AdminController::class, 'generateFinancialClosurePDF'])->name('generate.financial_closure.pdf');
 
     // View Sanction Letter
-    Route::get('/user/{user}/sanction-letter', [AdminController::class, 'viewSanctionLetter'])->name('user.sanction.letter');
+    Route::get('/user/{user}/sanction-letter', [AdminController::class, 'viewSanctionLetter'])->name('sanction.letter');
 
     // Chapter Routes
     Route::resource('chapters', ChapterController::class);
@@ -581,11 +581,11 @@ Route::middleware(['auth', 'user'])
 
         // View Sanction Letter
         Route::get('/{user}/sanction-letter', [AdminController::class, 'viewSanctionLetter'])->name('sanction.letter');
-        
-        Route::get('/user/{user}/generate-short-summary-pdf', [AdminController::class, 'generateShortSummaryPDF'])->name('user.generate.shortsummary.pdf');
+
+        Route::get('/user/{user}/generate-short-summary-pdf', [AdminController::class, 'generateShortSummaryPDF'])->name('generate.shortsummary.pdf');
 
         Route::get('/financial-closure/{user}', [AdminController::class, 'generateFinancialClosurePDF'])->name('user.generate.financial_closure.pdf');
-        
+
         Route::get('/third-stage-documents/user/{user}/generate-pdf', [AdminController::class, 'generateThirdStageDocumentPDF'])
             ->name('third_stage_documents.generate_pdf');
 

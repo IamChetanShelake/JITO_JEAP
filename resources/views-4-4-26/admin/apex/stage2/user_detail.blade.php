@@ -1,0 +1,4206 @@
+@extends('admin.layouts.master')
+
+@section('title', 'User Form Details - JitoJeap Admin')
+
+@section('styles')
+    <link rel="stylesheet" href="{{ asset('summernotes/summernote-lite.min.css') }}">
+    <style>
+        :root {
+            --primary-green: #4CAF50;
+            --primary-purple: #393185;
+            --primary-blue: #2196F3;
+            --primary-yellow: #FFC107;
+            --primary-red: #f44336;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --bg-light: #f8f9fa;
+            --border-color: #e9ecef;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .page-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .page-title-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-purple);
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+        }
+
+        @media (min-width: 768px) {
+            .page-title {
+                font-size: 1.75rem;
+            }
+        }
+
+        .page-subtitle {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        @media (min-width: 768px) {
+            .page-subtitle {
+                font-size: 0.95rem;
+            }
+        }
+
+        .back-btn {
+            background-color: var(--primary-purple);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 8px rgba(57, 49, 133, 0.3);
+            width: 100%;
+            font-size: 0.9rem;
+        }
+
+        @media (min-width: 768px) {
+            .back-btn {
+                width: auto;
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+
+        .back-btn:hover {
+            background-color: #4a40a8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(57, 49, 133, 0.4);
+        }
+
+        .back-btn i {
+            font-size: 0.9rem;
+        }
+
+        .user-info-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(57, 49, 133, 0.1);
+        }
+
+        .user-info-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .user-details h3 {
+            margin: 0;
+            color: var(--text-dark);
+            font-size: 1.25rem;
+        }
+
+        .user-details p {
+            margin: 0.25rem 0;
+            color: var(--text-light);
+        }
+
+        .steps-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+            /* Allow shrinking */
+        }
+
+        .step-nav {
+            background: var(--bg-light);
+            display: flex;
+            flex-direction: column;
+            width: 250px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .step-nav-item {
+            text-align: center;
+            padding: 1rem 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid var(--border-color);
+            border-right: 3px solid transparent;
+            position: relative;
+        }
+
+        .step-nav-item.active {
+            background: white;
+            border-right-color: var(--primary-purple);
+            color: var(--primary-purple);
+            font-weight: 600;
+        }
+
+        .step-nav-item.completed {
+            background: #e8f5e9;
+            border-right-color: var(--primary-green);
+            color: var(--primary-green);
+        }
+
+        .step-nav-item.pending {
+            background: #fff8e1;
+            border-right-color: var(--primary-yellow);
+            color: var(--primary-yellow);
+        }
+
+        .step-nav-item.hold {
+            background: #ffebee;
+            border-right-color: var(--primary-red);
+            color: var(--primary-red);
+        }
+
+        .step-number {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .step-content {
+            padding: 2rem;
+            display: none;
+            min-height: 500px;
+        }
+
+        .step-content.active {
+            display: block;
+            width: 1130px;
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .step-title-large {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+        .step-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .status-approved {
+            background: #e8f5e9;
+            color: var(--primary-green);
+        }
+
+        .status-pending {
+            background: #fff8e1;
+            color: var(--primary-yellow);
+        }
+
+        .status-hold {
+            background: #ffebee;
+            color: var(--primary-red);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-approve {
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-approve:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+        }
+
+        .btn-hold {
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-hold:hover {
+            background: #d32f2f;
+            transform: translateY(-1px);
+        }
+
+        .form-data {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .data-group {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-group:last-child {
+            border-bottom: none;
+        }
+
+        .data-group h4 {
+            background: var(--primary-purple);
+            color: white;
+            margin: 0;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-section {
+            padding: 1.5rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-field {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .form-field-full {
+            width: 100%;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-purple);
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(57, 49, 133, 0.1);
+        }
+
+        .form-input[readonly],
+        .form-textarea[readonly],
+        .form-select[readonly] {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+            border-color: #dee2e6;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-link {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .form-link:hover {
+            color: var(--primary-purple);
+            text-decoration: underline;
+        }
+
+        .form-image {
+            max-width: 120px;
+            max-height: 120px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .table-container {
+            margin-top: 1rem;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .custom-table th,
+        .custom-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .custom-table th {
+            background-color: var(--bg-light);
+            font-weight: 600;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.8rem;
+        }
+
+        .custom-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .amount-cell {
+            font-weight: 600;
+            color: var(--primary-green);
+        }
+
+        .status-cell {
+            font-weight: 500;
+        }
+
+        .status-approved {
+            color: var(--primary-green);
+        }
+
+        .status-pending {
+            color: var(--primary-yellow);
+        }
+
+        .status-rejected {
+            color: var(--primary-red);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-item:last-child {
+            border-bottom: none;
+        }
+
+        .data-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            flex: 1;
+        }
+
+        .data-value {
+            color: var(--text-light);
+            flex: 1;
+            text-align: right;
+        }
+
+        .table-container {
+            margin-top: 1rem;
+            overflow-x: auto;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .custom-table th,
+        .custom-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .custom-table th {
+            background-color: var(--bg-light);
+            font-weight: 600;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.8rem;
+        }
+
+        .custom-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Professional Workflow Status Styles */
+        .workflow-status-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--bg-light);
+        }
+
+        .workflow-status-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-purple), var(--primary-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(57, 49, 133, 0.3);
+        }
+
+        .workflow-stage-info h3 {
+            margin: 0;
+            color: var(--text-dark);
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .workflow-stage-info p {
+            margin: 0.25rem 0;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .workflow-stage-info .status-highlight {
+            font-weight: 600;
+            color: var(--primary-purple);
+        }
+
+        .workflow-action-card {
+            background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 1.5rem;
+            border: 1px solid rgba(57, 49, 133, 0.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .action-title {
+            color: var(--primary-purple);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-title::before {
+            content: "⚖️";
+            font-size: 1.2rem;
+        }
+
+        .action-form {
+            margin-bottom: 1.5rem;
+        }
+
+        .remark-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .remark-input:focus {
+            outline: none;
+            border-color: var(--primary-purple);
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(57, 49, 133, 0.1);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            min-width: 140px;
+            justify-content: center;
+        }
+
+        .btn-approve {
+            background: linear-gradient(135deg, var(--primary-green), #4caf50);
+            color: white;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-approve:hover {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn[disabled],
+        .btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-approve[disabled],
+        .btn-approve.disabled {
+            background: linear-gradient(135deg, #9ccc9c, #8bc48b);
+        }
+
+        .btn-reject {
+            background: linear-gradient(135deg, var(--primary-red), #e53935);
+            color: white;
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-reject:hover {
+            background: linear-gradient(135deg, #e53935, #d32f2f);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(244, 67, 54, 0.4);
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(57, 49, 133, 0.2), transparent);
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .divider::after {
+            content: "OR";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 0 1rem;
+            color: var(--text-light);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .action-form-row {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .action-form-row .remark-input {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .action-form-row .btn {
+            align-self: flex-end;
+        }
+
+        .user-info-footer {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .user-info-footer p {
+            margin: 0.25rem 0;
+            font-size: 0.9rem;
+        }
+
+        /* Dropdown Styles */
+        .dropdown-item:hover {
+            background-color: var(--bg-light);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .action-form-row {
+                flex-direction: column;
+            }
+
+            .action-form-row .btn {
+                align-self: stretch;
+            }
+
+            .steps-container {
+                flex-direction: column;
+            }
+
+            .step-nav {
+                width: auto;
+                flex-direction: row;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                overflow-x: auto;
+            }
+
+            .step-nav-item {
+                border-right: none;
+                border-bottom: 3px solid transparent;
+                flex: 1;
+                min-width: 120px;
+            }
+
+            .step-nav-item.active {
+                border-bottom-color: var(--primary-purple);
+                border-right-color: transparent;
+            }
+
+            .step-nav-item.completed {
+                border-bottom-color: var(--primary-green);
+                border-right-color: transparent;
+            }
+
+            .step-nav-item.pending {
+                border-bottom-color: var(--primary-yellow);
+                border-right-color: transparent;
+            }
+
+            .step-nav-item.hold {
+                border-bottom-color: var(--primary-red);
+                border-right-color: transparent;
+            }
+
+        }
+
+        .top-summary-layout {
+            display: grid;
+            grid-template-columns: 1fr 4fr;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .top-summary-layout .user-info-card {
+            margin-bottom: 0 !important;
+        }
+
+        .top-card-user {
+            order: 2;
+        }
+
+        .top-card-workflow {
+            order: 1;
+        }
+
+        @media (max-width: 991.98px) {
+            .top-summary-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .top-card-user,
+            .top-card-workflow {
+                order: unset;
+            }
+        }
+
+        /* Document button highlighting styles */
+        .doc-button {
+            transition: all 0.3s ease;
+        }
+
+        .doc-button.active {
+            background: var(--primary-purple) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            border-color: var(--primary-purple) !important;
+        }
+    </style>
+@endsection
+
+@section('content')
+    <div class="page-header">
+        <div class="page-title-section">
+            <h1 class="page-title">
+                <i class="fas fa-user" style="color: var(--primary-purple); margin-right: 0.5rem;"></i>
+                User Form Details
+            </h1>
+            <p class="page-subtitle">Review and approve individual form steps</p>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          @php
+            $jeapPdfDir = 'Jeap_pdfs';
+            $referencePdfs = collect();
+            if (is_dir($jeapPdfDir)) {
+                $referencePdfs = collect(\Illuminate\Support\Facades\File::files($jeapPdfDir))
+                    ->map(fn($file) => $file->getFilename())
+                    ->filter(fn($name) => str_ends_with($name, '.pdf'))
+                    ->sort()
+                    ->values();
+            }
+        @endphp
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <!-- Print Options Dropdown -->
+            <div class="dropdown" style="position: relative;">
+                <button class="back-btn" style="background-color: var(--primary-yellow); color: #333;"
+                    onclick="toggleDropdown()">
+                    <i class="fas fa-print"></i> Print Options <i class="fas fa-chevron-down"
+                        style="margin-left: 0.5rem;"></i>
+                </button>
+                <div id="printDropdown" class="dropdown-content"
+                    style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 200px;">
+                    <a href="{{ route('admin.user.generate.pdf', $user) }}" class="dropdown-item"
+                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
+                        <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Application PDF
+                    </a>
+                    <a href="{{ route('admin.user.generate.summary.pdf', $user) }}" class="dropdown-item"
+                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
+                        <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Summary PDF
+                    </a>
+                    <a href="{{ route('admin.user.sanction.letter', $user) }}" target="_blank" class="dropdown-item"
+                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
+                        <i class="fas fa-file-contract" style="margin-right: 0.5rem;"></i> Sanction Letter
+                    </a>
+
+                    <a href="{{ route('admin.user.generate.shortsummary.pdf', $user) }}" class="dropdown-item"
+                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-top: 1px solid var(--border-color);">
+                        <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Short Summary PDF
+                    </a>
+
+                    <a href="{{ route('admin.user.generate.financial_closure.pdf', $user) }}" class="dropdown-item"
+                        style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
+                        <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Financial Closure PDF
+                    </a>
+                    @if ($referencePdfs->isNotEmpty())
+                        <div style="border-top: 1px solid var(--border-color); margin-top: 0.25rem;"></div>
+                        <div style="padding: 0.5rem 1rem; font-size: 0.85rem; color: var(--text-light);">
+                            JEAP Reference PDFs
+                        </div>
+                        @foreach ($referencePdfs as $pdfFile)
+                            <a href="{{ asset('Jeap_pdfs/' . $pdfFile) }}" target="_blank" class="dropdown-item"
+                                style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
+                                <i class="fas fa-file-pdf" style="margin-right: 0.5rem;"></i>{{ $pdfFile }}
+                            </a>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+
+            <a href="{{ route('admin.home') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+            <a href="{{ route('admin.home') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- User Info Card -->
+    <div class="user-info-card">
+        <div class="user-info-header">
+            <div class="user-avatar">
+                {{ strtoupper(substr($user->name, 0, 1)) }}
+            </div>
+            <div class="user-details">
+                <h3>{{ $user->name }}</h3>
+                <p>{{ $user->email }}</p>
+                <p>{{ $user->mobile }}</p>
+                <p>{{ $user->application_no }}</p>
+            </div>
+        </div>
+
+        {{-- <a href="{{ route('admin.home') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a> --}}
+    </div>
+    </div>
+
+    <!-- User Info Card -->
+    <div class="top-summary-layout">
+        <!-- User Info Card (Right) -->
+        <div class="user-info-card top-card-user">
+            <div class="user-info-header">
+                <div class="user-avatar">
+                    @if ($user->image)
+                        <img src="{{ asset($user->image) }}" alt="Photo" class="user-avatar-img" style="    width: 75px;
+                            height: 75px;
+                            border-radius: 50%;
+                        ">
+                    @else
+                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                    @endif
+                </div>
+                <div class="user-details">
+                    <h3>{{ $user->name }}</h3>
+                    <p>{{ $user->email }}</p>
+                    <p>{{ $user->phone }}</p>
+                </div>
+
+            </div>
+            <div style="text-align: right; margin-top: -2.5rem;">
+                <a href="{{ route('admin.user.logs', ['user' => $user->id]) }}" class="back-btn"
+                    style="background-color: var(--primary-blue); color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                    <i class="fas fa-history"></i> Logs
+                </a>
+            </div>
+            <div class="user-info-footer">
+                <p><strong>Registration Date:</strong> {{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}
+                </p>
+                @if($loanCategory)
+                <p><strong>Loan Category:</strong>
+                    <span class="loan-type-badge {{ $loanCategory->type === 'below' ? 'loan-type-below' : 'loan-type-above' }}">
+                        {{ $loanCategory->type === 'below' ? 'Below 1 Lakh' : 'Above 1 Lakh' }}
+                    </span>
+                </p>
+                @endif
+              <p><strong>Financial Assistance Type:</strong> {{ $user->financial_asset_type 
+                    ? ucwords(str_replace('_', ' ', $user->financial_asset_type)) 
+                    : 'N/A' }}</p>
+                                <p><strong>Financial Assistance For:</strong> 
+                {{ $user->financial_asset_for 
+                    ? ucwords(str_replace('_', ' ', $user->financial_asset_for)) 
+                    : 'N/A' }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Workflow Status Card (Left) -->
+        <div class="user-info-card top-card-workflow">
+            <div class="workflow-status-header">
+                <div class="workflow-status-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="workflow-stage-info">
+                    <h3>Workflow Status</h3>
+                    <p><strong>Current Stage:</strong> <span
+                            class="status-highlight">{{ $user->workflowStatus ? ucfirst(str_replace('_', ' ', $user->workflowStatus->current_stage)) : 'N/A' }}</span>
+                    </p>
+                    <p><strong>Final Status:</strong> <span
+                            class="status-highlight">{{ $user->workflowStatus ? ucfirst($user->workflowStatus->final_status) : 'N/A' }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    @php
+        $isBelowLoan = $loanCategory && $loanCategory->type === 'below';
+    @endphp
+
+
+    <!-- Steps Container -->
+    <div class="steps-container">
+        <!-- Step Navigation -->
+        <div class="step-nav">
+            <div class="step-nav-item active step-1" onclick="showStep(1)">
+                <span class="step-number">1</span>
+                <span class="step-title">Personal Details</span>
+            </div>
+            <div class="step-nav-item step-2" onclick="showStep(2)">
+                <span class="step-number">2</span>
+                <span class="step-title">Education Details</span>
+            </div>
+            <div class="step-nav-item step-3" onclick="showStep(3)">
+                <span class="step-number">3</span>
+                <span class="step-title">Family Details</span>
+            </div>
+            <div class="step-nav-item step-4" onclick="showStep(4)">
+                <span class="step-number">4</span>
+                <span class="step-title">Funding Details</span>
+            </div>
+            @if (!$isBelowLoan)
+                <div class="step-nav-item step-5" onclick="showStep(5)">
+                    <span class="step-number">5</span>
+                    <span class="step-title">Guarantor Details</span>
+                </div>
+            @endif
+            <div class="step-nav-item step-6" onclick="showStep(6)">
+                <span class="step-number">{{ $isBelowLoan ? 5 : 6 }}</span>
+                <span class="step-title">Documents</span>
+            </div>
+            <div class="step-nav-item step-7" onclick="showStep(7)">
+                <span class="step-number">{{ $isBelowLoan ? 6 : 7 }}</span>
+                <span class="step-title">Final Submission</span>
+            </div>
+            <div class="step-nav-item step-8" onclick="showStep(8)">
+                <span class="step-number">{{ $isBelowLoan ? 7 : 8 }}</span>
+                <span class="step-title">Courier Receive</span>
+            </div>
+            <div class="step-nav-item step-9" onclick="showStep(9)">
+                <span class="step-number">{{ $isBelowLoan ? 8 : 9 }}</span>
+                <span class="step-title">PDC/Cheque Details</span>
+            </div>
+
+        </div>
+
+        <div class="content-area">
+
+            <!-- Step 1: Personal Details -->
+
+            <div class="step-content active" id="step-1">
+                <div class="step-header">
+                    <h2 class="step-title-large">Step 1: Personal Details</h2>
+                    <div class="step-status">
+                        <span
+                            class="status-badge status-{{ $user->submit_status == 'approved' ? 'approved' : ($user->submit_status == 'resubmit' ? 'hold' : 'pending') }}">
+                            <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                            {{ ucfirst($user->submit_status ?? 'Pending') }}
+                        </span>
+
+                    </div>
+                </div>
+                <div class="form-data">
+                    <div class="data-group">
+                        <h4>Personal Information</h4>
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Full Name</label>
+                                    <input type="text" class="form-input" value="{{ $user->name }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Photo</label>
+                                    <div class="form-input" style="padding:0.5rem;">
+                                        @if ($user->image)
+                                            <img src="{{ asset($user->image) }}" alt="Photo" class="form-image">
+                                        @else
+                                            <span style="color:#6c757d;">N/A</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Aadhar Card Number</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->aadhar_card_number ?? 'N/A' }}" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">PAN Card</label>
+                                    <input type="text" class="form-input" value="{{ $user->pan_card ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Mobile</label>
+                                    <input type="tel" class="form-input" value="{{ $user->phone ?? $user->mobile }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Alternate Phone</label>
+                                    <input type="tel" class="form-input"
+                                        value="{{ $user->alternate_phone ?? 'N/A' }}" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-input" value="{{ $user->email }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Alternate Email</label>
+                                    <input type="email" class="form-input"
+                                        value="{{ $user->alternate_email ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Marital Status</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->marital_status ?? 'N/A' }}" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Religion</label>
+                                    <input type="text" class="form-input" value="{{ $user->religion ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Sub Caste</label>
+                                    <input type="text" class="form-input" value="{{ $user->sub_cast ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Blood Group</label>
+                                    <input type="text" class="form-input" value="{{ $user->blood_group ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Date of Birth</label>
+                                    <input type="text" class="form-input" value="{{ $user->d_o_b ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Birth Place</label>
+                                    <input type="text" class="form-input" value="{{ $user->birth_place ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Gender</label>
+                                    <input type="text" class="form-input" value="{{ $user->gender ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Age</label>
+                                    <input type="text" class="form-input" value="{{ $user->age ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Nationality</label>
+                                    <input type="text" class="form-input" value="{{ $user->nationality ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Specially Abled</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->specially_abled ?? 'N/A' }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="data-group">
+                        <h4>Address Information</h4>
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Flat No</label>
+                                    <input type="text" class="form-input" value="{{ $user->flat_no ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Building No</label>
+                                    <input type="text" class="form-input" value="{{ $user->building_no ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Street Name</label>
+                                    <input type="text" class="form-input" value="{{ $user->street_name ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Area</label>
+                                    <input type="text" class="form-input" value="{{ $user->area ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Landmark</label>
+                                    <input type="text" class="form-input" value="{{ $user->landmark ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Pin Code</label>
+                                    <input type="text" class="form-input" value="{{ $user->pin_code ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">City</label>
+                                    <input type="text" class="form-input" value="{{ $user->city ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">District</label>
+                                    <input type="text" class="form-input" value="{{ $user->district ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">State</label>
+                                    <input type="text" class="form-input" value="{{ $user->state ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Chapter</label>
+                                    <input type="text" class="form-input" value="{{ $user->chapter ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field form-field-full">
+                                    <label class="form-label">Aadhar/Pan Address</label>
+                                    <textarea class="form-textarea" readonly>{{ $user->aadhar_address ?? 'N/A' }}</textarea>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Zone</label>
+                                    <input type="text" class="form-input" value="{{ $user->zone ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Chapter Chairman</label>
+                                    <input type="text" class="form-input" value="{{ $user->chapter_chairman ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Chapter Contact</label>
+                                    <input type="text" class="form-input" value="{{ $user->chapter_contact ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Postal Address</label>
+                                    <input type="text" class="form-input" value="{{ $user->postal_address ?? 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Education Details -->
+            <div class="step-content" id="step-2">
+                <div class="step-header">
+                    <h2 class="step-title-large">Step 2: Education Details</h2>
+                    <div class="step-status">
+                        <span
+                            class="status-badge status-{{ $user->educationDetail ? ($user->educationDetail->submit_status == 'approved' ? 'approved' : ($user->educationDetail->submit_status == 'resubmit' ? 'hold' : 'pending')) : 'pending' }}">
+                            <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                            {{ $user->educationDetail ? ucfirst($user->educationDetail->submit_status) : 'Pending' }}
+                        </span>
+
+                    </div>
+                </div>
+
+                @if ($user->educationDetail)
+                    <div class="form-data">
+                        <!-- Financial Need Overview -->
+                        <div class="data-group">
+                            <h4>Your Financial Need Overview</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Course Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->course_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">University Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->university_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">College Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->college_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Country</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->country ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">City</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->city_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">NIRF Ranking</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->nirf_ranking ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Start Year</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->start_year ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Expected Completion Year</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->expected_year ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Qualifications</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ ucfirst($user->educationDetail->qualifications ?? 'N/A') }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Completed Qualifications -->
+                           @if($user->financial_asset_for == 'post_graduation')
+                        <div class="data-group">
+                            <h4>Completed Qualifications</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Qualification</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ ucfirst($user->educationDetail->qualifications ?? 'N/A') }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Institution / College Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->qualification_institution ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">University Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->qualification_university ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Course Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->qualification_course_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Start Year</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->qualification_start_year ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">End Year</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->qualification_end_year ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Marksheet Type</label>
+                                        @php
+                                            $marksheetType = $user->educationDetail->marksheet_type
+                                                ? json_decode($user->educationDetail->marksheet_type, true)
+                                                : [];
+                                            $marksheetType = is_array($marksheetType) ? $marksheetType : [];
+                                            $marksheetLabel = empty($marksheetType)
+                                                ? 'N/A'
+                                                : implode(', ', array_map(function ($type) {
+                                                    return $type === 'semester' ? 'Semester-based' : 'Year-based';
+                                                }, $marksheetType));
+                                        @endphp
+                                        <input type="text" class="form-input" value="{{ $marksheetLabel }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="table-container">
+                                    @php
+                                        $edu = $user->educationDetail;
+                                        $marksheetType = $edu->marksheet_type ? json_decode($edu->marksheet_type, true) : [];
+                                        $marksheetType = is_array($marksheetType) ? $marksheetType : [];
+                                        $marksObtained = $edu->marks_obtained ? json_decode($edu->marks_obtained, true) : [];
+                                        $outOf = $edu->out_of ? json_decode($edu->out_of, true) : [];
+                                        $percentage = $edu->percentage ? json_decode($edu->percentage, true) : [];
+                                        $cgpa = $edu->cgpa ? json_decode($edu->cgpa, true) : [];
+                                        $rowCount = max(
+                                            count(is_array($marksObtained) ? $marksObtained : []),
+                                            count(is_array($outOf) ? $outOf : []),
+                                            count(is_array($percentage) ? $percentage : []),
+                                            count(is_array($cgpa) ? $cgpa : [])
+                                        );
+                                        $isSemester = in_array('semester', $marksheetType, true);
+                                        $rowLabel = $isSemester ? 'Sem' : 'Year';
+                                    @endphp
+                                    @if ($rowCount > 0)
+                                        <table class="custom-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Year / Sem</th>
+                                                    <th>Marks Obtained</th>
+                                                    <th>Out Of</th>
+                                                    <th>Percentage</th>
+                                                    <th>CGPA</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @for ($i = 0; $i < $rowCount; $i++)
+                                                    <tr>
+                                                        <td>{{ $i + 1 }} {{ $rowLabel }}</td>
+                                                        <td class="amount-cell">{{ $marksObtained[$i] ?? 'N/A' }}</td>
+                                                        <td class="amount-cell">{{ $outOf[$i] ?? 'N/A' }}</td>
+                                                        <td class="amount-cell">{{ $percentage[$i] ?? 'N/A' }}</td>
+                                                        <td class="amount-cell">{{ $cgpa[$i] ?? 'N/A' }}</td>
+                                                    </tr>
+                                                @endfor
+                                            </tbody>
+                                        </table>
+                                    @else
+                                        <div class="no-data">
+                                            <p>No marksheet data available.</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- Financial Summary Table -->
+                        <div class="data-group">
+                            <h4>Financial Summary Table</h4>
+                            <div class="table-container">
+                                @php
+                                    $edu = $user->educationDetail;
+                                    $yearColumns = [
+                                        1 => [
+                                            $edu->group_1_year1 ?? 0,
+                                            $edu->group_2_year1 ?? 0,
+                                            $edu->group_3_year1 ?? 0,
+                                            $edu->group_4_year1 ?? 0,
+                                        ],
+                                        2 => [
+                                            $edu->group_1_year2 ?? 0,
+                                            $edu->group_2_year2 ?? 0,
+                                            $edu->group_3_year2 ?? 0,
+                                            $edu->group_4_year2 ?? 0,
+                                        ],
+                                        3 => [
+                                            $edu->group_1_year3 ?? 0,
+                                            $edu->group_2_year3 ?? 0,
+                                            $edu->group_3_year3 ?? 0,
+                                            $edu->group_4_year3 ?? 0,
+                                        ],
+                                        4 => [
+                                            $edu->group_1_year4 ?? 0,
+                                            $edu->group_2_year4 ?? 0,
+                                            $edu->group_3_year4 ?? 0,
+                                            $edu->group_4_year4 ?? 0,
+                                        ],
+                                        5 => [
+                                            $edu->group_1_year5 ?? 0,
+                                            $edu->group_2_year5 ?? 0,
+                                            $edu->group_3_year5 ?? 0,
+                                            $edu->group_4_year5 ?? 0,
+                                        ],
+                                    ];
+
+                                    $showYear = [];
+                                    foreach ($yearColumns as $year => $values) {
+                                        $showYear[$year] = collect($values)->contains(function ($value) {
+                                            return (float) $value > 0;
+                                        });
+                                    }
+                                @endphp
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Sr No</th>
+                                            <th>Group Name</th>
+                                            @if ($showYear[1])
+                                                <th>1 Year</th>
+                                            @endif
+                                            @if ($showYear[2])
+                                                <th>2 Year</th>
+                                            @endif
+                                            @if ($showYear[3])
+                                                <th>3 Year</th>
+                                            @endif
+                                            @if ($showYear[4])
+                                                <th>4 Year</th>
+                                            @endif
+                                            @if ($showYear[5])
+                                                <th>5 Year</th>
+                                            @endif
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>Tuition Fees</td>
+                                            @if ($showYear[1])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_1_year1 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[2])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_1_year2 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[3])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_1_year3 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[4])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_1_year4 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[5])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_1_year5 ?? 0) }}</td>
+                                            @endif
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_1_total ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>Living Expenses</td>
+                                            @if ($showYear[1])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_2_year1 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[2])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_2_year2 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[3])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_2_year3 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[4])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_2_year4 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[5])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_2_year5 ?? 0) }}</td>
+                                            @endif
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_2_total ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>3</td>
+                                            <td>Other Expenses</td>
+                                            @if ($showYear[1])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_3_year1 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[2])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_3_year2 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[3])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_3_year3 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[4])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_3_year4 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[5])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_3_year5 ?? 0) }}</td>
+                                            @endif
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_3_total ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>4</td>
+                                            <td>Total Expenses</td>
+                                            @if ($showYear[1])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_4_year1 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[2])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_4_year2 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[3])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_4_year3 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[4])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_4_year4 ?? 0) }}</td>
+                                            @endif
+                                            @if ($showYear[5])
+                                                <td class="amount-cell">
+                                                    ₹{{ number_format($user->educationDetail->group_4_year5 ?? 0) }}</td>
+                                            @endif
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->educationDetail->group_4_total ?? 0) }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- School Information -->
+                        <div class="data-group">
+                            <h4>School / 10th Grade Information</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">School Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->school_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Board</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->school_board ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Completion Year</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->school_completion_year ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Marks Obtained</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->{'10th_mark_obtained'} ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Out Of</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->{'10th_mark_out_of'} ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Percentage</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->school_percentage ?? 'N/A' }}%" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">CGPA Out Of</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->school_cgpa_out_of ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">CGPA</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->school_CGPA ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Junior College Information -->
+                        <div class="data-group">
+                            <h4>Junior College (12th Grade)</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">College Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->jc_college_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Stream</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->jc_stream ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Board</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->jc_board ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Completion Year</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->jc_completion_year ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Marks Obtained</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->{'12th_mark_obtained'} ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Out Of</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->{'12th_mark_out_of'} ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Percentage</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->jc_percentage ?? 'N/A' }}%" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">CGPA Out Of</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->jc_cgpa_out_of ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">CGPA</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->jc_CGPA ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Information -->
+                        @if($user->financial_asset_for == 'post_graduation')
+                        <div class="data-group">
+                            <h4>Additional Information</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Work Experience</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ ucfirst($user->educationDetail->have_work_experience ?? 'no') }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Organization Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->organization_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Work Profile</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->work_profile ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Duration Start Year</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->duration_start_year ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Duration End Year</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->duration_end_year ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Work Location City</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->work_location_city ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Work Country</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->work_country ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Work type</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->work_type ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Salary Amount</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->salary_amount ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Yearly Gross Income</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->educationDetail->yearly_gross_income ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+            </div>
+        @else
+            <div class="no-data">
+                <p>Education details not submitted yet.</p>
+            </div>
+            @endif
+        </div>
+
+        <!-- Step 3: Education Details (continued) -->
+        <div class="step-content" id="step-3">
+            <div class="step-header">
+                <h2 class="step-title-large">Step 3: Family Details</h2>
+                <div class="step-status">
+                    <span
+                        class="status-badge status-{{ $user->familyDetail ? ($user->familyDetail->submit_status == 'approved' ? 'approved' : ($user->familyDetail->submit_status == 'resubmit' ? 'hold' : 'pending')) : 'pending' }}">
+                        <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                        {{ $user->familyDetail ? ucfirst($user->familyDetail->submit_status) : 'Pending' }}
+                    </span>
+                    {{-- <div class="action-buttons">
+                    <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" class="btn-approve">Approve</button>
+                    </form>
+                    <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
+                        @csrf
+                        <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
+                        <button type="submit" class="btn-hold">Hold</button>
+                    </form>
+                </div> --}}
+                </div>
+            </div>
+            @if ($user->familyDetail)
+                <div class="form-data">
+                    <!-- Family Summary -->
+                    <div class="data-group">
+                        <h4>Family Summary</h4>
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Number of Family Members</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->familyDetail->number_family_members }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Total Family Income</label>
+                                    <input type="text" class="form-input"
+                                        value="₹{{ number_format($user->familyDetail->total_family_income) }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Total Students</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->familyDetail->total_students }}" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Family Member Taken Diksha</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->familyDetail->family_member_diksha ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Total Insurance Coverage</label>
+                                    <input type="text" class="form-input"
+                                        value="₹{{ number_format($user->familyDetail->total_insurance_coverage) }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Total Premium Paid (Year)</label>
+                                    <input type="text" class="form-input"
+                                        value="₹{{ number_format($user->familyDetail->total_premium_paid) }}" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Recent Electricity Bill Amount</label>
+                                    <input type="text" class="form-input"
+                                        value="₹{{ number_format($user->familyDetail->recent_electricity_amount) }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Total Monthly EMI</label>
+                                    <input type="text" class="form-input"
+                                        value="₹{{ number_format($user->familyDetail->total_monthly_emi) }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Current Year ITR</label>
+                                    <input type="text" class="form-input"
+                                        value="₹{{ number_format($user->familyDetail->current_year_itr ?? 0) }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Last Year ITR</label>
+                                    <input type="text" class="form-input"
+                                        value="₹{{ number_format($user->familyDetail->last_year_itr ?? 0) }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Family Members -->
+                    <div class="data-group">
+                        <h4>Additional Family Members</h4>
+                        <div class="form-section">
+                            @if ($user->familyDetail->additional_family_members)
+                                @php $addMembers = json_decode($user->familyDetail->additional_family_members, true); @endphp
+                                @foreach ($addMembers as $index => $member)
+                                    <div class="form-row"
+                                        style="border: 1px solid #e9ecef; padding: 1rem; margin-bottom: 1rem; border-radius: 6px; background: #f8f9fa;">
+                                        <div class="form-field">
+                                            <label class="form-label">Name</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $member['name'] ?? 'N/A' }}" readonly>
+                                        </div>
+                                        <div class="form-field">
+                                            <label class="form-label">Relation</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $member['relation'] ?? 'N/A' }}" readonly>
+                                        </div>
+                                        <div class="form-field">
+                                            <label class="form-label">Age</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $member['age'] ?? 'N/A' }}" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-field">
+                                            <label class="form-label">Marital Status</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $member['marital_status'] ?? 'N/A' }}" readonly>
+                                        </div>
+                                        <div class="form-field">
+                                            <label class="form-label">Qualification</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $member['qualification'] ?? 'N/A' }}" readonly>
+                                        </div>
+                                        <div class="form-field">
+                                            <label class="form-label">Occupation</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $member['occupation'] ?? 'N/A' }}" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-field">
+                                            <label class="form-label">Mobile</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $member['mobile'] ?? 'N/A' }}" readonly>
+                                        </div>
+                                        <div class="form-field">
+                                            <label class="form-label">Email</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $member['email'] ?? 'N/A' }}" readonly>
+                                        </div>
+                                        <div class="form-field">
+                                            <label class="form-label">Yearly Income</label>
+                                            <input type="text" class="form-input"
+                                                value="₹{{ isset($member['yearly_income']) ? number_format($member['yearly_income']) : 'N/A' }}"
+                                                readonly>
+                                        </div>
+                                    </div>
+                                    @if (!$loop->last)
+                                        <hr style="margin: 1rem 0; border: none; border-top: 1px solid #dee2e6;">
+                                    @endif
+                                @endforeach
+                            @else
+                                <div class="form-row">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label">Additional Family Members</label>
+                                        <input type="text" class="form-input"
+                                            value="No additional family members data available" readonly>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    <!-- Paternal & Maternal Side -->
+                    @php $f = $user->familyDetail; @endphp
+                    @if (
+                        ($f->paternal_uncle_name ?? false) ||
+                            ($f->paternal_uncle_mobile ?? false) ||
+                            ($f->paternal_uncle_email ?? false) ||
+                            ($f->paternal_aunt_name ?? false) ||
+                            ($f->paternal_aunt_mobile ?? false) ||
+                            ($f->paternal_aunt_email ?? false))
+                        <div class="data-group">
+                            <h4>Paternal Side</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Uncle Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $f->paternal_uncle_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Uncle Mobile</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $f->paternal_uncle_mobile ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Uncle Email</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $f->paternal_uncle_email ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Aunt Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $f->paternal_aunt_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Aunt Mobile</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $f->paternal_aunt_mobile ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Aunt Email</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $f->paternal_aunt_email ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if (
+                        ($f->maternal_uncle_name ?? false) ||
+                            ($f->maternal_uncle_mobile ?? false) ||
+                            ($f->maternal_uncle_email ?? false) ||
+                            ($f->maternal_aunt_name ?? false) ||
+                            ($f->maternal_aunt_mobile ?? false) ||
+                            ($f->maternal_aunt_email ?? false))
+                        <div class="data-group">
+                            <h4>Maternal Side</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Uncle Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $f->maternal_uncle_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Uncle Mobile</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $f->maternal_uncle_mobile ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Uncle Email</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $f->maternal_uncle_email ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Aunt Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $f->maternal_aunt_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Aunt Mobile</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $f->maternal_aunt_mobile ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Aunt Email</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $f->maternal_aunt_email ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            @else
+                <div class="no-data">
+                    <p>Family details not submitted yet.</p>
+                </div>
+            @endif
+        </div>
+
+        <!-- Step 4: Funding Details -->
+        <div class="step-content" id="step-4">
+            <div class="step-header">
+                <h2 class="step-title-large">Step 4: Funding Details</h2>
+                <div class="step-status">
+                    <span
+                        class="status-badge status-{{ $user->fundingDetail ? ($user->fundingDetail->submit_status == 'approved' ? 'approved' : ($user->fundingDetail->submit_status == 'resubmit' ? 'hold' : 'pending')) : 'pending' }}">
+                        <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                        {{ $user->fundingDetail ? ucfirst($user->fundingDetail->submit_status) : 'Pending' }}
+                    </span>
+                    {{-- <div class="action-buttons">
+                    <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" class="btn-approve">Approve</button>
+                    </form>
+                    <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
+                        @csrf
+                        <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
+                        <button type="submit" class="btn-hold">Hold</button>
+                    </form>
+                </div> --}}
+                </div>
+            </div>
+
+            @if ($user->fundingDetail)
+                <div class="form-data">
+                    <!-- Funding Sources Table -->
+                    @if (!($loanCategory && $loanCategory->type === 'below'))
+                        <div class="data-group">
+                            <h4>Funding Sources</h4>
+                            <div class="table-container">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Particulars</th>
+                                            <th>Status</th>
+                                            <th>Name of Trust/Institute</th>
+                                            <th>Name of Contact Person</th>
+                                            <th>Contact No</th>
+                                            <th>Amount (Rs)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Own family funding (Father + Mother)</td>
+                                            <td>{{ ucfirst($user->fundingDetail->family_funding_status) }}</td>
+                                            <td>{{ $user->fundingDetail->family_funding_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->family_funding_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->family_funding_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->family_funding_amount ?? 0) }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bank Loan</td>
+                                            <td>{{ ucfirst($user->fundingDetail->bank_loan_status) }}</td>
+                                            <td>{{ $user->fundingDetail->bank_loan_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->bank_loan_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->bank_loan_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->bank_loan_amount ?? 0) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Other Assistance (1)</td>
+                                            <td>{{ ucfirst($user->fundingDetail->other_assistance1_status) }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance1_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance1_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance1_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->other_assistance1_amount ?? 0) }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Other Assistance (2)</td>
+                                            <td>{{ ucfirst($user->fundingDetail->other_assistance2_status) }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance2_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance2_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->other_assistance2_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->other_assistance2_amount ?? 0) }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Local Assistance</td>
+                                            <td>{{ ucfirst($user->fundingDetail->local_assistance_status) }}</td>
+                                            <td>{{ $user->fundingDetail->local_assistance_trust ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->local_assistance_contact ?? '-' }}</td>
+                                            <td>{{ $user->fundingDetail->local_assistance_mobile ?? '-' }}</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format($user->fundingDetail->local_assistance_amount ?? 0) }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="5" style="text-align:right;font-weight:600">Total</td>
+                                            <td class="amount-cell">
+                                                ₹{{ number_format((float) ($user->fundingDetail->family_funding_amount ?? 0) + (float) ($user->fundingDetail->bank_loan_amount ?? 0) + (float) ($user->fundingDetail->other_assistance1_amount ?? 0) + (float) ($user->fundingDetail->other_assistance2_amount ?? 0) + (float) ($user->fundingDetail->local_assistance_amount ?? 0)) }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Total Funding -->
+                        <div class="data-group">
+                            <h4>Total Funding</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Total Amount (Rs)</label>
+                                        <input type="text" class="form-input"
+                                            value="₹{{ isset($user->fundingDetail->total_funding_amount) ? number_format($user->fundingDetail->total_funding_amount) : '0' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                      @endif
+
+                      <div class="data-group">
+                          <h4>Sibling Assistance</h4>
+                          <div class="form-section">
+                              <div class="form-row">
+                                  <div class="form-field">
+                                      <label class="form-label">Sibling Assistance</label>
+                                      <input type="text" class="form-input"
+                                          value="{{ $user->fundingDetail->sibling_assistance ? ucfirst($user->fundingDetail->sibling_assistance) : 'N/A' }}"
+                                          readonly>
+                                  </div>
+                                  <div class="form-field">
+                                      <label class="form-label">Sibling Name</label>
+                                      <input type="text" class="form-input"
+                                          value="{{ $user->fundingDetail->sibling_name ?? 'N/A' }}" readonly>
+                                  </div>
+                                  <div class="form-field">
+                                      <label class="form-label">Sibling Number</label>
+                                      <input type="text" class="form-input"
+                                          value="{{ $user->fundingDetail->sibling_number ?? 'N/A' }}" readonly>
+                                  </div>
+                              </div>
+                              <div class="form-row">
+                                  <div class="form-field">
+                                      <label class="form-label">Sibling NGO Name</label>
+                                      <input type="text" class="form-input"
+                                          value="{{ $user->fundingDetail->sibling_ngo_name ?? 'N/A' }}" readonly>
+                                  </div>
+                                  <div class="form-field">
+                                      <label class="form-label">NGO Number</label>
+                                      <input type="text" class="form-input"
+                                          value="{{ $user->fundingDetail->ngo_number ?? 'N/A' }}" readonly>
+                                  </div>
+                                  <div class="form-field">
+                                      <label class="form-label">Sibling Loan Status</label>
+                                      <input type="text" class="form-input"
+                                          value="{{ $user->fundingDetail->sibling_loan_status ? ucfirst($user->fundingDetail->sibling_loan_status) : 'N/A' }}"
+                                          readonly>
+                                  </div>
+                              </div>
+                              <div class="form-row">
+                                  <div class="form-field">
+                                      <label class="form-label">Sibling Applied Year</label>
+                                      <input type="text" class="form-input"
+                                          value="{{ $user->fundingDetail->sibling_applied_year ?? 'N/A' }}" readonly>
+                                  </div>
+                                  <div class="form-field">
+                                      <label class="form-label">Sibling Applied Amount (Rs)</label>
+                                      <input type="text" class="form-input"
+                                          value="@if (is_numeric($user->fundingDetail->sibling_applied_amount)) {{ number_format($user->fundingDetail->sibling_applied_amount) }} @else {{ $user->fundingDetail->sibling_applied_amount ?? 'N/A' }} @endif"
+                                          readonly>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+
+                      <!-- Bank Details of Applicant -->
+                      <div class="data-group">
+                          <h4>Bank Details of Applicant</h4>
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Account Holder</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->account_holder_name }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Bank Name</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->bank_name }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Account Number</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->account_number }}" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Branch Name</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->branch_name }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">IFSC Code</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->ifsc_code }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Bank Address</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $user->fundingDetail->bank_address }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="no-data">
+                    <p>Funding details not submitted yet.</p>
+                </div>
+            @endif
+        </div>
+
+        @if (!$isBelowLoan)
+            <!-- Step 5: Guarantor Details -->
+            <div class="step-content" id="step-5">
+                <div class="step-header">
+                    <h2 class="step-title-large">Step 5: Guarantor Details</h2>
+                    <div class="step-status">
+                        <span
+                            class="status-badge status-{{ $user->guarantorDetail ? ($user->guarantorDetail->submit_status == 'approved' ? 'approved' : ($user->guarantorDetail->submit_status == 'resubmit' ? 'hold' : 'pending')) : 'pending' }}">
+                            <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                            {{ $user->guarantorDetail ? ucfirst($user->guarantorDetail->submit_status) : 'Pending' }}
+                        </span>
+                        {{-- <div class="action-buttons">
+                        <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="btn-approve">Approve</button>
+                        </form>
+                        <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
+                            @csrf
+                            <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
+                            <button type="submit" class="btn-hold">Hold</button>
+                        </form>
+                    </div> --}}
+                    </div>
+                </div>
+
+                @if ($user->guarantorDetail)
+                    <div class="form-data">
+                        <div class="data-group">
+                            <h4>Guarantor 1</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Gender</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ ucfirst($user->guarantorDetail->g_one_gender ?? 'N/A') }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Date of Birth</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ optional($user->guarantorDetail->g_one_d_o_b)->format ? $user->guarantorDetail->g_one_d_o_b : $user->guarantorDetail->g_one_d_o_b ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Relation</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_relation_with_student ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Phone</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_phone ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Email</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_email ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label">Permanent Address</label>
+                                        <textarea class="form-textarea" readonly>{{ $user->guarantorDetail->g_one_permanent_flat_no ?? '' }} {{ $user->guarantorDetail->g_one_permanent_address ?? '' }} {{ $user->guarantorDetail->g_one_permanent_city ?? '' }}, {{ $user->guarantorDetail->g_one_permanent_district ?? '' }} {{ $user->guarantorDetail->g_one_permanent_state ?? '' }} - {{ $user->guarantorDetail->g_one_permanent_pincode ?? '' }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Service / Business</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_srvice ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Annual Income</label>
+                                        <input type="text" class="form-input"
+                                            value="@if (is_numeric($user->guarantorDetail->g_one_income)) ₹{{ number_format($user->guarantorDetail->g_one_income) }} @else {{ $user->guarantorDetail->g_one_income ?? 'N/A' }} @endif"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Aadhaar</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_aadhar_card_number ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">PAN Card No</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_one_pan ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">PAN Upload</label>
+                                        <div class="form-input"
+                                            style="padding:0.5rem; background:transparent; border:none;">
+                                            @if (!empty($user->guarantorDetail->g_one_pan_card_upload))
+                                                <a href="#"
+                                                    onclick="openModal('{{ asset($user->guarantorDetail->g_one_pan_card_upload) }}')">View
+                                                    PAN</a>
+                                            @else
+                                                <span style="color:#6c757d;">N/A</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="data-group">
+                            <h4>Guarantor 2</h4>
+                            <div class="form-section">
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Name</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_name ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Gender</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ ucfirst($user->guarantorDetail->g_two_gender ?? 'N/A') }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Date of Birth</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ optional($user->guarantorDetail->g_two_d_o_b)->format ? $user->guarantorDetail->g_two_d_o_b : $user->guarantorDetail->g_two_d_o_b ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Relation</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_relation_with_student ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Phone</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_phone ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Email</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_email ?? 'N/A' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label">Permanent Address</label>
+                                        <textarea class="form-textarea" readonly>{{ $user->guarantorDetail->g_two_permanent_flat_no ?? '' }} {{ $user->guarantorDetail->g_two_permanent_address ?? '' }} {{ $user->guarantorDetail->g_two_permanent_city ?? '' }}, {{ $user->guarantorDetail->g_two_permanent_district ?? '' }} {{ $user->guarantorDetail->g_two_permanent_state ?? '' }} - {{ $user->guarantorDetail->g_two_permanent_pincode ?? '' }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Service / Business</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_srvice ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Annual Income</label>
+                                        <input type="text" class="form-input"
+                                            value="@if (is_numeric($user->guarantorDetail->g_two_income)) ₹{{ number_format($user->guarantorDetail->g_two_income) }} @else {{ $user->guarantorDetail->g_two_income ?? 'N/A' }} @endif"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Aadhaar</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_aadhar_card_number ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">PAN Card No</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $user->guarantorDetail->g_two_pan ?? 'N/A' }}" readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">PAN Upload</label>
+                                        <div class="form-input"
+                                            style="padding:0.5rem; background:transparent; border:none;">
+                                            @if (!empty($user->guarantorDetail->g_two_pan_card_upload))
+                                                <a href="#"
+                                                    onclick="openModal('{{ asset($user->guarantorDetail->g_two_pan_card_upload) }}')">View
+                                                    PAN</a>
+                                            @else
+                                                <span style="color:#6c757d;">N/A</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- <div class="data-group">
+                    <h4>Power of Attorney</h4>
+                    <div class="data-item"><div class="data-label">Name</div><div class="data-value">{{ $user->guarantorDetail->attorney_name ?? 'N/A' }}</div></div>
+                    <div class="data-item"><div class="data-label">Relation</div><div class="data-value">{{ $user->guarantorDetail->attorney_relation_with_student ?? 'N/A' }}</div></div>
+                    <div class="data-item"><div class="data-label">Phone</div><div class="data-value">{{ $user->guarantorDetail->attorney_phone ?? 'N/A' }}</div></div>
+                    <div class="data-item"><div class="data-label">Email</div><div class="data-value">{{ $user->guarantorDetail->attorney_email ?? 'N/A' }}</div></div>
+                    <div class="data-item"><div class="data-label">Address</div><div class="data-value">{{ $user->guarantorDetail->attorney_address ?? 'N/A' }}</div></div>
+                </div> --}}
+                    </div>
+                @else
+                    <div class="no-data">
+                        <p>Guarantor details not submitted yet.</p>
+                    </div>
+                @endif
+            </div>
+        @endif
+
+        <!-- Step 6: Documents -->
+        <div class="step-content" id="step-6">
+            <div class="step-header">
+                <h2 class="step-title-large">Step {{ $isBelowLoan ? 5 : 6 }}: Documents</h2>
+                <div class="step-status">
+                    <span
+                        class="status-badge status-{{ $user->document ? ($user->document->submit_status == 'approved' ? 'approved' : ($user->document->submit_status == 'resubmit' ? 'hold' : 'pending')) : 'pending' }}">
+                        <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                        {{ $user->document ? ucfirst($user->document->submit_status) : 'Pending' }}
+                    </span>
+                    {{-- <div class="action-buttons">
+                    <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" class="btn-approve">Approve</button>
+                    </form>
+                    <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
+                        @csrf
+                        <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
+                        <button type="submit" class="btn-hold">Hold</button>
+                    </form>
+                </div> --}}
+                </div>
+            </div>
+
+            @if ($user->document)
+                <div class="form-data">
+                    <div class="data-group">
+                        <h4>All Documents</h4>
+                        <div class="form-section"
+                            style="display: grid; grid-template-columns: 0.3fr 1fr; gap: 2rem; min-height: 500px;">
+                            <!-- Document List -->
+                            <div
+                                style="border-right: 1px solid var(--border-color); padding-right: 1rem; overflow-y: auto; max-height: 500px;">
+                                <h5 style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1rem;">Document List
+                                </h5>
+                                @php
+                                    $doc = $user->document;
+                                    $fields = [
+                                        'ssc_cbse_icse_ib_igcse' => 'SSC/CBSE/ICSE/IB/IGCSE',
+                                        'hsc_diploma_marksheet' => 'HSC/Diploma Marksheet',
+                                        'graduate_post_graduate_marksheet' => 'Graduate/Post Graduate Marksheet',
+                                        'admission_letter_fees_structure' => 'Admission Letter / Fees Structure',
+                                        'aadhaar_applicant' => 'Applicant Aadhaar',
+                                        'pan_applicant' => 'Applicant PAN',
+                                        'passport_applicant' => 'Passport',
+                                        'visa_applicant' => 'Visa Document',
+                                        'student_bank_details_statement' => 'Student Bank Statement',
+                                        'jito_group_recommendation' => 'JITO Group Recommendation',
+                                        'jain_sangh_certificate' => 'Jain Sangh Certificate',
+                                        'electricity_bill' => 'Electricity Bill',
+                                        'itr_acknowledgement_father' => 'Father ITR Acknowledgement',
+                                        'itr_computation_father' => 'Father ITR Computation',
+                                        'form16_salary_income_father' => 'Form16 / Salary Slip (Father)',
+                                        'bank_statement_father_12months' => 'Father Bank Statement (12 months)',
+                                        'bank_statement_mother_12months' => 'Mother Bank Statement (12 months)',
+                                        'aadhaar_father_mother' => 'Father/Mother Aadhaar',
+                                        'pan_father_mother' => 'Father/Mother PAN',
+                                        'guarantor1_aadhaar' => 'Guarantor1 Aadhaar',
+                                        'guarantor1_pan' => 'Guarantor1 PAN',
+                                        'guarantor2_aadhaar' => 'Guarantor2 Aadhaar',
+                                        'guarantor2_pan' => 'Guarantor2 PAN',
+                                        'student_handwritten_statement' => 'Student Handwritten Statement',
+                                        'proof_funds_arranged' => 'Proof of Funds Arranged',
+                                        'other_documents' => 'Other Documents',
+                                        'extra_curricular' => 'Extra Curricular',
+                                    ];
+                                @endphp
+
+                                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    @foreach ($fields as $key => $label)
+                                        @if (!empty($doc->$key))
+                                            @php
+                                                $p = $doc->$key;
+                                                if (strpos($p, 'http') === 0) {
+                                                    $href = $p;
+                                                } else {
+                                                    $trimmed = ltrim($p, '/');
+                                                    if (file_exists(public_path($trimmed))) {
+                                                        $href = asset($trimmed);
+                                                    } elseif (file_exists(public_path('storage/' . $trimmed))) {
+                                                        $href = asset('storage/' . $trimmed);
+                                                    } elseif (
+                                                        file_exists(public_path('user_document_images/' . $trimmed))
+                                                    ) {
+                                                        $href = asset('user_document_images/' . $trimmed);
+                                                    } else {
+                                                        $href = asset($trimmed);
+                                                    }
+                                                }
+                                            @endphp
+                                            <button class="doc-button"
+                                                onclick="selectDocument(event, '{{ $href }}', '{{ $label }}')"
+                                                style="text-align: left; padding: 0.75rem 1rem; background: white; color: var(--text-dark); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 400;">
+                                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                                    <i class="fas fa-file-alt" style="font-size: 0.8rem;"></i>
+                                                    {{ $label }}
+                                                </div>
+                                            </button>
+                                        @else
+                                            <div
+                                                style="padding: 0.75rem 1rem; color: var(--text-light); font-size: 0.9rem; opacity: 0.6;">
+                                                <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i>
+                                                {{ $label }} (Not uploaded)
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <!-- Document Preview -->
+                            <div style="padding-left: 1rem; display: flex; flex-direction: column;">
+                                <h5
+                                    style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                                    Document Preview
+                                    <button id="docDownloadBtn" onclick="downloadCurrentDoc()"
+                                        style="display: none; padding: 0.4rem 0.8rem; background: var(--primary-purple); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                        <i class="fas fa-download"></i> Download
+                                    </button>
+                                </h5>
+                                <div id="documentPreview"
+                                    style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--bg-light); border-radius: 8px; border: 1px solid var(--border-color); padding: 2rem;">
+                                    <i class="fas fa-file-image"
+                                        style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+                                    <p style="color: var(--text-light); font-size: 1rem;">Select a document from the left
+                                        to preview</p>
+                                    <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Click on
+                                        any document name to view its content</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="no-data">
+                    <p>Documents not submitted yet.</p>
+                </div>
+            @endif
+        </div>
+
+        <!-- Step 7: Final Submission -->
+        <div class="step-content" id="step-7">
+            <div class="step-header">
+                <h2 class="step-title-large">Step {{ $isBelowLoan ? 6 : 7 }}: Final Submission</h2>
+                <div class="step-status">
+                    <span
+                        class="status-badge status-{{ $user->document ? ($user->document->submit_status == 'approved' ? 'approved' : ($user->document->submit_status == 'resubmit' ? 'hold' : 'pending')) : 'pending' }}">
+                        <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                        {{ $user->document ? ucfirst($user->document->submit_status) : 'Pending' }}
+                    </span>
+                    {{-- <div class="action-buttons">
+                            <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline;">
+                                @csrf
+                                <button type="submit" class="btn-approve">Approve</button>
+                            </form>
+                            <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_1']) }}" method="POST" style="display: inline-flex; gap:8px; align-items:center;">
+                                @csrf
+                                <textarea name="admin_remark" placeholder="Hold remark" required rows="1" style="padding:6px;border-radius:6px;border:1px solid #ddd;resize:vertical;width:40rem;box-sizing:border-box;"></textarea>
+                                <button type="submit" class="btn-hold">Hold</button>
+                            </form>
+                        </div> --}}
+                </div>
+            </div>
+
+            <div class="form-data">
+                <div class="data-group">
+                    <h4>Submission Summary</h4>
+                    <div class="data-item">
+                        <div class="data-label">Overall Status</div>
+                        <div class="data-value">{{ ucfirst($user->submit_status) }}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Terms & Conditions Approved</div>
+                        <div class="data-value">
+                            @if ($user->document && $user->application_status == 'submitted')
+                                Yes (approved)
+                            @elseif($user->document && $user->document->submit_status == 'resubmit')
+                                No (needs resubmission)
+                            @else
+                                No
+                            @endif
+                        </div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Submitted Date</div>
+                        <div class="data-value">{{ $user->created_at ? $user->created_at->format('d M Y') : 'N/A' }}
+                        </div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Last Updated</div>
+                        <div class="data-value">{{ $user->updated_at ? $user->updated_at->format('d M Y H:i') : 'N/A' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 8: Courier Receive -->
+        <div class="step-content" id="step-8">
+            @php
+                $isCourierApproved =
+                    isset($pdcDetail) && $pdcDetail && $pdcDetail->courier_receive_status === 'approved';
+                $isCourierHold = isset($pdcDetail) && $pdcDetail && $pdcDetail->courier_receive_status === 'hold';
+                $apexUserList = $apexUsers ?? collect();
+                $apexUserById = $apexUserList->keyBy('id');
+                $hasCourierReceive =
+                    isset($pdcDetail) &&
+                    $pdcDetail &&
+                    !empty($pdcDetail->courier_received_by) &&
+                    !empty($pdcDetail->courier_received_date);
+                $canReviewCourier =
+                    $hasCourierReceive && isset($pdcDetail) && $pdcDetail->courier_receive_status === 'pending';
+            @endphp
+            <div class="step-header">
+                <h2 class="step-title-large">Step {{ $isBelowLoan ? 7 : 8 }}: Courier Receive</h2>
+                <div class="step-status">
+                    @if ($isCourierApproved)
+                        <span class="status-badge status-approved">
+                            <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
+                            Approved
+                        </span>
+                    @elseif($isCourierHold)
+                        <span class="status-badge status-hold">
+                            <i class="fas fa-times-circle" style="font-size: 0.6rem;"></i>
+                            On Hold
+                        </span>
+                    @else
+                        <span class="status-badge status-pending">
+                            <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                            {{ isset($pdcDetail) ? 'Pending Review' : 'Pending' }}
+                        </span>
+                    @endif
+                </div>
+            </div>
+
+            @if (isset($pdcDetail) && $pdcDetail)
+                <div class="form-data">
+                    <div class="data-group">
+                        <h4>Courier Receive</h4>
+                        <div class="form-section">
+                            @php
+                                $chequePendingCount = (int) ($pdcDetail->courier_cheque_pending ?? 0);
+                            @endphp
+
+                            @if ($isCourierApproved && $chequePendingCount > 0)
+                                <div style="margin-bottom: 1rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                    <a href="#courierReviewFormWrapper" class="btn btn-approve"
+                                        id="toggleCourierReviewFormBtn" style="text-decoration: none;"
+                                        data-cheque-total="{{ $chequeTotal ?? ($pdcDetail->courier_cheque_total ?? 0) }}"
+                                        data-cheque-received="{{ $pdcDetail->courier_cheque_received ?? 0 }}"
+                                        data-cheque-pending="{{ $pdcDetail->courier_cheque_pending ?? 0 }}">
+                                        <i class="fas fa-edit"></i>
+                                        Edit Cheque Details (Pending: {{ $chequePendingCount }})
+                                    </a>
+                                    {{--  <a href="{{ route('admin.pdc.edit', $user) }}" class="btn btn-approve"
+                                        style="text-decoration: none;">
+                                        <i class="fas fa-external-link-alt"></i>
+                                        Open Edit Page
+                                    </a>  --}}
+                                </div>
+                            @endif
+                            {{--  <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Courier Status</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $isCourierApproved ? 'Approved' : ($isCourierHold ? 'On Hold' : 'Pending') }}"
+                                        readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Courier Received By</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $pdcDetail->courier_received_by ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Received Date</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $pdcDetail->courier_received_date ? $pdcDetail->courier_received_date->format('d M Y') : 'N/A' }}"
+                                        readonly>
+                                </div>
+                            </div>  --}}
+                            {{--  @if ($isCourierApproved)
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Approved By</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $apexUserById->get($pdcDetail->courier_receive_approved_by)->name ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Approved Date</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $pdcDetail->courier_receive_approved_at ? $pdcDetail->courier_receive_approved_at->format('d M Y H:i') : 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                            @elseif ($isCourierHold)
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Hold By</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $apexUserById->get($pdcDetail->courier_receive_processed_by)->name ?? 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label">Hold Date</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $pdcDetail->courier_receive_processed_at ? $pdcDetail->courier_receive_processed_at->format('d M Y H:i') : 'N/A' }}"
+                                            readonly>
+                                    </div>
+                                </div>
+                            @endif  --}}
+
+                            @if ($pdcDetail->courier_receive_hold_remark)
+                                <div class="form-row">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label">Hold Remark</label>
+                                        <textarea class="form-textarea" readonly>{{ strip_tags($pdcDetail->courier_receive_hold_remark) }}</textarea>
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{--  <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Total Cheques</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $chequeTotal ?? ($pdcDetail->courier_cheque_total ?? 'N/A') }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Cheques Received</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $pdcDetail->courier_cheque_received ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Cheques Pending</label>
+                                    <input type="text" class="form-input"
+                                        value="{{ $pdcDetail->courier_cheque_pending ?? 'N/A' }}" readonly>
+                                </div>
+                            </div>  --}}
+
+                            @if (!is_null($pdcDetail->courier_send_back))
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label class="form-label">Send Back to Student</label>
+                                        <input type="text" class="form-input"
+                                            value="{{ $pdcDetail->courier_send_back ? 'Yes' : 'No' }}" readonly>
+                                    </div>
+                                    @if ($pdcDetail->courier_send_back)
+                                        <div class="form-field">
+                                            <label class="form-label">Send Back Date</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $pdcDetail->courier_send_back_date ? $pdcDetail->courier_send_back_date->format('d M Y') : 'N/A' }}"
+                                                readonly>
+                                        </div>
+                                        <div class="form-field form-field-full">
+                                            <label class="form-label">Send Back Reason</label>
+                                            <textarea class="form-textarea" readonly>{{ strip_tags($pdcDetail->courier_send_back_reason ?? '') }}</textarea>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+
+                            @if (!empty($pdcDetail->courier_receive_verified_documents))
+                                <div class="form-row">
+                                    <div class="form-field form-field-full">
+                                        <label class="form-label">Approved Document Checklist</label>
+                                        <div style="display: grid; gap: 0.5rem;">
+                                            @foreach ($pdcDetail->courier_receive_verified_documents as $verifiedDocument)
+                                                <label style="display: flex; gap: 0.5rem; align-items: center;">
+                                                    <input type="checkbox" checked disabled>
+                                                    <span>{{ $verifiedDocument }}</span>
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if (!$isCourierApproved)
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <form action="{{ route('admin.apex.stage2.courier_receive.store', $user) }}"
+                                            method="POST">
+                                            @csrf
+                                            <div style="display:flex; gap:10px;">
+                                                <div style="flex:1;">
+                                                    <label class="form-label">Courier Received By <span
+                                                            style="color: red;">*</span></label>
+                                                    <select name="courier_received_by" class="form-input" required>
+                                                        <option value="">Select Apex User</option>
+                                                        @foreach ($apexUserList as $apexUser)
+                                                            <option value="{{ $apexUser->name }}"
+                                                                {{ old('courier_received_by', $pdcDetail->courier_received_by ?? '') === $apexUser->name ? 'selected' : '' }}>
+                                                                {{ $apexUser->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div style="flex:1;">
+                                                    <label class="form-label">Received Date <span
+                                                            style="color: red;">*</span></label>
+                                                    <input type="date" name="courier_received_date" class="form-input"
+                                                        value="{{ old('courier_received_date', optional($pdcDetail->courier_received_date)->format('Y-m-d') ?? now()->format('Y-m-d')) }}"
+                                                        required>
+                                                </div>
+                                                <button type="submit" class="btn btn-approve">Save Courier
+                                                    Receive</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            @endif
+                            @php
+                                $showCourierReviewForm =
+                                    $canReviewCourier || ($isCourierApproved && $chequePendingCount > 0);
+                            @endphp
+                            @if ($showCourierReviewForm)
+                                <div class="form-field" id="courierReviewFormWrapper"
+                                    style="{{ $canReviewCourier ? '' : 'display: none;' }}">
+                                    <form id="courierReviewForm"
+                                        action="{{ route('admin.apex.stage2.courier_receive.review', $user) }}"
+                                        method="POST">
+                                        @csrf
+                                        <div style="display: grid; gap: 0.75rem;">
+                                            <div style="display: grid; gap: 1rem;">
+                                                <div class="data-group" style="margin: 0;">
+                                                    <h4>Approve Courier Receive</h4>
+                                                    <div class="form-section">
+                                                        <div style="display: grid; gap: 0.5rem;">
+                                                            <label class="form-label">Cheque Summary <span
+                                                                    style="color: red;">*</span></label>
+                                                            <div
+                                                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem;">
+                                                                <div>
+                                                                    <label class="form-label"
+                                                                        style="font-size: 0.85rem;">Total Cheques</label>
+                                                                    <input type="text" class="form-input"
+                                                                        value="{{ $chequeTotal ?? ($pdcDetail->courier_cheque_total ?? 'N/A') }}"
+                                                                        readonly>
+                                                                </div>
+                                                                <div>
+                                                                    <label class="form-label"
+                                                                        style="font-size: 0.85rem;">Cheques
+                                                                        Received</label>
+                                                                    <input type="number" min="0"
+                                                                        name="courier_cheque_received"
+                                                                        class="form-input"
+                                                                        value="{{ old('courier_cheque_received', $pdcDetail->courier_cheque_received ?? 0) }}">
+                                                                </div>
+                                                                <div>
+                                                                    <label class="form-label"
+                                                                        style="font-size: 0.85rem;">Cheques
+                                                                        Pending</label>
+                                                                    <input type="number" min="0"
+                                                                        name="courier_cheque_pending" class="form-input"
+                                                                        value="{{ old('courier_cheque_pending', $pdcDetail->courier_cheque_pending ?? 0) }}">
+                                                                </div>
+                                                            </div>
+                                                            <input type="hidden" name="courier_cheque_total"
+                                                                value="{{ $chequeTotal ?? ($pdcDetail->courier_cheque_total ?? '') }}">
+                                                            <div id="cheques-error"
+                                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                                            </div>
+                                                        </div>
+                                                        <div class="js-approve-extra">
+                                                            <label class="form-label">Approved By <span
+                                                                    style="color: red;">*</span></label>
+                                                            <select name="courier_approved_by" class="form-input">
+                                                                <option value="">Select Apex User</option>
+                                                                @foreach ($apexUserList as $apexUser)
+                                                                    <option value="{{ $apexUser->id }}"
+                                                                        {{ (string) old('courier_approved_by', $pdcDetail->courier_receive_approved_by ?? '') === (string) $apexUser->id ? 'selected' : '' }}>
+                                                                        {{ $apexUser->name }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                            <div id="approvedby-error"
+                                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                                            </div>
+                                                        </div>
+                                                        <div class="js-approve-extra">
+                                                            <label class="form-label"
+                                                                style="margin-top: 0.75rem;">Uploaded
+                                                                Documents Checklist</label>
+                                                            <div
+                                                                style="display: grid; gap: 0.5rem; max-height: 260px; overflow-y: auto; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px;">
+                                                                @forelse ($courierDocumentChecklist ?? [] as $documentItem)
+                                                                    <label>
+                                                                        <input type="checkbox"
+                                                                            name="courier_verified_documents[]"
+                                                                            value="{{ $documentItem['label'] }}"
+                                                                            {{ in_array($documentItem['label'], old('courier_verified_documents', $pdcDetail->courier_receive_verified_documents ?? []), true) ? 'checked' : '' }}>
+                                                                        <span
+                                                                            style="margin: 10px;">{{ $documentItem['label'] }}</span>
+                                                                    </label>
+                                                                @empty
+                                                                    <p style="margin: 0; color: var(--text-light);">No
+                                                                        uploaded
+                                                                        document list found for this student.</p>
+                                                                @endforelse
+                                                            </div>
+                                                            <!-- Error message for documents validation -->
+                                                            <div id="documents-error"
+                                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                                            </div>
+                                                            <div style="margin-top: 0.75rem;">
+                                                                <button type="submit" name="courier_action"
+                                                                    value="approve" class="btn btn-approve">
+                                                                    Approve Courier Receive
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="js-cheque-summary-only"
+                                                            style="margin-top: 0.75rem; display: none;">
+                                                            <button type="submit" name="courier_action"
+                                                                value="approve" class="btn btn-approve">
+                                                                Update Cheque Summary
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="data-group js-approve-extra" style="margin: 0;">
+                                                    <h4>Hold Courier Receive</h4>
+                                                    <div class="form-section" style="display: grid; gap: 0.75rem;">
+                                                        <div>
+                                                            <label class="form-label">Hold By <span
+                                                                    style="color: red;">*</span></label>
+                                                            <select name="courier_hold_by" class="form-input">
+                                                                <option value="">Select Apex User</option>
+                                                                @foreach ($apexUserList as $apexUser)
+                                                                    <option value="{{ $apexUser->id }}"
+                                                                        {{ (string) old('courier_hold_by') === (string) $apexUser->id ? 'selected' : '' }}>
+                                                                        {{ $apexUser->name }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                            <div id="holdby-error"
+                                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <label class="form-label">Hold Remark <span
+                                                                    style="color: red;">*</span>
+                                                                for hold only</label>
+                                                            <textarea name="courier_receive_hold_remark" rows="4" class="remark-input"
+                                                                placeholder="Required only when putting courier receive on hold">{{ old('courier_receive_hold_remark', $pdcDetail->courier_receive_hold_remark ?? '') }}</textarea>
+                                                            <!-- Error message for remark validation -->
+                                                            <div id="remark-error"
+                                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                                            </div>
+                                                        </div>
+                                                        <div style="display: grid; gap: 0.5rem;">
+                                                            <label class="form-label">Send Back to Student?</label>
+                                                            <select name="courier_send_back" class="form-input"
+                                                                id="courierSendBackSelect">
+                                                                <option value="0"
+                                                                    {{ old('courier_send_back', $pdcDetail->courier_send_back ? 1 : 0) == 0 ? 'selected' : '' }}>
+                                                                    No</option>
+                                                                <option value="1"
+                                                                    {{ old('courier_send_back', $pdcDetail->courier_send_back ? 1 : 0) == 1 ? 'selected' : '' }}>
+                                                                    Yes</option>
+                                                            </select>
+                                                        </div>
+                                                        <div id="courierSendBackFields"
+                                                            style="display: grid; gap: 0.5rem;">
+                                                            <div>
+                                                                <label class="form-label">Send Back Reason</label>
+                                                                <textarea name="courier_send_back_reason" rows="3" class="remark-input"
+                                                                    placeholder="Reason for sending back to student">{{ old('courier_send_back_reason', $pdcDetail->courier_send_back_reason ?? '') }}</textarea>
+                                                            </div>
+                                                            <div>
+                                                                <label class="form-label">Send Back Date</label>
+                                                                <input type="date" name="courier_send_back_date"
+                                                                    class="form-input"
+                                                                    value="{{ old('courier_send_back_date', optional($pdcDetail->courier_send_back_date)->format('Y-m-d')) }}">
+                                                            </div>
+                                                            <div id="sendback-error"
+                                                                style="color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none;">
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <button type="submit" name="courier_action"
+                                                                value="hold" class="btn btn-hold">
+                                                                Hold Courier Receive
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            @elseif ($hasCourierReceive && !$isCourierApproved)
+                                <div class="no-data">
+                                    <p>Courier receive has already been processed. To re-process, save new courier receive
+                                        details above.</p>
+                                </div>
+                            @elseif(!$isCourierApproved)
+                                <div class="no-data">
+                                    <p>Please save courier receive details to continue with approval or hold.</p>
+                                </div>
+                            @endif
+
+                        </div>
+                    </div>
+
+                </div>
+                @if (($courierHistory ?? collect())->isNotEmpty())
+                    <div class="data-group" style="margin-top: 1rem;">
+                        <h4>Courier History</h4>
+                        <div style="display: grid; gap: 0.75rem;">
+                            @foreach ($courierHistory as $history)
+                                <div style="padding: 0.75rem; border: 1px solid #e5e5e5; border-radius: 8px;">
+                                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.9rem;">
+                                        @php
+                                            $historyBy =
+                                                $history->data['approved_by'] ??
+                                                ($history->data['hold_by'] ??
+                                                    ($history->data['courier_received_by'] ?? null));
+                                        @endphp
+                                        <div><strong>Action:</strong>
+                                            {{ ucfirst(str_replace('_', ' ', $history->action)) }}</div>
+                                        <div><strong>By:</strong>
+                                            {{ $historyBy ?? ($history->actor->name ?? 'Admin #' . ($history->action_by ?? 'N/A')) }}
+                                        </div>
+                                        <div><strong>Date:</strong>
+                                            {{ $history->action_at ? $history->action_at->format('d M Y H:i') : 'N/A' }}
+                                        </div>
+                                    </div>
+                                    @if (!empty($history->data))
+                                        <div style="margin-top: 0.5rem; display: grid; gap: 0.35rem;">
+                                            @foreach ($history->data as $key => $value)
+                                                <div style="font-size: 0.85rem;">
+                                                    <strong>{{ ucwords(str_replace('_', ' ', $key)) }}:</strong>
+                                                    @if (is_array($value))
+                                                        {{ implode(', ', $value) }}
+                                                    @else
+                                                        {{ is_bool($value) ? ($value ? 'Yes' : 'No') : $value }}
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            @else
+                <div class="no-data">
+                    <p>Courier receive cannot be processed because PDC/Cheque Details are not submitted yet.</p>
+                </div>
+            @endif
+        </div>
+
+        <!-- Step 9: PDC/Cheque Details -->
+        <div class="step-content" id="step-9">
+            <div class="step-header">
+                <h2 class="step-title-large">Step {{ $isBelowLoan ? 8 : 9 }}: PDC/Cheque Details</h2>
+                <div class="step-status">
+                    @if (isset($pdcDetail) && $pdcDetail->status === 'approved')
+                        <span class="status-badge status-approved">
+                            <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
+                            Approved
+                        </span>
+                    @elseif(isset($pdcDetail) && $pdcDetail->status === 'rejected')
+                        <span class="status-badge status-hold">
+                            <i class="fas fa-times-circle" style="font-size: 0.6rem;"></i>
+                            Rejected
+                        </span>
+                    @else
+                        <span class="status-badge status-pending">
+                            <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                            {{ isset($pdcDetail) ? 'Submitted' : 'Pending' }}
+                        </span>
+                    @endif
+                    @if ($isCourierApproved)
+                        <a href="{{ route('admin.pdc.edit', $user) }}" class="dropdown-item"
+                            style="display: block; padding: 0.75rem 1rem; background: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);color:white; border-radius:15px;">
+                            <i class="fas fa-edit" style="margin-right: 0.5rem;"></i> Edit PDC/Cheque Details
+                        </a>
+                    @endif
+                </div>
+            </div>
+
+            @if (isset($pdcDetail) && $pdcDetail)
+                @if (!$isCourierApproved)
+                    <div class="data-group">
+                        <div class="no-data">
+                            <p>PDC/Cheque details are locked until Courier Receive is approved.</p>
+                        </div>
+                    </div>
+                @else
+                    <div class="form-data">
+                        <!-- Approval Details -->
+                        @if (isset($workingCommitteeApproval) && $workingCommitteeApproval)
+                            <div class="data-group">
+                                <h4>Approval Details</h4>
+                                <div class="form-section">
+                                    <div class="form-row">
+                                        <div class="form-field">
+                                            <label class="form-label">Approved Financial Assistance Amount</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $workingCommitteeApproval->approval_financial_assistance_amount ? '₹' . number_format($workingCommitteeApproval->approval_financial_assistance_amount) : 'N/A' }}"
+                                                readonly>
+                                        </div>
+                                        <div class="form-field">
+                                            <label class="form-label">Repayment Type</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ ucfirst($workingCommitteeApproval->repayment_type ?? 'N/A') }}"
+                                                readonly>
+                                        </div>
+                                        <div class="form-field">
+                                            <label class="form-label">No. of Cheques to be Collected</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $workingCommitteeApproval->no_of_cheques_to_be_collected ?? 'N/A' }}"
+                                                readonly>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-field">
+                                            <label class="form-label">Repayment Starting From</label>
+                                            <input type="text" class="form-input"
+                                                value="{{ $workingCommitteeApproval->repayment_starting_from ? \Carbon\Carbon::parse($workingCommitteeApproval->repayment_starting_from)->format('d M Y') : 'N/A' }}"
+                                                readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- First Cheque Image -->
+                        <div class="data-group">
+                            <h4>First Cheque Image</h4>
+                            <div class="form-section">
+                                @if ($pdcDetail->first_cheque_image)
+                                    @php
+                                        $chequeImagePath = $pdcDetail->first_cheque_image;
+                                        if (strpos($chequeImagePath, 'http') === 0) {
+                                            $chequeImageUrl = $chequeImagePath;
+                                        } else {
+                                            $chequeImageUrl = asset($chequeImagePath);
+                                        }
+                                        $fileExtension = strtolower(pathinfo($chequeImagePath, PATHINFO_EXTENSION));
+                                        $fileName =
+                                            'First_Cheque_' .
+                                            ($user->application_no ?? $user->id) .
+                                            '.' .
+                                            $fileExtension;
+                                    @endphp
+                                    <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                                        @if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif', 'webp']))
+                                            <!-- Image Preview -->
+                                            <div style="margin-bottom: 1rem;">
+                                                <img src="{{ $chequeImageUrl }}" alt="First Cheque Image"
+                                                    style="max-width: 400px; max-height: 300px; border: 2px solid #dee2e6; border-radius: 8px; object-fit: contain;">
+                                            </div>
+                                            <!-- Action Buttons -->
+                                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                                <a href="{{ $chequeImageUrl }}" target="_blank" class="btn"
+                                                    style="background: var(--primary-blue); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                                <a href="{{ $chequeImageUrl }}" download="{{ $fileName }}"
+                                                    class="btn"
+                                                    style="background: var(--primary-green); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                                    <i class="fas fa-download"></i> Download
+                                                </a>
+                                                <button onclick="printImage('{{ $chequeImageUrl }}')" class="btn"
+                                                    style="background: var(--primary-purple); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                                    <i class="fas fa-print"></i> Print
+                                                </button>
+                                            </div>
+                                        @elseif($fileExtension == 'pdf')
+                                            <!-- PDF Preview -->
+                                            <div style="margin-bottom: 1rem;">
+                                                <iframe src="{{ $chequeImageUrl }}"
+                                                    style="width: 100%; height: 400px; border: 2px solid #dee2e6; border-radius: 8px;"
+                                                    title="First Cheque PDF"></iframe>
+                                            </div>
+                                            <!-- Action Buttons -->
+                                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                                <a href="{{ $chequeImageUrl }}" target="_blank" class="btn"
+                                                    style="background: var(--primary-blue); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                                <a href="{{ $chequeImageUrl }}" download="{{ $fileName }}"
+                                                    class="btn"
+                                                    style="background: var(--primary-green); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                                    <i class="fas fa-download"></i> Download
+                                                </a>
+                                                <button onclick="printPDF('{{ $chequeImageUrl }}')" class="btn"
+                                                    style="background: var(--primary-purple); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                                    <i class="fas fa-print"></i> Print
+                                                </button>
+                                            </div>
+                                        @else
+                                            <span style="color: var(--text-light);">Unsupported file format</span>
+                                        @endif
+                                    </div>
+                                @else
+                                    <p style="color: var(--text-light);">No cheque image uploaded</p>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Cheque Details Table -->
+                        <div class="data-group">
+                            <h4>Cheque Details</h4>
+                            <div class="table-container">
+                                @php
+                                    $chequeDetails = json_decode($pdcDetail->cheque_details, true);
+                                @endphp
+                                @if ($chequeDetails && count($chequeDetails) > 0)
+                                    <table class="custom-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr No</th>
+                                                <th>Student Name</th>
+                                                <th>Application No.</th>
+                                                <th>Repayment Date</th>
+                                                <th>Amount (₹)</th>
+                                                <th>Bank Name</th>
+                                                <th>IFSC Code</th>
+                                                <th>Account Number</th>
+                                                <th>Cheque Number</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($chequeDetails as $index => $cheque)
+                                                <tr>
+                                                    <td>{{ $index + 1 }}</td>
+                                                    <td>{{ $user->name ?? 'N/A' }}</td>
+                                                    <td>{{ $user->application_no ?? 'N/A' }}</td>
+                                                    <td>{{ isset($cheque['cheque_date']) ? date('d M Y', strtotime($cheque['cheque_date'])) : 'N/A' }}
+                                                    </td>
+                                                    <td class="amount-cell">₹{{ number_format($cheque['amount'] ?? 0) }}
+                                                    </td>
+                                                    <td>{{ $cheque['bank_name'] ?? 'N/A' }}</td>
+                                                    <td>{{ $cheque['ifsc'] ?? 'N/A' }}</td>
+                                                    <td>{{ $cheque['account_number'] ?? 'N/A' }}</td>
+                                                    <td>{{ $cheque['cheque_number'] ?? 'N/A' }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <div class="no-data">
+                                        <p>No cheque details available.</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                @endif
+            @else
+                <div class="no-data">
+                    <p>PDC/Cheque Details not submitted yet.</p>
+                </div>
+            @endif
+
+            <!-- Edit Bank Detail Request Section -->
+            @if (isset($editBankDetailRequest) && $editBankDetailRequest)
+                <div class="form-data mt-4" style="border: 2px solid #FBBA00; border-radius: 15px; padding: 1.5rem;">
+                    <div class="data-group">
+                        <h4 style="color: white;">
+                            <i class="bi bi-pencil-square me-2"></i>
+                            Edit Bank Detail Request
+                        </h4>
+
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Status</label>
+                                    @if ($editBankDetailRequest->status === 'pending')
+                                        <span class="status-badge status-pending">
+                                            <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                                            Pending
+                                        </span>
+                                    @elseif($editBankDetailRequest->status === 'approved')
+                                        <span class="status-badge status-approved">
+                                            <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
+                                            Approved
+                                        </span>
+                                    @elseif($editBankDetailRequest->status === 'rejected')
+                                        <span class="status-badge status-hold">
+                                            <i class="fas fa-times-circle" style="font-size: 0.6rem;"></i>
+                                            Rejected
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="form-field text-end">
+                                    <label class="form-label">Submitted On</label>
+                                    <div class="data-value">
+                                        {{ $editBankDetailRequest->created_at ? \Carbon\Carbon::parse($editBankDetailRequest->created_at)->format('d M Y H:i') : 'N/A' }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if ($editBankDetailRequest->reason)
+                                <div class="form-field mt-3">
+                                    <label class="form-label">User Reason</label>
+                                    <div class="data-value"
+                                        style="background: #f8f9fa; padding: 1rem; border-radius: 8px;text-align: justify;">
+                                        {{ $editBankDetailRequest->reason }}
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if ($editBankDetailRequest->status === 'approved')
+                                <div class="alert alert-success mt-3" style="border-radius: 10px;">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    Request approved. User can now edit bank details.
+                                </div>
+                            @elseif($editBankDetailRequest->status === 'rejected')
+                                <div class="form-field mt-3">
+                                    <label class="form-label">Admin Remark</label>
+                                    <div class="data-value"
+                                        style="background: #f8d7da; padding: 1rem; border-radius: 8px; color: #721c24;">
+                                        {!! $editBankDetailRequest->admin_remark !!}
+                                    </div>
+                                </div>
+                            @elseif($editBankDetailRequest->status === 'pending')
+                                <div class="mt-4">
+                                    <div class="d-flex gap-3">
+                                        <button type="button" class="btn btn-approve"
+                                            onclick="approveEditBankRequest({{ $user->id }})">
+                                            <i class="fas fa-check me-1"></i> Approve Request
+                                        </button>
+                                        <button type="button" class="btn btn-reject"
+                                            onclick="showRejectModal({{ $user->id }})">
+                                            <i class="fas fa-times me-1"></i> Reject Request
+                                        </button>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+
+            <div class="step-header">
+                {{-- <h2 class="step-title-large">Step 9: Apex Decision</h2> --}}
+                <div class="step-status">
+                    @if ($user->workflowStatus && $user->workflowStatus->apex_2_status === 'approved')
+                        <span class="status-badge status-approved">
+                            <i class="fas fa-check-circle" style="font-size: 0.6rem;"></i>
+                            Approved
+                        </span>
+                    @elseif($user->workflowStatus && $user->workflowStatus->apex_2_status === 'rejected')
+                        <span class="status-badge status-hold">
+                            <i class="fas fa-times-circle" style="font-size: 0.6rem;"></i>
+                            Send Back For Correction
+                        </span>
+                    @else
+                        <span class="status-badge status-pending">
+                            <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                            Decision Required
+                        </span>
+                    @endif
+                </div>
+            </div>
+
+            @if ($user->workflowStatus && $user->workflowStatus->apex_2_status === 'approved')
+                <!-- Approved Decision Display -->
+                <div class="form-data">
+                    <div class="data-group">
+                        <h4>✅ Application Approved</h4>
+                        <div class="form-section">
+                            {{-- <div class="data-item">
+                            <div class="data-label">Approval Date</div>
+                            <div class="data-value">{{ $user->workflowStatus->apex_1_updated_at ? $user->workflowStatus->apex_1_updated_at->format('d M Y H:i') : 'N/A' }}</div>
+                        </div> --}}
+                            @if ($user->workflowStatus->apex_2_approval_remarks)
+                                <div class="data-item">
+                                    <div class="data-label">Apex Approval Remarks</div>
+                                    <div class="data-value">
+                                        {{ strip_tags($user->workflowStatus->apex_2_approval_remarks) }}</div>
+                                </div>
+                            @endif
+                            @if ($user->workflowStatus->apex_staff_remark)
+                                <div class="data-item">
+                                    <div class="data-label">Apex Staff Remarks</div>
+                                    <div class="data-value">
+                                        {{ strip_tags($user->workflowStatus->apex_staff_remark ?? 'N/A') }}</div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @elseif($user->workflowStatus && $user->workflowStatus->apex_2_status === 'rejected')
+                <!-- Rejected Decision Display -->
+                <div class="form-data">
+                    <div class="data-group">
+                        <h4>❌ Application Send Back For Correction</h4>
+                        <div class="form-section">
+
+                            @if ($user->workflowStatus->apex_2_reject_remarks)
+                                <div class="data-item">
+                                    <div class="data-label">Send Back For Correction Remarks</div>
+                                    <div class="data-value">
+                                        {{ strip_tags($user->workflowStatus->apex_2_reject_remarks ?? 'N/A') }}</div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @elseif(
+                $user->workflowStatus &&
+                    $user->workflowStatus->current_stage === 'apex_2' &&
+                    $user->workflowStatus->final_status === 'in_progress')
+                <!-- Validation Errors Display -->
+                @if ($errors->any())
+                    <div
+                        style="background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.2); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                        <h5 style="color: var(--primary-red); margin: 0 0 0.5rem 0; font-size: 0.9rem;">⚠️ Validation
+                            Errors:</h5>
+                        <ul style="margin: 0; padding-left: 1.2rem; color: var(--primary-red); font-size: 0.85rem;">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <div class="workflow-action-card">
+                    <h4 class="action-title">Apex 2 Decision</h4>
+
+                    @php
+                        $isCourierApproved =
+                            isset($pdcDetail) && $pdcDetail && $pdcDetail->courier_receive_status === 'approved';
+                    @endphp
+
+                    @if (!$isCourierApproved)
+                        <div
+                            style="background: rgba(244, 67, 54, 0.08); border: 1px solid rgba(244, 67, 54, 0.2); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem;">
+                            <span style="color: var(--primary-red); font-size: 0.9rem; font-weight: 600;">
+                                Courier Receive must be approved before approving the application.
+                            </span>
+                        </div>
+                    @endif
+
+                    <!-- Approve Form -->
+                    <form action="{{ route('admin.user.approve', ['user' => $user, 'stage' => 'apex_2']) }}"
+                        method="POST">
+                        @csrf
+                        <div class="action-form-row">
+                            {{--  <div style="flex: 2;">
+                                <label class="form-label"
+                                    style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Approval
+                                    Remark</label>
+                                <textarea name="admin_remark" placeholder="Approval remark (optional but recommended)" rows="3"
+                                    class="remark-input"></textarea>
+
+                                <div style="margin-top: 1rem;">
+                                <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Apex Staff Remark</label>
+                                <textarea name="apex_staff_remark"
+                                          placeholder="Optional apex staff remark"
+                                          rows="3"
+                                          class="remark-input"></textarea>
+                            </div>  --}}
+
+
+                        </div>
+                        <button type="submit" class="btn btn-approve"
+                            @if (!$isCourierApproved) disabled @endif>
+                            <i class="fas fa-check"></i>
+                            Approve Application
+                        </button>
+                </div>
+                </form>
+
+                {{--  <div class="divider"></div>
+
+                    <!-- Reject Form -->
+                    <form action="{{ route('admin.user.reject', ['user' => $user, 'stage' => 'apex_2']) }}"
+                        method="POST">
+                        @csrf
+                        <div class="action-form-row">
+                            <div style="flex: 2;">
+                                <label class="form-label"
+                                    style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Send
+                                    Back For Correction Remark <span style="color: var(--primary-red);">*</span></label>
+                                <textarea name="admin_remark" placeholder="Send back for correction remark (required)" rows="3"
+                                    class="remark-input" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-reject">
+                                <i class="fas fa-times"></i>
+                                Send Back For Correction
+                            </button>
+                        </div>
+                    </form>  --}}
+        </div>
+    @else
+        <div class="no-data">
+            <p>Decision not available for this application.</p>
+        </div>
+        @endif
+    </div>
+
+
+
+
+
+    </div> <!-- content-area -->
+
+    </div>
+@endsection
+
+
+<!-- SweetAlert CDN -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="{{ asset('summernotes/summernote-lite.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    // SweetAlert for session messages
+    @if (session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: '{{ session('success') }}',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: true,
+            confirmButtonColor: '#4CAF50'
+        });
+    @endif
+
+    @if (session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: '{{ session('error') }}',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: true,
+            confirmButtonColor: '#f44336'
+        });
+    @endif
+
+    function showStep(stepNumber) {
+        // Hide all step contents
+        document.querySelectorAll('.step-content').forEach(content => {
+            content.classList.remove('active');
+        });
+
+        // Remove active class from all nav items
+        document.querySelectorAll('.step-nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+
+        // Show selected step content
+        document.getElementById('step-' + stepNumber).classList.add('active');
+
+        // Add active class to selected nav item
+        document.querySelector('.step-' + stepNumber).classList.add('active');
+    }
+
+    // Auto-scroll to active step on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const activeStep = document.querySelector('.step-nav-item.active');
+        if (activeStep) {
+            activeStep.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'center'
+            });
+        }
+
+        // Toggle all checkboxes function
+        function toggleAllCheckboxes(selectAll, type) {
+            let selector;
+            if (type === 'approve') {
+                selector = 'input[name="approved_steps[]"]';
+            } else {
+                selector = 'input[name="resubmit_steps[]"]';
+            }
+            const checkboxes = document.querySelectorAll(selector);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll;
+            });
+        }
+
+        // Sync textarea values for forms
+        const approveForm = document.querySelector('form[action*="approve"]');
+        const rejectForm = document.querySelector('form[action*="reject"]');
+        const approveTextarea = approveForm ? approveForm.querySelector('textarea[name="admin_remark"]') : null;
+        const rejectTextarea = rejectForm ? rejectForm.querySelector('textarea[name="admin_remark"]') : null;
+
+        if (approveForm && approveTextarea) {
+            approveForm.addEventListener('submit', function() {
+                document.getElementById('approve_remark').value = approveTextarea.value;
+            });
+        }
+    });
+
+    // Select document and highlight it
+    function selectDocument(event, url, title) {
+        event.preventDefault();
+
+        // Remove active class from all buttons (CSS will handle styling)
+        document.querySelectorAll('.doc-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Add active class to clicked button
+        const clickedBtn = event.target.closest('.doc-button');
+        if (clickedBtn) {
+            clickedBtn.classList.add('active');
+        }
+
+        // Open the modal/preview
+        openModal(url, title);
+    }
+
+    // Document preview function for right-side display
+    let currentDocUrl = '';
+
+    function openModal(url, title = 'Document Preview') {
+        const previewContainer = document.getElementById('documentPreview');
+        const downloadBtn = document.getElementById('docDownloadBtn');
+        const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|ico)$/i.test(url);
+
+        // Store current URL for download
+        currentDocUrl = url;
+
+        // Clear existing preview content
+        previewContainer.innerHTML = '';
+
+        // Show download button in header
+        if (downloadBtn) {
+            downloadBtn.style.display = 'inline-flex';
+        }
+
+        // Create preview content
+        if (isImage) {
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = title;
+            img.style.cssText = 'max-width: 100%; max-height: 400px; object-fit: contain; border-radius: 6px;';
+            previewContainer.appendChild(img);
+        } else {
+            const iframe = document.createElement('iframe');
+            iframe.src = url;
+            iframe.style.cssText = 'width: 100%; height: 400px; border: none; border-radius: 6px;';
+            previewContainer.appendChild(iframe);
+        }
+    }
+
+    // Reset preview to initial state
+    function resetPreview() {
+        const previewContainer = document.getElementById('documentPreview');
+        const downloadBtn = document.getElementById('docDownloadBtn');
+
+        previewContainer.innerHTML = `
+            <i class="fas fa-file-image" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+            <p style="color: var(--text-light); font-size: 1rem;">Select a document from the left to preview</p>
+            <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Click on any document name to view its content</p>
+        `;
+
+        // Hide download button
+        if (downloadBtn) {
+            downloadBtn.style.display = 'none';
+        }
+
+        currentDocUrl = '';
+    }
+
+    // Download current document
+    function downloadCurrentDoc() {
+        if (currentDocUrl) {
+            window.open(currentDocUrl, '_blank');
+        }
+    }
+
+    // Dropdown toggle function
+    function toggleDropdown() {
+        const dropdown = document.getElementById('printDropdown');
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('printDropdown');
+        const button = event.target.closest('.dropdown button');
+        if (!button && dropdown.style.display === 'block') {
+            dropdown.style.display = 'none';
+        }
+    });
+
+    // Print Image function
+    function printImage(imageUrl) {
+        const printWindow = window.open('', '_blank', 'width=800,height=600');
+        printWindow.document.write('<html><head><title>Print Cheque Image</title>');
+        printWindow.document.write(
+            '<style>body{margin:0;padding:20px;text-align:center;} img{max-width:100%;height:auto;} @media print{body{margin:0;}}</style>'
+        );
+        printWindow.document.write('</head><body>');
+        printWindow.document.write('<img src="' + imageUrl + '" onload="window.print();window.close();">');
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+    }
+
+    // Print PDF function
+    function printPDF(pdfUrl) {
+        const printWindow = window.open(pdfUrl, '_blank');
+        if (printWindow) {
+            printWindow.onload = function() {
+                printWindow.print();
+            };
+        }
+    }
+
+    // Edit Bank Detail Request Functions
+    function approveEditBankRequest(userId) {
+        if (confirm(
+                'Are you sure you want to approve this edit bank detail request? The user will be able to edit their bank details.'
+            )) {
+            fetch('{{ route('admin.apex.stage2.approve.edit.bank.request') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Error approving request');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+        }
+    }
+
+    function showRejectModal(userId) {
+        const remark = prompt('Please enter the reason for rejection:');
+        if (remark === null || remark.trim() === '') {
+            return;
+        }
+
+        fetch('{{ route('admin.apex.stage2.reject.edit.bank.request') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    admin_remark: remark
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message || 'Error rejecting request');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+    }
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('textarea:not([readonly]):not([disabled]):not(.swal2-textarea)').each(function() {
+            const $textarea = $(this);
+
+            if ($textarea.next('.note-editor').length) {
+                return;
+            }
+
+            $textarea.summernote({
+                height: 140,
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline']],
+                    ['fontsize', ['fontsize']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['insert', ['link']],
+                    ['view', ['codeview']]
+                ],
+                callbacks: {
+                    onInit: function() {
+                        if ($(this).summernote('isEmpty')) {
+                            $(this).summernote('code', '');
+                        }
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+<!-- Document Modal -->
+<div id="documentModal"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+    <div
+        style="position:relative; max-width:90%; max-height:90%; background:white; border-radius:8px; overflow:hidden; display: flex; flex-direction: column;">
+        <div
+            style="padding: 1rem; background: var(--primary-purple); color: white; display: flex; justify-content: space-between; align-items: center;">
+            <h4 id="modalTitle" style="margin: 0; font-size: 1.1rem; font-weight: 600;">Document Preview</h4>
+            <button onclick="closeModal()"
+                style="background: rgba(255,255,255,0.2); color:white; border:none; border-radius:50%; width:30px; height:30px; cursor:pointer; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div style="flex: 1; overflow: hidden;">
+            <iframe id="documentFrame" src=""
+                style="width:100%; height:100%; border:none; display:block;"></iframe>
+            <img id="documentImage" src=""
+                style="max-width:100%; max-height:100%; display:none; object-fit:contain;" alt="Document Image">
+        </div>
+    </div>
+</div>
+
+<script>
+    // Courier Receive Review Form Validation
+    // Use interval to check for form existence since it's loaded dynamically
+    function initCourierReceiveValidation() {
+
+        const reviewForm = document.getElementById('courierReviewForm');
+        if (!reviewForm) return false;
+
+        if (reviewForm.dataset.validationInitialized) return true;
+        reviewForm.dataset.validationInitialized = 'true';
+
+        const remarkInput = reviewForm.querySelector('textarea[name="courier_receive_hold_remark"]');
+        const documentCheckboxes = reviewForm.querySelectorAll('input[name="courier_verified_documents[]"]');
+        const chequeTotalInput = reviewForm.querySelector('input[name="courier_cheque_total"]');
+        const chequeReceivedInput = reviewForm.querySelector('input[name="courier_cheque_received"]');
+        const chequePendingInput = reviewForm.querySelector('input[name="courier_cheque_pending"]');
+        const sendBackSelect = reviewForm.querySelector('#courierSendBackSelect');
+        const sendBackFields = document.getElementById('courierSendBackFields');
+        const sendBackReasonInput = reviewForm.querySelector('textarea[name="courier_send_back_reason"]');
+        const sendBackDateInput = reviewForm.querySelector('input[name="courier_send_back_date"]');
+        const approvedBySelect = reviewForm.querySelector('select[name="courier_approved_by"]');
+        const holdBySelect = reviewForm.querySelector('select[name="courier_hold_by"]');
+
+        const documentsErrorDiv = document.getElementById('documents-error');
+        const remarkErrorDiv = document.getElementById('remark-error');
+        const chequesErrorDiv = document.getElementById('cheques-error');
+        const sendBackErrorDiv = document.getElementById('sendback-error');
+        const approvedByErrorDiv = document.getElementById('approvedby-error');
+        const holdByErrorDiv = document.getElementById('holdby-error');
+
+        function showDocumentsError(message) {
+            documentsErrorDiv.textContent = message;
+            documentsErrorDiv.style.display = 'block';
+        }
+
+        function hideDocumentsError() {
+            documentsErrorDiv.style.display = 'none';
+        }
+
+        function showRemarkError(message) {
+            remarkErrorDiv.textContent = message;
+            remarkErrorDiv.style.display = 'block';
+        }
+
+        function hideRemarkError() {
+            remarkErrorDiv.style.display = 'none';
+        }
+
+        function showChequesError(message) {
+            chequesErrorDiv.textContent = message;
+            chequesErrorDiv.style.display = 'block';
+        }
+
+        function hideChequesError() {
+            chequesErrorDiv.style.display = 'none';
+        }
+
+        function showSendBackError(message) {
+            sendBackErrorDiv.textContent = message;
+            sendBackErrorDiv.style.display = 'block';
+        }
+
+        function hideSendBackError() {
+            sendBackErrorDiv.style.display = 'none';
+        }
+
+        function showApprovedByError(message) {
+            approvedByErrorDiv.textContent = message;
+            approvedByErrorDiv.style.display = 'block';
+        }
+
+        function hideApprovedByError() {
+            approvedByErrorDiv.style.display = 'none';
+        }
+
+        function showHoldByError(message) {
+            holdByErrorDiv.textContent = message;
+            holdByErrorDiv.style.display = 'block';
+        }
+
+        function hideHoldByError() {
+            holdByErrorDiv.style.display = 'none';
+        }
+
+        function toggleSendBackFields() {
+            if (!sendBackSelect || !sendBackFields) return;
+            const isSendBack = sendBackSelect.value === '1';
+            sendBackFields.style.display = isSendBack ? 'grid' : 'none';
+        }
+
+        toggleSendBackFields();
+        if (sendBackSelect) {
+            sendBackSelect.addEventListener('change', toggleSendBackFields);
+        }
+
+        reviewForm.addEventListener('submit', function(e) {
+
+            const action = e.submitter.value;
+
+            hideDocumentsError();
+            hideRemarkError();
+            hideChequesError();
+            hideSendBackError();
+            hideApprovedByError();
+            hideHoldByError();
+
+            const totalCheques = chequeTotalInput ? parseInt(chequeTotalInput.value, 10) : NaN;
+            const receivedCheques = chequeReceivedInput ? parseInt(chequeReceivedInput.value || '0', 10) : 0;
+            const pendingCheques = chequePendingInput ? parseInt(chequePendingInput.value || '0', 10) : 0;
+
+            // APPROVE VALIDATION
+            if (action === "approve") {
+
+                if (!Number.isNaN(totalCheques)) {
+                    if ((receivedCheques + pendingCheques) !== totalCheques) {
+                        e.preventDefault();
+                        showChequesError("Received + pending cheques must equal total cheques (" +
+                            totalCheques +
+                            ").");
+                        chequesErrorDiv.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        });
+                        return;
+                    }
+                }
+
+                if (approvedBySelect && approvedBySelect.value === "") {
+                    e.preventDefault();
+                    showApprovedByError("Please select who approved the courier receive.");
+                    approvedByErrorDiv.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+                    return;
+                }
+
+            }
+
+            // HOLD VALIDATION
+            if (action === "hold") {
+
+                if (holdBySelect && holdBySelect.value === "") {
+                    e.preventDefault();
+                    showHoldByError("Please select who put the courier receive on hold.");
+                    holdByErrorDiv.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+                    return;
+                }
+
+                const remarkValue = remarkInput.value.trim();
+
+                if (remarkValue === "") {
+
+                    e.preventDefault();
+
+                    showRemarkError(
+                        "Please provide a remark when putting Courier Receive on hold."
+                    );
+
+                    remarkErrorDiv.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+
+                    return;
+                }
+
+                const isSendBack = sendBackSelect && sendBackSelect.value === '1';
+                if (isSendBack) {
+                    const reasonValue = sendBackReasonInput ? sendBackReasonInput.value.trim() : "";
+                    const dateValue = sendBackDateInput ? sendBackDateInput.value.trim() : "";
+                    if (reasonValue === "" || dateValue === "") {
+                        e.preventDefault();
+                        showSendBackError(
+                            "Please provide reason and date when sending courier back to student.");
+                        sendBackErrorDiv.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        });
+                        return;
+                    }
+                }
+            }
+
+        });
+
+        return true;
+    }
+
+    // Initialize on DOM ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Try to initialize immediately
+        if (!initCourierReceiveValidation()) {
+            // If form not found, try again after delays
+            setTimeout(initCourierReceiveValidation, 500);
+            setTimeout(initCourierReceiveValidation, 1000);
+            setTimeout(initCourierReceiveValidation, 2000);
+        }
+    });
+
+    // Toggle courier review form for approved cases with pending cheques
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleBtn = document.getElementById('toggleCourierReviewFormBtn');
+        const wrapper = document.getElementById('courierReviewFormWrapper');
+        if (!toggleBtn || !wrapper) return;
+
+        toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            wrapper.style.display = 'block';
+
+            const receivedInput = wrapper.querySelector('input[name="courier_cheque_received"]');
+            const pendingInput = wrapper.querySelector('input[name="courier_cheque_pending"]');
+            const totalInput = wrapper.querySelector('input[name="courier_cheque_total"]');
+            const fullSections = wrapper.querySelectorAll('.js-approve-extra');
+            const summaryOnlySections = wrapper.querySelectorAll('.js-cheque-summary-only');
+
+            const total = toggleBtn.getAttribute('data-cheque-total');
+            const received = toggleBtn.getAttribute('data-cheque-received');
+            const pending = toggleBtn.getAttribute('data-cheque-pending');
+
+            if (totalInput && total !== null && total !== '') totalInput.value = total;
+            if (receivedInput && received !== null && received !== '') receivedInput.value = received;
+            if (pendingInput && pending !== null && pending !== '') pendingInput.value = pending;
+            fullSections.forEach(section => {
+                section.style.display = 'none';
+            });
+            summaryOnlySections.forEach(section => {
+                section.style.display = 'block';
+            });
+
+            wrapper.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        });
+    });
+
+    // Also try when step nav items are clicked
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.step-nav-item')) {
+            setTimeout(initCourierReceiveValidation, 300);
+        }
+    });
+</script>
+
+
+
+

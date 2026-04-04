@@ -1,7 +1,17 @@
 @extends('user.layout.master')
 @section('step')
-    <button class="btn btn-purple me-2" style="background-color: #393185; color: white;">Step 7 of
-        7</button>
+    <button class="btn btn-purple me-2" style="background-color: #393185; color: white;">
+          @php
+            $isBelowOneLakh = $user->loanCategory->type === 'below';
+        @endphp
+       @if ($isBelowOneLakh)
+            Step 6 of
+            6
+        @else
+            Step 7 of
+            7
+        @endif
+        </button>
 @endsection
 @section('content')
     <!-- Main Content -->
@@ -141,6 +151,77 @@
                                     </div>
 
                                     <!-- Preview Section -->
+                                    <!--<div style="margin-top: 32px;padding:0 20px;">-->
+                                    <!--    <h4 style="font-size: 16px;font-weight:600;color:#353535;">Preview-->
+                                    <!--    </h4>-->
+                                    <!--    <div class="row" style="margin-top: 16px;color:#393185;">-->
+                                    <!--        <div class="col-4 col-md-2" style="text-align: center; ">-->
+                                    <!--            <a href="{{ route('user.step1') }}"-->
+                                    <!--                style="text-decoration: none; color: inherit;">-->
+                                    <!--                <div-->
+                                    <!--                    style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px; @if ($user->submit_status == 'submited') background-color: green;color:white; @elseif($user->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->submit_status == 'approved') background-color: orange;color:white; @endif">-->
+                                    <!--                    1-->
+                                    <!--                </div>-->
+                                    <!--                <span class="mt-4">Personal Details</span>-->
+                                    <!--            </a>-->
+                                    <!--        </div>-->
+
+                                    <!--        <div class="col-4 col-md-2" style="text-align: center; color:#393185;">-->
+                                    <!--            <a href="{{ route('user.step3') }}"-->
+                                    <!--                style="text-decoration: none; color: inherit;">-->
+                                    <!--                <div-->
+                                    <!--                    style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px;-->
+                                    <!--                    @if ($user->educationDetail && $user->educationDetail->submit_status == 'submited') background-color: green;color:white; @elseif($user->educationDetail && $user->educationDetail->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->educationDetail && $user->educationDetail->submit_status == 'approved') background-color: orange;color:white; @endif-->
+                                    <!--                    ">-->
+                                    <!--                    2-->
+                                    <!--                </div>-->
+                                    <!--                <span>Education Details</span>-->
+                                    <!--            </a>-->
+                                    <!--        </div>-->
+                                    <!--        <div class="col-4 col-md-2" style="text-align: center; color:#393185;">-->
+                                    <!--            <a href="{{ route('user.step2') }}"-->
+                                    <!--                style="text-decoration: none; color: inherit;">-->
+                                    <!--                <div-->
+                                    <!--                    style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px;  @if ($user->familyDetail && $user->familyDetail->submit_status == 'submited') background-color: green;color:white; @elseif($user->familyDetail && $user->familyDetail->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->familyDetail && $user->familyDetail->submit_status == 'approved') background-color: orange;color:white; @endif">-->
+                                    <!--                    3-->
+                                    <!--                </div>-->
+                                    <!--                <span>Family Details</span>-->
+                                    <!--            </a>-->
+                                    <!--        </div>-->
+                                    <!--        <div class="col-4 col-md-2" style="text-align: center; color:#393185;">-->
+                                    <!--            <a href="{{ route('user.step4') }}"-->
+                                    <!--                style="text-decoration: none; color: inherit;">-->
+                                    <!--                <div-->
+                                    <!--                    style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px; @if ($user->fundingDetail && $user->fundingDetail->submit_status == 'submited') background-color: green;color:white; @elseif($user->fundingDetail && $user->fundingDetail->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->fundingDetail && $user->fundingDetail->submit_status == 'approved') background-color: orange;color:white; @endif">-->
+                                    <!--                    4-->
+                                    <!--                </div>-->
+                                    <!--                <span>Funding Details</span>-->
+                                    <!--            </a>-->
+                                    <!--        </div>-->
+                                    <!--        @if(!$isBelowOneLakh)-->
+                                    <!--        <div class="col-4 col-md-2" style="text-align: center; color:#393185;">-->
+                                    <!--            <a href="" style="text-decoration: none; color: inherit;">-->
+                                    <!--                <div-->
+                                    <!--                    style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px; @if ($user->guarantorDetail && $user->guarantorDetail->submit_status == 'submited') background-color: green;color:white; @elseif($user->guarantorDetail && $user->guarantorDetail->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->guarantorDetail && $user->guarantorDetail->submit_status == 'approved') background-color: orange;color:white; @endif">-->
+                                    <!--                    5-->
+                                    <!--                </div>-->
+                                    <!--                <span>Guarantor Details</span>-->
+                                    <!--            </a>-->
+                                    <!--        </div>-->
+                                    <!--        @endif-->
+                                    <!--        <div class="col-4 col-md-2" style="text-align: center; color:#393185;">-->
+                                    <!--            <a href="" style="text-decoration: none; color: inherit;">-->
+                                    <!--                <div-->
+                                    <!--                    style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px; @if ($useDocumentsBelow ? ($user->document && $user->document->submit_status == 'submited') : ($useDocumentBelowPg ? ($user->document && $user->document->submit_status == 'submited') : ($user->document && $user->document->submit_status == 'submited'))) background-color: green;color:white; @elseif ($useDocumentsBelow ? ($user->document && $user->document->submit_status == 'resubmit') : ($useDocumentBelowPg ? ($user->document && $user->document->submit_status == 'resubmit') : ($user->document && $user->document->submit_status == 'resubmit'))) background-color: red;color:white; @elseif ($useDocumentsBelow ? ($user->document && $user->document->submit_status == 'approved') : ($useDocumentBelowPg ? ($user->document && $user->document->submit_status == 'approved') : ($user->document && $user->document->submit_status == 'approved'))) background-color: orange;color:white; @endif">-->
+                                    <!--                    {{ !$isBelowOneLakh ? '6' : '5' }}-->
+                                    <!--                </div>-->
+                                    <!--                <span>Documents Upload</span>-->
+                                    <!--            </a>-->
+                                    <!--        </div>-->
+                                    <!--    </div>-->
+                                    <!--</div>-->
+                                    
+                                     <!-- Preview Section -->
                                     <div style="margin-top: 32px;padding:0 20px;">
                                         <h4 style="font-size: 16px;font-weight:600;color:#353535;">Preview
                                         </h4>
@@ -157,7 +238,7 @@
                                             </div>
 
                                             <div class="col-4 col-md-2" style="text-align: center; color:#393185;">
-                                                <a href="{{ route('user.step3') }}"
+                                                <a href="{{ route('user.step2') }}"
                                                     style="text-decoration: none; color: inherit;">
                                                     <div
                                                         style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px;
@@ -169,7 +250,7 @@
                                                 </a>
                                             </div>
                                             <div class="col-4 col-md-2" style="text-align: center; color:#393185;">
-                                                <a href="{{ route('user.step2') }}"
+                                                <a href="{{ route('user.step3') }}"
                                                     style="text-decoration: none; color: inherit;">
                                                     <div
                                                         style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px;  @if ($user->familyDetail && $user->familyDetail->submit_status == 'submited') background-color: green;color:white; @elseif($user->familyDetail && $user->familyDetail->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->familyDetail && $user->familyDetail->submit_status == 'approved') background-color: orange;color:white; @endif">
@@ -188,21 +269,38 @@
                                                     <span>Funding Details</span>
                                                 </a>
                                             </div>
-                                            @if(!$isBelowOneLakh)
-                                            <div class="col-4 col-md-2" style="text-align: center; color:#393185;">
-                                                <a href="" style="text-decoration: none; color: inherit;">
-                                                    <div
-                                                        style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px; @if ($user->guarantorDetail && $user->guarantorDetail->submit_status == 'submited') background-color: green;color:white; @elseif($user->guarantorDetail && $user->guarantorDetail->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->guarantorDetail && $user->guarantorDetail->submit_status == 'approved') background-color: orange;color:white; @endif">
-                                                        5
-                                                    </div>
-                                                    <span>Guarantor Details</span>
-                                                </a>
-                                            </div>
+                                            @if (!$isBelowOneLakh)
+                                                <div class="col-4 col-md-2" style="text-align: center; color:#393185;">
+                                                    <a href="{{ route('user.step4') }}"
+                                                        style="text-decoration: none; color: inherit;">
+                                                        <div
+                                                            style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px; @if ($user->guarantorDetail && $user->guarantorDetail->submit_status == 'submited') background-color: green;color:white; @elseif($user->guarantorDetail && $user->guarantorDetail->submit_status == 'resubmit') background-color: red;color:white; @elseif($user->guarantorDetail && $user->guarantorDetail->submit_status == 'approved') background-color: orange;color:white; @endif">
+                                                            5
+                                                        </div>
+                                                        <span>Guarantor Details</span>
+                                                    </a>
+                                                </div>
                                             @endif
                                             <div class="col-4 col-md-2" style="text-align: center; color:#393185;">
-                                                <a href="" style="text-decoration: none; color: inherit;">
+                                                <a href="{{ route('user.step6') }}"
+                                                    style="text-decoration: none; color: inherit;">
                                                     <div
-                                                        style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px; @if ($useDocumentsBelow ? ($user->document && $user->document->submit_status == 'submited') : ($useDocumentBelowPg ? ($user->document && $user->document->submit_status == 'submited') : ($user->document && $user->document->submit_status == 'submited'))) background-color: green;color:white; @elseif ($useDocumentsBelow ? ($user->document && $user->document->submit_status == 'resubmit') : ($useDocumentBelowPg ? ($user->document && $user->document->submit_status == 'resubmit') : ($user->document && $user->document->submit_status == 'resubmit'))) background-color: red;color:white; @elseif ($useDocumentsBelow ? ($user->document && $user->document->submit_status == 'approved') : ($useDocumentBelowPg ? ($user->document && $user->document->submit_status == 'approved') : ($user->document && $user->document->submit_status == 'approved'))) background-color: orange;color:white; @endif">
+                                                        style="width: 60px; height: 60px; border: 3px solid #393185; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; transition: background-color 0.3s;font-size:24px;margin-bottom:20px; @if (
+                                                            $useDocumentsBelow
+                                                                ? $user->document && $user->document->submit_status == 'submited'
+                                                                : ($useDocumentBelowPg
+                                                                    ? $user->document && $user->document->submit_status == 'submited'
+                                                                    : $user->document && $user->document->submit_status == 'submited')) background-color: green;color:white; @elseif (
+                                                            $useDocumentsBelow
+                                                                ? $user->document && $user->document->submit_status == 'resubmit'
+                                                                : ($useDocumentBelowPg
+                                                                    ? $user->document && $user->document->submit_status == 'resubmit'
+                                                                    : $user->document && $user->document->submit_status == 'resubmit')) background-color: red;color:white; @elseif (
+                                                            $useDocumentsBelow
+                                                                ? $user->document && $user->document->submit_status == 'approved'
+                                                                : ($useDocumentBelowPg
+                                                                    ? $user->document && $user->document->submit_status == 'approved'
+                                                                    : $user->document && $user->document->submit_status == 'approved')) background-color: orange;color:white; @endif">
                                                         {{ !$isBelowOneLakh ? '6' : '5' }}
                                                     </div>
                                                     <span>Documents Upload</span>
@@ -210,6 +308,7 @@
                                             </div>
                                         </div>
                                     </div>
+
 
                                     <!-- Declaration Checkboxes -->
                                     <div style="margin-top: 32px;padding:0 20px;">

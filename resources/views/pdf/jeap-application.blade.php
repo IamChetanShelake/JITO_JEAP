@@ -794,6 +794,18 @@
             margin-top: 20px;
             margin-bottom: 10px;
         }
+        
+                table {
+            width: 100%;
+            table-layout: fixed; /* important */
+            word-wrap: break-word;
+        }
+        
+        th, td {
+            font-size: 10px; /* reduce size */
+            padding: 4px;
+            overflow-wrap: break-word;
+        }
     </style>
 
     <div class="section declaration">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Mail\SendBackForCorrectionMail;
 use App\Mail\ThirdStageDocumentCorrectionMail;
+use App\Mail\UserRegisteredSuccessfullyMail;
 use App\Mail\WorkingCommitteeApprovedMail;
 use App\Models\AchievementImpact;
 use App\Models\AdminAboutJitoWebsite;
@@ -196,7 +197,96 @@ class AdminController extends Controller
         ]);
     }
 
-    public function storeUserRegistration(Request $request)
+    // public function storeUserRegistration(Request $request)
+    // {
+    //     $request->merge([
+    //         'pan_card' => strtoupper((string) $request->pan_card),
+    //     ]);
+
+    //     $validator = Validator::make($request->all(), [
+    //         'pan_card' => ['required', 'string', 'regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/', 'unique:users,pan_card'],
+    //         'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+    //         'password' => ['required', 'string', 'min:8'],
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return redirect()->back()
+    //             ->withErrors($validator)
+    //             ->withInput();
+    //     }
+
+    //     try {
+    //         $response = Http::withHeaders([
+    //             'Content-Type' => 'application/json',
+    //             'Authorization' => 'Bearer ' . config('services.surepass.token'),
+    //         ])->post('https://kyc-api.surepass.io/api/v1/pan/pan-comprehensive', [
+    //             'id_number' => $request->pan_card,
+    //         ]);
+
+    //         if (!$response->successful()) {
+    //             return redirect()->back()
+    //                 ->withErrors(['pan_card' => 'PAN verification failed. Please try again.'])
+    //                 ->withInput();
+    //         }
+
+    //         $apiData = $response->json();
+
+    //         if (!isset($apiData['data']['dob'])) {
+    //             return redirect()->back()
+    //                 ->withErrors(['pan_card' => 'Unable to retrieve date of birth from PAN.'])
+    //                 ->withInput();
+    //         }
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()
+    //             ->withErrors(['pan_card' => 'API error occurred. Please try again later.'])
+    //             ->withInput();
+    //     }
+
+    //     $additionalData = [];
+    //     $age = null;
+    //     if (isset($apiData['data']['full_name'])) {
+    //         $additionalData['name'] = $apiData['data']['full_name'];
+    //     }
+    //     if (isset($apiData['data']['dob'])) {
+    //         $additionalData['d_o_b'] = $apiData['data']['dob'];
+    //         $dob = Carbon::parse($apiData['data']['dob']);
+    //         $age = $dob->age;
+    //     }
+    //     if ($age !== null) {
+    //         $additionalData['age'] = $age;
+    //     }
+    //     if (isset($apiData['data']['gender'])) {
+    //         $additionalData['gender'] = strtolower($apiData['data']['gender']) === 'm'
+    //             ? 'male'
+    //             : (strtolower($apiData['data']['gender']) === 'f' ? 'female' : null);
+    //     }
+    //     if (isset($apiData['data']['masked_aadhaar'])) {
+    //         $additionalData['aadhar_card_number'] = $apiData['data']['masked_aadhaar'];
+    //     }
+
+    //     $user = User::create([
+    //         'name' => $additionalData['name'] ?? null,
+    //         'd_o_b' => $additionalData['d_o_b'] ?? null,
+    //         'age' => $additionalData['age'] ?? null,
+    //         'gender' => $additionalData['gender'] ?? null,
+    //         'aadhar_card_number' => $additionalData['aadhar_card_number'] ?? null,
+    //         'pan_card' => $request->pan_card,
+    //         'email' => $request->email,
+    //         'password' => Hash::make($request->password),
+    //         'admin_registered' => true,
+    //     ]);
+
+    //     $year = date('Y');
+    //     $applicationNo = 'JITO-JEAP/' . $year . '/' . str_pad($user->id, 4, '0', STR_PAD_LEFT);
+    //     $user->update(['application_no' => $applicationNo]);
+
+    //     return redirect()
+    //         ->route('admin.user-registration.create')
+    //         ->with('success', 'User registered successfully.');
+    // }
+
+
+  public function storeUserRegistration(Request $request)
     {
         $request->merge([
             'pan_card' => strtoupper((string) $request->pan_card),
@@ -279,11 +369,16 @@ class AdminController extends Controller
         $applicationNo = 'JITO-JEAP/' . $year . '/' . str_pad($user->id, 4, '0', STR_PAD_LEFT);
         $user->update(['application_no' => $applicationNo]);
 
+        try {
+            Mail::to($user->email)->send(new UserRegisteredSuccessfullyMail($user, $request->password));
+        } catch (\Throwable $e) {
+            Log::error('Failed to send user registration email: ' . $e->getMessage());
+        }
+
         return redirect()
             ->route('admin.user-registration.create')
             ->with('success', 'User registered successfully.');
     }
-
     /**
      * Website Management Index
      */

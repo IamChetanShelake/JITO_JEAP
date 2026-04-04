@@ -1746,6 +1746,7 @@ class UserController extends Controller
             'user_id' => $user_id,
             'status' => 'step4_completed',
             'submit_status' => 'submited',
+            'bank_cheque_declaration' => $request->bank_cheque_declaration ? 1 : 0,
             // Bank Details - provide null for below 1 lakh loans
             'account_holder_name' => $request->account_holder_name ?? null,
             'bank_name' => $request->bank_name ?? null,

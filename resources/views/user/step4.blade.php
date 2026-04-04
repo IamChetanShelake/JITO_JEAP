@@ -606,7 +606,7 @@
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="bank_cheque_declaration"
                                                 name="bank_cheque_declaration" value="1"
-                                                {{ old('bank_cheque_declaration') ? 'checked' : '' }} required>
+                                                {{ old('bank_cheque_declaration') || $fundingDetail->bank_cheque_declaration ? 'checked' : '' }} required>
                                             <label class="form-check-label" for="bank_cheque_declaration"
                                                 style="color:red">
                                                 I confirm that if I receive a sanction from JITO-JEAP in the future, I will

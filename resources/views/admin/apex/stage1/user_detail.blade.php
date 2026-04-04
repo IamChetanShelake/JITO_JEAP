@@ -1310,6 +1310,10 @@
                         </div>
 
                         <!-- Completed Qualifications -->
+                        
+                       
+                        
+                        @if($user->financial_asset_for == 'post_graduation')
                         <div class="data-group">
                             <h4>Completed Qualifications</h4>
                             <div class="form-section">
@@ -1424,6 +1428,9 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
+                       
+                        
 
                         <!-- Financial Summary Table -->
                         <div class="data-group">
@@ -1717,6 +1724,7 @@
                         </div>
 
                         <!-- Additional Information -->
+                        @if($user->financial_asset_for == 'post_graduation')
                         <div class="data-group">
                             <h4>Additional Information</h4>
                             <div class="form-section">
@@ -1775,6 +1783,8 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
+                        
                     </div>
             </div>
         @else
@@ -2541,7 +2551,8 @@
                                         'admission_letter_fees_structure' => 'Admission Letter / Fees Structure',
                                         'aadhaar_applicant' => 'Applicant Aadhaar',
                                         'pan_applicant' => 'Applicant PAN',
-                                        'passport' => 'Passport',
+                                        'passport_applicant' => 'Passport',
+                                        'visa_applicant' => 'Visa Document',
                                         'student_bank_details_statement' => 'Student Bank Statement',
                                         'jito_group_recommendation' => 'JITO Group Recommendation',
                                         'jain_sangh_certificate' => 'Jain Sangh Certificate',

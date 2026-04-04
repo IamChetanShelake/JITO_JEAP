@@ -487,14 +487,14 @@
                             style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-top: 1px solid var(--border-color);">
                             <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Short Summary PDF
                         </a>
-                        
+
 
                         <a href="{{ route('admin.user.generate.financial_closure.pdf', ['user' => $user->id]) }}" class="dropdown-item"
                             style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
                             <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Financial Closure PDF
                         </a>
                         
-                        <a href="{{ route('admin.third_stage_documents.generate_pdf', ['user' => $user->id]) }}" class="dropdown-item"
+                        <a href="{{ route('user.third_stage_documents.generate_pdf', $user) }}" class="dropdown-item"
                             style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
                             <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Third Stage Document PDF
                         </a>
@@ -835,7 +835,7 @@
                                 class="step-icon
                                  @if (auth()->check() && in_array(auth()->user()->application_status, ['submited', 'submitted', 'approved'])) completed-step @endif
                                 @if (auth()->check() && auth()->user()->application_status === 'resubmit') resubmit-step @endif
-                                @if (request()->routeIs('user.step1')) active-step @endif">
+                                @if (request()->routeIs('user.step7')) active-step @endif">
 
                                 @if (auth()->check() && in_array(auth()->user()->application_status, ['submited', 'submitted', 'approved']))
                                     {{-- Tick SVG --}}
@@ -1126,14 +1126,16 @@
         </div>
 
         <!-- Error Modal for Step Validation -->
-        <div class="modal fade" id="stepErrorModal" tabindex="-1" aria-labelledby="stepErrorModalLabel" aria-hidden="true" style="z-index: 9999;">
+        <div class="modal fade" id="stepErrorModal" tabindex="-1" aria-labelledby="stepErrorModalLabel"
+            aria-hidden="true" style="z-index: 9999;">
             <div class="modal-dialog modal-dialog-centered" style="z-index: 10000;">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="stepErrorModalLabel" style="color: #E31E24; font-weight: 600;">
                             <i class="bi bi-exclamation-triangle-fill me-2"></i>Warning
                         </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                     </div>
                     <div class="modal-body text-center">
                         <div class="mb-3">
@@ -1144,7 +1146,9 @@
                         </p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" style="background: #393185; color: white; border: none;" data-bs-dismiss="modal">OK</button>
+                        <button type="button" class="btn btn-primary"
+                            style="background: #393185; color: white; border: none;"
+                            data-bs-dismiss="modal">OK</button>
                     </div>
                 </div>
             </div>
@@ -1152,7 +1156,7 @@
 
 
         <!-- Script to show error modal if session has error -->
-        @if(Session::has('error'))
+        @if (Session::has('error'))
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     // Remove any existing modal backdrops

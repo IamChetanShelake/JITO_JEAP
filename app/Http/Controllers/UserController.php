@@ -161,8 +161,204 @@ class UserController extends Controller
 
 
 
-    public function step1store(Request $request)
+    // public function step1store(Request $request)
+    // {
+    //     $user = Auth::user();
+    //     $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         // 'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+    //         'image' => $user->image
+    //             ? 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+    //             : 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+
+    //         'financial_asset_type' => 'required|in:domestic,foreign_finance_assistant',
+    //         'financial_asset_for' => 'required|in:graduation,post_graduation',
+
+    //         'aadhar_card_number' => 'required|digits:12',
+    //         'pan_card' => 'required|string|max:10',
+
+    //         'phone' => 'required|string|max:15|unique:users,phone,' . auth()->id(),
+    //         'alternate_phone' => 'nullable|string|max:15',
+
+    //         'email' => 'required|email|max:255|unique:users,email,' . auth()->id(),
+    //         'alternate_email' => 'nullable|email|max:255',
+
+    //         'flat_no' => 'nullable|string',
+    //         'building_no' => 'nullable|string',
+    //         'street_name' => 'nullable|string',
+    //         'area' => 'nullable|string',
+    //         'landmark' => 'nullable|string',
+
+    //         'city' => 'required|string|max:100',
+    //         'district' => 'required|string|max:100',
+    //         'state' => 'required|string|max:100',
+    //         'pin_code' => 'required|digits:6',
+
+    //         'chapter' => 'required|string|max:100',
+    //         'chapter_id' => 'required|integer',
+    //         'zone' => 'required|string|max:100',
+    //         'chapter_chairman' => 'required|string|max:100',
+    //         'chapter_contact' => 'required|string|max:15',
+    //         'nationality' => 'required|in:indian,foreigner',
+
+    //         'aadhar_address' => 'required|string',
+    //         'postal_address' => 'required|string',
+
+    //         'd_o_b' => 'required|date',
+    //         'birth_place' => 'required|string|max:100',
+
+    //         'gender' => 'required|in:male,female,other',
+    //         'age' => 'required|numeric|min:18',
+
+    //         'marital_status' => 'required|in:married,unmarried',
+    //         'religion' => 'required|string|max:50',
+    //         'sub_cast' => 'required|string|max:50',
+    //         'blood_group' => 'required|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+    //         'specially_abled' => 'required|in:yes,no',
+    //     ]);
+
+    //     $isResubmission = $this->isStepResubmission('step1');
+
+    //     $data = [
+    //         'name' => $request->name,
+    //         'financial_asset_type' => $request->financial_asset_type,
+    //         'financial_asset_for' => $request->financial_asset_for,
+    //         'aadhar_card_number' => $request->aadhar_card_number,
+    //         'pan_card' => $request->pan_card,
+    //         'phone' => $request->phone,
+    //         'email' => $request->email,
+    //         'alternate_phone' => $request->alternate_phone,
+    //         'alternate_email' => $request->alternate_email,
+    //         // 'address' => $request->address,
+    //         // 'address1' => $request->address1,
+    //         'flat_no' => $request->flat_no,
+    //         'building_no' => $request->building_no,
+    //         'street_name' => $request->street_name,
+    //         'area' => $request->area,
+    //         'landmark' => $request->landmark,
+
+    //         'city' => $request->city,
+    //         'district' => $request->district,
+    //         'state' => $request->state,
+    //         'pin_code' => $request->pin_code,
+    //         'chapter' => $request->chapter,
+    //         'chapter_id' => $request->chapter_id,
+    //         'zone' => $request->zone,
+    //         'chapter_chairman' => $request->chapter_chairman,
+    //         'chapter_contact' => $request->chapter_contact,
+    //         'nationality' => $request->nationality,
+    //         'aadhar_address' => $request->aadhar_address,
+    //         'postal_address' => $request->postal_address,
+    //         'alternate_email' => $request->alternate_email,
+    //         // 'd_o_b' => Carbon::createFromFormat('d-m-Y', $request->d_o_b)->format('Y-m-d'),
+    //         'd_o_b' => $request->d_o_b,
+    //         'birth_place' => $request->birth_place,
+    //         'gender' => $request->gender,
+    //         'age' => $request->age,
+    //         'marital_status' => $request->marital_status,
+    //         'religion' => $request->religion,
+    //         'sub_cast' => $request->sub_cast,
+    //         'blood_group' => $request->blood_group,
+    //         'specially_abled' => $request->specially_abled,
+    //         'submit_status' => 'submited',
+    //     ];
+
+    //     // Log step completion
+    //     if ($user) {
+    //         $this->logUserActivity(
+    //             processType: $isResubmission
+    //                 ? 'step1_resubmission'
+    //                 : 'step1_completion',
+
+    //             processAction: $isResubmission
+    //                 ? 'resubmitted'
+    //                 : 'completed',
+
+    //             processDescription: $isResubmission
+    //                 ? 'User resubmitted Personal Details after correction'
+    //                 : 'User submitted Personal Details step1',
+    //             module: 'application',
+    //             oldValues: null,
+    //             newValues: null,
+    //             additionalData: [
+    //                 'user_id' => $user->id,
+    //                 'user_name' => $user->name,
+    //                 'user_email' => $user->email,
+    //                 'step' => 'step1',
+    //                 'step_name' => 'Personal Details',
+    //                 'financial_asset_type' => $request->financial_asset_type,
+    //                 'financial_asset_for' => $request->financial_asset_for,
+    //                 'aadhar_card_number' => $request->aadhar_card_number,
+    //                 'pan_card' => $request->pan_card,
+    //                 'phone' => $request->phone,
+    //                 'email' => $request->email,
+    //                 'chapter' => $request->chapter,
+    //                 'nationality' => $request->nationality
+    //             ],
+
+    //             // 🎯 TARGET → Shivam
+    //             targetUserId: $user->id,
+
+    //             // 👮 ACTOR → Ramesh
+    //             actorId: $user->id,
+    //             actorName: $user->name,
+    //             actorRole: $user->role
+    //         );
+    //     }
+
+    //     // Handle image upload (only once)
+    //     if ($request->hasFile('image')) {
+    //         $imageName = time() . '.' . $request->image->extension();
+    //         $request->image->move('images', $imageName);
+    //         $data['image'] = 'images/' . $imageName;
+    //     }
+
+    //     $user->update($data);
+
+    //     // Send email notification to chapter when student submits step1
+    //     try {
+    //         if ($user->chapter_id) {
+    //             $chapter = Chapter::on('admin_panel')->find($user->chapter_id);
+    //             if ($chapter && $chapter->email) {
+    //                 Mail::to($chapter->email)->send(new NewStudentRegisteredForChapterMail($user, $chapter));
+    //             }
+    //         }
+    //     } catch (\Throwable $e) {
+    //         // Log error but don't block the user flow
+    //         Log::error('Failed to send chapter notification email: ' . $e->getMessage());
+    //     }
+
+    //     // Check if all steps are submitted (no resubmit remaining)
+    //     $this->checkAndUpdateWorkflowStatus();
+
+    //     // Check if workflow status already exists for this user
+    //     $user_id = Auth::id();
+    //     $workflow = ApplicationWorkflowStatus::where('user_id', $user_id)->first();
+
+    //     if (!$workflow) {
+    //         // Create new workflow entry
+    //         ApplicationWorkflowStatus::create([
+    //             'user_id' => $user_id,
+    //             'current_stage' => 'apex_1',
+    //             'final_status' => 'in_progress',
+    //         ]);
+    //         $message = 'Application submitted successfully!';
+    //     } else {
+    //         // Update if exists
+    //         $updateData = [
+    //             'current_stage' => 'apex_1',
+    //             'final_status' => 'in_progress',
+    //         ];
+    //         $workflow->update($updateData);
+    //         $message = 'Application resubmitted successfully!';
+    //     }
+
+    //     return redirect()->route('user.step2')->with('success', 'Personal details saved successfully!');
+    // }
+    
+       public function step1store(Request $request)
     {
+       // dd($request->all());
         $user = Auth::user();
         $request->validate([
             'name' => 'required|string|max:255',
@@ -181,7 +377,7 @@ class UserController extends Controller
             'alternate_phone' => 'nullable|string|max:15',
 
             'email' => 'required|email|max:255|unique:users,email,' . auth()->id(),
-            'alternate_email' => 'nullable|email|max:255',
+            'alternate_email' => 'nullable|email',
 
             'flat_no' => 'nullable|string',
             'building_no' => 'nullable|string',
@@ -218,6 +414,7 @@ class UserController extends Controller
         ]);
 
         $isResubmission = $this->isStepResubmission('step1');
+        $shouldSendChapterMail = empty($user->submit_status);
 
         $data = [
             'name' => $request->name,
@@ -227,7 +424,9 @@ class UserController extends Controller
             'pan_card' => $request->pan_card,
             'phone' => $request->phone,
             'email' => $request->email,
+            'alternate_email' => $request->alternate_email,
             'alternate_phone' => $request->alternate_phone,
+
             // 'address' => $request->address,
             // 'address1' => $request->address1,
             'flat_no' => $request->flat_no,
@@ -248,7 +447,7 @@ class UserController extends Controller
             'nationality' => $request->nationality,
             'aadhar_address' => $request->aadhar_address,
             'postal_address' => $request->postal_address,
-            'alternate_email' => $request->alternate_email,
+            // 'alternate_email' => $request->alternate_email,
             // 'd_o_b' => Carbon::createFromFormat('d-m-Y', $request->d_o_b)->format('Y-m-d'),
             'd_o_b' => $request->d_o_b,
             'birth_place' => $request->birth_place,
@@ -314,17 +513,19 @@ class UserController extends Controller
 
         $user->update($data);
 
-        // Send email notification to chapter when student submits step1
-        try {
-            if ($user->chapter_id) {
-                $chapter = Chapter::on('admin_panel')->find($user->chapter_id);
-                if ($chapter && $chapter->email) {
-                    Mail::to($chapter->email)->send(new NewStudentRegisteredForChapterMail($user, $chapter));
+        // Send email notification to chapter only on first-ever Step 1 submit
+        if ($shouldSendChapterMail) {
+            try {
+                if ($user->chapter_id) {
+                    $chapter = Chapter::on('admin_panel')->find($user->chapter_id);
+                    if ($chapter && $chapter->email) {
+                        Mail::to($chapter->email)->send(new NewStudentRegisteredForChapterMail($user, $chapter));
+                    }
                 }
+            } catch (\Throwable $e) {
+                // Log error but don't block the user flow
+                Log::error('Failed to send chapter notification email: ' . $e->getMessage());
             }
-        } catch (\Throwable $e) {
-            // Log error but don't block the user flow
-            Log::error('Failed to send chapter notification email: ' . $e->getMessage());
         }
 
         // Check if all steps are submitted (no resubmit remaining)

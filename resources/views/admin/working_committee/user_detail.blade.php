@@ -807,16 +807,17 @@
         </div>
         <div style="display: flex; gap: 1rem; align-items: center;">
             @php
-            $jeapPdfDir = public_path('Jeap_pdfs');
+            $jeapPdfDir = 'Jeap_pdfs';
             $referencePdfs = collect();
             if (is_dir($jeapPdfDir)) {
                 $referencePdfs = collect(\Illuminate\Support\Facades\File::files($jeapPdfDir))
-                    ->map(fn ($file) => $file->getFilename())
-                    ->filter(fn ($name) => str_ends_with($name, '.pdf'))
+                    ->map(fn($file) => $file->getFilename())
+                    ->filter(fn($name) => str_ends_with($name, '.pdf'))
                     ->sort()
                     ->values();
             }
         @endphp
+        <div style="display: flex; gap: 1rem; align-items: center;">
             <!-- Print Options Dropdown -->
             <div class="dropdown" style="position: relative;">
                 <button class="back-btn" style="background-color: var(--primary-yellow); color: #333;"
@@ -826,11 +827,11 @@
                 </button>
                 <div id="printDropdown" class="dropdown-content"
                     style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 200px;">
-                    <a href="{{ route('admin.user.generate.pdf', $user) }}" class="dropdown-item" target="_blank"
+                    <a href="{{ route('admin.user.generate.pdf', $user) }}" class="dropdown-item"
                         style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
                         <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Application PDF
                     </a>
-                    <a href="{{ route('admin.user.generate.summary.pdf', $user) }}" class="dropdown-item" target="_blank"
+                    <a href="{{ route('admin.user.generate.summary.pdf', $user) }}" class="dropdown-item"
                         style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
                         <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Summary PDF
                     </a>
@@ -838,6 +839,7 @@
                         style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
                         <i class="fas fa-file-contract" style="margin-right: 0.5rem;"></i> Sanction Letter
                     </a>
+
                     <a href="{{ route('admin.user.generate.shortsummary.pdf', $user) }}" class="dropdown-item"
                         style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-top: 1px solid var(--border-color);">
                         <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Short Summary PDF
@@ -861,6 +863,11 @@
                     @endif
                 </div>
             </div>
+
+            <a href="{{ route('admin.home') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
 
             <a href="{{ route('admin.home') }}" class="back-btn">
                 <i class="fas fa-arrow-left"></i> Back to Dashboard
@@ -1271,6 +1278,7 @@
                         </div>
 
                         <!-- Completed Qualifications -->
+                        @if($user->financial_asset_for == 'post_graduation')
                         <div class="data-group">
                             <h4>Completed Qualifications</h4>
                             <div class="form-section">
@@ -1372,6 +1380,7 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
 
                         <!-- Financial Summary Table -->
                         <div class="data-group">
@@ -1668,6 +1677,7 @@
                         </div>
 
                         <!-- Additional Information -->
+                        @if($user->financial_asset_for == 'post_graduation')
                         <div class="data-group">
                             <h4>Additional Information</h4>
                             <div class="form-section">
@@ -1726,6 +1736,7 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
 
                     </div> <!-- content-area -->
             </div>
@@ -2354,7 +2365,8 @@
                                         'admission_letter_fees_structure' => 'Admission Letter / Fees Structure',
                                         'aadhaar_applicant' => 'Applicant Aadhaar',
                                         'pan_applicant' => 'Applicant PAN',
-                                        'passport' => 'Passport',
+                                         'passport_applicant' => 'Passport',
+                                        'visa_applicant' => 'Visa Document',
                                         'student_bank_details_statement' => 'Student Bank Statement',
                                         'jito_group_recommendation' => 'JITO Group Recommendation',
                                         'jain_sangh_certificate' => 'Jain Sangh Certificate',

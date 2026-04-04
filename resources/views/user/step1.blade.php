@@ -154,7 +154,7 @@
                                                     style="color: red;">*</span></label>
                                             <input type="text" class="form-control" id="name" name="name"
                                                 placeholder="Enter Applicant's Name"
-                                                value="{{ old('name', $user->name ?? '') }}" readonly>
+                                                value="{{ old('name', $user->name ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('name') }}</small>
                                         </div>
 
@@ -271,7 +271,7 @@
                                                 Address</label>
                                             <input type="email" id="alternate_email" name="alternate_email"
                                                 class="form-control" placeholder="Enter Alternate Email Address"
-                                                value="{{ old('alternate_email') }}">
+                                                value="{{ old('alternate_email', $user->alternate_email ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('alternate_email') }}</small>
                                         </div>
                                         <div class="form-group mb-3">

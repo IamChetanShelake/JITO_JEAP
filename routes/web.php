@@ -328,6 +328,9 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
         ->name('third_stage_documents.approve');
     Route::post('/third-stage-documents/user/{user}/send-back', [AdminController::class, 'sendBackThirdStageDocument'])
         ->name('third_stage_documents.sendback');
+        
+    Route::get('/third-stage-documents/user/{user}/generate-pdf', [AdminController::class, 'generateThirdStageDocumentPDF'])
+            ->name('third_stage_documents.generate_pdf');
 
 
     Route::get('/chapters/resubmit', [AdminController::class, 'chapterResubmit'])->name('chapter.resubmit');
@@ -574,6 +577,13 @@ Route::middleware(['auth', 'user'])
 
         // View Sanction Letter
         Route::get('/{user}/sanction-letter', [AdminController::class, 'viewSanctionLetter'])->name('sanction.letter');
+        
+        Route::get('/user/{user}/generate-short-summary-pdf', [AdminController::class, 'generateShortSummaryPDF'])->name('user.generate.shortsummary.pdf');
+
+        Route::get('/financial-closure/{user}', [AdminController::class, 'generateFinancialClosurePDF'])->name('user.generate.financial_closure.pdf');
+        
+        Route::get('/third-stage-documents/user/{user}/generate-pdf', [AdminController::class, 'generateThirdStageDocumentPDF'])
+            ->name('third_stage_documents.generate_pdf');
 
         // Route for above 1 lakh application redirection
         Route::get('/above-1-lakh-application', [UserController::class, 'above1LakhApplication'])

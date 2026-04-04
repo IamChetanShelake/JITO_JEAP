@@ -14,13 +14,15 @@ class UserRegisteredSuccessfullyMail extends Mailable
     use Queueable, SerializesModels;
 
     public User $user;
+    public string $plainPassword;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(User $user)
+    public function __construct(User $user, string $plainPassword)
     {
         $this->user = $user;
+        $this->plainPassword = $plainPassword;
     }
 
     /**

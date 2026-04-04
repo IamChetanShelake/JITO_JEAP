@@ -268,7 +268,7 @@
                                                 Address</label>
                                             <input type="email" id="alternate_email" name="alternate_email"
                                                 class="form-control" placeholder="Enter Alternate Email Address"
-                                                value="{{ old('alternate_email') }}">
+                                                value="{{ old('alternate_email', $user->alternate_email ?? '') }}">
                                             <small class="text-danger">{{ $errors->first('alternate_email') }}</small>
                                         </div>
                                         <div class="form-group mb-3">

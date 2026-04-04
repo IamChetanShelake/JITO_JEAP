@@ -993,7 +993,7 @@
                                         <div class="col-md-6">
                                             <div id="qualification-fields-right" style="display: none;">
                                                 <div class="form-group mb-3">
-                                                    <label for="qualification_course_name">Current Course Name <span
+                                                    <label for="qualification_course_name">Course Name <span
                                                             style="color: red;">*</span></label>
                                                     <input type="text" id="qualification_course_name"
                                                         class="form-control" name="qualification_course_name"

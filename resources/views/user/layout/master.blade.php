@@ -483,17 +483,17 @@
                             style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
                             <i class="fas fa-file-contract" style="margin-right: 0.5rem;"></i> Sanction Letter
                         </a>
-                        <a href="{{ route('admin.user.generate.shortsummary.pdf', ['user' => $user->id]) }}" class="dropdown-item"
+<a href="{{ route('user.generate.shortsummary.pdf', $user) }}" class="dropdown-item"
                             style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-top: 1px solid var(--border-color);">
                             <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Short Summary PDF
                         </a>
 
 
-                        <a href="{{ route('admin.user.generate.financial_closure.pdf', ['user' => $user->id]) }}" class="dropdown-item"
+<a href="{{ route('user.generate.financial_closure.pdf', $user) }}" class="dropdown-item"
                             style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
                             <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Financial Closure PDF
                         </a>
-                        
+
                         <a href="{{ route('user.third_stage_documents.generate_pdf', $user) }}" class="dropdown-item"
                             style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
                             <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Third Stage Document PDF

@@ -154,7 +154,7 @@
                                                     style="color: red;">*</span></label>
                                             <input type="text" class="form-control" id="name" name="name"
                                                 placeholder="Enter Applicant's Name"
-                                                value="{{ old('name', $user->name ?? '') }}" readonly required>
+                                                value="{{ old('name', $user->name ?? '') }}" required>
                                             <small class="text-danger">{{ $errors->first('name') }}</small>
                                         </div>
 
@@ -171,10 +171,15 @@
                                                     </p>
                                                 </div>
                                             @endif
+                                            @if ($errors->has('image') && $user->image)
+                                                <div class="alert alert-warning mt-2 mb-2" style="font-size: 13px;">
+                                                    <i class="bi bi-exclamation-triangle"></i> Please re-upload your photo.
+                                                </div>
+                                            @endif
                                             <div class="photo-upload-box">
                                                 <div class="row mb-2 align-items-center">
                                                     <div class="col-9">
-                                                        <span class="photo-label">Upload Photo</span>
+                                                        <span class="photo-label">{{ $user->image ? 'Change Photo' : 'Upload Photo' }}</span>
                                                         <input type="file" id="uploadInput" name="image" hidden
                                                             accept=".jpg,.jpeg,.png" {{ $user->image ? '' : 'required' }}>
                                                         <small class="text-danger">{{ $errors->first('image') }}</small>
@@ -195,8 +200,6 @@
                                                         <div class="upload-status" style="display:none;">
                                                             <div class="row">
                                                                 <div class="col-9">
-                                                                    {{-- <img id="imagePreview" class="img-thumbnail"
-                                                                        style="max-width: 100px; max-height: 100px; display: none;" /><br> --}}
                                                                     <div class="upload-summary"></div>
                                                                 </div>
                                                                 <div class="col-3">

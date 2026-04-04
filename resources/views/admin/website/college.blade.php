@@ -49,7 +49,7 @@
                     <th width="8%">State</th>
                    
                     <th width="20%">Courses</th>
-                    <th width="5%">Status</th>
+                   
                     <th width="8%" class="text-center">Action</th>
                 </tr>
             </thead>
@@ -83,13 +83,7 @@
                             <span class="text-muted">-</span>
                         @endif
                     </td>
-                    <td class="text-center align-middle">
-                        @if($college->status)
-                            <span class="badge bg-success">Active</span>
-                        @else
-                            <span class="badge bg-danger">Inactive</span>
-                        @endif
-                    </td>
+                    
                     <td class="text-center align-middle">
                         <div class="d-flex justify-content-center gap-1">
                             <button class="btn btn-sm btn-info text-white" title="View" data-bs-toggle="modal" data-bs-target="#viewModal{{ $college->id }}">
@@ -150,18 +144,8 @@
                                         <p>{{ $college->city ?? 'N/A' }}</p>
                                     </div>
                                 </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <h6>Status:</h6>
-                                        <p>
-                                            @if($college->status)
-                                                <span class="badge bg-success">Active</span>
-                                            @else
-                                                <span class="badge bg-danger">Inactive</span>
-                                            @endif
-                                        </p>
-                                    </div>
-                                </div>
+                                
+                                
                                 <div class="row mb-3">
                                     <div class="col-md-12">
                                         <h6>Courses:</h6>
@@ -256,10 +240,13 @@
                                         <div class="col-md-12">
                                             <label class="form-label">Courses</label>
                                             <div class="row">
+                                                @php
+                                                    $collegeCourses = is_array($college->courses) ? $college->courses : json_decode($college->courses, true) ?? [];
+                                                @endphp
                                                 @forelse($courses ?? [] as $course)
                                                 <div class="col-md-4 mb-2">
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" id="course_{{ $college->id }}_{{ $course->id }}" name="courses[]" value="{{ $course->course_name }}" {{ (is_array($college->courses) && in_array($course->course_name, $college->courses)) ? 'checked' : '' }}>
+                                                        <input class="form-check-input" type="checkbox" id="course_{{ $college->id }}_{{ $course->id }}" name="courses[]" value="{{ $course->course_name }}" {{ in_array($course->course_name, $collegeCourses) ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="course_{{ $college->id }}_{{ $course->id }}">
                                                             {{ $course->course_name }}
                                                         </label>

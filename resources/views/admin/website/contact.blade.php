@@ -37,10 +37,11 @@
 
 <tr>
 
-<th width="20%">Title</th>
-<th width="35%">Description</th>
-<th width="30%">Sections</th>
-<th width="15%" class="text-center">Action</th>
+<th width="15%">Title</th>
+<th width="30%">Description</th>
+<th width="25%">Sections</th>
+
+<th width="20%" class="text-center">Action</th>
 
 </tr>
 
@@ -81,6 +82,8 @@
 @endif
 
 </td>
+
+
 
 <td class="text-center">
 
@@ -168,6 +171,8 @@ data-bs-target="#deleteModal{{ $item->id }}">
 <textarea name="description" class="form-control" rows="3">{{ $item->description }}</textarea>
 </div>
 
+<h6 class="mt-4 mb-3">Sections</h6>
+
 <div id="sectionContainerEdit{{ $item->id }}">
 
 @if($item->small_titles && count($item->small_titles) > 0)
@@ -203,10 +208,7 @@ Add More
 
 <div class="mt-3">
 
-<div class="form-check">
-<input type="checkbox" class="form-check-input" id="is_active{{ $item->id }}" name="is_active" value="1" {{ $item->is_active ? 'checked' : '' }}>
-<label class="form-check-label" for="is_active{{ $item->id }}">Active</label>
-</div>
+
 
 </div>
 
@@ -257,7 +259,7 @@ Are you sure you want to delete this record?
 @empty
 
 <tr>
-<td colspan="4" class="text-center text-muted py-4">
+<td colspan="5" class="text-center text-muted py-4">
 No data found
 </td>
 </tr>
@@ -282,7 +284,7 @@ No data found
 <div class="modal-dialog modal-lg">
 <div class="modal-content">
 
-<form action="{{ route('admin.website.contact.store') }}" method="POST">
+<form action="{{ route('admin.website.contact.store') }}" method="POST" id="addContactForm">
 
 @csrf
 
@@ -303,11 +305,14 @@ No data found
 <textarea name="description" class="form-control" rows="3"></textarea>
 </div>
 
+<h6 class="mt-4 mb-3">Sections</h6>
+
 <div id="sectionContainerAdd">
 
 <div class="row mb-2 sectionRow">
 
 <div class="col-md-5">
+    
 <input type="text" name="small_titles[]" class="form-control" placeholder="Small Title">
 </div>
 
@@ -407,6 +412,21 @@ e.target.closest(".sectionRow").remove()
 }
 
 })
+
+// Filter out empty sections before form submission
+document.getElementById('addContactForm').addEventListener('submit', function(e) {
+    const sectionRows = document.querySelectorAll('#sectionContainerAdd .sectionRow');
+    
+    sectionRows.forEach(function(row) {
+        const titleInput = row.querySelector('input[name="small_titles[]"]');
+        const descInput = row.querySelector('input[name="small_descriptions[]"]');
+        
+        // Remove row if both inputs are empty
+        if (titleInput && descInput && !titleInput.value.trim() && !descInput.value.trim()) {
+            row.remove();
+        }
+    });
+});
 
 </script>
 

@@ -26,7 +26,7 @@
                     <th width="30%">Image</th>
                     <th width="40%">Video Link</th>
                     <th width="10%">Order</th>
-                    <th width="5%">Status</th>
+                  
                     <th width="10%" class="text-center">Action</th>
                 </tr>
             </thead>
@@ -53,23 +53,19 @@
                         @endif
                     </td>
                     <td>{{ $story->display_order ?? 0 }}</td>
+                  
                     <td class="text-center">
-                        @if($story->is_active)
-                            <span class="badge bg-success">Active</span>
-                        @else
-                            <span class="badge bg-danger">Inactive</span>
-                        @endif
-                    </td>
-                    <td class="text-center">
-                        <button class="btn btn-sm btn-info text-white" title="View" data-bs-toggle="modal" data-bs-target="#viewModal{{ $story->id ?? $index }}">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-sm btn-warning" title="Edit" data-bs-toggle="modal" data-bs-target="#editModal{{ $story->id ?? $index }}">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" title="Delete" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $story->id ?? $index }}">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <div class="d-flex justify-content-center gap-1">
+                            <button class="btn btn-sm btn-info text-white" title="View" data-bs-toggle="modal" data-bs-target="#viewModal{{ $story->id ?? $index }}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-warning" title="Edit" data-bs-toggle="modal" data-bs-target="#editModal{{ $story->id ?? $index }}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" title="Delete" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $story->id ?? $index }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
                 
@@ -105,14 +101,7 @@
                                     <div class="col-md-6">
                                         <strong>Display Order:</strong> {{ $story->display_order ?? 0 }}
                                     </div>
-                                    <div class="col-md-6">
-                                        <strong>Status:</strong>
-                                        @if($story->is_active)
-                                            <span class="badge bg-success">Active</span>
-                                        @else
-                                            <span class="badge bg-danger">Inactive</span>
-                                        @endif
-                                    </div>
+                                   
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -159,13 +148,7 @@
                                             <label for="display_order{{ $story->id ?? $index }}" class="form-label">Display Order</label>
                                             <input type="number" class="form-control" id="display_order{{ $story->id ?? $index }}" name="display_order" value="{{ $story->display_order ?? 0 }}" min="0">
                                         </div>
-                                        <div class="col-md-6">
-                                            <label for="is_active{{ $story->id ?? $index }}" class="form-label">Status</label>
-                                            <select class="form-select" id="is_active{{ $story->id ?? $index }}" name="is_active">
-                                                <option value="1" {{ ($story->is_active ?? true) ? 'selected' : '' }}>Active</option>
-                                                <option value="0" {{ ($story->is_active ?? true) ? '' : 'selected' }}>Inactive</option>
-                                            </select>
-                                        </div>
+                                        
                                     </div>
                                 </div>
                                 <div class="modal-footer">

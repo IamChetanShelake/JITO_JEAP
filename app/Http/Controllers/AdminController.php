@@ -1563,7 +1563,7 @@ class AdminController extends Controller
             'number' => $request->number,
             'stat_text' => $request->stat_text,
             'display_order' => $request->display_order ?? (AdminAboutJitoWebsite::max('display_order') + 1),
-            'status' => $request->status ?? true,
+            'status' => $request->status == '1' ? true : false,
         ]);
 
         return redirect()->back()->with('success', 'Data added successfully!');
@@ -1605,7 +1605,7 @@ class AdminController extends Controller
             'number' => $request->number,
             'stat_text' => $request->stat_text,
             'display_order' => $request->display_order ?? $item->display_order,
-            'status' => $request->status ?? $item->status,
+            'status' => $request->status == '1' ? true : false,
         ]);
 
         return redirect()->back()->with('success', 'Data updated successfully!');
@@ -1641,7 +1641,7 @@ class AdminController extends Controller
             'number' => $request->number,
             'text' => $request->text,
             'display_order' => $request->display_order ?? (AdminJitoStats::max('display_order') + 1),
-            'status' => $request->status ?? true,
+            'status' => $request->status == '1' ? true : false,
         ]);
 
         return redirect()->back()->with('success', 'Stat added successfully!');
@@ -1665,7 +1665,7 @@ class AdminController extends Controller
             'number' => $request->number,
             'text' => $request->text,
             'display_order' => $request->display_order ?? $item->display_order,
-            'status' => $request->status ?? $item->status,
+            'status' => $request->status == '1' ? true : false,
         ]);
 
         return redirect()->back()->with('success', 'Stat updated successfully!');
@@ -1702,6 +1702,17 @@ class AdminController extends Controller
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'images.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
         ]);
+
+        // Check if at least one field has data
+        $hasTitle = !empty($request->title);
+        $hasDescription = !empty($request->description);
+        $hasSmallTitles = !empty(array_filter($request->small_titles ?? [], fn($v) => !is_null($v) && $v !== ''));
+        $hasSmallDescriptions = !empty(array_filter($request->small_descriptions ?? [], fn($v) => !is_null($v) && $v !== ''));
+        $hasImage = $request->hasFile('image');
+
+        if (!$hasTitle && !$hasDescription && !$hasSmallTitles && !$hasSmallDescriptions && !$hasImage) {
+            return back()->with('error', 'Please fill at least one field before saving.');
+        }
 
         $imagePath = null;
 
@@ -2058,7 +2069,7 @@ class AdminController extends Controller
             $type = $request->input('type', 'testimonial');
 
             $validated = $request->validate([
-                'type' => 'required|in:testimonial,success_story',
+                
                 'name' => 'required|string|max:255' . ($type == 'testimonial' ? '' : '|nullable'),
                 'title' => 'nullable|string|max:255',
                 'feedback' => 'required|string',
@@ -2229,24 +2240,31 @@ class AdminController extends Controller
     public function storeContact(Request $request)
     {
         $request->validate([
-            'title' => 'nullable|string',
+            'title' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);
 
-        // Filter out empty small_titles and small_descriptions
-        $smallTitles = array_filter($request->small_titles ?? [], function ($value) {
-            return !is_null($value) && $value !== '';
-        });
-        $smallDescriptions = array_filter($request->small_descriptions ?? [], function ($value) {
-            return !is_null($value) && $value !== '';
-        });
+        // Get small_titles and small_descriptions arrays
+        $smallTitles = $request->small_titles ?? [];
+        $smallDescriptions = $request->small_descriptions ?? [];
+
+        // Filter out empty values but keep the data
+        $filteredTitles = [];
+        $filteredDescriptions = [];
+
+        foreach ($smallTitles as $index => $title) {
+            if (!empty(trim($title))) {
+                $filteredTitles[] = trim($title);
+                $filteredDescriptions[] = !empty($smallDescriptions[$index]) ? trim($smallDescriptions[$index]) : '';
+            }
+        }
 
         \App\Models\AdminContact::create([
             'title' => $request->title,
             'description' => $request->description,
-            'small_titles' => array_values($smallTitles),
-            'small_descriptions' => array_values($smallDescriptions),
-            'is_active' => $request->is_active ?? true,
+            'small_titles' => !empty($filteredTitles) ? $filteredTitles : null,
+            'small_descriptions' => !empty($filteredDescriptions) ? $filteredDescriptions : null,
+            'is_active' => $request->has('is_active') ? true : false,
         ]);
 
         return back()->with('success', 'Contact Data Added Successfully');

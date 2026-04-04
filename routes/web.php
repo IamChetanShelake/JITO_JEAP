@@ -570,6 +570,15 @@ Route::middleware(['auth', 'user'])
         // Generate Summary PDF
         Route::get('/{user}/generate-summary-pdf', [AdminController::class, 'generateSummaryPDF'])->name('generate.summary.pdf');
 
+        // Generate Short Summary PDF
+        Route::get('/{user}/generate-short-summary-pdf', [AdminController::class, 'generateShortSummaryPDF'])->name('generate.shortsummary.pdf');
+
+        // Generate Financial Closure PDF
+        Route::get('/{user}/generate-financial-closure-pdf', [AdminController::class, 'generateFinancialClosurePDF'])->name('generate.financial_closure.pdf');
+
+        // Third Stage Document PDF
+        Route::get('/{user}/third-stage-document-pdf', [AdminController::class, 'generateThirdStageDocumentPDF'])->name('third_stage_documents.generate_pdf');
+
         // View Sanction Letter
         Route::get('/{user}/sanction-letter', [AdminController::class, 'viewSanctionLetter'])->name('sanction.letter');
         

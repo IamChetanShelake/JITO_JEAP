@@ -35,7 +35,7 @@
                     <th width="25%">Feedback</th>
                     <th width="10%">Date</th>
                     <th width="8%">Order</th>
-                    <th width="8%">Status</th>
+                   
                     <th width="10%" class="text-center">Action</th>
                 </tr>
             </thead>
@@ -61,13 +61,7 @@
                     </td>
                     <td class="align-middle">{{ $testimonial->date ? \Carbon\Carbon::parse($testimonial->date)->format('d-m-Y') : 'N/A' }}</td>
                     <td class="text-center align-middle">{{ $testimonial->display_order ?? 0 }}</td>
-                    <td class="text-center align-middle">
-                        @if($testimonial->is_active)
-                            <span class="badge bg-success">Active</span>
-                        @else
-                            <span class="badge bg-danger">Inactive</span>
-                        @endif
-                    </td>
+                    
                     <td class="text-center align-middle">
                         <div class="d-flex justify-content-center gap-1">
                             <button class="btn btn-sm btn-info text-white" title="View" data-bs-toggle="modal" data-bs-target="#viewModal{{ $testimonial->id }}">
@@ -126,16 +120,7 @@
                                         <p class="fst-italic">"{{ $testimonial->feedback ?? 'No feedback' }}"</p>
                                     </div>
                                 </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-12">
-                                        <strong>Status:</strong> 
-                                        @if($testimonial->is_active)
-                                            <span class="badge bg-success">Active</span>
-                                        @else
-                                            <span class="badge bg-danger">Inactive</span>
-                                        @endif
-                                    </div>
-                                </div>
+                                
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -190,15 +175,7 @@
                                             <textarea class="form-control" id="feedback{{ $testimonial->id }}" name="feedback" rows="3" required placeholder="Enter feedback">{{ $testimonial->feedback ?? '' }}</textarea>
                                         </div>
                                     </div>
-                                    <div class="row mb-3">
-                                        <div class="col-md-12">
-                                            <label for="is_active{{ $testimonial->id }}" class="form-label">Status</label>
-                                            <select class="form-select" id="is_active{{ $testimonial->id }}" name="is_active">
-                                                <option value="1" {{ ($testimonial->is_active ?? true) ? 'selected' : '' }}>Active</option>
-                                                <option value="0" {{ ($testimonial->is_active ?? true) ? '' : 'selected' }}>Inactive</option>
-                                            </select>
-                                        </div>
-                                    </div>
+                                    
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

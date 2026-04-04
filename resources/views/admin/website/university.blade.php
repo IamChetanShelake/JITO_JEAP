@@ -46,7 +46,7 @@
                     <th width="12%">Country</th>
                     <th width="10%">State</th>
                     <th width="10%">City</th>
-                    <th width="5%">Status</th>
+                  
                     <th width="8%" class="text-center">Action</th>
                 </tr>
             </thead>
@@ -65,13 +65,7 @@
                     <td class="align-middle">{{ $university->country ?? 'N/A' }}</td>
                     <td class="align-middle">{{ $university->state ?? 'N/A' }}</td>
                     <td class="align-middle">{{ $university->city ?? 'N/A' }}</td>
-                    <td class="text-center align-middle">
-                        @if($university->status)
-                            <span class="badge bg-success">Active</span>
-                        @else
-                            <span class="badge bg-danger">Inactive</span>
-                        @endif
-                    </td>
+                   
                     <td class="text-center align-middle">
                         <div class="d-flex justify-content-center gap-1">
                             <button class="btn btn-sm btn-info text-white" title="View" data-bs-toggle="modal" data-bs-target="#viewModal{{ $university->id }}">
@@ -127,16 +121,7 @@
                                         <h6>City:</h6>
                                         <p>{{ $university->city ?? 'N/A' }}</p>
                                     </div>
-                                    <div class="col-md-6">
-                                        <h6>Status:</h6>
-                                        <p>
-                                            @if($university->status)
-                                                <span class="badge bg-success">Active</span>
-                                            @else
-                                                <span class="badge bg-danger">Inactive</span>
-                                            @endif
-                                        </p>
-                                    </div>
+                                    
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col-md-6">
@@ -168,12 +153,7 @@
                                 @csrf
                                 @method('PUT')
                                 <div class="modal-body">
-                                    <div class="row mb-3">
-                                        <div class="col-md-12">
-                                            <label for="location{{ $university->id }}" class="form-label">Location</label>
-                                            <input type="text" class="form-control" id="location{{ $university->id }}" name="location" value="{{ $university->location ?? '' }}" placeholder="Enter location">
-                                        </div>
-                                    </div>
+                                    
                                     <div class="row mb-3">
                                         <div class="col-md-12">
                                             <label for="university_name{{ $university->id }}" class="form-label">University Name <span class="text-danger">*</span></label>

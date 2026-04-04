@@ -196,7 +196,7 @@
                                             <div id="current-education-fields" style="display: none;">
                                                 <div class="form-group mb-3">
                                                     <input type="text" class="form-control" name="current_course_name"
-                                                        placeholder="Current Course Name *"
+                                                        placeholder="Course Name *"
                                                         value="{{ old('current_course_name') }}">
                                                     <small
                                                         class="text-danger">{{ $errors->first('current_course_name') }}</small>
@@ -821,20 +821,20 @@
                                                             name="group_name_1" value="Tuition Fees" hidden>Tuition Fees
                                                     </td>
                                                     <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="tuition_fee_year1"
-                                                            value="{{ old('tuition_fee_year1') }}" placeholder="0"></td>
+                                                            class="form-control form-control-sm" name="group_1_year1"
+                                                            value="{{ old('group_1_year1', $educationDetail->group_1_year1 ?? '') }}" placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="tuition_fee_year2"
-                                                            value="{{ old('tuition_fee_year2') }}" placeholder="0"></td>
+                                                            class="form-control form-control-sm" name="group_1_year2"
+                                                            value="{{ old('group_1_year2', $educationDetail->group_1_year2 ?? '') }}" placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="tuition_fee_year3"
-                                                            value="{{ old('tuition_fee_year3') }}" placeholder="0"></td>
+                                                            class="form-control form-control-sm" name="group_1_year3"
+                                                            value="{{ old('group_1_year3', $educationDetail->group_1_year3 ?? '') }}" placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="tuition_fee_year4"
-                                                            value="{{ old('tuition_fee_year4') }}" placeholder="0"></td>
+                                                            class="form-control form-control-sm" name="group_1_year4"
+                                                            value="{{ old('group_1_year4', $educationDetail->group_1_year4 ?? '') }}" placeholder="0"></td>
                                                     <td style="border: none;"><input type="number"
-                                                            class="form-control form-control-sm" name="tuition_fee_total"
-                                                            value="{{ old('tuition_fee_total') }}" placeholder="0"
+                                                            class="form-control form-control-sm" name="group_1_total"
+                                                            value="{{ old('group_1_total', $educationDetail->group_1_total ?? '') }}" placeholder="0"
                                                             readonly></td>
                                                 </tr>
 
@@ -1032,6 +1032,65 @@
             toggleCurrentEducation();
             toggleQualificationFields();
             toggleWorkExperienceFields();
+
+            // Financial Summary Calculation Functions
+            function calculateRowTotal(rowNumber) {
+                const year1 = parseFloat(document.querySelector(`input[name="group_${rowNumber}_year1"]`)?.value) || 0;
+                const year2 = parseFloat(document.querySelector(`input[name="group_${rowNumber}_year2"]`)?.value) || 0;
+                const year3 = parseFloat(document.querySelector(`input[name="group_${rowNumber}_year3"]`)?.value) || 0;
+                const year4 = parseFloat(document.querySelector(`input[name="group_${rowNumber}_year4"]`)?.value) || 0;
+                
+                const total = year1 + year2 + year3 + year4;
+                const totalField = document.querySelector(`input[name="group_${rowNumber}_total"]`);
+                if (totalField) {
+                    totalField.value = total;
+                }
+            }
+
+            function calculateTotalExpenses() {
+                // Calculate totals for each column
+                for (let year = 1; year <= 4; year++) {
+                    let columnTotal = 0;
+                    for (let row = 1; row <= 3; row++) {
+                        const value = parseFloat(document.querySelector(`input[name="group_${row}_year${year}"]`)?.value) || 0;
+                        columnTotal += value;
+                    }
+                    const totalField = document.querySelector(`input[name="group_4_year${year}"]`);
+                    if (totalField) {
+                        totalField.value = columnTotal;
+                    }
+                }
+
+                // Calculate grand total
+                const year1Total = parseFloat(document.querySelector('input[name="group_4_year1"]')?.value) || 0;
+                const year2Total = parseFloat(document.querySelector('input[name="group_4_year2"]')?.value) || 0;
+                const year3Total = parseFloat(document.querySelector('input[name="group_4_year3"]')?.value) || 0;
+                const year4Total = parseFloat(document.querySelector('input[name="group_4_year4"]')?.value) || 0;
+                
+                const grandTotal = year1Total + year2Total + year3Total + year4Total;
+                const grandTotalField = document.querySelector('input[name="group_4_total"]');
+                if (grandTotalField) {
+                    grandTotalField.value = grandTotal;
+                }
+            }
+
+            function calculateAllTotals() {
+                // Calculate row totals for groups 1-3
+                for (let row = 1; row <= 3; row++) {
+                    calculateRowTotal(row);
+                }
+                // Calculate total expenses row
+                calculateTotalExpenses();
+            }
+
+            // Add event listeners to all financial input fields
+            const financialInputs = document.querySelectorAll('input[name^="group_"][name$="_year1"], input[name^="group_"][name$="_year2"], input[name^="group_"][name$="_year3"], input[name^="group_"][name$="_year4"]');
+            financialInputs.forEach(input => {
+                input.addEventListener('input', calculateAllTotals);
+            });
+
+            // Calculate totals on page load
+            calculateAllTotals();
         });
     </script>
 @endsection

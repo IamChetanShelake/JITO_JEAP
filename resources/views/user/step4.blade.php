@@ -168,45 +168,43 @@
                                 </button>
                             </div>
                         @endif
-                        @if (!$isBelowOneLakh)
-                            <div class="row mb-3">
-                                <div class="col-md-5 offset-md-1">
+                        <div class="row mb-3">
+                            <div class="col-md-5 offset-md-1">
 
-                                    <select class="form-control" name="financial_asset_type" id="financial_asset_type"
-                                        style="border:2px solid #393185;border-radius:15px;" readonly required>
-                                        <option disabled
-                                            {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') ? '' : 'selected' }}
-                                            hidden>Financial Asst Type *</option>
-                                        <option value="domestic"
-                                            {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'domestic' ? 'selected' : '' }}
-                                            hidden>
-                                            Domestic</option>
-                                        <option value="foreign_finance_assistant"
-                                            {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'foreign_finance_assistant' ? 'selected' : '' }}
-                                            hidden>
-                                            Foreign Financial Assistance</option>
-                                    </select>
-                                    <small class="text-danger">{{ $errors->first('financial_asset_type') }}</small>
-                                </div>
-                                <div class="col-md-5">
-                                    <select class="form-control" name="financial_asset_for" id="financial_asset_for"
-                                        style="border:2px solid #393185;border-radius:15px;" readonly required>
-                                        <option disabled
-                                            {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') ? '' : 'selected' }}
-                                            hidden>Financial Asst For *</option>
-                                        <option value="graduation"
-                                            {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'graduation' ? 'selected' : '' }}
-                                            hidden>
-                                            Graduation</option>
-                                        <option value="post_graduation"
-                                            {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'post_graduation' ? 'selected' : '' }}
-                                            hidden>
-                                            Post Graduation</option>
-                                    </select>
-                                    <small class="text-danger">{{ $errors->first('financial_asset_for') }}</small>
-                                </div>
+                                <select class="form-control" name="financial_asset_type" id="financial_asset_type"
+                                    style="border:2px solid #393185;border-radius:15px;" readonly required>
+                                    <option disabled
+                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') ? '' : 'selected' }}
+                                        hidden>Financial Asst Type *</option>
+                                    <option value="domestic"
+                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'domestic' ? 'selected' : '' }}
+                                        hidden>
+                                        Domestic</option>
+                                    <option value="foreign_finance_assistant"
+                                        {{ (old('financial_asset_type') ?: $user->financial_asset_type ?? '') == 'foreign_finance_assistant' ? 'selected' : '' }}
+                                        hidden>
+                                        Foreign Financial Assistance</option>
+                                </select>
+                                <small class="text-danger">{{ $errors->first('financial_asset_type') }}</small>
                             </div>
-                        @endif
+                            <div class="col-md-5">
+                                <select class="form-control" name="financial_asset_for" id="financial_asset_for"
+                                    style="border:2px solid #393185;border-radius:15px;" readonly required>
+                                    <option disabled
+                                        {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') ? '' : 'selected' }}
+                                        hidden>Financial Asst For *</option>
+                                    <option value="graduation"
+                                        {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'graduation' ? 'selected' : '' }}
+                                        hidden>
+                                        Graduation</option>
+                                    <option value="post_graduation"
+                                        {{ (old('financial_asset_for') ?: $user->financial_asset_for ?? '') == 'post_graduation' ? 'selected' : '' }}
+                                        hidden>
+                                        Post Graduation</option>
+                                </select>
+                                <small class="text-danger">{{ $errors->first('financial_asset_for') }}</small>
+                            </div>
+                        </div>
                         <div class="card form-card">
                             <div class="card-body">
 

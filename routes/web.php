@@ -332,6 +332,10 @@ Route::middleware(['admin', 'auth.active'])->prefix('admin')->name('admin.')->gr
     Route::get('/third-stage-documents/user/{user}/generate-pdf', [AdminController::class, 'generateThirdStageDocumentPDF'])
             ->name('third_stage_documents.generate_pdf');
 
+    // Third Stage Document PDF
+    Route::get('/third-stage-documents/user/{user}/generate-pdf', [AdminController::class, 'generateThirdStageDocumentPDF'])
+        ->name('third_stage_documents.generate_pdf');
+
 
     Route::get('/chapters/resubmit', [AdminController::class, 'chapterResubmit'])->name('chapter.resubmit');
 

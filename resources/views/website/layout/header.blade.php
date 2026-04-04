@@ -51,6 +51,37 @@
             font-weight: 600;
         }
 
+        .navbar-nav .nav-item.active #appdropdownToggle span {
+            color: #0000FF !important;
+            font-weight: 600;
+        }
+
+        .navbar-nav .nav-item.active #donorDropdownToggle span,
+        .navbar-nav .nav-item.active #universitydropdownToggle span {
+            color: #009846 !important;
+            font-weight: 600;
+        }
+
+        #Dropdown li.active a {
+            color: #009846 !important;
+            font-weight: 600;
+        }
+
+        #appdropdown li.active a {
+            color: #0000FF !important;
+            font-weight: 600;
+        }
+
+        #donorDropdown li.active a {
+            color: #009846 !important;
+            font-weight: 600;
+        }
+
+        #universitydropdown li.active a {
+            color: #009846 !important;
+            font-weight: 600;
+        }
+
         .body {
             font-family: 'Poppins', sans-serif !important;
         }
@@ -128,12 +159,12 @@
         }
 
         #appdropdown li.active a {
-            color: #009846 !important;
+            color: #0000FF !important;
             font-weight: 600;
         }
 
         #appdropdown li:hover a {
-            color: #009846;
+            color: #0000FF;
             background-color: #f8f9fa;
         }
 
@@ -738,7 +769,7 @@
                                                 <li class="d-none d-md-inline text-black px-2">|</li>
 
                                                 <li
-                                                    class="nav-item px-md-2 py-1 position-relative {{ request()->is('university/*') ? 'active' : '' }}">
+                                                    class="nav-item px-md-2 py-1 position-relative {{ request()->is('University/*') ? 'active' : '' }}">
                                                     <div id="universitydropdownToggle"
                                                         class="d-flex text-black align-items-center"
                                                         style="cursor: pointer;">
@@ -785,13 +816,13 @@
                                                 </li>
                                                 <li class="d-none d-md-inline text-black px-2">|</li>
 
-                                                <li class="nav-item px-md-2 py-1">
+                                                <li class="nav-item px-md-2 py-1 {{ request()->routeIs('gallery') ? 'active' : '' }}">
                                                     <a class="nav-link text-black"
                                                         href="{{ route('gallery') }}">GALLERY</a>
                                                 </li>
                                                 <li class="d-none d-md-inline text-black px-2">|</li>
 
-                                                <li class="nav-item px-md-2 py-1">
+                                                <li class="nav-item px-md-2 py-1 {{ request()->routeIs('contact') ? 'active' : '' }}">
                                                     <a class="nav-link text-black"
                                                         href="{{ route('contact') }}">CONTACT</a>
                                                 </li>
@@ -805,7 +836,7 @@
                                                                 style="padding: 6px 14px; border-radius: 6px; font-weight: 500; width: 100%;">Login</a> --}}
                                                             <a class="btn btn-success btn-sm"
                                                                 href="{{ route('login') }}"
-                                                                style="padding: 6px 14px; border-radius: 6px; font-weight: 500; width: 100%;">Login</a>
+                                                                style="padding: 6px 14px; border-radius: 6px; font-weight: 500; width: 100%; background-color: #393186; border-color: #393186;">Login</a>
                                                         </div>
                                                     @else
                                                         <div class="px-3 py-2">
@@ -851,7 +882,7 @@
                                             href="{{ route('login') }}"
                                             style="padding: 6px 14px; border-radius: 6px ; border-color: gray; font-weight: 500; width: 140px; height: 40px;">Login</a> --}}
                                         <a class="btn btn-success" href="{{ route('login') }}"
-                                            style="padding: 6px 14px; border-radius: 6px; font-weight: 500;width: 140px; height: 40px;margin-right:20px;">Login</a>
+                                            style="padding: 6px 14px; border-radius: 6px; font-weight: 500;width: 140px; height: 40px;margin-right:20px; background-color: #393186; border-color: #393186;">Login</a>
                                     </div>
                                 @else
                                     <div class="">

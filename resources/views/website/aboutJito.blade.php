@@ -6,8 +6,9 @@
 
 /* SECTION */
 .about-section{
-    padding: 260px 0 80px;
+    padding: 288px 0 80px;
     background: #ffffff;
+    margin-bottom:60px
 }
 
 .about-container{
@@ -20,16 +21,18 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    margin-bottom: 20px;
+    margin-bottom:20px;
 }
 
 .heading-line{
     width: 4px;
     height: 50px;
     background: #E31E24;
+    /* margin: top 80px; */
 }
 
 .about-heading h1{
+    
     font-size: 48px;
     font-family: 'Times New Roman', Times, serif;
     margin: 0;
@@ -198,8 +201,8 @@
 
         <!-- HEADING -->
         <div class="about-heading">
-            <div class="heading-line"></div>
-            <h1>
+            <!-- <div class="heading-line" style="width: 4px; height: 50px; background-color: #E31E25;"></div> -->
+            <h1 >
                 <span class="about-yellow">ABOUT</span>
                 <span class="about-blue">US</span>
             </h1>

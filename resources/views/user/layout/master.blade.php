@@ -475,11 +475,11 @@
                             style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
                             <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Application PDF
                         </a>
-                        <a href="{{ route('user.generate.summary.pdf', $user) }}" target="_blank" class="dropdown-item"
+                        <a href="{{ route('admin.user.generate.summary.pdf', ['user' => $user->id]) }}" target="_blank" class="dropdown-item"
                             style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-color);">
                             <i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Summary PDF
                         </a>
-                        <a href="{{ route('user.sanction.letter', $user) }}" target="_blank" class="dropdown-item"
+                        <a href="{{ route('admin.user.sanction.letter', ['user' => $user->id]) }}" target="_blank" class="dropdown-item"
                             style="display: block; padding: 0.75rem 1rem; color: var(--text-dark); text-decoration: none;">
                             <i class="fas fa-file-contract" style="margin-right: 0.5rem;"></i> Sanction Letter
                         </a>

@@ -12,15 +12,15 @@
                     <div class="row">
                         <div class="col-12 mb-4">
                             <!-- Title -->
-                            <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
-                                <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
-                                <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
-                                    <span style="color: #FFD800;">About</span> <span style="color: #393186;">JEAP</span>
+                            <div style="display: flex; align-items: center; gap: 15px; margin-top:-90px;">
+                                <!-- <div style="width: 4px; height: 50px; background-color: #E31E25;"></div> -->
+                                <h2 style="font-size: 48px; font-family: 'Times New Roman', Times, serif; ">
+                                    <span style="color: #FFD800;">ABOUT</span> <span style="color: #393186;">US</span>
                                 </h2>
                             </div>
                             <!-- Admin Title -->
                             @if($item->title)
-                            <h3 style="font-size: 24px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin-top: 25px; color: #393186;">
+                            <h3 style="font-size: 34px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin-top: 30px; margin-bottom: 30px; color: #2f2f2f;">
                                 {{ $item->title }}
                             </h3>
                             @endif
@@ -28,7 +28,7 @@
 
                         <div class="col-12">
                             <!-- Description -->
-                            <p style="font-size: 18px; line-height: 1.6; margin-top: 20px; font-family: Poppins; color: #5B5B5B; text-align: justify;">
+                            <p style="font-size: 18px; line-height: 1.6; margin-top: 20px; font-family: Poppins; color: #5B5B5B; text-align: justify; margin-top:-20px;">
                                 {!! nl2br(e($item->description)) !!}
                             </p>
                         </div>
@@ -104,10 +104,10 @@
                 <div class="col-lg-7 col-md-7 col-12">
                     <div class="row">
                         <div class="col-12 mb-4">
-                            <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
-                                <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
-                                <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
-                                    <span style="color: #FFD800;">About</span> <span style="color: #393186;">JEAP</span>
+                            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                                <div style="width: 4px; height: 50px; background-color: #E31E25;"></div>
+                                <h2 style="font-size: 48px; font-family: 'Times New Roman', Times, serif; margin: 0;">
+                                    <span style="color: #FFD800;">ABOUT</span> <span style="color: #393186;">US</span>
                                 </h2>
                             </div>
                         </div>

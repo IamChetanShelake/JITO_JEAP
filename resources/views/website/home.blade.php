@@ -198,7 +198,7 @@
         <div class="container">
             <div class="text-start mb-5">
                 <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
-                    <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
+                    <!-- <div style="width: 3px; height: 40px; background-color: #E31E25;"></div> -->
                     <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
                         <span style="color: #FFD800;">KEY</span> <span style="color: #393186;">INSTRUCTIONS</span>
                     </h2>
@@ -213,7 +213,7 @@
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 18L15 12L9 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
 
-                <div class="carousel-track-container" style="overflow: hidden; margin: 0 40px; width: calc(100% - 80px);">
+                <div class="carousel-track-container" style="overflow: hidden; margin: 0 40px; width: calc(100% - 80px); margin-top:-80px;">
                     <div class="carousel-track" id="keyInstructionsTrack" style="display: flex; margin-top:50px; transition: transform 0.5s ease-in-out; gap: 20px; justify-content: center;">
                         <style>
                             .key-card { transition: all 0.3s ease; }
@@ -332,11 +332,11 @@
     </script>
 
     {{-- =============================WORKING COMMITTEE SECTION================= --}}
-    <section style="padding: 80px 0; background: #FFF9E6;">
+    <!-- <section style="padding: 80px 0; background: #FFF9E6;"> -->
         <div class="container">
             <div class="text-start mb-5">
                 <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
-                    <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
+                    <!-- <div style="width: 3px; height: 40px; background-color: #E31E25;"></div> -->
                     <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
                         <span style="color: #FFD800;">WORKING</span> <span style="color: #393186;">COMMITTEE</span>
                     </h2>
@@ -405,8 +405,8 @@
     @if(!empty($member->description))
     <div class="modal fade" id="wcModal{{ $member->id }}" tabindex="-1" aria-labelledby="wcModalLabel{{ $member->id }}" aria-hidden="true">
         {{-- REMOVED modal-sm, added centered --}}
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="background: #393186; border-radius: 15px; border: 2px solid #FFD800; max-width: 600px; margin: 1.75rem auto;">
+        <div class="modal-dialog modal-dialog-centered" style="width: 100%; max-width: 600px;">
+            <div class="modal-content" style="background: #393186; border-radius: 15px; border: 2px solid #FFD800; max-width: 600px; margin: 1.75rem auto; margin-top:250px;">
 
                 {{-- HEADER: Image, Name, Designation --}}
                 <div class="modal-header text-center" style="border-bottom: 1px solid rgba(255,255,255,0.2); display: block; position: relative; padding: 30px;">
@@ -456,22 +456,22 @@
         <div class="container" style="display: flex; flex-direction: column; gap: 30px;">
             <div class="text-image-wrapper row align-items-center">
                 <div class="about-img-container col-md-6">
-                    @if($empoweringDreams && $empoweringDreams->count() > 0 && $empoweringDreams->first()->image)
-                    <img src="{{ asset($empoweringDreams->first()->image) }}" alt="About Us Image" style="width: 100%; max-width: 500px; height: auto; border-radius: 10px; position: relative; z-index: 2; display: block;">
+                    @if($empoweringFutureWebsite && $empoweringFutureWebsite->count() > 0 && $empoweringFutureWebsite->first()->image)
+                    <img src="{{ asset($empoweringFutureWebsite->first()->image) }}" alt="About Us Image" style="width: 100%; max-width: 500px; height: auto; border-radius: 10px; position: relative; z-index: 2; display: block;">
                 @else
                     <img src="{{ asset('website/images/books22.png') }}" alt="About Us Image" style="width: 100%; max-width: 500px; height: auto; border-radius: 10px; position: relative; z-index: 2; display: block;">
                 @endif
                 </div>
                 <div class="col-md-6">
                     <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
-                        <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
+                        <!-- <div style="width: 3px; height: 40px; background-color: #E31E24;"></div> -->
                         <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
-                            <span style="color: #FFD800;">Empowering Future</span>
+                            <span style="color: #393186;">Empowering Future</span>
                         </h2>
                     </div>
                     <p style="font-size: 16px; line-height: 1.6; margin-top: 20px; font-family: Arial; color: #5B5B5B; text-align: justify;">
-                        @if($empoweringDreams && $empoweringDreams->count() > 0 && $empoweringDreams->first()->description)
-                            {{ $empoweringDreams->first()->description }}
+                        @if($empoweringFutureWebsite && $empoweringFutureWebsite->count() > 0 && $empoweringFutureWebsite->first()->description)
+                            {{ $empoweringFutureWebsite->first()->description }}
                         @else
                             We are committed to empowering deserving, needy, and meritorious students to pursue higher education in India and abroad. Through financial assistance and essential resources, we enable them to access top-tier institutions and unlock their true potential.
                         @endif
@@ -483,8 +483,8 @@
                         </h2>
                     </div>
                     <p style="font-size: 16px; line-height: 1.6; margin-top: 10px; font-family: Arial; color: #5B5B5B; text-align: justify;">
-                        @if($empoweringDreams && $empoweringDreams->count() > 0 && $empoweringDreams->first()->vision_description)
-                            {{ $empoweringDreams->first()->vision_description }}
+                        @if($empoweringFutureWebsite && $empoweringFutureWebsite->count() > 0 && $empoweringFutureWebsite->first()->vision)
+                            {{ $empoweringFutureWebsite->first()->vision }}
                         @else
                             Aligned with JITO's overarching vision, JEAP (JITO Education Assistance Program) was established with a dedicated focus on uplifting Jain students through quality education and meaningful opportunities.
                         @endif
@@ -496,8 +496,8 @@
                         </h2>
                     </div>
                     <p style="font-size: 16px; line-height: 1.6; margin-top: 10px; font-family: Arial; color: #5B5B5B; text-align: justify;">
-                        @if($empoweringDreams && $empoweringDreams->count() > 0 && $empoweringDreams->first()->mission_description)
-                            {{ $empoweringDreams->first()->mission_description }}
+                        @if($empoweringFutureWebsite && $empoweringFutureWebsite->count() > 0 && $empoweringFutureWebsite->first()->mission)
+                            {{ $empoweringFutureWebsite->first()->mission }}
                         @else
                             To reach every deserving and underprivileged Jain student by extending timely and impactful support that enables meaningful academic progress and nurtures their overall personal growth.
                         @endif
@@ -510,7 +510,7 @@
     <section style="padding: 0px 0 0 0; background: #ffffff; margin-bottom:0px;">
         <div class="container" style="display: flex; flex-direction: column; gap: 30px;">
             <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
-                <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
+                <!-- <div style="width: 3px; height: 40px; background-color: #E31E25;"></div> -->
                 <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
                     <span style="color: #FFD800;">Achievements</span> <span style="color: #393186;">& Impact</span>
                 </h2>
@@ -572,7 +572,7 @@
         <div class="container">
             <div class="text-start mb-5">
                 <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
-                    <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
+                    <!-- <div style="width: 3px; height: 40px; background-color: #E31E25;"></div> -->
                     <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
                         <span style="color: #FFD800;">Photo</span> <span style="color: #393186;">Gallery</span>
                     </h2>
@@ -615,7 +615,7 @@
         <div class="container mt-5 mb-5">
             <div style="flex: 1 1 50%; max-width: 700px;">
                 <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
-                    <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
+                    <!-- <div style="width: 3px; height: 40px; background-color: #E31E25;"></div> -->
                     <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
                         <span style="color: #FFD800;">OUR</span> <span style="color: #393186;">TESTIMONIALS</span>
                     </h2>
@@ -624,7 +624,7 @@
         </div>
     </section>
 
-    <section style="padding: 60px 0 80px 0; background-color: #FFF9E6;">
+    <!-- <section style="padding: 60px 0 80px 0; background-color: #FFF9E6;"> -->
         <div class="container">
             <div class="row justify-content-center align-items-stretch">
                 @forelse($testimonials as $index => $testimonial)
@@ -678,7 +678,7 @@
         <div class="container">
             <div class="text-start mb-5">
                 <div style="display: flex; align-items: center; flex-direction: row; gap: 15px;">
-                    <div style="width: 3px; height: 40px; background-color: #E31E25;"></div>
+                    <!-- <div style="width: 3px; height: 40px; background-color: #E31E25;"></div> -->
                     <h2 style="font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif; margin: 0;">
                         <span style="color: #FFD800;">SUCCESS</span> <span style="color: #393186;">STORIES</span>
                     </h2>

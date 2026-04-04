@@ -6,11 +6,11 @@
 <div class="welcome-card w-100">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3><i class="fas fa-rocket"></i> Empowering Future</h3>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEmpoweringDreamModal">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEmpoweringFutureModal">
             <i class="fas fa-plus"></i> Add Data
         </button>
     </div>
-    
+
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{ session('success') }}
@@ -35,7 +35,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     @endif
-    
+
     <div class="table-responsive">
         <table class="table table-hover table-bordered" style="width: 100%; table-layout: fixed;">
             <thead class="table-light">
@@ -46,7 +46,7 @@
                     <th width="18%">Vision of JEAP</th>
                     <th width="18%">Mission of JEAP</th>
                     <th width="5%">Order</th>
-                   
+
                     <th width="14%" class="text-center">Action</th>
                 </tr>
             </thead>
@@ -79,7 +79,7 @@
                         </div>
                     </td>
                     <td class="text-center align-middle">{{ $dream->order ?? 0 }}</td>
-                   
+
                     <td class="text-center align-middle">
                         <button class="btn btn-sm btn-info text-white" title="View" data-bs-toggle="modal" data-bs-target="#viewModal{{ $dream->id }}">
                             <i class="fas fa-eye"></i>
@@ -92,7 +92,7 @@
                         </button>
                     </td>
                 </tr>
-                
+
                 <!-- View Modal -->
                 <div class="modal fade" id="viewModal{{ $dream->id }}" tabindex="-1" aria-labelledby="viewModalLabel{{ $dream->id }}" aria-hidden="true">
                     <div class="modal-dialog modal-lg">
@@ -115,15 +115,15 @@
                                 <p>{{ $dream->title ?? 'N/A' }}</p>
                                 <h6>Description:</h6>
                                 <p>{{ $dream->description ?? 'No description' }}</p>
-                                
+
                                 <h6>Vision Description of JEAP:</h6>
                                 <p>{{ $dream->vision_description ?? 'No vision description' }}</p>
-                               
+
                                 <h6>Mission Description of JEAP:</h6>
                                 <p>{{ $dream->mission_description ?? 'No mission description' }}</p>
-                                
-                                
-                                
+
+
+
                                 <h6>Display Order:</h6>
                                 <p>{{ $dream->order ?? 0 }}</p>
                             </div>
@@ -133,7 +133,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Edit Modal -->
                 <div class="modal fade" id="editModal{{ $dream->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $dream->id }}" aria-hidden="true">
                     <div class="modal-dialog modal-lg">
@@ -171,28 +171,28 @@
                                             <textarea class="form-control" id="description{{ $dream->id }}" name="description" rows="3" required>{{ $dream->description }}</textarea>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row mb-3">
                                         <div class="col-md-12">
                                             <label for="vision_description{{ $dream->id }}" class="form-label">Vision Description of JEAP</label>
                                             <textarea class="form-control" id="vision_description{{ $dream->id }}" name="vision_description" rows="3">{{ $dream->vision_description }}</textarea>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row mb-3">
                                         <div class="col-md-12">
                                             <label for="mission_description{{ $dream->id }}" class="form-label">Mission Description of JEAP</label>
                                             <textarea class="form-control" id="mission_description{{ $dream->id }}" name="mission_description" rows="3">{{ $dream->mission_description }}</textarea>
                                         </div>
                                     </div>
-                                    
+
 
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label for="order{{ $dream->id }}" class="form-label">Display Order</label>
                                             <input type="number" class="form-control" id="order{{ $dream->id }}" name="order" value="{{ $dream->order ?? 0 }}" min="0">
                                         </div>
-                                        
+
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -203,7 +203,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Delete Modal -->
                 <div class="modal fade" id="deleteModal{{ $dream->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $dream->id }}" aria-hidden="true">
                     <div class="modal-dialog">
@@ -227,7 +227,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 @empty
                 <tr>
                     <td colspan="8" class="text-center text-muted py-4">
@@ -242,11 +242,11 @@
 </div>
 
 <!-- Add Data Modal -->
-<div class="modal fade" id="addEmpoweringDreamModal" tabindex="-1" aria-labelledby="addEmpoweringDreamModalLabel" aria-hidden="true">
+<div class="modal fade" id="addEmpoweringFutureModal" tabindex="-1" aria-labelledby="addEmpoweringFutureModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addEmpoweringDreamModalLabel">Add Empowering Dream</h5>
+                <h5 class="modal-title" id="addEmpoweringFutureModalLabel">Add Empowering Future</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="{{ route('admin.website.home.empowering-future.store') }}" method="POST" enctype="multipart/form-data">
@@ -295,13 +295,13 @@
                             <textarea class="form-control" id="mission_description" name="mission_description" rows="3" placeholder="Enter mission of JEAP"></textarea>
                         </div>
                     </div>
-                    
-                    <div class="row mb-3">
+
+                    <!-- <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="order" class="form-label">Display Order</label>
                             <input type="number" class="form-control" id="order" name="order" value="0" min="0">
                         </div>
-                        
+
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -320,21 +320,21 @@
         color: #495057;
         border-bottom: 2px solid #dee2e6;
     }
-    
+
     .table tbody tr:hover {
         background-color: #f8f9fa;
     }
-    
+
     .badge {
         font-size: 0.75rem;
         padding: 0.35em 0.65em;
     }
-    
+
     .btn-sm {
         padding: 0.25rem 0.5rem;
         margin: 0 2px;
     }
-    
+
     .welcome-card {
         background: #fff;
         padding: 20px;

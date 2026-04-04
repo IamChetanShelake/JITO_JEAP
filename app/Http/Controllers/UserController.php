@@ -1423,6 +1423,27 @@ class UserController extends Controller
             $existingFamilyMembers = json_decode($familyDetail->additional_family_members, true) ?? [];
         }
 
+        // Check if there's old input (from failed validation on next step)
+        if ($request->session()->has('_old_input')) {
+            $oldInput = $request->session()->get('_old_input');
+            $existingFamilyMembers = [];
+            $i = 1;
+            while (isset($oldInput['family_' . $i . '_name'])) {
+                $existingFamilyMembers[] = [
+                    'relation' => $oldInput['family_' . $i . '_relation'] ?? '',
+                    'name' => $oldInput['family_' . $i . '_name'] ?? '',
+                    'age' => $oldInput['family_' . $i . '_age'] ?? '',
+                    'marital_status' => $oldInput['family_' . $i . '_marital_status'] ?? '',
+                    'qualification' => $oldInput['family_' . $i . '_qualification'] ?? '',
+                    'occupation' => $oldInput['family_' . $i . '_occupation'] ?? '',
+                    'mobile' => $oldInput['family_' . $i . '_mobile'] ?? '',
+                    'email' => $oldInput['family_' . $i . '_email'] ?? '',
+                    'yearly_income' => $oldInput['family_' . $i . '_yearly_income'] ?? '',
+                ];
+                $i++;
+            }
+        }
+
         return view('user.step3', compact('type', 'familyDetail', 'user', 'existingFamilyMembers'));
     }
 
